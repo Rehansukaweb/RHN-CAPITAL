@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>RHN CAPITAL</title>
-
+<img src="RHN LOGO.jpg" alt="RHN CAPITAL">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -308,15 +308,15 @@ Mulai Konsultasi
 <h2>Hubungi RHN Capital</h2>
 
 <a href="https://wa.me/6285717426626" target="_blank">
-WhatsApp — 085717426626
+WhatsApp
 </a>
 
-<a href="https://instagram.com/rehanhuy" target="_blank">
-Instagram — @rehanhuy
+<a href="https://instagram.com/huyrehan" target="_blank">
+Instagram 
 </a>
 
 <a href="https://tiktok.com/@rehanhuy" target="_blank">
-TikTok — @rehanhuy
+TikTok
 </a>
 
 </section>
