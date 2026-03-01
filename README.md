@@ -316,7 +316,7 @@ TikTok
 <!-- QRIS POPUP -->
 <div class="popup" id="qrisPopup">
 <div class="close" onclick="closeQRIS()">✕</div>
-<img src="qris.jpg">
+<img src="QRIS.jpeg">
 </div>
 
 <footer>
