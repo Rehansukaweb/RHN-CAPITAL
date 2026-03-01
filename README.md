@@ -11,118 +11,197 @@
 
 <!-- NAVBAR -->
 <header>
-    <div class="container nav">
-        <div class="brand">
-            <img src="RHN LOGO.jpg" class="logo">
-            <span>RHN CAPITAL</span>
-        </div>
+<div class="container nav">
 
-        <nav>
-            <a href="#about">Tentang</a>
-            <a href="#services">Layanan</a>
-            <a href="#strategy">Strategi</a>
-            <a href="#vision">Visi</a>
-            <a href="#contact">Kontak</a>
-        </nav>
-    </div>
+<div class="brand">
+<img src="RHN LOGO.jpg" class="logo">
+<h2>RHN CAPITAL</h2>
+</div>
+
+<nav>
+<a href="#about">About</a>
+<a href="#philosophy">Philosophy</a>
+<a href="#services">Services</a>
+<a href="#strategy">Strategy</a>
+<a href="#roadmap">Roadmap</a>
+<a href="#faq">FAQ</a>
+<a href="#contact">Contact</a>
+</nav>
+
+</div>
 </header>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-content">
-        <h1>Building Wealth Through Strategy & Discipline</h1>
-        <p>
-            RHN Capital adalah perusahaan investasi modern yang berfokus pada
-            pertumbuhan aset jangka panjang melalui analisis pasar,
-            manajemen risiko, dan strategi berbasis data global.
-        </p>
-        <a href="#about" class="btn">Explore RHN Capital</a>
-    </div>
+<div class="hero-content">
+<h1>Modern Investment. Strategic Growth.</h1>
+
+<p>
+RHN Capital adalah entitas investasi independen yang berfokus pada
+pengembangan aset jangka panjang melalui strategi disiplin,
+analisis makro ekonomi global, dan manajemen risiko tingkat tinggi.
+</p>
+
+<a class="btn" href="https://wa.me/6285717426626" target="_blank">
+Hubungi via WhatsApp
+</a>
+
+</div>
 </section>
 
 <!-- ABOUT -->
 <section id="about" class="section">
 <div class="container">
+
 <h2>Tentang RHN Capital</h2>
 
 <p>
-RHN Capital merupakan entitas investasi independen yang berfokus pada
-pengelolaan modal, strategi perdagangan finansial, serta pengembangan
-aset di pasar global. Perusahaan dibangun dengan filosofi disiplin,
-risk management ketat, dan pendekatan analitis terhadap ekonomi makro.
+RHN Capital merupakan perusahaan investasi modern yang dibangun dengan visi
+menciptakan pertumbuhan aset berkelanjutan melalui pendekatan rasional,
+analitis, dan berbasis data. Kami percaya bahwa pasar finansial bukan
+sekadar tempat spekulasi, melainkan sistem probabilitas yang dapat
+dipahami melalui disiplin strategi dan pengelolaan risiko.
 </p>
 
 <p>
-Kami percaya bahwa keberhasilan investasi bukan berasal dari spekulasi,
-melainkan dari konsistensi strategi, pengendalian risiko,
-dan pemahaman siklus pasar.
+Didirikan dengan semangat inovasi generasi baru investor,
+RHN Capital berfokus pada integrasi antara teknologi,
+analisis ekonomi global, serta pemahaman siklus pasar.
+Pendekatan ini memungkinkan kami untuk beradaptasi terhadap
+perubahan kondisi ekonomi dunia secara dinamis.
 </p>
+
+<p>
+Kami menggabungkan pendekatan investasi tradisional
+dengan perspektif modern seperti digital assets,
+active trading, dan asset diversification.
+</p>
+
 </div>
 </section>
 
-<!-- SERVICES -->
-<section id="services" class="section dark">
+<!-- PHILOSOPHY -->
+<section id="philosophy" class="section dark">
 <div class="container">
-<h2>Layanan & Fokus Investasi</h2>
 
-<div class="cards">
+<h2>Filosofi Investasi</h2>
 
-<div class="card">
-<h3>📈 Equity Investment</h3>
-<p>Investasi saham berbasis valuasi, pertumbuhan fundamental, dan momentum pasar global.</p>
-</div>
+<p>
+Di RHN Capital, kami berpegang pada prinsip bahwa perlindungan modal
+lebih penting daripada keuntungan cepat. Fokus utama kami adalah
+compounding growth jangka panjang melalui keputusan investasi yang
+terukur dan berbasis probabilitas.
+</p>
 
-<div class="card">
-<h3>₿ Digital Assets</h3>
-<p>Eksplorasi peluang blockchain dan cryptocurrency dengan pendekatan manajemen risiko profesional.</p>
-</div>
-
-<div class="card">
-<h3>💹 Active Trading</h3>
-<p>Strategi trading berbasis teknikal dan makro ekonomi untuk optimalisasi capital growth.</p>
-</div>
-
-<div class="card">
-<h3>🛡 Risk Management</h3>
-<p>Pengendalian risiko sebagai fondasi utama dalam setiap keputusan investasi.</p>
-</div>
-
-</div>
-</div>
-</section>
-
-<!-- STRATEGY -->
-<section id="strategy" class="section">
-<div class="container">
-<h2>Strategi Investasi</h2>
-
-<ul class="strategy">
-<li>Analisis Makro Ekonomi Global</li>
-<li>Market Cycle Identification</li>
+<ul class="list">
 <li>Capital Preservation First</li>
-<li>Risk–Reward Optimization</li>
-<li>Long Term Compounding Strategy</li>
+<li>Risk Management Before Profit</li>
+<li>Data Driven Decision Making</li>
+<li>Macro Economic Awareness</li>
+<li>Consistency Over Emotion</li>
 </ul>
 
 </div>
 </section>
 
-<!-- VISION -->
-<section id="vision" class="section dark">
+<!-- SERVICES -->
+<section id="services" class="section">
 <div class="container">
-<h2>Visi & Misi</h2>
 
-<h3>Visi</h3>
+<h2>Layanan Investasi</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>Equity Investment</h3>
 <p>
-Menjadi entitas investasi modern yang adaptif terhadap perubahan ekonomi global
-dan mampu menciptakan pertumbuhan aset berkelanjutan.
+Investasi saham berbasis valuasi fundamental,
+market structure, dan momentum institusional.
+</p>
+</div>
+
+<div class="card">
+<h3>Digital Asset Strategy</h3>
+<p>
+Eksplorasi peluang cryptocurrency dan blockchain
+dengan pendekatan manajemen risiko profesional.
+</p>
+</div>
+
+<div class="card">
+<h3>Active Trading</h3>
+<p>
+Trading berbasis analisis teknikal,
+likuiditas pasar, serta sentimen makro global.
+</p>
+</div>
+
+<div class="card">
+<h3>Portfolio Management</h3>
+<p>
+Diversifikasi aset untuk menjaga stabilitas
+dan optimalisasi pertumbuhan jangka panjang.
+</p>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- STRATEGY -->
+<section id="strategy" class="section dark">
+<div class="container">
+
+<h2>Strategi Utama</h2>
+
+<p>
+Strategi RHN Capital berfokus pada identifikasi siklus ekonomi global,
+pergerakan likuiditas, serta perubahan kebijakan moneter dunia.
+Kami memantau faktor seperti suku bunga, inflasi,
+dan aliran modal internasional.
 </p>
 
-<h3>Misi</h3>
-<p>
-Membangun sistem investasi disiplin, transparan, dan berbasis analisis
-untuk menghasilkan keputusan finansial yang rasional dan berkelanjutan.
-</p>
+<ul class="list">
+<li>Market Cycle Analysis</li>
+<li>Liquidity Tracking</li>
+<li>Institutional Flow Observation</li>
+<li>Risk/Reward Optimization</li>
+<li>Long-Term Compounding Strategy</li>
+</ul>
+
+</div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="section">
+<div class="container">
+
+<h2>Roadmap RHN Capital</h2>
+
+<p><b>Phase 1:</b> Foundation & Strategy Development</p>
+<p><b>Phase 2:</b> Portfolio Expansion & Market Presence</p>
+<p><b>Phase 3:</b> Digital Investment Platform</p>
+<p><b>Phase 4:</b> Institutional Collaboration</p>
+<p><b>Phase 5:</b> Global Asset Management Vision</p>
+
+</div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section dark">
+<div class="container">
+
+<h2>FAQ Investor</h2>
+
+<h3>Apa fokus utama RHN Capital?</h3>
+<p>Pertumbuhan aset jangka panjang dengan manajemen risiko ketat.</p>
+
+<h3>Apakah RHN Capital melakukan trading aktif?</h3>
+<p>Ya, namun selalu berbasis strategi dan probabilitas terukur.</p>
+
+<h3>Apakah investasi memiliki risiko?</h3>
+<p>Semua investasi memiliki risiko, sehingga risk management menjadi prioritas utama.</p>
 
 </div>
 </section>
@@ -130,10 +209,23 @@ untuk menghasilkan keputusan finansial yang rasional dan berkelanjutan.
 <!-- CONTACT -->
 <section id="contact" class="section">
 <div class="container">
+
 <h2>Kontak</h2>
 
-<p>Email: huyrehan@gmail.com</p>
-<p>Location: Indonesia</p>
+<p>📱 WhatsApp:</p>
+<a class="contact-btn" href="https://wa.me/6285717426626" target="_blank">
+Chat WhatsApp
+</a>
+
+<p>📷 Instagram:</p>
+<a class="contact-btn" href="https://instagram.com/rehanhuy" target="_blank">
+@rehanhuy
+</a>
+
+<p>🎵 TikTok:</p>
+<a class="contact-btn" href="https://tiktok.com/@rehanhuy" target="_blank">
+@rehanhuy
+</a>
 
 </div>
 </section>
