@@ -1,25 +1,19 @@
-
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>RHN CAPITAL</title>
-<img src="RHN LOGO.jpg" alt="RHN CAPITAL">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
 /* ===== GLOBAL ===== */
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
 
 body{
-background:linear-gradient(180deg,#020617,#0b1220);
+background:linear-gradient(180deg,#020617,#0f172a);
 color:white;
 overflow-x:hidden;
 }
@@ -29,7 +23,7 @@ header{
 position:fixed;
 width:100%;
 top:0;
-background:rgba(2,6,23,.8);
+background:rgba(2,6,23,.75);
 backdrop-filter:blur(10px);
 border-bottom:1px solid #1f2937;
 z-index:999;
@@ -39,7 +33,7 @@ z-index:999;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:14px 25px;
+padding:15px 25px;
 }
 
 .logo{
@@ -49,7 +43,8 @@ gap:10px;
 }
 
 .logo img{
-width:38px;
+width:42px;
+filter:drop-shadow(0 0 10px #22c55e88);
 }
 
 .menu button{
@@ -58,12 +53,9 @@ border:none;
 color:#9ca3af;
 margin-left:15px;
 cursor:pointer;
-font-size:14px;
 }
 
-.menu button:hover{
-color:white;
-}
+.menu button:hover{color:#22c55e;}
 
 /* ===== HERO ===== */
 .hero{
@@ -76,127 +68,113 @@ text-align:center;
 padding:20px;
 }
 
+.hero img{
+width:120px;
+margin-bottom:20px;
+animation:float 4s infinite ease-in-out;
+}
+
+@keyframes float{
+0%{transform:translateY(0);}
+50%{transform:translateY(-10px);}
+100%{transform:translateY(0);}
+}
+
 .hero h1{
-font-size:42px;
+font-size:46px;
 margin-bottom:10px;
-animation:fadeUp 1.2s ease;
 }
 
 .hero p{
-color:#9ca3af;
-max-width:600px;
-animation:fadeUp 1.6s ease;
+max-width:700px;
+color:#94a3b8;
 }
 
-.cta{
+.btn{
 margin-top:25px;
-padding:14px 30px;
+padding:15px 32px;
 border:none;
 border-radius:12px;
 background:linear-gradient(135deg,#22c55e,#16a34a);
-font-weight:600;
 cursor:pointer;
-box-shadow:0 0 25px rgba(34,197,94,.4);
+font-weight:600;
 transition:.3s;
 }
 
-.cta:hover{
-transform:scale(1.07);
+.btn:hover{
+transform:scale(1.08);
+box-shadow:0 0 40px #22c55e88;
 }
 
-/* ===== DASHBOARD ===== */
+/* ===== SECTION ===== */
 .section{
-padding:90px 20px;
+padding:110px 20px;
 max-width:1100px;
 margin:auto;
+text-align:center;
 }
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:25px;
 }
 
 .card{
 background:#020617;
 border:1px solid #1f2937;
 border-radius:18px;
-padding:22px;
+padding:25px;
 cursor:pointer;
 transition:.4s;
-position:relative;
-overflow:hidden;
 }
 
 .card:hover{
-transform:translateY(-6px);
+transform:translateY(-8px);
 box-shadow:0 0 35px rgba(34,197,94,.25);
 }
 
-.card::after{
-content:'';
-position:absolute;
-width:120%;
-height:120%;
-background:radial-gradient(circle,#22c55e22,transparent);
-top:-40%;
-left:-40%;
-opacity:0;
-transition:.5s;
-}
-
-.card:hover::after{
-opacity:1;
-}
-
-.card h3{
-margin-bottom:8px;
-}
-
-/* ===== BUTTON AREA ===== */
 .action{
 margin-top:15px;
-padding:10px;
-border-radius:8px;
+padding:12px;
 background:#22c55e;
+border-radius:10px;
 color:black;
-font-weight:600;
-text-align:center;
+font-weight:bold;
 }
 
-/* ===== CONTACT ===== */
-.contact{
-text-align:center;
+/* ===== QRIS POPUP ===== */
+.popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.85);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:1000;
 }
 
-.contact a{
-display:block;
-margin:10px auto;
-width:260px;
-padding:14px;
-background:#111827;
+.popup img{
+width:300px;
 border-radius:12px;
-text-decoration:none;
-color:white;
-transition:.3s;
 }
 
-.contact a:hover{
-background:#22c55e;
-color:black;
+.close{
+position:absolute;
+top:20px;
+right:30px;
+font-size:25px;
+cursor:pointer;
 }
 
 /* ===== FOOTER ===== */
 footer{
 text-align:center;
-padding:25px;
+padding:30px;
 color:#6b7280;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(30px);}
-to{opacity:1;transform:translateY(0);}
 }
 
 </style>
@@ -207,128 +185,158 @@ to{opacity:1;transform:translateY(0);}
 <!-- NAVBAR -->
 <header>
 <div class="nav">
-
 <div class="logo">
 <img src="RHN LOGO.jpg">
 <b>RHN CAPITAL</b>
 </div>
 
 <div class="menu">
-<button onclick="scrollToSection('services')">Services</button>
-<button onclick="scrollToSection('dashboard')">Dashboard</button>
-<button onclick="scrollToSection('contact')">Contact</button>
+<button onclick="scrollTo('about')">About</button>
+<button onclick="scrollTo('services')">Services</button>
+<button onclick="scrollTo('premium')">Premium</button>
+<button onclick="scrollTo('contact')">Contact</button>
 </div>
-
 </div>
 </header>
 
 <!-- HERO -->
 <section class="hero">
 
+<img src="RHN LOGO.jpg">
+
 <h1>RHN CAPITAL</h1>
+
 <p>
-Modern Investment Platform berfokus pada pertumbuhan aset,
-strategi market global, dan manajemen risiko profesional.
+RHN Capital adalah platform investasi modern yang berfokus pada
+analisa pasar saham, cryptocurrency, dan trading forex berbasis
+strategi makro ekonomi global serta manajemen risiko profesional.
+Kami membantu investor memahami market cycle,
+mengembangkan capital growth, dan membangun sistem trading disiplin.
 </p>
 
-<button class="cta"
+<button class="btn"
 onclick="window.open('https://wa.me/6285717426626','_blank')">
-Mulai Konsultasi
+Konsultasi Sekarang
 </button>
+
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+
+<h2>Tentang RHN Capital</h2>
+
+<p>
+RHN Capital menggabungkan pendekatan investasi modern dengan analisa
+teknikal, fundamental, dan makro ekonomi global. Fokus utama kami
+adalah pertumbuhan aset jangka panjang melalui strategi probabilitas,
+risk management ketat, dan pemahaman siklus finansial dunia.
+</p>
+
+<br>
+
+<p>
+Fokus investasi meliputi:
+Crypto Asset • Saham Global & Indonesia • Trading Forex • Market Psychology • Portfolio Strategy.
+</p>
 
 </section>
 
 <!-- SERVICES -->
 <section id="services" class="section">
 
-<h2>Layanan RHN Capital</h2>
+<h2>Layanan Platform</h2>
 
 <div class="grid">
 
-<div class="card" onclick="alert('Analisa Market Dibuka')">
-<h3>📊 Market Analysis</h3>
-<p>Analisa teknikal & makro ekonomi global.</p>
+<div class="card" onclick="alert('Analisa Crypto')">
+<h3>₿ Analisa Crypto</h3>
+<p>Market cycle & Bitcoin strategy.</p>
 <div class="action">Buka</div>
 </div>
 
-<div class="card" onclick="alert('Portfolio Strategy')">
-<h3>💼 Portfolio Strategy</h3>
-<p>Strategi diversifikasi aset profesional.</p>
-<div class="action">Lihat</div>
+<div class="card" onclick="alert('Analisa Saham')">
+<h3>📈 Analisa Saham</h3>
+<p>Valuasi & momentum market.</p>
+<div class="action">Buka</div>
 </div>
 
-<div class="card" onclick="alert('Crypto Research')">
-<h3>₿ Crypto Research</h3>
-<p>Riset aset digital & siklus market.</p>
-<div class="action">Akses</div>
-</div>
-
-<div class="card" onclick="alert('Education Module')">
-<h3>🎓 Education</h3>
-<p>Materi edukasi investasi & trading.</p>
-<div class="action">Masuk</div>
+<div class="card" onclick="alert('Forex Strategy')">
+<h3>💱 Trading Forex</h3>
+<p>Risk reward & macro analysis.</p>
+<div class="action">Buka</div>
 </div>
 
 </div>
 
 </section>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="section">
+<!-- PREMIUM ACCESS -->
+<section id="premium" class="section">
 
-<h2>Dashboard Fitur</h2>
+<h2>Akses Premium RHN Capital</h2>
 
-<div class="grid">
+<p>
+Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
+</p>
 
-<div class="card" onclick="window.open('https://tradingview.com','_blank')">
-<h3>Live Market</h3>
-<p>Akses chart global realtime.</p>
-<div class="action">Open</div>
-</div>
+<br>
 
-<div class="card" onclick="window.open('https://coingecko.com','_blank')">
-<h3>Crypto Data</h3>
-<p>Market data cryptocurrency.</p>
-<div class="action">View</div>
-</div>
+<button class="btn" onclick="openQRIS()">
+💳 Bayar Akses Premium
+</button>
 
-<div class="card" onclick="window.open('https://wa.me/6285717426626','_blank')">
-<h3>Private Consultation</h3>
-<p>Konsultasi langsung.</p>
-<div class="action">Chat</div>
-</div>
+<br><br>
 
-</div>
+<button class="btn" onclick="alert('Akses Dibuka Setelah Pembayaran')">
+🔐 Masuk Member Area
+</button>
 
 </section>
 
 <!-- CONTACT -->
-<section id="contact" class="section contact">
+<section id="contact" class="section">
 
-<h2>Hubungi RHN Capital</h2>
+<h2>Kontak</h2>
 
-<a href="https://wa.me/6285717426626" target="_blank">
+<button class="btn" onclick="window.open('https://wa.me/6285717426626')">
 WhatsApp
-</a>
+</button>
 
-<a href="https://instagram.com/huyrehan" target="_blank">
-Instagram 
-</a>
+<button class="btn" onclick="window.open('https://instagram.com/rehanhuy')">
+Instagram
+</button>
 
-<a href="https://tiktok.com/@rehanhuy" target="_blank">
+<button class="btn" onclick="window.open('https://tiktok.com/@rehanhuy')">
 TikTok
-</a>
+</button>
 
 </section>
+
+<!-- QRIS POPUP -->
+<div class="popup" id="qrisPopup">
+<div class="close" onclick="closeQRIS()">✕</div>
+<img src="qris.jpg">
+</div>
 
 <footer>
 © 2026 RHN CAPITAL — Investment Platform
 </footer>
 
 <script>
-function scrollToSection(id){
+
+function scrollTo(id){
 document.getElementById(id).scrollIntoView({behavior:'smooth'});
 }
+
+function openQRIS(){
+document.getElementById("qrisPopup").style.display="flex";
+}
+
+function closeQRIS(){
+document.getElementById("qrisPopup").style.display="none";
+}
+
 </script>
 
 </body>
