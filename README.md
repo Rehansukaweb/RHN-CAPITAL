@@ -283,18 +283,6 @@ onclick="window.location.href='ANALISAFOREX.html'">
 Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
 </p>
 
-<br>
-
-<button class="btn" onclick="openQRIS()">
-💳 Bayar Akses Premium
-</button>
-
-<br><br>
-
-<button class="btn" onclick="alert('Akses Dibuka Setelah Pembayaran')">
-🔐 Masuk Member Area
-</button>
-
 </section>
 
 <!-- CONTACT -->
@@ -315,12 +303,6 @@ TikTok
 </button>
 
 </section>
-
-<!-- QRIS POPUP -->
-<div class="popup" id="qrisPopup">
-<div class="close" onclick="closeQRIS()">✕</div>
-<img src="QRIS.jpg.jpeg">
-</div>
 
 <footer>
 © 2026 RHN CAPITAL — Investment Platform
