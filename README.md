@@ -190,15 +190,6 @@ color:#6b7280;
 <b>RHN CAPITAL</b>
 </div>
 
-<div class="menu">
-<button onclick="scrollTo('about')">About</button>
-<button onclick="scrollTo('services')">Services</button>
-<button onclick="scrollTo('premium')">Premium</button>
-<button onclick="scrollTo('contact')">Contact</button>
-</div>
-</div>
-</header>
-
 <!-- HERO -->
 <section class="hero">
 
