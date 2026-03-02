@@ -43,7 +43,7 @@ gap:10px;
 }
 
 .logo img{
-width:500px;
+width:42px;
 filter:drop-shadow(0 0 10px #22c55e88);
 }
 
