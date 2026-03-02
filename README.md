@@ -274,17 +274,6 @@ onclick="window.location.href='ANALISAFOREX.html'">
 
 </section>
 
-<!-- PREMIUM ACCESS -->
-<section id="premium" class="section">
-
-<h2>Akses Premium RHN Capital</h2>
-
-<p>
-Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
-</p>
-
-</section>
-
 <!-- CONTACT -->
 <section id="contact" class="section">
 
