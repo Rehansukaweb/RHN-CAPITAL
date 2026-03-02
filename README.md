@@ -69,7 +69,7 @@ padding:20px;
 }
 
 .hero img{
-width:120px;
+width:500px;
 margin-bottom:20px;
 animation:float 4s infinite ease-in-out;
 }
@@ -316,7 +316,7 @@ TikTok
 <!-- QRIS POPUP -->
 <div class="popup" id="qrisPopup">
 <div class="close" onclick="closeQRIS()">✕</div>
-<img src="qris.jpg">
+<img src="QRIS.jpg.jpeg">
 </div>
 
 <footer>
