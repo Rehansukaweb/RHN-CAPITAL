@@ -69,7 +69,7 @@ padding:20px;
 }
 
 .hero img{
-width:120px;
+width:500px;
 margin-bottom:20px;
 animation:float 4s infinite ease-in-out;
 }
@@ -249,19 +249,22 @@ Crypto Asset • Saham Global & Indonesia • Trading Forex • Market Psycholog
 
 <div class="grid">
 
-<div class="card" onclick="alert('Analisa Crypto')">
+<div class="card"
+onclick="window.location.href='TOPUPFF.html'">
 <h3>₿ Analisa Crypto</h3>
 <p>Market cycle & Bitcoin strategy.</p>
 <div class="action">Buka</div>
 </div>
 
-<div class="card" onclick="alert('Analisa Saham')">
+<div class="card" 
+onclick="window.location.href='saham.html'">
 <h3>📈 Analisa Saham</h3>
 <p>Valuasi & momentum market.</p>
 <div class="action">Buka</div>
 </div>
 
-<div class="card" onclick="alert('Forex Strategy')">
+<div class="card" 
+onclick="window.location.href='saham.html'">
 <h3>💱 Trading Forex</h3>
 <p>Risk reward & macro analysis.</p>
 <div class="action">Buka</div>
