@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -69,7 +69,7 @@ padding:20px;
 }
 
 .hero img{
-width:500px;
+width:120px;
 margin-bottom:20px;
 animation:float 4s infinite ease-in-out;
 }
@@ -190,6 +190,15 @@ color:#6b7280;
 <b>RHN CAPITAL</b>
 </div>
 
+<div class="menu">
+<button onclick="scrollTo('about')">About</button>
+<button onclick="scrollTo('services')">Services</button>
+<button onclick="scrollTo('premium')">Premium</button>
+<button onclick="scrollTo('contact')">Contact</button>
+</div>
+</div>
+</header>
+
 <!-- HERO -->
 <section class="hero">
 
@@ -240,28 +249,48 @@ Crypto Asset • Saham Global & Indonesia • Trading Forex • Market Psycholog
 
 <div class="grid">
 
-<div class="card"
-onclick="window.location.href='ANALISACRYPTO.html'">
+<div class="card" onclick="window.location.href='ANALISACRYPTO.html'">
 <h3>₿ Analisa Crypto</h3>
 <p>Market cycle & Bitcoin strategy.</p>
 <div class="action">Buka</div>
 </div>
 
-<div class="card" 
-onclick="window.location.href='ANALISASAHAM.html'">
+<div class="card" onclick="window.location.href='ANALISASAHAM.html'">
 <h3>📈 Analisa Saham</h3>
 <p>Valuasi & momentum market.</p>
 <div class="action">Buka</div>
 </div>
 
-<div class="card" 
-onclick="window.location.href='ANALISAFOREX.html'">
+<div class="card" onclick="window.location.href='ANALISAFOREX.html'">
 <h3>💱 Trading Forex</h3>
 <p>Risk reward & macro analysis.</p>
 <div class="action">Buka</div>
 </div>
 
 </div>
+
+</section>
+
+<!-- PREMIUM ACCESS -->
+<section id="premium" class="section">
+
+<h2>Akses Premium RHN Capital</h2>
+
+<p>
+Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
+</p>
+
+<br>
+
+<button class="btn" onclick="openQRIS()">
+💳 Bayar Akses Premium
+</button>
+
+<br><br>
+
+<button class="btn" onclick="alert('Akses Dibuka Setelah Pembayaran')">
+🔐 Masuk Member Area
+</button>
 
 </section>
 
@@ -283,6 +312,12 @@ TikTok
 </button>
 
 </section>
+
+<!-- QRIS POPUP -->
+<div class="popup" id="qrisPopup">
+<div class="close" onclick="closeQRIS()">✕</div>
+<img src="qris.jpg">
+</div>
 
 <footer>
 © 2026 RHN CAPITAL — Investment Platform
