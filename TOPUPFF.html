@@ -2,164 +2,145 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOP UP FREE FIRE | FARHAN STORE</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Analisa Crypto | RHN Capital</title>
 
 <style>
-*{box-sizing:border-box;font-family:Inter,system-ui,Arial}
-body{
+
+*{
 margin:0;
-background:linear-gradient(180deg,#020617,#020617);
-color:#e5e7eb;
+padding:0;
+box-sizing:border-box;
+font-family:Inter, sans-serif;
 }
+
+body{
+background:linear-gradient(180deg,#020617,#0b1220);
+color:white;
+}
+
+/* NAVBAR */
+header{
+position:fixed;
+width:100%;
+top:0;
+background:rgba(2,6,23,.85);
+backdrop-filter:blur(10px);
+border-bottom:1px solid #1f2937;
+}
+
+.nav{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:15px 25px;
+}
+
+.logo{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.logo img{
+width:38px;
+}
+
+.menu a{
+color:#9ca3af;
+text-decoration:none;
+margin-left:15px;
+}
+
+.menu a:hover{
+color:white;
+}
+
+/* CONTENT */
 .container{
-max-width:420px;
+max-width:1000px;
 margin:auto;
-padding:20px;
-min-height:100vh;
+padding:120px 20px 60px;
 }
+
 .card{
 background:#020617;
 border:1px solid #1f2937;
-border-radius:18px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 20px 40px rgba(0,0,0,.6);
-animation:fadeUp .8s ease;
+border-radius:20px;
+padding:30px;
+margin-bottom:25px;
+transition:.3s;
 }
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:translateY(0)}
+
+.card:hover{
+box-shadow:0 0 30px rgba(34,197,94,.25);
 }
-h1,h2{margin:0 0 10px}
-input,select{
-width:100%;
-padding:14px;
-border-radius:12px;
-border:1px solid #1f2937;
-background:#020617;
-color:#fff;
-margin-bottom:12px;
-font-size:15px;
+
+h1{
+margin-bottom:15px;
 }
-button{
-width:100%;
-padding:16px;
-border:none;
-border-radius:14px;
-font-size:16px;
-font-weight:600;
-cursor:pointer;
-}
+
 .btn{
-background:linear-gradient(135deg,#22c55e,#16a34a);
-color:#000;
-box-shadow:0 10px 30px rgba(34,197,94,.35);
+display:inline-block;
+margin-top:20px;
+padding:12px 24px;
+background:#22c55e;
+border-radius:10px;
+color:black;
+font-weight:bold;
+text-decoration:none;
 }
-.success{
-background:#16a34a;
-color:#fff;
-padding:18px;
-border-radius:14px;
-text-align:center;
-animation:pulse 1.5s infinite;
-}
-@keyframes pulse{
-0%{box-shadow:0 0 0 rgba(34,197,94,0)}
-50%{box-shadow:0 0 25px rgba(34,197,94,.6)}
-100%{box-shadow:0 0 0 rgba(34,197,94,0)}
-}
-.footer{
-text-align:center;
-font-size:12px;
-opacity:.6;
-margin-top:30px;
-}
+
 </style>
 </head>
 
 <body>
+
+<header>
+<div class="nav">
+<div class="logo">
+<img src="RHN LOGO.jpg">
+<b>RHN CAPITAL</b>
+</div>
+
+<div class="menu">
+<a href="index.html">Home</a>
+</div>
+</div>
+</header>
+
 <div class="container">
 
-<div class="card">
-<h1>🔥 TOP UP FREE FIRE</h1>
-<p>✔ Proses cepat • ✔ Harga transparan • ✔ </p>
-</div>
+<h1>₿ Analisa Crypto</h1>
 
 <div class="card">
-<h2>Data Akun</h2>
-<input id="playerid" placeholder="ID Free Fire">
-<input id="server" placeholder=NICKNAME">
+<h2>Market Cycle Analysis</h2>
+<p>
+RHN Capital menganalisa siklus market crypto berdasarkan liquidity global,
+Bitcoin dominance, dan macro economy untuk menentukan fase accumulation,
+expansion, dan distribution.
+</p>
 </div>
 
 <div class="card">
-<h2>Pilih Diamond</h2>
-<select id="diamond">
-<option value="">-- Pilih Diamond --</option>
-
-<option>5 Diamond - Rp 2.918</option>
-<option>10 Diamond - Rp 3.666</option>
-<option>12 Diamond - Rp 4.029</option>
-<option>15 Diamond - Rp 4.745</option>
-<option>20 Diamond - Rp 5.523</option>
-<option>25 Diamond - Rp 6.291</option>
-<option>30 Diamond - Rp 7.009</option>
-<option>50 Diamond - Rp 8.949</option>
-<option>100 Diamond - Rp 15.290</option>
-
-<option>210 Diamond - Rp 28.369</option>
-<option>355 Diamond - Rp 47.399</option>
-<option>500 Diamond - Rp 66.858</option>
-<option>720 Diamond - Rp 92.699</option>
-<option>1000 Diamond - Rp 133.059</option>
-
-<option>1450 Diamond - Rp 185.799</option>
-<option>2000 Diamond - Rp 263.599</option>
-<option>2720 Diamond - Rp 336.290</option>
-<option>4000 Diamond - Rp 500.433</option>
-<option>7290 Diamond - Rp 884.499</option>
-<option>9290 Diamond - Rp 1.087.455</option>
-</select>
-
-<button class="btn" onclick="orderFF()">Pesan Sekarang</button>
+<h2>Bitcoin Strategy</h2>
+<p>
+Strategi fokus pada probabilitas tinggi menggunakan struktur market,
+support resistance institusional, serta momentum volume.
+</p>
 </div>
 
-<div id="done" class="card" style="display:none">
-<div class="success">
-✅ TRANSAKSI BERHASIL  
-<p>Pesanan dikirim ke WhatsApp</p>
-<p>Silakan tunggu proses</p>
-</div>
-</div>
-
-<div class="footer">
-© 2025 FARHAN STORE • TOP UP FF
+<div class="card">
+<h2>Risk Management</h2>
+<p>
+Setiap posisi disusun dengan risk-reward optimal agar menjaga konsistensi
+profit jangka panjang.
+</p>
 </div>
 
+<a class="btn" href="README.md">⬅ Kembali</a>
+
 </div>
-
-<script>
-function orderFF(){
-const id = document.getElementById("playerid").value;
-const server = document.getElementById("server").value;
-const diamond = document.getElementById("diamond").value;
-
-if(!id || !server || !diamond){
-alert("Lengkapi data terlebih dahulu");
-return;
-}
-
-const pesan = `Halo FARHAN STORE,%0A
-Saya mau TOP UP FREE FIRE%0A
-ID: ${id}%0A
-Server: ${server}%0A
-Produk: ${diamond}`;
-
-window.open("https://wa.me/6285717426626?text="+pesan,"_blank");
-
-document.getElementById("done").style.display="block";
-}
-</script>
 
 </body>
 </html>
