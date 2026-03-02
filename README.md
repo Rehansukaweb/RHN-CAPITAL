@@ -250,7 +250,7 @@ Crypto Asset • Saham Global & Indonesia • Trading Forex • Market Psycholog
 <div class="grid">
 
 <div class="card"
-onclick="window.location.href='TOPUPFF.html'">
+onclick="window.location.href='ANALISA CRYPTO'">
 <h3>₿ Analisa Crypto</h3>
 <p>Market cycle & Bitcoin strategy.</p>
 <div class="action">Buka</div>
