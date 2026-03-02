@@ -303,7 +303,7 @@ Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
 WhatsApp
 </button>
 
-<button class="btn" onclick="window.open('https://instagram.com/rehanhuy')">
+<button class="btn" onclick="window.open('https://instagram.com/huyrehan')">
 Instagram
 </button>
 
