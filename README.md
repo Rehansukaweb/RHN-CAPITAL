@@ -1,108 +1,104 @@
 <!DOCTYPE html><html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>RHN TERMINAL PRO</title><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"><style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Share Tech Mono', monospace;}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RHN TERMINAL ELITE</title><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"><style>
+body{
+background:#000;
+color:#22c55e;
+font-family:'Share Tech Mono', monospace;
+}
 
-body{background:black;color:#22c55e;}
+.container{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
 
-.section{padding:100px 20px;text-align:center;}
 .terminal{
 border:1px solid #22c55e;
 padding:20px;
-max-width:800px;
-margin:auto;
-text-align:left;
+margin-top:20px;
 }
 
-input,button{
-background:black;
+h1{font-size:22px;margin-bottom:10px;}
+
+.price{font-size:18px;}
+
+.up{color:#22c55e;}
+.down{color:#ef4444;}
+
+.profile{
 border:1px solid #22c55e;
-color:#22c55e;
-padding:10px;
-margin-top:10px;
+padding:15px;
+margin-bottom:20px;
 }
 
-button:hover{background:#22c55e;color:black;}
-
-a{color:#22c55e;}
-</style></head><body><!-- LOGIN --><section class="section">
-<h2>> ACCESS SYSTEM</h2>
-<div class="terminal">
-<p>> STATUS : <span id="status">GUEST</span></p>
-<input type="password" id="pass" placeholder="ENTER KEY">
-<button onclick="login()">LOGIN</button>
-</div>
-</section><!-- MARKET --><section class="section">
-<h2>> RHN TERMINAL</h2><div class="terminal"><p>> BTC : <span id="btc"></span></p>
-<p>> ETH : <span id="eth"></span></p>
-<p>> PEPE : <span id="pepe"></span></p>
-<p>> GOLD : <span id="gold"></span></p><br><p>> SIGNAL BTC : <span id="signal"></span></p>
-<p>> CONFIDENCE : <span id="confidence"></span></p>
-<p>> SL/TP : <span id="risk"></span></p>
-<p>> REASON : <span id="reason"></span></p><br><p>> MARKET MOOD : <span id="fear"></span></p><br><div id="news"></div></div></section><script>
-
-let isPremium = false;
-
-// LOGIN
-function login(){
-if(document.getElementById("pass").value === "RHN2026"){
-isPremium = true;
-document.getElementById("status").innerText = "PREMIUM";
-}else{
-alert("ACCESS DENIED");
-}
+.blink{
+animation:blink 1s infinite;
 }
 
-// FETCH PRICE SIMPLE
+@keyframes blink{
+50%{opacity:0.2;}
+}
+</style></head><body><div class="container"><!-- PROFILE RHN --><div class="profile">
+<h1>> RHN CAPITAL</h1>
+<p>> Founder : Rehan</p>
+<p>> System : AI Trading Terminal</p>
+<p>> Focus : Crypto | Forex | Gold</p>
+<p>> Status : <span class="blink">ACTIVE</span></p>
+</div><!-- MARKET --><div class="terminal">
+<h1>> LIVE MARKET</h1><p class="price">BTC : <span id="btc">-</span></p>
+<p class="price">ETH : <span id="eth">-</span></p>
+<p class="price">PEPE : <span id="pepe">-</span></p>
+<p class="price">GOLD : <span id="gold">-</span></p></div><!-- SIGNAL --><div class="terminal">
+<h1>> SIGNAL ENGINE</h1><p>> SIGNAL : <span id="signal">-</span></p>
+<p>> CONFIDENCE : <span id="conf">-</span></p>
+<p>> SL/TP : <span id="risk">-</span></p>
+<p>> REASON : <span id="reason">-</span></p></div></div><script>
+
+let lastPrices = {};
+
+// ===== PRICE FETCH SUPER CEPAT =====
 async function getPrices(){
-let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pepe&vs_currencies=usd&include_24hr_change=true");
+let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pepe&vs_currencies=usd");
 let data = await res.json();
 
-document.getElementById("btc").innerText = "$"+data.bitcoin.usd;
-document.getElementById("eth").innerText = "$"+data.ethereum.usd;
-document.getElementById("pepe").innerText = "$"+data.pepe.usd;
+updatePrice("btc", data.bitcoin.usd);
+updatePrice("eth", data.ethereum.usd);
+updatePrice("pepe", data.pepe.usd);
 }
 
-// GOLD
+// ===== GOLD =====
 async function getGold(){
 try{
 let res = await fetch("https://api.metals.live/v1/spot");
 let data = await res.json();
 let gold = data.find(x=>x.gold);
-document.getElementById("gold").innerText="$"+gold.gold;
+updatePrice("gold", gold.gold);
 }catch{}
 }
 
-// FEAR
-async function getFear(){
-let res = await fetch("https://api.alternative.me/fng/");
-let data = await res.json();
-document.getElementById("fear").innerText = data.data[0].value + " ("+data.data[0].value_classification+")";
+// ===== UPDATE + ANIMASI =====
+function updatePrice(id, newPrice){
+
+let el = document.getElementById(id);
+let old = lastPrices[id];
+
+if(old){
+if(newPrice > old){
+el.className="up";
+}
+else if(newPrice < old){
+el.className="down";
+}
 }
 
-// NEWS
-async function getNews(){
-let res = await fetch("https://min-api.cryptocompare.com/data/v2/news/?lang=EN");
-let data = await res.json();
-
-let html="";
-data.Data.slice(0,3).forEach(n=>{
-html+=`<p>> <a href="${n.url}" target="_blank">${n.title}</a></p>`;
-});
-
-document.getElementById("news").innerHTML=html;
+el.innerText = "$" + newPrice;
+lastPrices[id] = newPrice;
 }
 
-// EMA
-function ema(arr,p){
-let k=2/(p+1),e=arr[0];
-for(let i=1;i<arr.length;i++) e=arr[i]*k+e*(1-k);
-return e;
-}
-
-// SIGNAL REAL
+// ===== SIGNAL ENGINE (REAL LOGIC) =====
 async function getSignal(){
 
 let res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1");
@@ -114,59 +110,57 @@ let ema9 = ema(prices.slice(-50),9);
 let ema21 = ema(prices.slice(-50),21);
 
 let last = prices.at(-1);
-let prev = prices.at(-20);
+let prev = prices.at(-10);
 
 let momentum = ((last-prev)/prev)*100;
 
-let high = Math.max(...prices.slice(-50));
-let low = Math.min(...prices.slice(-50));
+let signal="WAIT", conf="LOW", reason="No setup";
 
-let structure = last > (low+(high-low)*0.6);
-
-// DECISION
-let signal="NO TRADE",conf="LOW",reason="Sideways";
-
-if(ema9>ema21 && momentum>0.8 && structure){
-signal="BUY"; conf="HIGH";
-reason="Trend + momentum bullish";
+// LOGIC
+if(ema9>ema21 && momentum>0.5){
+signal="BUY";
+conf="HIGH";
+reason="EMA cross + momentum naik";
 }
-else if(ema9<ema21 && momentum<-0.8 && !structure){
-signal="SELL"; conf="HIGH";
-reason="Trend bearish kuat";
+else if(ema9<ema21 && momentum<-0.5){
+signal="SELL";
+conf="HIGH";
+reason="EMA turun + tekanan jual";
 }
 
 // RISK
-let sl = (last*0.97).toFixed(0);
-let tp = (last*1.03).toFixed(0);
+let sl = (last*0.98).toFixed(0);
+let tp = (last*1.02).toFixed(0);
 
-// DISPLAY
-if(isPremium){
 document.getElementById("signal").innerText=signal;
-document.getElementById("confidence").innerText=conf;
-document.getElementById("risk").innerText=`SL: $${sl} / TP: $${tp}`;
+document.getElementById("conf").innerText=conf;
+document.getElementById("risk").innerText=`SL $${sl} / TP $${tp}`;
 document.getElementById("reason").innerText=reason;
-}else{
-document.getElementById("signal").innerText="LOCKED 🔒";
-document.getElementById("confidence").innerText="-";
-document.getElementById("risk").innerText="-";
-document.getElementById("reason").innerText="PREMIUM ONLY";
 }
 
+// ===== EMA =====
+function ema(arr,p){
+let k=2/(p+1),e=arr[0];
+for(let i=1;i<arr.length;i++){
+e=arr[i]*k+e*(1-k);
+}
+return e;
 }
 
-// LOOP
+// ===== LOOP CEPAT =====
 setInterval(()=>{
 getPrices();
 getGold();
-getFear();
-getNews();
-getSignal();
-},15000);
+},2000);
 
+// SIGNAL (lebih berat → jangan terlalu sering)
+setInterval(()=>{
+getSignal();
+},10000);
+
+// INIT
 getPrices();
 getGold();
-getFear();
-getNews();
 getSignal();
 
 </script></body>
