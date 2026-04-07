@@ -1,44 +1,22 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RHN TERMINAL ELITE - PRO</title>
+<title>RHN TERMINAL ELITE - GOLD SIGNAL</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
-body{
-background:#000;
-color:#22c55e;
-font-family:'Share Tech Mono', monospace;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-.box{
-border:1px solid #22c55e;
-padding:20px;
-margin-top:20px;
-}
-
+body{background:#000;color:#22c55e;font-family:'Share Tech Mono', monospace;}
+.container{max-width:900px;margin:auto;padding:20px;}
+.box{border:1px solid #22c55e;padding:20px;margin-top:20px;}
 .price{font-size:18px;}
-
 .up{color:#22c55e;}
 .down{color:#ef4444;}
-
-.blink{
-animation:blink 1s infinite;
-}
-
-@keyframes blink{
-50%{opacity:0.3;}
-}
+.blink{animation:blink 1s infinite;}
+@keyframes blink{50%{opacity:0.3;}}
 </style>
 </head>
 
@@ -46,34 +24,33 @@ animation:blink 1s infinite;
 
 <div class="container">
 
-<!-- PROFILE -->
 <div class="box">
 <h2>> RHN CAPITAL</h2>
-<p>> Founder : Rehan</p>
-<p>> Engine : SMC Sniper AI</p>
-<p>> Mode : Real-Time Market</p>
+<p>> Mode : SMC SNIPER</p>
 <p>> Status : <span class="blink">LIVE</span></p>
 </div>
 
-<!-- MARKET -->
 <div class="box">
-<h2>> LIVE MARKET</h2>
+<h2>> MARKET</h2>
 <p class="price">BTC : <span id="btc">-</span></p>
-<p class="price">ETH : <span id="eth">-</span></p>
-<p class="price">PEPE : <span id="pepe">-</span></p>
-<p class="price">GOLD (XAUUSD) : <span id="gold">-</span></p>
+<p class="price">GOLD : <span id="gold">-</span></p>
 </div>
 
-<!-- SIGNAL -->
 <div class="box">
-<h2>> SMC SNIPER SIGNAL</h2>
-<p>> TYPE : <span id="type">-</span></p>
-<p>> ENTRY : <span id="entry">-</span></p>
-<p>> STOP LOSS : <span id="sl">-</span></p>
-<p>> TAKE PROFIT : <span id="tp">-</span></p>
-<p>> RR : 1 : 2</p>
-<p>> CONFIDENCE : <span id="conf">-</span></p>
-<p>> REASON : <span id="reason">-</span></p>
+<h2>> BTC SIGNAL</h2>
+<p>> TYPE : <span id="btc_type">-</span></p>
+<p>> ENTRY : <span id="btc_entry">-</span></p>
+<p>> SL : <span id="btc_sl">-</span></p>
+<p>> TP : <span id="btc_tp">-</span></p>
+</div>
+
+<div class="box">
+<h2>> XAUUSD SIGNAL</h2>
+<p>> TYPE : <span id="gold_type">-</span></p>
+<p>> ENTRY : <span id="gold_entry">-</span></p>
+<p>> SL : <span id="gold_sl">-</span></p>
+<p>> TP : <span id="gold_tp">-</span></p>
+<p>> RR : 1:2</p>
 </div>
 
 </div>
@@ -81,61 +58,48 @@ animation:blink 1s infinite;
 <script>
 
 let lastPrices = {};
+let goldHistory = [];
 
-// ===== UPDATE UI =====
+// ===== UPDATE =====
 function update(id, price){
 let el = document.getElementById(id);
 let old = lastPrices[id];
 
 if(old){
-if(price > old) el.className="up";
-else if(price < old) el.className="down";
+if(price>old) el.className="up";
+else if(price<old) el.className="down";
 }
 
-el.innerText = "$" + Number(price).toLocaleString();
-lastPrices[id] = price;
+el.innerText="$"+Number(price).toLocaleString();
+lastPrices[id]=price;
 }
 
-// ===== CRYPTO (REAL) =====
-async function getCrypto(){
-try{
-let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pepe&vs_currencies=usd");
-let d = await res.json();
-
+// ===== BTC =====
+async function getBTC(){
+let r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+let d = await r.json();
 update("btc", d.bitcoin.usd);
-update("eth", d.ethereum.usd);
-update("pepe", d.pepe.usd);
+}
+
+// ===== GOLD REAL =====
+async function getGold(){
+try{
+let r = await fetch("https://query1.finance.yahoo.com/v7/finance/quote?symbols=XAUUSD=X");
+let d = await r.json();
+
+let price = d.quoteResponse.result[0].regularMarketPrice;
+
+update("gold", price);
+
+// simpan history buat signal
+goldHistory.push(price);
+if(goldHistory.length > 50) goldHistory.shift();
 
 }catch{}
 }
 
-// ===== GOLD (FIX REAL RANGE) =====
-async function getGold(){
-try{
-
-// pakai Yahoo Finance proxy
-let res = await fetch("https://query1.finance.yahoo.com/v7/finance/quote?symbols=XAUUSD=X");
-let data = await res.json();
-
-let price = data.quoteResponse.result[0].regularMarketPrice;
-
-if(price){
-update("gold", price);
-}else{
-throw "error";
-}
-
-}catch{
-
-// fallback realistis 2026 (bukan 2300 lagi)
-let approx = 4400 + Math.random()*200;
-update("gold", approx.toFixed(2));
-
-}
-}
-
 // ===== EMA =====
-function ema(data, p){
+function ema(data,p){
 let k=2/(p+1), e=data[0];
 for(let i=1;i<data.length;i++){
 e=data[i]*k+e*(1-k);
@@ -143,91 +107,99 @@ e=data[i]*k+e*(1-k);
 return e;
 }
 
-// ===== SIGNAL ENGINE =====
-async function getSignal(){
-try{
+// ===== BTC SIGNAL =====
+async function btcSignal(){
+let r = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1");
+let d = await r.json();
 
-let res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1");
-let data = await res.json();
-
-let prices = data.prices.map(p=>p[1]);
-
+let prices = d.prices.map(p=>p[1]);
 let last = prices.at(-1);
-let prev = prices.at(-20);
 
 let ema9 = ema(prices.slice(-100),9);
 let ema21 = ema(prices.slice(-100),21);
 
+let type="WAIT", entry="-", sl="-", tp="-";
+
+if(ema9>ema21){
+type="BUY";
+entry=last;
+sl=entry*0.99;
+tp=entry*1.02;
+}else if(ema9<ema21){
+type="SELL";
+entry=last;
+sl=entry*1.01;
+tp=entry*0.98;
+}
+
+document.getElementById("btc_type").innerText=type;
+document.getElementById("btc_entry").innerText="$"+entry.toFixed(2);
+document.getElementById("btc_sl").innerText="$"+sl.toFixed(2);
+document.getElementById("btc_tp").innerText="$"+tp.toFixed(2);
+}
+
+// ===== GOLD SIGNAL (SMC STYLE) =====
+function goldSignal(){
+
+if(goldHistory.length < 20) return;
+
+let last = goldHistory.at(-1);
+let prev = goldHistory.at(-10);
+
+let high = Math.max(...goldHistory);
+let low = Math.min(...goldHistory);
+
 let momentum = ((last-prev)/prev)*100;
 
-let high = Math.max(...prices.slice(-50));
-let low = Math.min(...prices.slice(-50));
+let type="WAIT", entry="-", sl="-", tp="-";
 
-let type="WAIT", conf="LOW", reason="-";
-let entry="-", sl="-", tp="-";
-
-// ===== BUY (SMC SNIPER) =====
-if(ema9 > ema21 && momentum > 0.3 && last <= low*1.01){
-
+// BUY
+if(last <= low*1.01 && momentum>0){
 type="BUY";
-conf="HIGH";
 entry=last;
-
-sl = entry * 0.99;
-tp = entry * 1.02;
-
-reason="Liquidity sweep bawah + uptrend";
-
+sl=entry*0.995;
+tp=entry*1.01;
 }
 
-// ===== SELL =====
-else if(ema9 < ema21 && momentum < -0.3 && last >= high*0.99){
-
+// SELL
+else if(last >= high*0.99 && momentum<0){
 type="SELL";
-conf="HIGH";
 entry=last;
+sl=entry*1.005;
+tp=entry*0.99;
+}
 
-sl = entry * 1.01;
-tp = entry * 0.98;
+// OUTPUT
+document.getElementById("gold_type").innerText=type;
 
-reason="Liquidity sweep atas + downtrend";
+if(type!=="WAIT"){
+document.getElementById("gold_entry").innerText="$"+entry.toFixed(2);
+document.getElementById("gold_sl").innerText="$"+sl.toFixed(2);
+document.getElementById("gold_tp").innerText="$"+tp.toFixed(2);
+}else{
+document.getElementById("gold_entry").innerText="-";
+document.getElementById("gold_sl").innerText="-";
+document.getElementById("gold_tp").innerText="-";
+}
 
 }
 
-// ===== OUTPUT =====
-document.getElementById("type").innerText = type;
-
-document.getElementById("entry").innerText =
-entry !== "-" ? "$"+entry.toFixed(2) : "-";
-
-document.getElementById("sl").innerText =
-sl !== "-" ? "$"+sl.toFixed(2) : "-";
-
-document.getElementById("tp").innerText =
-tp !== "-" ? "$"+tp.toFixed(2) : "-";
-
-document.getElementById("conf").innerText = conf;
-document.getElementById("reason").innerText = reason;
-
-}catch{}
-}
-
-// ===== LOOP CEPAT =====
+// ===== LOOP =====
 setInterval(()=>{
-getCrypto();
+getBTC();
 getGold();
+goldSignal();
 },1500);
 
 setInterval(()=>{
-getSignal();
+btcSignal();
 },8000);
 
 // INIT
-getCrypto();
+getBTC();
 getGold();
-getSignal();
+btcSignal();
 
 </script>
 
 </body>
-</html>
