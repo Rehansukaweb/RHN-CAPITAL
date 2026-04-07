@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -250,9 +250,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
 <div class="topbar">
   <div class="tb-brand">
-    <div class="brand-mark">FDN</div>
+    <div class="brand-mark">RHN</div>
     <div>
-      <div class="brand-name">FDN CAPITAL</div>
+      <div class="brand-name">RHN CAPITAL</div>
       <div class="brand-sub">MARKET TERMINAL</div>
     </div>
   </div>
