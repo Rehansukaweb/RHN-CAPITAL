@@ -271,29 +271,6 @@ Crypto Asset • Saham Global & Indonesia • Trading Forex • Market Psycholog
 
 </section>
 
-<!-- PREMIUM ACCESS -->
-<section id="premium" class="section">
-
-<h2>Akses Premium RHN Capital</h2>
-
-<p>
-Akses materi eksklusif, analisa mendalam, dan strategi market profesional.
-</p>
-
-<br>
-
-<button class="btn" onclick="openQRIS()">
-💳 Bayar Akses Premium
-</button>
-
-<br><br>
-
-<button class="btn" onclick="alert('Akses Dibuka Setelah Pembayaran')">
-🔐 Masuk Member Area
-</button>
-
-</section>
-
 <!-- CONTACT -->
 <section id="contact" class="section">
 
