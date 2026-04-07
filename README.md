@@ -2,223 +2,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RHN TERMINAL ELITE</title><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"><style>
+<title>RHN TERMINAL PRO</title><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"><style>
 body{
 background:#000;
 color:#22c55e;
 font-family:'Share Tech Mono', monospace;
 }
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-.terminal{
-border:1px solid #22c55e;
-padding:20px;
-margin-top:20px;
-}
-
-h1{font-size:22px;margin-bottom:10px;}
-
+.container{max-width:900px;margin:auto;padding:20px;}
+.box{border:1px solid #22c55e;padding:20px;margin-top:20px;}
 .price{font-size:18px;}
-
 .up{color:#22c55e;}
 .down{color:#ef4444;}
+.blink{animation:blink 1s infinite;}
+@keyframes blink{50%{opacity:0.3;}}
+</style></head><body>
+<div class="container"><div class="box">
+<h2>> RHN CAPITAL</h2>
+<p>> Status : <span class="blink">LIVE SYSTEM</span></p>
+</div><div class="box">
+<h2>> MARKET</h2>
+<p>BTC : <span id="btc">-</span></p>
+<p>GOLD : <span id="gold">-</span></p>
+</div><div class="box">
+<h2>> SIGNAL (ATR BASED)</h2>
+<p>BTC : <span id="btc_signal">-</span></p>
+<p>BTC RR : <span id="btc_rr">-</span></p>
+<br>
+<p>GOLD : <span id="gold_signal">-</span></p>
+<p>GOLD RR : <span id="gold_rr">-</span></p>
+</div></div><script>
 
-.profile{
-border:1px solid #22c55e;
-padding:15px;
-margin-bottom:20px;
+let last = {};
+
+// ===== UI UPDATE =====
+function setPrice(id,val){
+let el=document.getElementById(id);
+if(last[id]){
+el.className = val>last[id] ? "up" : "down";
+}
+el.innerText="$"+val.toLocaleString();
+last[id]=val;
 }
 
-.blink{
-animation:blink 1s infinite;
+// ===== ATR =====
+function atr(data){
+let trs=[];
+for(let i=1;i<data.length;i++){
+let high=data[i];
+let low=data[i];
+let prev=data[i-1];
+trs.push(Math.abs(high-prev));
+}
+return trs.reduce((a,b)=>a+b,0)/trs.length;
 }
 
-@keyframes blink{
-50%{opacity:0.2;}
-}
-</style></head><body><div class="container"><!-- PROFILE --><div class="profile">
-<h1>> RHN CAPITAL</h1>
-<p>> Founder : Rehan</p>
-<p>> System : AI Trading Terminal</p>
-<p>> Focus : Crypto | Forex | Gold</p>
-<p>> Status : <span class="blink">ACTIVE</span></p>
-</div><!-- MARKET --><div class="terminal">
-<h1>> LIVE MARKET</h1><p class="price">BTC : <span id="btc">-</span></p>
-<p class="price">ETH : <span id="eth">-</span></p>
-<p class="price">PEPE : <span id="pepe">-</span></p>
-<p class="price">GOLD : <span id="gold">-</span></p></div><!-- SIGNAL --><div class="terminal">
-<h1>> SIGNAL ENGINE</h1><p>> BTC SIGNAL : <span id="btc_signal">-</span></p>
-<p>> BTC RISK : <span id="btc_risk">-</span></p><br><p>> GOLD SIGNAL : <span id="gold_signal">-</span></p>
-<p>> GOLD RISK : <span id="gold_risk">-</span></p></div></div><script>
+// ===== BTC =====
+async function btc(){
+let r=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=50");
+let d=await r.json();
 
-let lastPrices = {};
-let goldBuffer = [];
+let closes=d.map(x=>parseFloat(x[4]));
+let lastP=closes.at(-1);
 
-// ===== UPDATE PRICE =====
-function updatePrice(id, newPrice){
-let el = document.getElementById(id);
-let old = lastPrices[id];
+setPrice("btc",lastP);
 
-if(old){
-if(newPrice > old) el.className="up";
-else if(newPrice < old) el.className="down";
-}
+// SIGNAL
+let ema9 = ema(closes,9);
+let ema21 = ema(closes,21);
+let vol = atr(closes);
 
-el.innerText = "$" + Number(newPrice).toLocaleString();
-lastPrices[id] = newPrice;
-}
+let sig="WAIT";
+if(ema9>ema21) sig="BUY";
+if(ema9<ema21) sig="SELL";
 
-// ===== CRYPTO =====
-async function getPrices(){
-try{
-let res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pepe&vs_currencies=usd");
-let data = await res.json();
+// RR 1:2
+let sl,tp;
 
-updatePrice("btc", data.bitcoin.usd);
-updatePrice("eth", data.ethereum.usd);
-updatePrice("pepe", data.pepe.usd);
-
-}catch{}
-}
-
-// ===== GOLD =====
-async function getGold(){
-try{
-let res = await fetch("https://api.metals.live/v1/spot");
-let data = await res.json();
-
-let goldObj = data.find(x => x.gold);
-
-if(goldObj && goldObj.gold){
-updatePrice("gold", goldObj.gold);
-handleGold(goldObj.gold);
+if(sig==="BUY"){
+sl=lastP-vol;
+tp=lastP+vol*2;
+}else if(sig==="SELL"){
+sl=lastP+vol;
+tp=lastP-vol*2;
 }else{
-throw "no data";
+sl=lastP; tp=lastP;
 }
 
-}catch{
-// fallback
-updatePrice("gold", 2300);
-handleGold(2300);
+document.getElementById("btc_signal").innerText=sig;
+document.getElementById("btc_rr").innerText=`SL ${sl.toFixed(0)} / TP ${tp.toFixed(0)}`;
 }
+
+// ===== GOLD REAL (Yahoo) =====
+async function gold(){
+let r=await fetch("https://query1.finance.yahoo.com/v8/finance/chart/XAUUSD=X?interval=1m&range=1d");
+let j=await r.json();
+
+let closes=j.chart.result[0].indicators.quote[0].close.filter(x=>x);
+let lastP=closes.at(-1);
+
+setPrice("gold",lastP);
+
+// SIGNAL
+let ema9 = ema(closes,9);
+let ema21 = ema(closes,21);
+let vol = atr(closes);
+
+let sig="WAIT";
+if(ema9>ema21) sig="BUY";
+if(ema9<ema21) sig="SELL";
+
+// RR 1:2
+let sl,tp;
+
+if(sig==="BUY"){
+sl=lastP-vol;
+tp=lastP+vol*2;
+}else if(sig==="SELL"){
+sl=lastP+vol;
+tp=lastP-vol*2;
+}else{
+sl=lastP; tp=lastP;
+}
+
+document.getElementById("gold_signal").innerText=sig;
+document.getElementById("gold_rr").innerText=`SL ${sl.toFixed(0)} / TP ${tp.toFixed(0)}`;
 }
 
 // ===== EMA =====
-function ema(arr,p){
-let k=2/(p+1),e=arr[0];
-for(let i=1;i<arr.length;i++){
-e=arr[i]*k+e*(1-k);
+function ema(data,period){
+let k=2/(period+1);
+let e=data[0];
+for(let i=1;i<data.length;i++){
+e=data[i]*k+e*(1-k);
 }
 return e;
 }
 
-// ===== BTC SIGNAL =====
-async function getBTCSignal(){
-try{
-let res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1");
-let data = await res.json();
-
-let prices = data.prices.map(p=>p[1]);
-
-let ema9 = ema(prices.slice(-50),9);
-let ema21 = ema(prices.slice(-50),21);
-
-let last = prices.at(-1);
-let prev = prices.at(-10);
-
-let momentum = ((last-prev)/prev)*100;
-
-let signal="WAIT";
-
-if(ema9>ema21 && momentum>0.5) signal="BUY";
-else if(ema9<ema21 && momentum<-0.5) signal="SELL";
-
-// RISK 1:2
-let r=0.01;
-let sl,tp;
-
-if(signal==="BUY"){
-sl=last*(1-r);
-tp=last*(1+r*2);
-}else if(signal==="SELL"){
-sl=last*(1+r);
-tp=last*(1-r*2);
-}else{
-sl=last; tp=last;
-}
-
-document.getElementById("btc_signal").innerText=signal;
-document.getElementById("btc_risk").innerText=`SL $${sl.toFixed(0)} / TP $${tp.toFixed(0)}`;
-
-}catch{}
-}
-
-// ===== GOLD SIGNAL (BUFFER REAL-TIME) =====
-function handleGold(price){
-
-goldBuffer.push(price);
-
-if(goldBuffer.length > 50){
-goldBuffer.shift();
-}
-
-calcGoldSignal();
-}
-
-function calcGoldSignal(){
-
-if(goldBuffer.length < 20) return;
-
-let ema9 = ema(goldBuffer,9);
-let ema21 = ema(goldBuffer,21);
-
-let last = goldBuffer.at(-1);
-let prev = goldBuffer.at(-5);
-
-let momentum = ((last-prev)/prev)*100;
-
-let signal="WAIT";
-
-if(ema9>ema21 && momentum>0.2) signal="BUY";
-else if(ema9<ema21 && momentum<-0.2) signal="SELL";
-
-// RISK 1:2
-let r=0.005;
-let sl,tp;
-
-if(signal==="BUY"){
-sl=last*(1-r);
-tp=last*(1+r*2);
-}else if(signal==="SELL"){
-sl=last*(1+r);
-tp=last*(1-r*2);
-}else{
-sl=last; tp=last;
-}
-
-document.getElementById("gold_signal").innerText=signal;
-document.getElementById("gold_risk").innerText=`SL $${sl.toFixed(0)} / TP $${tp.toFixed(0)}`;
-}
-
-// ===== LOOP =====
+// LOOP CEPAT
 setInterval(()=>{
-getPrices();
-getGold();
-},2000);
+btc();
+gold();
+},3000);
 
-setInterval(()=>{
-getBTCSignal();
-},10000);
-
-// INIT
-getPrices();
-getGold();
-getBTCSignal();
+btc();
+gold();
 
 </script></body>
 </html>
