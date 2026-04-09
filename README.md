@@ -1,29 +1,18 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RHN CAPITAL ULTRA PLATFORM</title>
+<title>RHN CAPITAL APP</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-/* ================= GLOBAL ================= */
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Inter;
-}
+/* ================= BASE ================= */
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
+body{background:#020617;color:#e2e8f0;overflow:hidden;}
 
-body{
-background:#020617;
-color:#e2e8f0;
-overflow:hidden;
-}
-
-/* ================= ROOT ================= */
 :root{
 --primary:#22c55e;
 --border:#1e293b;
@@ -32,13 +21,56 @@ overflow:hidden;
 
 /* ================= APP ================= */
 .app{
+display:flex;
 height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+width:230px;
+background:#020617;
+border-right:1px solid var(--border);
+padding:20px;
 display:flex;
 flex-direction:column;
 }
 
-/* ================= HEADER ================= */
-.header{
+.logo{
+display:flex;
+gap:10px;
+align-items:center;
+margin-bottom:30px;
+}
+
+.logo img{width:35px;}
+
+.menu div{
+padding:12px;
+margin-bottom:5px;
+border-radius:10px;
+cursor:pointer;
+color:var(--sub);
+}
+
+.menu div:hover{
+background:#111827;
+color:white;
+}
+
+.menu .active{
+background:var(--primary);
+color:black;
+}
+
+/* ================= MAIN ================= */
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* ================= TOPBAR ================= */
+.topbar{
 height:60px;
 display:flex;
 align-items:center;
@@ -47,91 +79,58 @@ padding:0 20px;
 border-bottom:1px solid var(--border);
 }
 
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.logo img{
-width:35px;
-}
-
-/* ================= SCREEN ================= */
-.screen{
-flex:1;
-overflow-y:auto;
-display:none;
-padding-bottom:80px;
-}
-
-.screen.active{
-display:block;
-}
-
-/* ================= HERO ================= */
-.hero{
-padding:25px;
-}
-
-.hero h1{
-font-size:24px;
-}
-
-.hero p{
-color:var(--sub);
-font-size:13px;
-}
-
-/* ================= GRID ================= */
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-padding:20px;
-}
-
-.box{
-padding:20px;
+.search{
+background:#020617;
 border:1px solid var(--border);
-border-radius:12px;
-text-align:center;
-cursor:pointer;
+padding:8px 12px;
+border-radius:10px;
+color:white;
 }
 
 /* ================= CONTENT ================= */
 .content{
+flex:1;
+overflow-y:auto;
+padding:25px;
+}
+
+/* ================= CARD ================= */
+.card{
+border:1px solid var(--border);
+border-radius:16px;
 padding:20px;
-line-height:1.7;
+margin-bottom:20px;
+transition:.3s;
 }
 
-.content h2{
-margin-bottom:10px;
+.card:hover{
+box-shadow:0 0 25px #22c55e22;
 }
 
-.content p{
-color:var(--sub);
-margin-bottom:10px;
-}
-
-/* ================= NAV ================= */
-.nav{
-position:fixed;
-bottom:0;
-width:100%;
-display:flex;
-justify-content:space-around;
-border-top:1px solid var(--border);
-padding:10px;
-}
-
-.nav div{
+/* ================= BUTTON ================= */
+.btn{
+padding:10px 15px;
+background:var(--primary);
+border:none;
+border-radius:10px;
 cursor:pointer;
-color:var(--sub);
+margin-top:10px;
 }
 
-.nav .active{
-color:var(--primary);
+/* ================= PROGRESS ================= */
+.progress{
+height:10px;
+background:#111827;
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.bar{
+height:100%;
+background:var(--primary);
+width:0%;
+transition:.3s;
 }
 
 </style>
@@ -141,213 +140,142 @@ color:var(--primary);
 
 <div class="app">
 
-<div class="header">
+<!-- SIDEBAR -->
+<div class="sidebar">
+
 <div class="logo">
 <img src="RHN LOGO.jpg">
 <b>RHN CAPITAL</b>
 </div>
-</div>
 
-<!-- HOME -->
-<div class="screen active" id="home">
-<div class="hero">
-<h1>RHN CAPITAL ULTRA EDUCATION</h1>
-<p>Platform pembelajaran market finance paling lengkap</p>
-</div>
-
-<div class="grid">
-<div class="box" onclick="go('about')">Tentang</div>
-<div class="box" onclick="go('crypto')">Crypto</div>
-<div class="box" onclick="go('forex')">Forex</div>
-<div class="box" onclick="go('saham')">Saham</div>
-</div>
-</div>
-
-<!-- ABOUT -->
-<div class="screen" id="about">
-<div class="content">
-
-<h2>RHN CAPITAL</h2>
-
-<p>RHN Capital adalah platform edukasi finansial modern yang berfokus pada pemahaman market secara mendalam.</p>
-
-<p>Kami tidak hanya memberikan teori, tetapi membangun mindset investor profesional.</p>
-
-<p>Fokus utama kami adalah:</p>
-<p>- Market cycle</p>
-<p>- Likuiditas</p>
-<p>- Psikologi market</p>
-<p>- Probabilitas</p>
-
-<p>Visi: Membangun generasi trader cerdas</p>
-<p>Misi: Edukasi berkualitas tinggi</p>
-
-<!-- PANJANGIN SECTION -->
-<p>Market tidak bergerak secara acak. Semua memiliki struktur.</p>
-<p>Investor yang gagal adalah yang tidak memahami struktur.</p>
-<p>Investor sukses adalah yang sabar dan disiplin.</p>
-<p>RHN Capital hadir untuk menjembatani gap tersebut.</p>
-
-</div>
-</div>
-
-<!-- CRYPTO -->
-<div class="screen" id="crypto">
-<div class="content">
-
-<h2>CRYPTO MASTERCLASS</h2>
-
-<p>Bitcoin adalah aset digital pertama.</p>
-<p>Blockchain adalah teknologi dasar.</p>
-
-<!-- PANJANG (SIMULASI 100+ BARIS KONTEN) -->
-<p>Market crypto bergerak dalam siklus panjang.</p>
-<p>Halving mempengaruhi supply.</p>
-<p>Supply vs demand menentukan harga.</p>
-
-<p>Akumulasi terjadi saat market sepi.</p>
-<p>Markup terjadi saat retail masuk.</p>
-<p>Distribusi saat smart money keluar.</p>
-<p>Markdown saat panic selling.</p>
-
-<p>Altcoin mengikuti Bitcoin.</p>
-<p>Dominasi BTC penting.</p>
-
-<p>Liquidity adalah target utama market.</p>
-<p>Stop loss = likuiditas.</p>
-
-<p>Trader profesional membaca struktur.</p>
-<p>Trader retail mengikuti emosi.</p>
-
-<p>Kesalahan umum:</p>
-<p>- FOMO</p>
-<p>- Overtrading</p>
-<p>- Tanpa risk management</p>
-
-<p>Strategi RHN:</p>
-<p>- Buy saat akumulasi</p>
-<p>- Hold saat markup</p>
-<p>- Sell saat distribusi</p>
-
-<!-- DUPLIKASI UNTUK PANJANG -->
-<p>Bitcoin adalah aset digital pertama.</p>
-<p>Blockchain adalah teknologi dasar.</p>
-<p>Market crypto bergerak dalam siklus panjang.</p>
-<p>Halving mempengaruhi supply.</p>
-<p>Supply vs demand menentukan harga.</p>
-
-<p>Akumulasi terjadi saat market sepi.</p>
-<p>Markup terjadi saat retail masuk.</p>
-<p>Distribusi saat smart money keluar.</p>
-<p>Markdown saat panic selling.</p>
-
-</div>
-</div>
-
-<!-- FOREX -->
-<div class="screen" id="forex">
-<div class="content">
-
-<h2>FOREX MASTERCLASS</h2>
-
-<p>Forex adalah pasar terbesar di dunia.</p>
-
-<p>XAUUSD adalah emas vs USD.</p>
-<p>USD kuat → gold turun</p>
-<p>USD lemah → gold naik</p>
-
-<p>Data penting:</p>
-<p>- CPI</p>
-<p>- NFP</p>
-<p>- Interest Rate</p>
-
-<p>Risk management adalah kunci.</p>
-<p>Tanpa risk management = pasti loss.</p>
-
-<p>Strategi:</p>
-<p>- 1% risk per trade</p>
-<p>- Fokus kualitas entry</p>
-
-<!-- PANJANGIN -->
-<p>Market bergerak karena likuiditas.</p>
-<p>Market maker mencari stop loss.</p>
-
-<p>Trend adalah teman terbaik.</p>
-<p>Melawan trend = bunuh diri.</p>
-
-</div>
-</div>
-
-<!-- SAHAM -->
-<div class="screen" id="saham">
-<div class="content">
-
-<h2>SAHAM MASTERCLASS</h2>
-
-<p>Saham adalah kepemilikan perusahaan.</p>
-
-<p>Fundamental penting:</p>
-<p>- Revenue</p>
-<p>- Profit</p>
-<p>- Growth</p>
-
-<p>Valuasi menentukan harga wajar.</p>
-
-<p>Growth investing fokus masa depan.</p>
-
-<p>Investor sukses berpikir jangka panjang.</p>
-
-<!-- PANJANG -->
-<p>Market saham dipengaruhi ekonomi global.</p>
-<p>Suku bunga mempengaruhi valuasi.</p>
-
-<p>Kesalahan umum investor:</p>
-<p>- Ikut-ikutan</p>
-<p>- Tidak riset</p>
-
-</div>
+<div class="menu">
+<div onclick="route('dashboard')" class="active">Dashboard</div>
+<div onclick="route('crypto')">Crypto</div>
+<div onclick="route('forex')">Forex</div>
+<div onclick="route('saham')">Saham</div>
 </div>
 
 </div>
 
-<!-- NAV -->
-<div class="nav">
-<div class="active" onclick="nav(this,'home')">Home</div>
-<div onclick="nav(this,'crypto')">Learn</div>
-<div onclick="nav(this,'about')">About</div>
+<!-- MAIN -->
+<div class="main">
+
+<div class="topbar">
+<input class="search" placeholder="Cari materi..." oninput="search(this.value)">
+<div id="userStatus">User Progress</div>
+</div>
+
+<div class="content" id="appContent"></div>
+
+</div>
 </div>
 
 <script>
 
-/* NAVIGATION */
-function go(id){show(id)}
-
-function nav(el,id){
-document.querySelectorAll('.nav div').forEach(e=>e.classList.remove('active'))
-el.classList.add('active')
-show(id)
+/* ================= STATE ================= */
+let state = {
+progress: JSON.parse(localStorage.getItem("progress")) || {}
 }
 
-function show(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
-document.getElementById(id).classList.add('active')
+/* ================= ROUTER ================= */
+function route(page){
+
+document.querySelectorAll('.menu div').forEach(e=>e.classList.remove('active'))
+event.target.classList.add('active')
+
+if(page === "dashboard") renderDashboard()
+if(page === "crypto") renderCourse("crypto")
+if(page === "forex") renderCourse("forex")
+if(page === "saham") renderCourse("saham")
+
 }
 
-/* EXTENDED LOGIC (BIAR TERLIHAT COMPLEX) */
-function generateDummyContent(){
-let text = ""
-for(let i=0;i<200;i++){
-text += "<p>RHN Capital Advanced Learning Line "+i+"</p>"
-}
-return text
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
+
+let total = Object.keys(state.progress).length
+
+document.getElementById("appContent").innerHTML = `
+<h1>Dashboard</h1>
+
+<div class="card">
+<p>Progress Belajar</p>
+<div class="progress"><div class="bar" style="width:${total*10}%"></div></div>
+<p>${total} modul selesai</p>
+</div>
+
+<div class="card">
+<p>Selamat datang di RHN Capital Education System.</p>
+</div>
+`
+
 }
 
-/* inject dummy ke semua halaman */
-document.addEventListener("DOMContentLoaded",()=>{
-document.getElementById("crypto").innerHTML += generateDummyContent()
-document.getElementById("forex").innerHTML += generateDummyContent()
-document.getElementById("saham").innerHTML += generateDummyContent()
+/* ================= COURSE ================= */
+function renderCourse(type){
+
+let modules = []
+
+for(let i=1;i<=20;i++){
+modules.push({
+id:type+i,
+title:type.toUpperCase()+" Module "+i,
+desc:"Pembelajaran mendalam tentang "+type+" level "+i
 })
+}
+
+let html = `<h1>${type.toUpperCase()} COURSE</h1>`
+
+modules.forEach(m=>{
+let done = state.progress[m.id]
+
+html += `
+<div class="card">
+<h3>${m.title}</h3>
+<p>${m.desc}</p>
+<button class="btn" onclick="openModule('${m.id}')">Buka</button>
+${done ? "<p style='color:#22c55e'>✔ Selesai</p>" : ""}
+</div>
+`
+})
+
+document.getElementById("appContent").innerHTML = html
+
+}
+
+/* ================= MODULE ================= */
+function openModule(id){
+
+let text = `<h1>Module ${id}</h1>`
+
+for(let i=0;i<120;i++){
+text += `<p>Materi ${id} line ${i} — memahami struktur market, psikologi, dan strategi profesional RHN Capital.</p>`
+}
+
+text += `<button class="btn" onclick="complete('${id}')">Tandai Selesai</button>`
+
+document.getElementById("appContent").innerHTML = text
+
+}
+
+/* ================= COMPLETE ================= */
+function complete(id){
+state.progress[id] = true
+localStorage.setItem("progress", JSON.stringify(state.progress))
+alert("Progress tersimpan")
+route("dashboard")
+}
+
+/* ================= SEARCH ================= */
+function search(q){
+q = q.toLowerCase()
+document.querySelectorAll('.card').forEach(c=>{
+c.style.display = c.innerText.toLowerCase().includes(q) ? 'block':'none'
+})
+}
+
+/* INIT */
+renderDashboard()
 
 </script>
 
