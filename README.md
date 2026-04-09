@@ -1,45 +1,40 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>RHN CAPITAL APP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RHN CAPITAL EDUCATION</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
 /* ===== BASE ===== */
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins;
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
+body{background:#020617;color:#e2e8f0;overflow:hidden;}
+
+:root{
+--border:#1e293b;
+--primary:#22c55e;
+--sub:#94a3b8;
 }
 
-body{
-background:#020617;
-color:white;
-overflow-x:hidden;
-}
-
-/* ===== APP CONTAINER ===== */
+/* ===== APP ===== */
 .app{
-padding-bottom:80px;
+height:100vh;
+display:flex;
+flex-direction:column;
 }
 
 /* ===== HEADER ===== */
 .header{
-position:sticky;
-top:0;
-background:rgba(2,6,23,.85);
-backdrop-filter:blur(12px);
-padding:15px;
+height:60px;
 display:flex;
-justify-content:space-between;
 align-items:center;
-border-bottom:1px solid #1e293b;
-z-index:999;
+justify-content:space-between;
+padding:0 20px;
+border-bottom:1px solid var(--border);
+background:#020617;
 }
 
 .logo{
@@ -48,51 +43,41 @@ align-items:center;
 gap:10px;
 }
 
-.logo img{
-width:38px;
-border-radius:8px;
+.logo img{width:35px;border-radius:8px;}
+
+.status{
+font-size:12px;
+color:var(--primary);
 }
 
-.balance{
-font-size:14px;
-color:#22c55e;
+/* ===== SCREEN ===== */
+.screen{
+flex:1;
+overflow-y:auto;
+display:none;
+padding-bottom:80px;
+}
+
+.screen.active{
+display:block;
 }
 
 /* ===== HERO ===== */
 .hero{
-padding:25px;
+padding:20px;
 }
 
 .hero h1{
-font-size:28px;
-margin-bottom:5px;
+font-size:22px;
 }
 
 .hero p{
-font-size:14px;
-color:#94a3b8;
+font-size:13px;
+color:var(--sub);
 }
 
-/* ===== CARD BALANCE ===== */
-.wallet{
-margin:20px;
-padding:20px;
-border-radius:20px;
-background:linear-gradient(135deg,#22c55e,#16a34a);
-color:black;
-box-shadow:0 0 40px #22c55e55;
-}
-
-.wallet h2{
-font-size:24px;
-}
-
-.wallet small{
-opacity:.8;
-}
-
-/* ===== MENU GRID ===== */
-.menu{
+/* ===== GRID MENU ===== */
+.grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:15px;
@@ -100,10 +85,9 @@ padding:20px;
 }
 
 .box{
-background:#020617;
-border:1px solid #1f2937;
-padding:20px;
-border-radius:16px;
+padding:18px;
+border:1px solid var(--border);
+border-radius:14px;
 text-align:center;
 cursor:pointer;
 transition:.3s;
@@ -111,92 +95,63 @@ transition:.3s;
 
 .box:hover{
 transform:scale(1.05);
-box-shadow:0 0 25px #22c55e33;
+box-shadow:0 0 15px #22c55e33;
 }
 
-.box h3{
-margin-top:10px;
-font-size:15px;
-}
-
-/* ===== NEWS ===== */
-.news{
+/* ===== LIST ===== */
+.list{
 padding:20px;
 }
 
-.news-card{
-background:#020617;
-border:1px solid #1f2937;
-border-radius:16px;
+.card{
+border:1px solid var(--border);
+border-radius:12px;
 padding:15px;
+margin-bottom:10px;
+cursor:pointer;
+transition:.2s;
+}
+
+.card:hover{
+background:#020617;
+box-shadow:0 0 10px #22c55e22;
+}
+
+/* ===== CONTENT ===== */
+.content{
+padding:20px;
+}
+
+.content h2{
 margin-bottom:10px;
 }
 
-.news-card span{
-color:#22c55e;
-font-size:12px;
+.content p{
+color:var(--sub);
+font-size:14px;
+line-height:1.6;
 }
 
-/* ===== BOTTOM NAV ===== */
-.bottom{
+/* ===== NAV ===== */
+.nav{
 position:fixed;
 bottom:0;
 width:100%;
-background:#020617;
-border-top:1px solid #1f2937;
 display:flex;
 justify-content:space-around;
+border-top:1px solid var(--border);
+background:#020617;
 padding:10px 0;
 }
 
-.bottom div{
-text-align:center;
+.nav div{
 font-size:12px;
-color:#94a3b8;
+color:var(--sub);
 cursor:pointer;
 }
 
-.bottom div.active{
-color:#22c55e;
-}
-
-/* ===== BUTTON ===== */
-.btn{
-margin-top:15px;
-padding:12px;
-width:100%;
-border:none;
-border-radius:12px;
-background:#22c55e;
-font-weight:bold;
-cursor:pointer;
-}
-
-/* ===== POPUP ===== */
-.popup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.9);
-display:none;
-justify-content:center;
-align-items:center;
-z-index:1000;
-}
-
-.popup img{
-width:280px;
-border-radius:12px;
-}
-
-.close{
-position:absolute;
-top:20px;
-right:20px;
-font-size:24px;
-cursor:pointer;
+.nav .active{
+color:var(--primary);
 }
 
 </style>
@@ -212,108 +167,123 @@ cursor:pointer;
 <img src="RHN LOGO.jpg">
 <b>RHN CAPITAL</b>
 </div>
-<div class="balance">ONLINE</div>
+<div class="status">EDUCATION</div>
 </div>
 
-<!-- HERO -->
+<!-- HOME -->
+<div class="screen active" id="home">
+
 <div class="hero">
-<h1>Dashboard</h1>
-<p>Platform Analisa & Trading Modern</p>
+<h1>Learning Dashboard</h1>
+<p>Pelajari Crypto, Forex, dan Saham dari dasar hingga advance</p>
 </div>
 
-<!-- WALLET -->
-<div class="wallet">
-<small>Total Portfolio</small>
-<h2>Rp 0</h2>
-</div>
+<div class="grid">
 
-<!-- MENU -->
-<div class="menu">
-
-<div class="box" onclick="openPage('crypto')">
-📊
-<h3>Crypto</h3>
-</div>
-
-<div class="box" onclick="openPage('forex')">
-💱
-<h3>Forex</h3>
-</div>
-
-<div class="box" onclick="openPage('saham')">
-📈
-<h3>Saham</h3>
-</div>
-
-<div class="box" onclick="openQRIS()">
-💳
-<h3>Deposit</h3>
-</div>
-
-</div>
-
-<!-- NEWS -->
-<div class="news">
-<h3>Market Insight</h3>
-
-<div class="news-card">
-<span>BTC</span>
-<p>Bitcoin memasuki fase akumulasi kuat.</p>
-</div>
-
-<div class="news-card">
-<span>XAUUSD</span>
-<p>Gold bullish dipicu pelemahan USD.</p>
-</div>
+<div class="box" onclick="go('crypto')">Crypto</div>
+<div class="box" onclick="go('forex')">Forex</div>
+<div class="box" onclick="go('saham')">Saham</div>
+<div class="box" onclick="go('profile')">Profile</div>
 
 </div>
 
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom">
-<div class="active">Home</div>
-<div onclick="openWA()">Contact</div>
-<div onclick="openIG()">Social</div>
+<!-- CRYPTO -->
+<div class="screen" id="crypto">
+<div class="list">
+<h2>Materi Crypto</h2>
+
+<div class="card" onclick="openContent('btc')">Apa itu Bitcoin</div>
+<div class="card" onclick="openContent('cycle')">Market Cycle</div>
+<div class="card" onclick="openContent('altcoin')">Altcoin Strategy</div>
+
+</div>
 </div>
 
-<!-- POPUP QR -->
-<div class="popup" id="qris">
-<div class="close" onclick="closeQRIS()">✕</div>
-<img src="QRIS.jpg.jpeg">
+<!-- FOREX -->
+<div class="screen" id="forex">
+<div class="list">
+<h2>Materi Forex</h2>
+
+<div class="card" onclick="openContent('xauusd')">Apa itu XAUUSD</div>
+<div class="card" onclick="openContent('risk')">Risk Management</div>
+<div class="card" onclick="openContent('news')">News Impact</div>
+
+</div>
+</div>
+
+<!-- SAHAM -->
+<div class="screen" id="saham">
+<div class="list">
+<h2>Materi Saham</h2>
+
+<div class="card" onclick="openContent('fundamental')">Fundamental</div>
+<div class="card" onclick="openContent('valuasi')">Valuasi</div>
+<div class="card" onclick="openContent('growth')">Growth Investing</div>
+
+</div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="profile">
+<div class="content">
+<h2>RHN CAPITAL</h2>
+<p>
+Platform edukasi finansial yang berfokus pada crypto, forex, dan saham.
+Tujuan utama adalah membangun pemahaman market dan mindset investasi jangka panjang.
+</p>
+</div>
+</div>
+
+<!-- CONTENT -->
+<div class="screen" id="content">
+<div class="content" id="contentArea"></div>
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+<div class="active" onclick="nav(this,'home')">Home</div>
+<div onclick="nav(this,'crypto')">Learn</div>
+<div onclick="nav(this,'profile')">Profile</div>
 </div>
 
 <script>
 
-/* NAVIGATION */
-function openPage(type){
-if(type === 'crypto'){
-location.href = 'ANALISACRYPTO.html'
+/* NAV */
+function go(id){show(id)}
+function nav(el,id){
+document.querySelectorAll('.nav div').forEach(e=>e.classList.remove('active'))
+el.classList.add('active')
+show(id)
 }
-if(type === 'forex'){
-location.href = 'ANALISAFOREX.html'
-}
-if(type === 'saham'){
-location.href = 'ANALISASAHAM.html'
-}
-}
-
-/* CONTACT */
-function openWA(){
-window.open('https://wa.me/6285717426626')
+function show(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+document.getElementById(id).classList.add('active')
 }
 
-function openIG(){
-window.open('https://instagram.com/huyrehan')
+/* CONTENT SYSTEM */
+function openContent(type){
+
+let data = {
+btc: "<h2>Bitcoin</h2><p>Bitcoin adalah aset digital pertama yang menggunakan teknologi blockchain.</p>",
+cycle: "<h2>Market Cycle</h2><p>Market bergerak dalam fase akumulasi, markup, distribusi, dan markdown.</p>",
+altcoin: "<h2>Altcoin</h2><p>Altcoin mengikuti Bitcoin dan memiliki volatilitas lebih tinggi.</p>",
+
+xauusd: "<h2>XAUUSD</h2><p>XAUUSD adalah pasangan emas terhadap dolar AS.</p>",
+risk: "<h2>Risk Management</h2><p>Gunakan maksimal 1-2% risiko per trade.</p>",
+news: "<h2>News Impact</h2><p>Berita ekonomi mempengaruhi pergerakan market.</p>",
+
+fundamental: "<h2>Fundamental</h2><p>Analisa kondisi keuangan perusahaan.</p>",
+valuasi: "<h2>Valuasi</h2><p>Menentukan harga wajar saham.</p>",
+growth: "<h2>Growth</h2><p>Fokus pada perusahaan dengan pertumbuhan tinggi.</p>"
 }
 
-/* QR */
-function openQRIS(){
-document.getElementById("qris").style.display="flex"
-}
+document.getElementById("contentArea").innerHTML = data[type]
+show("content")
 
-function closeQRIS(){
-document.getElementById("qris").style.display="none"
 }
 
 </script>
