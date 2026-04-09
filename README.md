@@ -3,72 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RHN CAPITAL ULTIMATE</title>
+<title>RHN CAPITAL PRO</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
-body{
-background:linear-gradient(180deg,#020617,#020617,#0f172a);
-color:#e2e8f0;
-overflow:hidden;
-}
+body{background:#020617;color:#e2e8f0;overflow:hidden;}
 
-/* ===== ROOT ===== */
 :root{
 --primary:#22c55e;
 --border:#1e293b;
---glass:rgba(255,255,255,0.03);
---sub:#94a3b8;
+--glass:rgba(255,255,255,0.04);
 }
 
-/* ===== APP ===== */
+/* APP */
 .app{display:flex;height:100vh;}
 
-/* ===== SIDEBAR ===== */
+/* SIDEBAR */
 .sidebar{
-width:260px;
+width:250px;
 background:#020617;
 border-right:1px solid var(--border);
 padding:20px;
-overflow-y:auto;
 }
 
-.logo{
-font-size:20px;
-font-weight:700;
-color:var(--primary);
-margin-bottom:25px;
-}
+.logo{color:var(--primary);font-weight:bold;margin-bottom:20px;}
 
 .menu div{
 padding:12px;
 border-radius:10px;
 cursor:pointer;
 margin-bottom:5px;
-color:var(--sub);
-transition:.3s;
 }
 
-.menu div:hover{
-background:#111827;
-color:white;
-}
+.menu div:hover{background:#111827;}
+.active{background:var(--primary);color:black;}
 
-.menu .active{
-background:var(--primary);
-color:black;
-}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;}
 
-/* ===== MAIN ===== */
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-/* ===== TOPBAR ===== */
 .topbar{
 height:60px;
 display:flex;
@@ -78,51 +52,24 @@ padding:0 20px;
 border-bottom:1px solid var(--border);
 }
 
-.search{
-padding:8px 12px;
-border-radius:10px;
-border:1px solid var(--border);
-background:#020617;
-color:white;
-}
-
-/* ===== CONTENT ===== */
 .content{
 flex:1;
 overflow-y:auto;
-padding:25px;
-animation:fade .3s ease;
+padding:20px;
 }
 
-@keyframes fade{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;}
-}
-
-/* ===== CARD ===== */
+/* CARD */
 .card{
 background:var(--glass);
-backdrop-filter:blur(10px);
 border:1px solid var(--border);
-border-radius:18px;
+border-radius:15px;
 padding:20px;
-margin-bottom:20px;
-transition:.3s;
+margin-bottom:15px;
 }
 
-.card:hover{
-transform:translateY(-5px);
-box-shadow:0 0 25px #22c55e22;
-}
-
-/* ===== TEXT ===== */
-h1{margin-bottom:15px;}
-h2{margin-bottom:10px;color:var(--primary);}
-p{margin-bottom:10px;color:#cbd5f5;line-height:1.6;}
-
-/* ===== BUTTON ===== */
+/* BTN */
 .btn{
-padding:10px 15px;
+padding:10px;
 background:var(--primary);
 border:none;
 border-radius:10px;
@@ -130,27 +77,8 @@ cursor:pointer;
 margin-top:10px;
 }
 
-/* ===== PROGRESS ===== */
-.progress{
-height:10px;
-background:#111827;
-border-radius:10px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.bar{
-height:100%;
-background:var(--primary);
-transition:.3s;
-}
-
-/* ===== LEVEL ===== */
-.level{
-color:#facc15;
-font-weight:bold;
-}
-
+/* LOCK */
+.lock{color:red;font-size:12px;}
 </style>
 </head>
 
@@ -158,7 +86,6 @@ font-weight:bold;
 
 <div class="app">
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 <div class="logo">RHN CAPITAL</div>
 
@@ -167,34 +94,75 @@ font-weight:bold;
 <div onclick="route('crypto')">Crypto</div>
 <div onclick="route('forex')">Forex</div>
 <div onclick="route('saham')">Saham</div>
-<div onclick="route('psychology')">Psychology</div>
-</div>
 </div>
 
-<!-- MAIN -->
+<button class="btn" onclick="login()">Login</button>
+
+</div>
+
 <div class="main">
 
 <div class="topbar">
-<input class="search" placeholder="Cari materi..." oninput="search(this.value)">
-<div id="status"></div>
+<div id="status">Belum Login</div>
 </div>
 
 <div class="content" id="app"></div>
 
 </div>
-
 </div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
 <script>
 
-/* ===== STATE ===== */
-let progress = JSON.parse(localStorage.getItem("progress")) || {}
+/* ===== CONFIG ===== */
+const firebaseConfig = {
+apiKey: "ISI_API_KEY",
+authDomain: "ISI_DOMAIN",
+projectId: "ISI_PROJECT_ID"
+};
 
-function level(){
-let total = Object.keys(progress).length
-if(total < 10) return "Beginner"
-if(total < 30) return "Intermediate"
-return "Elite"
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let userPremium = false;
+let currentUser = null;
+
+/* ===== LOGIN ===== */
+function login(){
+let email = prompt("Email:");
+let pass = prompt("Password:");
+
+auth.signInWithEmailAndPassword(email, pass)
+.then(res=>{
+currentUser = res.user;
+loadUser();
+})
+.catch(()=>{
+auth.createUserWithEmailAndPassword(email, pass)
+.then(res=>{
+currentUser = res.user;
+db.collection("users").doc(res.user.uid).set({premium:false});
+alert("Register sukses");
+loadUser();
+});
+});
+}
+
+/* ===== LOAD USER ===== */
+function loadUser(){
+db.collection("users").doc(currentUser.uid).get()
+.then(doc=>{
+userPremium = doc.data().premium;
+document.getElementById("status").innerText =
+userPremium ? "PREMIUM USER" : "FREE USER";
+dashboard();
+});
 }
 
 /* ===== ROUTER ===== */
@@ -203,57 +171,40 @@ document.querySelectorAll('.menu div').forEach(e=>e.classList.remove('active'))
 event.target.classList.add('active')
 
 if(p==="dashboard") dashboard()
-if(p==="crypto") course("crypto",20)
-if(p==="forex") course("forex",20)
-if(p==="saham") course("saham",15)
-if(p==="psychology") psychology()
+if(p==="crypto") course("crypto")
+if(p==="forex") course("forex")
+if(p==="saham") course("saham")
 }
 
 /* ===== DASHBOARD ===== */
 function dashboard(){
-
-let total = Object.keys(progress).length
-
-document.getElementById("status").innerHTML = `
-<span class="level">${level()}</span> | ${total} Modul
-`
-
 document.getElementById("app").innerHTML = `
-<h1>RHN CAPITAL ELITE SYSTEM</h1>
+<h1>RHN CAPITAL</h1>
 
 <div class="card">
-<p>Platform edukasi finansial profesional berbasis sistem: crypto, forex, saham, dan psikologi.</p>
+<p>Platform edukasi investasi profesional.</p>
 </div>
 
 <div class="card">
-<p>Progress belajar:</p>
-<div class="progress">
-<div class="bar" style="width:${total*2}%"></div>
-</div>
-</div>
-
-<div class="card">
-<p>Tujuan: membangun trader dengan mindset probabilitas, disiplin, dan risk management ketat.</p>
+<p>Status: ${userPremium ? "Premium" : "Free"}</p>
 </div>
 `
 }
 
 /* ===== COURSE ===== */
-function course(type,total){
+function course(type){
 
-let html = `<h1>${type.toUpperCase()} SYSTEM</h1>`
+let html = `<h1>${type.toUpperCase()}</h1>`
 
-for(let i=1;i<=total;i++){
+for(let i=1;i<=8;i++){
 
-let id = type+i
-let done = progress[id]
+let premium = i>4
 
 html += `
 <div class="card">
-<h2>${type.toUpperCase()} MODULE ${i}</h2>
-<p>Pembelajaran ${type} level ${i}</p>
-<button class="btn" onclick="openModule('${id}')">Buka</button>
-${done ? "<p style='color:#22c55e'>✔ selesai</p>" : ""}
+<p>Module ${i}</p>
+${premium ? "<p class='lock'>🔒 Premium</p>" : ""}
+<button class="btn" onclick="openModule('${type}',${i},${premium})">Buka</button>
 </div>
 `
 }
@@ -261,67 +212,80 @@ ${done ? "<p style='color:#22c55e'>✔ selesai</p>" : ""}
 document.getElementById("app").innerHTML = html
 }
 
-/* ===== MODULE ===== */
-function openModule(id){
+/* ===== MODULE CONTENT (FIX NO LOOP SPAM) ===== */
+function openModule(type,i,premium){
 
-let materi = `
-<h1>${id.toUpperCase()}</h1>
-
-<p>Market tidak bergerak random. Harga bergerak berdasarkan likuiditas dan kepentingan institusi.</p>
-<p>Trader retail sering menjadi likuiditas karena entry emosional.</p>
-
-<p><b>Konsep penting:</b></p>
-<p>- Liquidity</p>
-<p>- Break of Structure</p>
-<p>- Trend continuation</p>
-<p>- Market manipulation</p>
-
-<p><b>Strategi:</b></p>
-<p>- Entry setelah konfirmasi</p>
-<p>- Hindari FOMO</p>
-<p>- Gunakan risk management</p>
-
-<p>Semakin tinggi level, semakin penting memahami struktur market daripada indikator.</p>
-`
-
-for(let i=0;i<100;i++){
-materi += `<p>Insight profesional: market mencari likuiditas sebelum bergerak ke arah utama. Disiplin dan konsistensi adalah kunci utama.</p>`
+if(premium && !userPremium){
+alert("Harus Premium!");
+return;
 }
 
-materi += `<button class="btn" onclick="done('${id}')">Selesai</button>`
+let materi = `<h1>${type.toUpperCase()} MODULE ${i}</h1>`
+
+/* CRYPTO */
+if(type==="crypto"){
+if(i===1){
+materi+=`<p>Crypto adalah aset digital berbasis blockchain.</p>`
+}
+if(i===2){
+materi+=`<p>Bitcoin adalah acuan utama market crypto.</p>`
+}
+if(i===3){
+materi+=`<p>Market cycle: accumulation → bull → distribution → bear.</p>`
+}
+if(i===4){
+materi+=`<p>Liquidity adalah target utama market.</p>`
+}
+if(i>=5){
+materi+=`<p>Strategi lanjutan: entry setelah konfirmasi dan risk management.</p>`
+}
+}
+
+/* FOREX */
+if(type==="forex"){
+if(i===1){
+materi+=`<p>Forex adalah pasar terbesar di dunia.</p>`
+}
+if(i===2){
+materi+=`<p>XAUUSD dipengaruhi USD dan suku bunga.</p>`
+}
+if(i===3){
+materi+=`<p>Trend dan struktur market sangat penting.</p>`
+}
+if(i===4){
+materi+=`<p>Risk management wajib untuk bertahan.</p>`
+}
+if(i>=5){
+materi+=`<p>Strategi: liquidity sweep + confirmation entry.</p>`
+}
+}
+
+/* SAHAM */
+if(type==="saham"){
+if(i===1){
+materi+=`<p>Saham adalah kepemilikan perusahaan.</p>`
+}
+if(i===2){
+materi+=`<p>Analisa fundamental menentukan kualitas perusahaan.</p>`
+}
+if(i===3){
+materi+=`<p>Valuasi menentukan harga murah atau mahal.</p>`
+}
+if(i===4){
+materi+=`<p>Dividen adalah keuntungan tambahan.</p>`
+}
+if(i>=5){
+materi+=`<p>Strategi: buy good company & hold.</p>`
+}
+}
+
+materi += `
+<div class="card">
+<p><b>Kesimpulan:</b> disiplin dan konsistensi adalah kunci.</p>
+</div>
+`
 
 document.getElementById("app").innerHTML = materi
-}
-
-/* ===== DONE ===== */
-function done(id){
-progress[id]=true
-localStorage.setItem("progress", JSON.stringify(progress))
-route("dashboard")
-}
-
-/* ===== SEARCH ===== */
-function search(q){
-q=q.toLowerCase()
-document.querySelectorAll('.card').forEach(c=>{
-c.style.display = c.innerText.toLowerCase().includes(q)?'block':'none'
-})
-}
-
-/* ===== PSYCHOLOGY ===== */
-function psychology(){
-document.getElementById("app").innerHTML=`
-<h1>Psychology Trading</h1>
-
-<div class="card">
-<p>90% trader gagal karena emosi.</p>
-<p>Disiplin > strategi.</p>
-</div>
-
-<div class="card">
-<p>Trader sukses fokus konsistensi, bukan profit cepat.</p>
-</div>
-`
 }
 
 /* INIT */
