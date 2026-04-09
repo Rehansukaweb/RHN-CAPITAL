@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RHN CAPITAL PRO</title>
+<title>RHN CAPITAL MASTER EDUCATION</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -17,15 +17,14 @@ body{background:#020617;color:#e2e8f0;overflow:hidden;}
 --glass:rgba(255,255,255,0.04);
 }
 
-/* APP */
 .app{display:flex;height:100vh;}
 
-/* SIDEBAR */
 .sidebar{
 width:250px;
 background:#020617;
 border-right:1px solid var(--border);
 padding:20px;
+overflow-y:auto;
 }
 
 .logo{color:var(--primary);font-weight:bold;margin-bottom:20px;}
@@ -40,13 +39,11 @@ margin-bottom:5px;
 .menu div:hover{background:#111827;}
 .active{background:var(--primary);color:black;}
 
-/* MAIN */
 .main{flex:1;display:flex;flex-direction:column;}
 
 .topbar{
 height:60px;
 display:flex;
-justify-content:space-between;
 align-items:center;
 padding:0 20px;
 border-bottom:1px solid var(--border);
@@ -58,27 +55,17 @@ overflow-y:auto;
 padding:20px;
 }
 
-/* CARD */
 .card{
 background:var(--glass);
 border:1px solid var(--border);
 border-radius:15px;
 padding:20px;
-margin-bottom:15px;
+margin-bottom:20px;
 }
 
-/* BTN */
-.btn{
-padding:10px;
-background:var(--primary);
-border:none;
-border-radius:10px;
-cursor:pointer;
-margin-top:10px;
-}
-
-/* LOCK */
-.lock{color:red;font-size:12px;}
+h1{margin-bottom:15px;}
+h2{margin-top:10px;color:var(--primary);}
+p{margin-bottom:8px;line-height:1.7;}
 </style>
 </head>
 
@@ -90,206 +77,250 @@ margin-top:10px;
 <div class="logo">RHN CAPITAL</div>
 
 <div class="menu">
-<div onclick="route('dashboard')" class="active">Dashboard</div>
-<div onclick="route('crypto')">Crypto</div>
-<div onclick="route('forex')">Forex</div>
-<div onclick="route('saham')">Saham</div>
+<div onclick="renderAll()" class="active">200 Materi</div>
 </div>
-
-<button class="btn" onclick="login()">Login</button>
-
 </div>
 
 <div class="main">
-
-<div class="topbar">
-<div id="status">Belum Login</div>
-</div>
-
+<div class="topbar">MASTER FINANCIAL EDUCATION</div>
 <div class="content" id="app"></div>
-
-</div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+</div>
 
 <script>
 
-/* ===== CONFIG ===== */
-const firebaseConfig = {
-apiKey: "ISI_API_KEY",
-authDomain: "ISI_DOMAIN",
-projectId: "ISI_PROJECT_ID"
-};
+/* ===== 200 MATERI BERBEDA ===== */
+const materi = [
 
-firebase.initializeApp(firebaseConfig);
+/* ===== CRYPTO (1–50) ===== */
+"Bitcoin adalah aset digital pertama yang mengubah sistem keuangan global.",
+"Blockchain memungkinkan transaksi tanpa perantara.",
+"Supply terbatas Bitcoin membuatnya anti inflasi.",
+"Altcoin memiliki risiko lebih tinggi dibanding Bitcoin.",
+"Market crypto sangat dipengaruhi sentimen global.",
+"Whale dapat mempengaruhi pergerakan harga.",
+"Fear and Greed Index penting untuk membaca emosi market.",
+"Support dan resistance adalah dasar trading.",
+"Volume menunjukkan kekuatan pergerakan.",
+"Market cap menentukan ukuran aset.",
+"Liquidity adalah target utama market.",
+"Breakout sering diikuti fakeout.",
+"Trend adalah arah utama market.",
+"Sideways adalah fase konsolidasi.",
+"Bull market ditandai kenaikan panjang.",
+"Bear market ditandai penurunan panjang.",
+"Halving Bitcoin mempengaruhi supply.",
+"On-chain data memberi insight tambahan.",
+"Exchange besar punya pengaruh besar.",
+"Leverage meningkatkan risiko.",
+"Stop loss melindungi modal.",
+"Take profit mengunci keuntungan.",
+"FOMO adalah musuh trader.",
+"DYOR penting sebelum investasi.",
+"Fundamental kuat tidak selalu naik cepat.",
+"Tokenomics menentukan supply demand.",
+"Burn token mengurangi supply.",
+"Staking memberi passive income.",
+"DeFi membuka sistem keuangan baru.",
+"NFT adalah aset digital unik.",
+"Layer 1 adalah blockchain utama.",
+"Layer 2 meningkatkan efisiensi.",
+"Gas fee adalah biaya transaksi.",
+"Wallet menyimpan aset crypto.",
+"Private key sangat penting.",
+"Cold wallet lebih aman.",
+"Hot wallet lebih praktis.",
+"Exchange centralized lebih mudah.",
+"DEX lebih desentralisasi.",
+"Slippage mempengaruhi entry.",
+"Order book menunjukkan likuiditas.",
+"Spread mempengaruhi biaya trading.",
+"Scalping butuh fokus tinggi.",
+"Swing trading lebih santai.",
+"Position trading jangka panjang.",
+"Market manipulasi sering terjadi.",
+"Liquidity grab sering sebelum reversal.",
+"Smart money bergerak diam-diam.",
+"Retail sering jadi korban.",
+"Kesabaran adalah kunci profit.",
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+/* ===== FOREX (51–100) ===== */
+"Forex adalah pasar terbesar dunia.",
+"Pair major memiliki likuiditas tinggi.",
+"EURUSD paling sering diperdagangkan.",
+"USD adalah mata uang utama.",
+"Interest rate mempengaruhi forex.",
+"Inflasi mempengaruhi nilai mata uang.",
+"NFP berdampak besar ke market.",
+"CPI penting untuk analisa USD.",
+"XAUUSD berkorelasi dengan USD.",
+"DXY menunjukkan kekuatan dolar.",
+"Trendline membantu analisa.",
+"Support resistance penting.",
+"Liquidity zone adalah area penting.",
+"Break structure tanda perubahan trend.",
+"Fake breakout sering terjadi.",
+"Stop hunting sering dilakukan market.",
+"Risk management wajib.",
+"Lot size menentukan risiko.",
+"Leverage harus hati-hati.",
+"Margin call bisa menghabiskan akun.",
+"Spread adalah biaya trading.",
+"Slippage bisa terjadi saat news.",
+"News trading berisiko tinggi.",
+"Scalping butuh cepat.",
+"Swing trading lebih stabil.",
+"Position trading jangka panjang.",
+"Session London paling aktif.",
+"Session New York volatil tinggi.",
+"Session Asia cenderung sepi.",
+"Overtrading adalah kesalahan.",
+"Revenge trading berbahaya.",
+"Disiplin lebih penting dari strategi.",
+"Jurnal trading membantu evaluasi.",
+"Backtest meningkatkan akurasi.",
+"Forward test validasi strategi.",
+"Psychology menentukan hasil.",
+"Loss adalah bagian trading.",
+"Profit konsisten lebih penting.",
+"RR ratio minimal 1:2.",
+"Entry harus punya alasan.",
+"Jangan entry random.",
+"Setup harus jelas.",
+"Konfirmasi meningkatkan winrate.",
+"Trend friend trader.",
+"Counter trend lebih berisiko.",
+"Patience adalah edge.",
+"Timing entry penting.",
+"Exit sama pentingnya.",
+"Market tidak bisa ditebak.",
+"Probabilitas adalah kunci.",
 
-let userPremium = false;
-let currentUser = null;
+/* ===== SAHAM (101–150) ===== */
+"Saham adalah kepemilikan perusahaan.",
+"Fundamental penting untuk investasi.",
+"Revenue menunjukkan pendapatan.",
+"Net profit menunjukkan laba.",
+"PER menentukan valuasi.",
+"PBV menunjukkan nilai buku.",
+"ROE menunjukkan efisiensi.",
+"Debt ratio menunjukkan risiko.",
+"Dividen memberi income.",
+"Blue chip lebih stabil.",
+"Growth stock lebih agresif.",
+"Value stock undervalued.",
+"Market sentiment mempengaruhi harga.",
+"Bandar bisa menggerakkan saham.",
+"Volume penting dalam saham.",
+"Breakout sering terjadi.",
+"Support resistance berlaku juga.",
+"Trend naik lebih aman.",
+"Sideways menunggu momentum.",
+"IPO bisa hype tinggi.",
+"Overvalued berisiko turun.",
+"Undervalued peluang naik.",
+"Analisa teknikal membantu timing.",
+"Analisa fundamental untuk jangka panjang.",
+"Buy low sell high prinsip dasar.",
+"Cut loss penting.",
+"Averaging harus hati-hati.",
+"Diversifikasi mengurangi risiko.",
+"Sektor mempengaruhi performa.",
+"Makro ekonomi penting.",
+"Suku bunga mempengaruhi saham.",
+"Inflasi mempengaruhi daya beli.",
+"Global market berpengaruh.",
+"Sentimen berita penting.",
+"Investor institusi kuat.",
+"Retail sering emosional.",
+"Kesabaran penting.",
+"Jangan ikut-ikutan.",
+"Strategi harus jelas.",
+"Long term lebih aman.",
+"Trading saham lebih sulit.",
+"Likuiditas penting.",
+"Spread mempengaruhi entry.",
+"Timing sangat penting.",
+"Profit konsisten tujuan utama.",
+"Disiplin penting.",
+"Emosi harus dikontrol.",
+"Plan harus diikuti.",
+"Evaluasi rutin penting.",
+"Konsistensi adalah kunci.",
 
-/* ===== LOGIN ===== */
-function login(){
-let email = prompt("Email:");
-let pass = prompt("Password:");
+/* ===== PSYCHOLOGY (151–200) ===== */
+"Trading adalah game mental.",
+"Emosi adalah musuh utama.",
+"Fear membuat salah keputusan.",
+"Greed membuat overtrade.",
+"Disiplin lebih penting.",
+"Konsistensi tujuan utama.",
+"Loss adalah normal.",
+"Profit tidak selalu.",
+"Mindset harus kuat.",
+"Fokus proses bukan hasil.",
+"Jangan balas dendam market.",
+"Sabar menunggu setup.",
+"Jangan FOMO.",
+"Jangan panic sell.",
+"Confidence penting.",
+"Overconfidence berbahaya.",
+"Plan harus diikuti.",
+"Jangan ubah strategi tiba-tiba.",
+"Evaluasi penting.",
+"Jurnal membantu.",
+"Self control penting.",
+"Stop loss harus dipakai.",
+"Take profit harus jelas.",
+"Target realistis.",
+"Jangan terlalu ambisius.",
+"Proses butuh waktu.",
+"Tidak ada sukses instan.",
+"Belajar terus.",
+"Adaptasi penting.",
+"Market berubah.",
+"Strategi harus fleksibel.",
+"Mindset probabilitas.",
+"Tidak semua trade profit.",
+"Accept loss.",
+"Focus long term.",
+"Disiplin harian.",
+"Kontrol emosi.",
+"Jangan terlalu banyak indikator.",
+"Sederhana lebih baik.",
+"Kualitas lebih penting dari kuantitas.",
+"1 setup cukup.",
+"Jangan overthinking.",
+"Trust your system.",
+"Evaluate performance.",
+"Upgrade skill.",
+"Konsisten latihan.",
+"Jangan bandingkan diri.",
+"Fokus diri sendiri.",
+"Growth mindset penting.",
+"Kesuksesan butuh proses."
 
-auth.signInWithEmailAndPassword(email, pass)
-.then(res=>{
-currentUser = res.user;
-loadUser();
-})
-.catch(()=>{
-auth.createUserWithEmailAndPassword(email, pass)
-.then(res=>{
-currentUser = res.user;
-db.collection("users").doc(res.user.uid).set({premium:false});
-alert("Register sukses");
-loadUser();
-});
-});
-}
+];
 
-/* ===== LOAD USER ===== */
-function loadUser(){
-db.collection("users").doc(currentUser.uid).get()
-.then(doc=>{
-userPremium = doc.data().premium;
-document.getElementById("status").innerText =
-userPremium ? "PREMIUM USER" : "FREE USER";
-dashboard();
-});
-}
+/* RENDER */
+function renderAll(){
+let html = "<h1>200 MATERI RHN CAPITAL</h1>"
 
-/* ===== ROUTER ===== */
-function route(p){
-document.querySelectorAll('.menu div').forEach(e=>e.classList.remove('active'))
-event.target.classList.add('active')
-
-if(p==="dashboard") dashboard()
-if(p==="crypto") course("crypto")
-if(p==="forex") course("forex")
-if(p==="saham") course("saham")
-}
-
-/* ===== DASHBOARD ===== */
-function dashboard(){
-document.getElementById("app").innerHTML = `
-<h1>RHN CAPITAL</h1>
-
-<div class="card">
-<p>Platform edukasi investasi profesional.</p>
-</div>
-
-<div class="card">
-<p>Status: ${userPremium ? "Premium" : "Free"}</p>
-</div>
-`
-}
-
-/* ===== COURSE ===== */
-function course(type){
-
-let html = `<h1>${type.toUpperCase()}</h1>`
-
-for(let i=1;i<=8;i++){
-
-let premium = i>4
-
+materi.forEach((m,i)=>{
 html += `
 <div class="card">
-<p>Module ${i}</p>
-${premium ? "<p class='lock'>🔒 Premium</p>" : ""}
-<button class="btn" onclick="openModule('${type}',${i},${premium})">Buka</button>
+<h2>Materi ${i+1}</h2>
+<p>${m}</p>
 </div>
 `
-}
+})
 
 document.getElementById("app").innerHTML = html
 }
 
-/* ===== MODULE CONTENT (FIX NO LOOP SPAM) ===== */
-function openModule(type,i,premium){
-
-if(premium && !userPremium){
-alert("Harus Premium!");
-return;
-}
-
-let materi = `<h1>${type.toUpperCase()} MODULE ${i}</h1>`
-
-/* CRYPTO */
-if(type==="crypto"){
-if(i===1){
-materi+=`<p>Crypto adalah aset digital berbasis blockchain.</p>`
-}
-if(i===2){
-materi+=`<p>Bitcoin adalah acuan utama market crypto.</p>`
-}
-if(i===3){
-materi+=`<p>Market cycle: accumulation → bull → distribution → bear.</p>`
-}
-if(i===4){
-materi+=`<p>Liquidity adalah target utama market.</p>`
-}
-if(i>=5){
-materi+=`<p>Strategi lanjutan: entry setelah konfirmasi dan risk management.</p>`
-}
-}
-
-/* FOREX */
-if(type==="forex"){
-if(i===1){
-materi+=`<p>Forex adalah pasar terbesar di dunia.</p>`
-}
-if(i===2){
-materi+=`<p>XAUUSD dipengaruhi USD dan suku bunga.</p>`
-}
-if(i===3){
-materi+=`<p>Trend dan struktur market sangat penting.</p>`
-}
-if(i===4){
-materi+=`<p>Risk management wajib untuk bertahan.</p>`
-}
-if(i>=5){
-materi+=`<p>Strategi: liquidity sweep + confirmation entry.</p>`
-}
-}
-
-/* SAHAM */
-if(type==="saham"){
-if(i===1){
-materi+=`<p>Saham adalah kepemilikan perusahaan.</p>`
-}
-if(i===2){
-materi+=`<p>Analisa fundamental menentukan kualitas perusahaan.</p>`
-}
-if(i===3){
-materi+=`<p>Valuasi menentukan harga murah atau mahal.</p>`
-}
-if(i===4){
-materi+=`<p>Dividen adalah keuntungan tambahan.</p>`
-}
-if(i>=5){
-materi+=`<p>Strategi: buy good company & hold.</p>`
-}
-}
-
-materi += `
-<div class="card">
-<p><b>Kesimpulan:</b> disiplin dan konsistensi adalah kunci.</p>
-</div>
-`
-
-document.getElementById("app").innerHTML = materi
-}
-
 /* INIT */
-dashboard()
+renderAll()
 
 </script>
 
