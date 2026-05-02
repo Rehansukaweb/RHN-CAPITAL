@@ -422,7 +422,7 @@ footer {
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">Jakarta, Indonesia — Est. 2024</div>
+  <div class="hero-badge">Jakarta, Indonesia — Est. 2026</div>
   <img src="RHN LOGO.jpg" alt="RHN Capital">
   <h1>RHN <em>CAPITAL</em></h1>
   <p class="hero-tagline">Investment Intelligence Platform</p>
