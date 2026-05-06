@@ -138,10 +138,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:4px;opacity:0;transition:opacity .2s;margin-top:3px}
 .recent-item:hover .del-btn{opacity:1}.del-btn:hover{color:var(--red)}
 
-.tbl-wrap{overflow-x:auto}
-table.htbl{width:100%;border-collapse:collapse}
-table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);transition:background 0.3s;}
-table.htbl td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+.tbl-wrap{overflow-x:auto; background:var(--card); border-radius: 0 0 var(--radius) var(--radius);}
+table.htbl{width:100%;border-collapse:collapse; background:var(--card); transition:background 0.3s;}
+/* PERBAIKAN BACKGROUND TABEL (TH DAN TD DIPAKSA NGUKUT THEME GELAP) */
+table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg2);transition:background 0.3s, color 0.3s;}
+table.htbl td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);background:var(--card);transition:background 0.3s, color 0.3s;}
 table.htbl tr:last-child td{border-bottom:none}
 table.htbl tr:hover td{background:var(--bg)}
 table.htbl th, table.htbl td { white-space: nowrap; }
