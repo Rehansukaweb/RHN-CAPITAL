@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -138,11 +138,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:4px;opacity:0;transition:opacity .2s;margin-top:3px}
 .recent-item:hover .del-btn{opacity:1}.del-btn:hover{color:var(--red)}
 .tbl-wrap{overflow-x:auto}
-table.htbl{width:100%;border-collapse:collapse}
+table.htbl{width:100%;border-collapse:collapse;table-layout:fixed}
 table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg)}
 table.htbl td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
 table.htbl tr:last-child td{border-bottom:none}
 table.htbl tr:hover td{background:var(--bg)}
+table.htbl th:nth-child(1),table.htbl td:nth-child(1){width:160px}
+table.htbl th:nth-child(2),table.htbl td:nth-child(2){width:auto}
+table.htbl th:nth-child(3),table.htbl td:nth-child(3){width:130px}
+table.htbl th:nth-child(4),table.htbl td:nth-child(4){width:120px}
+table.htbl th:nth-child(5),table.htbl td:nth-child(5){width:140px;text-align:right}
+table.htbl th:nth-child(6),table.htbl td:nth-child(6){width:48px;text-align:center}
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px}
 .badge.income{background:rgba(26,158,107,0.1);color:var(--green)}.badge.expense{background:rgba(217,79,79,0.1);color:var(--red)}
 .a-pos{color:var(--green);font-weight:600}.a-neg{color:var(--red);font-weight:600}
