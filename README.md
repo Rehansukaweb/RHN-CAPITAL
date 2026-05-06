@@ -140,7 +140,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
 .tbl-wrap{overflow-x:auto; background:var(--card); border-radius: 0 0 var(--radius) var(--radius);}
 table.htbl{width:100%;border-collapse:collapse; background:var(--card); transition:background 0.3s;}
-/* PERBAIKAN BACKGROUND TABEL (TH DAN TD DIPAKSA NGUKUT THEME GELAP) */
 table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg2);transition:background 0.3s, color 0.3s;}
 table.htbl td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);background:var(--card);transition:background 0.3s, color 0.3s;}
 table.htbl tr:last-child td{border-bottom:none}
@@ -189,11 +188,16 @@ body.dark-mode {
 }
 body.dark-mode .auth-title { color: var(--gold2); }
 
+/* MEMAKSA TABEL AGAR IKUT GELAP DAN TIDAK TERANG (FIXED) */
+body.dark-mode table.htbl th { background-color: var(--bg2) !important; color: var(--text) !important; border-color: var(--border) !important; }
+body.dark-mode table.htbl td { background-color: var(--card) !important; color: var(--text) !important; border-color: var(--border) !important; }
+body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; }
 
-/* ===== RESPONSIVE KHUSUS MOBILE (PERBAIKAN FINAL) ===== */
+
+/* ===== RESPONSIVE KHUSUS MOBILE (DIKECILIN MAKSIMAL) ===== */
 @media (max-width: 768px) {
-  /* BANTALAN ATAS DITAMBAH: Biar logo gak ketutup jam HP / status bar */
-  .topbar { padding: 32px 16px 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
+  /* Topbar dibikin lebih tipis/kompak */
+  .topbar { padding: 16px 16px 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 8px; }
   .topbar-right { width: 100%; justify-content: space-between; }
   .live-clock { display: none; }
   .user-info { gap: 8px; }
@@ -201,44 +205,45 @@ body.dark-mode .auth-title { color: var(--gold2); }
   /* Navigasi */
   .nav { padding: 0 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
   .nav::-webkit-scrollbar { display: none; }
-  .main { padding: 16px; }
+  .main { padding: 12px; }
 
-  /* Matriks */
-  .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
-  .m-card { padding: 14px 12px; }
-  .m-val { font-size: 16px; } 
-  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 4px; } 
-  .m-sub { font-size: 9px; margin-top: 4px; }
-  .m-card::after { width: 40px; height: 40px; } 
+  /* Matriks / Ringkasan */
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  .m-card { padding: 12px 10px; }
+  .m-val { font-size: 15px; } 
+  .m-label { font-size: 8px; letter-spacing: 0.5px; margin-bottom: 4px; } 
+  .m-sub { font-size: 8px; margin-top: 4px; }
+  .m-card::after { width: 30px; height: 30px; } 
 
-  /* Form / Layout dasar */
-  .panel { grid-template-columns: 1fr; gap: 16px; }
-  .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+  /* Form & Chart Layout */
+  .panel { grid-template-columns: 1fr; gap: 12px; }
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 6px; }
   .filter-bar input, .filter-bar select { width: 100%; }
   .sum-grid { grid-template-columns: 1fr; }
-  .card-head { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .auth-box { padding: 28px 20px; width: 90%; }
+  .card-head { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  .chart-wrap { padding: 12px; }
+  .auth-box { padding: 24px 16px; width: 92%; }
 
-  /* ===== PERBAIKAN TABEL AGAR MUAT TANPA DIGESER ===== */
-  .tbl-wrap { overflow-x: hidden; margin: 0 -4px; }
+  /* ===== TABEL SUPER KOMPAK BIAR MUAT ===== */
+  .tbl-wrap { overflow-x: hidden; margin: 0; }
   table.htbl th, table.htbl td {
-    padding: 10px 6px; 
-    font-size: 11px; 
-    white-space: normal; /* Izinkan teks bungkus ke bawah */
+    padding: 8px 4px !important; /* Spasi dipres banget */
+    font-size: 10px !important; /* Huruf dikecilin */
+    white-space: normal;
   }
-  table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 10px !important; } /* Tgl sedikit dikecilin */
-  table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: auto; } /* Keterangan dibiarkan fleksibel */
+  table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 9px !important; min-width: 60px; } 
+  table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: auto; }
   
-  /* Sembunyikan kolom "TIPE" biar hemat tempat banget (Karena Angka udah ada +/- dan warnanya) */
+  /* Sembunyikan kolom "TIPE" */
   table.htbl th:nth-child(4), table.htbl td:nth-child(4) { display: none; }
   
-  /* Kolom JUMLAH jangan sampai turun baris */
+  /* Kolom JUMLAH dibikin satu baris */
   table.htbl th:nth-child(5), table.htbl td:nth-child(5) {
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 11px !important; 
   }
   /* Kolom tombol Hapus (X) */
-  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { padding: 10px 2px; }
+  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { padding: 8px 2px !important; }
 }
 </style>
 </head>
