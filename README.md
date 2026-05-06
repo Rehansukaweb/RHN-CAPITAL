@@ -363,8 +363,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const CATS = {
-  income:  ['Gaji','Investasi','Penjualan','Bonus','Dividen','Bunga','Transfer Masuk','Lainnya'],
-  expense: ['Operasional','Pembelian Aset','Gaji Karyawan','Marketing','Utilitas','Transportasi','Pajak','Sewa','Lainnya']
+  income:  ['Gaji','Investasi','Ongkos Harian','Bonus','Dividen','Bunga','Transfer Masuk','Lainnya'],
+  expense: ['Operasional','Pembelian Aset','Gaji Karyawan','Marketing','Utilitas','Transportasi','Makan','Minum','Lainnya']
 };
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
