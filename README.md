@@ -364,7 +364,7 @@ const db = getFirestore(app);
 
 const CATS = {
   income:  ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'],
-  expense: ['Operasional','Pembelian Aset(Investasi)','Gaji Karyawan','Marketing','Utilitas','Transportasi','Makan','Minum','Lainnya']
+  expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya']
 };
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
