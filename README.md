@@ -17,7 +17,7 @@
   --text:#1a1a18;--text2:#5a5850;--text3:#9a9688;
   --radius:12px;--radius-sm:8px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;transition:background 0.3s, color 0.3s;}
 
 /* ===== AUTH SCREEN ===== */
 #auth-screen{
@@ -25,8 +25,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   display:flex;align-items:center;justify-content:center;z-index:999;
 }
 .auth-box{
-  background:#fff;border-radius:16px;padding:40px 44px;
+  background:var(--card);border-radius:16px;padding:40px 44px;
   width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,0.35);
+  transition:all 0.3s;
 }
 .auth-logo{text-align:center;margin-bottom:28px}
 .auth-emblem{
@@ -86,7 +87,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .user-info{display:flex;align-items:center;gap:10px}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,0.2);border:1.5px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold2)}
 .user-name{font-size:12px;color:rgba(255,255,255,.7);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.logout-btn{padding:6px 12px;border:1px solid rgba(201,168,76,0.35);border-radius:6px;background:transparent;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.logout-btn{padding:6px 12px;border:1px solid rgba(201,168,76,0.35);border-radius:6px;background:transparent;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;}
 .logout-btn:hover{border-color:var(--gold);color:var(--gold2)}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:#9a9688;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -98,7 +99,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .main{padding:28px 32px;max-width:1200px;margin:0 auto}
 .page{display:none}.page.active{display:block}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.m-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;position:relative;overflow:hidden}
+.m-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;position:relative;overflow:hidden;transition:background 0.3s, border-color 0.3s;}
 .m-card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.06}
 .m-card.inc::after{background:var(--green)}.m-card.exp::after{background:var(--red)}.m-card.bal::after{background:var(--gold)}.m-card.cnt::after{background:#4a8fd4}
 .m-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
@@ -110,7 +111,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .inc .m-bar-fill{background:var(--green)}.exp .m-bar-fill{background:var(--red)}.bal .m-bar-fill{background:var(--gold)}.cnt .m-bar-fill{background:#4a8fd4}
 .panel{display:grid;grid-template-columns:400px 1fr;gap:20px;margin-bottom:20px}
 .panel.wide{grid-template-columns:1fr}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 0.3s;}
 .card-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.2px}
 .card-sub{font-size:11px;color:var(--text3);margin-top:2px}
@@ -139,12 +140,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
 .tbl-wrap{overflow-x:auto}
 table.htbl{width:100%;border-collapse:collapse}
-table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg)}
+table.htbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);transition:background 0.3s;}
 table.htbl td{padding:12px 18px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
 table.htbl tr:last-child td{border-bottom:none}
 table.htbl tr:hover td{background:var(--bg)}
-
-/* --- FIX TABEL AGAR MENYEBAR PENUH --- */
 table.htbl th, table.htbl td { white-space: nowrap; }
 table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: 100%; white-space: normal; }
 table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(6), table.htbl td:nth-child(6) { text-align: right; }
@@ -153,7 +152,7 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 .badge.income{background:rgba(26,158,107,0.1);color:var(--green)}.badge.expense{background:rgba(217,79,79,0.1);color:var(--red)}
 .a-pos{color:var(--green);font-weight:600}.a-neg{color:var(--red);font-weight:600}
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
-.sum-item{padding:18px 22px;background:var(--card);text-align:center}
+.sum-item{padding:18px 22px;background:var(--card);text-align:center;transition:background 0.3s;}
 .sum-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .sum-val{font-size:20px;font-weight:600}
 .chart-wrap{padding:20px 22px}.chart-legend{display:flex;gap:20px;margin-bottom:14px}
@@ -171,66 +170,56 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* ===== TAMBAHAN UNTUK MOBILE RESPONSIVE (PAS DI HP) ===== */
+
+/* ===== MODE GELAP (DARK THEME) ===== */
+body.dark-mode {
+  --bg: #070e1a; 
+  --bg2: #0b1729; 
+  --bg3: #122040;
+  --card: #0d1a2f; 
+  --border: #1f3a60; 
+  --border2: #2a4b8d;
+  --text: #f0f0f0; 
+  --text2: #cccccc; 
+  --text3: #8892b0;
+  --navy: #040914; 
+  --navy2: #070e1a; 
+  --navy3: #0d1a2f;
+}
+body.dark-mode .auth-title { color: var(--gold2); }
+
+
+/* ===== RESPONSIVE KHUSUS MOBILE (DIKECILIN & DIRAPIKAN) ===== */
 @media (max-width: 768px) {
-  /* Bikin Topbar jadi fleksibel dan susun ke bawah */
-  .topbar {
-    padding: 12px 16px;
-    height: auto;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .topbar-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-  /* Sembunyikan jam live di HP agar hemat tempat */
-  .live-clock { display: none; }
+  /* Susun Topbar ke bawah */
+  .topbar { padding: 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .topbar-right { width: 100%; justify-content: space-between; }
+  .live-clock { display: none; } /* Hilangin jam biar ga menuhi layar */
+  .user-info { gap: 8px; }
 
-  /* Bikin Menu Navigasi bisa digeser/swipe ke samping */
-  .nav {
-    padding: 0 16px;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
-  .nav::-webkit-scrollbar { display: none; } /* Sembunyikan scrollbar menu */
-
-  /* Kurangi jarak margin/padding utama */
+  /* Bikin menu bisa digeser ke samping */
+  .nav { padding: 0 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .nav::-webkit-scrollbar { display: none; }
+  
   .main { padding: 16px; }
 
-  /* Kotak ringkasan jadi 2 kolom (atau 1 kolom untuk layar yang sangat kecil) */
-  .metrics { grid-template-columns: repeat(2, 1fr); }
-  
-  /* Form input & List transaksi berbaris ke bawah, tidak menyamping */
-  .panel { grid-template-columns: 1fr; }
-  
-  /* Sesuaikan form pencarian agar lebar penuh */
-  .filter-bar { flex-direction: column; align-items: stretch; }
-  .filter-bar input, .filter-bar select { width: 100%; }
-  
-  /* Sesuaikan kotak ringkasan nominal */
-  .sum-grid { grid-template-columns: 1fr; }
-  
-  /* Rapikan header tabel/grafik */
-  .card-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  /* Perkecil padding kotak login */
-  .auth-box {
-    padding: 32px 24px;
-    width: 90%;
-  }
-}
+  /* DIKECILIN: Bikin jadi 2 kolom menyamping, teksnya diperkecil biar proporsional */
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+  .m-card { padding: 14px 12px; }
+  .m-val { font-size: 16px; } /* Angka nominal diperkecil */
+  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 4px; } /* Judul kartu diperkecil */
+  .m-sub { font-size: 9px; margin-top: 4px; }
+  .m-card::after { width: 40px; height: 40px; } /* Lengkungan di pojok diperkecil */
 
-/* Khusus untuk HP dengan layar yang sangat kecil */
-@media (max-width: 480px) {
-  .metrics { grid-template-columns: 1fr; }
-  .logo-name { font-size: 14px; }
+  /* Form dan tabel disusun atas-bawah */
+  .panel { grid-template-columns: 1fr; gap: 16px; }
+  .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .filter-bar input, .filter-bar select { width: 100%; }
+  .sum-grid { grid-template-columns: 1fr; }
+  .card-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+  
+  /* Modal login diperkecil */
+  .auth-box { padding: 28px 20px; width: 90%; }
 }
 </style>
 </head>
@@ -287,6 +276,7 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
       <div class="date" id="live-date">-</div>
     </div>
     <div class="user-info">
+      <button id="theme-toggle" class="logout-btn" onclick="toggleTheme()" title="Ganti Tema" style="padding:4px 8px; font-size:14px; border-radius:6px; color:var(--gold2);">🌙</button>
       <div class="user-avatar" id="user-avatar">?</div>
       <div class="user-name" id="user-name">-</div>
       <button class="logout-btn" onclick="doLogout()">Keluar</button>
@@ -404,6 +394,19 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 </div>
 
 </div></div><script type="module">
+// FUNGSI TEMA GELAP (DARK THEME)
+window.toggleTheme = function() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+};
+// Cek tema yang tersimpan pas pertama buka
+if(localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+  document.getElementById('theme-toggle').textContent = '☀️';
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
