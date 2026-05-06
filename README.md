@@ -170,6 +170,68 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ===== TAMBAHAN UNTUK MOBILE RESPONSIVE (PAS DI HP) ===== */
+@media (max-width: 768px) {
+  /* Bikin Topbar jadi fleksibel dan susun ke bawah */
+  .topbar {
+    padding: 12px 16px;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  /* Sembunyikan jam live di HP agar hemat tempat */
+  .live-clock { display: none; }
+
+  /* Bikin Menu Navigasi bisa digeser/swipe ke samping */
+  .nav {
+    padding: 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav::-webkit-scrollbar { display: none; } /* Sembunyikan scrollbar menu */
+
+  /* Kurangi jarak margin/padding utama */
+  .main { padding: 16px; }
+
+  /* Kotak ringkasan jadi 2 kolom (atau 1 kolom untuk layar yang sangat kecil) */
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  
+  /* Form input & List transaksi berbaris ke bawah, tidak menyamping */
+  .panel { grid-template-columns: 1fr; }
+  
+  /* Sesuaikan form pencarian agar lebar penuh */
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar input, .filter-bar select { width: 100%; }
+  
+  /* Sesuaikan kotak ringkasan nominal */
+  .sum-grid { grid-template-columns: 1fr; }
+  
+  /* Rapikan header tabel/grafik */
+  .card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  /* Perkecil padding kotak login */
+  .auth-box {
+    padding: 32px 24px;
+    width: 90%;
+  }
+}
+
+/* Khusus untuk HP dengan layar yang sangat kecil */
+@media (max-width: 480px) {
+  .metrics { grid-template-columns: 1fr; }
+  .logo-name { font-size: 14px; }
+}
 </style>
 </head>
 <body>
@@ -655,4 +717,3 @@ selType('income');
 </script>
 </body>
 </html>
-
