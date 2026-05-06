@@ -224,7 +224,7 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   .chart-wrap { padding: 12px; }
   .auth-box { padding: 24px 16px; width: 92%; }
 
-  /* ===== TABEL SUPER KOMPAK BIAR MUAT ===== */
+  /* ===== TABEL SUPER KOMPAK & RENGGANG HILANG ===== */
   .tbl-wrap { overflow-x: hidden; margin: 0; }
   table.htbl th, table.htbl td {
     padding: 8px 4px !important; /* Spasi dipres banget */
@@ -232,18 +232,27 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
     white-space: normal;
   }
   table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 9px !important; min-width: 60px; } 
-  table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: auto; }
+  
+  /* Kolom Keterangan dibikin melebar buat ngisi sisa ruang kosong */
+  table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: 100%; }
   
   /* Sembunyikan kolom "TIPE" */
   table.htbl th:nth-child(4), table.htbl td:nth-child(4) { display: none; }
   
-  /* Kolom JUMLAH dibikin satu baris */
+  /* Kolom JUMLAH dibikin satu baris & geser ke kanan dikit */
   table.htbl th:nth-child(5), table.htbl td:nth-child(5) {
     white-space: nowrap;
     font-size: 11px !important; 
+    text-align: right;
   }
-  /* Kolom tombol Hapus (X) */
-  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { padding: 8px 2px !important; }
+  
+  /* SOLUSI RENGGANG: Munculin Icon Delete (✕) Permanen di HP & Mepetin ke ujung kanan */
+  .del-btn { opacity: 1 !important; color: var(--red) !important; padding: 4px !important; font-weight: bold; }
+  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { 
+    width: 1%; /* Paksa sempit */
+    padding-right: 16px !important; /* Mepet ke pojok layar */
+    text-align: right; 
+  }
 }
 </style>
 </head>
