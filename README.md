@@ -189,37 +189,55 @@ body.dark-mode {
 body.dark-mode .auth-title { color: var(--gold2); }
 
 
-/* ===== RESPONSIVE KHUSUS MOBILE (DIKECILIN & DIRAPIKAN) ===== */
+/* ===== RESPONSIVE KHUSUS MOBILE (PERBAIKAN FINAL) ===== */
 @media (max-width: 768px) {
-  /* Susun Topbar ke bawah */
-  .topbar { padding: 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
+  /* BANTALAN ATAS DITAMBAH: Biar logo gak ketutup jam HP / status bar */
+  .topbar { padding: 32px 16px 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
   .topbar-right { width: 100%; justify-content: space-between; }
-  .live-clock { display: none; } /* Hilangin jam biar ga menuhi layar */
+  .live-clock { display: none; }
   .user-info { gap: 8px; }
 
-  /* Bikin menu bisa digeser ke samping */
+  /* Navigasi */
   .nav { padding: 0 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
   .nav::-webkit-scrollbar { display: none; }
-  
   .main { padding: 16px; }
 
-  /* DIKECILIN: Bikin jadi 2 kolom menyamping, teksnya diperkecil biar proporsional */
+  /* Matriks */
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
   .m-card { padding: 14px 12px; }
-  .m-val { font-size: 16px; } /* Angka nominal diperkecil */
-  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 4px; } /* Judul kartu diperkecil */
+  .m-val { font-size: 16px; } 
+  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 4px; } 
   .m-sub { font-size: 9px; margin-top: 4px; }
-  .m-card::after { width: 40px; height: 40px; } /* Lengkungan di pojok diperkecil */
+  .m-card::after { width: 40px; height: 40px; } 
 
-  /* Form dan tabel disusun atas-bawah */
+  /* Form / Layout dasar */
   .panel { grid-template-columns: 1fr; gap: 16px; }
   .filter-bar { flex-direction: column; align-items: stretch; gap: 8px; }
   .filter-bar input, .filter-bar select { width: 100%; }
   .sum-grid { grid-template-columns: 1fr; }
   .card-head { flex-direction: column; align-items: flex-start; gap: 8px; }
-  
-  /* Modal login diperkecil */
   .auth-box { padding: 28px 20px; width: 90%; }
+
+  /* ===== PERBAIKAN TABEL AGAR MUAT TANPA DIGESER ===== */
+  .tbl-wrap { overflow-x: hidden; margin: 0 -4px; }
+  table.htbl th, table.htbl td {
+    padding: 10px 6px; 
+    font-size: 11px; 
+    white-space: normal; /* Izinkan teks bungkus ke bawah */
+  }
+  table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 10px !important; } /* Tgl sedikit dikecilin */
+  table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: auto; } /* Keterangan dibiarkan fleksibel */
+  
+  /* Sembunyikan kolom "TIPE" biar hemat tempat banget (Karena Angka udah ada +/- dan warnanya) */
+  table.htbl th:nth-child(4), table.htbl td:nth-child(4) { display: none; }
+  
+  /* Kolom JUMLAH jangan sampai turun baris */
+  table.htbl th:nth-child(5), table.htbl td:nth-child(5) {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  /* Kolom tombol Hapus (X) */
+  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { padding: 10px 2px; }
 }
 </style>
 </head>
