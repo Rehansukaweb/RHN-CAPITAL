@@ -254,6 +254,15 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
     text-align: right; 
   }
 }
+
+/* ===== MODAL NOTIFIKASI TAMBAHAN ===== */
+#daily-reminder-modal {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); 
+  align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(4px);
+}
+#daily-reminder-modal .card {
+  width: 90%; max-width: 360px; padding: 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
 </style>
 </head>
 <body>
@@ -426,6 +435,29 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   </div>
 </div>
 
+<div id="daily-reminder-modal">
+  <div class="card">
+    <div style="font-size: 36px; margin-bottom: 8px;">🔔</div>
+    <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px;">Ringkasan Keuangan Hari Ini</h2>
+    <p style="font-size: 12px; color: var(--text3); margin-bottom: 20px;">Laporan harian otomatis pukul 17:00</p>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase;">Pemasukan</span>
+        <span class="a-pos" id="rem-inc" style="font-weight: 600;">Rp 0</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase;">Pengeluaran</span>
+        <span class="a-neg" id="rem-exp" style="font-weight: 600;">Rp 0</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--navy);">
+        <span style="font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); text-transform: uppercase;">Saldo Bersih</span>
+        <span id="rem-bal" style="font-weight: 600; color: var(--gold2);">Rp 0</span>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="document.getElementById('daily-reminder-modal').style.display='none'">Tutup Notifikasi</button>
+  </div>
+</div>
+
 </div></div><script type="module">
 // FUNGSI TEMA GELAP (DARK THEME)
 window.toggleTheme = function() {
@@ -588,10 +620,47 @@ window.delTx=async function(id){
   catch(e){alert('Gagal menghapus: '+e.message);}
 };
 
+// --- LOGIKA NOTIFIKASI JAM 5 SORE ---
+if ("Notification" in window && Notification.permission !== "denied") {
+  Notification.requestPermission();
+}
+
+function triggerDailyReminder() {
+  if (!currentUser) return;
+  const todayTxs = txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString());
+  const s = calcSum(todayTxs);
+
+  document.getElementById('rem-inc').textContent = fmt(s.inc);
+  document.getElementById('rem-exp').textContent = fmt(s.exp);
+  document.getElementById('rem-bal').textContent = fmt(s.bal);
+  document.getElementById('daily-reminder-modal').style.display = 'flex';
+
+  if (Notification.permission === 'granted') {
+    const statusIcon = s.bal >= 0 ? '✅' : '⚠️';
+    const statusText = s.bal >= 0 ? 'Surplus' : 'Defisit';
+    const msg = `💚 Masuk: ${fmt(s.inc)}\n❤️ Keluar: ${fmt(s.exp)}\n${statusIcon} ${statusText}: ${fmt(Math.abs(s.bal))}\n(${s.count} transaksi tercatat)`;
+    
+    new Notification('📊 Ringkasan RHN Capital — Hari Ini', {
+      body: msg,
+      icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135679.png'
+    });
+  }
+}
+
 function updateClock(){
   const n=new Date();
   document.getElementById('live-time').textContent=n.toLocaleTimeString('id-ID');
   document.getElementById('live-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // Pengecekan jam 17:00
+  if (n.getHours() === 17 && n.getMinutes() === 0) {
+    const todayStr = n.toDateString();
+    const lastReminded = localStorage.getItem('lastReminderDate');
+    if (lastReminded !== todayStr) {
+      triggerDailyReminder();
+      localStorage.setItem('lastReminderDate', todayStr);
+    }
+  }
 }
 setInterval(updateClock,1000);updateClock();
 
@@ -747,9 +816,6 @@ function refreshAll(){
 document.getElementById('pick-daily').value=new Date().toISOString().slice(0,10);
 document.getElementById('f-date').value=nowISO();
 selType('income');
-
-// Aktifkan Email/Password Auth di Firebase Console dulu!
-// Keamanan > Authentication > Sign-in method > Email/Password > Enable
 </script>
 </body>
 </html>
