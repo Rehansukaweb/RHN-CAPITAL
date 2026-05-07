@@ -19,7 +19,7 @@
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;transition:background 0.3s, color 0.3s;}
 
-/* ===== STYLE KHUSUS KURS & ICON (TAMBAHAN) ===== */
+/* ===== KURS & ICON STYLE (DITAMBAHKAN) ===== */
 .usd-wrapper { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
 .usd-icon { 
     background: #25c584; color: white; border-radius: 50%; 
@@ -492,6 +492,7 @@ async function updateLiveRate() {
       refreshAll();
     }
   } catch(e) { 
+    console.log("Kurs offline.");
     document.getElementById('rate-display').textContent = `Kurs: $1 = Rp16.250`;
   }
 }
