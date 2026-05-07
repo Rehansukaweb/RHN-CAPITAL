@@ -340,7 +340,7 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
           <div class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</div>
           <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">− Pengeluaran</div>
         </div>
-        <div class="form-row"><label class="form-label">Jumlah ($)</label><input type="number" id="f-amount" placeholder="0" min="0" step="0.01"></div>
+        <div class="form-row"><label class="form-label">Jumlah (Rp)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
         <div class="form-row"><label class="form-label">Kategori</label><select id="f-cat"><option value="">Pilih kategori...</option></select></div>
         <div class="form-row"><label class="form-label">Keterangan</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
         <div class="form-row"><label class="form-label">Tanggal &amp; Jam</label><input type="datetime-local" id="f-date"></div>
@@ -467,8 +467,7 @@ const CATS = {
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
 
-// CONVERT KE DOLAR: Menggunakan format USD ($)
-const fmt     = n  => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt     = n  => 'Rp '+Math.round(n).toLocaleString('id-ID');
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
 const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
@@ -641,7 +640,7 @@ function mkChart(id,labels,incData,expData){
     {label:'Pengeluaran',data:expData,backgroundColor:'rgba(217,79,79,0.7)',borderRadius:4,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
     x:{ticks:{color:'#9a9688',font:{size:10,family:"'DM Sans',sans-serif"}},grid:{display:false},border:{display:false}},
-    y:{ticks:{color:'#9a9688',font:{size:10},callback:v=>'$'+Intl.NumberFormat('en-US',{notation:'compact'}).format(v)},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
+    y:{ticks:{color:'#9a9688',font:{size:10},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
   }}});
 }
 function renderMetrics(){
