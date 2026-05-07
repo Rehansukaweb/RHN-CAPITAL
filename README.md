@@ -652,8 +652,8 @@ function updateClock(){
   document.getElementById('live-time').textContent=n.toLocaleTimeString('id-ID');
   document.getElementById('live-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 
-  // Pengecekan jam 13:52
-  if (n.getHours() === 13 && n.getMinutes() === 52) {
+  // Pengecekan jam 13:55
+  if (n.getHours() === 13 && n.getMinutes() === 55) {
     const todayStr = n.toDateString();
     const lastReminded = localStorage.getItem('lastReminderDate');
     if (lastReminded !== todayStr) {
