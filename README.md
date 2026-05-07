@@ -19,17 +19,6 @@
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;transition:background 0.3s, color 0.3s;}
 
-/* ===== KURS & ICON STYLE (DITAMBAHKAN) ===== */
-.usd-wrapper { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
-.usd-icon { 
-    background: #25c584; color: white; border-radius: 50%; 
-    width: 14px; height: 14px; display: inline-flex; 
-    align-items: center; justify-content: center; 
-    font-size: 9px; font-weight: bold; font-family: 'DM Mono';
-}
-.usd-small { font-size: 0.85em; color: var(--text3); font-family: 'DM Mono', monospace; font-weight: 500; }
-#rate-display { font-size: 10px; color: var(--gold2); border: 1.5px solid rgba(201,168,76,0.3); padding: 4px 10px; border-radius: 6px; margin-right: 12px; font-family: 'DM Mono', monospace; }
-
 /* ===== AUTH SCREEN ===== */
 #auth-screen{
   position:fixed;inset:0;background:var(--navy);
@@ -91,7 +80,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .logo-emblem{width:40px;height:40px;background:rgba(201,168,76,0.12);border:1.5px solid rgba(201,168,76,0.5);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:var(--gold2);font-family:'DM Mono',monospace;letter-spacing:-1px}
 .logo-name{font-size:16px;font-weight:600;color:#fff;letter-spacing:.3px}
 .logo-tagline{font-size:10px;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;margin-top:1px}
-.topbar-right{display:flex;align-items:center;gap:20px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+
+/* Widget USD */
+.usd-widget{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,0.3);}
+.usd-symbol{color:var(--gold2);font-weight:600;font-family:'DM Mono',monospace;font-size:16px;}
+.usd-info{display:flex;flex-direction:column;line-height:1;}
+.usd-val{color:#fff;font-size:13px;font-weight:600;font-family:'DM Mono',monospace;}
+.usd-lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
 .live-clock{text-align:right}
 .live-clock .time{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:#fff;letter-spacing:1px}
 .live-clock .date{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
@@ -114,7 +111,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .m-card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.06}
 .m-card.inc::after{background:var(--green)}.m-card.exp::after{background:var(--red)}.m-card.bal::after{background:var(--gold)}.m-card.cnt::after{background:#4a8fd4}
 .m-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.m-val{font-size:20px;font-weight:600;color:var(--text);display:flex;flex-direction:column;}
+.m-val{font-size:20px;font-weight:600;color:var(--text)}
 .m-val.pos{color:var(--green)}.m-val.neg{color:var(--red)}.m-val.gold{color:var(--gold)}.m-val.blue{color:#4a8fd4}
 .m-sub{font-size:11px;color:var(--text3);margin-top:5px}
 .m-bar{height:3px;background:var(--bg2);border-radius:2px;margin-top:12px}
@@ -145,7 +142,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .ri-icon.inc{background:rgba(26,158,107,0.1);color:var(--green)}.ri-icon.exp{background:rgba(217,79,79,0.1);color:var(--red)}
 .ri-left{display:flex;align-items:center}.ri-note{font-size:13px;font-weight:500;color:var(--text)}
 .ri-meta{font-size:11px;color:var(--text3);margin-top:2px}.ri-right{text-align:right}
-.ri-amount{font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:flex-end;}.ri-amount.pos{color:var(--green)}.ri-amount.neg{color:var(--red)}
+.ri-amount{font-size:13px;font-weight:600}.ri-amount.pos{color:var(--green)}.ri-amount.neg{color:var(--red)}
 .del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:4px;opacity:0;transition:opacity .2s;margin-top:3px}
 .recent-item:hover .del-btn{opacity:1}.del-btn:hover{color:var(--red)}
 
@@ -165,7 +162,7 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
 .sum-item{padding:18px 22px;background:var(--card);text-align:center;transition:background 0.3s;}
 .sum-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.sum-val{font-size:20px;font-weight:600;display:flex;flex-direction:column;}
+.sum-val{font-size:20px;font-weight:600}
 .chart-wrap{padding:20px 22px}.chart-legend{display:flex;gap:20px;margin-bottom:14px}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px}
@@ -205,20 +202,21 @@ body.dark-mode table.htbl td { background-color: var(--card) !important; color: 
 body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; }
 
 
-/* ===== RESPONSIVE KHUSUS MOBILE (DIKECILIN MAKSIMAL) ===== */
+/* ===== RESPONSIVE KHUSUS MOBILE ===== */
 @media (max-width: 768px) {
-  /* Topbar dibikin lebih tipis/kompak */
   .topbar { padding: 16px 16px 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 8px; }
-  .topbar-right { width: 100%; justify-content: space-between; }
+  .topbar-right { width: 100%; justify-content: space-between; gap: 8px; }
   .live-clock { display: none; }
   .user-info { gap: 8px; }
+  
+  /* Sembunyikan label USD di mobile agar hemat tempat */
+  .usd-lbl { display: none; }
+  .usd-widget { padding: 4px 8px; }
 
-  /* Navigasi */
   .nav { padding: 0 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
   .nav::-webkit-scrollbar { display: none; }
   .main { padding: 12px; }
 
-  /* Matriks / Ringkasan */
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
   .m-card { padding: 12px 10px; }
   .m-val { font-size: 15px; } 
@@ -226,7 +224,6 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   .m-sub { font-size: 8px; margin-top: 4px; }
   .m-card::after { width: 30px; height: 30px; } 
 
-  /* Form & Chart Layout */
   .panel { grid-template-columns: 1fr; gap: 12px; }
   .filter-bar { flex-direction: column; align-items: stretch; gap: 6px; }
   .filter-bar input, .filter-bar select { width: 100%; }
@@ -235,33 +232,25 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   .chart-wrap { padding: 12px; }
   .auth-box { padding: 24px 16px; width: 92%; }
 
-  /* ===== TABEL SUPER KOMPAK & RENGGANG HILANG ===== */
   .tbl-wrap { overflow-x: hidden; margin: 0; }
   table.htbl th, table.htbl td {
-    padding: 8px 4px !important; /* Spasi dipres banget */
-    font-size: 10px !important; /* Huruf dikecilin */
+    padding: 8px 4px !important;
+    font-size: 10px !important;
     white-space: normal;
   }
   table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 9px !important; min-width: 60px; } 
-  
-  /* Kolom Keterangan dibikin melebar buat ngisi sisa ruang kosong */
   table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: 100%; }
-  
-  /* Sembunyikan kolom "TIPE" */
   table.htbl th:nth-child(4), table.htbl td:nth-child(4) { display: none; }
-  
-  /* Kolom JUMLAH dibikin satu baris & geser ke kanan dikit */
   table.htbl th:nth-child(5), table.htbl td:nth-child(5) {
     white-space: nowrap;
     font-size: 11px !important; 
     text-align: right;
   }
   
-  /* SOLUSI RENGGANG: Munculin Icon Delete (✕) Permanen di HP & Mepetin ke ujung kanan */
   .del-btn { opacity: 1 !important; color: var(--red) !important; padding: 4px !important; font-weight: bold; }
   table.htbl th:nth-child(6), table.htbl td:nth-child(6) { 
-    width: 1%; /* Paksa sempit */
-    padding-right: 16px !important; /* Mepet ke pojok layar */
+    width: 1%; 
+    padding-right: 16px !important;
     text-align: right; 
   }
 }
@@ -311,11 +300,18 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
     </div>
   </div>
   <div class="topbar-right">
+    <div class="usd-widget">
+      <span class="usd-symbol">$</span>
+      <div class="usd-info">
+        <span id="usd-rate" class="usd-val">...</span>
+        <span class="usd-lbl">USD/IDR</span>
+      </div>
+    </div>
+
     <div style="display:flex;align-items:center;gap:6px">
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-label" id="sync-label">Menghubungkan...</span>
     </div>
-    <div id="rate-display">Kurs: Menghitung...</div>
     <div class="live-clock">
       <div class="time" id="live-time">--:--:--</div>
       <div class="date" id="live-date">-</div>
@@ -438,7 +434,9 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   </div>
 </div>
 
-</div></div><script type="module">
+</div></div>
+
+<script type="module">
 // FUNGSI TEMA GELAP (DARK THEME)
 window.toggleTheme = function() {
   document.body.classList.toggle('dark-mode');
@@ -446,7 +444,6 @@ window.toggleTheme = function() {
   document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 };
-// Cek tema yang tersimpan pas pertama buka
 if(localStorage.getItem('theme') === 'dark') {
   document.body.classList.add('dark-mode');
   document.getElementById('theme-toggle').textContent = '☀️';
@@ -479,42 +476,27 @@ const CATS = {
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
 
-// LOGIKA KURS REALTIME (TAMBAHAN)
-let idrToUsdRate = 1 / 16250; 
-
-async function updateLiveRate() {
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/IDR');
-    const data = await res.json();
-    if(data && data.rates && data.rates.USD) {
-      idrToUsdRate = data.rates.USD;
-      document.getElementById('rate-display').textContent = `Kurs: $1 = Rp${(1/idrToUsdRate).toLocaleString('id-ID')}`;
-      refreshAll();
-    }
-  } catch(e) { 
-    console.log("Kurs offline.");
-    document.getElementById('rate-display').textContent = `Kurs: $1 = Rp16.250`;
-  }
-}
-updateLiveRate();
-
-// FORMAT DUA MATA UANG DENGAN ICON (TAMBAHAN)
-const fmt = n => {
-  const rp = 'Rp ' + Math.round(n).toLocaleString('id-ID');
-  const usdVal = (n * idrToUsdRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `
-    <span>${rp}</span>
-    <div class="usd-wrapper">
-      <div class="usd-icon">$</div>
-      <span class="usd-small">${usdVal}</span>
-    </div>
-  `;
-};
-
+const fmt     = n  => 'Rp '+Math.round(n).toLocaleString('id-ID');
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
 const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
 const nowISO  = () => new Date().toISOString().slice(0,16);
+
+// FUNGSI AMBIL KURS USD KE IDR REAL-TIME
+async function fetchUSDRate() {
+  const rateEl = document.getElementById('usd-rate');
+  try {
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await response.json();
+    const idrRate = data.rates.IDR;
+    rateEl.textContent = new Intl.NumberFormat('id-ID').format(idrRate);
+  } catch (error) {
+    console.error('Kurs Error:', error);
+    rateEl.textContent = "Offline";
+  }
+}
+fetchUSDRate();
+setInterval(fetchUSDRate, 60000); // Update tiap 1 menit
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block' }
 function hideErr(){ document.getElementById('auth-err').style.display='none' }
@@ -528,7 +510,6 @@ function setSyncStatus(ok){
   document.getElementById('sync-label').textContent=ok?'Tersinkron':'Offline';
 }
 
-// AUTH TABS
 window.switchTab=function(mode){
   authMode=mode;
   document.getElementById('tab-login').classList.toggle('active',mode==='login');
@@ -538,7 +519,6 @@ window.switchTab=function(mode){
   hideErr();
 };
 
-// DO AUTH
 window.doAuth=async function(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
@@ -574,7 +554,6 @@ window.doLogout=async function(){
   await signOut(auth);
 };
 
-// AUTH STATE
 onAuthStateChanged(auth,user=>{
   if(user){
     currentUser=user;
