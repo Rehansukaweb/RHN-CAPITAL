@@ -19,6 +19,10 @@
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;transition:background 0.3s, color 0.3s;}
 
+/* ===== CSS TAMBAHAN UNTUK USD (TIDAK MERUBAH ASLI) ===== */
+.usd-small { font-size: 0.75em; color: var(--text3); font-family: 'DM Mono', monospace; display: block; font-weight: 400; margin-top: 2px; }
+#rate-display { font-size: 10px; color: var(--gold2); border: 1px solid rgba(201,168,76,0.3); padding: 2px 8px; border-radius: 4px; margin-right: 12px; font-family: 'DM Mono', monospace; }
+
 /* ===== AUTH SCREEN ===== */
 #auth-screen{
   position:fixed;inset:0;background:var(--navy);
@@ -103,7 +107,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .m-card::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 0 0 80px;opacity:.06}
 .m-card.inc::after{background:var(--green)}.m-card.exp::after{background:var(--red)}.m-card.bal::after{background:var(--gold)}.m-card.cnt::after{background:#4a8fd4}
 .m-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.m-val{font-size:20px;font-weight:600;color:var(--text)}
+.m-val{font-size:18px;font-weight:600;color:var(--text);display:flex;flex-direction:column;}
 .m-val.pos{color:var(--green)}.m-val.neg{color:var(--red)}.m-val.gold{color:var(--gold)}.m-val.blue{color:#4a8fd4}
 .m-sub{font-size:11px;color:var(--text3);margin-top:5px}
 .m-bar{height:3px;background:var(--bg2);border-radius:2px;margin-top:12px}
@@ -134,7 +138,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .ri-icon.inc{background:rgba(26,158,107,0.1);color:var(--green)}.ri-icon.exp{background:rgba(217,79,79,0.1);color:var(--red)}
 .ri-left{display:flex;align-items:center}.ri-note{font-size:13px;font-weight:500;color:var(--text)}
 .ri-meta{font-size:11px;color:var(--text3);margin-top:2px}.ri-right{text-align:right}
-.ri-amount{font-size:13px;font-weight:600}.ri-amount.pos{color:var(--green)}.ri-amount.neg{color:var(--red)}
+.ri-amount{font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:flex-end;}.ri-amount.pos{color:var(--green)}.ri-amount.neg{color:var(--red)}
 .del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:4px;opacity:0;transition:opacity .2s;margin-top:3px}
 .recent-item:hover .del-btn{opacity:1}.del-btn:hover{color:var(--red)}
 
@@ -154,7 +158,7 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
 .sum-item{padding:18px 22px;background:var(--card);text-align:center;transition:background 0.3s;}
 .sum-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.sum-val{font-size:20px;font-weight:600}
+.sum-val{font-size:18px;font-weight:600;display:flex;flex-direction:column;}
 .chart-wrap{padding:20px 22px}.chart-legend{display:flex;gap:20px;margin-bottom:14px}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px}
@@ -304,6 +308,7 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-label" id="sync-label">Menghubungkan...</span>
     </div>
+    <div id="rate-display" style="font-size: 10px; color: var(--gold2); border: 1px solid rgba(201,168,76,0.3); padding: 2px 8px; border-radius: 4px; margin-right: 12px; font-family: 'DM Mono', monospace;">Kurs: Loading...</div>
     <div class="live-clock">
       <div class="time" id="live-time">--:--:--</div>
       <div class="date" id="live-date">-</div>
@@ -467,7 +472,32 @@ const CATS = {
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
 
-const fmt     = n  => 'Rp '+Math.round(n).toLocaleString('id-ID');
+// LOGIKA KURS REALTIME
+let idrToUsdRate = 1 / 16250; // Standar awal
+
+async function updateLiveRate() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/IDR');
+    const data = await res.json();
+    if(data && data.rates && data.rates.USD) {
+      idrToUsdRate = data.rates.USD;
+      document.getElementById('rate-display').textContent = `Kurs: $1 = Rp${(1/idrToUsdRate).toLocaleString('id-ID')}`;
+      refreshAll();
+    }
+  } catch(e) { 
+    console.log("Kurs offline.");
+    document.getElementById('rate-display').textContent = `Kurs: $1 = Rp16.250`;
+  }
+}
+updateLiveRate();
+
+// FORMAT DUA MATA UANG
+const fmt = n => {
+  const rp = 'Rp' + Math.round(n).toLocaleString('id-ID');
+  const usd = '$' + (n * idrToUsdRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `<span>${rp}</span><span class="usd-small">(${usd})</span>`;
+};
+
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
 const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
