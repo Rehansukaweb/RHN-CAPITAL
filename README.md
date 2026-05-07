@@ -102,7 +102,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
   gap: 6px;
 }
 .usd-rate-box .lbl { font-size: 9px; color: var(--gold); font-weight: 700; }
-.usd-rate-box .val { font-family: 'DM Mono', monospace; font-size: 12px; color: #fff; }
+.usd-rate-box .val { 
+  font-family: 'DM Mono', monospace; 
+  font-size: 12px; 
+  color: #fff; 
+  transition: color 0.2s ease; /* Tambahan transisi warna */
+}
 
 .live-clock{text-align:right}
 .live-clock .time{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:#fff;letter-spacing:1px}
@@ -421,7 +426,7 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
 
 <div id="page-tahunan" class="page">
   <div class="card">
-    <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
+    <div class="card-head"><div class="card-title">Laporan Tahunannya</div></div>
     <div class="period-bar" id="year-sel"></div>
     <div class="sum-grid" id="year-sum"></div>
     <div class="chart-wrap">
@@ -489,27 +494,67 @@ const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',mi
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
 const nowISO  = () => new Date().toISOString().slice(0,16);
 
+// Formatting angka khusus untuk kurs (dengan 2 desimal)
+const kursIndo = new Intl.NumberFormat('id-ID', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
 /* FUNGSI KONVERSI DOLAR SIMPEL */
 const fmtUSD = n => {
   const usdVal = (n / currentUSDRate).toFixed(2);
   return `<span class="usd-inline">$${usdVal}</span>`;
 };
 
-/* AMBIL KURS REAL-TIME (SEPERTI GOOGLE) */
+/* AMBIL KURS REAL-TIME DENGAN WEBSOCKET (SETIAP DETIK) */
+function initLiveUSD() {
+  // Menggunakan Binance WebSocket (USDT/IDR) - Paling aktif bergerak setiap detik
+  const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
+
+  socket.addEventListener('message', function (event) {
+      const data = JSON.parse(event.data);
+      // 'c' adalah harga penutupan terakhir (Last Price)
+      const newPrice = parseFloat(data.c); 
+      
+      if (newPrice && newPrice !== currentUSDRate) {
+          currentUSDRate = newPrice;
+          const rateEl = document.getElementById('usd-rate-val');
+          
+          // Update angka di Topbar dengan format 2 desimal
+          rateEl.textContent = kursIndo.format(currentUSDRate);
+          
+          // Efek Visual Hijau saat harga berubah
+          rateEl.style.color = '#25c584';
+          rateEl.style.fontWeight = '700';
+          setTimeout(() => { 
+            rateEl.style.color = '#fff'; 
+            rateEl.style.fontWeight = '400';
+          }, 150);
+          
+          // Refresh hitungan di UI secara real-time
+          refreshAll();
+      }
+  });
+
+  socket.addEventListener('close', () => setTimeout(initLiveUSD, 3000));
+}
+
 async function fetchUSDRate() {
   try {
     const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
     const data = await response.json();
     currentUSDRate = data.rates.IDR;
-    document.getElementById('usd-rate-val').textContent = new Intl.NumberFormat('id-ID').format(currentUSDRate);
+    document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate);
     refreshAll();
   } catch (e) {
     console.error('Kurs Error:', e);
     document.getElementById('usd-rate-val').textContent = "Offline";
   }
 }
-fetchUSDRate();
-setInterval(fetchUSDRate, 300000); // Update tiap 5 menit
+
+// Mulai WebSocket setelah ambil data awal
+fetchUSDRate().then(initLiveUSD); 
+setInterval(fetchUSDRate, 300000); // Fallback setiap 5 menit
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block' }
 function hideErr(){ document.getElementById('auth-err').style.display='none' }
