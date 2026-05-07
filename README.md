@@ -170,52 +170,33 @@ table.htbl th:nth-child(5), table.htbl td:nth-child(5), table.htbl th:nth-child(
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-
 /* ===== MODE GELAP (DARK THEME) ===== */
 body.dark-mode {
-  --bg: #070e1a; 
-  --bg2: #0b1729; 
-  --bg3: #122040;
-  --card: #0d1a2f; 
-  --border: #1f3a60; 
-  --border2: #2a4b8d;
-  --text: #f0f0f0; 
-  --text2: #cccccc; 
-  --text3: #8892b0;
-  --navy: #040914; 
-  --navy2: #070e1a; 
-  --navy3: #0d1a2f;
+  --bg: #070e1a; --bg2: #0b1729; --bg3: #122040;
+  --card: #0d1a2f; --border: #1f3a60; --border2: #2a4b8d;
+  --text: #f0f0f0; --text2: #cccccc; --text3: #8892b0;
+  --navy: #040914; --navy2: #070e1a; --navy3: #0d1a2f;
 }
 body.dark-mode .auth-title { color: var(--gold2); }
-
-/* MEMAKSA TABEL AGAR IKUT GELAP DAN TIDAK TERANG (FIXED) */
 body.dark-mode table.htbl th { background-color: var(--bg2) !important; color: var(--text) !important; border-color: var(--border) !important; }
 body.dark-mode table.htbl td { background-color: var(--card) !important; color: var(--text) !important; border-color: var(--border) !important; }
 body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; }
 
-
-/* ===== RESPONSIVE KHUSUS MOBILE (DIKECILIN MAKSIMAL) ===== */
+/* ===== RESPONSIVE MOBILE ===== */
 @media (max-width: 768px) {
-  /* Topbar dibikin lebih tipis/kompak */
   .topbar { padding: 16px 16px 12px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 8px; }
   .topbar-right { width: 100%; justify-content: space-between; }
   .live-clock { display: none; }
   .user-info { gap: 8px; }
-
-  /* Navigasi */
   .nav { padding: 0 16px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
   .nav::-webkit-scrollbar { display: none; }
   .main { padding: 12px; }
-
-  /* Matriks / Ringkasan */
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
   .m-card { padding: 12px 10px; }
-  .m-val { font-size: 15px; } 
-  .m-label { font-size: 8px; letter-spacing: 0.5px; margin-bottom: 4px; } 
+  .m-val { font-size: 15px; }
+  .m-label { font-size: 8px; letter-spacing: 0.5px; margin-bottom: 4px; }
   .m-sub { font-size: 8px; margin-top: 4px; }
-  .m-card::after { width: 30px; height: 30px; } 
-
-  /* Form & Chart Layout */
+  .m-card::after { width: 30px; height: 30px; }
   .panel { grid-template-columns: 1fr; gap: 12px; }
   .filter-bar { flex-direction: column; align-items: stretch; gap: 6px; }
   .filter-bar input, .filter-bar select { width: 100%; }
@@ -223,36 +204,34 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   .card-head { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
   .chart-wrap { padding: 12px; }
   .auth-box { padding: 24px 16px; width: 92%; }
-
-  /* ===== TABEL SUPER KOMPAK & RENGGANG HILANG ===== */
   .tbl-wrap { overflow-x: hidden; margin: 0; }
-  table.htbl th, table.htbl td {
-    padding: 8px 4px !important; /* Spasi dipres banget */
-    font-size: 10px !important; /* Huruf dikecilin */
-    white-space: normal;
-  }
-  table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 9px !important; min-width: 60px; } 
-  
-  /* Kolom Keterangan dibikin melebar buat ngisi sisa ruang kosong */
+  table.htbl th, table.htbl td { padding: 8px 4px !important; font-size: 10px !important; white-space: normal; }
+  table.htbl th:nth-child(1), table.htbl td:nth-child(1) { font-size: 9px !important; min-width: 60px; }
   table.htbl th:nth-child(2), table.htbl td:nth-child(2) { width: 100%; }
-  
-  /* Sembunyikan kolom "TIPE" */
   table.htbl th:nth-child(4), table.htbl td:nth-child(4) { display: none; }
-  
-  /* Kolom JUMLAH dibikin satu baris & geser ke kanan dikit */
-  table.htbl th:nth-child(5), table.htbl td:nth-child(5) {
-    white-space: nowrap;
-    font-size: 11px !important; 
-    text-align: right;
-  }
-  
-  /* SOLUSI RENGGANG: Munculin Icon Delete (✕) Permanen di HP & Mepetin ke ujung kanan */
+  table.htbl th:nth-child(5), table.htbl td:nth-child(5) { white-space: nowrap; font-size: 11px !important; text-align: right; }
   .del-btn { opacity: 1 !important; color: var(--red) !important; padding: 4px !important; font-weight: bold; }
-  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { 
-    width: 1%; /* Paksa sempit */
-    padding-right: 16px !important; /* Mepet ke pojok layar */
-    text-align: right; 
-  }
+  table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 1%; padding-right: 16px !important; text-align: right; }
+}
+
+/* ===== TOMBOL NOTIFIKASI ===== */
+#btn-notif {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  background: var(--navy);
+  color: var(--gold2);
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  z-index: 150;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  transition: all .2s;
+  display: none;
 }
 </style>
 </head>
@@ -426,7 +405,12 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   </div>
 </div>
 
-</div></div><script type="module">
+</div></div>
+
+<!-- TOMBOL NOTIFIKASI -->
+<button id="btn-notif" onclick="aktifkanNotifikasi()">🔔 Aktifkan Notifikasi</button>
+
+<script type="module">
 // FUNGSI TEMA GELAP (DARK THEME)
 window.toggleTheme = function() {
   document.body.classList.toggle('dark-mode');
@@ -434,7 +418,6 @@ window.toggleTheme = function() {
   document.getElementById('theme-toggle').textContent = isDark ? '☀️' : '🌙';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 };
-// Cek tema yang tersimpan pas pertama buka
 if(localStorage.getItem('theme') === 'dark') {
   document.body.classList.add('dark-mode');
   document.getElementById('theme-toggle').textContent = '☀️';
@@ -485,7 +468,6 @@ function setSyncStatus(ok){
   document.getElementById('sync-label').textContent=ok?'Tersinkron':'Offline';
 }
 
-// AUTH TABS
 window.switchTab=function(mode){
   authMode=mode;
   document.getElementById('tab-login').classList.toggle('active',mode==='login');
@@ -495,7 +477,6 @@ window.switchTab=function(mode){
   hideErr();
 };
 
-// DO AUTH
 window.doAuth=async function(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
@@ -531,7 +512,6 @@ window.doLogout=async function(){
   await signOut(auth);
 };
 
-// AUTH STATE
 onAuthStateChanged(auth,user=>{
   if(user){
     currentUser=user;
@@ -542,10 +522,13 @@ onAuthStateChanged(auth,user=>{
     document.getElementById('user-name').textContent=name;
     document.getElementById('user-avatar').textContent=name.charAt(0).toUpperCase();
     listenTransactions(user.uid);
+    // Tampilkan tombol notifikasi setelah login
+    setTimeout(tampilTombolNotif, 1000);
   } else {
     currentUser=null;
     document.getElementById('auth-screen').style.display='flex';
     document.getElementById('app-screen').style.display='none';
+    document.getElementById('btn-notif').style.display='none';
     if(unsubListener){unsubListener();unsubListener=null;}
     txs=[];
   }
@@ -748,8 +731,89 @@ document.getElementById('pick-daily').value=new Date().toISOString().slice(0,10)
 document.getElementById('f-date').value=nowISO();
 selType('income');
 
-// Aktifkan Email/Password Auth di Firebase Console dulu!
-// Keamanan > Authentication > Sign-in method > Email/Password > Enable
+// ===== NOTIFIKASI JAM 17:00 =====
+let swReg = null;
+let sudahKirimHariIni = false;
+let tanggalTerakhirKirim = '';
+
+// Daftarkan Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      swReg = await navigator.serviceWorker.register('/RHN-CAPITAL/sw.js');
+    } catch(e) { console.log('SW error:', e); }
+  });
+}
+
+function fmtRp(n) {
+  if (n >= 1_000_000) return 'Rp ' + (n/1_000_000).toFixed(1) + 'jt';
+  if (n >= 1_000) return 'Rp ' + (n/1_000).toFixed(0) + 'rb';
+  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+}
+
+async function kirimNotifikasi(title, body, tag='rhn') {
+  if (!swReg) return;
+  const sw = swReg.active || swReg.installing || swReg.waiting;
+  if (sw) sw.postMessage({ type: 'SHOW_NOTIFICATION', title, body, tag });
+}
+
+async function tampilkanRingkasan() {
+  if (Notification.permission !== 'granted') return;
+  const today = new Date().toDateString();
+  const todayTxs = txs.filter(t => new Date(t.date).toDateString() === today);
+  const masuk  = todayTxs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const keluar = todayTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const saldo  = masuk - keluar;
+  const count  = todayTxs.length;
+  const title  = '📊 Ringkasan RHN Capital — Hari Ini';
+  const body   = count === 0
+    ? 'Belum ada transaksi hari ini. Jangan lupa catat! 💰'
+    : `💚 Masuk: ${fmtRp(masuk)}\n❤️ Keluar: ${fmtRp(keluar)}\n${saldo>=0?'✅ Surplus':'⚠️ Defisit'}: ${fmtRp(Math.abs(saldo))}\n(${count} transaksi)`;
+  await kirimNotifikasi(title, body, 'ringkasan-harian');
+}
+
+// Cek setiap 30 detik, kirim tepat jam 17:00
+setInterval(() => {
+  const now = new Date();
+  const tanggalHariIni = now.toDateString();
+  if (tanggalTerakhirKirim !== tanggalHariIni) {
+    sudahKirimHariIni = false;
+    tanggalTerakhirKirim = tanggalHariIni;
+  }
+  if (now.getHours() === 17 && now.getMinutes() === 0 && !sudahKirimHariIni) {
+    sudahKirimHariIni = true;
+    tampilkanRingkasan();
+  }
+}, 30000);
+
+// Tampilkan / sembunyikan tombol notifikasi
+function tampilTombolNotif() {
+  const btn = document.getElementById('btn-notif');
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    btn.style.display = 'none'; // Sudah aktif, sembunyikan
+  } else {
+    btn.style.display = 'block';
+  }
+}
+
+window.aktifkanNotifikasi = async function() {
+  const result = await Notification.requestPermission();
+  const btn = document.getElementById('btn-notif');
+  if (result === 'granted') {
+    btn.textContent = '✅ Notifikasi Aktif!';
+    btn.style.background = 'var(--green)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+    setTimeout(() => { btn.style.display = 'none'; }, 2500);
+    // Test langsung
+    await kirimNotifikasi('✅ Notifikasi Aktif!', 'Kamu akan dapat ringkasan keuangan setiap hari jam 17:00 🎉');
+  } else {
+    btn.textContent = '❌ Izin Ditolak';
+    setTimeout(() => { btn.textContent = '🔔 Aktifkan Notifikasi'; }, 2000);
+  }
+};
+
 </script>
 </body>
 </html>
