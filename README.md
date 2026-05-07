@@ -254,15 +254,6 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
     text-align: right; 
   }
 }
-
-/* ===== MODAL NOTIFIKASI TAMBAHAN ===== */
-#daily-reminder-modal {
-  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); 
-  align-items:center; justify-content:center; z-index:9999; backdrop-filter:blur(4px);
-}
-#daily-reminder-modal .card {
-  width: 90%; max-width: 360px; padding: 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
 </style>
 </head>
 <body>
@@ -349,7 +340,7 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
           <div class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</div>
           <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">− Pengeluaran</div>
         </div>
-        <div class="form-row"><label class="form-label">Jumlah (Rp)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
+        <div class="form-row"><label class="form-label">Jumlah ($)</label><input type="number" id="f-amount" placeholder="0" min="0" step="0.01"></div>
         <div class="form-row"><label class="form-label">Kategori</label><select id="f-cat"><option value="">Pilih kategori...</option></select></div>
         <div class="form-row"><label class="form-label">Keterangan</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
         <div class="form-row"><label class="form-label">Tanggal &amp; Jam</label><input type="datetime-local" id="f-date"></div>
@@ -435,29 +426,6 @@ body.dark-mode table.htbl tr:hover td { background-color: var(--bg) !important; 
   </div>
 </div>
 
-<div id="daily-reminder-modal">
-  <div class="card">
-    <div style="font-size: 36px; margin-bottom: 8px;">🔔</div>
-    <h2 style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px;">Ringkasan Keuangan Hari Ini</h2>
-    <p style="font-size: 12px; color: var(--text3); margin-bottom: 20px;">Laporan harian otomatis pukul 17:00</p>
-    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
-      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);">
-        <span style="font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase;">Pemasukan</span>
-        <span class="a-pos" id="rem-inc" style="font-weight: 600;">Rp 0</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg);">
-        <span style="font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase;">Pengeluaran</span>
-        <span class="a-neg" id="rem-exp" style="font-weight: 600;">Rp 0</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--navy);">
-        <span style="font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); text-transform: uppercase;">Saldo Bersih</span>
-        <span id="rem-bal" style="font-weight: 600; color: var(--gold2);">Rp 0</span>
-      </div>
-    </div>
-    <button class="submit-btn" onclick="document.getElementById('daily-reminder-modal').style.display='none'">Tutup Notifikasi</button>
-  </div>
-</div>
-
 </div></div><script type="module">
 // FUNGSI TEMA GELAP (DARK THEME)
 window.toggleTheme = function() {
@@ -499,7 +467,8 @@ const CATS = {
 let txs=[], curType='income', activePage='dashboard', charts={};
 let currentUser=null, unsubListener=null, authMode='login';
 
-const fmt     = n  => 'Rp '+Math.round(n).toLocaleString('id-ID');
+// CONVERT KE DOLAR: Menggunakan format USD ($)
+const fmt     = n  => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
 const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
@@ -620,47 +589,10 @@ window.delTx=async function(id){
   catch(e){alert('Gagal menghapus: '+e.message);}
 };
 
-// --- LOGIKA NOTIFIKASI JAM 5 SORE ---
-if ("Notification" in window && Notification.permission !== "denied") {
-  Notification.requestPermission();
-}
-
-function triggerDailyReminder() {
-  if (!currentUser) return;
-  const todayTxs = txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString());
-  const s = calcSum(todayTxs);
-
-  document.getElementById('rem-inc').textContent = fmt(s.inc);
-  document.getElementById('rem-exp').textContent = fmt(s.exp);
-  document.getElementById('rem-bal').textContent = fmt(s.bal);
-  document.getElementById('daily-reminder-modal').style.display = 'flex';
-
-  if (Notification.permission === 'granted') {
-    const statusIcon = s.bal >= 0 ? '✅' : '⚠️';
-    const statusText = s.bal >= 0 ? 'Surplus' : 'Defisit';
-    const msg = `💚 Masuk: ${fmt(s.inc)}\n❤️ Keluar: ${fmt(s.exp)}\n${statusIcon} ${statusText}: ${fmt(Math.abs(s.bal))}\n(${s.count} transaksi tercatat)`;
-    
-    new Notification('📊 Ringkasan RHN Capital — Hari Ini', {
-      body: msg,
-      icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135679.png'
-    });
-  }
-}
-
 function updateClock(){
   const n=new Date();
   document.getElementById('live-time').textContent=n.toLocaleTimeString('id-ID');
   document.getElementById('live-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-
-  // Pengecekan jam 13:55
-  if (n.getHours() === 13 && n.getMinutes() === 55) {
-    const todayStr = n.toDateString();
-    const lastReminded = localStorage.getItem('lastReminderDate');
-    if (lastReminded !== todayStr) {
-      triggerDailyReminder();
-      localStorage.setItem('lastReminderDate', todayStr);
-    }
-  }
 }
 setInterval(updateClock,1000);updateClock();
 
@@ -709,7 +641,7 @@ function mkChart(id,labels,incData,expData){
     {label:'Pengeluaran',data:expData,backgroundColor:'rgba(217,79,79,0.7)',borderRadius:4,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
     x:{ticks:{color:'#9a9688',font:{size:10,family:"'DM Sans',sans-serif"}},grid:{display:false},border:{display:false}},
-    y:{ticks:{color:'#9a9688',font:{size:10},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
+    y:{ticks:{color:'#9a9688',font:{size:10},callback:v=>'$'+Intl.NumberFormat('en-US',{notation:'compact'}).format(v)},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
   }}});
 }
 function renderMetrics(){
@@ -816,6 +748,9 @@ function refreshAll(){
 document.getElementById('pick-daily').value=new Date().toISOString().slice(0,10);
 document.getElementById('f-date').value=nowISO();
 selType('income');
+
+// Aktifkan Email/Password Auth di Firebase Console dulu!
+// Keamanan > Authentication > Sign-in method > Email/Password > Enable
 </script>
 </body>
 </html>
