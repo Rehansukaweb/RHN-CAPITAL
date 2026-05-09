@@ -22,8 +22,26 @@
   --font:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
   --radius:12px; --radius-sm:8px; --shadow:0 2px 12px rgba(0,0,0,.08);
 }
+
+/* ===== DARK MODE VARIABLES ===== */
+[data-theme="dark"] {
+  --bg: #121212;
+  --surface: #1E1E24;
+  --border: #333333;
+  --text: #F3F4F6;
+  --muted: #A1A1AA;
+  --hint: #71717A;
+  
+  --teal-50: #0A271D; --teal-100: #134E3A;
+  --red-50: #3F1D1D; --red-600: #F87171;
+  --amber-50: #3F2C0B; --amber-600: #FBBF24;
+  --blue-50: #102A43; --blue-600: #60A5FA;
+  --purple-50: #2D2447; --purple-600: #A78BFA;
+  --gray-50: #27272A;
+}
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background 0.3s, color 0.3s;}
 #splash{position:fixed;inset:0;background:linear-gradient(135deg,#0F6E56,#1D9E75 60%,#5dd9a8);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
 #splash .logo{font-size:52px;animation:floatUp .6s ease both;}
 #splash .title{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.02em;opacity:0;animation:floatUp .6s .15s ease both;}
@@ -61,21 +79,21 @@ header{background:linear-gradient(135deg,#0F6E56,#1D9E75);padding:14px 24px;disp
 .btn-modal:hover{background:rgba(255,255,255,.28);}
 #modalBadge{font-size:11px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:99px;}
 .kurs-countdown{font-size:10px;color:rgba(255,255,255,.55);font-family:var(--mono);}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
 .overlay.show{display:flex;}
-.modal{background:var(--surface);border-radius:18px;padding:28px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalIn .22s ease;}
+.modal{background:var(--surface);border-radius:18px;padding:28px;width:340px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalIn .22s ease;}
 @keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(12px)}to{opacity:1;transform:none}}
-.modal h2{font-size:18px;font-weight:700;color:var(--teal-600);margin-bottom:4px;}
+.modal h2{font-size:18px;font-weight:700;color:var(--teal-400);margin-bottom:4px;}
 .modal p{font-size:13px;color:var(--muted);margin-bottom:20px;}
 .modal label{font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:7px;}
-.modal input{width:100%;border:2px solid var(--border);border-radius:10px;padding:11px 14px;font-size:16px;font-family:var(--mono);outline:none;transition:border-color .15s;color:var(--text);}
+.modal input{width:100%;border:2px solid var(--border);border-radius:10px;padding:11px 14px;font-size:16px;font-family:var(--mono);outline:none;transition:border-color .15s;color:var(--text);background:var(--surface);}
 .modal input:focus{border-color:var(--teal-400);}
 .modal-actions{display:flex;gap:10px;margin-top:20px;}
 .btn-save{flex:1;background:var(--teal-400);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s;}
 .btn-save:hover{background:var(--teal-600);}
 .btn-cancel{background:var(--gray-50);color:var(--muted);border:none;border-radius:10px;padding:12px 18px;font-size:14px;cursor:pointer;font-family:var(--font);}
 .container{max-width:1300px;margin:0 auto;padding:22px 16px;}
-.info-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;}
+.info-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;transition:background 0.3s;}
 .info-item{display:flex;flex-direction:column;gap:2px;}
 .info-lbl{font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;}
 .info-val{font-size:15px;font-weight:700;font-family:var(--mono);color:var(--text);transition:color 0.2s ease;}
@@ -95,7 +113,7 @@ header{background:linear-gradient(135deg,#0F6E56,#1D9E75);padding:14px 24px;disp
 .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
 @media(max-width:760px){.stats-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;transition:box-shadow .15s;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;transition:box-shadow .15s, background 0.3s;}
 .stat:hover{box-shadow:var(--shadow);}
 .stat-lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
 .stat-val{font-size:22px;font-weight:700;font-family:var(--mono);}
@@ -103,7 +121,7 @@ header{background:linear-gradient(135deg,#0F6E56,#1D9E75);padding:14px 24px;disp
 .c-green{color:var(--teal-400);}.c-red{color:var(--red-400);}.c-blue{color:var(--blue-400);}.c-purple{color:var(--purple-400);}.c-gray{color:var(--gray-400);}
 .wr-bar{height:5px;background:var(--border);border-radius:99px;margin-top:8px;overflow:hidden;}
 .wr-fill{background:var(--teal-400);height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow);transition:background 0.3s;}
 .card-hdr{background:var(--teal-50);border-bottom:1px solid var(--teal-100);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 .card-title{font-size:15px;font-weight:700;color:var(--teal-600);}
 .card-hint{font-size:11px;color:var(--muted);}
@@ -111,7 +129,7 @@ table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
 thead th{background:#F7FDF9;color:var(--teal-600);font-weight:600;padding:10px 8px;text-align:center;font-size:11px;border-bottom:1.5px solid var(--teal-100);font-family:var(--font);}
 thead th.th-idr{background:#EEF3FF;color:var(--blue-600);}
 tbody tr:hover{background:#F0FDF8;}
-tbody td{padding:6px 7px;text-align:center;border-bottom:1px solid #F5F5F5;vertical-align:middle;}
+tbody td{padding:6px 7px;text-align:center;border-bottom:1px solid #F5F5F5;vertical-align:middle; transition: border 0.3s;}
 tbody tr:last-child td{border-bottom:none;}
 td.day-lbl{color:var(--hint);font-size:11px;}
 td input[type="text"],td input[type="number"]{width:100%;border:1px solid transparent;background:transparent;text-align:center;font-size:13px;color:var(--text);font-family:var(--font);padding:3px 4px;border-radius:6px;outline:none;transition:all .15s;}
@@ -131,34 +149,53 @@ textarea.note:focus{background:#F9F9F9;border-color:var(--border);}
 textarea.note::placeholder{color:var(--hint);}
 tr.weekend{background:#FAFAFA;}
 tr.weekend td{color:#B0B4BC;}
+
+/* === DARK THEME OVERRIDES FOR TABLES AND RECAPS === */
+[data-theme="dark"] thead th { background: #152E26; color: var(--teal-400); border-bottom-color: var(--teal-800); }
+[data-theme="dark"] thead th.th-idr { background: #16263A; color: var(--blue-400); }
+[data-theme="dark"] tbody tr:hover { background: #0F3526; }
+[data-theme="dark"] tbody td { border-bottom-color: var(--border); }
+[data-theme="dark"] tr.weekend { background: #181A20; }
+[data-theme="dark"] tr.weekend td { color: var(--hint); }
+[data-theme="dark"] textarea.note:focus { background: #27272A; }
+[data-theme="dark"] .rtable th { background: #181A20; border-bottom-color: var(--border); }
+[data-theme="dark"] .rtable th.th-idr { background: #16263A; }
+[data-theme="dark"] .rtable td { border-bottom-color: var(--border); }
+[data-theme="dark"] .rtable tr:hover td { background: #27272A; }
+[data-theme="dark"] .rtable tfoot td { background: #152E26; border-top-color: var(--teal-800); }
+[data-theme="dark"] .rtable tfoot td.td-idr { background: #16263A; }
+[data-theme="dark"] .b-none, [data-theme="dark"] .mb-none { background: #27272A; border-color: #3F3F46; }
+[data-theme="dark"] td input:focus { background: #134E3A; border-color: var(--teal-400); }
+[data-theme="dark"] .card-hdr { background: #152E26; border-bottom-color: #134E3A; }
+
 .recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:640px){.recap-grid{grid-template-columns:1fr;}}
-.rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
-.rc-hdr{padding:13px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:background 0.3s;}
+.rc-hdr{padding:13px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);transition:background 0.3s;}
 .rc-icon{font-size:16px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
 .rc-title{font-size:14px;font-weight:700;}
 .rc-sub{font-size:11px;margin-top:1px;}
-.rc-daily .rc-hdr{background:var(--blue-50);}
-.rc-daily .rc-icon{background:#BFDBFE;}
-.rc-daily .rc-title{color:var(--blue-600);}
+.rc-daily .rc-hdr{background:var(--blue-50);} [data-theme="dark"] .rc-daily .rc-hdr { background: #102A43; }
+.rc-daily .rc-icon{background:#BFDBFE;} [data-theme="dark"] .rc-daily .rc-icon { background: #1E3A8A; }
+.rc-daily .rc-title{color:var(--blue-600);} [data-theme="dark"] .rc-daily .rc-title { color: #60A5FA; }
 .rc-daily .rc-sub{color:#3B82F6;}
-.rc-weekly .rc-hdr{background:var(--teal-50);}
-.rc-weekly .rc-icon{background:var(--teal-100);}
-.rc-weekly .rc-title{color:var(--teal-600);}
+.rc-weekly .rc-hdr{background:var(--teal-50);} [data-theme="dark"] .rc-weekly .rc-hdr { background: #0A271D; }
+.rc-weekly .rc-icon{background:var(--teal-100);} [data-theme="dark"] .rc-weekly .rc-icon { background: #134E3A; }
+.rc-weekly .rc-title{color:var(--teal-600);} [data-theme="dark"] .rc-weekly .rc-title { color: var(--teal-400); }
 .rc-weekly .rc-sub{color:var(--teal-400);}
-.rc-monthly .rc-hdr{background:var(--amber-50);}
-.rc-monthly .rc-icon{background:#FCD34D;}
-.rc-monthly .rc-title{color:var(--amber-600);}
+.rc-monthly .rc-hdr{background:var(--amber-50);} [data-theme="dark"] .rc-monthly .rc-hdr { background: #3F2C0B; }
+.rc-monthly .rc-icon{background:#FCD34D;} [data-theme="dark"] .rc-monthly .rc-icon { background: #92400E; }
+.rc-monthly .rc-title{color:var(--amber-600);} [data-theme="dark"] .rc-monthly .rc-title { color: #FBBF24; }
 .rc-monthly .rc-sub{color:var(--amber-400);}
-.rc-yearly .rc-hdr{background:var(--purple-50);}
-.rc-yearly .rc-icon{background:#DDD6FE;}
-.rc-yearly .rc-title{color:var(--purple-600);}
+.rc-yearly .rc-hdr{background:var(--purple-50);} [data-theme="dark"] .rc-yearly .rc-hdr { background: #2D2447; }
+.rc-yearly .rc-icon{background:#DDD6FE;} [data-theme="dark"] .rc-yearly .rc-icon { background: #5B21B6; }
+.rc-yearly .rc-title{color:var(--purple-600);} [data-theme="dark"] .rc-yearly .rc-title { color: #A855F7; }
 .rc-yearly .rc-sub{color:var(--purple-400);}
 .rtable{width:100%;border-collapse:collapse;font-size:12.5px;}
 .rtable th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;background:#FAFAFA;border-bottom:1px solid var(--border);}
 .rtable th:not(:first-child){text-align:right;}
 .rtable th.th-idr{color:var(--blue-600);background:#EEF3FF;}
-.rtable td{padding:8px 12px;border-bottom:1px solid #F5F5F5;vertical-align:middle;font-family:var(--mono);}
+.rtable td{padding:8px 12px;border-bottom:1px solid #F5F5F5;vertical-align:middle;font-family:var(--mono);transition: border 0.3s;}
 .rtable td:first-child{font-family:var(--font);}
 .rtable td:not(:first-child){text-align:right;}
 .rtable td.td-idr{color:var(--blue-400);font-size:11px;}
@@ -245,6 +282,10 @@ tr.weekend td{color:#B0B4BC;}
       <input class="kurs-input-h" type="number" id="kursOverride" placeholder="cth: 16200" min="1000" step="50" oninput="onManualKurs()"/>
     </div>
     <button class="btn-refresh" id="btnRefresh" onclick="fetchKursLive()">🔄 Refresh</button>
+    
+    <!-- TOMBOL THEME TOGGLE -->
+    <button class="btn-modal" id="btnTheme" onclick="toggleTheme()">🌙 Gelap</button>
+    
     <button class="btn-modal" onclick="openModal()">💰 Modal Awal <span id="modalBadge">Belum diset</span></button>
     <span class="h-date" id="hDate"></span>
   </div>
@@ -344,6 +385,7 @@ const YEAR=2026;
 const MODAL_KEY='forex_rhn_v3_modal';
 const KURS_KEY='forex_rhn_v3_kurs';
 const KURS_TS_KEY='forex_rhn_v3_kurs_ts';
+const THEME_KEY='forex_rhn_v3_theme'; // Key untuk Dark Mode
 const SK=m=>`forex_rhn_v2_${YEAR}_${m}`;
 
 let activeMonth=new Date().getMonth();
@@ -352,6 +394,28 @@ let kursUSDIDR=16200;
 let monthData={};
 let activeTab='jurnal';
 let countdownInterval=null;
+
+/* ─── THEME TOGGLE LOGIC ─── */
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    document.getElementById('btnTheme').textContent = '☀️ Terang';
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.body.removeAttribute('data-theme');
+    localStorage.setItem(THEME_KEY, 'light');
+    document.getElementById('btnTheme').textContent = '🌙 Gelap';
+  } else {
+    document.body.setAttribute('data-theme', 'dark');
+    localStorage.setItem(THEME_KEY, 'dark');
+    document.getElementById('btnTheme').textContent = '☀️ Terang';
+  }
+}
 
 const daysIn=(m)=>new Date(YEAR,m+1,0).getDate();
 const dayName=(m,d)=>DAYS[new Date(YEAR,m,d).getDay()];
@@ -391,7 +455,6 @@ function applyKurs(rate,source,ts){
     'error':'⚠️ Fallback default'
   }[source]||'🔄';
 
-  // Efek Kedip saat harga berubah
   const rateEl = document.getElementById('kursValEl');
   rateEl.textContent='Rp '+Math.round(rate).toLocaleString('id-ID')+' / USD';
   if (source === 'binance-ws') {
@@ -426,7 +489,6 @@ function applyKurs(rate,source,ts){
     document.getElementById('kursCountdown').textContent='✏️ Mode override manual aktif';
   }
   
-  // Hanya refresh IDR saja (supaya input form jurnal tidak lost focus waktu lagi ngetik)
   refreshIDR();
 }
 
@@ -472,7 +534,6 @@ async function fetchKursLive(){
     }
   }catch(e){console.error("Gagal Binance API:", e);}
 
-  // Fallback
   const cached=localStorage.getItem(KURS_KEY);
   if(cached){
     applyKurs(parseFloat(cached),'cache',parseInt(localStorage.getItem(KURS_TS_KEY)||'0'));
@@ -500,7 +561,7 @@ function initLiveUSD() {
   const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
   socket.addEventListener('message', function (event) {
       const ov=parseFloat(document.getElementById('kursOverride').value);
-      if(!isNaN(ov)&&ov>=1000) return; // Jika override manual aktif, abaikan WS
+      if(!isNaN(ov)&&ov>=1000) return; 
 
       const data = JSON.parse(event.data);
       const newPrice = parseFloat(data.c); 
@@ -509,7 +570,7 @@ function initLiveUSD() {
       }
   });
   socket.addEventListener('close', () => setTimeout(initLiveUSD, 3000));
-  socket.addEventListener('error', () => { /* let it close and retry */ });
+  socket.addEventListener('error', () => {});
 }
 
 /* ─── MODAL ─── */
@@ -590,8 +651,6 @@ function renderTable(){
       saveMonth(activeMonth,monthData);
       badge.className=badgeCls(monthData[day].result);
       badge.textContent=monthData[day].result==='NONE'?'—':monthData[day].result;
-      
-      // Update IDR dan Stats secara presisi tanpa merusak ketikan user
       refreshIDR();
     });
   });
@@ -611,8 +670,6 @@ function updateRow(el){
   if(plCell){plCell.textContent=pl!==0?plStr(pl):'0';plCell.style.color=plColor;}
   if(idrCell){idrCell.textContent=pl!==0?fmtIDR(uscToIDR(pl)):'—';idrCell.style.color=idrColor;}
   if(pctCell){pctCell.textContent=modalAwal?((pl/modalAwal)*100).toFixed(2)+'%':'—';pctCell.style.color=plColor;}
-  
-  // Update IDR dan Stats secara presisi tanpa merusak ketikan user
   refreshIDR();
 }
 
@@ -680,12 +737,12 @@ function setHeaderDate(){const now=new Date();document.getElementById('hDate').t
 function render(){renderMonthBar('monthBar1');renderStats(calcStats(activeMonth,monthData));renderTable();}
 
 /* ─── INIT ─── */
+initTheme(); // Panggil inisialisasi Dark Mode
 loadModal();
 monthData=loadMonth(activeMonth);
 setHeaderDate();
 render();
 
-// Fetch Initial Data from Firebase Overwriting Local Data If Exists
 if(typeof db !== 'undefined'){
   db.collection("forex_journal_v3").doc("modal_awal").get().then(doc=>{
     if(doc.exists){modalAwal=doc.data().val;localStorage.setItem(MODAL_KEY,modalAwal.toString());render();if(activeTab==='recap')renderRecap();}
@@ -699,7 +756,6 @@ if(typeof db !== 'undefined'){
 let splashClosed=false;
 function closeSplash(){if(splashClosed)return;splashClosed=true;setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('hide');setTimeout(()=>s.style.display='none',600);},500);}
 
-// Memulai fetch dari Binance Live API, kemudian sambung dengan WebSocket
 fetchKursLive().then(() => {
     closeSplash();
     initLiveUSD();
@@ -709,7 +765,6 @@ fetchKursLive().then(() => {
 });
 setTimeout(closeSplash,2500);
 
-// Auto-refresh script (Dihapus) karena kita sekarang pakai realtime WebSocket.
 </script>
 </body>
 </html>
