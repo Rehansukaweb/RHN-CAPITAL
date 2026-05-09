@@ -3,144 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Analisa Crypto | RHN Capital</title>
+<title>Ultimate Guide Crypto | RHN Capital</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Inter, sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
-body{
-background:linear-gradient(180deg,#020617,#0b1220);
-color:white;
+body {
+    background: linear-gradient(180deg, #020617, #0b1220);
+    color: white;
+    min-height: 100vh;
 }
 
 /* NAVBAR */
-header{
-position:fixed;
-width:100%;
-top:0;
-background:rgba(2,6,23,.85);
-backdrop-filter:blur(10px);
-border-bottom:1px solid #1f2937;
+header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1f2937;
+    z-index: 1000;
 }
 
-.nav{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:15px 25px;
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 25px;
+    max-width: 1200px;
+    margin: auto;
 }
 
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.logo img{
-width:38px;
+.logo img {
+    width: 38px;
+    border-radius: 5px;
 }
 
-.menu a{
-color:#9ca3af;
-text-decoration:none;
-margin-left:15px;
+.menu a {
+    color: #9ca3af;
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: 600;
+    transition: 0.3s;
 }
 
-.menu a:hover{
-color:white;
+.menu a:hover {
+    color: white;
 }
 
 /* CONTENT */
-.container{
-max-width:1000px;
-margin:auto;
-padding:120px 20px 60px;
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 120px 20px 60px;
 }
 
-.card{
-background:#020617;
-border:1px solid #1f2937;
-border-radius:20px;
-padding:30px;
-margin-bottom:25px;
-transition:.3s;
+.card {
+    background: #020617;
+    border: 1px solid #1f2937;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    transition: 0.3s;
 }
 
-.card:hover{
-box-shadow:0 0 30px rgba(34,197,94,.25);
+.card:hover {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.25);
+    border-color: rgba(34, 197, 94, 0.5);
 }
 
-h1{
-margin-bottom:15px;
+h1 {
+    margin-bottom: 25px;
+    font-size: 32px;
+    color: #ffffff;
 }
 
-.btn{
-display:inline-block;
-margin-top:20px;
-padding:12px 24px;
-background:#22c55e;
-border-radius:10px;
-color:black;
-font-weight:bold;
-text-decoration:none;
+h2 {
+    margin-bottom: 15px;
+    color: #f3f4f6;
+    font-size: 24px;
+    border-bottom: 1px solid #1f2937;
+    padding-bottom: 10px;
 }
 
+h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+    font-size: 18px;
+}
+
+p {
+    color: #cbd5e1;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+ul, ol {
+    margin-left: 20px;
+    color: #cbd5e1;
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+strong {
+    color: #ffffff;
+}
+
+/* BUTTON */
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #22c55e;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<div class="nav">
-<div class="logo">
-<img src="RHN LOGO.jpg">
-<b>RHN CAPITAL</b>
-</div>
-
-<div class="menu">
-<a href="index.html">Home</a>
-</div>
-</div>
+    <div class="nav">
+        <div class="logo">
+            <img src="RHN LOGO.jpg" alt="RHN Capital">
+            <b>RHN CAPITAL</b>
+        </div>
+        <div class="menu">
+            <a href="index.html">Home</a>
+        </div>
+    </div>
 </header>
 
-<div class="container">
+<main class="container">
 
-<h1>₿ Analisa Crypto</h1>
+    <h1>₿ Ensiklopedia Komprehensif Cryptocurrency</h1>
 
-<div class="card">
-<h2>Market Cycle Analysis</h2>
-<p>
-RHN Capital menganalisa siklus market crypto berdasarkan liquidity global,
-Bitcoin dominance, dan macro economy untuk menentukan fase accumulation,
-expansion, dan distribution.
-</p>
-</div>
+    <div class="card">
+        <h2>1. Genealogi dan Sejarah Awal Uang Digital</h2>
+        <p>Jauh sebelum Bitcoin lahir, gagasan tentang uang digital yang independen sudah digagas oleh kelompok aktivis privasi yang dikenal sebagai <strong>Cypherpunks</strong> pada tahun 1990-an. Tokoh-tokoh seperti David Chaum menciptakan <i>DigiCash</i>, lalu Adam Back menciptakan <i>Hashcash</i> (mekanisme anti-spam yang kelak menjadi dasar Proof-of-Work), dan Nick Szabo menggagas <i>Bit Gold</i>.</p>
+        <p>Namun, semua proyek awal ini gagal karena satu masalah fatal dalam ilmu komputer: <strong>Double-Spending Problem</strong> (Masalah Pembelanjaan Ganda). Jika uang digital hanya berupa file komputer, apa yang mencegah seseorang melakukan *copy-paste* uang tersebut dan membelanjakan koin yang sama berulang kali? Sebelum 2008, satu-satunya solusi adalah menggunakan pihak ketiga tepercaya (seperti bank atau PayPal) untuk mencatat siapa memiliki apa.</p>
+        <p>Pada 31 Oktober 2008, di tengah krisis keuangan global yang disebabkan oleh kejatuhan Lehman Brothers, entitas anonim bernama <strong>Satoshi Nakamoto</strong> merilis *whitepaper* setebal 9 halaman berjudul <i>"Bitcoin: A Peer-to-Peer Electronic Cash System"</i>. Nakamoto memecahkan masalah <i>Double-Spending</i> tanpa perlu bank atau pemerintah, melainkan dengan menggabungkan kriptografi dan jaringan *peer-to-peer* untuk menciptakan sistem yang kita sebut sekarang sebagai <strong>Blockchain</strong>.</p>
+    </div>
 
-<div class="card">
-<h2>Bitcoin Strategy</h2>
-<p>
-Strategi fokus pada probabilitas tinggi menggunakan struktur market,
-support resistance institusional, serta momentum volume.
-</p>
-</div>
+    <div class="card">
+        <h2>2. Anatomi Teknis Jaringan Blockchain</h2>
+        <p>Blockchain bukanlah entitas tunggal, melainkan gabungan dari beberapa teknologi komputasi yang bekerja sama untuk menciptakan mesin kepercayaan (<i>trust machine</i>) yang tidak bisa diubah (<i>immutable</i>). Berikut adalah anatomi lengkapnya:</p>
+        <ul>
+            <li><strong>Nodes (Simpul):</strong> Jaringan ini terdiri dari puluhan ribu komputer yang tersebar di seluruh dunia. Setiap *Node* menyimpan salinan lengkap buku besar (<i>ledger</i>) dari blok pertama hingga terakhir. Jika ada satu node yang mencoba memalsukan saldo, node lainnya akan menolak data tersebut karena tidak cocok dengan mayoritas.</li>
+            <li><strong>Mempool (Memory Pool):</strong> Saat Anda mengirim transaksi kripto, transaksi itu tidak langsung masuk ke blockchain. Ia akan mengantre di sebuah "ruang tunggu" yang disebut Mempool. Penambang (miners) akan memilih transaksi dari Mempool—biasanya memprioritaskan yang membayar biaya jaringan (<i>gas fee</i>) tertinggi.</li>
+            <li><strong>Kriptografi Hash (SHA-256):</strong> Setelah transaksi dikelompokkan ke dalam sebuah "Blok", blok tersebut dikunci menggunakan fungsi matematika *hashing* (Bitcoin menggunakan SHA-256). Proses ini mengubah data sebesar apa pun menjadi deretan karakter unik (contoh: <code>a2b4c6...</code>). Sidik jari digital ini mengunci data di dalamnya secara permanen.</li>
+            <li><strong>Rantai (Chain):</strong> Setiap blok baru wajib mengandung *Hash* dari blok sebelumnya. Ini menciptakan rantai. Jika seorang *hacker* ingin mengubah data transaksi di blok tahun 2015, ia harus meretas blok itu, dan secara otomatis harus menghitung ulang seluruh hash dari jutaan blok setelahnya secara bersamaan sebelum jaringan menyadarinya. Dalam praktiknya, ini mustahil secara termodinamika.</li>
+        </ul>
+    </div>
 
-<div class="card">
-<h2>Risk Management</h2>
-<p>
-Setiap posisi disusun dengan risk-reward optimal agar menjaga konsistensi
-profit jangka panjang.
-</p>
-</div>
+    <div class="card">
+        <h2>3. Evolusi Mekanisme Konsensus</h2>
+        <p>Mekanisme konsensus adalah "undang-undang" dasar bagaimana komputer yang saling tidak mengenal bisa mencapai kesepakatan mutlak. Ini adalah nyawa dari desentralisasi.</p>
+        
+        <h3>A. Proof of Work (PoW) - Bukti Kerja</h3>
+        <p>Digunakan oleh Bitcoin, Dogecoin, dan Litecoin. Penambang menggunakan mesin ASIC (<i>Application-Specific Integrated Circuit</i>) yang sangat bertenaga untuk menebak triliunan angka per detik guna memecahkan teka-teki kriptografi yang mengatur pembuatan blok baru. Proses ini menuntut biaya listrik dan perangkat keras fisik yang mahal, yang mengikat nilai digital Bitcoin ke hukum fisika dunia nyata.</p>
 
-<a class="btn" href="index.html">⬅ Kembali</a>
+        <h3>B. Proof of Stake (PoS) - Bukti Kepemilikan</h3>
+        <p>Digunakan oleh Ethereum, Cardano, dan Polkadot. Alih-alih membakar listrik, validator menyetorkan (<i>staking</i>) modal berupa koin mereka sendiri sebagai jaminan ke dalam *smart contract*. Jika mereka memvalidasi transaksi dengan benar, mereka mendapat bunga. Jika mereka mencoba memanipulasi jaringan, sistem otomatis akan menghancurkan sebagian koin yang dijaminkan (proses ini disebut <i>Slashing</i>). Ini mengamankan jaringan melalui insentif ekonomi murni, mengurangi konsumsi energi hingga 99,9%.</p>
 
-</div>
+        <h3>C. Alternatif Konsensus Lainnya</h3>
+        <p>Dunia terus berinovasi. Ada <strong>Delegated Proof of Stake (DPoS)</strong> seperti pada Tron, di mana pengguna memilih beberapa "delegasi" untuk memvalidasi atas nama mereka. Ada juga <strong>Proof of History (PoH)</strong> yang dipelopori Solana, bertindak sebagai "jam kriptografis" internal yang memungkinkan transaksi diproses hingga 65.000 transaksi per detik (TPS) tanpa harus menunggu seluruh jaringan melakukan konfirmasi waktu.</p>
+    </div>
+
+    <div class="card">
+        <h2>4. Kriptografi Asimetris & Manajemen Dompet (Wallet)</h2>
+        <p>Banyak pemula salah paham bahwa kripto mereka ada di dalam dompet (aplikasi MetaMask, Trust Wallet, atau bursa/exchange). Kenyataannya, koin Anda <strong>selalu</strong> berada di jaringan Blockchain. Aplikasi dompet hanyalah antarmuka (<i>interface</i>) untuk membaca saldo dan menandatangani transaksi menggunakan kriptografi asimetris.</p>
+        <ul>
+            <li><strong>Public Key (Kunci Publik):</strong> Ini diturunkan secara matematis dari kunci privat Anda. Kunci ini bisa dilihat semua orang, seperti alamat email atau nomor rekening.</li>
+            <li><strong>Private Key (Kunci Privat):</strong> Ini adalah kode sandi rahasia absolut Anda. Kunci privat mengizinkan penandatanganan digital untuk mentransfer aset dari kunci publik Anda. Kehilangan kunci ini berarti kehilangan aset secara permanen.</li>
+            <li><strong>Seed Phrase (BIP39):</strong> Karena kunci privat berupa deretan angka dan huruf yang tidak mungkin dihafal (contoh: <code>5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF</code>), standar BIP39 diciptakan untuk mengubahnya menjadi 12 atau 24 kata acak dalam bahasa Inggris (misal: <i>apple, river, dog, quantum...</i>). 12 kata ini adalah *master key* seluruh harta Anda.</li>
+        </ul>
+        <p><strong>Custodial vs Non-Custodial:</strong> Jika Anda membeli di bursa tersentralisasi seperti Binance atau Indodax, bursa tersebutlah yang memegang <i>Private Key</i>. Ini disebut *Custodial* (mereka yang menjaga). Jika Anda menggunakan Ledger (Hardware Wallet) atau MetaMask, Anda memegang kunci Anda sendiri (*Non-Custodial*). Prinsip suci dunia kripto: <i>"Not Your Keys, Not Your Coins"</i>.</p>
+    </div>
+
+    <div class="card">
+        <h2>5. Smart Contracts, DeFi, dan Revolusi Keuangan Tanpa Perantara</h2>
+        <p>Bitcoin memang merevolusi "uang", tetapi Ethereum merevolusi "kontrak". Ethereum memperkenalkan mesin virtual Turing-complete yang memungkinkan barisan kode logika (if-then) dijalankan di atas blockchain. Kode inilah yang disebut <strong>Smart Contract</strong>.</p>
+        <p>Smart Contract memicu ledakan industri <strong>DeFi (Decentralized Finance)</strong>. Aplikasi DeFi mampu mereplikasi seluruh layanan perbankan tradisional tanpa perlu gedung bank, karyawan, atau CEO. Semuanya diatur secara otonom oleh kode publik:</p>
+        <ul>
+            <li><strong>Automated Market Makers (AMM) & DEX:</strong> Di bursa tradisional (seperti IDX atau Binance), harga ditentukan oleh *Order Book* (ada antrean pembeli dan penjual). DEX seperti Uniswap menghapus *order book*. Sebagai gantinya, mereka menggunakan <strong>Liquidity Pools</strong> (kolam likuiditas) di mana siapa saja bisa menyumbangkan koin mereka ke dalam *smart contract* untuk memfasilitasi pertukaran otomatis, dan sebagai gantinya mendapatkan bagi hasil dari biaya transaksi.</li>
+            <li><strong>Lending & Borrowing (Pinjam Meminjam):</strong> Protokol seperti Aave dan MakerDAO memungkinkan Anda mendepositokan kripto sebagai agunan (kolateral) dan menarik pinjaman berupa aset lain (biasanya Stablecoin) secara instan. Tidak ada BI Checking, tidak ada proses persetujuan. Jika agunan Anda turun nilainya di bawah batas rasio tertentu, *smart contract* secara otomatis akan melikuidasi aset Anda untuk melindungi pemberi pinjaman.</li>
+            <li><strong>Flash Loans:</strong> Pinjaman kripto tanpa agunan sebesar jutaan dolar yang dapat dipinjam dan harus dikembalikan dalam <strong>satu blok transaksi yang sama</strong>. Ini digunakan oleh *arbitrageurs* untuk mengambil untung dari perbedaan harga antar bursa.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>6. Skalabilitas: Layer 1, Layer 2, dan Rollups</h2>
+        <p>Blockchain menghadapi masalah besar yang disebut <strong>Blockchain Trilemma</strong>: Jaringan sangat sulit untuk secara bersamaan mencapai Desentralisasi, Keamanan, dan Skalabilitas yang tinggi. Bitcoin dan Ethereum mengorbankan kecepatan demi keamanan. Akibatnya, pada saat jaringan sibuk, biaya transaksi Ethereum bisa melonjak dari $1 menjadi $100 per transaksi.</p>
+        <p>Untuk mengatasi ini, muncullah arsitektur <i>Layering</i>:</p>
+        <ul>
+            <li><strong>Layer 1 (L1):</strong> Blockchain utama yang menjadi pondasi (Bitcoin, Ethereum, Solana, Avalanche). Mereka mengelola konsensus, keamanan, dan ketersediaan data.</li>
+            <li><strong>Layer 2 (L2) & Rollups:</strong> Jaringan pembantu yang memproses ribuan transaksi di luar jaringan utama (<i>off-chain</i>), lalu "menggulung" (<i>rolling up</i>) ribuan transaksi tersebut menjadi satu paket data ringkas untuk disimpan di Layer 1. Ini membuat transaksi L2 sangat murah dan cepat, namun tetap mendapat jaminan keamanan dari L1.
+                <ul>
+                    <li><strong>Optimistic Rollups</strong> (Arbitrum, Optimism): Berasumsi semua transaksi benar secara *default*, dan memberi waktu beberapa hari bagi jaringan untuk memprotes jika ada kecurangan.</li>
+                    <li><strong>ZK-Rollups (Zero-Knowledge)</strong> (zkSync, Starknet): Menggunakan sihir matematika kriptografi tingkat tinggi untuk membuktikan bahwa transaksi itu valid secara instan tanpa harus mempublikasikan detail isi transaksinya. Ini adalah teknologi paling canggih di dunia kripto saat ini.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>7. Tokenomics (Ekonomi Kripto) dan Analisis Fundamental</h2>
+        <p>Berbeda dengan saham di mana valuasi dinilai dari arus kas perusahaan (EBITDA), valuasi kripto (Altcoins) dianalisis melalui struktur ekonominya yang disebut <strong>Tokenomics</strong>. Memahami metrik ini adalah kunci menghindari proyek berkedok skema Ponzi.</p>
+        <ul>
+            <li><strong>Max Supply vs Circulating Supply:</strong> <i>Max Supply</i> adalah jumlah maksimum koin yang akan pernah ada (contoh BTC: 21 Juta). <i>Circulating Supply</i> adalah jumlah yang beredar saat ini. Jika koin yang beredar baru 10% dari Max Supply, artinya masa depan harga koin tersebut akan dihantam inflasi yang sangat tinggi saat koin sisanya dicetak.</li>
+            <li><strong>Market Cap (Kapitalisasi Pasar):</strong> Harga koin dikalikan dengan suplai beredar. Koin berharga $0.0001 bukan berarti "murah" untuk naik ke $1 jika suplainya mencapai ribuan triliun (seperti koin *meme*). Untuk mencapai $1, butuh Market Cap melebihi PDB seluruh dunia, yang mana tidak masuk akal.</li>
+            <li><strong>Vesting Schedule & Cliff:</strong> Developer dan investor awal (Venture Capital) sering mendapat koin dengan harga sangat murah. Namun koin mereka biasanya "dikunci" oleh *smart contract*. <i>Vesting</i> adalah jadwal kapan koin tersebut dibuka kuncinya. Saat jadwal pelepasan besar (<i>Unlock Event</i>) tiba, harga koin sering anjlok tajam karena institusi melakukan aksi jual masif.</li>
+            <li><strong>Burn Mechanism (Mekanisme Pembakaran):</strong> Cara untuk membuat token menjadi deflasioner. Token dikirim ke alamat dompet "mati" (alamat yang tidak memiliki <i>Private Key</i>) sehingga hilang selamanya, mengurangi suplai yang beredar dan berpotensi menaikkan harga koin tersisa. BNB dan Ethereum menerapkan fitur ini.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>8. Dinamika Pasar, Psikologi Siklus, dan On-Chain Analysis</h2>
+        <p>Pasar kripto digerakkan oleh siklus narasi, euforia, dan keputusasaan ekstrem. Sebagai pasar yang terbuka 24/7 dan global, pergerakan harganya sangat agresif.</p>
+        <h3>A. Siklus 4 Tahunan & Bitcoin Halving</h3>
+        <p>Siklus makro kripto historisnya berkiblat pada *Bitcoin Halving*—peristiwa setiap 210.000 blok (~4 tahun sekali) di mana imbalan bagi penambang dipotong setengah. Ini menciptakan *Supply Shock*. Biasanya, siklus bergerak melalui fase:</p>
+        <ol>
+            <li><strong>Akumulasi (Winter/Bear Market):</strong> Harga jatuh hingga 80%, media massa menyatakan kripto "mati", institusi dan investor pintar perlahan membeli aset dari tangan ritel yang ketakutan.</li>
+            <li><strong>Markup (Bull Market):</strong> Sentimen berbalik positif, aliran dana masuk, terjadi lonjakan harga yang eksponensial. Muncul narasi baru (seperti DeFi Summer di 2020 atau AI Token di 2024).</li>
+            <li><strong>Distribusi (Euforia Puncak):</strong> Sopir taksi dan selebriti mulai menyuruh Anda membeli koin anjing (Meme coins). Di sinilah pemain besar (Whales) mulai melepas barang (jual) secara perlahan kepada investor ritel yang terkena FOMO (<i>Fear of Missing Out</i>).</li>
+            <li><strong>Markdown (Crash):</strong> Gelembung pecah. <i>Panic selling</i> massal dan likuidasi beruntun menghancurkan harga pasar, membawa kembali ke fase akumulasi.</li>
+        </ol>
+
+        <h3>B. On-Chain Analysis (Analisis Rantai)</h3>
+        <p>Keunikan kripto adalah sifat buku besarnya yang terbuka. Kita tidak perlu menunggu laporan kuartalan bursa. Kita bisa melacak pergerakan uang institusi secara <i>real-time</i> menggunakan alat <i>On-Chain</i> (seperti Glassnode atau Arkham Intelligence). Metrik yang dipantau meliputi:</p>
+        <ul>
+            <li><strong>Exchange Inflows/Outflows:</strong> Jika jutaan Bitcoin mendadak dipindahkan dari *Cold Wallet* masuk ke Bursa Binance, ini indikasi bahwa <i>Whales</i> bersiap untuk menjual (Bearish). Jika keluar dari Bursa menuju Dompet Pribadi, artinya mereka berniat menyimpannya untuk jangka panjang (Bullish).</li>
+            <li><strong>NUPL (Net Unrealized Profit/Loss):</strong> Mengukur suhu psikologis pasar; apakah mayoritas pemegang koin saat ini sedang dalam keadaan profit belum direalisasikan atau sedang <i>floating loss</i>.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>9. Anatomi Risiko dan Kejahatan dalam Kripto</h2>
+        <p>Sifatnya yang desentralisasi, tanpa identitas (<i>pseudonymous</i>), dan transaksi yang tidak bisa dibatalkan membuat dunia kripto menjadi "Wild West" (Dunia Barat yang Liar) modern. Pemahaman akan manajemen risiko adalah benteng pertahanan terakhir Anda.</p>
+        <ul>
+            <li><strong>Smart Contract Exploits (Hacks):</strong> Kode buatan manusia rentan terhadap *bug* (kesalahan logika). Peretas sering menemukan celah dalam protokol DeFi dan menguras ratusan juta dolar dari *Liquidity Pool* dalam hitungan menit. Dana ini tidak ditanggung oleh lembaga penjamin simpanan mana pun.</li>
+            <li><strong>Rug Pulls & Exit Scams:</strong> Terjadi setiap hari di koin berkapitalisasi kecil (<i>Shitcoins</i>). Pembuat token menggembar-gemborkan proyeknya (<i>pump</i>), mengumpulkan dana dari investor ritel, kemudian mencabut seluruh likuiditas (<i>pulling the rug</i>) dari DEX, membiarkan investor memegang koin yang nilainya nol.</li>
+            <li><strong>Phishing & Malicious Signatures:</strong> Peretas mengirim tautan ke *website* palsu (yang tampilannya 100% mirip *website* asli). Ketika Anda menautkan dompet (MetaMask) dan mengklik "Approve" atau "Sign", Anda diam-diam memberikan izin administratif kepada peretas untuk menguras seluruh aset kripto dan NFT Anda tanpa peringatan lebih lanjut.</li>
+            <li><strong>Impermanent Loss (Kerugian Tidak Permanen):</strong> Risiko khusus bagi penyedia likuiditas (Liquidity Provider) di DeFi. Terjadi ketika harga aset yang Anda simpan di kolam likuiditas (misal ETH/USDT) bergerak tajam dibanding saat Anda mendepositokannya. Karena sistem AMM terus menyeimbangkan rasio pool secara algoritmik, Anda mungkin akan menderita kerugian lebih besar dibandingkan jika Anda hanya memegang (<i>hold</i>) koin tersebut di dompet biasa.</li>
+            <li><strong>Risiko Regulasi Tiba-Tiba:</strong> Pemerintah (seperti Tiongkok pada tahun 2021) dapat secara sepihak melarang aktivitas penambangan dan perdagangan kripto, menyebabkan guncangan global. Selain itu, Komisi Sekuritas (seperti SEC di Amerika Serikat) kerap menuntut proyek kripto karena dianggap menjual sekuritas yang tidak terdaftar, memicu kepanikan investor dan anjloknya harga.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>10. Konklusi: Institusionalisasi dan Masa Depan Web3</h2>
+        <p>Bermula dari pergerakan bawah tanah melawan sistem perbankan tradisional, *Cryptocurrency* kini telah menjadi kelas aset berdaulat bernilai triliunan dolar. Masuknya perusahaan manajemen aset raksasa dunia seperti BlackRock dan Fidelity melalui persetujuan <strong>Spot Bitcoin ETF (Exchange-Traded Fund)</strong> di Amerika Serikat pada awal 2024 menandai fase sejarah baru: Institusionalisasi Kripto. Kini, dana pensiun dan portofolio manajer kekayaan tradisional dapat berinvestasi langsung dalam Bitcoin tanpa kerumitan teknis pengelolaan <i>Private Key</i>.</p>
+        <p>Visi masa depan yang didorong adalah <strong>Web3</strong>; sebuah arsitektur internet generasi berikutnya di mana "pembacaan, penulisan, dan <strong>kepemilikan</strong>" (*Read, Write, Own*) dikembalikan kepada pengguna. Dalam model Web2 saat ini, raksasa teknologi (Facebook, Google) menguasai data dan monetisasi Anda. Di era Web3, profil sosial Anda, item *game* Anda (berupa NFT), serta aliran nilai ekonomi Anda dikendalikan sepenuhnya melalui *Private Key* dompet kripto Anda yang terdesentralisasi, menjadikannya pergeseran paradigma kekayaan terbesar di abad ke-21.</p>
+    </div>
+
+    <a class="btn" href="index.html">⬅ Kembali ke Beranda</a>
+
+</main>
 
 </body>
 </html>
