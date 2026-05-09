@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arus Keuangan — RHN CAPITAL</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<button class="nav-btn" onclick="window.location.href='BACKGROUND.HTML'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈HALAMAN RHN CAPITAL ↗</button>
+<button class="nav-btn" onclick="window.location.href='BACKGROUND.html'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈HALAMAN RHN CAPITAL ↗</button>
 <button class="nav-btn" onclick="window.location.href='jurnal.html'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈 JURNAL FOREX ↗</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
