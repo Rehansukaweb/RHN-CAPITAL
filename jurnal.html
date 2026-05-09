@@ -5,7 +5,7 @@
 <title>Jurnal Forex Pro · RHN</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 
-<!-- FIREBASE SDK (DITAMBAHKAN) -->
+<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
@@ -186,6 +186,21 @@ tr.weekend td{color:#B0B4BC;}
 .yr-idr{font-size:10px;color:var(--blue-400);font-weight:600;}
 .yr-total{border-top:1px solid var(--border);margin-top:10px;padding-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 .footer{text-align:center;margin-top:28px;font-size:11px;color:var(--hint);padding-bottom:24px;}
+
+/* ===== OPTIMASI KHUSUS LAYAR HP BIAR PAS & MENTOK ===== */
+@media (max-width: 480px) {
+  header { padding: 12px 10px; }
+  .container { padding: 10px 8px; }
+  .info-strip { padding: 12px 10px; gap: 8px 12px; }
+  .tab-nav { display: flex; gap: 4px; }
+  .tab-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 13px; }
+  .month-bar { gap: 4px; }
+  .month-btn { padding: 6px 10px; font-size: 11px; flex-grow: 1; text-align: center; }
+  .stats-grid { gap: 8px; }
+  .stat { padding: 12px 8px; }
+  .stat-val { font-size: 18px; }
+  .stat-lbl { font-size: 9px; letter-spacing: 0; }
+}
 </style>
 </head>
 <body>
@@ -306,13 +321,29 @@ tr.weekend td{color:#B0B4BC;}
 </div>
 
 <script>
+// ==========================================
+// 1. FIREBASE CONFIGURATION (RHN CAPITAL)
+// ==========================================
+const firebaseConfig = {
+    apiKey: "AIzaSy...", // GANTI DENGAN API KEY ASLI KAMU
+    authDomain: "rhn-capital.firebaseapp.com",
+    projectId: "rhn-capital",
+    storageBucket: "rhn-capital.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ==========================================
+// 2. LOGIKA UTAMA APLIKASI
+// ==========================================
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const DAYS=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const YEAR=2026;
 const MODAL_KEY='forex_rhn_v3_modal';
 const KURS_KEY='forex_rhn_v3_kurs';
 const KURS_TS_KEY='forex_rhn_v3_kurs_ts';
-const REFRESH_INTERVAL=60*1000; // 1 menit
 const SK=m=>`forex_rhn_v2_${YEAR}_${m}`;
 
 let activeMonth=new Date().getMonth();
@@ -334,12 +365,15 @@ const plStr=v=>(v>0?'+':'')+v.toFixed(2);
 const pctStr=v=>modalAwal?((v/modalAwal)*100).toFixed(2)+'%':'—';
 const plCls=v=>v>0?'pl-pos':v<0?'pl-neg':'pl-zero';
 const mbCls=r=>r==='WIN'?'mb-win':r==='LOSS'?'mb-loss':r==='BE'?'mb-be':'mb-none';
-function loadMonth(m){try{return JSON.parse(localStorage.getItem(SK(m))||'{}');}catch{return{};}}
-function saveMonth(m,d){try{localStorage.setItem(SK(m),JSON.stringify(d));}catch{}}
 
-/* ══════════════════════════════════════════════════════════════
-   KURS BINANCE LIVE (USDT/BIDR) - WEBSOCKET & API
-══════════════════════════════════════════════════════════════ */
+function loadMonth(m){try{return JSON.parse(localStorage.getItem(SK(m))||'{}');}catch{return{};}}
+
+// MODIFIED: Save to LocalStorage AND Firebase
+function saveMonth(m,d){
+  try{localStorage.setItem(SK(m),JSON.stringify(d));}catch{}
+  if(typeof db !== 'undefined') db.collection("forex_journal_v3").doc(SK(m)).set(d).catch(e=>console.error(e));
+}
+
 function setKursDot(state){
   const d=document.getElementById('kursDot');
   d.className='kurs-dot'+(state==='loading'?' loading':state==='error'?' error':'');
@@ -413,16 +447,10 @@ function startCountdown(fetchedAt, isWs = false){
   if(countdownInterval)clearInterval(countdownInterval);
   const el=document.getElementById('kursCountdown');
   if(isWs) {
-     el.textContent = '⚡ Real-time aktif';
-     return;
+     el.textContent = '⚡ Real-time aktif (WebSocket)';
+  } else {
+     el.textContent = '⚠️ Real-time terputus (Klik Refresh)';
   }
-  function update(){
-    const remaining=Math.max(0,REFRESH_INTERVAL-(Date.now()-fetchedAt));
-    if(remaining<=0){el.textContent='⏰ Memperbarui...';clearInterval(countdownInterval);return;}
-    const s=Math.ceil(remaining/1000);
-    el.textContent=`⏱ Update dalam ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-  }
-  update();countdownInterval=setInterval(update,1000);
 }
 
 async function fetchKursLive(){
@@ -459,15 +487,6 @@ async function fetchKursLive(){
 async function fetchKurs(forceRefresh=false){
   const ov=parseFloat(document.getElementById('kursOverride').value);
   if(!forceRefresh&&!isNaN(ov)&&ov>=1000){applyKurs(ov,'manual',Date.now());return;}
-  if(!forceRefresh){
-    const cached=localStorage.getItem(KURS_KEY);
-    const cachedTs=parseInt(localStorage.getItem(KURS_TS_KEY)||'0');
-    if(cached&&(Date.now()-cachedTs)<REFRESH_INTERVAL){
-      applyKurs(parseFloat(cached),'cache',cachedTs);
-      document.getElementById('btnRefresh').disabled=false;
-      return;
-    }
-  }
   await fetchKursLive();
 }
 
@@ -498,7 +517,10 @@ function loadModal(){const s=localStorage.getItem(MODAL_KEY);modalAwal=s?parseFl
 function openModal(){document.getElementById('modalInput').value=modalAwal||'';document.getElementById('overlay').classList.add('show');setTimeout(()=>document.getElementById('modalInput').focus(),80);}
 function closeModal(){document.getElementById('overlay').classList.remove('show');}
 function closeOnBg(e){if(e.target===document.getElementById('overlay'))closeModal();}
-function saveModal(){modalAwal=parseFloat(document.getElementById('modalInput').value)||0;localStorage.setItem(MODAL_KEY,modalAwal.toString());closeModal();render();if(activeTab==='recap')renderRecap();}
+function saveModal(){modalAwal=parseFloat(document.getElementById('modalInput').value)||0;localStorage.setItem(MODAL_KEY,modalAwal.toString());
+  if(typeof db !== 'undefined') db.collection("forex_journal_v3").doc("modal_awal").set({val: modalAwal}).catch(e=>console.error(e));
+  closeModal();render();if(activeTab==='recap')renderRecap();
+}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Enter'&&document.getElementById('overlay').classList.contains('show'))saveModal();});
 
 /* ─── CALC ─── */
@@ -601,7 +623,14 @@ function renderMonthBar(id){
     const btn=document.createElement('button');
     btn.className='month-btn'+(i===activeMonth?' active':'');
     btn.textContent=name;
-    btn.onclick=()=>{activeMonth=i;monthData=loadMonth(i);render();if(activeTab==='recap')renderRecap();};
+    btn.onclick=()=>{
+      activeMonth=i;monthData=loadMonth(i);render();if(activeTab==='recap')renderRecap();
+      if(typeof db !== 'undefined'){
+        db.collection("forex_journal_v3").doc(SK(i)).get().then(doc=>{
+          if(doc.exists){monthData=doc.data();localStorage.setItem(SK(i),JSON.stringify(monthData));render();if(activeTab==='recap')renderRecap();}
+        });
+      }
+    };
     el.appendChild(btn);
   });
 }
@@ -656,6 +685,17 @@ monthData=loadMonth(activeMonth);
 setHeaderDate();
 render();
 
+// Fetch Initial Data from Firebase Overwriting Local Data If Exists
+if(typeof db !== 'undefined'){
+  db.collection("forex_journal_v3").doc("modal_awal").get().then(doc=>{
+    if(doc.exists){modalAwal=doc.data().val;localStorage.setItem(MODAL_KEY,modalAwal.toString());render();if(activeTab==='recap')renderRecap();}
+  }).catch(e=>console.error("Firebase err:", e));
+  
+  db.collection("forex_journal_v3").doc(SK(activeMonth)).get().then(doc=>{
+    if(doc.exists){monthData=doc.data();localStorage.setItem(SK(activeMonth),JSON.stringify(monthData));render();if(activeTab==='recap')renderRecap();}
+  }).catch(e=>console.error("Firebase err:", e));
+}
+
 let splashClosed=false;
 function closeSplash(){if(splashClosed)return;splashClosed=true;setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('hide');setTimeout(()=>s.style.display='none',600);},500);}
 
@@ -669,11 +709,7 @@ fetchKursLive().then(() => {
 });
 setTimeout(closeSplash,2500);
 
-// Auto-refresh setiap 1 menit sebagai backup / fallback jika WebSocket terputus
-setInterval(()=>{
-  const ov=parseFloat(document.getElementById('kursOverride').value);
-  if(isNaN(ov)||ov<1000) fetchKursLive();
-},REFRESH_INTERVAL);
+// Auto-refresh script (Dihapus) karena kita sekarang pakai realtime WebSocket.
 </script>
 </body>
 </html>
