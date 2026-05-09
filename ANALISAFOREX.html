@@ -3,52 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Trading Forex | RHN Capital</title>
+<title>Ultimate Guide Forex | RHN Capital</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
-body{background:linear-gradient(180deg,#020617,#0b1220);color:white;}
-
-header{
-position:fixed;width:100%;top:0;
-background:rgba(2,6,23,.85);
-backdrop-filter:blur(10px);
-border-bottom:1px solid #1f2937;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
-.nav{
-display:flex;justify-content:space-between;
-padding:15px 25px;
+body {
+    background: linear-gradient(180deg, #020617, #0b1220);
+    color: white;
+    min-height: 100vh;
 }
 
-.logo{display:flex;gap:10px;align-items:center;}
-.logo img{width:38px;}
-
-.container{
-max-width:1000px;
-margin:auto;
-padding:120px 20px;
+/* NAVBAR */
+header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1f2937;
+    z-index: 1000;
 }
 
-.card{
-background:#020617;
-border:1px solid #1f2937;
-border-radius:20px;
-padding:30px;
-margin-bottom:25px;
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 25px;
+    max-width: 1200px;
+    margin: auto;
 }
 
-.card:hover{
-box-shadow:0 0 30px rgba(34,197,94,.25);
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.btn{
-padding:12px 24px;
-background:#22c55e;
-border-radius:10px;
-color:black;
-text-decoration:none;
-font-weight:bold;
+.logo img {
+    width: 38px;
+    border-radius: 5px;
+}
+
+.menu a {
+    color: #9ca3af;
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.menu a:hover {
+    color: white;
+}
+
+/* CONTENT */
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 120px 20px 60px;
+}
+
+.card {
+    background: #020617;
+    border: 1px solid #1f2937;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.25);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+h1 {
+    margin-bottom: 25px;
+    font-size: 32px;
+    color: #ffffff;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #f3f4f6;
+    font-size: 24px;
+    border-bottom: 1px solid #1f2937;
+    padding-bottom: 10px;
+}
+
+h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+    font-size: 18px;
+}
+
+p {
+    color: #cbd5e1;
+    line-height: 1.8;
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+ul, ol {
+    margin-left: 20px;
+    color: #cbd5e1;
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+strong {
+    color: #ffffff;
+}
+
+/* BUTTON */
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #22c55e;
+    border-radius: 10px;
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
 }
 </style>
 </head>
@@ -56,47 +154,115 @@ font-weight:bold;
 <body>
 
 <header>
-<div class="nav">
-<div class="logo">
-<img src="RHN LOGO.jpg">
-<b>RHN CAPITAL</b>
-</div>
-<a href="index.html" style="color:#9ca3af;">Home</a>
-</div>
+    <div class="nav">
+        <div class="logo">
+            <img src="RHN LOGO.jpg" alt="RHN Capital">
+            <b>RHN CAPITAL</b>
+        </div>
+        <div class="menu">
+            <a href="index.html">Home</a>
+        </div>
+    </div>
 </header>
 
-<div class="container">
+<main class="container">
 
-<h1>💱 Trading Forex</h1>
+    <h1>💱 Ensiklopedia Komprehensif Pasar Forex</h1>
 
-<div class="card">
-<h2>Macro Economic Analysis</h2>
-<p>
-Analisa suku bunga global, inflasi, dan kebijakan bank sentral
-untuk menentukan arah market.
-</p>
-</div>
+    <div class="card">
+        <h2>1. Genealogi dan Sejarah Uang Fiat</h2>
+        <p>Untuk memahami Forex, kita harus melihat sejarah sistem moneter global. Pasca Perang Dunia II, negara-negara dunia menyepakati <strong>Sistem Bretton Woods (1944)</strong>. Dalam sistem ini, seluruh mata uang dunia dipatok nilainya terhadap Dolar AS, dan Dolar AS dipatok pada cadangan fisik Emas (35 Dolar per 1 ons emas). Ini membuat nilai tukar mata uang sangat stabil dan kaku.</p>
+        <p>Namun, pada tahun 1971, Presiden AS Richard Nixon melakukan "Nixon Shock" dengan membatalkan sepihak konvertibilitas Dolar AS ke Emas karena Amerika mencetak terlalu banyak uang untuk mendanai Perang Vietnam. Sejak hari itu, seluruh uang di dunia menjadi <strong>Uang Fiat</strong> (uang yang nilainya hanya ditopang oleh kepercayaan pada pemerintah). Nilai tukar mata uang dibiarkan mengambang bebas (<i>Floating Exchange Rate</i>) berdasarkan penawaran dan permintaan. Momen inilah yang melahirkan pasar Forex modern.</p>
+    </div>
 
-<div class="card">
-<h2>Risk Reward Strategy</h2>
-<p>
-Setup trading dengan probabilitas tinggi menggunakan
-risk management profesional.
-</p>
-</div>
+    <div class="card">
+        <h2>2. Anatomi Pasar Valuta Asing (Forex)</h2>
+        <p>Forex (<i>Foreign Exchange</i>) adalah pasar finansial terbesar dan paling likuid di dunia, dengan volume transaksi mencapai lebih dari <strong>$7 Triliun per hari</strong> (ratusan kali lipat lebih besar dari gabungan seluruh bursa saham di dunia).</p>
+        <ul>
+            <li><strong>Desentralisasi & OTC:</strong> Berbeda dengan saham yang memiliki bursa fisik (seperti BEI atau Wall Street), pasar Forex adalah pasar <i>Over-the-Counter</i> (OTC). Tidak ada markas pusat. Transaksi terjadi murni melalui jaringan elektronik bank-bank di seluruh dunia.</li>
+            <li><strong>Buka 24 Jam Sehari, 5 Hari Seminggu:</strong> Karena beroperasi melintasi zona waktu global, Forex buka 24 jam non-stop dari Senin hingga Jumat. Dimulai dari sesi Sydney, lalu Tokyo (Asia), berlanjut ke London (Eropa), dan diakhiri di New York (Amerika). Volatilitas paling brutal biasanya terjadi saat sesi London dan New York bertumpang tindih (<i>overlap</i>).</li>
+            <li><strong>Partisipan Pasar:</strong> Pemain utamanya adalah Bank Sentral (mengendalikan peredaran uang), Bank Komersial raksasa (Interbank Market, menyumbang volume terbesar), Hedge Funds, Perusahaan Multinasional (tukar menukar uang untuk bisnis ekspor/impor), dan di rantai makanan terbawah adalah Retail Traders (kita).</li>
+        </ul>
+    </div>
 
-<div class="card">
-<h2>Liquidity Concept</h2>
-<p>
-Memahami pergerakan institusi melalui liquidity sweep
-dan market structure shift.
-</p>
-</div>
+    <div class="card">
+        <h2>3. Terminologi Dasar: Pairs, Pips, Lots, dan Leverage</h2>
+        <p>Dalam Forex, Anda tidak "membeli" mata uang tunggal, melainkan memperdagangkan <strong>Pasangan (Pairs)</strong>. Anda selalu membeli satu mata uang dan menjual mata uang lainnya secara bersamaan.</p>
+        <ul>
+            <li><strong>Currency Pairs:</strong> Jika Anda membeli EUR/USD, artinya Anda membeli Euro (<i>Base Currency</i>) dan meminjam/menjual Dolar AS (<i>Quote Currency</i>). Anda bertaruh bahwa ekonomi Eropa akan menguat mengalahkan ekonomi Amerika. Pasangan utama (<i>Major Pairs</i>) adalah pasangan mata uang negara maju yang disandingkan dengan USD (contoh: EUR/USD, GBP/USD, USD/JPY).</li>
+            <li><strong>Pips (Percentage in Point):</strong> Satuan terkecil pergerakan harga. Pada EUR/USD, jika harga bergerak dari 1.105<strong>0</strong> ke 1.105<strong>1</strong>, itu adalah pergerakan 1 Pip. Jika Anda menggunakan Standard Lot, 1 Pip setara dengan $10.</li>
+            <li><strong>Lot (Ukuran Transaksi):</strong> 1 Standard Lot sama dengan 100.000 unit mata uang dasar. Karena terlalu besar untuk ritel, broker menyediakan ukuran Mini (10.000 unit) dan Micro Lot (1.000 unit).</li>
+            <li><strong>Leverage:</strong> Senjata rahasia sekaligus mesin pembunuh massal trader ritel. <i>Leverage</i> adalah "Daya Ungkit" dana pinjaman dari broker. Dengan *leverage* 1:100, Anda hanya butuh modal (Margin) $1,000 untuk mengontrol nilai transaksi sebesar $100,000. Ini membuat Anda bisa untung besar hanya dari pergerakan harga 0,5%, namun jika harga berbalik melawan Anda, modal $1,000 Anda bisa lenyap dalam hitungan menit.</li>
+        </ul>
+    </div>
 
-<br>
-<a class="btn" href="index.html">⬅ Kembali</a>
+    <div class="card">
+        <h2>4. Analisis Fundamental & Data Makroekonomi</h2>
+        <p>Harga saham digerakkan oleh laporan keuangan perusahaan. Harga kripto digerakkan oleh adopsi teknologi. Sedangkan <strong>Harga mata uang digerakkan oleh Suku Bunga dan Ekonomi Negara</strong>. Berikut adalah data (<i>News</i>) yang paling menggetarkan pasar Forex:</p>
+        <ul>
+            <li><strong>Suku Bunga Bank Sentral (Interest Rates):</strong> Ini adalah "Tuhan"-nya pasar Forex. Jika The Fed (Bank Sentral AS) menaikkan suku bunga, Dolar AS akan menguat drastis karena investor global akan memindahkan uangnya ke Amerika untuk mendapatkan imbal hasil bunga (<i>yield</i>) yang lebih tinggi. Ini akan menjatuhkan nilai EUR/USD, GBP/USD, dan Emas (XAU/USD).</li>
+            <li><strong>NFP (Non-Farm Payrolls):</strong> Dirilis pada hari Jumat minggu pertama setiap bulan oleh Amerika. Ini adalah data penambahan jumlah pekerjaan baru di luar sektor pertanian. Jika data NFP dirilis sangat tinggi (banyak pekerjaan), artinya ekonomi AS sedang panas, The Fed mungkin akan menaikkan suku bunga, dan USD akan meroket (Dolar <i>Bullish</i>). Rilis NFP selalu diwarnai pergerakan harga ratusan pips dalam hitungan detik.</li>
+            <li><strong>Inflasi (CPI - Consumer Price Index):</strong> Data yang mengukur laju kenaikan harga barang. Inflasi yang terlalu tinggi akan memaksa bank sentral merespons dengan kenaikan suku bunga (memicu penguatan mata uang lokal dalam jangka pendek).</li>
+        </ul>
+    </div>
 
-</div>
+    <div class="card">
+        <h2>5. Sentimen Risk-On vs Risk-Off (Korelasi Aset)</h2>
+        <p>Triliunan uang di dunia ini bersifat pengecut. Mereka akan mencari tempat yang aman jika dunia sedang dalam bahaya, dan mencari instrumen berisiko tinggi saat dunia sedang aman dan makmur.</p>
+        <ul>
+            <li><strong>Risk-Off (Mode Panik):</strong> Saat terjadi krisis global (Pandemi, Perang Dunia, Kebangkrutan Bank Raksasa), uang institusi akan melarikan diri ke aset <strong>Safe Haven</strong>. Aset perlindungan utama di dunia adalah <strong>Dolar AS (USD)</strong> (karena ditopang militer terkuat), <strong>Swiss Franc (CHF)</strong> (karena Swiss selalu netral), <strong>Japanese Yen (JPY)</strong>, dan <strong>Emas Fisik</strong>. Mata uang ini akan menguat secara agresif.</li>
+            <li><strong>Risk-On (Mode Serakah):</strong> Saat kondisi dunia sedang damai, ekonomi tumbuh, dan suku bunga rendah, investor akan berani mengambil risiko untuk mencari cuan (<i>High Yield</i>). Mereka akan berinvestasi di pasar Saham, Kripto, dan mata uang negara komoditas seperti <strong>Dolar Australia (AUD)</strong> dan <strong>Dolar Selandia Baru (NZD)</strong>.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>6. Smart Money Concepts (SMC) & Analisis Teknikal</h2>
+        <p>Sebagian besar trader ritel menggunakan indikator konvensional (seperti RSI, MACD, atau Bollinger Bands). Masalahnya, pasar tidak peduli dengan indikator Anda. Pasar bergerak dari satu area likuiditas ke area likuiditas lainnya yang diciptakan oleh Institusi Raksasa (<i>Smart Money</i>). Konsep teknikal tingkat lanjut meliputi:</p>
+        <ul>
+            <li><strong>Market Structure:</strong> Membaca *BOS* (Break of Structure) dan *CHOCH* (Change of Character). Institusi besar selalu meninggalkan "jejak kaki" saat mereka memutar arah harga.</li>
+            <li><strong>Liquidity Hunt (Stop Hunt):</strong> Algoritma bank besar sering kali sengaja menembus level <i>Support/Resistance</i> yang dipercaya trader ritel. Mengapa? Karena di bawah garis <i>Support</i> tersebut tersimpan jutaan Dolar perintah <i>Stop Loss</i> milik ritel. Bank besar memicu (menyapu) <i>Stop Loss</i> ini untuk mendapatkan likuiditas (pesanan jual dari ritel) agar mereka bisa membeli dengan lot raksasa tanpa slip harga. Inilah mengapa sering kali harga menembus batas lalu tiba-tiba berbalik arah (<i>Fakeout</i>).</li>
+            <li><strong>Order Block & Imbalance:</strong> Mengidentifikasi area <i>Supply & Demand</i> ekstrem di mana ketidakseimbangan (<i>imbalance</i>) pesanan terjadi di masa lalu. Harga layaknya magnet, cepat atau lambat akan kembali ke area ini untuk mengambil sisa pesanan yang tertinggal sebelum melanjutkan tren utamanya.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>7. Risiko Maut Broker: A-Book vs B-Book</h2>
+        <p>Di pasar saham, Anda membeli saham riil dari orang lain. Di Forex ritel, Anda bertrading kontrak CFD (<i>Contract for Difference</i>) melalui pialang (Broker). Memahami model bisnis mereka akan menyelamatkan hidup Anda.</p>
+        <ul>
+            <li><strong>A-Book (ECN/STP):</strong> Broker jenis ini melempar pesanan Anda langsung ke pasar likuiditas global (Interbank). Jika Anda untung, pasar yang membayar Anda. Broker hanya mengambil untung dari biaya komisi atau <i>Spread</i> (selisih harga beli dan jual). Mereka tidak peduli Anda untung atau rugi.</li>
+            <li><strong>B-Book (Market Maker):</strong> <i>"Bandar"</i>. Broker jenis ini tidak melempar pesanan Anda ke pasar global, melainkan memutarnya secara internal. <strong>Broker menjadi lawan transaksi Anda.</strong> Jika Anda untung, broker rugi (mereka yang membayar Anda pakai uang perusahaan). Jika Anda MC (rugi total), uang Anda menjadi laba bersih broker. Broker tidak jujur sering memanipulasi grafik harga (melebarkan <i>Spread</i> saat berita rilis) untuk menyapu <i>Stop Loss</i> Anda secara sengaja.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>8. Manajemen Risiko Absolut (Money Management)</h2>
+        <p>Forex tidak akan pernah bisa dijinakkan. Rahasia sukses para trader dunia (seperti George Soros atau Paul Tudor Jones) bukanlah akurasi tebakan (<i>Win Rate</i>) yang mencapai 90%, melainkan matematika risiko yang sangat terkalibrasi.</p>
+        <ul>
+            <li><strong>Aturan 1%:</strong> Trader profesional <strong>tidak pernah</strong> merisikokan lebih dari 1% hingga 2% dari total modal mereka dalam <strong>satu kali transaksi</strong>. Jika Anda punya $1,000, <i>Stop Loss</i> maksimal Anda jika terjadi kesalahan adalah $10 hingga $20. Ini memastikan Anda bisa kalah 20 kali berturut-turut tapi belum bangkrut.</li>
+            <li><strong>Risk/Reward Ratio (RR):</strong> Jangan masuk transaksi jika potensi keuntungannya tidak lebih besar dari risikonya. Rasio ideal adalah 1:2 atau 1:3. Artinya, Anda merelakan $10 (risiko) untuk mengejar target profit $30 (reward). Dengan RR 1:3, Anda bisa salah prediksi 70% dari waktu, namun tetap *profit* di akhir bulan.</li>
+            <li><strong>Margin Call & Stop Out:</strong> Ini adalah mimpi buruk terburuk. Terjadi ketika posisi kerugian Anda (<i>Floating Loss</i>) memakan seluruh modal (<i>Margin</i>) yang tersisa. Broker akan secara paksa menutup seluruh transaksi Anda untuk melindungi uang pinjaman (*leverage*) mereka. Hasilnya: Saldo Anda lenyap, tersisa $0. Hal ini mutlak terjadi akibat Anda tidak memasang garis pembatas risiko otomatis (<i>Stop Loss</i>).</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>9. Psikologi Trading: Melawan Diri Sendiri</h2>
+        <p>Musuh terbesar dalam <i>trading</i> Forex bukanlah Market Maker, bukan berita NFP, dan bukan The Fed. Musuh terbesar Anda adalah <strong>keserakahan (Greed), ketakutan (Fear), dan ego Anda sendiri</strong> yang duduk di depan monitor.</p>
+        <ul>
+            <li><strong>Revenge Trading (Trading Balas Dendam):</strong> Ini terjadi ketika Anda baru saja rugi, ego Anda terluka, lalu Anda langsung membuka transaksi baru dengan Lot yang lebih besar dua kali lipat untuk "mengembalikan" uang yang hilang dengan cepat. Ini adalah rute tercepat menuju kehancuran akun (MC).</li>
+            <li><strong>Overtrading:</strong> Merasa harus melakukan klik dan membuka posisi setiap jam karena bosan atau merasa tertinggal momen. Trader profesional sering kali tidak bertrading sama sekali selama berhari-hari (<i>Cash is a position</i>) karena mereka menunggu *setup* dengan probabilitas tertinggi, layaknya penembak jitu (<i>Sniper</i>) menunggu mangsa masuk ke area bidiknya.</li>
+            <li><strong>Trading Plan & Jurnal:</strong> Jika Anda masuk pasar tanpa rencana (Di harga berapa *entry*, di mana titik batal *Cut loss*, di mana titik ambil *Take Profit*), maka Anda bukan sedang bertrading; Anda sedang berjudi di Kasino. Trader elit merencanakan perdagangan mereka saat pasar tutup, lalu mengeksekusi rencana itu secara kaku tanpa emosi seperti sebuah robot algoritmik.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>10. Konklusi: Realitas Berdarah Dunia Forex</h2>
+        <p>Regulator keuangan di Eropa memaksa broker untuk mencantumkan peringatan resmi pada setiap iklan mereka, yang biasanya berbunyi: <i>"70-80% akun investor ritel kehilangan uang saat berdagang CFD di penyedia ini."</i> Ini adalah fakta statistik yang absolut.</p>
+        <p>Pasar valuta asing adalah arena Gladiator kelas berat di mana tidak ada tempat bagi harapan, emosi, atau doa. Anda sedang bertarung melawan PhD matematika dari Wall Street, algoritma kuantitatif super komputer milik bank raksasa, dan <i>Hedge Funds</i> dengan informasi asimetris. Untuk bertahan dan mengekstrak kekayaan dari pasar ini, Anda harus memiliki keunggulan statistik (<i>Edge</i>), disiplin sekeras baja, dan kesadaran penuh bahwa *trading* bukanlah soal memprediksi arah harga dengan akurasi 100%, melainkan tentang seni mengelola risiko demi probabilitas jangka panjang.</p>
+    </div>
+
+    <a class="btn" href="index.html">⬅ Kembali ke Beranda</a>
+
+</main>
 
 </body>
 </html>
