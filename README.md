@@ -681,10 +681,10 @@ window.selType=function(t){
 
 window.switchPage=function(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav .nav-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   const pages=['dashboard','harian','mingguan','bulanan','tahunan','riwayat'];
-  document.querySelectorAll('.nav-btn')[pages.indexOf(p)].classList.add('active');
+  document.querySelectorAll('.nav .nav-btn')[pages.indexOf(p)].classList.add('active');
   activePage=p;refreshAll();
 };
 
