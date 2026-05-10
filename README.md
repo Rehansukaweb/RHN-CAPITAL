@@ -6,6 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <button class="nav-btn" onclick="window.location.href='latar.html'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈 Halaman Rhn Capital ↗</button>
 <button class="nav-btn" onclick="window.location.href='jurnal.html'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈 JURNAL FOREX ↗</button>
+<button class="nav-btn" onclick="window.location.href='aset.html'" style="color: var(--gold2); font-weight: 700; margin-left: auto;">📈 Jurnal Aset ↗</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
