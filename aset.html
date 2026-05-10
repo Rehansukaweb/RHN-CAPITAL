@@ -53,7 +53,7 @@
         .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .table-container { background-color: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 800px; /* Memastikan tabel tidak hancur di HP */ }
+        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 800px; }
         th, td { padding: 16px; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
         th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         th:first-child, td:first-child { text-align: left; }
@@ -79,28 +79,18 @@
         .db-status { color: var(--color-brand); font-weight: bold; }
         .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-family: 'Inter', sans-serif; }
 
-        /* ========================================= */
         /* RESPONSIVE DESIGN KHUSUS HP (MOBILE VIEW) */
-        /* ========================================= */
         @media (max-width: 768px) {
             body { padding: 12px; font-size: 12px; }
             .header { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 16px; margin-bottom: 20px; }
             .header h1 { font-size: 20px; }
-            
-            /* Susun Kotak Saldo ke Bawah */
             .summary-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
             .summary-card { padding: 16px; }
             .summary-card .value { font-size: 26px; }
-
-            /* Susun Form Input ke Bawah */
             .form-grid { grid-template-columns: 1fr; gap: 16px; }
             .form-container { padding: 16px; margin-bottom: 20px; }
             .btn-add { width: 100%; height: 48px; font-size: 14px; margin-top: 8px; }
-
-            /* Sesuaikan Status Bar */
             .status-bar { flex-direction: column; gap: 8px; align-items: flex-start; }
-            
-            /* Sesuaikan Padding Tabel */
             th, td { padding: 12px 10px; }
         }
     </style>
@@ -185,10 +175,11 @@
 </div>
 
 <script type="module">
+    // 1. TAMBAHAN IMPORT AUTH & QUERY
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // 1. FIREBASE CONFIGURATION
     const firebaseConfig = {
         apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
         authDomain: "rhn-capital.firebaseapp.com",
@@ -201,11 +192,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app); // INISIALISASI AUTH
 
-    // 2. STATE & ENGINE LOGIC
+    // STATE & ENGINE LOGIC
     let portfolio = [];
     let usdtToIdrRate = 16000; 
     let ws;
+    let currentUser = null; // SIMPAN DATA USER
 
     const formatIDR = (number, isPrice = false) => {
         if (number === 0) return 'Rp 0';
@@ -213,47 +206,59 @@
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: maxDecimals }).format(number);
     };
 
-    // Sinkronisasi Real-time Firestore ke Tabel Lokal
-    onSnapshot(collection(db, "asset_terminal"), (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            const data = change.doc.data();
-            const id = change.doc.id; 
-            
-            if (change.type === "added" || change.type === "modified") {
-                const existingIdx = portfolio.findIndex(item => item.id === id);
-                const newItem = { 
-                    id, 
-                    name: data.name, 
-                    category: data.category, 
-                    quantity: data.quantity, 
-                    buyPrice: data.buyPrice, 
-                    currentPrice: 0, 
-                    lastPrice: 0 
-                };
+    // 2. JALANKAN LOGIN ANONIM
+    signInAnonymously(auth).catch((error) => console.error("Gagal Auth Anonim:", error));
 
-                if (existingIdx >= 0) {
-                    newItem.currentPrice = portfolio[existingIdx].currentPrice;
-                    newItem.lastPrice = portfolio[existingIdx].lastPrice;
-                    portfolio[existingIdx] = newItem;
-                } else {
-                    portfolio.push(newItem);
-                }
-            }
-            if (change.type === "removed") {
-                portfolio = portfolio.filter(item => item.id !== id);
-            }
-        });
-        
-        renderTableRows();
+    // 3. PANTAU STATUS LOGIN & TARIK DATA BERDASARKAN USER ID
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            
+            // QUERY: Tarik cuma data milik user ini saja
+            const userQuery = query(collection(db, "asset_terminal"), where("userId", "==", user.uid));
+
+            onSnapshot(userQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    const data = change.doc.data();
+                    const id = change.doc.id; 
+                    
+                    if (change.type === "added" || change.type === "modified") {
+                        const existingIdx = portfolio.findIndex(item => item.id === id);
+                        const newItem = { 
+                            id, 
+                            name: data.name, 
+                            category: data.category, 
+                            quantity: data.quantity, 
+                            buyPrice: data.buyPrice, 
+                            currentPrice: 0, 
+                            lastPrice: 0 
+                        };
+
+                        if (existingIdx >= 0) {
+                            newItem.currentPrice = portfolio[existingIdx].currentPrice;
+                            newItem.lastPrice = portfolio[existingIdx].lastPrice;
+                            portfolio[existingIdx] = newItem;
+                        } else {
+                            portfolio.push(newItem);
+                        }
+                    }
+                    if (change.type === "removed") {
+                        portfolio = portfolio.filter(item => item.id !== id);
+                    }
+                });
+                
+                renderTableRows();
+            });
+        }
     });
 
-    // 3. UI RENDERING
+    // UI RENDERING
     function renderTableRows() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
         if (portfolio.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Sinkronisasi Cloud Selesai. Belum ada posisi aset terbuka.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Belum ada posisi aset terbuka.</td></tr>`;
             updateSummary();
             return;
         }
@@ -340,7 +345,7 @@
         elRoe.className = `value ${totalRoe >= 0 ? 'text-profit' : 'text-loss'}`;
     }
 
-    // 4. DATA FETCHING (WEBSOCKET & FOREX)
+    // DATA FETCHING (WEBSOCKET & FOREX)
     async function fetchLiveExchangeRate() {
         try {
             const response = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -405,9 +410,16 @@
         };
     }
 
-    // 5. USER INTERACTION (FIREBASE CRUD)
+    // USER INTERACTION (FIREBASE CRUD)
     document.getElementById('assetForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        
+        // Pastikan user sudah berhasil auth
+        if (!currentUser) {
+            alert("Tunggu sebentar, sedang menghubungkan sistem keamanan...");
+            return;
+        }
+
         const btnSubmit = document.querySelector('.btn-add');
         btnSubmit.innerText = "MENYIMPAN...";
         btnSubmit.disabled = true;
@@ -421,6 +433,7 @@
 
         try {
             await addDoc(collection(db, "asset_terminal"), {
+                userId: currentUser.uid, // 4. SISIPKAN USER ID SAAT SIMPAN
                 name: name === 'XAUUSD' ? 'XAU' : name,
                 category: category,
                 quantity: quantity,
@@ -430,7 +443,7 @@
             this.reset();
         } catch (error) {
             console.error("Error adding document: ", error);
-            alert("Gagal menyimpan ke Firebase.");
+            alert("Gagal menyimpan ke Firebase. Cek koneksi / rules Firebase.");
         } finally {
             btnSubmit.innerText = "EKSEKUSI POSISI";
             btnSubmit.disabled = false;
