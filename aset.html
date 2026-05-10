@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RHN CAPITAL - Live Terminal Pro</title>
+    <title>RHN CAPITAL - Live Asset Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -23,51 +23,85 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 16px; font-size: 13px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Inter', sans-serif; padding: 24px; font-size: 13px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         .container { max-width: 1300px; margin: 0 auto; width: 100%; }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .header-title { display: flex; flex-direction: column; gap: 4px; }
-        .header h1 { font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #fff, var(--text-muted)); -webkit-background-clip: text; color: transparent; }
-        .brand-subtitle { font-size: 10px; font-weight: 700; color: var(--color-brand); letter-spacing: 2px; text-transform: uppercase; }
+        .header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(90deg, #fff, var(--text-muted)); -webkit-background-clip: text; color: transparent; }
+        .brand-subtitle { font-size: 11px; font-weight: 700; color: var(--color-brand); letter-spacing: 2px; text-transform: uppercase; }
         
-        .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; color: var(--color-profit); background: rgba(0, 230, 118, 0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(0, 230, 118, 0.2); }
+        .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: var(--color-profit); background: rgba(0, 230, 118, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(0, 230, 118, 0.2); }
         .dot { width: 6px; height: 6px; background-color: var(--color-profit); border-radius: 50%; }
         .dot.active { animation: blink 0.1s; }
-        @keyframes blink { 0% { transform: scale(1); } 100% { transform: scale(1.5); } }
+        @keyframes blink { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.5); } }
 
-        /* Summary Cards */
-        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-        .summary-card { background-color: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-glow); }
-        .summary-card h3 { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .summary-card .value { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; display: block; }
-        .summary-card .sub-value { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 4px; display: block; }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+        .summary-card { background-color: var(--bg-surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-glow); position: relative; overflow: hidden; }
+        .summary-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, var(--color-primary), transparent); }
+        .summary-card h3 { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .summary-card .value { font-size: 30px; font-weight: 800; font-family: 'JetBrains Mono', monospace; transition: color 0.3s; word-wrap: break-word; }
 
-        /* Form */
-        .form-container { background-color: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
-        .form-group label { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; }
-        .form-group input, .form-group select { background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; border-radius: 6px; width: 100%; outline: none; font-size: 13px; }
-        .btn-add { background: var(--color-primary); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; height: 40px; transition: 0.2s; }
+        .form-container { background-color: var(--bg-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 28px; }
+        .form-grid { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 2fr auto; gap: 16px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+        .form-group input, .form-group select { background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; outline: none; transition: all 0.2s; width: 100%; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.1); }
+        .btn-add { background: linear-gradient(135deg, var(--color-primary), #1c44b2); color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; height: 43px; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(41, 98, 255, 0.2); }
+        .btn-add:active { transform: scale(0.98); }
+        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Table Responsive */
-        .table-container { background-color: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 850px; }
-        th, td { padding: 14px; border-bottom: 1px solid var(--border-color); }
-        th { font-size: 10px; text-transform: uppercase; color: var(--text-muted); background: rgba(0,0,0,0.1); }
+        .table-container { background-color: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 800px; /* Memastikan tabel tidak hancur di HP */ }
+        th, td { padding: 16px; white-space: nowrap; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         th:first-child, td:first-child { text-align: left; }
-        td { font-family: 'JetBrains Mono', monospace; }
-        .cell-price { border-radius: 4px; padding: 2px 6px; transition: 0.3s; }
+        th:nth-child(2), td:nth-child(2) { text-align: left; }
+        td { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        td strong { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; }
+
+        .cell-price { transition: background-color 0.2s ease, color 0.2s ease; border-radius: 6px; padding: 4px 8px; margin: -4px -8px; display: inline-block; }
+        .flash-up { background-color: var(--flash-up) !important; color: var(--color-profit) !important; }
+        .flash-down { background-color: var(--flash-down) !important; color: var(--color-loss) !important; }
 
         .text-profit { color: var(--color-profit); }
         .text-loss { color: var(--color-loss); }
-        .btn-delete { background: rgba(255, 59, 48, 0.1); color: var(--color-loss); border: 1px solid rgba(255, 59, 48, 0.2); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 700; }
+        
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge.crypto { background-color: rgba(41, 98, 255, 0.1); color: #2962ff; border: 1px solid rgba(41, 98, 255, 0.2); }
+        .badge.emas { background-color: rgba(212, 175, 55, 0.1); color: var(--color-brand); border: 1px solid rgba(212, 175, 55, 0.2); }
 
+        .btn-delete { background: rgba(255, 59, 48, 0.1); color: var(--color-loss); border: 1px solid rgba(255, 59, 48, 0.2); border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .btn-delete:hover { background: var(--color-loss); color: white; }
+
+        .status-bar { margin-top: 16px; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; font-weight: 500; }
+        .db-status { color: var(--color-brand); font-weight: bold; }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-family: 'Inter', sans-serif; }
+
+        /* ========================================= */
+        /* RESPONSIVE DESIGN KHUSUS HP (MOBILE VIEW) */
+        /* ========================================= */
         @media (max-width: 768px) {
-            .summary-grid { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
-            .header h1 { font-size: 18px; }
+            body { padding: 12px; font-size: 12px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 16px; margin-bottom: 20px; }
+            .header h1 { font-size: 20px; }
+            
+            /* Susun Kotak Saldo ke Bawah */
+            .summary-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+            .summary-card { padding: 16px; }
+            .summary-card .value { font-size: 26px; }
+
+            /* Susun Form Input ke Bawah */
+            .form-grid { grid-template-columns: 1fr; gap: 16px; }
+            .form-container { padding: 16px; margin-bottom: 20px; }
+            .btn-add { width: 100%; height: 48px; font-size: 14px; margin-top: 8px; }
+
+            /* Sesuaikan Status Bar */
+            .status-bar { flex-direction: column; gap: 8px; align-items: flex-start; }
+            
+            /* Sesuaikan Padding Tabel */
+            th, td { padding: 12px 10px; }
         }
     </style>
 </head>
@@ -77,222 +111,349 @@
     <div class="header">
         <div class="header-title">
             <div class="brand-subtitle">RHN CAPITAL FINANCE</div>
-            <h1 id="terminal-title">Live Terminal Pro</h1>
+            <h1>Live Asset Terminal</h1>
         </div>
         <div class="live-indicator">
-            <div class="dot" id="tickDot"></div> <span id="wsStatus">SYNCING...</span>
+            <div class="dot" id="tickDot"></div> <span id="wsStatus">MENGHUBUNGKAN...</span>
         </div>
     </div>
 
     <div class="summary-grid">
         <div class="summary-card">
-            <h3>Total Portofolio</h3>
-            <div class="value" id="totalIDR">Rp 0</div>
-            <div class="sub-value" id="totalUSD">$ 0.00</div>
+            <h3>Total Nilai Portofolio</h3>
+            <div class="value" id="totalAssetValue">Rp 0</div>
         </div>
         <div class="summary-card">
-            <h3>Unrealized PnL</h3>
-            <div class="value" id="pnlIDR">Rp 0</div>
-            <div class="sub-value" id="pnlUSD">$ 0.00</div>
+            <h3>Unrealized PnL (IDR)</h3>
+            <div class="value" id="totalPnlValue">Rp 0</div>
         </div>
         <div class="summary-card">
-            <h3>Return (RoE)</h3>
-            <div class="value" id="roePercent">0.00%</div>
-            <div class="sub-value" id="rateDisplay">Kurs: Rp 0</div>
+            <h3>Return of Equity (RoE)</h3>
+            <div class="value" id="totalPnlPercent">0.00%</div>
         </div>
     </div>
 
     <div class="form-container">
         <form class="form-grid" id="assetForm">
             <div class="form-group">
-                <label>Ticker (TRX/XAU)</label>
-                <input type="text" id="assetName" placeholder="Cth: PEPE" required>
+                <label>Ticker Aset</label>
+                <input type="text" id="assetName" placeholder="Cth: TRX, PEPE, XAU" required autocomplete="off">
             </div>
             <div class="form-group">
                 <label>Kategori</label>
-                <select id="assetCategory">
-                    <option value="Crypto">Crypto</option>
+                <select id="assetCategory" required>
+                    <option value="Crypto">Crypto (Koin/Token)</option>
                     <option value="Emas">Emas (Gram)</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Volume</label>
-                <input type="number" id="assetQuantity" step="any" required>
+                <label>Volume (Gram/Koin)</label>
+                <input type="number" id="assetQuantity" step="any" placeholder="0.00" required>
             </div>
             <div class="form-group">
-                <label>Avg. Buy (Rp)</label>
-                <input type="number" id="assetBuyPrice" step="any" required>
+                <label>Harga Rata-rata Beli (Rp)</label>
+                <input type="number" id="assetBuyPrice" step="any" placeholder="0" required>
             </div>
-            <button type="submit" class="btn-add">EKSEKUSI POSISI</button>
+            <button type="submit" class="btn-add">Eksekusi Posisi</button>
         </form>
     </div>
 
     <div class="table-container">
-        <table>
+        <table id="assetTable">
             <thead>
                 <tr>
-                    <th>Aset</th>
+                    <th>Instrumen</th>
+                    <th>Tipe</th>
                     <th>Volume</th>
-                    <th>Entry (Rp)</th>
-                    <th>Live (Rp)</th>
-                    <th>Ekuitas (Rp)</th>
+                    <th>Avg. Entry (Rp)</th>
+                    <th>Harga Live (Rp)</th>
+                    <th>Nilai Ekuitas (Rp)</th>
                     <th>PnL (Rp)</th>
-                    <th>ROE</th>
+                    <th>RoE (%)</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="tableBody">
+                </tbody>
         </table>
+    </div>
+    
+    <div class="status-bar">
+        <span id="rateIDR">Mengkalibrasi kurs USD/IDR...</span>
+        <span>Storage: <span class="db-status">Firebase Cloud Firestore</span> | Stream: WebSocket</span>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // 1. FIREBASE CONFIGURATION
     const firebaseConfig = {
         apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
         authDomain: "rhn-capital.firebaseapp.com",
         projectId: "rhn-capital",
         storageBucket: "rhn-capital.firebasestorage.app",
         messagingSenderId: "74905216682",
-        appId: "1:74905216682:web:4687a5b0bd7bcac09292d3"
+        appId: "1:74905216682:web:4687a5b0bd7bcac09292d3",
+        measurementId: "G-R40Q1TCLYH"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
-    
+
+    // 2. STATE & ENGINE LOGIC
     let portfolio = [];
-    let usdtToIdrRate = 16000;
-    let currentUser = null;
+    let usdtToIdrRate = 16000; 
+    let ws;
 
-    const formatIDR = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
-    const formatUSD = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    const formatIDR = (number, isPrice = false) => {
+        if (number === 0) return 'Rp 0';
+        let maxDecimals = isPrice && number < 1000 ? 4 : 0;
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: maxDecimals }).format(number);
+    };
 
-    // Sync Auth & Data Khusus User (Private Path)
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('terminal-title').innerText = "Terminal: " + user.email.split('@')[0].toUpperCase();
-            listenToData(user.uid);
-            initWS();
-        } else {
-            document.getElementById('wsStatus').innerText = "BELUM LOGIN";
-            alert("Silakan login terlebih dahulu!");
-        }
-    });
+    // Sinkronisasi Real-time Firestore ke Tabel Lokal
+    onSnapshot(collection(db, "asset_terminal"), (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id = change.doc.id; 
+            
+            if (change.type === "added" || change.type === "modified") {
+                const existingIdx = portfolio.findIndex(item => item.id === id);
+                const newItem = { 
+                    id, 
+                    name: data.name, 
+                    category: data.category, 
+                    quantity: data.quantity, 
+                    buyPrice: data.buyPrice, 
+                    currentPrice: 0, 
+                    lastPrice: 0 
+                };
 
-    function listenToData(uid) {
-        // Path data sekarang masuk ke folder pribadi user
-        const q = query(collection(db, "users", uid, "assets"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snap) => {
-            portfolio = snap.docs.map(d => ({ id: d.id, ...d.data(), currentPrice: 0 }));
-            renderTable();
-        });
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = portfolio.map(item => `
-            <tr>
-                <td><strong>${item.name}</strong></td>
-                <td>${item.quantity}</td>
-                <td>${formatIDR(item.buyPrice)}</td>
-                <td><span class="cell-price" id="price-${item.id}">Loading...</span></td>
-                <td id="val-${item.id}">Rp 0</td>
-                <td id="pnl-${item.id}">Rp 0</td>
-                <td id="roe-${item.id}">0%</td>
-                <td><button class="btn-delete" onclick="window.deleteAsset('${item.id}')">TUTUP</button></td>
-            </tr>
-        `).join('');
-    }
-
-    function updateUI() {
-        let totalBuy = 0, totalNow = 0;
-        portfolio.forEach(item => {
-            if (item.currentPrice > 0) {
-                const buyVal = item.quantity * item.buyPrice;
-                const nowVal = item.quantity * item.currentPrice;
-                totalBuy += buyVal;
-                totalNow += nowVal;
-
-                const pnl = nowVal - buyVal;
-                const roe = (pnl / buyVal) * 100;
-                const color = pnl >= 0 ? 'text-profit' : 'text-loss';
-
-                const elPrice = document.getElementById(`price-${item.id}`);
-                if (elPrice) {
-                    elPrice.innerText = formatIDR(item.currentPrice);
-                    document.getElementById(`val-${item.id}`).innerText = formatIDR(nowVal);
-                    document.getElementById(`pnl-${item.id}`).innerText = (pnl > 0 ? '+' : '') + formatIDR(pnl);
-                    document.getElementById(`pnl-${item.id}`).className = color;
-                    document.getElementById(`roe-${item.id}`).innerText = roe.toFixed(2) + '%';
-                    document.getElementById(`roe-${item.id}`).className = color;
+                if (existingIdx >= 0) {
+                    newItem.currentPrice = portfolio[existingIdx].currentPrice;
+                    newItem.lastPrice = portfolio[existingIdx].lastPrice;
+                    portfolio[existingIdx] = newItem;
+                } else {
+                    portfolio.push(newItem);
                 }
             }
+            if (change.type === "removed") {
+                portfolio = portfolio.filter(item => item.id !== id);
+            }
         });
+        
+        renderTableRows();
+    });
 
-        const netPnl = totalNow - totalBuy;
-        const totalRoe = totalBuy > 0 ? (netPnl / totalBuy) * 100 : 0;
+    // 3. UI RENDERING
+    function renderTableRows() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
 
-        document.getElementById('totalIDR').innerText = formatIDR(totalNow);
-        document.getElementById('totalUSD').innerText = formatUSD(totalNow / usdtToIdrRate);
-        document.getElementById('pnlIDR').innerText = (netPnl > 0 ? '+' : '') + formatIDR(netPnl);
-        document.getElementById('pnlUSD').innerText = (netPnl > 0 ? '+' : '') + formatUSD(netPnl / usdtToIdrRate);
-        document.getElementById('pnlIDR').className = `value ${netPnl >= 0 ? 'text-profit' : 'text-loss'}`;
-        document.getElementById('roePercent').innerText = totalRoe.toFixed(2) + '%';
-        document.getElementById('roePercent').className = `value ${totalRoe >= 0 ? 'text-profit' : 'text-loss'}`;
-        document.getElementById('rateDisplay').innerText = `Kurs: ${formatIDR(usdtToIdrRate)}`;
+        if (portfolio.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="empty-state">Sinkronisasi Cloud Selesai. Belum ada posisi aset terbuka.</td></tr>`;
+            updateSummary();
+            return;
+        }
+
+        portfolio.forEach((item) => {
+            const volUnit = item.category === 'Emas' ? ' gr' : ''; 
+            
+            const tr = document.createElement('tr');
+            tr.id = `row-${item.id}`;
+            tr.innerHTML = `
+                <td><strong>${item.name}</strong></td>
+                <td><span class="badge ${item.category.toLowerCase()}">${item.category}</span></td>
+                <td>${item.quantity.toLocaleString('en-US', {maximumFractionDigits: 8})}${volUnit}</td>
+                <td style="color: var(--text-muted)">${formatIDR(item.buyPrice, true)}</td>
+                <td><span class="cell-price" id="price-${item.id}">Connecting...</span></td>
+                <td id="value-${item.id}">Rp 0</td>
+                <td id="pnl-${item.id}">Rp 0</td>
+                <td id="roe-${item.id}">0.00%</td>
+                <td><button class="btn-delete" onclick="window.deleteAsset('${item.id}')">TUTUP</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        portfolio.forEach(item => {
+            if(item.currentPrice > 0) updateRowData(item, item.lastPrice);
+        });
+        updateSummary();
     }
 
-    // WebSocket Binance (Koin + Kurs Live USDTIDR)
-    function initWS() {
-        const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
-        ws.onmessage = (msg) => {
-            const data = JSON.parse(msg.data);
-            const dot = document.getElementById('tickDot');
-            dot.classList.add('active');
-            setTimeout(() => dot.classList.remove('active'), 50);
-            document.getElementById('wsStatus').innerText = "MARKET LIVE";
+    function updateRowData(item, oldPrice) {
+        const buyValue = item.quantity * item.buyPrice;
+        const currentValue = item.quantity * item.currentPrice;
+        const pnlRp = currentValue - buyValue;
+        const pnlPercent = buyValue > 0 ? (pnlRp / buyValue) * 100 : 0;
+
+        const elPrice = document.getElementById(`price-${item.id}`);
+        const elValue = document.getElementById(`value-${item.id}`);
+        const elPnl = document.getElementById(`pnl-${item.id}`);
+        const elRoe = document.getElementById(`roe-${item.id}`);
+
+        if(!elPrice) return;
+
+        elPrice.innerText = formatIDR(item.currentPrice, true);
+        elValue.innerText = formatIDR(currentValue);
+        
+        const pnlSign = pnlRp > 0 ? '+' : '';
+        const pnlClass = pnlRp >= 0 ? 'text-profit' : 'text-loss';
+        
+        elPnl.innerText = pnlSign + formatIDR(pnlRp);
+        elPnl.className = pnlClass;
+        
+        elRoe.innerText = pnlSign + pnlPercent.toFixed(2) + '%';
+        elRoe.className = pnlClass;
+
+        if (item.currentPrice > oldPrice && oldPrice !== 0) {
+            elPrice.classList.remove('flash-down');
+            elPrice.classList.add('flash-up');
+            setTimeout(() => elPrice.classList.remove('flash-up'), 300);
+        } else if (item.currentPrice < oldPrice && oldPrice !== 0) {
+            elPrice.classList.remove('flash-up');
+            elPrice.classList.add('flash-down');
+            setTimeout(() => elPrice.classList.remove('flash-down'), 300);
+        }
+    }
+
+    function updateSummary() {
+        let totalBuy = 0, totalCurrent = 0;
+        portfolio.forEach(item => {
+            totalBuy += (item.quantity * item.buyPrice);
+            totalCurrent += (item.quantity * item.currentPrice);
+        });
+
+        const totalPnl = totalCurrent - totalBuy;
+        const totalRoe = totalBuy > 0 ? (totalPnl / totalBuy) * 100 : 0;
+
+        document.getElementById('totalAssetValue').innerText = formatIDR(totalCurrent);
+        
+        const elPnl = document.getElementById('totalPnlValue');
+        elPnl.innerText = (totalPnl > 0 ? '+' : '') + formatIDR(totalPnl);
+        elPnl.className = `value ${totalPnl >= 0 ? 'text-profit' : 'text-loss'}`;
+
+        const elRoe = document.getElementById('totalPnlPercent');
+        elRoe.innerText = (totalRoe > 0 ? '+' : '') + totalRoe.toFixed(2) + '%';
+        elRoe.className = `value ${totalRoe >= 0 ? 'text-profit' : 'text-loss'}`;
+    }
+
+    // 4. DATA FETCHING (WEBSOCKET & FOREX)
+    async function fetchLiveExchangeRate() {
+        try {
+            const response = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await response.json();
+            if(data && data.rates && data.rates.IDR) {
+                usdtToIdrRate = data.rates.IDR;
+                document.getElementById('rateIDR').innerText = `Kurs USD/IDR: ${formatIDR(usdtToIdrRate)}`;
+            }
+        } catch (error) { console.error(error); }
+    }
+
+    function connectWebSocket() {
+        const wsStatus = document.getElementById('wsStatus');
+        const tickDot = document.getElementById('tickDot');
+        
+        ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
+
+        ws.onopen = () => {
+            wsStatus.innerText = "MARKET LIVE (WEB SOCKET)";
+            wsStatus.style.color = "var(--color-profit)";
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            let hasPortfolioUpdate = false;
+
+            tickDot.classList.add('active');
+            setTimeout(() => tickDot.classList.remove('active'), 50);
 
             data.forEach(ticker => {
-                if (ticker.s === 'USDTIDR') {
-                    usdtToIdrRate = parseFloat(ticker.c);
-                }
-                portfolio.forEach(item => {
-                    const symbol = item.name === 'XAU' ? 'PAXGUSDT' : item.name + 'USDT';
-                    if (ticker.s === symbol) {
-                        let priceUsd = parseFloat(ticker.c);
-                        if (item.name === 'XAU') priceUsd = priceUsd / 31.1034768; 
-                        item.currentPrice = priceUsd * usdtToIdrRate;
+                const sym = ticker.s; 
+                const priceUsd = parseFloat(ticker.c); 
+
+                portfolio.forEach(asset => {
+                    const targetSymbol = asset.name === 'XAU' ? 'PAXGUSDT' : `${asset.name}USDT`;
+                    
+                    if(sym === targetSymbol) {
+                        let adjustedPriceUsd = priceUsd;
+                        
+                        if (asset.category === 'Emas') {
+                            adjustedPriceUsd = priceUsd / 31.1034768; 
+                        }
+
+                        const oldPrice = asset.currentPrice;
+                        asset.currentPrice = adjustedPriceUsd * usdtToIdrRate;
+                        
+                        if(oldPrice !== asset.currentPrice) {
+                            updateRowData(asset, oldPrice);
+                            hasPortfolioUpdate = true;
+                        }
                     }
                 });
             });
-            updateUI();
+
+            if(hasPortfolioUpdate) updateSummary();
+        };
+
+        ws.onclose = () => {
+            wsStatus.innerText = "KONEKSI TERPUTUS. RECONNECTING...";
+            wsStatus.style.color = "var(--color-loss)";
+            setTimeout(connectWebSocket, 3000);
         };
     }
 
-    document.getElementById('assetForm').onsubmit = async (e) => {
+    // 5. USER INTERACTION (FIREBASE CRUD)
+    document.getElementById('assetForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        if(!currentUser) return;
-        const name = document.getElementById('assetName').value.toUpperCase();
-        await addDoc(collection(db, "users", currentUser.uid, "assets"), {
-            name: name,
-            category: document.getElementById('assetCategory').value,
-            quantity: parseFloat(document.getElementById('assetQuantity').value),
-            buyPrice: parseFloat(document.getElementById('assetBuyPrice').value),
-            createdAt: serverTimestamp()
-        });
-        e.target.reset();
-    };
+        const btnSubmit = document.querySelector('.btn-add');
+        btnSubmit.innerText = "MENYIMPAN...";
+        btnSubmit.disabled = true;
 
-    window.deleteAsset = async (id) => { 
-        if(confirm("Hapus aset?") && currentUser) {
-            await deleteDoc(doc(db, "users", currentUser.uid, "assets", id));
+        const name = document.getElementById('assetName').value.toUpperCase().trim();
+        const category = document.getElementById('assetCategory').value;
+        const quantity = parseFloat(document.getElementById('assetQuantity').value);
+        const buyPrice = parseFloat(document.getElementById('assetBuyPrice').value);
+
+        if(!name || isNaN(quantity) || isNaN(buyPrice)) return;
+
+        try {
+            await addDoc(collection(db, "asset_terminal"), {
+                name: name === 'XAUUSD' ? 'XAU' : name,
+                category: category,
+                quantity: quantity,
+                buyPrice: buyPrice,
+                createdAt: serverTimestamp()
+            });
+            this.reset();
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("Gagal menyimpan ke Firebase.");
+        } finally {
+            btnSubmit.innerText = "EKSEKUSI POSISI";
+            btnSubmit.disabled = false;
+        }
+    });
+
+    window.deleteAsset = async function(id) {
+        if(confirm("Tutup posisi aset ini? Data akan dihapus dari Cloud.")) {
+            try {
+                await deleteDoc(doc(db, "asset_terminal", id));
+            } catch (error) {
+                console.error("Error removing document: ", error);
+            }
         }
     };
+
+    // Eksekusi Startup
+    fetchLiveExchangeRate().then(() => {
+        connectWebSocket();
+    });
+
+    setInterval(fetchLiveExchangeRate, 3600000); 
 </script>
+
 </body>
 </html>
