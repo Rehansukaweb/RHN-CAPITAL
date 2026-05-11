@@ -3,218 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RHN CAPITAL - Quantum Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>RHN CAPITAL - Hyper Terminal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #050508; 
-            --bg-grid: rgba(255, 255, 255, 0.02);
-            --glass-bg: rgba(15, 15, 20, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.05);
-            --text-main: #ffffff; 
-            --text-muted: #6b7280;
-            --color-profit: #00ff88; 
-            --color-loss: #ff2a55; 
-            --color-primary: #00d2ff;
-            --color-brand: #eab308; 
-            --flash-up: rgba(0, 255, 136, 0.15);
-            --flash-down: rgba(255, 42, 85, 0.15); 
-            --shadow-glow: 0 10px 40px -10px rgba(0, 0, 0, 0.7);
+            --bg-base: #06080F;
+            --glass: rgba(15, 17, 26, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --profit: #00e676;
+            --loss: #ff2a55;
+            --primary: #0ea5e9;
+            --brand: #f59e0b;
+            --glow-profit: 0 0 20px rgba(0, 230, 118, 0.3);
+            --glow-loss: 0 0 20px rgba(255, 42, 85, 0.3);
+            --glow-primary: 0 0 30px rgba(14, 165, 233, 0.4);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Space Grotesk', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; }
+        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; min-height: 100vh; }
 
-        /* --- CYBER GRID BACKGROUND --- */
-        .cyber-grid { position: fixed; inset: 0; z-index: -2; background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px); background-size: 40px 40px; background-position: center center; perspective: 1000px; }
-        .cyber-grid::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 0%, var(--bg-base) 80%); }
-        .glow-orb { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.3; animation: drift 20s infinite alternate ease-in-out; }
-        .orb-1 { width: 50vw; height: 50vw; top: -20%; left: -10%; background: var(--color-primary); }
-        .orb-2 { width: 40vw; height: 40vw; bottom: -20%; right: -10%; background: var(--color-brand); animation-delay: -10s; }
-        @keyframes drift { 0% { transform: translate(0, 0); } 100% { transform: translate(10%, 10%); } }
+        /* --- HYPER ANIMATED BACKGROUND --- */
+        .hyper-bg { position: fixed; inset: 0; z-index: -2; background: #06080F; overflow: hidden; }
+        .hyper-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4; animation: orbMove 25s infinite alternate ease-in-out; }
+        .orb-1 { width: 60vw; height: 60vw; top: -20%; left: -10%; background: radial-gradient(circle, #0ea5e9, transparent 60%); }
+        .orb-2 { width: 50vw; height: 50vw; bottom: -20%; right: -10%; background: radial-gradient(circle, #8b5cf6, transparent 60%); animation-delay: -12s; }
+        .orb-3 { width: 40vw; height: 40vw; top: 40%; left: 40%; background: radial-gradient(circle, #10b981, transparent 60%); animation-delay: -5s; opacity: 0.2; }
+        @keyframes orbMove { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(15%, 15%) scale(1.2); } }
 
         /* --- UI COMPONENTS --- */
-        .quantum-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: var(--shadow-glow); position: relative; overflow: hidden; }
-        .quantum-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
+        .glass-panel { background: var(--glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-highlight); border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
 
-        /* --- SPLASH SCREEN --- */
-        #splash { position: fixed; inset: 0; background: var(--bg-base); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.8s ease, transform 0.8s ease; }
-        #splash.hide { opacity: 0; transform: scale(1.1); pointer-events: none; }
-        .hologram-logo { font-size: 60px; filter: drop-shadow(0 0 20px var(--color-brand)); animation: pulseLogo 2s infinite; }
-        @keyframes pulseLogo { 0%, 100% { filter: drop-shadow(0 0 20px var(--color-brand)) brightness(1); } 50% { filter: drop-shadow(0 0 40px var(--color-brand)) brightness(1.3); } }
+        /* --- SPLASH & AUTH --- */
+        #splash { position: fixed; inset: 0; background: var(--bg-base); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s ease-out; }
+        #splash.hide { opacity: 0; pointer-events: none; transform: scale(1.1); }
+        .logo-glow { font-size: 64px; filter: drop-shadow(0 0 20px var(--brand)); animation: floatLogo 3s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* --- LOGIN SCREEN (VAULT STYLE) --- */
-        #login-screen { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(15px); }
-        .login-card { padding: 50px 40px; width: 100%; max-width: 440px; text-align: center; }
-        .login-card h2 { font-size: 36px; font-weight: 800; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, var(--color-brand) 100%); -webkit-background-clip: text; color: transparent; letter-spacing: -1px; }
-        .login-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 35px; letter-spacing: 2px; text-transform: uppercase; }
-        .input-group { position: relative; margin-bottom: 20px; }
-        .login-input { width: 100%; padding: 18px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); color: #fff; font-size: 15px; outline: none; font-family: 'JetBrains Mono'; transition: 0.3s; }
-        .login-input:focus { border-color: var(--color-brand); background: rgba(234, 179, 8, 0.05); box-shadow: 0 0 20px rgba(234, 179, 8, 0.1); }
-        .btn-login { width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--color-brand), #b45309); color: #000; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; position: relative; overflow: hidden; }
-        .btn-login::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); transform: skewX(-20deg); animation: btnShine 3s infinite; }
-        @keyframes btnShine { 0% { left: -100%; } 20%, 100% { left: 200%; } }
-        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(234, 179, 8, 0.3); }
+        #auth-screen { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { padding: 40px; width: 100%; max-width: 420px; text-align: center; }
+        .auth-card h2 { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #fff, var(--brand)); -webkit-background-clip: text; color: transparent; margin-bottom: 5px; }
+        .auth-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 30px; letter-spacing: 1px; }
+        
+        .hyper-input { width: 100%; padding: 16px 20px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; color: #fff; font-family: 'Space Grotesk'; font-size: 15px; margin-bottom: 16px; outline: none; transition: 0.3s; }
+        .hyper-input:focus { border-color: var(--primary); background: rgba(14, 165, 233, 0.05); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); }
+        
+        .btn-hyper { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), #3b82f6); border: none; border-radius: 12px; color: #fff; font-family: 'Space Grotesk'; font-weight: 800; font-size: 15px; letter-spacing: 1px; cursor: pointer; transition: 0.3s; margin-bottom: 12px; box-shadow: var(--glow-primary); }
+        .btn-hyper:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.5); }
+        .btn-hyper:active { transform: translateY(1px); }
+        
+        .btn-toggle { background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); font-size: 12px; font-weight: 600; box-shadow: none; }
+        .btn-toggle:hover { background: rgba(255,255,255,0.05); color: #fff; transform: none; box-shadow: none; }
 
-        /* --- MAIN TERMINAL UI --- */
+        /* --- MAIN TERMINAL --- */
         #main-app { display: none; padding: 40px 24px; position: relative; z-index: 10; }
         .container { max-width: 1400px; margin: 0 auto; width: 100%; }
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
-        .header-title h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: #fff; }
-        .brand-subtitle { font-size: 13px; font-weight: 800; color: var(--color-brand); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 6px; display: block; }
-        .live-pill { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; color: var(--color-profit); background: rgba(0, 255, 136, 0.08); padding: 10px 20px; border-radius: 50px; border: 1px solid rgba(0, 255, 136, 0.3); box-shadow: 0 0 20px rgba(0,255,136,0.15); letter-spacing: 1px; }
-        .dot { width: 8px; height: 8px; background-color: var(--color-profit); border-radius: 50%; box-shadow: 0 0 12px var(--color-profit); }
-        .dot.active { animation: ping 0.5s cubic-bezier(0, 0, 0.2, 1); }
-        @keyframes ping { 75%, 100% { transform: scale(2.5); opacity: 0; } }
+        .brand-sub { font-size: 13px; color: var(--brand); font-weight: 800; letter-spacing: 3px; margin-bottom: 5px; display: block; }
+        .header h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+        .live-status { display: flex; align-items: center; gap: 10px; background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.2); padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 12px; color: var(--profit); box-shadow: var(--glow-profit); }
+        .live-dot { width: 8px; height: 8px; background: var(--profit); border-radius: 50%; }
+        .live-dot.active { animation: pulse 0.3s ease-out; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
 
-        /* Summary Cards */
-        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
-        .summary-card { padding: 32px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s; }
-        .summary-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.15); }
-        .summary-card h3 { font-size: 12px; color: var(--text-muted); font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 2px; }
-        .summary-card .value { font-size: 42px; font-weight: 800; font-family: 'JetBrains Mono', monospace; background: linear-gradient(180deg, #fff, #a1a1aa); -webkit-background-clip: text; color: transparent; letter-spacing: -2px; }
-        .summary-card .sub-value { font-size: 16px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 8px; font-weight: 600; }
-        .glow-text-profit { text-shadow: 0 0 20px rgba(0, 255, 136, 0.4); color: var(--color-profit) !important; background: none !important; -webkit-text-fill-color: var(--color-profit) !important; }
-        .glow-text-loss { text-shadow: 0 0 20px rgba(255, 42, 85, 0.4); color: var(--color-loss) !important; background: none !important; -webkit-text-fill-color: var(--color-loss) !important; }
-
-        /* Form Section */
-        .form-container { padding: 30px; margin-bottom: 40px; }
-        .form-grid { display: grid; grid-template-columns: 2fr 1.2fr 1.5fr 1.5fr auto; gap: 24px; align-items: end; }
-        .form-group label { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: block; }
-        .form-group input, .form-group select { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 16px; border-radius: 12px; outline: none; font-size: 15px; width: 100%; font-family: 'JetBrains Mono'; transition: 0.3s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--color-primary); background: rgba(0, 210, 255, 0.05); box-shadow: 0 0 20px rgba(0,210,255,0.1); }
-        .btn-add { background: linear-gradient(135deg, var(--color-primary), #0284c7); color: #fff; border: none; padding: 16px 36px; border-radius: 12px; font-weight: 800; cursor: pointer; height: 53px; transition: 0.3s; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
-        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,210,255,0.3); }
-
-        /* Table Section */
-        .table-container { overflow-x: auto; width: 100%; padding: 10px 0; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; text-align: right; min-width: 1000px; padding: 0 30px; }
-        th { color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; padding: 0 24px 16px 24px; }
-        td { padding: 24px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.03); font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500; transition: background 0.3s; }
-        tr td:first-child { border-left: 1px solid rgba(255,255,255,0.03); border-top-left-radius: 12px; border-bottom-left-radius: 12px; text-align: left; }
-        tr td:last-child { border-right: 1px solid rgba(255,255,255,0.03); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-        tbody tr { transition: transform 0.2s; }
-        tbody tr:hover { transform: scale(1.01); }
-        tbody tr:hover td { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
-        td strong { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
-
-        .cell-price { border-radius: 8px; padding: 8px 12px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: inline-block; font-weight: 700; background: rgba(0,0,0,0.3); border: 1px solid transparent; }
-        .flash-up { background-color: var(--flash-up) !important; color: var(--color-profit) !important; border-color: rgba(0,255,136,0.3) !important; box-shadow: 0 0 20px var(--flash-up); transform: scale(1.08); }
-        .flash-down { background-color: var(--flash-down) !important; color: var(--color-loss) !important; border-color: rgba(255,42,85,0.3) !important; box-shadow: 0 0 20px var(--flash-down); transform: scale(1.08); }
+        /* Summary Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+        .stat-card { padding: 32px; transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+        .stat-title { font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .stat-val { font-size: 40px; font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: -1px; }
+        .stat-sub { font-size: 15px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 8px; font-weight: 600; }
         
-        .text-profit { color: var(--color-profit); text-shadow: 0 0 15px rgba(0,255,136,0.4); font-weight: 800; }
-        .text-loss { color: var(--color-loss); text-shadow: 0 0 15px rgba(255,42,85,0.4); font-weight: 800; }
-        
-        .btn-delete { background: rgba(255, 42, 85, 0.05); color: var(--color-loss); border: 1px solid rgba(255, 42, 85, 0.3); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 11px; transition: 0.3s; font-family: 'Space Grotesk'; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-delete:hover { background: var(--color-loss); color: #fff; box-shadow: 0 0 20px rgba(255,42,85,0.5); transform: scale(1.05); }
+        .text-profit { color: var(--profit); text-shadow: var(--glow-profit); }
+        .text-loss { color: var(--loss); text-shadow: var(--glow-loss); }
 
-        .status-bar { margin-top: 40px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-top: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono'; }
-        .logout-link { color: var(--color-loss); cursor: pointer; font-weight: 800; letter-spacing: 2px; transition: 0.3s; text-decoration: none; }
-        .logout-link:hover { text-shadow: 0 0 15px var(--color-loss); }
+        /* Command Center (Form) */
+        .command-center { padding: 30px; margin-bottom: 40px; }
+        .form-grid { display: grid; grid-template-columns: 2fr 1.2fr 1.5fr 1.5fr auto; gap: 20px; align-items: end; }
+        .form-grid label { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        .btn-deploy { height: 53px; margin-bottom: 0; font-size: 14px; padding: 0 32px; }
 
-        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        /* Data Table */
+        .table-wrapper { overflow-x: auto; padding-bottom: 20px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; min-width: 1050px; text-align: right; }
+        th { color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 0 24px 10px 24px; border-bottom: 1px solid var(--glass-border); }
+        th:first-child { text-align: left; }
+        td { background: rgba(0, 0, 0, 0.2); padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02); transition: 0.2s; }
+        td:first-child { text-align: left; border-left: 1px solid rgba(255,255,255,0.02); border-top-left-radius: 16px; border-bottom-left-radius: 16px; font-size: 18px; color: #fff; font-family: 'Space Grotesk'; font-weight: 800; }
+        td:last-child { border-right: 1px solid rgba(255,255,255,0.02); border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .price-tag { padding: 8px 14px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); transition: 0.3s; display: inline-block; }
+        .flash-up { background: rgba(0, 230, 118, 0.15); color: var(--profit); border-color: var(--profit); box-shadow: var(--glow-profit); transform: scale(1.05); }
+        .flash-down { background: rgba(255, 42, 85, 0.15); color: var(--loss); border-color: var(--loss); box-shadow: var(--glow-loss); transform: scale(1.05); }
+
+        .btn-kill { background: transparent; border: 1px solid rgba(255, 42, 85, 0.4); color: var(--loss); padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.3s; }
+        .btn-kill:hover { background: var(--loss); color: #fff; box-shadow: var(--glow-loss); }
+
+        /* Footer */
+        .footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-weight: 600; padding: 20px 10px; border-top: 1px solid var(--glass-border); }
+        .logout-btn { color: var(--loss); cursor: pointer; letter-spacing: 1px; transition: 0.3s; }
+        .logout-btn:hover { text-shadow: var(--glow-loss); }
+
+        ::-webkit-scrollbar { height: 8px; width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         @media (max-width: 900px) {
             #main-app { padding: 20px 16px; }
             .header { flex-direction: column; align-items: flex-start; gap: 20px; }
-            .summary-grid { grid-template-columns: 1fr; gap: 20px; }
-            .form-grid { grid-template-columns: 1fr; gap: 16px; }
-            .btn-add { width: 100%; height: 56px; }
-            .summary-card { padding: 24px; }
-            .status-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .stats-grid, .form-grid { grid-template-columns: 1fr; gap: 16px; }
+            .stat-card { padding: 24px; }
+            .stat-val { font-size: 32px; }
+            .btn-deploy { width: 100%; height: 56px; }
         }
     </style>
 </head>
 <body>
 
-<div class="cyber-grid"></div>
-<div class="glow-orb orb-1"></div>
-<div class="glow-orb orb-2"></div>
-
-<div id="splash">
-    <div class="hologram-logo">📈</div>
+<div class="hyper-bg">
+    <div class="hyper-orb orb-1"></div>
+    <div class="hyper-orb orb-2"></div>
+    <div class="hyper-orb orb-3"></div>
 </div>
 
-<div id="login-screen">
-    <div class="login-card quantum-panel">
-        <div style="font-size: 11px; color: var(--color-brand); letter-spacing: 4px; margin-bottom: 10px; font-weight: 800;">RHN CAPITAL</div>
-        <h2>SYSTEM LOGIN</h2>
-        <p>Encrypted Data Stream</p>
-        <div class="input-group">
-            <input type="email" class="login-input" id="lEmail" placeholder="Auth Email">
-        </div>
-        <div class="input-group">
-            <input type="password" class="login-input" id="lPass" placeholder="Auth Code">
-        </div>
-        <button class="btn-login" id="btnLogin">DECRYPT & ENTER</button>
+<div id="splash">
+    <div class="logo-glow">💎</div>
+    <div style="font-weight: 700; letter-spacing: 4px; color: var(--primary);">INITIALIZING HYPER CORE...</div>
+</div>
+
+<div id="auth-screen">
+    <div class="auth-card glass-panel">
+        <h2 id="authModeText">ACCESS VAULT</h2>
+        <p>RHN Capital Secure Login</p>
+        
+        <input type="email" id="authEmail" class="hyper-input" placeholder="Registered Email">
+        <input type="password" id="authPass" class="hyper-input" placeholder="Security Key">
+        
+        <button id="btnAction" class="btn-hyper" onclick="handleAuth()">DECRYPT & ENTER</button>
+        <button id="btnToggle" class="btn-hyper btn-toggle" onclick="toggleAuthMode()">CREATE NEW ACCOUNT</button>
     </div>
 </div>
 
 <div id="main-app">
     <div class="container">
         <div class="header">
-            <div class="header-title">
-                <span class="brand-subtitle">RHN CAPITAL FINANCE</span>
-                <h1>Quantum Terminal</h1>
+            <div>
+                <span class="brand-sub">RHN CAPITAL FINANCE</span>
+                <h1>HYPER TERMINAL</h1>
             </div>
-            <div class="live-pill">
-                <div class="dot" id="tickDot"></div> <span id="wsStatus">SYNCING NODE...</span>
-            </div>
-        </div>
-
-        <div class="summary-grid">
-            <div class="summary-card quantum-panel">
-                <h3>Net Portfolio Value</h3>
-                <div class="value" id="totIDR">Rp 0</div>
-                <div class="sub-value" id="totUSD">$ 0.00</div>
-            </div>
-            <div class="summary-card quantum-panel">
-                <h3>Unrealized PnL (IDR)</h3>
-                <div class="value" id="pnlIDR">Rp 0</div>
-                <div class="sub-value" id="pnlUSD">$ 0.00</div>
-            </div>
-            <div class="summary-card quantum-panel">
-                <h3>Return of Equity</h3>
-                <div class="value" id="roePct">0.00%</div>
-                <div class="sub-value" id="kursIDR">Network Rate: Rp 0</div>
+            <div class="live-status">
+                <div class="live-dot" id="tickDot"></div> <span id="wsStatus">SYNCING DATA...</span>
             </div>
         </div>
 
-        <div class="form-container quantum-panel">
+        <div class="stats-grid">
+            <div class="stat-card glass-panel">
+                <div class="stat-title">NET PORTFOLIO (IDR)</div>
+                <div class="stat-val" id="totIDR">Rp 0</div>
+                <div class="stat-sub" id="totUSD">$ 0.00</div>
+            </div>
+            <div class="stat-card glass-panel">
+                <div class="stat-title">UNREALIZED PNL (IDR)</div>
+                <div class="stat-val" id="pnlIDR">Rp 0</div>
+                <div class="stat-sub" id="pnlUSD">$ 0.00</div>
+            </div>
+            <div class="stat-card glass-panel">
+                <div class="stat-title">RETURN OF EQUITY</div>
+                <div class="stat-val" id="roePct">0.00%</div>
+                <div class="stat-sub" id="kursIDR">Global Rate: Rp 0</div>
+            </div>
+        </div>
+
+        <div class="command-center glass-panel">
             <form class="form-grid" id="assetForm">
-                <div class="form-group"><label>Asset Ticker</label><input type="text" id="iName" placeholder="SHIB, BTC" required autocomplete="off"></div>
-                <div class="form-group"><label>Class</label><select id="iCat"><option value="Crypto">Crypto</option><option value="Emas">Emas</option></select></div>
-                <div class="form-group"><label>Invested IDR</label><input type="number" id="iInvest" step="any" placeholder="Total Modal (Rp)" required></div>
-                <div class="form-group"><label>Entry Price (IDR)</label><input type="number" id="iPrice" step="any" placeholder="Harga Beli" required></div>
-                <button type="submit" class="btn-add">INITIALIZE</button>
+                <div><label>Ticker (Ex: SHIB, BTC)</label><input type="text" id="iName" class="hyper-input" style="margin:0;" required autocomplete="off"></div>
+                <div><label>Class</label><select id="iCat" class="hyper-input" style="margin:0;"><option value="Crypto">Crypto</option><option value="Emas">Gold</option></select></div>
+                <div><label>Total Modal (Rp)</label><input type="number" id="iInvest" class="hyper-input" style="margin:0;" step="any" placeholder="Modal IDR" required></div>
+                <div><label>Harga Beli (Rp)</label><input type="number" id="iPrice" class="hyper-input" style="margin:0;" step="any" placeholder="Avg. Entry" required></div>
+                <button type="submit" id="btnDeployMain" class="btn-hyper btn-deploy">DEPLOY</button>
             </form>
         </div>
 
-        <div class="table-container quantum-panel" style="background: transparent; box-shadow: none; border: none;">
+        <div class="table-wrapper">
             <table>
-                <thead>
-                    <tr><th>Asset Node</th><th>Capital (IDR)</th><th>Avg Entry</th><th>Live Stream</th><th>Equity (IDR)</th><th>Net PnL</th><th>RoE</th><th>Action</th></tr>
-                </thead>
+                <thead><tr><th>Asset</th><th>Modal (Rp)</th><th>Avg. Entry</th><th>Live Market</th><th>Ekuitas (Rp)</th><th>Net PnL</th><th>RoE</th><th>Action</th></tr></thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-        
-        <div class="status-bar quantum-panel" style="border-radius: 12px; margin-top: 20px;">
-            <span>ID: <span id="userDisp" style="color:var(--color-primary); font-weight:700">...</span></span>
-            <span style="color: rgba(255,255,255,0.3)">SYS_V4.0 // QUANTUM ENGINE ACTIVE</span>
-            <span class="logout-link" onclick="handleLogout()">DISCONNECT</span>
+
+        <div class="footer">
+            <span>SESSION ID: <span id="userDisp" style="color:var(--primary);">...</span></span>
+            <span class="logout-btn" onclick="logout()">TERMINATE SESSION</span>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -233,44 +225,71 @@
     let portfolio = [];
     let usdtToIdrRate = 16000;
     let userUid = null;
+    let livePrices = {}; 
+    let isLoginMode = true;
 
-    // --- QUANTUM TICKER LOGIC ---
-    function cleanTicker(name) {
-        let t = name.toUpperCase().trim().replace('USDT', '').replace('USD', '');
-        const map = { 'SHIBA': 'SHIB', 'DOGE': 'DOGE', 'BTC': 'BTC', 'GOLD': 'XAU' };
-        return map[t] || t;
+    // --- SMART OMNI-TICKER ---
+    function getBinanceSymbol(name) {
+        let t = name.toUpperCase().trim().replace(/\s+/g, '');
+        const aliases = { 'SHIBA': 'SHIB', 'BITCOIN': 'BTC', 'GOLD': 'PAXG', 'XAU': 'PAXG' };
+        if(aliases[t]) t = aliases[t];
+        if(t.endsWith('USDT')) return t;
+        if(t.endsWith('USD')) return t.replace('USD', 'USDT');
+        return t + 'USDT';
     }
 
-    /* --- AUTHENTICATION --- */
-    document.getElementById('btnLogin').onclick = () => {
-        const btn = document.getElementById('btnLogin');
-        btn.innerText = "DECRYPTING...";
-        signInWithEmailAndPassword(auth, document.getElementById('lEmail').value, document.getElementById('lPass').value)
-        .catch(err => { alert("ACCESS DENIED!"); btn.innerText = "DECRYPT & ENTER"; });
+    /* --- AUTH & REGISTER LOGIC --- */
+    window.toggleAuthMode = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('authModeText').innerText = isLoginMode ? "ACCESS VAULT" : "CREATE ACCOUNT";
+        document.getElementById('btnAction').innerText = isLoginMode ? "DECRYPT & ENTER" : "REGISTER NOW";
+        document.getElementById('btnToggle').innerText = isLoginMode ? "CREATE NEW ACCOUNT" : "BACK TO LOGIN";
     };
-    window.handleLogout = () => { if(confirm("Terminate Quantum Session?")) signOut(auth); };
+
+    window.handleAuth = async () => {
+        const e = document.getElementById('authEmail').value;
+        const p = document.getElementById('authPass').value;
+        const btn = document.getElementById('btnAction');
+        const originalText = btn.innerText;
+        btn.innerText = "AUTHENTICATING...";
+
+        try {
+            if(isLoginMode) {
+                await signInWithEmailAndPassword(auth, e, p);
+            } else {
+                await createUserWithEmailAndPassword(auth, e, p);
+                alert("Akun berhasil dibuat!");
+            }
+        } catch (error) {
+            alert("Error: " + error.message);
+            btn.innerText = originalText;
+        }
+    };
+
+    window.logout = () => { if(confirm("Keluar dari Terminal?")) signOut(auth); };
 
     onAuthStateChanged(auth, user => {
         if(user) {
             userUid = user.uid;
-            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             document.getElementById('userDisp').innerText = user.email.split('@')[0].toUpperCase();
             startEngine(user.uid);
-            setTimeout(() => document.getElementById('splash').classList.add('hide'), 300);
+            setTimeout(() => document.getElementById('splash').classList.add('hide'), 800);
         } else {
-            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('splash').classList.remove('hide');
-            setTimeout(() => document.getElementById('splash').classList.add('hide'), 800);
+            setTimeout(() => document.getElementById('splash').classList.add('hide'), 1200);
         }
     });
 
+    /* --- CORE ENGINE --- */
     function startEngine(uid) {
         const q = query(collection(db, "users", uid, "assets"), orderBy("createdAt", "desc"));
         onSnapshot(q, snap => {
             portfolio = snap.docs.map(d => ({ id: d.id, ...d.data(), currentPrice: 0, lastPrice: 0 }));
-            renderTable();
+            renderTable(); 
         });
         initWS();
     }
@@ -280,25 +299,35 @@
 
     function renderTable() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = portfolio.length === 0 ? '<tr><td colspan="8" style="text-align:center; padding:100px; color:var(--text-muted); font-size: 13px; letter-spacing: 2px;">AWAITING DATA INPUT...</td></tr>' : 
+        tbody.innerHTML = portfolio.length === 0 ? '<tr><td colspan="8" style="text-align:center; padding:60px; color:var(--text-muted);">BELUM ADA ASET TERDAFTAR</td></tr>' : 
         portfolio.map(item => `
             <tr>
-                <td><strong>${item.name}</strong></td>
+                <td>${item.name.toUpperCase()}</td>
                 <td style="color:var(--text-muted)">${fmtIDR(item.investIdr)}</td>
                 <td>${fmtIDR(item.buyPrice)}</td>
-                <td><span class="cell-price" id="price-${item.id}">Loading...</span></td>
+                <td><span class="price-tag" id="price-${item.id}">SCANNING...</span></td>
                 <td id="val-${item.id}">Rp 0</td>
                 <td id="pnl-${item.id}">Rp 0</td>
                 <td id="roe-${item.id}">0%</td>
-                <td><button class="btn-delete" onclick="window.delAsset('${item.id}')">CLOSE</button></td>
+                <td><button class="btn-kill" onclick="window.delAsset('${item.id}')">TUTUP</button></td>
             </tr>
         `).join('');
-        updateUI();
+        updateUI(); 
     }
 
     function updateUI() {
         let tBuy = 0, tNow = 0;
+        
         portfolio.forEach(item => {
+            const sym = getBinanceSymbol(item.name);
+            let pUsd = livePrices[sym];
+            
+            if(pUsd && (item.name.toUpperCase() === 'GOLD' || item.name.toUpperCase() === 'XAU')) {
+                pUsd = pUsd / 31.1034768; 
+            }
+
+            if(pUsd) item.currentPrice = pUsd * usdtToIdrRate; 
+
             if(item.currentPrice > 0 && item.buyPrice > 0) {
                 const modal = item.investIdr; 
                 const volume = modal / item.buyPrice; 
@@ -314,10 +343,14 @@
                 if(elP) {
                     elP.innerText = fmtIDR(item.currentPrice);
                     document.getElementById(`val-${item.id}`).innerText = fmtIDR(ekuitasSekarang);
-                    document.getElementById(`pnl-${item.id}`).innerText = (pnl > 0 ? '+' : '') + fmtIDR(pnl);
-                    document.getElementById(`pnl-${item.id}`).className = cls;
-                    document.getElementById(`roe-${item.id}`).innerText = (pnl > 0 ? '+' : '') + roe.toFixed(2) + '%';
-                    document.getElementById(`roe-${item.id}`).className = cls;
+                    
+                    const pnlEl = document.getElementById(`pnl-${item.id}`);
+                    pnlEl.innerText = (pnl > 0 ? '+' : '') + fmtIDR(pnl);
+                    pnlEl.className = cls;
+                    
+                    const roeEl = document.getElementById(`roe-${item.id}`);
+                    roeEl.innerText = (pnl > 0 ? '+' : '') + roe.toFixed(2) + '%';
+                    roeEl.className = cls;
                     
                     if(item.currentPrice > item.lastPrice && item.lastPrice !== 0) {
                         elP.classList.add('flash-up'); setTimeout(() => elP.classList.remove('flash-up'), 400);
@@ -330,21 +363,19 @@
         });
         
         const netPnl = tNow - tBuy;
-        const pnlEl = document.getElementById('pnlIDR');
-        const roeEl = document.getElementById('roePct');
-
         document.getElementById('totIDR').innerText = fmtIDR(tNow);
         document.getElementById('totUSD').innerText = fmtUSD(tNow / usdtToIdrRate);
         
-        pnlEl.innerText = (netPnl > 0 ? '+' : '') + fmtIDR(netPnl);
-        pnlEl.className = 'value ' + (netPnl > 0 ? 'glow-text-profit' : netPnl < 0 ? 'glow-text-loss' : '');
-        
+        const pnlIDREl = document.getElementById('pnlIDR');
+        pnlIDREl.innerText = (netPnl > 0 ? '+' : '') + fmtIDR(netPnl);
+        pnlIDREl.className = 'stat-val ' + (netPnl > 0 ? 'text-profit' : netPnl < 0 ? 'text-loss' : '');
         document.getElementById('pnlUSD').innerText = (netPnl > 0 ? '+' : '') + fmtUSD(netPnl / usdtToIdrRate);
         
-        roeEl.innerText = tBuy > 0 ? ((netPnl/tBuy)*100).toFixed(2) + '%' : '0.00%';
-        roeEl.className = 'value ' + (netPnl > 0 ? 'glow-text-profit' : netPnl < 0 ? 'glow-text-loss' : '');
+        const roePctEl = document.getElementById('roePct');
+        roePctEl.innerText = tBuy > 0 ? ((netPnl/tBuy)*100).toFixed(2) + '%' : '0.00%';
+        roePctEl.className = 'stat-val ' + (netPnl > 0 ? 'text-profit' : netPnl < 0 ? 'text-loss' : '');
 
-        document.getElementById('kursIDR').innerText = "Network Rate: " + fmtIDR(usdtToIdrRate);
+        document.getElementById('kursIDR').innerText = "Global Rate: " + fmtIDR(usdtToIdrRate);
     }
 
     function initWS() {
@@ -353,41 +384,43 @@
             const data = JSON.parse(e.data);
             const dot = document.getElementById('tickDot');
             dot.classList.add('active'); setTimeout(() => dot.classList.remove('active'), 50);
-            document.getElementById('wsStatus').innerText = "DATA STREAM ACTIVE";
+            document.getElementById('wsStatus').innerText = "LIVE STREAM ACTIVE";
 
             data.forEach(ticker => {
-                if (ticker.s === 'USDTIDR') usdtToIdrRate = parseFloat(ticker.c);
-                portfolio.forEach(item => {
-                    const clean = cleanTicker(item.name);
-                    const sym = clean === 'XAU' ? 'PAXGUSDT' : clean + 'USDT';
-                    if (ticker.s === sym) {
-                        let p = parseFloat(ticker.c);
-                        if(clean === 'XAU') p = p / 31.1034768;
-                        item.currentPrice = p * usdtToIdrRate;
-                    }
-                });
+                if (ticker.s === 'USDTIDR' || ticker.s === 'USDTBIDR') {
+                    usdtToIdrRate = parseFloat(ticker.c);
+                }
+                livePrices[ticker.s] = parseFloat(ticker.c);
             });
             updateUI();
         };
-        ws.onclose = () => { document.getElementById('wsStatus').innerText = "RECONNECTING..."; setTimeout(initWS, 3000); };
+        ws.onclose = () => { document.getElementById('wsStatus').innerText = "RECONNECTING..."; setTimeout(initWS, 2000); };
     }
 
+    // --- FORM DEPLOY FIX (ANTI STUCK) ---
     document.getElementById('assetForm').onsubmit = async e => {
         e.preventDefault();
-        const btn = document.querySelector('.btn-add');
-        btn.innerText = "PROCESSING...";
-        await addDoc(collection(db, "users", userUid, "assets"), {
-            name: document.getElementById('iName').value.toUpperCase(),
-            category: document.getElementById('iCat').value,
-            investIdr: parseFloat(document.getElementById('iInvest').value),
-            buyPrice: parseFloat(document.getElementById('iPrice').value),
-            createdAt: serverTimestamp()
-        });
-        e.target.reset();
-        btn.innerText = "INITIALIZE";
+        const btn = document.getElementById('btnDeployMain');
+        const origText = btn.innerText;
+        btn.innerText = "DEPLOYING...";
+        
+        try {
+            await addDoc(collection(db, "users", userUid, "assets"), {
+                name: document.getElementById('iName').value.trim(),
+                category: document.getElementById('iCat').value,
+                investIdr: parseFloat(document.getElementById('iInvest').value),
+                buyPrice: parseFloat(document.getElementById('iPrice').value),
+                createdAt: serverTimestamp()
+            });
+            e.target.reset();
+        } catch (error) {
+            alert("Gagal deploy aset: " + error.message);
+        } finally {
+            btn.innerText = origText;
+        }
     };
 
-    window.delAsset = async id => { if(confirm("Terminate this position?")) await deleteDoc(doc(db, "users", userUid, "assets", id)); };
+    window.delAsset = async id => { if(confirm("Tutup posisi aset ini?")) await deleteDoc(doc(db, "users", userUid, "assets", id)); };
 </script>
 </body>
 </html>
