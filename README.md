@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ==========================================================================
-   TEMA ORIGINAL (GELAP PEKAT) DENGAN UKURAN MOBILE PRESISI
+   TEMA ORIGINAL (GELAP PEKAT) + TEKS NOMINAL PUTIH ELEGAN
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -69,7 +69,7 @@ body {
   font-weight: 700; font-size: 11px; font-family: 'Outfit', sans-serif;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.nav-ext-btn:hover { color: #fff; }
+.nav-ext-btn:hover { color: var(--text); }
 
 /* HEADER (Logo, USD, Sinkron, User) */
 .header-area { padding: 20px 24px; }
@@ -88,7 +88,7 @@ body {
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 .sync-text { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
 
-/* ROW USER (BULAN, AVATAR, KELUAR) SUDAH FIXED POSISINYA */
+/* ROW USER (BULAN, AVATAR, KELUAR) */
 .user-row { display: flex; align-items: center; gap: 12px; position: relative; width: 100%; }
 .theme-btn {
   background: var(--bg2); border: 1px solid var(--border); color: var(--gold);
@@ -111,7 +111,7 @@ body {
   padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;
 }
 
-/* NAVIGATION TABS (Scrollable) */
+/* NAVIGATION TABS */
 .nav {
   padding: 0 24px 24px; display: flex; gap: 12px;
   overflow-x: auto; scrollbar-width: none; white-space: nowrap;
@@ -129,12 +129,13 @@ body {
 .page { display: none; animation: fadeIn 0.4s ease; } .page.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* METRICS GRID (2x2 UNTUK MOBILE) */
+/* METRICS GRID */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; }
-.m-val.pos { color: var(--green2); } .m-val.neg { color: var(--red2); } .m-val.gold { color: var(--gold); } .m-val.blue { color: var(--blue); }
+
+/* TEKS NOMINAL DIBUAT PUTIH SEMUA */
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; color: var(--text); }
 
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
@@ -142,12 +143,14 @@ body {
   padding: 2px 8px; border-radius: 6px; align-self: flex-start; margin-bottom: 8px;
 }
 .m-sub { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 12px; flex-grow: 1; }
+
+/* WARNA HANYA DI PROGRESS BAR BAWAH */
 .m-bar { height: 4px; background: var(--bg3); border-radius: 2px; width: 100%; overflow: hidden; }
 .m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 .inc .m-bar-fill { background: var(--green2); } .exp .m-bar-fill { background: var(--red2); }
 .bal .m-bar-fill { background: var(--border2); } .cnt .m-bar-fill { background: var(--blue); }
 
-/* FORMS (Tambah Transaksi) */
+/* FORMS */
 .card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
 .card-head { margin-bottom: 16px; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -158,7 +161,6 @@ body {
 .t-btn.income.active { background: var(--bg2); color: var(--green2); }
 .t-btn.expense.active { background: var(--bg2); color: var(--text); }
 
-/* STYLE UNTUK INPUT YANG GELAP AGAR TIDAK PUTIH */
 .f-input-dark {
   width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
@@ -178,7 +180,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .form-row textarea { height: 80px; resize: none; }
 .submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
 
-/* HISTORY CARDS (Kotak Terpisah Asli) */
+/* HISTORY CARDS */
 .list-wrap { padding: 8px 0; }
 .recent-item {
   padding: 16px; margin-bottom: 12px; border-radius: 16px; 
@@ -196,16 +198,16 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; }
 
 .ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; }
-.ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--text); }
+/* ANGKA NOMINAL RIWAYAT DIBUAT PUTIH */
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 
-/* SUMMARY GRID (Tab Harian/Mingguan) */
+/* SUMMARY GRID */
 .sum-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
 .sum-item { border-bottom: 1px solid var(--border); padding-bottom: 16px; }
 .sum-label { font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-.a-pos { color: var(--text); } .a-neg { color: var(--red2); }
+/* ANGKA SUMMARY DIBUAT PUTIH */
+.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
 
 /* CHART & FILTERS */
 .chart-wrap { margin-bottom: 24px; }
@@ -225,34 +227,27 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .auth-tabs { display: flex; background: var(--bg3); border-radius: 12px; padding: 4px; margin-bottom: 24px; }
 .auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 8px; }
 .auth-tab.active { background: var(--bg2); color: var(--text); }
+.auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
-/* ==========================================================================
-   MOBILE RESPONSIVE (MEMBUAT GRID 2x2 SEPERTI DI SCREENSHOT HP)
-   ========================================================================== */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
   .top-ext-links { justify-content: center; }
   .header-area { padding: 16px; }
   .status-row { flex-direction: row; }
   .status-pill { flex: 1; }
-  
-  /* Mencegah icon bulan melayang, posisinya aman di kiri */
   .user-row { flex-direction: row; justify-content: flex-start; }
-
   .nav { padding: 0 16px 20px; }
   .main { padding: 0 16px 80px; }
-  
-  /* GRID 2x2 SEPERTI DI FOTO HP */
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  
   .panel { display: flex; flex-direction: column; gap: 16px; }
   .card { padding: 16px; }
   .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; }
   .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
   .del-btn-recent { margin-top: 0; }
-  .cat-badge { display: none; } /* Sembunyikan badge kategori di HP biar rapi */
+  .cat-badge { display: none; }
 }
-/* Untuk Desktop Tetap 4 Kolom */
+
 @media (min-width: 769px) {
   .metrics { grid-template-columns: repeat(4, 1fr); }
   .panel { grid-template-columns: 400px 1fr; }
@@ -490,14 +485,14 @@ window.switchPage=function(p){ document.querySelectorAll('.page').forEach(el=>el
 
 function calcSum(arr){ const inc=arr.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0), exp=arr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0); return{inc,exp,bal:inc-exp,count:arr.length}; }
 
-function renderSumGrid(el,arr){ const s=calcSum(arr); el.innerHTML=`<div class="sum-item"><div class="sum-label">TOTAL PEMASUKAN</div><div class="sum-val a-pos">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">TOTAL PENGELUARAN</div><div class="sum-val a-neg">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">SALDO BERSIH</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div></div>`; }
+function renderSumGrid(el,arr){ const s=calcSum(arr); el.innerHTML=`<div class="sum-item"><div class="sum-label">TOTAL PEMASUKAN</div><div class="sum-val">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">TOTAL PENGELUARAN</div><div class="sum-val">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">SALDO BERSIH</div><div class="sum-val">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div></div>`; }
 
-const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><button class="del-btn-recent" onclick="delTx('${t.id}')">Hapus</button></div></div>`;
+const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><button class="del-btn-recent" onclick="delTx('${t.id}')">Hapus</button></div></div>`;
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
   const s=calcSum(txs), ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString())), pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
-  document.getElementById('metric-cards').innerHTML=`<div class="m-card inc"><div class="m-label">TOTAL PEMASUKAN</div><div class="m-val pos">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div><div class="m-card exp"><div class="m-label">TOTAL PENGELUARAN</div><div class="m-val neg">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div><div class="m-card bal"><div class="m-label">SALDO BERSIH</div><div class="m-val gold">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div><div class="m-card cnt"><div class="m-label">HARI INI</div><div class="m-val blue">${ts.count} transaksi</div><div class="m-sub" style="font-weight:700;">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
+  document.getElementById('metric-cards').innerHTML=`<div class="m-card inc"><div class="m-label">TOTAL PEMASUKAN</div><div class="m-val">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div><div class="m-card exp"><div class="m-label">TOTAL PENGELUARAN</div><div class="m-val">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div><div class="m-card bal"><div class="m-label">SALDO BERSIH</div><div class="m-val">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div><div class="m-card cnt"><div class="m-label">HARI INI</div><div class="m-val">${ts.count} transaksi</div><div class="m-sub" style="font-weight:700;">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
 function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'"}},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
