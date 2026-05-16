@@ -74,17 +74,17 @@ body {
   transition: background-color 0.6s ease, color 0.6s ease;
 }
 
-/* TOP EXTERNAL LINKS */
+/* TOP EXTERNAL LINKS - PERSIS SEPERTI ASLI */
 .top-ext-links {
   display: flex; justify-content: flex-end; gap: 32px; padding: 12px 40px;
   background: var(--navy); border-bottom: 1px solid var(--border);
 }
 .nav-ext-btn {
-  background: transparent; border: none; color: var(--text3);
-  font-weight: 400; font-size: 11px; font-family: 'Outfit', sans-serif;
-  cursor: pointer; transition: 0.4s ease; text-transform: uppercase; letter-spacing: 1.5px;
+  background: transparent; border: none; color: var(--gold2);
+  font-weight: 500; font-size: 12px; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: 0.4s ease; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.nav-ext-btn:hover { color: var(--gold2); letter-spacing: 2px; }
+.nav-ext-btn:hover { color: var(--gold); transform: translateY(-1px); text-shadow: 0 0 10px rgba(201,168,76,0.5); }
 
 /* USD MINI WIDGET */
 .usd-inline {
@@ -353,9 +353,9 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
 <body>
 
 <div class="top-ext-links">
-  <button class="nav-ext-btn" onclick="window.location.href='latar.html'">Halaman Utama</button>
-  <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">Jurnal Forex</button>
-  <button class="nav-ext-btn" onclick="window.location.href='aset.html'">Jurnal Aset</button>
+  <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 Halaman Rhn Capital ↗</button>
+  <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
+  <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 Jurnal Aset ↗</button>
 </div>
 
 <div id="auth-screen">
@@ -363,7 +363,7 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
     <div class="auth-logo">
       <img src="RHN LOGO.jpg" class="auth-emblem" alt="RHN Capital Logo">
       <div class="auth-title">RHN CAPITAL</div>
-      <div class="auth-sub">Wealth Management Portal</div>
+      <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
@@ -372,19 +372,19 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
     <div id="auth-err" class="auth-err"></div>
     <div class="auth-field">
       <label>Email</label>
-      <input type="email" id="auth-email" placeholder="Email terdaftar" autocomplete="email">
+      <input type="email" id="auth-email" placeholder="email@contoh.com" autocomplete="email">
     </div>
     <div class="auth-field">
       <label>Sandi</label>
-      <input type="password" id="auth-pass" placeholder="Kata sandi" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
     <div class="auth-field" id="field-confirm" style="display:none">
       <label>Konfirmasi Sandi</label>
-      <input type="password" id="auth-pass2" placeholder="Ulangi kata sandi" autocomplete="new-password">
+      <input type="password" id="auth-pass2" placeholder="••••••••" autocomplete="new-password">
     </div>
-    <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">Autentikasi</button>
+    <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">Masuk</button>
     <div class="auth-footer">
-      Secured by Firebase
+      Data tersimpan aman di Firebase.
     </div>
   </div>
 </div>
@@ -395,14 +395,14 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
     <img src="RHN LOGO.jpg" class="logo-emblem" alt="RHN Capital Logo">
     <div>
       <div class="logo-name">RHN CAPITAL</div>
-      <div class="logo-tagline">Private Financial Flow</div>
+      <div class="logo-tagline">Arus Keuangan</div>
     </div>
   </div>
   <div class="topbar-right">
     
     <div class="top-stats-row">
       <div class="usd-rate-box">
-        <span class="lbl">USD/IDR</span>
+        <span class="lbl">USD</span>
         <span id="usd-rate-val" class="val">...</span>
       </div>
       <div class="sync-wrapper">
@@ -419,18 +419,18 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
       <button id="theme-toggle" onclick="toggleTheme()" title="Switch Theme">◎</button>
       <div class="user-avatar" id="user-avatar">?</div>
       <div class="user-name" id="user-name" style="font-size:12px; font-weight:300; letter-spacing:1px; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">-</div>
-      <button class="logout-btn" onclick="doLogout()">Akses Keluar</button>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
     </div>
   </div>
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" onclick="switchPage('dashboard')">Ringkasan</button>
+  <button class="nav-btn active" onclick="switchPage('dashboard')">Dashboard</button>
   <button class="nav-btn" onclick="switchPage('harian')">Harian</button>
   <button class="nav-btn" onclick="switchPage('mingguan')">Mingguan</button>
   <button class="nav-btn" onclick="switchPage('bulanan')">Bulanan</button>
   <button class="nav-btn" onclick="switchPage('tahunan')">Tahunan</button>
-  <button class="nav-btn" onclick="switchPage('riwayat')">Arsip Riwayat</button>
+  <button class="nav-btn" onclick="switchPage('riwayat')">Semua Riwayat</button>
 </div>
 
 <div class="main">
@@ -440,28 +440,28 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
   <div class="panel">
     <div class="card">
       <div class="card-head">
-        <div><div class="card-title">Pencatatan</div><div class="card-sub">Entri data arus keuangan baru</div></div>
+        <div><div class="card-title">Tambah Transaksi</div><div class="card-sub">Catat pemasukan atau pengeluaran baru</div></div>
       </div>
       <div class="form-body">
         <div class="type-toggle">
-          <div class="t-btn income active" id="btn-inc" onclick="selType('income')">Pemasukan</div>
-          <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">Pengeluaran</div>
+          <div class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</div>
+          <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">− Pengeluaran</div>
         </div>
-        <div class="form-row"><label class="form-label">Nominal (IDR)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
+        <div class="form-row"><label class="form-label">Jumlah (Rp)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
         <div class="form-row"><label class="form-label">Kategori</label><select id="f-cat"><option value="">Pilih kategori...</option></select></div>
-        <div class="form-row"><label class="form-label">Deskripsi</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
-        <div class="form-row"><label class="form-label">Waktu Eksekusi</label><input type="datetime-local" id="f-date"></div>
-        <button class="submit-btn" id="save-btn" onclick="addTx()">Simpan Rekaman</button>
+        <div class="form-row"><label class="form-label">Keterangan</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
+        <div class="form-row"><label class="form-label">Tanggal &amp; Jam</label><input type="datetime-local" id="f-date"></div>
+        <button class="submit-btn" id="save-btn" onclick="addTx()">Simpan Transaksi</button>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">Aktivitas Terakhir</div></div>
+      <div class="card-head"><div class="card-title">Transaksi Terbaru</div></div>
       <div id="recent-list" class="list-wrap" style="max-height:550px;overflow-y:auto"></div>
     </div>
   </div>
   <div class="card panel wide" style="margin-bottom:0">
     <div class="card-head">
-      <div class="card-title">Grafik Arus Keuangan (30 Hari)</div>
+      <div class="card-title">Grafik Arus Keuangan — 30 Hari Terakhir</div>
       <div class="chart-legend">
         <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
         <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
@@ -523,10 +523,10 @@ body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
 
 <div id="page-riwayat" class="page">
   <div class="card">
-    <div class="card-head"><div class="card-title">Arsip Riwayat Keseluruhan</div></div>
+    <div class="card-head"><div class="card-title">Semua Riwayat Transaksi</div></div>
     <div class="filter-bar">
-      <select id="flt-type" onchange="renderAll()"><option value="">Semua Filter</option><option value="income">Pemasukan Saja</option><option value="expense">Pengeluaran Saja</option></select>
-      <input type="text" id="flt-search" placeholder="Pencarian spesifik..." oninput="renderAll()">
+      <select id="flt-type" onchange="renderAll()"><option value="">Semua Tipe</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
+      <input type="text" id="flt-search" placeholder="Cari keterangan / kategori..." oninput="renderAll()">
     </div>
     <div class="sum-grid" id="all-sum"></div>
     <div class="list-wrap" id="all-body"></div>
@@ -623,11 +623,11 @@ function hideErr(){ document.getElementById('auth-err').style.display='none' }
 function setLoading(on){
   const btn=document.getElementById('auth-submit-btn');
   btn.disabled=on;
-  btn.textContent=on?'Memproses...':(authMode==='login'?'Autentikasi':'Daftar');
+  btn.textContent=on?'Memproses...':(authMode==='login'?'Masuk':'Daftar');
 }
 function setSyncStatus(ok){
   document.getElementById('sync-dot').style.background=ok?'var(--green2)':'var(--red2)';
-  document.getElementById('sync-label').textContent=ok?'Terhubung':'Offline';
+  document.getElementById('sync-label').textContent=ok?'Tersinkron':'Offline';
 }
 
 window.switchTab=function(mode){
@@ -635,7 +635,7 @@ window.switchTab=function(mode){
   document.getElementById('tab-login').classList.toggle('active',mode==='login');
   document.getElementById('tab-register').classList.toggle('active',mode==='register');
   document.getElementById('field-confirm').style.display=mode==='register'?'block':'none';
-  document.getElementById('auth-submit-btn').textContent=mode==='login'?'Autentikasi':'Daftar';
+  document.getElementById('auth-submit-btn').textContent=mode==='login'?'Masuk':'Daftar';
   hideErr();
 };
 
@@ -714,11 +714,11 @@ window.addTx=async function(){
     document.getElementById('f-note').value='';
     document.getElementById('f-date').value=nowISO();
   } catch(e){alert('Gagal menyimpan: '+e.message);}
-  btn.disabled=false;btn.textContent='Simpan Rekaman';
+  btn.disabled=false;btn.textContent='Simpan Transaksi';
 };
 
 window.delTx=async function(id){
-  if(!currentUser||!confirm('Hapus entri riwayat ini secara permanen?'))return;
+  if(!currentUser||!confirm('Hapus transaksi ini?'))return;
   try{await deleteDoc(doc(db,'users',currentUser.uid,'transactions',id));}
   catch(e){alert('Gagal menghapus: '+e.message);}
 };
@@ -759,7 +759,7 @@ function renderSumGrid(el,arr){
   el.innerHTML=`
     <div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}</div><div style="margin-top:8px;">${fmtUSD(s.inc)}</div></div>
     <div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}</div><div style="margin-top:8px;">${fmtUSD(s.exp)}</div></div>
-    <div class="sum-item"><div class="sum-label">Arus Kas Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:8px;">${fmtUSD(s.bal)}</div></div>`;
+    <div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:8px;">${fmtUSD(s.bal)}</div></div>`;
 }
 
 /* ==========================================================================
@@ -782,7 +782,7 @@ const createTxCard = (t, full) => `
         <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
         <div>${fmtUSD(t.amount)}</div>
       </div>
-      <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Entri">✕</button>
+      <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Transaksi">✕</button>
     </div>
   </div>
 `;
@@ -790,7 +790,7 @@ const createTxCard = (t, full) => `
 function renderList(container, arr, full) {
   if(!container) return;
   if(!arr.length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">/</div>Tidak ada entri riwayat pada periode ini.</div>`;
+    container.innerHTML = `<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>`;
     return;
   }
   container.innerHTML = arr.map(t => createTxCard(t, full)).join('');
@@ -820,14 +820,14 @@ function renderMetrics(){
   const ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString()));
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
   document.getElementById('metric-cards').innerHTML=`
-    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}</div><div>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} Entri Transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
-    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}</div><div>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% Rasio dari Pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
-    <div class="m-card bal"><div class="m-label">Arus Kas Bersih</div><div class="m-val">${fmt(s.bal)}</div><div>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Status: Surplus':'Status: Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
-    <div class="m-card cnt"><div class="m-label">Aktivitas Hari Ini</div><div class="m-val">${ts.count} Entri</div><div style="height:15px;line-height:15px; font-family:'JetBrains Mono', monospace;" class="m-sub">${ts.inc>0?fmt(ts.inc):'--'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
+    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}</div><div>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
+    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}</div><div>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
+    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val">${fmt(s.bal)}</div><div>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
+    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val">${ts.count} transaksi</div><div style="height:15px;line-height:15px; font-family:'JetBrains Mono', monospace;" class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
 function renderRecent(){
-  renderList(document.getElementById('recent-list'), txs.slice(0,15), true);
+  renderList(document.getElementById('recent-list'), txs.slice(0,10), true);
 }
 
 function renderMainChart(){
