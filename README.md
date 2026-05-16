@@ -146,7 +146,9 @@ body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
 .user-info { display: flex; align-items: center; gap: 10px; border-left: 1px solid var(--border); padding-left: 24px; }
 .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(201,168,76,0.2); border: 1.5px solid rgba(201,168,76,0.4); font-weight: 800; color: var(--gold2); display: flex; justify-content: center; align-items: center; }
 .logout-btn { background: var(--card); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; color: var(--text); text-transform: uppercase; }
-.logout-btn:hover { border-color: var(--red2); color: var(--red2); }
+@media (hover: hover) {
+  .logout-btn:hover { border-color: var(--red2); color: var(--red2); }
+}
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px currentColor; }
 .sync-label { font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
 
@@ -161,7 +163,9 @@ body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
   border: 1px solid transparent; background: transparent; cursor: pointer; border-radius: 100px;
   transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.nav-btn:hover { color: var(--text); }
+@media (hover: hover) {
+  .nav-btn:hover { color: var(--text); }
+}
 .nav-btn.active { background: var(--text); color: var(--bg); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
 body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
@@ -177,7 +181,9 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
   background: var(--card); border-radius: var(--radius); padding: 24px;
   border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden;
 }
-.m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+@media (hover: hover) {
+  .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+}
 .m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; letter-spacing: 1px; }
 
 /* PROGRESS BAR */
@@ -237,7 +243,9 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
 .del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 14px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
-.recent-item:hover .del-btn { opacity: 1; }
+@media (hover: hover) {
+  .recent-item:hover .del-btn { opacity: 1; }
+}
 
 /* KUNCI ASLI TABEL: MEMBUNUH WARNA PUTIH BROWSER */
 .tbl-wrap { overflow-x: auto; padding: 0; background: var(--card); }
@@ -253,8 +261,13 @@ table.htbl td {
   padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); 
   border-bottom: 1px solid var(--border); transition: 0.2s; background: var(--card); 
 }
-table.htbl tr:hover td { background: rgba(255,255,255,0.03); }
-body.light-mode table.htbl tr:hover td { background: rgba(0,0,0,0.03); }
+
+/* FIX EFEK PUTIH-PUTIH TERKUNCI SAAT DIPENCET DI HP */
+@media (hover: hover) {
+  table.htbl tr:hover td { background: rgba(255,255,255,0.03); }
+  body.light-mode table.htbl tr:hover td { background: rgba(0,0,0,0.03); }
+}
+
 table.htbl th:nth-child(1), table.htbl td:nth-child(1) { width: 180px; }
 table.htbl td:nth-child(1) span { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700 !important; color: var(--text3); }
 table.htbl th:nth-child(2), table.htbl td:nth-child(2) { font-size: 16px; font-weight: 800; }
@@ -339,19 +352,19 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .card-head { padding: 16px; }
   .form-body { padding: 0 16px 20px; }
   
-  /* MOBILE TABLE STYLE FIXES */
+  /* MOBILE TABLE STYLE FIXES - FIX OVERLAP RIWAYAT */
   .tbl-wrap { padding: 0; }
   table.htbl thead { display: none; }
   table.htbl tbody { display: block; width: 100%; }
   table.htbl tr { display: flex; flex-wrap: wrap; align-items: center; padding: 16px; border-bottom: 1px solid var(--border) !important; background: var(--card); }
-  table.htbl td { display: block; border: none !important; padding: 0 !important; background: var(--card); }
+  table.htbl td { display: block; border: none !important; padding: 0 !important; background: transparent; }
   
-  table.htbl td:nth-child(1) { width: 100% !important; order: 3; margin-top: 6px; } 
+  table.htbl td:nth-child(1) { width: 85% !important; order: 3; margin-top: 8px; } 
   table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none; } 
   table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap; text-align: right !important; } 
-  table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -20px; } 
-  .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; }
+  table.htbl td:nth-child(6) { width: 15% !important; order: 4; text-align: right !important; margin-top: 8px; } 
+  .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; margin-top: 0; }
   
   .recent-item { padding: 16px; background: var(--card); }
   .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
@@ -725,7 +738,7 @@ window.addTx=async function(){
   const dt=document.getElementById('f-date').value;
   if(!amt||amt<=0){alert('Masukkan jumlah yang valid.');return}
   if(!cat){alert('Pilih kategori terlebih dahulu.');return}
-  const btn=save-btn;
+  const btn=document.getElementById('save-btn');
   btn.disabled=true;btn.textContent='Menyimpan...';
   try{
     await addDoc(collection(db,'users',currentUser.uid,'transactions'),{
