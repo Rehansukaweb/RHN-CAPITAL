@@ -317,7 +317,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (MENGHANCURKAN CELAH PUTIH, ZEBRA & MENGISI KEKOSONGAN)
+   MOBILE RESPONSIVE: MENGISI KEKOSONGAN KANAN DENGAN BAR PROFIL ELEGAN
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -325,17 +325,31 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
   .nav-ext-btn { font-size: 11px; }
 
-  /* FIX HEADER OVERFLOW & KEKOSONGAN KANAN */
-  .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
-  .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  /* FIX HEADER LAYOUT */
+  .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; border-bottom: none; }
+  .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
   .live-clock { display: none; }
-  
-  /* BUAT AREA PROFIL FULL WIDTH LALU TOMBOL KELUAR DITENDANG KE KANAN MENTOK */
-  .user-info { width: 100%; gap: 8px; border-left: none; padding-left: 0; }
-  .logout-btn { padding: 6px 12px; font-size: 11px; white-space: nowrap; margin-left: auto; }
-  .user-name { max-width: 100px !important; }
-  
   .usd-rate-box .lbl { display: none; }
+  
+  /* BIKIN BAR PROFIL 100% WIDTH DENGAN BACKGROUND (ANTI KOPONG) */
+  .user-info { 
+    width: 100%; 
+    border-left: none; 
+    padding: 12px 16px; 
+    gap: 10px;
+    background: rgba(255,255,255,0.02); 
+    border-radius: 16px; 
+    border: 1px solid var(--border);
+    margin-top: 4px;
+    justify-content: flex-start; /* Elemen kumpul di kiri */
+  }
+  body.light-mode .user-info { background: rgba(0,0,0,0.02); }
+  
+  /* TENDANG KHUSUS TOMBOL KELUAR MENTOK KE KANAN */
+  .user-info button:last-child { margin-left: auto !important; }
+  
+  .logout-btn { padding: 6px 14px; font-size: 11px; }
+  .user-name { max-width: 100px !important; }
   
   .nav {
     padding: 0 16px 16px 16px; margin: 0;
@@ -343,7 +357,6 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   }
   .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 16px; font-size: 11px; border: 1px solid var(--border); }
 
-  /* FIX RUANG BAWAH BIAR KELUARNYA (HASILNYA) GA KETUTUP LAYAR BAWAH HP */
   .main { padding: 0; padding-bottom: 90px; }
   
   .metrics { 
@@ -368,7 +381,6 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .card-head { padding: 16px; }
   .form-body { padding: 0 16px 20px; }
   
-  /* MOBILE TABLE STYLE FIXES - SUPER KETAT */
   .tbl-wrap { padding: 0; background-color: var(--card) !important; }
   table.htbl { background-color: var(--card) !important; border-spacing: 0 !important; }
   table.htbl thead { display: none !important; }
