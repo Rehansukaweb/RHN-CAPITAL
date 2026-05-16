@@ -136,10 +136,18 @@ body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
 .logo-tagline { font-size: 11px; font-weight: 800; color: var(--gold2); text-transform: uppercase; letter-spacing: 1px; }
 
 .topbar-right { display: flex; align-items: center; gap: 24px; }
-.usd-rate-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,168,76,0.2); }
+
+/* NEW TOP STATS FLEX ROW */
+.top-stats-row { display: flex; align-items: center; gap: 24px; }
+.usd-rate-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,168,76,0.2); height: 32px; }
 body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
 .usd-rate-box .lbl { font-size: 11px; color: var(--gold2); font-weight: 800; }
 .usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); transition: color 0.2s ease; }
+
+.sync-wrapper { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); height: 32px; }
+body.light-mode .sync-wrapper { border-color: rgba(0,0,0,0.05); background: rgba(0,0,0,0.02); }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px currentColor; }
+.sync-label { font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
 
 .live-clock { text-align: right; }
 .live-clock .time { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--text); }
@@ -150,8 +158,6 @@ body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
 @media (hover: hover) {
   .logout-btn:hover { border-color: var(--red2); color: var(--red2); }
 }
-.sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px currentColor; }
-.sync-label { font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
 
 /* NAVIGATION */
 .nav {
@@ -231,21 +237,32 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
 .submit-btn:active { transform: scale(0.96); }
 
-/* RECENT ITEMS */
+/* RECENT ITEMS & TOMBOL HAPUS BARU */
 .recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--card); }
 .recent-item:last-child { border-bottom: none; }
-.ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; border-radius: 8px; }
+.ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; border-radius: 8px; flex-shrink: 0; }
 .ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.1); }
 .ri-icon.exp { color: var(--red2); background: rgba(255, 69, 58, 0.1); } 
 .ri-left { display: flex; align-items: center; }
 .ri-note { font-size: 14px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 4px; }
 .ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
+.ri-right-wrap { display: flex; align-items: center; gap: 16px; }
 .ri-right { text-align: right; }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
+
+/* TOMBOL HAPUS KHUSUS RECENT ITEM */
+.del-btn-recent {
+  background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.2);
+  color: var(--red2); border-radius: 10px; width: 34px; height: 34px;
+  display: flex; justify-content: center; align-items: center;
+  cursor: pointer; font-size: 14px; font-weight: 800; transition: 0.2s; flex-shrink: 0;
+}
+@media (hover: hover) { .del-btn-recent:hover { background: var(--red2); color: #fff; } }
+
 .del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 14px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
 @media (hover: hover) {
-  .recent-item:hover .del-btn { opacity: 1; }
+  table.htbl:hover .del-btn { opacity: 1; }
 }
 
 /* ANTI BROWSER OVERRIDE & KILL ZEBRA STRIPING DI HP */
@@ -259,18 +276,8 @@ table.htbl th {
 }
 
 /* KUNCI MUTLAK BACKGROUND TR UNTUK MENCEGAH EFEK BELANG DARI BROWSER */
-table.htbl tr, 
-table.htbl tr:nth-child(even), 
-table.htbl tr:nth-child(odd),
-table.htbl tbody tr { 
-  background-color: var(--card) !important; 
-}
-
-table.htbl td { 
-  padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); 
-  border-bottom: 1px solid var(--border); transition: 0.2s; 
-  background-color: var(--card) !important; 
-}
+table.htbl tr, table.htbl tr:nth-child(even), table.htbl tr:nth-child(odd), table.htbl tbody tr { background-color: var(--card) !important; }
+table.htbl td { padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); transition: 0.2s; background-color: var(--card) !important; }
 
 /* FIX EFEK PUTIH-PUTIH TERKUNCI SAAT DIPENCET DI HP */
 @media (hover: hover) {
@@ -317,7 +324,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE: MENGISI KEKOSONGAN KANAN DENGAN BAR PROFIL ELEGAN
+   MOBILE RESPONSIVE: MENGISI KEKOSONGAN KANAN DENGAN BAR PROFIL ELEGAN & USD BALANCE
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -330,6 +337,10 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
   .live-clock { display: none; }
   .usd-rate-box .lbl { display: none; }
+  
+  /* BALANCE MENGHILANGKAN KOSONG DI SEBELAH TERSINKRON */
+  .top-stats-row { width: 100%; justify-content: space-between; gap: 12px; }
+  .usd-rate-box, .sync-wrapper { flex: 1; justify-content: center; height: 38px; border-radius: 12px; }
   
   /* BIKIN BAR PROFIL 100% WIDTH DENGAN BACKGROUND (ANTI KOPONG) */
   .user-info { 
@@ -386,20 +397,14 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   table.htbl thead { display: none !important; }
   table.htbl tbody { display: block !important; width: 100% !important; background-color: var(--card) !important; }
   
-  table.htbl tr, 
-  table.htbl tr:nth-child(even), 
-  table.htbl tr:nth-child(odd) { 
+  table.htbl tr, table.htbl tr:nth-child(even), table.htbl tr:nth-child(odd) { 
     display: flex !important; flex-wrap: wrap !important; align-items: center !important; 
     padding: 16px !important; margin: 0 !important;
     border-bottom: 1px solid var(--border) !important; 
     background-color: var(--card) !important; 
   }
   
-  table.htbl td { 
-    display: block !important; border: none !important; padding: 0 !important; margin: 0 !important;
-    background-color: transparent !important; 
-  }
-  
+  table.htbl td { display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; background-color: transparent !important; }
   table.htbl td:nth-child(1) { width: 80% !important; order: 3; margin-top: 8px !important; } 
   table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px !important; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none !important; } 
@@ -408,6 +413,9 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; margin-top: 0; }
   
   .recent-item { padding: 16px; background-color: var(--card) !important; }
+  .ri-right-wrap { gap: 12px; }
+  .del-btn-recent { width: 36px; height: 36px; font-size: 16px; opacity: 1 !important; }
+  
   .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
   .filter-bar input, .filter-bar select { width: 100%; flex: 0 0 80%; scroll-snap-align: start; }
   .sum-grid { grid-template-columns: 1fr; gap: 0; padding: 0 16px 20px; background: var(--card); }
@@ -465,15 +473,18 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     </div>
   </div>
   <div class="topbar-right">
-    <div class="usd-rate-box">
-      <span class="lbl">USD</span>
-      <span id="usd-rate-val" class="val">...</span>
+    
+    <div class="top-stats-row">
+      <div class="usd-rate-box">
+        <span class="lbl">USD</span>
+        <span id="usd-rate-val" class="val">...</span>
+      </div>
+      <div class="sync-wrapper">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span class="sync-label" id="sync-label">Menghubungkan...</span>
+      </div>
     </div>
 
-    <div style="display:flex;align-items:center;gap:6px">
-      <span class="sync-dot" id="sync-dot"></span>
-      <span class="sync-label" id="sync-label">Menghubungkan...</span>
-    </div>
     <div class="live-clock">
       <div class="time" id="live-time">--:--:--</div>
       <div class="date" id="live-date">-</div>
@@ -880,6 +891,7 @@ function renderMetrics(){
     <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div style="height:19px;line-height:19px;" class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
+/* TOMBOL HAPUS MUNCUL DI RECENT ITEMS (DASHBOARD) */
 function renderRecent(){
   const el=document.getElementById('recent-list');
   const r=txs.slice(0,10);
@@ -893,12 +905,12 @@ function renderRecent(){
           <div class="ri-meta">${fmtFull(t.date)}</div>
         </div>
       </div>
-      <div style="display:flex; align-items:center; gap:16px;">
+      <div class="ri-right-wrap">
         <div class="ri-right">
           <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}</div>
           <div>${fmtUSD(t.amount)}</div>
         </div>
-        <button class="del-btn" onclick="delTx('${t.id}')" style="margin-top:0; font-size:16px;" title="Hapus Transaksi">✕</button>
+        <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Transaksi">✕</button>
       </div>
     </div>`).join('');
 }
