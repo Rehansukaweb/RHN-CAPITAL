@@ -317,7 +317,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (MENGHANCURKAN CELAH PUTIH, ZEBRA & OVERFLOW LAYAR)
+   MOBILE RESPONSIVE (MENGHANCURKAN CELAH PUTIH, ZEBRA & MENGISI KEKOSONGAN)
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -325,13 +325,16 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
   .nav-ext-btn { font-size: 11px; }
 
-  /* FIX HEADER OVERFLOW: BIAR "KELUAR" GA KEPOTONG DI KANAN LAYAR */
+  /* FIX HEADER OVERFLOW & KEKOSONGAN KANAN */
   .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
-  .topbar-right { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 12px; }
+  .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
   .live-clock { display: none; }
-  .user-info { gap: 8px; border-left: none; padding-left: 0; flex-wrap: wrap; }
-  .logout-btn { padding: 6px 12px; font-size: 11px; white-space: nowrap; }
-  .user-name { max-width: 80px !important; }
+  
+  /* BUAT AREA PROFIL FULL WIDTH LALU TOMBOL KELUAR DITENDANG KE KANAN MENTOK */
+  .user-info { width: 100%; gap: 8px; border-left: none; padding-left: 0; }
+  .logout-btn { padding: 6px 12px; font-size: 11px; white-space: nowrap; margin-left: auto; }
+  .user-name { max-width: 100px !important; }
+  
   .usd-rate-box .lbl { display: none; }
   
   .nav {
