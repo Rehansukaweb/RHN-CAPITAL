@@ -317,7 +317,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (MENGHANCURKAN CELAH PUTIH & ZEBRA HP)
+   MOBILE RESPONSIVE (MENGHANCURKAN CELAH PUTIH, ZEBRA & OVERFLOW LAYAR)
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -325,10 +325,13 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
   .nav-ext-btn { font-size: 11px; }
 
+  /* FIX HEADER OVERFLOW: BIAR "KELUAR" GA KEPOTONG DI KANAN LAYAR */
   .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
-  .topbar-right { width: 100%; justify-content: space-between; gap: 4px; }
+  .topbar-right { width: 100%; justify-content: flex-start; flex-wrap: wrap; gap: 12px; }
   .live-clock { display: none; }
-  .user-info { gap: 8px; border-left: none; padding-left: 0; }
+  .user-info { gap: 8px; border-left: none; padding-left: 0; flex-wrap: wrap; }
+  .logout-btn { padding: 6px 12px; font-size: 11px; white-space: nowrap; }
+  .user-name { max-width: 80px !important; }
   .usd-rate-box .lbl { display: none; }
   
   .nav {
@@ -337,7 +340,8 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   }
   .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 16px; font-size: 11px; border: 1px solid var(--border); }
 
-  .main { padding: 0; padding-bottom: 40px; }
+  /* FIX RUANG BAWAH BIAR KELUARNYA (HASILNYA) GA KETUTUP LAYAR BAWAH HP */
+  .main { padding: 0; padding-bottom: 90px; }
   
   .metrics { 
     display: grid; 
@@ -381,11 +385,11 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     background-color: transparent !important; 
   }
   
-  table.htbl td:nth-child(1) { width: 85% !important; order: 3; margin-top: 8px !important; } 
+  table.htbl td:nth-child(1) { width: 80% !important; order: 3; margin-top: 8px !important; } 
   table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px !important; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none !important; } 
   table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap !important; text-align: right !important; } 
-  table.htbl td:nth-child(6) { width: 15% !important; order: 4; text-align: right !important; margin-top: 8px !important; } 
+  table.htbl td:nth-child(6) { width: 20% !important; order: 4; text-align: right !important; margin-top: 8px !important; } 
   .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; margin-top: 0; }
   
   .recent-item { padding: 16px; background-color: var(--card) !important; }
