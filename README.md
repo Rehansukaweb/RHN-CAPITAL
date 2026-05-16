@@ -237,64 +237,72 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
 .submit-btn:active { transform: scale(0.96); }
 
-/* RECENT ITEMS & TOMBOL HAPUS BARU */
-.recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--card); }
-.recent-item:last-child { border-bottom: none; }
-.ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; border-radius: 8px; flex-shrink: 0; }
-.ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.1); }
-.ri-icon.exp { color: var(--red2); background: rgba(255, 69, 58, 0.1); } 
+/* ==========================================================================
+   ULTIMATE FINTECH CARDS (MENGGANTIKAN TABEL KAKU)
+   ========================================================================== */
+.list-wrap { padding: 12px 0 24px; }
+.recent-item {
+  padding: 16px 24px;
+  margin: 0 24px 12px 24px; /* Memberi ruang antar kartu */
+  border-radius: 20px; /* Lengkungan modern ala Fintech */
+  background: rgba(255,255,255,0.02); /* Warna kartu super elegan */
+  border: 1px solid rgba(255,255,255,0.06); /* Border kaca keliling, BUKAN cuma garis bawah */
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body.light-mode .recent-item {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+@media (hover: hover) {
+  .recent-item:hover {
+    transform: translateY(-3px) scale(1.01);
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(255,255,255,0.04);
+  }
+  body.light-mode .recent-item:hover {
+    background: #fafafa;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+  }
+}
+
+.ri-icon {
+  width: 46px; height: 46px;
+  border-radius: 50%; /* Ikon Bulat Premium! */
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900;
+  margin-right: 16px; flex-shrink: 0;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
+}
+.ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.15); border: 1px solid rgba(48, 209, 88, 0.3); }
+.ri-icon.exp { color: var(--red2); background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); } 
+
 .ri-left { display: flex; align-items: center; }
-.ri-note { font-size: 14px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 4px; }
+.ri-note { font-size: 15px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
-.ri-right-wrap { display: flex; align-items: center; gap: 16px; }
+
+/* Badge Kategori Keren */
+.cat-badge {
+  font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase;
+}
+body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08); }
+
+.ri-right-wrap { display: flex; align-items: center; gap: 20px; }
 .ri-right { text-align: right; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
 
-/* TOMBOL HAPUS KHUSUS RECENT ITEM */
+/* Tombol Hapus */
 .del-btn-recent {
   background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.2);
-  color: var(--red2); border-radius: 10px; width: 34px; height: 34px;
+  color: var(--red2); border-radius: 12px; width: 42px; height: 42px;
   display: flex; justify-content: center; align-items: center;
-  cursor: pointer; font-size: 14px; font-weight: 800; transition: 0.2s; flex-shrink: 0;
+  cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.2s; flex-shrink: 0;
 }
-@media (hover: hover) { .del-btn-recent:hover { background: var(--red2); color: #fff; } }
-
-.del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 14px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
-@media (hover: hover) {
-  table.htbl:hover .del-btn { opacity: 1; }
-}
-
-/* ANTI BROWSER OVERRIDE & KILL ZEBRA STRIPING DI HP */
-.tbl-wrap { overflow-x: auto; padding: 0; background-color: var(--card) !important; }
-table.htbl { width: 100%; border-collapse: collapse; border-spacing: 0 !important; background-color: var(--card) !important; }
-table.htbl thead { background-color: var(--bg2) !important; }
-table.htbl th { 
-  padding: 16px 32px; text-align: left; font-size: 12px; font-weight: 800; color: var(--text3); 
-  border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 1px;
-  background-color: var(--bg2) !important;
-}
-
-/* KUNCI MUTLAK BACKGROUND TR UNTUK MENCEGAH EFEK BELANG DARI BROWSER */
-table.htbl tr, table.htbl tr:nth-child(even), table.htbl tr:nth-child(odd), table.htbl tbody tr { background-color: var(--card) !important; }
-table.htbl td { padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); transition: 0.2s; background-color: var(--card) !important; }
-
-/* FIX EFEK PUTIH-PUTIH TERKUNCI SAAT DIPENCET DI HP */
-@media (hover: hover) {
-  table.htbl tr:hover td { background-color: rgba(255,255,255,0.03) !important; }
-  body.light-mode table.htbl tr:hover td { background-color: rgba(0,0,0,0.03) !important; }
-}
-
-table.htbl th:nth-child(1), table.htbl td:nth-child(1) { width: 180px; }
-table.htbl td:nth-child(1) span { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700 !important; color: var(--text3); }
-table.htbl th:nth-child(2), table.htbl td:nth-child(2) { font-size: 16px; font-weight: 800; }
-table.htbl th:nth-child(5), table.htbl td:nth-child(5) { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; white-space: nowrap; }
-table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align: right; }
-
-.badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-.badge.income { background: rgba(48, 209, 88, 0.15); color: var(--green2); border: 1px solid rgba(48, 209, 88, 0.3); }
-.badge.expense { background: rgba(255, 69, 58, 0.15); color: var(--red2); border: 1px solid rgba(255, 69, 58, 0.3); }
-.a-pos { color: var(--green2); } .a-neg { color: var(--red2); }
+@media (hover: hover) { .del-btn-recent:hover { background: var(--red2); color: #fff; transform: rotate(90deg); } }
 
 /* EMPTY ICON ASLI */
 .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; font-family: sans-serif; }
@@ -324,7 +332,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE: MENGISI KEKOSONGAN KANAN DENGAN BAR PROFIL ELEGAN & USD BALANCE
+   MOBILE RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -352,36 +360,20 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     border-radius: 16px; 
     border: 1px solid var(--border);
     margin-top: 4px;
-    justify-content: flex-start; /* Elemen kumpul di kiri */
+    justify-content: flex-start;
   }
   body.light-mode .user-info { background: rgba(0,0,0,0.02); }
-  
-  /* TENDANG KHUSUS TOMBOL KELUAR MENTOK KE KANAN */
   .user-info button:last-child { margin-left: auto !important; }
-  
   .logout-btn { padding: 6px 14px; font-size: 11px; }
   .user-name { max-width: 100px !important; }
   
-  .nav {
-    padding: 0 16px 16px 16px; margin: 0;
-    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start;
-  }
+  .nav { padding: 0 16px 16px 16px; margin: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start; }
   .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 16px; font-size: 11px; border: 1px solid var(--border); }
 
   .main { padding: 0; padding-bottom: 90px; }
   
-  .metrics { 
-    display: grid; 
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 12px; 
-    padding: 0 16px 24px 16px; 
-    margin: 0; 
-  }
-  .m-card { 
-    padding: 16px 12px; 
-    border-radius: 16px; 
-    flex: none; 
-  }
+  .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px 24px 16px; margin: 0; }
+  .m-card { padding: 16px 12px; border-radius: 16px; flex: none; }
   .m-val { font-size: 15px; } 
   .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 6px; }
   .m-sub { font-size: 10px; margin-top: 4px; }
@@ -392,29 +384,16 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .card-head { padding: 16px; }
   .form-body { padding: 0 16px 20px; }
   
-  .tbl-wrap { padding: 0; background-color: var(--card) !important; }
-  table.htbl { background-color: var(--card) !important; border-spacing: 0 !important; }
-  table.htbl thead { display: none !important; }
-  table.htbl tbody { display: block !important; width: 100% !important; background-color: var(--card) !important; }
-  
-  table.htbl tr, table.htbl tr:nth-child(even), table.htbl tr:nth-child(odd) { 
-    display: flex !important; flex-wrap: wrap !important; align-items: center !important; 
-    padding: 16px !important; margin: 0 !important;
-    border-bottom: 1px solid var(--border) !important; 
-    background-color: var(--card) !important; 
-  }
-  
-  table.htbl td { display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; background-color: transparent !important; }
-  table.htbl td:nth-child(1) { width: 80% !important; order: 3; margin-top: 8px !important; } 
-  table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px !important; } 
-  table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none !important; } 
-  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap !important; text-align: right !important; } 
-  table.htbl td:nth-child(6) { width: 20% !important; order: 4; text-align: right !important; margin-top: 8px !important; } 
-  .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; margin-top: 0; }
-  
-  .recent-item { padding: 16px; background-color: var(--card) !important; }
+  /* PENGATURAN KARTU RIWAYAT DI HP */
+  .list-wrap { padding: 8px 0 16px 0; }
+  .recent-item { margin: 0 16px 12px 16px; padding: 16px; border-radius: 16px; }
+  .ri-icon { width: 40px; height: 40px; font-size: 16px; margin-right: 12px; }
+  .ri-note { font-size: 13px; gap: 6px; margin-bottom: 4px; }
+  .cat-badge { font-size: 8px; padding: 3px 6px; }
+  .ri-meta { font-size: 11px; }
+  .ri-amount { font-size: 15px; }
   .ri-right-wrap { gap: 12px; }
-  .del-btn-recent { width: 36px; height: 36px; font-size: 16px; opacity: 1 !important; }
+  .del-btn-recent { width: 36px; height: 36px; font-size: 14px; border-radius: 10px; }
   
   .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
   .filter-bar input, .filter-bar select { width: 100%; flex: 0 0 80%; scroll-snap-align: start; }
@@ -530,7 +509,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     </div>
     <div class="card">
       <div class="card-head"><div class="card-title">Transaksi Terbaru</div></div>
-      <div id="recent-list" style="max-height:420px;overflow-y:auto"></div>
+      <div id="recent-list" class="list-wrap" style="max-height:450px;overflow-y:auto"></div>
     </div>
   </div>
   <div class="card panel wide" style="margin-bottom:0">
@@ -552,7 +531,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <input type="date" id="pick-daily" onchange="renderDaily()" style="padding:10px 16px;font-size:14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:'Outfit',sans-serif;outline:none;">
     </div>
     <div class="sum-grid" id="daily-sum"></div>
-    <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Waktu</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="daily-body"></tbody></table></div>
+    <div class="list-wrap" id="daily-body"></div>
   </div>
 </div>
 
@@ -565,7 +544,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
       <div style="position:relative;height:240px"><canvas id="chartWeek"></canvas></div>
     </div>
-    <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="week-body"></tbody></table></div>
+    <div class="list-wrap" id="week-body"></div>
   </div>
 </div>
 
@@ -578,20 +557,20 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
       <div style="position:relative;height:240px"><canvas id="chartMonth"></canvas></div>
     </div>
-    <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="month-body"></tbody></table></div>
+    <div class="list-wrap" id="month-body"></div>
   </div>
 </div>
 
 <div id="page-tahunan" class="page">
   <div class="card">
-    <div class="card-head"><div class="card-title">Laporan Tahunannya</div></div>
+    <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
     <div class="period-bar" id="year-sel"></div>
     <div class="sum-grid" id="year-sum"></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
       <div style="position:relative;height:240px"><canvas id="chartYear"></canvas></div>
     </div>
-    <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="year-body"></tbody></table></div>
+    <div class="list-wrap" id="year-body"></div>
   </div>
 </div>
 
@@ -603,7 +582,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <input type="text" id="flt-search" placeholder="Cari keterangan / kategori..." oninput="renderAll()">
     </div>
     <div class="sum-grid" id="all-sum"></div>
-    <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal &amp; Jam</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="all-body"></tbody></table></div>
+    <div class="list-wrap" id="all-body"></div>
   </div>
 </div>
 
@@ -614,7 +593,7 @@ window.toggleTheme = function() {
   const isLight = document.body.classList.contains('light-mode');
   document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  refreshAll(); // Redraw chart & metrics seketika tema diganti
+  refreshAll(); 
 };
 if(localStorage.getItem('theme') === 'light') {
   document.body.classList.add('light-mode');
@@ -653,12 +632,7 @@ const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',mi
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
 const nowISO  = () => new Date().toISOString().slice(0,16);
 
-const kursIndo = new Intl.NumberFormat('id-ID', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-});
-
-/* KONVERSI DOLAR TANPA BR BIAR TERKONTROL */
+const kursIndo = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtUSD = n => {
   const usdVal = (n / currentUSDRate).toFixed(2);
   return `<span class="usd-inline">$${usdVal}</span>`;
@@ -667,26 +641,19 @@ const fmtUSD = n => {
 /* AMBIL KURS REAL-TIME DENGAN WEBSOCKET */
 function initLiveUSD() {
   const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
-
   socket.addEventListener('message', function (event) {
       const data = JSON.parse(event.data);
       const newPrice = parseFloat(data.c); 
-      
       if (newPrice && newPrice !== currentUSDRate) {
           currentUSDRate = newPrice;
           const rateEl = document.getElementById('usd-rate-val');
           rateEl.textContent = kursIndo.format(currentUSDRate);
           rateEl.style.color = '#25c584';
           rateEl.style.fontWeight = '700';
-          setTimeout(() => { 
-            rateEl.style.color = 'var(--text)'; 
-            rateEl.style.fontWeight = '800';
-          }, 150);
-          
+          setTimeout(() => { rateEl.style.color = 'var(--text)'; rateEl.style.fontWeight = '800'; }, 150);
           refreshAll();
       }
   });
-
   socket.addEventListener('close', () => setTimeout(initLiveUSD, 3000));
 }
 
@@ -841,7 +808,6 @@ function calcSum(arr){
   return{inc,exp,bal:inc-exp,count:arr.length};
 }
 
-/* SINKRONISASI TOTAL BAGIAN ATAS TABEL BIAR TIDAK PECAH */
 function renderSumGrid(el,arr){
   const s=calcSum(arr);
   el.innerHTML=`
@@ -850,19 +816,40 @@ function renderSumGrid(el,arr){
     <div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:2px;">${fmtUSD(s.bal)}</div></div>`;
 }
 
-function renderTbl(tbody,arr,full){
-  if(!arr.length){tbody.innerHTML=`<tr><td colspan="6" style="background:var(--card)"><div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div></td></tr>`;return}
-  tbody.innerHTML=arr.map(t=>`<tr>
-    <td style="font-size:12px;white-space:nowrap"><span style="font-weight:700">${full?fmtFull(t.date):fmtDate(t.date)}</span>${!full?'<br><span style="color:var(--text3)">'+fmtTime(t.date)+'</span>':''}</td>
-    <td title="${t.note}">${t.note}</td><td style="color:var(--text3)">${t.category}</td>
-    <td><span class="badge ${t.type}">${t.type==='income'?'Pemasukan':'Pengeluaran'}</span></td>
-    <td class="${t.type==='income'?'a-pos':'a-neg'}" style="white-space:nowrap; text-align:right;">
-      <div>${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
-      <div>${fmtUSD(t.amount)}</div>
-    </td>
-    <td><button class="del-btn" onclick="delTx('${t.id}')">✕</button></td>
-  </tr>`).join('');
+/* ==========================================================================
+   FUNGSI RENDER LIST MODERN (MENGGANTIKAN SEMUA FUNGSI TABEL)
+   ========================================================================== */
+const createTxCard = (t, full) => `
+  <div class="recent-item">
+    <div class="ri-left">
+      <div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div>
+      <div>
+        <div class="ri-note">
+          ${t.note} 
+          <span class="cat-badge">${t.category}</span>
+        </div>
+        <div class="ri-meta">${full?fmtFull(t.date):fmtDate(t.date)} ${!full?' · '+fmtTime(t.date):''}</div>
+      </div>
+    </div>
+    <div class="ri-right-wrap">
+      <div class="ri-right">
+        <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+        <div>${fmtUSD(t.amount)}</div>
+      </div>
+      <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Transaksi">✕</button>
+    </div>
+  </div>
+`;
+
+function renderList(container, arr, full) {
+  if(!container) return;
+  if(!arr.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>`;
+    return;
+  }
+  container.innerHTML = arr.map(t => createTxCard(t, full)).join('');
 }
+
 
 function mkChart(id,labels,incData,expData){
   if(charts[id]){charts[id].destroy();delete charts[id]}
@@ -891,28 +878,9 @@ function renderMetrics(){
     <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div style="height:19px;line-height:19px;" class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
-/* TOMBOL HAPUS MUNCUL DI RECENT ITEMS (DASHBOARD) */
+/* RENDER RECENT MENGGUNAKAN FUNGSI LIST BARU */
 function renderRecent(){
-  const el=document.getElementById('recent-list');
-  const r=txs.slice(0,10);
-  if(!r.length){el.innerHTML='<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>';return}
-  el.innerHTML=r.map(t=>`
-    <div class="recent-item">
-      <div class="ri-left">
-        <div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div>
-        <div>
-          <div class="ri-note">${t.note}</div>
-          <div class="ri-meta">${fmtFull(t.date)}</div>
-        </div>
-      </div>
-      <div class="ri-right-wrap">
-        <div class="ri-right">
-          <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}</div>
-          <div>${fmtUSD(t.amount)}</div>
-        </div>
-        <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Transaksi">✕</button>
-      </div>
-    </div>`).join('');
+  renderList(document.getElementById('recent-list'), txs.slice(0,10), true);
 }
 
 function renderMainChart(){
@@ -931,7 +899,8 @@ window.renderDaily=function(){
   const pick=document.getElementById('pick-daily').value;
   const target=pick?new Date(pick).toDateString():new Date().toDateString();
   const arr=txs.filter(t=>new Date(t.date).toDateString()===target).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  renderSumGrid(document.getElementById('daily-sum'),arr);renderTbl(document.getElementById('daily-body'),arr,false);
+  renderSumGrid(document.getElementById('daily-sum'),arr);
+  renderList(document.getElementById('daily-body'), arr, false);
 };
 
 function wkKey(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);return new Date(new Date(d).setDate(diff)).toISOString().slice(0,10)}
@@ -945,7 +914,8 @@ function renderWeekly(){
 window.selWeek=function(k,btn){document.querySelectorAll('#week-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showWeek(k)};
 function showWeek(k){
   const arr=txs.filter(t=>wkKey(t.date)===k).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  renderSumGrid(document.getElementById('week-sum'),arr);renderTbl(document.getElementById('week-body'),arr,false);
+  renderSumGrid(document.getElementById('week-sum'),arr);
+  renderList(document.getElementById('week-body'), arr, false);
   const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'],inc=new Array(7).fill(0),exp=new Array(7).fill(0);
   arr.forEach(t=>{const idx=(new Date(t.date).getDay()+6)%7;if(t.type==='income')inc[idx]+=t.amount;else exp[idx]+=t.amount});
   mkChart('chartWeek',days,inc,exp);
@@ -961,7 +931,8 @@ function renderMonthly(){
 window.selMonth=function(k,btn){document.querySelectorAll('#month-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showMonth(k)};
 function showMonth(k){
   const arr=txs.filter(t=>t.date.slice(0,7)===k).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  renderSumGrid(document.getElementById('month-sum'),arr);renderTbl(document.getElementById('month-body'),arr,false);
+  renderSumGrid(document.getElementById('month-sum'),arr);
+  renderList(document.getElementById('month-body'), arr, false);
   const[y,m]=k.split('-');const dim=new Date(y,m,0).getDate();
   const labels=[],inc=new Array(dim).fill(0),exp=new Array(dim).fill(0);
   for(let i=1;i<=dim;i++)labels.push(i+'');
@@ -979,7 +950,8 @@ function renderYearly(){
 window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showYear(k)};
 function showYear(k){
   const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  renderSumGrid(document.getElementById('year-sum'),arr);renderTbl(document.getElementById('year-body'),arr,false);
+  renderSumGrid(document.getElementById('year-sum'),arr);
+  renderList(document.getElementById('year-body'), arr, false);
   const MNTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   const inc=new Array(12).fill(0),exp=new Array(12).fill(0);
   arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else exp[m]+=t.amount});
@@ -993,7 +965,8 @@ window.renderAll=function(){
   if(tf)arr=arr.filter(t=>t.type===tf);
   if(s)arr=arr.filter(t=>t.note.toLowerCase().includes(s)||t.category.toLowerCase().includes(s));
   arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  renderSumGrid(document.getElementById('all-sum'),arr);renderTbl(document.getElementById('all-body'),arr,true);
+  renderSumGrid(document.getElementById('all-sum'),arr);
+  renderList(document.getElementById('all-body'), arr, true);
 };
 
 function refreshAll(){
