@@ -193,12 +193,16 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   font-size: 18px; font-weight: 800; background: var(--bg3); margin-right: 12px; flex-shrink: 0;
 }
 .ri-icon.inc { color: var(--green2); } .ri-icon.exp { color: var(--red2); }
-.ri-left { display: flex; align-items: center; }
-.ri-note { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+.ri-left { display: flex; align-items: center; flex: 1; }
+
+/* Tambah flex-wrap: wrap agar badge turun ke baris baru kalau namanya terlalu panjang di HP */
+.ri-note { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ri-meta { font-size: 11px; font-weight: 500; color: var(--text3); }
+
+/* BADGE KATEGORI DIMUNCULKAN KEMBALI DI HP */
 .cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; }
 
-.ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-left: 12px; }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 
@@ -254,9 +258,10 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; }
   
   .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+  .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; margin-left: 0; }
   .del-btn-recent { margin-top: 0; }
-  .cat-badge { display: none; }
+  
+  /* .cat-badge SEKARANG TIDAK DISEMBUNYIKAN DI HP (.cat-badge { display: none; } DIHAPUS) */
 }
 
 @media (min-width: 769px) {
