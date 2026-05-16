@@ -884,7 +884,23 @@ function renderRecent(){
   const el=document.getElementById('recent-list');
   const r=txs.slice(0,10);
   if(!r.length){el.innerHTML='<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>';return}
-  el.innerHTML=r.map(t=>`<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note}</div><div class="ri-meta">${fmtFull(t.date)}</div></div></div><div class="ri-right"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}</div><div>${fmtUSD(t.amount)}</div></div></div>`).join('');
+  el.innerHTML=r.map(t=>`
+    <div class="recent-item">
+      <div class="ri-left">
+        <div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div>
+        <div>
+          <div class="ri-note">${t.note}</div>
+          <div class="ri-meta">${fmtFull(t.date)}</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="ri-right">
+          <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}</div>
+          <div>${fmtUSD(t.amount)}</div>
+        </div>
+        <button class="del-btn" onclick="delTx('${t.id}')" style="margin-top:0; font-size:16px;" title="Hapus Transaksi">✕</button>
+      </div>
+    </div>`).join('');
 }
 
 function renderMainChart(){
