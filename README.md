@@ -151,7 +151,7 @@ body {
 .bal .m-bar-fill { background: var(--border2); } .cnt .m-bar-fill { background: var(--blue); }
 
 /* FORMS */
-.card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 24px; }
 .card-head { margin-bottom: 16px; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .card-sub { font-size: 12px; color: var(--text3); }
@@ -161,7 +161,6 @@ body {
 .t-btn.income.active { background: var(--bg2); color: var(--green2); }
 .t-btn.expense.active { background: var(--bg2); color: var(--text); }
 
-/* DIPERBESAR SUPAYA LEGA DIKETIK */
 .f-input-dark {
   width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
@@ -195,12 +194,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .ri-icon.inc { color: var(--green2); } .ri-icon.exp { color: var(--red2); }
 .ri-left { display: flex; align-items: center; flex: 1; }
 
-/* Tambah flex-wrap: wrap agar badge turun ke baris baru kalau namanya terlalu panjang di HP */
-.ri-note { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ri-note { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; line-height: 1.4; }
 .ri-meta { font-size: 11px; font-weight: 500; color: var(--text3); }
-
-/* BADGE KATEGORI DIMUNCULKAN KEMBALI DI HP */
-.cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; }
+.cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; display: inline-block; white-space: nowrap; }
 
 .ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-left: 12px; }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
@@ -223,7 +219,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
 
-/* FILTER BAR RIWAYAT - SUDAH DIPERLEBAR UNTUK DESKTOP */
+/* FILTER BAR RIWAYAT */
 .filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; }
 .filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
 .filter-bar input.f-input-dark { flex: 1; }
@@ -240,28 +236,37 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
-/* MOBILE RESPONSIVE */
+/* ==========================================================================
+   MOBILE RESPONSIVE (DIMAKSIMALKAN LEBARNYA SEPERTI LOGIN)
+   ========================================================================== */
 @media (max-width: 768px) {
-  .top-ext-links { justify-content: center; }
-  .header-area { padding: 16px; }
+  .top-ext-links { justify-content: center; padding: 0 12px 16px; }
+  .header-area { padding: 16px 12px; }
   .status-row { flex-direction: row; }
   .status-pill { flex: 1; }
   .user-row { flex-direction: row; justify-content: flex-start; }
-  .nav { padding: 0 16px 20px; }
-  .main { padding: 0 16px 80px; }
-  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .panel { display: flex; flex-direction: column; gap: 16px; }
-  .card { padding: 16px; }
+  .nav { padding: 0 12px 20px; }
   
-  /* Filter bar di HP disusun ke bawah biar gak sempit */
+  /* PADDING KIRI KANAN DIPANGKAS BIAR MELAR FULL SCREEN */
+  .main { padding: 0 10px 80px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .panel { display: flex; flex-direction: column; gap: 16px; }
+  
+  /* PADDING DALAM KOTAK DIBIKIN TIPIS DI SAMPING */
+  .card { padding: 20px 12px; }
+  
   .filter-bar { flex-direction: column; gap: 12px; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; }
   
-  .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px 12px; }
   .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; margin-left: 0; }
   .del-btn-recent { margin-top: 0; }
   
-  /* .cat-badge SEKARANG TIDAK DISEMBUNYIKAN DI HP (.cat-badge { display: none; } DIHAPUS) */
+  .cat-badge { display: inline-block !important; }
+  
+  /* TINGGI INPUT DIBIKIN CHUNKY/TEBAL BIAR MAKIN LEGA DITAP */
+  .f-input-dark { padding: 18px 16px; font-size: 15px; }
+  .submit-btn { padding: 18px; font-size: 14px; }
 }
 
 @media (min-width: 769px) {
@@ -373,7 +378,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
     <div class="card-head">
       <div class="card-title">Laporan Harian</div>
       <div style="margin-top:12px;">
-         <input type="date" id="pick-daily" onchange="renderDaily()" class="f-input-dark" style="max-width: 300px;">
+         <input type="date" id="pick-daily" onchange="renderDaily()" class="f-input-dark">
       </div>
     </div>
     <div class="sum-grid" id="daily-sum"></div>
@@ -503,7 +508,7 @@ function calcSum(arr){ const inc=arr.filter(t=>t.type==='income').reduce((s,t)=>
 
 function renderSumGrid(el,arr){ const s=calcSum(arr); el.innerHTML=`<div class="sum-item"><div class="sum-label">TOTAL PEMASUKAN</div><div class="sum-val">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">TOTAL PENGELUARAN</div><div class="sum-val">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">SALDO BERSIH</div><div class="sum-val">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div></div>`; }
 
-const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><button class="del-btn-recent" onclick="delTx('${t.id}')">Hapus</button></div></div>`;
+const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div>`;
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
