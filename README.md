@@ -66,8 +66,8 @@ body {
 /* USD MINI WIDGET */
 .usd-inline {
   font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3);
-  margin-left: 6px; font-weight: 800; padding: 2px 8px;
-  background: var(--border); border-radius: 6px; letter-spacing: -0.5px;
+  display: inline-block; font-weight: 700; padding: 2px 6px;
+  background: var(--border); border-radius: 4px; letter-spacing: -0.3px; margin-top: 4px;
 }
 
 /* ===== LOGO GAMBAR RHN ===== */
@@ -136,6 +136,7 @@ body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
 
 .topbar-right { display: flex; align-items: center; gap: 24px; }
 .usd-rate-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,168,76,0.2); }
+body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
 .usd-rate-box .lbl { font-size: 11px; color: var(--gold2); font-weight: 800; }
 .usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); transition: color 0.2s ease; }
 
@@ -170,17 +171,17 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* METRICS CARDS */
+/* METRICS CARDS (KALIBRASI UKURAN BIAR TIDAK TERPOTONG) */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
 .m-card {
-  background: var(--card); border-radius: var(--radius); padding: 28px;
+  background: var(--card); border-radius: var(--radius); padding: 24px;
   border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden;
 }
 .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-.m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; letter-spacing: 1px; }
+.m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; letter-spacing: 1px; }
 
-/* PROGRESS BAR KEMBALI */
-.m-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+/* PROGRESS BAR */
+.m-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 12px; overflow: hidden; }
 body.light-mode .m-bar { background: rgba(0,0,0,0.05); }
 .m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 .inc .m-bar-fill { background: var(--green2); }
@@ -188,20 +189,16 @@ body.light-mode .m-bar { background: rgba(0,0,0,0.05); }
 .bal .m-bar-fill { background: var(--gold2); }
 .cnt .m-bar-fill { background: #0A84FF; }
 
-/* FIXED WHITE-SPACE NOWRAP */
+/* UKURAN AMAN DI DESKTOP */
 .m-val { 
   font-family: 'JetBrains Mono', monospace; 
-  font-size: 26px; 
+  font-size: 22px; 
   font-weight: 800; color: var(--text); 
-  letter-spacing: -1px; 
+  letter-spacing: -0.5px; 
   white-space: nowrap; 
-  overflow-x: auto; 
-  scrollbar-width: none; 
 }
-.m-val::-webkit-scrollbar { display: none; } 
-
 .m-val.pos { color: var(--green2); } .m-val.neg { color: var(--red2); } .m-val.gold { color: var(--gold2); } .m-val.blue { color: #0A84FF; }
-.m-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 8px; }
+.m-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 6px; }
 
 /* PANELS */
 .panel { display: grid; grid-template-columns: 420px 1fr; gap: 24px; margin-bottom: 24px; }
@@ -219,7 +216,7 @@ body.light-mode .type-toggle { background: rgba(0,0,0,0.03); }
 .t-btn.income.active { background: var(--card); color: var(--green2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 .t-btn.expense.active { background: var(--card); color: var(--red2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 .form-row { margin-bottom: 20px; }
-.var-label { font-size: 12px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-label { font-size: 12px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.02); color: var(--text); outline: none; transition: 0.3s; }
 body.light-mode .form-row input, body.light-mode .form-row select, body.light-mode .form-row textarea { background: rgba(0,0,0,0.02); }
 .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--gold2); background: var(--card); }
@@ -227,8 +224,8 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
 .submit-btn:active { transform: scale(0.96); }
 
-/* RECENT ITEMS (KEMBALI KE ASLI RHN: ↑ ↓) */
-.recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+/* RECENT ITEMS */
+.recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--card); }
 .recent-item:last-child { border-bottom: none; }
 .ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; border-radius: 8px; }
 .ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.1); }
@@ -237,17 +234,25 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .ri-note { font-size: 14px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 4px; }
 .ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
 .ri-right { text-align: right; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
-.ri-amount::-webkit-scrollbar { display: none; }
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
 .del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 14px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
 .recent-item:hover .del-btn { opacity: 1; }
 
-/* THE MAGIC: TABLES (TIDAK PUTIH LAGI) */
-.tbl-wrap { overflow-x: auto; padding: 0; }
+/* KUNCI ASLI TABEL: MEMBUNUH WARNA PUTIH BROWSER */
+.tbl-wrap { overflow-x: auto; padding: 0; background: var(--card); }
 table.htbl { width: 100%; border-collapse: collapse; background: var(--card); }
-table.htbl th { padding: 16px 32px; text-align: left; font-size: 12px; font-weight: 800; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 1px; }
-table.htbl td { padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); transition: 0.2s; background: var(--card); }
+table.htbl thead { background: var(--bg2); }
+table.htbl th { 
+  padding: 16px 32px; text-align: left; font-size: 12px; font-weight: 800; color: var(--text3); 
+  border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 1px;
+  background: var(--bg2);
+}
+table.htbl tr { background: var(--card); }
+table.htbl td { 
+  padding: 20px 32px; font-size: 15px; font-weight: 600; color: var(--text); 
+  border-bottom: 1px solid var(--border); transition: 0.2s; background: var(--card); 
+}
 table.htbl tr:hover td { background: rgba(255,255,255,0.03); }
 body.light-mode table.htbl tr:hover td { background: rgba(0,0,0,0.03); }
 table.htbl th:nth-child(1), table.htbl td:nth-child(1) { width: 180px; }
@@ -268,8 +273,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-bottom: 1px solid var(--border); gap: 1px; }
 .sum-item { padding: 24px; background: var(--card); text-align: left; }
 .sum-label { font-size: 12px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
-.sum-val::-webkit-scrollbar { display: none; }
+.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; white-space: nowrap; }
 
 /* CHARTS & FILTERS */
 .chart-wrap { padding: 32px; }
@@ -282,7 +286,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 .filter-bar select, .filter-bar input { padding: 14px 20px; font-size: 15px; font-weight: 600; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--text); outline: none; font-family: 'Outfit', sans-serif; }
 .filter-bar input { width: 280px; }
 .filter-bar select:focus, .filter-bar input:focus { border-color: var(--gold2); }
-.empty { padding: 80px; text-align: center; color: var(--text3); font-size: 15px; font-weight: 600; }
+.empty { padding: 80px; text-align: center; color: var(--text3); font-size: 15px; font-weight: 600; background: var(--card); }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 6px; height: 6px; } 
@@ -290,7 +294,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (FIXED GRID 2x2 MENTOK TANPA SCROLL HORIZONTAL)
+   MOBILE RESPONSIVE (GRID MENTOK 2X2 DAN ADJUST FONT ANTI-POTONG)
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
@@ -312,7 +316,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 
   .main { padding: 0; padding-bottom: 40px; }
   
-  /* FIX KOTAK TOTAL PEMASUKAN DKK JADI 2x2 GRID MENTOK DI LAYAR */
+  /* GRID 2x2 DAN KALIBRASI UKURAN AKURAT DI MOBILE SCREEN */
   .metrics { 
     display: grid; 
     grid-template-columns: repeat(2, 1fr); 
@@ -325,35 +329,35 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     border-radius: 16px; 
     flex: none; 
   }
-  .m-val { font-size: 18px; } 
-  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .m-sub { font-size: 10px; margin-top: 6px; }
-  .m-bar { margin-top: 10px; }
+  .m-val { font-size: 15px; } 
+  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .m-sub { font-size: 10px; margin-top: 4px; }
+  .m-bar { margin-top: 8px; }
   
   .panel { grid-template-columns: 1fr; gap: 0; }
   .card { border-radius: 0; border-left: none; border-right: none; margin-bottom: 16px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .card-head { padding: 16px; }
   .form-body { padding: 0 16px 20px; }
   
-  /* MOBILE TABLE */
+  /* MOBILE TABLE STYLE FIXES */
   .tbl-wrap { padding: 0; }
   table.htbl thead { display: none; }
   table.htbl tbody { display: block; width: 100%; }
-  table.htbl tr { display: flex; flex-wrap: wrap; align-items: center; padding: 16px; border-bottom: 1px solid var(--border) !important; }
-  table.htbl td { display: block; border: none !important; padding: 0 !important; }
+  table.htbl tr { display: flex; flex-wrap: wrap; align-items: center; padding: 16px; border-bottom: 1px solid var(--border) !important; background: var(--card); }
+  table.htbl td { display: block; border: none !important; padding: 0 !important; background: var(--card); }
   
   table.htbl td:nth-child(1) { width: 100% !important; order: 3; margin-top: 6px; } 
   table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none; } 
-  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap; } 
-  table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -24px; } 
+  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap; text-align: right !important; } 
+  table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -20px; } 
   .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; }
   
-  .recent-item { padding: 16px; }
+  .recent-item { padding: 16px; background: var(--card); }
   .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
   .filter-bar input, .filter-bar select { width: 100%; flex: 0 0 80%; scroll-snap-align: start; }
   .sum-grid { grid-template-columns: 1fr; gap: 0; padding: 0 16px 20px; background: var(--card); }
-  .sum-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .sum-item { padding: 16px 0; border-bottom: 1px solid var(--border); background: var(--card); }
   .sum-item:last-child { border-bottom: none; }
 }
 </style>
@@ -539,12 +543,13 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 </div>
 
 </div></div><script type="module">
-// TEMA - Default Dark Mode
+// TEMA - Default Dark Mode (FIX SINKRONISASI GRAFIK DAN TEKS)
 window.toggleTheme = function() {
   document.body.classList.toggle('light-mode');
   const isLight = document.body.classList.contains('light-mode');
   document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  refreshAll(); // Redraw chart & metrics seketika tema diganti
 };
 if(localStorage.getItem('theme') === 'light') {
   document.body.classList.add('light-mode');
@@ -583,19 +588,18 @@ const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',mi
 const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
 const nowISO  = () => new Date().toISOString().slice(0,16);
 
-// Formatting angka khusus untuk kurs (dengan 2 desimal)
 const kursIndo = new Intl.NumberFormat('id-ID', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 });
 
-/* FUNGSI KONVERSI DOLAR SIMPEL */
+/* KONVERSI DOLAR TANPA BR BIAR TERKONTROL */
 const fmtUSD = n => {
   const usdVal = (n / currentUSDRate).toFixed(2);
   return `<span class="usd-inline">$${usdVal}</span>`;
 };
 
-/* AMBIL KURS REAL-TIME DENGAN WEBSOCKET (SETIAP DETIK) */
+/* AMBIL KURS REAL-TIME DENGAN WEBSOCKET */
 function initLiveUSD() {
   const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
 
@@ -606,9 +610,7 @@ function initLiveUSD() {
       if (newPrice && newPrice !== currentUSDRate) {
           currentUSDRate = newPrice;
           const rateEl = document.getElementById('usd-rate-val');
-          
           rateEl.textContent = kursIndo.format(currentUSDRate);
-          
           rateEl.style.color = '#25c584';
           rateEl.style.fontWeight = '700';
           setTimeout(() => { 
@@ -631,7 +633,6 @@ async function fetchUSDRate() {
     document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate);
     refreshAll();
   } catch (e) {
-    console.error('Kurs Error:', e);
     document.getElementById('usd-rate-val').textContent = "Offline";
   }
 }
@@ -724,7 +725,7 @@ window.addTx=async function(){
   const dt=document.getElementById('f-date').value;
   if(!amt||amt<=0){alert('Masukkan jumlah yang valid.');return}
   if(!cat){alert('Pilih kategori terlebih dahulu.');return}
-  const btn=document.getElementById('save-btn');
+  const btn=save-btn;
   btn.disabled=true;btn.textContent='Menyimpan...';
   try{
     await addDoc(collection(db,'users',currentUser.uid,'transactions'),{
@@ -774,19 +775,27 @@ function calcSum(arr){
   const exp=arr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   return{inc,exp,bal:inc-exp,count:arr.length};
 }
+
+/* SINKRONISASI TOTAL BAGIAN ATAS TABEL BIAR TIDAK PECAH */
 function renderSumGrid(el,arr){
   const s=calcSum(arr);
-  el.innerHTML=`<div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}${fmtUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}${fmtUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}${fmtUSD(s.bal)}</div></div>`;
+  el.innerHTML=`
+    <div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}</div><div style="margin-top:2px;">${fmtUSD(s.inc)}</div></div>
+    <div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}</div><div style="margin-top:2px;">${fmtUSD(s.exp)}</div></div>
+    <div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:2px;">${fmtUSD(s.bal)}</div></div>`;
 }
 
 function renderTbl(tbody,arr,full){
-  if(!arr.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div></td></tr>`;return}
+  if(!arr.length){tbody.innerHTML=`<tr><td colspan="6" style="background:var(--card)"><div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div></td></tr>`;return}
   tbody.innerHTML=arr.map(t=>`<tr>
     <td style="font-size:12px;white-space:nowrap"><span style="font-weight:700">${full?fmtFull(t.date):fmtDate(t.date)}</span>${!full?'<br><span style="color:var(--text3)">'+fmtTime(t.date)+'</span>':''}</td>
     <td title="${t.note}">${t.note}</td><td style="color:var(--text3)">${t.category}</td>
     <td><span class="badge ${t.type}">${t.type==='income'?'Pemasukan':'Pengeluaran'}</span></td>
-    <td class="${t.type==='income'?'a-pos':'a-neg'}" style="white-space:nowrap">${t.type==='income'?'+':'-'}${fmt(t.amount)}${fmtUSD(t.amount)}</td>
-    <td><button class="del-btn" onclick="delTx('${t.id}')" style="font-size:16px;">✕</button></td>
+    <td class="${t.type==='income'?'a-pos':'a-neg'}" style="white-space:nowrap; text-align:right;">
+      <div>${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+      <div>${fmtUSD(t.amount)}</div>
+    </td>
+    <td><button class="del-btn" onclick="delTx('${t.id}')">✕</button></td>
   </tr>`).join('');
 }
 
@@ -794,34 +803,35 @@ function mkChart(id,labels,incData,expData){
   if(charts[id]){charts[id].destroy();delete charts[id]}
   const c=document.getElementById(id);if(!c)return;
   const isLight = document.body.classList.contains('light-mode');
-  const textColor = isLight ? '#8E8E93' : '#8E8E93';
-  const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+  const textColor = isLight ? '#3A3A3C' : '#8E8E93';
+  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
   
   charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[
-    {label:'Pemasukan',data:incData,backgroundColor:'rgba(26,158,107,0.75)',borderRadius:4,borderSkipped:false},
-    {label:'Pengeluaran',data:expData,backgroundColor:'rgba(217,79,79,0.7)',borderRadius:4,borderSkipped:false}
+    {label:'Pemasukan',data:incData,backgroundColor:'rgba(48,209,88,0.8)',borderRadius:4,borderSkipped:false},
+    {label:'Pengeluaran',data:expData,backgroundColor:'rgba(255,69,58,0.75)',borderRadius:4,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
     x:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'}},grid:{display:false},border:{display:false}},
     y:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:gridColor,drawBorder:false},border:{display:false}}
   }}});
 }
 
+/* KOTAK ATAS: FIX RUPIAH ATAS & DOLAR BAWAH */
 function renderMetrics(){
   const s=calcSum(txs);
   const ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString()));
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
   document.getElementById('metric-cards').innerHTML=`
-    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
-    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
-    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val gold">${fmt(s.bal)}${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
-    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?80:0}%"></div></div></div>`;
+    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}</div><div>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
+    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}</div><div>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
+    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val gold">${fmt(s.bal)}</div><div>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
+    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div style="height:19px;line-height:19px;" class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
 function renderRecent(){
   const el=document.getElementById('recent-list');
   const r=txs.slice(0,10);
   if(!r.length){el.innerHTML='<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>';return}
-  el.innerHTML=r.map(t=>`<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note}</div><div class="ri-meta">${fmtFull(t.date)}</div></div></div><div class="ri-right"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}${fmtUSD(t.amount)}</div><button class="del-btn" onclick="delTx('${t.id}')">✕</button></div></div>`).join('');
+  el.innerHTML=r.map(t=>`<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note}</div><div class="ri-meta">${fmtFull(t.date)}</div></div></div><div class="ri-right"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}</div><div>${fmtUSD(t.amount)}</div></div></div>`).join('');
 }
 
 function renderMainChart(){
