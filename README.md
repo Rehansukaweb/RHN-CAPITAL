@@ -70,18 +70,15 @@ body {
   background: var(--border); border-radius: 6px; letter-spacing: -0.5px;
 }
 
-/* ===== LOGO EMBLEM ASLI RHN ===== */
+/* ===== LOGO GAMBAR RHN ===== */
 .auth-emblem {
-  width: 64px; height: 64px; background: var(--card); border: 1px solid var(--border);
-  border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
-  font-size: 32px; font-weight: 900; color: var(--gold2);
-  font-family: 'JetBrains Mono', monospace; margin-bottom: 16px;
+  width: 64px; height: 64px; border-radius: 16px; object-fit: cover;
+  margin-bottom: 16px; border: 1px solid var(--border);
   box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1);
 }
 .logo-emblem {
-  width: 44px; height: 44px; border-radius: 12px; background: rgba(201,168,76,0.12); border: 1.5px solid rgba(201,168,76,0.5);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: var(--gold2); font-family: 'JetBrains Mono', monospace;
+  width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
+  border: 1.5px solid rgba(201,168,76,0.5);
 }
 
 /* ===== AUTH SCREEN ===== */
@@ -355,7 +352,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="auth-emblem">R</div>
+      <img src="1000092571.jpg" class="auth-emblem" alt="RHN Capital Logo">
       <div class="auth-title">RHN CAPITAL</div>
       <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
     </div>
@@ -386,7 +383,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="app-screen">
 <div class="topbar">
   <div class="logo">
-    <div class="logo-emblem">R</div>
+    <img src="1000092571.jpg" class="logo-emblem" alt="RHN Capital Logo">
     <div>
       <div class="logo-name">RHN CAPITAL</div>
       <div class="logo-tagline">Arus Keuangan</div>
