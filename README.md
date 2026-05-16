@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ==========================================================================
-   PEAK NATIVE-APP UI: OLED FINTECH EDITION (DARK MODE DEFAULT)
+   PEAK NATIVE-APP UI: OLED FINTECH EDITION (DARK MODE DEFAULT + FIX ANGKA)
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
 
@@ -162,7 +162,7 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* METRICS CARDS */
+/* METRICS CARDS (FIX ANGKA TIDAK PATAH) */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
 .m-card {
   background: var(--card); border-radius: var(--radius); padding: 28px;
@@ -170,7 +170,21 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 }
 .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; letter-spacing: 1px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -1px; }
+
+/* ========================================================
+   FIX UTAMA: Mencegah angka turun / membungkus ke bawah
+   ======================================================== */
+.m-val { 
+  font-family: 'JetBrains Mono', monospace; 
+  font-size: 26px; /* Sedikit dikecilkan */
+  font-weight: 800; color: var(--text); 
+  letter-spacing: -1px; 
+  white-space: nowrap; /* Mencegah patah baris */
+  overflow-x: auto; /* Memungkinkan geser jika kepanjangan ekstrim */
+  scrollbar-width: none; /* Sembunyikan scrollbar */
+}
+.m-val::-webkit-scrollbar { display: none; } /* Sembunyikan scrollbar di chrome/safari */
+
 .m-val.pos { color: var(--green2); } .m-val.neg { color: var(--red2); } .m-val.gold { color: var(--gold2); } .m-val.blue { color: #0A84FF; }
 .m-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 8px; }
 
@@ -198,17 +212,17 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
 .submit-btn:active { transform: scale(0.96); }
 
-/* RECENT ITEMS (Persis seperti screenshot 1) */
+/* RECENT ITEMS */
 .recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .recent-item:last-child { border-bottom: none; }
 .ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; }
 .ri-icon.inc { color: var(--green2); }
-.ri-icon.exp { color: var(--text); } /* Panah putih seperti di foto */
+.ri-icon.exp { color: var(--text); } 
 .ri-left { display: flex; align-items: center; }
 .ri-note { font-size: 14px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 4px; }
 .ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
 .ri-right { text-align: right; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; }
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
 .del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 11px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
 .recent-item:hover .del-btn { opacity: 1; }
@@ -223,7 +237,7 @@ body.light-mode table.htbl tr:hover td { background: rgba(0,0,0,0.03); }
 table.htbl th:nth-child(1), table.htbl td:nth-child(1) { width: 180px; }
 table.htbl td:nth-child(1) span { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700 !important; color: var(--text3); }
 table.htbl th:nth-child(2), table.htbl td:nth-child(2) { font-size: 16px; font-weight: 800; }
-table.htbl th:nth-child(5), table.htbl td:nth-child(5) { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; }
+table.htbl th:nth-child(5), table.htbl td:nth-child(5) { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; white-space: nowrap; }
 table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align: right; }
 
 .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -235,7 +249,8 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-bottom: 1px solid var(--border); gap: 1px; }
 .sum-item { padding: 24px; background: var(--card); text-align: left; }
 .sum-label { font-size: 12px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; }
+.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.sum-val::-webkit-scrollbar { display: none; }
 
 /* CHARTS & FILTERS */
 .chart-wrap { padding: 32px; }
@@ -295,7 +310,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   table.htbl td:nth-child(1) { width: 100% !important; order: 3; margin-top: 6px; } 
   table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 16px; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none; } 
-  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 16px !important; } 
+  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 16px !important; white-space: nowrap; } 
   table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -24px; } 
   .del-btn { padding: 4px; opacity: 1; font-size: 12px; }
   
@@ -707,7 +722,7 @@ function calcSum(arr){
 }
 function renderSumGrid(el,arr){
   const s=calcSum(arr);
-  el.innerHTML=`<div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}${fmtUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}${fmtUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}${fmtUSD(s.bal)}</div></div>`;
+  el.innerHTML=`<div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}<br>${fmtUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}<br>${fmtUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}<br>${fmtUSD(s.bal)}</div></div>`;
 }
 function renderTbl(tbody,arr,full){
   if(!arr.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty">Belum ada transaksi</div></td></tr>`;return}
