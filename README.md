@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ==========================================================================
-   PEAK NATIVE-APP UI: OLED FINTECH EDITION (DARK MODE DEFAULT + FIX ANGKA)
+   PEAK NATIVE-APP UI: OLED FINTECH EDITION (NAVIGASI NORMAL DI ATAS)
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
 
@@ -51,7 +51,7 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* TOP EXTERNAL LINKS (Sesuai aslinya) */
+/* TOP EXTERNAL LINKS */
 .top-ext-links {
   display: flex; justify-content: flex-end; gap: 24px; padding: 12px 32px;
   background: var(--bg); border-bottom: 1px solid var(--border);
@@ -143,10 +143,12 @@ body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px currentColor; }
 .sync-label { font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
 
-/* NAVIGATION - DESKTOP */
+/* NAVIGATION */
 .nav {
   padding: 16px 32px; display: flex; gap: 8px; max-width: 1400px; margin: 0 auto 16px;
+  overflow-x: auto; scrollbar-width: none; white-space: nowrap;
 }
+.nav::-webkit-scrollbar { display: none; }
 .nav-btn {
   padding: 12px 24px; font-size: 13px; font-weight: 800; color: var(--text3);
   border: 1px solid transparent; background: transparent; cursor: pointer; border-radius: 100px;
@@ -171,19 +173,16 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; letter-spacing: 1px; }
 
-/* ========================================================
-   FIX UTAMA: Mencegah angka turun / membungkus ke bawah
-   ======================================================== */
 .m-val { 
   font-family: 'JetBrains Mono', monospace; 
-  font-size: 26px; /* Sedikit dikecilkan */
+  font-size: 26px; 
   font-weight: 800; color: var(--text); 
   letter-spacing: -1px; 
-  white-space: nowrap; /* Mencegah patah baris */
-  overflow-x: auto; /* Memungkinkan geser jika kepanjangan ekstrim */
-  scrollbar-width: none; /* Sembunyikan scrollbar */
+  white-space: nowrap; 
+  overflow-x: auto; 
+  scrollbar-width: none; 
 }
-.m-val::-webkit-scrollbar { display: none; } /* Sembunyikan scrollbar di chrome/safari */
+.m-val::-webkit-scrollbar { display: none; } 
 
 .m-val.pos { color: var(--green2); } .m-val.neg { color: var(--red2); } .m-val.gold { color: var(--gold2); } .m-val.blue { color: #0A84FF; }
 .m-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 8px; }
@@ -277,20 +276,19 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   body { padding: 0; margin: 0; }
   
   .top-ext-links { justify-content: center; padding: 12px; }
-  .topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
   .topbar-right { width: 100%; justify-content: space-between; }
   .live-clock, .sync-label, .user-info { display: none; }
   
+  /* NAV KEMBALI KE ATAS NORMAL */
   .nav {
-    position: fixed; bottom: 0; left: 0; right: 0; width: 100%; margin: 0;
-    padding: 12px 12px calc(env(safe-area-inset-bottom, 12px) + 12px);
-    background: rgba(10, 10, 14, 0.9); backdrop-filter: blur(20px); border-top: 1px solid var(--border);
-    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; z-index: 9999; justify-content: flex-start;
+    padding: 0 20px 16px 20px;
+    margin: 0;
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start;
   }
-  body.light-mode .nav { background: rgba(255, 255, 255, 0.9); }
-  .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 12px 20px; font-size: 12px; border: 1px solid var(--border); }
+  .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 18px; font-size: 12px; border: 1px solid var(--border); }
 
-  .main { padding: 0; padding-bottom: 120px; }
+  .main { padding: 0; padding-bottom: 40px; }
   
   .metrics { display: flex; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 20px 24px; gap: 16px; margin: 0; }
   .m-card { flex: 0 0 85%; scroll-snap-align: center; padding: 24px; border-radius: 24px; }
