@@ -1,414 +1,361 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="color-scheme" content="dark light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Arus Keuangan — RHN CAPITAL</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ==========================================================================
-   PEAK NATIVE-APP UI: OLED FINTECH EDITION + ORIGINAL RHN CONTENT 100%
+   GOD TIER ELEGANCE (OBSIDIAN) + ORIGINAL HISTORY CARDS
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  /* DEFAULT: OLED ABSOLUTE BLACK DARK MODE */
-  --bg: #050507; --bg2: #0A0A0E; --bg3: #12121A;
-  --card: #12121A;
-  --border: rgba(255, 255, 255, 0.08); --border2: rgba(255, 255, 255, 0.15);
-  --text: #F8FAFC; --text2: #EBEBF5; --text3: #94A3B8;
-  --navy: #000000; --navy2: #1C1C1E; --navy3: #2C2C2E;
-  --gold: #D4AF37; --gold2: #FFD60A; --gold3: #FFE066;
-  --green: #30D158; --green2: #32D74B;
-  --red: #FF453A; --red2: #FF6961;
-  --shadow-float: 0 12px 40px rgba(0,0,0,0.8);
-  --radius: 24px; --radius-sm: 16px;
+  /* DARK MODE: OBSIDIAN & MUTED GOLD */
+  --bg: #070709; 
+  --bg2: #0B0B0E; 
+  --bg3: #111115;
+  --card: linear-gradient(145deg, #111115 0%, #0D0D10 100%);
+  --card-solid: #111115;
+  --border: rgba(255, 255, 255, 0.04); 
+  --border2: rgba(255, 255, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.95); 
+  --text2: rgba(255, 255, 255, 0.7); 
+  --text3: rgba(255, 255, 255, 0.45);
+  --navy: #070709; 
+  
+  --gold: #C9A84C; 
+  --gold2: #B89C49; 
+  --green2: #5CA885; 
+  --red2: #C96C6C;   
+  --blue: #5C8AA8;
+  
+  --shadow-float: 0 20px 40px rgba(0,0,0,0.6);
+  --radius: 16px; 
+  --radius-sm: 12px;
 }
 
 body.light-mode {
-  /* LIGHT MODE ALTERNATIVE */
-  --bg: #F2F2F7; --bg2: #FFFFFF; --bg3: #E5E5EA;
-  --card: #FFFFFF;
-  --border: rgba(0, 0, 0, 0.08); --border2: #D1D1D6;
-  --text: #000000; --text2: #3A3A3C; --text3: #8E8E93;
-  --navy: #1C1C1E; --navy2: #2C2C2E; --navy3: #3A3A3C;
-  --gold: #D4AF37; --gold2: #FF9F0A; --gold3: #FFD60A;
-  --green: #34C759; --green2: #30D158;
-  --red: #FF3B30; --red2: #FF453A;
-  --shadow-float: 0 12px 32px rgba(0,0,0,0.06);
+  /* LIGHT MODE: PORCELAIN & COPPER */
+  --bg: #F7F7F9; 
+  --bg2: #FCFCFD; 
+  --bg3: #FFFFFF;
+  --card: linear-gradient(145deg, #FFFFFF 0%, #F9F9FB 100%);
+  --card-solid: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.05); 
+  --border2: rgba(0, 0, 0, 0.1);
+  --text: #1A1A1E; 
+  --text2: #4A4A52; 
+  --text3: #8C8C96;
+  --navy: #FFFFFF; 
+  
+  --gold: #A68A3C; 
+  --gold2: #9E7D33; 
+  --green2: #468E6B; 
+  --red2: #B55858;
+  --blue: #4A7694;
+  
+  --shadow-float: 0 16px 32px rgba(0,0,0,0.04);
 }
 
 body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg);
   color: var(--text);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color 0.6s ease, color 0.6s ease;
 }
 
 /* TOP EXTERNAL LINKS */
 .top-ext-links {
-  display: flex; justify-content: flex-end; gap: 24px; padding: 12px 32px;
+  display: flex; justify-content: flex-end; gap: 32px; padding: 12px 40px;
   background: var(--navy); border-bottom: 1px solid var(--border);
 }
 .nav-ext-btn {
-  background: transparent; border: none; color: var(--gold2);
-  font-weight: 800; font-size: 13px; font-family: 'Outfit', sans-serif;
-  cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+  background: transparent; border: none; color: var(--text3);
+  font-weight: 400; font-size: 11px; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: 0.4s ease; text-transform: uppercase; letter-spacing: 1.5px;
 }
-.nav-ext-btn:hover { text-shadow: 0 0 10px rgba(255, 214, 10, 0.5); transform: translateY(-1px); }
+.nav-ext-btn:hover { color: var(--gold2); letter-spacing: 2px; }
 
 /* USD MINI WIDGET */
 .usd-inline {
-  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3);
-  display: inline-block; font-weight: 700; padding: 2px 6px;
-  background: var(--border); border-radius: 4px; letter-spacing: -0.3px; margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3);
+  display: inline-block; font-weight: 400; padding: 2px 0; margin-top: 4px;
 }
 
 /* ===== LOGO GAMBAR RHN ===== */
 .auth-emblem {
-  width: 64px; height: 64px; border-radius: 16px; object-fit: cover;
-  margin-bottom: 16px; border: 1px solid var(--border);
-  box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1); background-color: var(--card);
+  width: 60px; height: 60px; border-radius: 50%; object-fit: cover;
+  margin-bottom: 24px; border: 1px solid var(--border2);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); filter: grayscale(20%) contrast(110%);
 }
 .logo-emblem {
-  width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
-  border: 1.5px solid rgba(201,168,76,0.5); background-color: var(--card);
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--border2); filter: grayscale(20%);
 }
 
 /* ===== AUTH SCREEN ===== */
 #auth-screen {
   position: fixed; inset: 0; background: var(--bg);
   display: flex; align-items: center; justify-content: center; z-index: 9999;
-  background-image: radial-gradient(circle at top right, rgba(255, 214, 10, 0.05), transparent 40%);
 }
 .auth-box {
-  background: var(--card); border-radius: 36px; padding: 48px 32px;
-  width: 100%; max-width: 400px; box-shadow: var(--shadow-float); border: 1px solid var(--border);
-  text-align: center; margin: 20px;
+  background: var(--card); border-radius: 24px; padding: 48px 40px;
+  width: 100%; max-width: 380px; border: 1px solid var(--border);
+  text-align: center; margin: 20px; box-shadow: var(--shadow-float);
 }
 .auth-logo { margin-bottom: 32px; }
-.auth-title { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
-.auth-sub { font-size: 14px; color: var(--text3); font-weight: 500; }
-.auth-tabs { display: flex; background: var(--bg); border-radius: 14px; padding: 4px; margin-bottom: 32px; }
+.auth-title { font-size: 22px; font-weight: 400; color: var(--text); letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
+.auth-sub { font-size: 13px; color: var(--text3); font-weight: 300; letter-spacing: 0.5px; }
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
 .auth-tab {
-  flex: 1; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
-  background: transparent; border: none; border-radius: 10px; color: var(--text3); transition: 0.3s;
+  flex: 1; padding: 16px 0; font-size: 12px; font-weight: 400; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
+  background: transparent; border: none; color: var(--text3); transition: 0.4s ease; border-bottom: 1px solid transparent; margin-bottom: -1px;
 }
-.auth-tab.active { background: var(--card); color: var(--text); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-body.light-mode .auth-tab.active { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.auth-field { margin-bottom: 16px; text-align: left; }
+.auth-tab.active { color: var(--text); border-bottom: 1px solid var(--gold2); }
+.auth-field { margin-bottom: 20px; text-align: left; }
 .auth-field label { display: none; }
 .auth-field input {
-  width: 100%; padding: 18px 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif;
-  border: 1px solid transparent; border-radius: 16px; background: rgba(255,255,255,0.03); color: var(--text);
-  transition: 0.3s;
+  width: 100%; padding: 16px 0; font-size: 14px; font-weight: 300; font-family: 'Outfit', sans-serif;
+  border: none; border-bottom: 1px solid var(--border2); background: transparent; color: var(--text);
+  transition: all 0.4s ease; border-radius: 0;
 }
-body.light-mode .auth-field input { background: rgba(0,0,0,0.03); }
-.auth-field input:focus { background: var(--card); border-color: var(--gold2); outline: none; }
+.auth-field input:focus { border-color: var(--gold2); outline: none; padding-left: 8px; }
+.auth-field input::placeholder { color: var(--text3); font-weight: 200; }
 .auth-btn {
-  width: 100%; padding: 18px; background: var(--gold2); color: #000;
-  border: none; border-radius: 16px; font-size: 16px; font-weight: 800;
-  cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 16px; text-transform: uppercase;
+  width: 100%; padding: 16px; background: transparent; color: var(--text);
+  border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 12px; font-weight: 400;
+  cursor: pointer; transition: 0.4s ease; margin-top: 24px; text-transform: uppercase; letter-spacing: 2px;
 }
-.auth-btn:active { transform: scale(0.96); }
-.auth-err { background: rgba(255, 69, 58, 0.1); color: var(--red2); border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 600; margin-bottom: 20px; display: none; }
-.auth-footer { margin-top: 24px; font-size: 12px; color: var(--text3); font-weight: 600; }
+.auth-btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+.auth-err { color: var(--red2); font-size: 12px; font-weight: 300; margin-bottom: 20px; display: none; letter-spacing: 0.5px; }
+.auth-footer { margin-top: 32px; font-size: 11px; color: var(--text3); font-weight: 300; letter-spacing: 0.5px; }
 
 /* ===== APP SCREEN ===== */
 #app-screen { display: none; }
 
 /* TOP HEADER */
 .topbar {
-  background: rgba(5, 5, 7, 0.8); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
-  padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7, 7, 9, 0.7); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  padding: 24px 40px; display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border);
 }
-body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
+body.light-mode .topbar { background: rgba(247, 247, 249, 0.7); }
 .logo { display: flex; align-items: center; gap: 16px; }
-.logo-name { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; line-height: 1.2; }
-.logo-tagline { font-size: 11px; font-weight: 800; color: var(--gold2); text-transform: uppercase; letter-spacing: 1px; }
+.logo-name { font-size: 16px; font-weight: 400; color: var(--text); letter-spacing: 3px; line-height: 1.2; }
+.logo-tagline { font-size: 9px; font-weight: 300; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
 
-.topbar-right { display: flex; align-items: center; gap: 24px; }
+.topbar-right { display: flex; align-items: center; gap: 32px; }
 
-/* NEW TOP STATS FLEX ROW */
+/* STATS BAR */
 .top-stats-row { display: flex; align-items: center; gap: 24px; }
-.usd-rate-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,168,76,0.2); height: 32px; }
-body.light-mode .usd-rate-box { background: rgba(0,0,0,0.05); }
-.usd-rate-box .lbl { font-size: 11px; color: var(--gold2); font-weight: 800; }
-.usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); transition: color 0.2s ease; }
+.usd-rate-box, .sync-wrapper { display: flex; align-items: center; gap: 8px; }
+.usd-rate-box .lbl { font-size: 10px; color: var(--text3); font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+.usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 300; color: var(--text); transition: color 0.4s ease; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; opacity: 0.8; }
+.sync-label { font-size: 10px; font-weight: 300; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
 
-.sync-wrapper { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); height: 32px; }
-body.light-mode .sync-wrapper { border-color: rgba(0,0,0,0.05); background: rgba(0,0,0,0.02); }
-.sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px currentColor; }
-.sync-label { font-size: 11px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
+.live-clock { text-align: right; border-left: 1px solid var(--border); padding-left: 32px; }
+.live-clock .time { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 300; color: var(--text2); }
+.live-clock .date { font-size: 10px; font-weight: 300; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
-.live-clock { text-align: right; }
-.live-clock .time { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--text); }
-.live-clock .date { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
-.user-info { display: flex; align-items: center; gap: 10px; border-left: 1px solid var(--border); padding-left: 24px; }
-.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(201,168,76,0.2); border: 1.5px solid rgba(201,168,76,0.4); font-weight: 800; color: var(--gold2); display: flex; justify-content: center; align-items: center; }
-.logout-btn { background: var(--card); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; color: var(--text); text-transform: uppercase; }
-@media (hover: hover) {
-  .logout-btn:hover { border-color: var(--red2); color: var(--red2); }
-}
+/* PROFILE BAR */
+.user-info { display: flex; align-items: center; gap: 16px; }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border2); font-weight: 400; font-size: 11px; color: var(--text2); display: flex; justify-content: center; align-items: center; }
+.logout-btn { background: transparent; border: none; font-size: 11px; font-weight: 400; cursor: pointer; transition: 0.4s ease; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+@media (hover: hover) { .logout-btn:hover { color: var(--red2); } }
+#theme-toggle { cursor: pointer; opacity: 0.5; transition: 0.4s; background: none; border: none; font-size: 14px; }
+#theme-toggle:hover { opacity: 1; }
 
 /* NAVIGATION */
 .nav {
-  padding: 16px 32px; display: flex; gap: 8px; max-width: 1400px; margin: 0 auto 16px;
-  overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+  padding: 32px 40px 24px; display: flex; gap: 24px; max-width: 1200px; margin: 0 auto;
+  overflow-x: auto; scrollbar-width: none; white-space: nowrap; border-bottom: 1px solid var(--border);
 }
 .nav::-webkit-scrollbar { display: none; }
 .nav-btn {
-  padding: 12px 24px; font-size: 13px; font-weight: 800; color: var(--text3);
-  border: 1px solid transparent; background: transparent; cursor: pointer; border-radius: 100px;
-  transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 0 0 12px 0; font-size: 11px; font-weight: 400; color: var(--text3);
+  border: none; border-bottom: 1px solid transparent; background: transparent; cursor: pointer;
+  transition: all 0.4s ease; text-transform: uppercase; letter-spacing: 1.5px;
 }
-@media (hover: hover) {
-  .nav-btn:hover { color: var(--text); }
-}
-.nav-btn.active { background: var(--text); color: var(--bg); box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
-body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+@media (hover: hover) { .nav-btn:hover { color: var(--text); } }
+.nav-btn.active { color: var(--text); border-bottom-color: var(--gold2); }
 
 /* MAIN CONTAINER */
-.main { padding: 0 32px 64px; max-width: 1400px; margin: 0 auto; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
+.main { padding: 32px 40px 80px; max-width: 1200px; margin: 0 auto; animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.page { display: none; } .page.active { display: block; animation: fadeIn 0.6s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* METRICS CARDS */
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
 .m-card {
-  background: var(--card); border-radius: var(--radius); padding: 24px;
-  border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden;
+  background: var(--card); border-radius: var(--radius); padding: 32px;
+  border: 1px solid var(--border); transition: all 0.5s ease; position: relative;
 }
-@media (hover: hover) {
-  .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-}
-.m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; letter-spacing: 1px; }
-
-/* PROGRESS BAR */
-.m-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 12px; overflow: hidden; }
-body.light-mode .m-bar { background: rgba(0,0,0,0.05); }
-.m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.m-label { font-size: 10px; font-weight: 400; text-transform: uppercase; color: var(--text3); margin-bottom: 16px; letter-spacing: 1.5px; }
+.m-bar { height: 1px; background: var(--border2); margin-top: 24px; overflow: hidden; width: 100%; }
+.m-bar-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 .inc .m-bar-fill { background: var(--green2); }
 .exp .m-bar-fill { background: var(--red2); }
 .bal .m-bar-fill { background: var(--gold2); }
-.cnt .m-bar-fill { background: #0A84FF; }
+.cnt .m-bar-fill { background: var(--blue); }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 300; color: var(--text); letter-spacing: -0.5px; white-space: nowrap; margin-bottom: 2px; }
+.m-sub { font-size: 11px; font-weight: 300; color: var(--text3); margin-top: 12px; }
 
-/* UKURAN AMAN DI DESKTOP */
-.m-val { 
-  font-family: 'JetBrains Mono', monospace; 
-  font-size: 22px; 
-  font-weight: 800; color: var(--text); 
-  letter-spacing: -0.5px; 
-  white-space: nowrap; 
-}
-.m-val.pos { color: var(--green2); } .m-val.neg { color: var(--red2); } .m-val.gold { color: var(--gold2); } .m-val.blue { color: #0A84FF; }
-.m-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 6px; }
-
-/* PANELS */
-.panel { display: grid; grid-template-columns: 420px 1fr; gap: 24px; margin-bottom: 24px; }
+/* PANELS & CARDS */
+.panel { display: grid; grid-template-columns: 400px 1fr; gap: 32px; margin-bottom: 32px; }
 .panel.wide { grid-template-columns: 1fr; }
-.card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-.card-head { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-.card-title { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: 0px; }
-.card-sub { font-size: 13px; font-weight: 600; color: var(--text3); margin-top: 4px; }
+.card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-float); }
+.card-head { padding: 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.card-title { font-size: 14px; font-weight: 400; color: var(--text); letter-spacing: 1px; text-transform: uppercase; }
 
 /* FORMS */
 .form-body { padding: 32px; }
-.type-toggle { display: flex; gap: 8px; margin-bottom: 24px; background: rgba(255,255,255,0.03); padding: 6px; border-radius: 20px; }
-body.light-mode .type-toggle { background: rgba(0,0,0,0.03); }
-.t-btn { flex: 1; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; background: transparent; color: var(--text3); transition: 0.2s; }
-.t-btn.income.active { background: var(--card); color: var(--green2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-.t-btn.expense.active { background: var(--card); color: var(--red2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-.form-row { margin-bottom: 20px; }
-.form-label { font-size: 12px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-row input, .form-row select, .form-row textarea { width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.02); color: var(--text); outline: none; transition: 0.3s; }
-body.light-mode .form-row input, body.light-mode .form-row select, body.light-mode .form-row textarea { background: rgba(0,0,0,0.02); }
-.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--gold2); background: var(--card); }
-.form-row textarea { height: 100px; resize: none; }
-.submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
-.submit-btn:active { transform: scale(0.96); }
+.type-toggle { display: flex; gap: 0; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+.t-btn { flex: 1; padding: 16px 0; border: none; border-bottom: 1px solid transparent; margin-bottom: -1px; font-size: 11px; font-weight: 400; cursor: pointer; background: transparent; color: var(--text3); transition: 0.4s; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+.t-btn.income.active { color: var(--text); border-bottom-color: var(--green2); }
+.t-btn.expense.active { color: var(--text); border-bottom-color: var(--red2); }
+.form-row { margin-bottom: 24px; }
+.form-label { font-size: 10px; font-weight: 400; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1.5px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; padding: 12px 0; font-size: 14px; font-weight: 300; font-family: 'Outfit', sans-serif; border: none; border-bottom: 1px solid var(--border2); background: transparent; color: var(--text); outline: none; transition: 0.4s; border-radius: 0; }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--gold2); padding-left: 8px; }
+.form-row select option { background: var(--card-solid); color: var(--text); }
+.form-row textarea { height: 60px; resize: none; }
+.submit-btn { width: 100%; padding: 16px; background: transparent; color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 11px; font-weight: 400; cursor: pointer; transition: 0.4s; margin-top: 16px; text-transform: uppercase; letter-spacing: 2px; }
+.submit-btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
 
 /* ==========================================================================
-   ULTIMATE FINTECH CARDS (MENGGANTIKAN TABEL KAKU)
+   HISTORY CARDS: KEMBALI 100% KE LAYOUT AWAL DENGAN WARNA TEMA BARU
    ========================================================================== */
-.list-wrap { padding: 12px 0 24px; }
+.list-wrap { padding: 16px 0 24px; }
 .recent-item {
   padding: 16px 24px;
-  margin: 0 24px 12px 24px; /* Memberi ruang antar kartu */
-  border-radius: 20px; /* Lengkungan modern ala Fintech */
-  background: rgba(255,255,255,0.02); /* Warna kartu super elegan */
-  border: 1px solid rgba(255,255,255,0.06); /* Border kaca keliling, BUKAN cuma garis bawah */
+  margin: 0 32px 12px 32px; 
+  border-radius: 20px; 
+  background: var(--bg2); 
+  border: 1px solid var(--border); 
   display: flex; align-items: center; justify-content: space-between;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-body.light-mode .recent-item {
-  background: #ffffff;
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-}
 @media (hover: hover) {
   .recent-item:hover {
-    transform: translateY(-3px) scale(1.01);
-    border-color: rgba(201,168,76,0.4);
-    background: rgba(255,255,255,0.04);
-  }
-  body.light-mode .recent-item:hover {
-    background: #fafafa;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+    border-color: var(--gold2);
+    background: var(--bg3);
   }
 }
 
 .ri-icon {
   width: 46px; height: 46px;
-  border-radius: 50%; /* Ikon Bulat Premium! */
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900;
+  font-size: 20px; font-weight: 700;
   margin-right: 16px; flex-shrink: 0;
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
 }
-.ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.15); border: 1px solid rgba(48, 209, 88, 0.3); }
-.ri-icon.exp { color: var(--red2); background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3); } 
+.ri-icon.inc { color: var(--green2); background: rgba(92, 168, 133, 0.15); border: 1px solid rgba(92, 168, 133, 0.3); }
+.ri-icon.exp { color: var(--red2); background: rgba(201, 108, 108, 0.15); border: 1px solid rgba(201, 108, 108, 0.3); } 
 
 .ri-left { display: flex; align-items: center; }
-.ri-note { font-size: 15px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
+.ri-note { font-size: 15px; font-weight: 500; color: var(--text); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ri-meta { font-size: 12px; font-weight: 300; color: var(--text3); }
 
 /* Badge Kategori Keren */
 .cat-badge {
-  font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 8px;
+  font-size: 9px; font-weight: 400; padding: 4px 8px; border-radius: 8px;
   background: var(--bg); border: 1px solid var(--border);
   color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase;
 }
-body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08); }
 
 .ri-right-wrap { display: flex; align-items: center; gap: 20px; }
 .ri-right { text-align: right; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; white-space: nowrap; }
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 400; white-space: nowrap; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
 
-/* Tombol Hapus */
+/* Tombol Hapus Kotak Merah Asli */
 .del-btn-recent {
-  background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.2);
+  background: rgba(201, 108, 108, 0.1); border: 1px solid rgba(201, 108, 108, 0.2);
   color: var(--red2); border-radius: 12px; width: 42px; height: 42px;
   display: flex; justify-content: center; align-items: center;
-  cursor: pointer; font-size: 16px; font-weight: 800; transition: 0.2s; flex-shrink: 0;
+  cursor: pointer; font-size: 16px; font-weight: 700; transition: 0.2s; flex-shrink: 0;
 }
 @media (hover: hover) { .del-btn-recent:hover { background: var(--red2); color: #fff; transform: rotate(90deg); } }
 
-/* EMPTY ICON ASLI */
-.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; font-family: sans-serif; }
+/* EMPTY STATE */
+.empty { padding: 60px; text-align: center; color: var(--text3); font-size: 13px; font-weight: 300; letter-spacing: 1px; }
+.empty-icon { font-size: 24px; margin-bottom: 16px; opacity: 0.2; font-family: 'Outfit'; font-weight: 200; }
 
 /* SUMMARY GRID */
-.sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-bottom: 1px solid var(--border); gap: 1px; }
-.sum-item { padding: 24px; background: var(--card); text-align: left; }
-.sum-label { font-size: 12px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; white-space: nowrap; }
+.sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+.sum-item { padding: 32px; border-right: 1px solid var(--border); }
+.sum-item:last-child { border-right: none; }
+.sum-label { font-size: 10px; font-weight: 400; color: var(--text3); text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1.5px; }
+.sum-val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 300; white-space: nowrap; }
+.a-pos { color: var(--text); } .a-neg { color: var(--text2); }
 
 /* CHARTS & FILTERS */
-.chart-wrap { padding: 32px; }
-.chart-legend { display: flex; justify-content: flex-end; gap: 24px; margin-bottom: 24px; }
-.leg-item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: var(--text3); text-transform: uppercase; }
-.leg-dot { width: 12px; height: 12px; border-radius: 4px; }
-.period-bar, .filter-bar { display: flex; gap: 12px; padding: 24px 32px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-.p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text); white-space: nowrap; transition: 0.2s; }
-.p-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
-.filter-bar select, .filter-bar input { padding: 14px 20px; font-size: 15px; font-weight: 600; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--text); outline: none; font-family: 'Outfit', sans-serif; }
+.chart-wrap { padding: 40px; }
+.chart-legend { display: flex; justify-content: flex-end; gap: 32px; margin-bottom: 32px; }
+.leg-item { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 400; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.leg-dot { width: 8px; height: 1px; }
+.period-bar, .filter-bar { display: flex; gap: 16px; padding: 24px 32px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.p-btn { padding: 8px 16px; border: 1px solid var(--border2); border-radius: 100px; font-size: 11px; font-weight: 300; cursor: pointer; background: transparent; color: var(--text3); white-space: nowrap; transition: 0.4s; letter-spacing: 1px; }
+.p-btn.active { border-color: var(--text); color: var(--text); }
+.filter-bar select, .filter-bar input { padding: 12px 0; font-size: 13px; font-weight: 300; border: none; border-bottom: 1px solid var(--border2); background: transparent; color: var(--text); outline: none; font-family: 'Outfit', sans-serif; border-radius: 0; }
 .filter-bar input { width: 280px; }
 .filter-bar select:focus, .filter-bar input:focus { border-color: var(--gold2); }
-.empty { padding: 80px; text-align: center; color: var(--text3); font-size: 15px; font-weight: 600; background: var(--card); }
 
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 6px; height: 6px; } 
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+/* SCROLLBAR - INVISIBLE */
+::-webkit-scrollbar { width: 0px; height: 0px; } 
 
 /* ==========================================================================
    MOBILE RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
-  
-  .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
-  .nav-ext-btn { font-size: 11px; }
-
-  /* FIX HEADER LAYOUT */
-  .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; border-bottom: none; }
-  .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 16px; gap: 16px; }
+  .topbar { padding: 20px; flex-direction: column; align-items: flex-start; gap: 24px; }
+  .topbar-right { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
   .live-clock { display: none; }
-  .usd-rate-box .lbl { display: none; }
+  .user-info { width: 100%; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 8px; }
+  .nav { padding: 20px 20px 0; margin: 0; gap: 24px; }
+  .main { padding: 20px 20px 90px; }
+  .metrics { grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+  .m-card { padding: 24px; border-radius: var(--radius-sm); }
+  .panel { grid-template-columns: 1fr; gap: 24px; }
+  .card { border-radius: var(--radius-sm); }
+  .card-head { padding: 24px; }
+  .form-body { padding: 24px; }
   
-  /* BALANCE MENGHILANGKAN KOSONG DI SEBELAH TERSINKRON */
-  .top-stats-row { width: 100%; justify-content: space-between; gap: 12px; }
-  .usd-rate-box, .sync-wrapper { flex: 1; justify-content: center; height: 38px; border-radius: 12px; }
+  /* HISTORY MOBILE FIX */
+  .list-wrap { padding: 12px 0 20px; }
+  .recent-item { margin: 0 16px 12px 16px; padding: 16px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .ri-right-wrap { width: 100%; justify-content: space-between; flex-direction: row-reverse; }
+  .ri-right { text-align: left; }
+  .del-btn-recent { opacity: 1; font-size: 16px; width: 36px; height: 36px; }
   
-  /* BIKIN BAR PROFIL 100% WIDTH DENGAN BACKGROUND (ANTI KOPONG) */
-  .user-info { 
-    width: 100%; 
-    border-left: none; 
-    padding: 12px 16px; 
-    gap: 10px;
-    background: rgba(255,255,255,0.02); 
-    border-radius: 16px; 
-    border: 1px solid var(--border);
-    margin-top: 4px;
-    justify-content: flex-start;
-  }
-  body.light-mode .user-info { background: rgba(0,0,0,0.02); }
-  .user-info button:last-child { margin-left: auto !important; }
-  .logout-btn { padding: 6px 14px; font-size: 11px; }
-  .user-name { max-width: 100px !important; }
-  
-  .nav { padding: 0 16px 16px 16px; margin: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start; }
-  .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 16px; font-size: 11px; border: 1px solid var(--border); }
-
-  .main { padding: 0; padding-bottom: 90px; }
-  
-  .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px 24px 16px; margin: 0; }
-  .m-card { padding: 16px 12px; border-radius: 16px; flex: none; }
-  .m-val { font-size: 15px; } 
-  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .m-sub { font-size: 10px; margin-top: 4px; }
-  .m-bar { margin-top: 8px; }
-  
-  .panel { grid-template-columns: 1fr; gap: 0; }
-  .card { border-radius: 0; border-left: none; border-right: none; margin-bottom: 16px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .card-head { padding: 16px; }
-  .form-body { padding: 0 16px 20px; }
-  
-  /* PENGATURAN KARTU RIWAYAT DI HP */
-  .list-wrap { padding: 8px 0 16px 0; }
-  .recent-item { margin: 0 16px 12px 16px; padding: 16px; border-radius: 16px; }
-  .ri-icon { width: 40px; height: 40px; font-size: 16px; margin-right: 12px; }
-  .ri-note { font-size: 13px; gap: 6px; margin-bottom: 4px; }
-  .cat-badge { font-size: 8px; padding: 3px 6px; }
-  .ri-meta { font-size: 11px; }
-  .ri-amount { font-size: 15px; }
-  .ri-right-wrap { gap: 12px; }
-  .del-btn-recent { width: 36px; height: 36px; font-size: 14px; border-radius: 10px; }
-  
-  .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
-  .filter-bar input, .filter-bar select { width: 100%; flex: 0 0 80%; scroll-snap-align: start; }
-  .sum-grid { grid-template-columns: 1fr; gap: 0; padding: 0 16px 20px; background: var(--card); }
-  .sum-item { padding: 16px 0; border-bottom: 1px solid var(--border); background: var(--card); }
+  .sum-grid { grid-template-columns: 1fr; }
+  .sum-item { border-right: none; border-bottom: 1px solid var(--border); padding: 24px; }
   .sum-item:last-child { border-bottom: none; }
+  .chart-wrap { padding: 24px 16px; }
 }
 </style>
 </head>
 <body>
 
 <div class="top-ext-links">
-  <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 Halaman Rhn Capital ↗</button>
-  <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
-  <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 Jurnal Aset ↗</button>
+  <button class="nav-ext-btn" onclick="window.location.href='latar.html'">Halaman Utama</button>
+  <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">Jurnal Forex</button>
+  <button class="nav-ext-btn" onclick="window.location.href='aset.html'">Jurnal Aset</button>
 </div>
 
 <div id="auth-screen">
@@ -416,7 +363,7 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <div class="auth-logo">
       <img src="RHN LOGO.jpg" class="auth-emblem" alt="RHN Capital Logo">
       <div class="auth-title">RHN CAPITAL</div>
-      <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
+      <div class="auth-sub">Wealth Management Portal</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
@@ -425,19 +372,19 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <div id="auth-err" class="auth-err"></div>
     <div class="auth-field">
       <label>Email</label>
-      <input type="email" id="auth-email" placeholder="email@contoh.com" autocomplete="email">
+      <input type="email" id="auth-email" placeholder="Email terdaftar" autocomplete="email">
     </div>
     <div class="auth-field">
       <label>Sandi</label>
-      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="auth-pass" placeholder="Kata sandi" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
     <div class="auth-field" id="field-confirm" style="display:none">
       <label>Konfirmasi Sandi</label>
-      <input type="password" id="auth-pass2" placeholder="••••••••" autocomplete="new-password">
+      <input type="password" id="auth-pass2" placeholder="Ulangi kata sandi" autocomplete="new-password">
     </div>
-    <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">Masuk</button>
+    <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">Autentikasi</button>
     <div class="auth-footer">
-      Data tersimpan aman di Firebase.
+      Secured by Firebase
     </div>
   </div>
 </div>
@@ -448,18 +395,18 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <img src="RHN LOGO.jpg" class="logo-emblem" alt="RHN Capital Logo">
     <div>
       <div class="logo-name">RHN CAPITAL</div>
-      <div class="logo-tagline">Arus Keuangan</div>
+      <div class="logo-tagline">Private Financial Flow</div>
     </div>
   </div>
   <div class="topbar-right">
     
     <div class="top-stats-row">
       <div class="usd-rate-box">
-        <span class="lbl">USD</span>
+        <span class="lbl">USD/IDR</span>
         <span id="usd-rate-val" class="val">...</span>
       </div>
       <div class="sync-wrapper">
-        <span class="sync-dot" id="sync-dot"></span>
+        <span class="sync-dot" id="sync-dot" style="background: var(--text3);"></span>
         <span class="sync-label" id="sync-label">Menghubungkan...</span>
       </div>
     </div>
@@ -469,21 +416,21 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
       <div class="date" id="live-date">-</div>
     </div>
     <div class="user-info">
-      <button id="theme-toggle" class="logout-btn" onclick="toggleTheme()" title="Ganti Tema" style="padding:4px 8px; font-size:14px; border-radius:6px; color:var(--gold2);">🌙</button>
+      <button id="theme-toggle" onclick="toggleTheme()" title="Switch Theme">◎</button>
       <div class="user-avatar" id="user-avatar">?</div>
-      <div class="user-name" id="user-name" style="font-size:13px; font-weight:700; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">-</div>
-      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+      <div class="user-name" id="user-name" style="font-size:12px; font-weight:300; letter-spacing:1px; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">-</div>
+      <button class="logout-btn" onclick="doLogout()">Akses Keluar</button>
     </div>
   </div>
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" onclick="switchPage('dashboard')">Dashboard</button>
+  <button class="nav-btn active" onclick="switchPage('dashboard')">Ringkasan</button>
   <button class="nav-btn" onclick="switchPage('harian')">Harian</button>
   <button class="nav-btn" onclick="switchPage('mingguan')">Mingguan</button>
   <button class="nav-btn" onclick="switchPage('bulanan')">Bulanan</button>
   <button class="nav-btn" onclick="switchPage('tahunan')">Tahunan</button>
-  <button class="nav-btn" onclick="switchPage('riwayat')">Semua Riwayat</button>
+  <button class="nav-btn" onclick="switchPage('riwayat')">Arsip Riwayat</button>
 </div>
 
 <div class="main">
@@ -493,34 +440,34 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
   <div class="panel">
     <div class="card">
       <div class="card-head">
-        <div><div class="card-title">Tambah Transaksi</div><div class="card-sub">Catat pemasukan atau pengeluaran baru</div></div>
+        <div><div class="card-title">Pencatatan</div><div class="card-sub">Entri data arus keuangan baru</div></div>
       </div>
       <div class="form-body">
         <div class="type-toggle">
-          <div class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</div>
-          <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">− Pengeluaran</div>
+          <div class="t-btn income active" id="btn-inc" onclick="selType('income')">Pemasukan</div>
+          <div class="t-btn expense" id="btn-exp" onclick="selType('expense')">Pengeluaran</div>
         </div>
-        <div class="form-row"><label class="form-label">Jumlah (Rp)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
+        <div class="form-row"><label class="form-label">Nominal (IDR)</label><input type="number" id="f-amount" placeholder="0" min="0"></div>
         <div class="form-row"><label class="form-label">Kategori</label><select id="f-cat"><option value="">Pilih kategori...</option></select></div>
-        <div class="form-row"><label class="form-label">Keterangan</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
-        <div class="form-row"><label class="form-label">Tanggal &amp; Jam</label><input type="datetime-local" id="f-date"></div>
-        <button class="submit-btn" id="save-btn" onclick="addTx()">Simpan Transaksi</button>
+        <div class="form-row"><label class="form-label">Deskripsi</label><textarea id="f-note" placeholder="Catatan transaksi..."></textarea></div>
+        <div class="form-row"><label class="form-label">Waktu Eksekusi</label><input type="datetime-local" id="f-date"></div>
+        <button class="submit-btn" id="save-btn" onclick="addTx()">Simpan Rekaman</button>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">Transaksi Terbaru</div></div>
-      <div id="recent-list" class="list-wrap" style="max-height:450px;overflow-y:auto"></div>
+      <div class="card-head"><div class="card-title">Aktivitas Terakhir</div></div>
+      <div id="recent-list" class="list-wrap" style="max-height:550px;overflow-y:auto"></div>
     </div>
   </div>
   <div class="card panel wide" style="margin-bottom:0">
     <div class="card-head">
-      <div class="card-title">Grafik Arus Keuangan — 30 Hari Terakhir</div>
+      <div class="card-title">Grafik Arus Keuangan (30 Hari)</div>
       <div class="chart-legend">
-        <div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
       </div>
     </div>
-    <div class="chart-wrap"><div style="position:relative;height:240px"><canvas id="chartMain"></canvas></div></div>
+    <div class="chart-wrap"><div style="position:relative;height:300px"><canvas id="chartMain"></canvas></div></div>
   </div>
 </div>
 
@@ -528,7 +475,7 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
   <div class="card">
     <div class="card-head">
       <div class="card-title">Laporan Harian</div>
-      <input type="date" id="pick-daily" onchange="renderDaily()" style="padding:10px 16px;font-size:14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:'Outfit',sans-serif;outline:none;">
+      <input type="date" id="pick-daily" onchange="renderDaily()" style="padding:8px 0;font-size:13px;border:none;border-bottom:1px solid var(--border2);background:transparent;color:var(--text);font-family:'Outfit',sans-serif;outline:none;font-weight:300;">
     </div>
     <div class="sum-grid" id="daily-sum"></div>
     <div class="list-wrap" id="daily-body"></div>
@@ -541,8 +488,8 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <div class="period-bar" id="week-sel"></div>
     <div class="sum-grid" id="week-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:240px"><canvas id="chartWeek"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:300px"><canvas id="chartWeek"></canvas></div>
     </div>
     <div class="list-wrap" id="week-body"></div>
   </div>
@@ -554,8 +501,8 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <div class="period-bar" id="month-sel"></div>
     <div class="sum-grid" id="month-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:240px"><canvas id="chartMonth"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:300px"><canvas id="chartMonth"></canvas></div>
     </div>
     <div class="list-wrap" id="month-body"></div>
   </div>
@@ -567,8 +514,8 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
     <div class="period-bar" id="year-sel"></div>
     <div class="sum-grid" id="year-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:240px"><canvas id="chartYear"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:300px"><canvas id="chartYear"></canvas></div>
     </div>
     <div class="list-wrap" id="year-body"></div>
   </div>
@@ -576,10 +523,10 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
 
 <div id="page-riwayat" class="page">
   <div class="card">
-    <div class="card-head"><div class="card-title">Semua Riwayat Transaksi</div></div>
+    <div class="card-head"><div class="card-title">Arsip Riwayat Keseluruhan</div></div>
     <div class="filter-bar">
-      <select id="flt-type" onchange="renderAll()"><option value="">Semua Tipe</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
-      <input type="text" id="flt-search" placeholder="Cari keterangan / kategori..." oninput="renderAll()">
+      <select id="flt-type" onchange="renderAll()"><option value="">Semua Filter</option><option value="income">Pemasukan Saja</option><option value="expense">Pengeluaran Saja</option></select>
+      <input type="text" id="flt-search" placeholder="Pencarian spesifik..." oninput="renderAll()">
     </div>
     <div class="sum-grid" id="all-sum"></div>
     <div class="list-wrap" id="all-body"></div>
@@ -587,17 +534,17 @@ body.light-mode .cat-badge { background: #F2F2F7; border-color: rgba(0,0,0,0.08)
 </div>
 
 </div></div><script type="module">
-// TEMA - Default Dark Mode (FIX SINKRONISASI GRAFIK DAN TEKS)
+// TEMA
 window.toggleTheme = function() {
   document.body.classList.toggle('light-mode');
   const isLight = document.body.classList.contains('light-mode');
-  document.getElementById('theme-toggle').textContent = isLight ? '🌙' : '☀️';
+  document.getElementById('theme-toggle').textContent = isLight ? '◉' : '◎';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   refreshAll(); 
 };
 if(localStorage.getItem('theme') === 'light') {
   document.body.classList.add('light-mode');
-  document.getElementById('theme-toggle').textContent = '🌙';
+  document.getElementById('theme-toggle').textContent = '◉';
 }
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -648,9 +595,8 @@ function initLiveUSD() {
           currentUSDRate = newPrice;
           const rateEl = document.getElementById('usd-rate-val');
           rateEl.textContent = kursIndo.format(currentUSDRate);
-          rateEl.style.color = '#25c584';
-          rateEl.style.fontWeight = '700';
-          setTimeout(() => { rateEl.style.color = 'var(--text)'; rateEl.style.fontWeight = '800'; }, 150);
+          rateEl.style.color = 'var(--gold2)';
+          setTimeout(() => { rateEl.style.color = 'var(--text)'; }, 300);
           refreshAll();
       }
   });
@@ -677,11 +623,11 @@ function hideErr(){ document.getElementById('auth-err').style.display='none' }
 function setLoading(on){
   const btn=document.getElementById('auth-submit-btn');
   btn.disabled=on;
-  btn.textContent=on?'Memuat...':(authMode==='login'?'Masuk':'Daftar');
+  btn.textContent=on?'Memproses...':(authMode==='login'?'Autentikasi':'Daftar');
 }
 function setSyncStatus(ok){
-  document.getElementById('sync-dot').style.background=ok?'#25c584':'#d94f4f';
-  document.getElementById('sync-label').textContent=ok?'Tersinkron':'Offline';
+  document.getElementById('sync-dot').style.background=ok?'var(--green2)':'var(--red2)';
+  document.getElementById('sync-label').textContent=ok?'Terhubung':'Offline';
 }
 
 window.switchTab=function(mode){
@@ -689,7 +635,7 @@ window.switchTab=function(mode){
   document.getElementById('tab-login').classList.toggle('active',mode==='login');
   document.getElementById('tab-register').classList.toggle('active',mode==='register');
   document.getElementById('field-confirm').style.display=mode==='register'?'block':'none';
-  document.getElementById('auth-submit-btn').textContent=mode==='login'?'Masuk':'Daftar';
+  document.getElementById('auth-submit-btn').textContent=mode==='login'?'Autentikasi':'Daftar';
   hideErr();
 };
 
@@ -697,19 +643,19 @@ window.doAuth=async function(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
   hideErr();
-  if(!email||!pass){showErr('Email dan sandi tidak boleh kosong.');return}
+  if(!email||!pass){showErr('Kredensial tidak boleh kosong.');return}
   setLoading(true);
   try{
     if(authMode==='login'){
       await signInWithEmailAndPassword(auth,email,pass);
     } else {
       const pass2=document.getElementById('auth-pass2').value;
-      if(pass!==pass2){showErr('Sandi tidak cocok.');setLoading(false);return}
-      if(pass.length<6){showErr('Sandi minimal 6 karakter.');setLoading(false);return}
+      if(pass!==pass2){showErr('Kata sandi tidak cocok.');setLoading(false);return}
+      if(pass.length<6){showErr('Kata sandi minimal 6 karakter.');setLoading(false);return}
       await createUserWithEmailAndPassword(auth,email,pass);
     }
   } catch(e){
-    const msgs={'auth/user-not-found':'Email tidak terdaftar.','auth/wrong-password':'Sandi salah.','auth/invalid-email':'Format email tidak valid.','auth/email-already-in-use':'Email sudah terdaftar.','auth/invalid-credential':'Email atau sandi salah.','auth/too-many-requests':'Terlalu banyak percobaan.'};
+    const msgs={'auth/user-not-found':'Akun tidak ditemukan.','auth/wrong-password':'Kredensial salah.','auth/invalid-email':'Format tidak valid.','auth/email-already-in-use':'Email terdaftar.','auth/invalid-credential':'Kredensial salah.','auth/too-many-requests':'Akses dibatasi sementara.'};
     showErr(msgs[e.code]||'Error: '+e.message);
     setLoading(false);
   }
@@ -768,11 +714,11 @@ window.addTx=async function(){
     document.getElementById('f-note').value='';
     document.getElementById('f-date').value=nowISO();
   } catch(e){alert('Gagal menyimpan: '+e.message);}
-  btn.disabled=false;btn.textContent='Simpan Transaksi';
+  btn.disabled=false;btn.textContent='Simpan Rekaman';
 };
 
 window.delTx=async function(id){
-  if(!currentUser||!confirm('Hapus transaksi ini?'))return;
+  if(!currentUser||!confirm('Hapus entri riwayat ini secara permanen?'))return;
   try{await deleteDoc(doc(db,'users',currentUser.uid,'transactions',id));}
   catch(e){alert('Gagal menghapus: '+e.message);}
 };
@@ -811,13 +757,13 @@ function calcSum(arr){
 function renderSumGrid(el,arr){
   const s=calcSum(arr);
   el.innerHTML=`
-    <div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}</div><div style="margin-top:2px;">${fmtUSD(s.inc)}</div></div>
-    <div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}</div><div style="margin-top:2px;">${fmtUSD(s.exp)}</div></div>
-    <div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:2px;">${fmtUSD(s.bal)}</div></div>`;
+    <div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}</div><div style="margin-top:8px;">${fmtUSD(s.inc)}</div></div>
+    <div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}</div><div style="margin-top:8px;">${fmtUSD(s.exp)}</div></div>
+    <div class="sum-item"><div class="sum-label">Arus Kas Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}</div><div style="margin-top:8px;">${fmtUSD(s.bal)}</div></div>`;
 }
 
 /* ==========================================================================
-   FUNGSI RENDER LIST MODERN (MENGGANTIKAN SEMUA FUNGSI TABEL)
+   FUNGSI RENDER LIST (ORIGINAL LAYOUT CARD)
    ========================================================================== */
 const createTxCard = (t, full) => `
   <div class="recent-item">
@@ -836,7 +782,7 @@ const createTxCard = (t, full) => `
         <div class="ri-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
         <div>${fmtUSD(t.amount)}</div>
       </div>
-      <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Transaksi">✕</button>
+      <button class="del-btn-recent" onclick="delTx('${t.id}')" title="Hapus Entri">✕</button>
     </div>
   </div>
 `;
@@ -844,7 +790,7 @@ const createTxCard = (t, full) => `
 function renderList(container, arr, full) {
   if(!container) return;
   if(!arr.length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>`;
+    container.innerHTML = `<div class="empty"><div class="empty-icon">/</div>Tidak ada entri riwayat pada periode ini.</div>`;
     return;
   }
   container.innerHTML = arr.map(t => createTxCard(t, full)).join('');
@@ -855,15 +801,17 @@ function mkChart(id,labels,incData,expData){
   if(charts[id]){charts[id].destroy();delete charts[id]}
   const c=document.getElementById(id);if(!c)return;
   const isLight = document.body.classList.contains('light-mode');
-  const textColor = isLight ? '#3A3A3C' : '#8E8E93';
-  const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+  const textColor = isLight ? '#8C8C96' : 'rgba(255,255,255,0.4)';
+  const gridColor = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)';
+  const cInc = isLight ? '#468E6B' : '#5CA885';
+  const cExp = isLight ? '#B55858' : '#C96C6C';
   
-  charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[
-    {label:'Pemasukan',data:incData,backgroundColor:'rgba(48,209,88,0.8)',borderRadius:4,borderSkipped:false},
-    {label:'Pengeluaran',data:expData,backgroundColor:'rgba(255,69,58,0.75)',borderRadius:4,borderSkipped:false}
+  charts[id]=new Chart(c,{type:'line',data:{labels,datasets:[
+    {label:'Pemasukan',data:incData,borderColor:cInc,backgroundColor:'transparent',borderWidth:2,tension:0.4,pointRadius:0},
+    {label:'Pengeluaran',data:expData,borderColor:cExp,backgroundColor:'transparent',borderWidth:2,tension:0.4,pointRadius:0}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-    x:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'}},grid:{display:false},border:{display:false}},
-    y:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:gridColor,drawBorder:false},border:{display:false}}
+    x:{ticks:{color:textColor,font:{size:10,family:"'Outfit',sans-serif",weight:'300'}},grid:{display:false},border:{display:false}},
+    y:{ticks:{color:textColor,font:{size:10,family:"'JetBrains Mono',monospace",weight:'300'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:gridColor,drawBorder:false},border:{display:false}}
   }}});
 }
 
@@ -872,15 +820,14 @@ function renderMetrics(){
   const ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString()));
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
   document.getElementById('metric-cards').innerHTML=`
-    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}</div><div>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
-    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}</div><div>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
-    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val gold">${fmt(s.bal)}</div><div>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
-    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div style="height:19px;line-height:19px;" class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
+    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}</div><div>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} Entri Transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
+    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}</div><div>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% Rasio dari Pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
+    <div class="m-card bal"><div class="m-label">Arus Kas Bersih</div><div class="m-val">${fmt(s.bal)}</div><div>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Status: Surplus':'Status: Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
+    <div class="m-card cnt"><div class="m-label">Aktivitas Hari Ini</div><div class="m-val">${ts.count} Entri</div><div style="height:15px;line-height:15px; font-family:'JetBrains Mono', monospace;" class="m-sub">${ts.inc>0?fmt(ts.inc):'--'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
 }
 
-/* RENDER RECENT MENGGUNAKAN FUNGSI LIST BARU */
 function renderRecent(){
-  renderList(document.getElementById('recent-list'), txs.slice(0,10), true);
+  renderList(document.getElementById('recent-list'), txs.slice(0,15), true);
 }
 
 function renderMainChart(){
