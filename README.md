@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ==========================================================================
-   PEAK NATIVE-APP UI: OLED FINTECH EDITION (NAVIGASI NORMAL DI ATAS)
+   PEAK NATIVE-APP UI: OLED FINTECH EDITION + ORIGINAL RHN CONTENT 100%
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap');
 
@@ -54,7 +54,7 @@ body {
 /* TOP EXTERNAL LINKS */
 .top-ext-links {
   display: flex; justify-content: flex-end; gap: 24px; padding: 12px 32px;
-  background: var(--bg); border-bottom: 1px solid var(--border);
+  background: var(--navy); border-bottom: 1px solid var(--border);
 }
 .nav-ext-btn {
   background: transparent; border: none; color: var(--gold2);
@@ -65,9 +65,23 @@ body {
 
 /* USD MINI WIDGET */
 .usd-inline {
-  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3);
+  font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3);
   margin-left: 6px; font-weight: 800; padding: 2px 8px;
   background: var(--border); border-radius: 6px; letter-spacing: -0.5px;
+}
+
+/* ===== LOGO EMBLEM ASLI RHN ===== */
+.auth-emblem {
+  width: 64px; height: 64px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 900; color: var(--gold2);
+  font-family: 'JetBrains Mono', monospace; margin-bottom: 16px;
+  box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1);
+}
+.logo-emblem {
+  width: 44px; height: 44px; border-radius: 12px; background: rgba(201,168,76,0.12); border: 1.5px solid rgba(201,168,76,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900; color: var(--gold2); font-family: 'JetBrains Mono', monospace;
 }
 
 /* ===== AUTH SCREEN ===== */
@@ -82,10 +96,6 @@ body {
   text-align: center; margin: 20px;
 }
 .auth-logo { margin-bottom: 32px; }
-.auth-img {
-  width: 80px; height: 80px; border-radius: 20px; object-fit: cover;
-  box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1); margin-bottom: 16px; border: 1px solid var(--border);
-}
 .auth-title { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
 .auth-sub { font-size: 14px; color: var(--text3); font-weight: 500; }
 .auth-tabs { display: flex; background: var(--bg); border-radius: 14px; padding: 4px; margin-bottom: 32px; }
@@ -124,20 +134,19 @@ body.light-mode .auth-field input { background: rgba(0,0,0,0.03); }
 }
 body.light-mode .topbar { background: rgba(255, 255, 255, 0.8); }
 .logo { display: flex; align-items: center; gap: 16px; }
-.logo-img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); }
 .logo-name { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; line-height: 1.2; }
 .logo-tagline { font-size: 11px; font-weight: 800; color: var(--gold2); text-transform: uppercase; letter-spacing: 1px; }
 
 .topbar-right { display: flex; align-items: center; gap: 24px; }
-.usd-rate-box { display: flex; align-items: center; gap: 8px; }
-.usd-rate-box .lbl { font-size: 12px; color: var(--text3); font-weight: 800; }
-.usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--text); }
+.usd-rate-box { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,168,76,0.2); }
+.usd-rate-box .lbl { font-size: 11px; color: var(--gold2); font-weight: 800; }
+.usd-rate-box .val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); transition: color 0.2s ease; }
 
 .live-clock { text-align: right; }
 .live-clock .time { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; color: var(--text); }
 .live-clock .date { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
-.user-info { display: flex; align-items: center; gap: 12px; border-left: 1px solid var(--border); padding-left: 24px; }
-.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gold2); font-weight: 800; color: #000; display: flex; justify-content: center; align-items: center; }
+.user-info { display: flex; align-items: center; gap: 10px; border-left: 1px solid var(--border); padding-left: 24px; }
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(201,168,76,0.2); border: 1.5px solid rgba(201,168,76,0.4); font-weight: 800; color: var(--gold2); display: flex; justify-content: center; align-items: center; }
 .logout-btn { background: var(--card); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; color: var(--text); text-transform: uppercase; }
 .logout-btn:hover { border-color: var(--red2); color: var(--red2); }
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 10px currentColor; }
@@ -164,7 +173,7 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* METRICS CARDS (FIX ANGKA TIDAK PATAH) */
+/* METRICS CARDS (FIX ANGKA & PROGRESS BAR ASLI) */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
 .m-card {
   background: var(--card); border-radius: var(--radius); padding: 28px;
@@ -173,6 +182,16 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .m-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .m-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; letter-spacing: 1px; }
 
+/* PROGRESS BAR KEMBALI */
+.m-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+body.light-mode .m-bar { background: rgba(0,0,0,0.05); }
+.m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.inc .m-bar-fill { background: var(--green2); }
+.exp .m-bar-fill { background: var(--red2); }
+.bal .m-bar-fill { background: var(--gold2); }
+.cnt .m-bar-fill { background: #0A84FF; }
+
+/* FIXED WHITE-SPACE NOWRAP */
 .m-val { 
   font-family: 'JetBrains Mono', monospace; 
   font-size: 26px; 
@@ -211,19 +230,20 @@ body.light-mode .form-row input, body.light-mode .form-row select, body.light-mo
 .submit-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 8px; text-transform: uppercase; }
 .submit-btn:active { transform: scale(0.96); }
 
-/* RECENT ITEMS */
+/* RECENT ITEMS (KEMBALI KE ASLI RHN: ↑ ↓) */
 .recent-item { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .recent-item:last-child { border-bottom: none; }
-.ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; }
-.ri-icon.inc { color: var(--green2); }
-.ri-icon.exp { color: var(--text); } 
+.ri-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; margin-right: 16px; border-radius: 8px; }
+.ri-icon.inc { color: var(--green2); background: rgba(48, 209, 88, 0.1); }
+.ri-icon.exp { color: var(--red2); background: rgba(255, 69, 58, 0.1); } 
 .ri-left { display: flex; align-items: center; }
 .ri-note { font-size: 14px; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 4px; }
 .ri-meta { font-size: 12px; font-weight: 600; color: var(--text3); }
 .ri-right { text-align: right; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; }
+.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.ri-amount::-webkit-scrollbar { display: none; }
 .ri-amount.pos { color: var(--green2); } .ri-amount.neg { color: var(--red2); }
-.del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 11px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
+.del-btn { background: transparent; border: none; color: var(--red2); cursor: pointer; font-size: 14px; font-weight: 800; margin-top: 4px; opacity: 0.5; transition: 0.2s; text-transform: uppercase; }
 .recent-item:hover .del-btn { opacity: 1; }
 
 /* THE MAGIC: TABLES (TIDAK PUTIH LAGI) */
@@ -243,6 +263,9 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 .badge.income { background: rgba(48, 209, 88, 0.15); color: var(--green2); border: 1px solid rgba(48, 209, 88, 0.3); }
 .badge.expense { background: rgba(255, 69, 58, 0.15); color: var(--red2); border: 1px solid rgba(255, 69, 58, 0.3); }
 .a-pos { color: var(--green2); } .a-neg { color: var(--red2); }
+
+/* EMPTY ICON ASLI */
+.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; font-family: sans-serif; }
 
 /* SUMMARY GRID */
 .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-bottom: 1px solid var(--border); gap: 1px; }
@@ -277,13 +300,13 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   
   .top-ext-links { justify-content: center; padding: 12px; }
   .topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
-  .topbar-right { width: 100%; justify-content: space-between; }
-  .live-clock, .sync-label, .user-info { display: none; }
+  .topbar-right { width: 100%; justify-content: space-between; gap: 4px; }
+  .live-clock { display: none; }
+  .user-info { gap: 8px; }
+  .usd-rate-box .lbl { display: none; }
   
-  /* NAV KEMBALI KE ATAS NORMAL */
   .nav {
-    padding: 0 20px 16px 20px;
-    margin: 0;
+    padding: 0 20px 16px 20px; margin: 0;
     display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start;
   }
   .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 18px; font-size: 12px; border: 1px solid var(--border); }
@@ -310,7 +333,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none; } 
   table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 16px !important; white-space: nowrap; } 
   table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -24px; } 
-  .del-btn { padding: 4px; opacity: 1; font-size: 12px; }
+  .del-btn { padding: 4px; opacity: 1; font-size: 16px !important; }
   
   .recent-item { padding: 16px 20px; }
   .period-bar, .filter-bar { padding: 16px 20px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
@@ -332,7 +355,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <img src="RHN LOGO.jpg" class="auth-img" alt="RHN Capital Logo">
+      <div class="auth-emblem">R</div>
       <div class="auth-title">RHN CAPITAL</div>
       <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
     </div>
@@ -363,7 +386,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="app-screen">
 <div class="topbar">
   <div class="logo">
-    <img src="RHN LOGO.jpg" class="logo-img" alt="RHN Capital Logo">
+    <div class="logo-emblem">R</div>
     <div>
       <div class="logo-name">RHN CAPITAL</div>
       <div class="logo-tagline">Arus Keuangan</div>
@@ -375,7 +398,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <span id="usd-rate-val" class="val">...</span>
     </div>
 
-    <div style="display:flex;align-items:center;gap:6px; border-left: 1px solid var(--border); padding-left: 24px;">
+    <div style="display:flex;align-items:center;gap:6px">
       <span class="sync-dot" id="sync-dot"></span>
       <span class="sync-label" id="sync-label">Menghubungkan...</span>
     </div>
@@ -384,8 +407,9 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
       <div class="date" id="live-date">-</div>
     </div>
     <div class="user-info">
-      <button id="theme-toggle" class="logout-btn" onclick="toggleTheme()" title="Ganti Tema" style="background:transparent; border:none; font-size:18px; padding:0;">☀️</button>
+      <button id="theme-toggle" class="logout-btn" onclick="toggleTheme()" title="Ganti Tema" style="padding:4px 8px; font-size:14px; border-radius:6px; color:var(--gold2);">🌙</button>
       <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-name" id="user-name" style="font-size:13px; font-weight:700; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">-</div>
       <button class="logout-btn" onclick="doLogout()">Keluar</button>
     </div>
   </div>
@@ -423,18 +447,18 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     </div>
     <div class="card">
       <div class="card-head"><div class="card-title">Transaksi Terbaru</div></div>
-      <div id="recent-list" style="max-height:500px;overflow-y:auto"></div>
+      <div id="recent-list" style="max-height:420px;overflow-y:auto"></div>
     </div>
   </div>
   <div class="card panel wide" style="margin-bottom:0">
     <div class="card-head">
       <div class="card-title">Grafik Arus Keuangan — 30 Hari Terakhir</div>
       <div class="chart-legend">
-        <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
-        <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div>
       </div>
     </div>
-    <div class="chart-wrap"><div style="position:relative;height:300px"><canvas id="chartMain"></canvas></div></div>
+    <div class="chart-wrap"><div style="position:relative;height:240px"><canvas id="chartMain"></canvas></div></div>
   </div>
 </div>
 
@@ -442,7 +466,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   <div class="card">
     <div class="card-head">
       <div class="card-title">Laporan Harian</div>
-      <input type="date" id="pick-daily" onchange="renderDaily()" style="padding:12px 20px;font-size:15px;font-weight:700;border:1px solid var(--border);border-radius:14px;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;outline:none;">
+      <input type="date" id="pick-daily" onchange="renderDaily()" style="padding:10px 16px;font-size:14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-family:'Outfit',sans-serif;outline:none;">
     </div>
     <div class="sum-grid" id="daily-sum"></div>
     <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Waktu</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="daily-body"></tbody></table></div>
@@ -455,8 +479,8 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     <div class="period-bar" id="week-sel"></div>
     <div class="sum-grid" id="week-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:280px"><canvas id="chartWeek"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:240px"><canvas id="chartWeek"></canvas></div>
     </div>
     <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="week-body"></tbody></table></div>
   </div>
@@ -468,8 +492,8 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
     <div class="period-bar" id="month-sel"></div>
     <div class="sum-grid" id="month-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:280px"><canvas id="chartMonth"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:240px"><canvas id="chartMonth"></canvas></div>
     </div>
     <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="month-body"></tbody></table></div>
   </div>
@@ -477,12 +501,12 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 
 <div id="page-tahunan" class="page">
   <div class="card">
-    <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
+    <div class="card-head"><div class="card-title">Laporan Tahunannya</div></div>
     <div class="period-bar" id="year-sel"></div>
     <div class="sum-grid" id="year-sum"></div>
     <div class="chart-wrap">
-      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="position:relative;height:280px"><canvas id="chartYear"></canvas></div>
+      <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:#1a9e6b"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:#d94f4f"></div>Pengeluaran</div></div>
+      <div style="position:relative;height:240px"><canvas id="chartYear"></canvas></div>
     </div>
     <div class="tbl-wrap"><table class="htbl"><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th>Jumlah</th><th></th></tr></thead><tbody id="year-body"></tbody></table></div>
   </div>
@@ -546,7 +570,10 @@ const fmtFull = dt => fmtDate(dt)+' · '+fmtTime(dt);
 const nowISO  = () => new Date().toISOString().slice(0,16);
 
 // Formatting angka khusus untuk kurs (dengan 2 desimal)
-const kursIndo = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const kursIndo = new Intl.NumberFormat('id-ID', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
 
 /* FUNGSI KONVERSI DOLAR SIMPEL */
 const fmtUSD = n => {
@@ -557,18 +584,28 @@ const fmtUSD = n => {
 /* AMBIL KURS REAL-TIME DENGAN WEBSOCKET (SETIAP DETIK) */
 function initLiveUSD() {
   const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
+
   socket.addEventListener('message', function (event) {
       const data = JSON.parse(event.data);
       const newPrice = parseFloat(data.c); 
+      
       if (newPrice && newPrice !== currentUSDRate) {
           currentUSDRate = newPrice;
           const rateEl = document.getElementById('usd-rate-val');
+          
           rateEl.textContent = kursIndo.format(currentUSDRate);
-          rateEl.style.color = 'var(--green2)';
-          setTimeout(() => { rateEl.style.color = 'var(--text)'; }, 300);
+          
+          rateEl.style.color = '#25c584';
+          rateEl.style.fontWeight = '700';
+          setTimeout(() => { 
+            rateEl.style.color = 'var(--text)'; 
+            rateEl.style.fontWeight = '800';
+          }, 150);
+          
           refreshAll();
       }
   });
+
   socket.addEventListener('close', () => setTimeout(initLiveUSD, 3000));
 }
 
@@ -579,20 +616,24 @@ async function fetchUSDRate() {
     currentUSDRate = data.rates.IDR;
     document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate);
     refreshAll();
-  } catch (e) { document.getElementById('usd-rate-val').textContent = "Offline"; }
+  } catch (e) {
+    console.error('Kurs Error:', e);
+    document.getElementById('usd-rate-val').textContent = "Offline";
+  }
 }
 
 fetchUSDRate().then(initLiveUSD); 
-setInterval(fetchUSDRate, 300000);
+setInterval(fetchUSDRate, 300000); 
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block' }
 function hideErr(){ document.getElementById('auth-err').style.display='none' }
 function setLoading(on){
   const btn=document.getElementById('auth-submit-btn');
-  btn.disabled=on; btn.textContent=on?'Memuat...':(authMode==='login'?'Masuk':'Daftar');
+  btn.disabled=on;
+  btn.textContent=on?'Memuat...':(authMode==='login'?'Masuk':'Daftar');
 }
 function setSyncStatus(ok){
-  document.getElementById('sync-dot').style.background=ok?'var(--green2)':'var(--red2)';
+  document.getElementById('sync-dot').style.background=ok?'#25c584':'#d94f4f';
   document.getElementById('sync-label').textContent=ok?'Tersinkron':'Offline';
 }
 
@@ -622,13 +663,15 @@ window.doAuth=async function(){
     }
   } catch(e){
     const msgs={'auth/user-not-found':'Email tidak terdaftar.','auth/wrong-password':'Sandi salah.','auth/invalid-email':'Format email tidak valid.','auth/email-already-in-use':'Email sudah terdaftar.','auth/invalid-credential':'Email atau sandi salah.','auth/too-many-requests':'Terlalu banyak percobaan.'};
-    showErr(msgs[e.code]||'Error: '+e.message); setLoading(false);
+    showErr(msgs[e.code]||'Error: '+e.message);
+    setLoading(false);
   }
 };
 
 window.doLogout=async function(){
   if(unsubListener){unsubListener();unsubListener=null;}
-  txs=[]; await signOut(auth);
+  txs=[];
+  await signOut(auth);
 };
 
 onAuthStateChanged(auth,user=>{
@@ -671,12 +714,12 @@ window.addTx=async function(){
   btn.disabled=true;btn.textContent='Menyimpan...';
   try{
     await addDoc(collection(db,'users',currentUser.uid,'transactions'),{
-      type:curType,amount:amt,category:cat, note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()
+      type:curType,amount:amt,category:cat,
+      note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()
     });
     document.getElementById('f-amount').value='';
     document.getElementById('f-note').value='';
     document.getElementById('f-date').value=nowISO();
-    if(window.innerWidth <= 768) window.scrollTo({top:0, behavior:'smooth'});
   } catch(e){alert('Gagal menyimpan: '+e.message);}
   btn.disabled=false;btn.textContent='Simpan Transaksi';
 };
@@ -690,7 +733,7 @@ window.delTx=async function(id){
 function updateClock(){
   const n=new Date();
   document.getElementById('live-time').textContent=n.toLocaleTimeString('id-ID');
-  document.getElementById('live-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('live-date').textContent=n.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 }
 setInterval(updateClock,1000);updateClock();
 
@@ -710,7 +753,6 @@ window.switchPage=function(p){
   const pages=['dashboard','harian','mingguan','bulanan','tahunan','riwayat'];
   document.querySelectorAll('.nav .nav-btn')[pages.indexOf(p)].classList.add('active');
   activePage=p;refreshAll();
-  window.scrollTo({top:0, behavior:'smooth'});
 };
 
 function calcSum(arr){
@@ -720,18 +762,20 @@ function calcSum(arr){
 }
 function renderSumGrid(el,arr){
   const s=calcSum(arr);
-  el.innerHTML=`<div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}<br>${fmtUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}<br>${fmtUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}<br>${fmtUSD(s.bal)}</div></div>`;
+  el.innerHTML=`<div class="sum-item"><div class="sum-label">Pemasukan</div><div class="sum-val a-pos">${fmt(s.inc)}${fmtUSD(s.inc)}</div></div><div class="sum-item"><div class="sum-label">Pengeluaran</div><div class="sum-val a-neg">${fmt(s.exp)}${fmtUSD(s.exp)}</div></div><div class="sum-item"><div class="sum-label">Saldo Bersih</div><div class="sum-val ${s.bal>=0?'a-pos':'a-neg'}">${fmt(s.bal)}${fmtUSD(s.bal)}</div></div>`;
 }
+
 function renderTbl(tbody,arr,full){
-  if(!arr.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty">Belum ada transaksi</div></td></tr>`;return}
+  if(!arr.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div></td></tr>`;return}
   tbody.innerHTML=arr.map(t=>`<tr>
-    <td><span>${full?fmtFull(t.date):fmtDate(t.date)}</span>${!full?'<br><span>'+fmtTime(t.date)+'</span>':''}</td>
-    <td title="${t.note}">${t.note}</td><td>${t.category}</td>
+    <td style="font-size:12px;white-space:nowrap"><span style="font-weight:700">${full?fmtFull(t.date):fmtDate(t.date)}</span>${!full?'<br><span style="color:var(--text3)">'+fmtTime(t.date)+'</span>':''}</td>
+    <td title="${t.note}">${t.note}</td><td style="color:var(--text3)">${t.category}</td>
     <td><span class="badge ${t.type}">${t.type==='income'?'Pemasukan':'Pengeluaran'}</span></td>
-    <td class="${t.type==='income'?'a-pos':'a-neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}<br>${fmtUSD(t.amount)}</td>
-    <td><button class="del-btn" onclick="delTx('${t.id}')">Hapus</button></td>
+    <td class="${t.type==='income'?'a-pos':'a-neg'}" style="white-space:nowrap">${t.type==='income'?'+':'-'}${fmt(t.amount)}${fmtUSD(t.amount)}</td>
+    <td><button class="del-btn" onclick="delTx('${t.id}')" style="font-size:16px;">✕</button></td>
   </tr>`).join('');
 }
+
 function mkChart(id,labels,incData,expData){
   if(charts[id]){charts[id].destroy();delete charts[id]}
   const c=document.getElementById(id);if(!c)return;
@@ -740,29 +784,32 @@ function mkChart(id,labels,incData,expData){
   const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
   
   charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[
-    {label:'Pemasukan',data:incData,backgroundColor:isLight?'#34C759':'#32D74B',borderRadius:6,borderSkipped:false},
-    {label:'Pengeluaran',data:expData,backgroundColor:isLight?'#FF3B30':'#FF6961',borderRadius:6,borderSkipped:false}
+    {label:'Pemasukan',data:incData,backgroundColor:'rgba(26,158,107,0.75)',borderRadius:4,borderSkipped:false},
+    {label:'Pengeluaran',data:expData,backgroundColor:'rgba(217,79,79,0.7)',borderRadius:4,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-    x:{ticks:{color:textColor,font:{size:11,family:"'JetBrains Mono',monospace",weight:'700'}},grid:{display:false},border:{display:false}},
-    y:{ticks:{color:textColor,font:{size:11,family:"'JetBrains Mono',monospace",weight:'700'},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:gridColor,drawBorder:false},border:{display:false}}
+    x:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'}},grid:{display:false},border:{display:false}},
+    y:{ticks:{color:textColor,font:{size:11,family:"'Outfit',sans-serif",weight:'600'},callback:v=>'Rp'+Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:gridColor,drawBorder:false},border:{display:false}}
   }}});
 }
+
 function renderMetrics(){
   const s=calcSum(txs);
   const ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString()));
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
   document.getElementById('metric-cards').innerHTML=`
-    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}<br>${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div></div>
-    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}<br>${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div></div>
-    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val gold">${fmt(s.bal)}<br>${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus positif':'Defisit minus'}</div></div>
-    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div class="m-sub">${ts.inc>0?'In: '+fmt(ts.inc):'Kosong'}</div></div>`;
+    <div class="m-card inc"><div class="m-label">Total Pemasukan</div><div class="m-val pos">${fmt(s.inc)}${fmtUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div>
+    <div class="m-card exp"><div class="m-label">Total Pengeluaran</div><div class="m-val neg">${fmt(s.exp)}${fmtUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div>
+    <div class="m-card bal"><div class="m-label">Saldo Bersih</div><div class="m-val gold">${fmt(s.bal)}${fmtUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div>
+    <div class="m-card cnt"><div class="m-label">Hari Ini</div><div class="m-val blue">${ts.count} transaksi</div><div class="m-sub">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?80:0}%"></div></div></div>`;
 }
+
 function renderRecent(){
   const el=document.getElementById('recent-list');
   const r=txs.slice(0,10);
-  if(!r.length){el.innerHTML='<div class="empty">Belum ada riwayat</div>';return}
-  el.innerHTML=r.map(t=>`<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↓':'↑'}</div><div><div class="ri-note">${t.note}</div><div class="ri-meta">${fmtFull(t.date)}</div></div></div><div class="ri-right"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}<br>${fmtUSD(t.amount)}</div><button class="del-btn" onclick="delTx('${t.id}')">Hapus</button></div></div>`).join('');
+  if(!r.length){el.innerHTML='<div class="empty"><div class="empty-icon">○</div>Belum ada transaksi</div>';return}
+  el.innerHTML=r.map(t=>`<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note}</div><div class="ri-meta">${fmtFull(t.date)}</div></div></div><div class="ri-right"><div class="ri-amount ${t.type==='income'?'pos':'neg'}">${fmt(t.amount)}${fmtUSD(t.amount)}</div><button class="del-btn" onclick="delTx('${t.id}')">✕</button></div></div>`).join('');
 }
+
 function renderMainChart(){
   const days=[],inc=[],exp=[];
   for(let i=29;i>=0;i--){
@@ -774,12 +821,14 @@ function renderMainChart(){
   }
   mkChart('chartMain',days,inc,exp);
 }
+
 window.renderDaily=function(){
   const pick=document.getElementById('pick-daily').value;
   const target=pick?new Date(pick).toDateString():new Date().toDateString();
   const arr=txs.filter(t=>new Date(t.date).toDateString()===target).sort((a,b)=>new Date(b.date)-new Date(a.date));
   renderSumGrid(document.getElementById('daily-sum'),arr);renderTbl(document.getElementById('daily-body'),arr,false);
 };
+
 function wkKey(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);return new Date(new Date(d).setDate(diff)).toISOString().slice(0,10)}
 function renderWeekly(){
   const weeks={};txs.forEach(t=>{const k=wkKey(t.date);(weeks[k]=weeks[k]||[]).push(t)});
@@ -787,6 +836,7 @@ function renderWeekly(){
   document.getElementById('week-sel').innerHTML=keys.map((k,i)=>{const m=new Date(k),s=new Date(k);s.setDate(s.getDate()+6);return`<button class="p-btn${i===0?' active':''}" onclick="selWeek('${k}',this)">${m.toLocaleDateString('id-ID',{day:'2-digit',month:'short'})} – ${s.toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}</button>`}).join('');
   if(keys.length)showWeek(keys[0]);
 }
+
 window.selWeek=function(k,btn){document.querySelectorAll('#week-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showWeek(k)};
 function showWeek(k){
   const arr=txs.filter(t=>wkKey(t.date)===k).sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -795,12 +845,14 @@ function showWeek(k){
   arr.forEach(t=>{const idx=(new Date(t.date).getDay()+6)%7;if(t.type==='income')inc[idx]+=t.amount;else exp[idx]+=t.amount});
   mkChart('chartWeek',days,inc,exp);
 }
+
 function renderMonthly(){
   const months={};txs.forEach(t=>{const k=t.date.slice(0,7);(months[k]=months[k]||[]).push(t)});
   const keys=Object.keys(months).sort().reverse().slice(0,12);
   document.getElementById('month-sel').innerHTML=keys.map((k,i)=>{const[y,m]=k.split('-');const d=new Date(y,m-1);return`<button class="p-btn${i===0?' active':''}" onclick="selMonth('${k}',this)">${d.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`}).join('');
   if(keys.length)showMonth(keys[0]);
 }
+
 window.selMonth=function(k,btn){document.querySelectorAll('#month-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showMonth(k)};
 function showMonth(k){
   const arr=txs.filter(t=>t.date.slice(0,7)===k).sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -811,12 +863,14 @@ function showMonth(k){
   arr.forEach(t=>{const d=new Date(t.date).getDate()-1;if(t.type==='income')inc[d]+=t.amount;else exp[d]+=t.amount});
   mkChart('chartMonth',labels,inc,exp);
 }
+
 function renderYearly(){
   const years={};txs.forEach(t=>{const k=t.date.slice(0,4);(years[k]=years[k]||[]).push(t)});
   const keys=Object.keys(years).sort().reverse();
   document.getElementById('year-sel').innerHTML=keys.map((k,i)=>`<button class="p-btn${i===0?' active':''}" onclick="selYear('${k}',this)">${k}</button>`).join('');
   if(keys.length)showYear(keys[0]);
 }
+
 window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showYear(k)};
 function showYear(k){
   const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -826,6 +880,7 @@ function showYear(k){
   arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else exp[m]+=t.amount});
   mkChart('chartYear',MNTHS,inc,exp);
 }
+
 window.renderAll=function(){
   const tf=document.getElementById('flt-type').value;
   const s=(document.getElementById('flt-search').value||'').toLowerCase();
@@ -835,6 +890,7 @@ window.renderAll=function(){
   arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
   renderSumGrid(document.getElementById('all-sum'),arr);renderTbl(document.getElementById('all-body'),arr,true);
 };
+
 function refreshAll(){
   renderMetrics();renderRecent();
   if(activePage==='dashboard')renderMainChart();
