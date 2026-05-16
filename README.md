@@ -219,7 +219,7 @@ body.light-mode .type-toggle { background: rgba(0,0,0,0.03); }
 .t-btn.income.active { background: var(--card); color: var(--green2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 .t-btn.expense.active { background: var(--card); color: var(--red2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); }
 .form-row { margin-bottom: 20px; }
-.form-label { font-size: 12px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+.var-label { font-size: 12px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 16px 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.02); color: var(--text); outline: none; transition: 0.3s; }
 body.light-mode .form-row input, body.light-mode .form-row select, body.light-mode .form-row textarea { background: rgba(0,0,0,0.02); }
 .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--gold2); background: var(--card); }
@@ -323,9 +323,9 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
   .m-card { 
     padding: 16px 12px; 
     border-radius: 16px; 
-    flex: none; /* Matikan flex untuk scroll horizontal */
+    flex: none; 
   }
-  .m-val { font-size: 18px; } /* Ukuran font disesuaikan biar pas di dalam grid */
+  .m-val { font-size: 18px; } 
   .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 8px; }
   .m-sub { font-size: 10px; margin-top: 6px; }
   .m-bar { margin-top: 10px; }
@@ -369,7 +369,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <img src="logo.jpg" class="auth-emblem" alt="RHN Capital Logo" onerror="this.style.display='none'">
+      <img src="RHN LOGO.jpg" class="auth-emblem" alt="RHN Capital Logo">
       <div class="auth-title">RHN CAPITAL</div>
       <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
     </div>
@@ -400,7 +400,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="app-screen">
 <div class="topbar">
   <div class="logo">
-    <img src="logo.jpg" class="logo-emblem" alt="RHN Capital Logo" onerror="this.style.display='none'">
+    <img src="RHN LOGO.jpg" class="logo-emblem" alt="RHN Capital Logo">
     <div>
       <div class="logo-name">RHN CAPITAL</div>
       <div class="logo-tagline">Arus Keuangan</div>
