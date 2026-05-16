@@ -161,23 +161,24 @@ body {
 .t-btn.income.active { background: var(--bg2); color: var(--green2); }
 .t-btn.expense.active { background: var(--bg2); color: var(--text); }
 
+/* DIPERBESAR SUPAYA LEGA DIKETIK */
 .f-input-dark {
-  width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);
+  width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
-  outline: none; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
-  appearance: none; -webkit-appearance: none;
+  outline: none; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500;
+  appearance: none; -webkit-appearance: none; transition: border-color 0.3s;
 }
 .f-input-dark:focus { border-color: var(--gold); }
 .f-input-dark::placeholder { color: var(--text3); }
 select.f-input-dark {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-  background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+  background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; cursor: pointer;
 }
 select.f-input-dark option { background: var(--card); color: var(--text); }
 
 .form-row { margin-bottom: 16px; }
 .form-label { font-size: 10px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-row textarea { height: 80px; resize: none; }
+.form-row textarea { height: 100px; resize: none; }
 .submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
 
 /* HISTORY CARDS */
@@ -198,7 +199,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; }
 
 .ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-/* ANGKA NOMINAL RIWAYAT DIBUAT PUTIH */
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 
@@ -206,17 +206,23 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .sum-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
 .sum-item { border-bottom: 1px solid var(--border); padding-bottom: 16px; }
 .sum-label { font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-/* ANGKA SUMMARY DIBUAT PUTIH */
 .sum-val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
 
-/* CHART & FILTERS */
+/* CHART & FILTERS BAR */
 .chart-wrap { margin-bottom: 24px; }
 .chart-legend { display: flex; gap: 16px; margin-bottom: 16px; justify-content: center; }
 .leg-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
-.period-bar, .filter-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
+
+/* Period Bar (Mingguan, Bulanan) */
+.period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
+
+/* FILTER BAR RIWAYAT - SUDAH DIPERLEBAR UNTUK DESKTOP */
+.filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; }
+.filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
+.filter-bar input.f-input-dark { flex: 1; }
 
 /* AUTH SCREEN */
 #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
@@ -242,6 +248,11 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .panel { display: flex; flex-direction: column; gap: 16px; }
   .card { padding: 16px; }
+  
+  /* Filter bar di HP disusun ke bawah biar gak sempit */
+  .filter-bar { flex-direction: column; gap: 12px; }
+  .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; }
+  
   .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; }
   .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
   .del-btn-recent { margin-top: 0; }
@@ -357,7 +368,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
     <div class="card-head">
       <div class="card-title">Laporan Harian</div>
       <div style="margin-top:12px;">
-         <input type="date" id="pick-daily" onchange="renderDaily()" class="f-input-dark">
+         <input type="date" id="pick-daily" onchange="renderDaily()" class="f-input-dark" style="max-width: 300px;">
       </div>
     </div>
     <div class="sum-grid" id="daily-sum"></div>
@@ -413,7 +424,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         <option value="income">Pemasukan Saja</option>
         <option value="expense">Pengeluaran Saja</option>
       </select>
-      <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari..." oninput="renderAll()" style="flex:1;">
+      <input type="text" id="flt-search" class="f-input-dark" placeholder="Ketik untuk mencari riwayat berdasarkan keterangan atau kategori..." oninput="renderAll()">
     </div>
     <div class="sum-grid" id="all-sum"></div>
     <div class="list-wrap" id="all-body"></div>
