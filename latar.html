@@ -1,220 +1,330 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>RHN CAPITAL</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+/* =========================================================
+   RHN CAPITAL - ELITE CORPORATE UI V2.0
+   Design: Ultra Premium Glassmorphism & SMC Desk
+   ========================================================= */
+
+:root {
+    --bg-main: #020617; /* Very deep slate/black */
+    --bg-sec: #0B1120;
+    --primary: #10B981; /* Emerald Green */
+    --primary-glow: rgba(16, 185, 129, 0.4);
+    --surface: rgba(30, 41, 59, 0.4);
+    --border: rgba(255, 255, 255, 0.08);
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --text-hint: #64748B;
+}
 
 /* ===== GLOBAL ===== */
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
-
-body{
-background:linear-gradient(180deg,#020617,#0f172a);
-color:white;
-overflow-x:hidden;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.04), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04), transparent 25%);
+    background-attachment: fixed;
 }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 /* ===== NAVBAR ===== */
-header{
-position:fixed;
-width:100%;
-top:0;
-background:rgba(2,6,23,.75);
-backdrop-filter:blur(10px);
-border-bottom:1px solid #1f2937;
-z-index:999;
+header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: rgba(2, 6, 23, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    z-index: 999;
+    transition: all 0.3s ease;
 }
-
-.nav{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 25px;
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
-
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
 }
-
-.logo img{
-width:42px;
-filter:drop-shadow(0 0 10px #22c55e88);
+.logo img {
+    width: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px var(--primary-glow);
 }
-
-.menu button{
-background:none;
-border:none;
-color:#9ca3af;
-margin-left:15px;
-cursor:pointer;
+.menu button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
-
-.menu button:hover{color:#22c55e;}
+.menu button:hover { color: var(--text-main); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
 /* ===== HERO ===== */
-.hero{
-height:100vh;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-padding:20px;
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 100px 20px 40px;
+    position: relative;
+}
+.hero::before {
+    content: ''; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%);
+    width: 600px; height: 600px; background: var(--primary); filter: blur(200px); opacity: 0.07; z-index: -1;
+}
+.hero img {
+    width: 160px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+    animation: float 6s infinite ease-in-out;
+}
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+.hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    background: linear-gradient(to right, #ffffff, #a7f3d0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+.hero p {
+    max-width: 750px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 30px;
 }
 
-.hero img{
-width:500px;
-margin-bottom:20px;
-animation:float 4s infinite ease-in-out;
+.btn {
+    padding: 16px 36px;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(2, 6, 23, 0.8));
+    color: var(--primary);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
-
-@keyframes float{
-0%{transform:translateY(0);}
-50%{transform:translateY(-10px);}
-100%{transform:translateY(0);}
-}
-
-.hero h1{
-font-size:46px;
-margin-bottom:10px;
-}
-
-.hero p{
-max-width:700px;
-color:#94a3b8;
-}
-
-.btn{
-margin-top:25px;
-padding:15px 32px;
-border:none;
-border-radius:12px;
-background:linear-gradient(135deg,#22c55e,#16a34a);
-cursor:pointer;
-font-weight:600;
-transition:.3s;
-}
-
-.btn:hover{
-transform:scale(1.08);
-box-shadow:0 0 40px #22c55e88;
+.btn:hover {
+    background: var(--primary);
+    color: #000;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px var(--primary-glow);
 }
 
 /* ===== SECTION ===== */
-.section{
-padding:110px 20px;
-max-width:1100px;
-margin:auto;
-text-align:center;
+.section {
+    padding: 120px 24px;
+    max-width: 1200px;
+    margin: auto;
+    text-align: center;
+}
+.section h2 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--text-main);
+}
+.section p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 16px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
+/* ===== GRID CARDS ===== */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+.card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+.card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(16, 185, 129, 0.05);
+}
+.card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+.card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    margin-left: 0;
+}
+.action {
+    margin-top: auto;
+    padding: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    color: var(--primary);
+    font-weight: 700;
+    text-align: center;
+    transition: 0.3s;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+.card:hover .action {
+    background: var(--primary);
+    color: #000;
 }
 
-.card{
-background:#020617;
-border:1px solid #1f2937;
-border-radius:18px;
-padding:25px;
-cursor:pointer;
-transition:.4s;
+/* ===== TAMBAHAN: FOUNDER SPOTLIGHT ===== */
+.founder-box {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(2, 6, 23, 0.9));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
 }
+.founder-box::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+.f-avatar {
+    width: 100px; height: 100px;
+    background: var(--bg-main);
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 40px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+.f-name { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+.f-title { font-size: 14px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+.f-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+.f-meta span { background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); border: 1px solid var(--border); }
+.f-desc { font-size: 15px; color: var(--text-hint); line-height: 1.8; max-width: 700px; }
 
-.card:hover{
-transform:translateY(-8px);
-box-shadow:0 0 35px rgba(34,197,94,.25);
-}
-
-.action{
-margin-top:15px;
-padding:12px;
-background:#22c55e;
-border-radius:10px;
-color:black;
-font-weight:bold;
-}
+/* ===== TAMBAHAN: MEGA MODUL ===== */
+.mod-grid { display: flex; flex-direction: column; gap: 32px; margin-top: 50px; text-align: left; }
+.mod-item { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; position: relative; }
+.mod-item::before { content: ''; position: absolute; left: 0; top: 20px; bottom: 20px; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0; }
+.mod-hdr { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.mod-body { color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+.mod-body h4 { color: var(--text-main); margin: 20px 0 8px; font-size: 16px; }
+.mod-body ul { margin-left: 20px; margin-bottom: 16px; }
+.mod-body li { margin-bottom: 8px; }
 
 /* ===== QRIS POPUP ===== */
-.popup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.85);
-display:none;
-justify-content:center;
-align-items:center;
-z-index:1000;
+.popup {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+    display: none; justify-content: center; align-items: center; z-index: 1000;
 }
-
-.popup img{
-width:300px;
-border-radius:12px;
-}
-
-.close{
-position:absolute;
-top:20px;
-right:30px;
-font-size:25px;
-cursor:pointer;
-}
+.popup img { width: 90%; max-width: 400px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+.close { position: absolute; top: 30px; right: 40px; font-size: 32px; font-weight: 300; cursor: pointer; color: var(--text-muted); transition: 0.3s; }
+.close:hover { color: #fff; transform: rotate(90deg); }
 
 /* ===== FOOTER ===== */
-footer{
-text-align:center;
-padding:30px;
-color:#6b7280;
+footer {
+    text-align: center; padding: 40px 20px; color: var(--text-hint);
+    border-top: 1px solid var(--border); font-size: 13px; font-family: 'JetBrains Mono', monospace;
+    background: #020617;
 }
 
-/* ===== TAMBAHAN KHUSUS LAYAR HP (MOBILE RESPONSIVE) ===== */
+/* ===== MOBILE RESPONSIVE (MENTOK LAYAR HP) ===== */
 @media (max-width: 768px) {
-    .nav {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px 10px;
-    }
-    .menu {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 12px;
-    }
-    .menu button {
-        margin-left: 0;
-        font-size: 14px;
-    }
-    .hero img {
-        width: 80%; /* Menghindari gambar 500px bablas dari layar HP */
-        max-width: 300px;
-    }
-    .hero h1 {
-        font-size: 32px;
-    }
-    .hero p {
-        font-size: 14px;
-    }
-    .section {
-        padding: 140px 20px 50px;
-    }
-    .btn {
-        width: 100%;
-        max-width: 300px;
-    }
+    .nav { flex-direction: column; padding: 16px 20px; gap: 16px; }
+    .menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; }
+    .menu button { margin: 0; padding: 8px 12px; font-size: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+    
+    .hero { padding: 140px 20px 60px; }
+    .hero h1 { font-size: 38px; }
+    .hero img { width: 120px; }
+    
+    .section { padding: 80px 20px; }
+    .section h2 { font-size: 28px; }
+    
+    .grid { grid-template-columns: 1fr; gap: 16px; }
+    .btn { width: 100%; }
+    
+    .founder-box { padding: 30px 20px; }
+    .f-name { font-size: 24px; }
+    .f-meta { flex-direction: column; gap: 10px; }
+    .f-meta span { width: 100%; }
+    
+    .mod-item { padding: 24px 20px 24px 30px; }
+    .mod-hdr { font-size: 18px; }
 }
 </style>
 </head>
 
 <body>
+
+<!-- ==========================================
+     KODE ASLI BAWAAN (TIDAK BERUBAH 1 HURUF)
+     ========================================== -->
 
 <!-- NAVBAR -->
 <header>
@@ -335,6 +445,105 @@ TikTok
 <div class="close" onclick="closeQRIS()">✕</div>
 <img src="QRIS.jpg.jpeg">
 </div>
+
+
+<!-- ==========================================
+     TAMBAHAN SECTION BARU (Sesuai Permintaan)
+     ========================================== -->
+
+<!-- FOUNDER SPOTLIGHT -->
+<section id="founder" class="section">
+    <h2>Meet The Founder</h2>
+    <div class="founder-box">
+        <div class="f-avatar">👨‍💻</div>
+        <div class="f-name">MUHAMAD REHAN</div>
+        <div class="f-title">Trader Muda | Founder RHN Capital</div>
+        
+        <div class="f-meta">
+            <span>📍 Depok, Indonesia</span>
+            <span>📅 24 Mei 2009</span>
+            <span>🔥 Umur 17 Tahun</span>
+        </div>
+        
+        <p class="f-desc">
+            Di usia yang sangat muda, Muhamad Rehan memelopori berdirinya RHN Capital dengan visi besar: mengedukasi generasi milenial dan Gen-Z tentang pentingnya literasi finansial yang riil. Sebagai seorang Trader Muda, Rehan mendedikasikan waktunya untuk membedah chart, memahami Smart Money Concepts (SMC), menganalisis fundamental saham, dan memantau siklus kripto, demi membuktikan bahwa kedisiplinan dan manajemen risiko jauh lebih penting daripada sekadar tebak-tebakan pasar.
+        </p>
+    </div>
+</section>
+
+<!-- MEGA MODUL EDUKASI -->
+<section id="premium" class="section">
+    <h2>RHN Knowledge Base & Modules</h2>
+    <p>Eksplorasi mendalam tentang fondasi finansial dunia. Modul eksklusif ini dirancang untuk membentuk mindset institusional.</p>
+    
+    <div class="mod-grid">
+        
+        <!-- Modul 1 -->
+        <div class="mod-item">
+            <div class="mod-hdr">🏛️ Modul 1: Core Finance & Manajemen Kapital</div>
+            <div class="mod-body">
+                <p>Keuangan bukan sekadar tentang mencari keuntungan, melainkan tentang bagaimana kita mempertahankan dan melipatgandakan aset secara terukur.</p>
+                <h4>Pilar Utama:</h4>
+                <ul>
+                    <li><b>Risk Management:</b> Konsep 1% Risk per Trade. Jangan pernah merisikokan lebih dari yang bisa Anda tanggung.</li>
+                    <li><b>Psychology of Trading:</b> Mengendalikan emosi FOMO (Fear of Missing Out) dan serakah (Greed). Market dikendalikan oleh ketakutan dan keserakahan manusia.</li>
+                    <li><b>Portfolio Allocation:</b> Diversifikasi instrumen (Low risk, Medium risk, High risk) untuk menjaga kestabilan *drawdown*.</li>
+                </ul>
+                <p><i>Mindset: Trading adalah bisnis probabilitas. Tugas kita adalah meminimalkan kerugian saat salah, dan memaksimalkan profit saat benar.</i></p>
+            </div>
+        </div>
+
+        <!-- Modul 2 -->
+        <div class="mod-item">
+            <div class="mod-hdr">🪙 Modul 2: Cryptocurrency & Ekosistem Digital</div>
+            <div class="mod-body">
+                <p>Cryptocurrency adalah evolusi uang dan kontrak finansial. Volatilitas tinggi di pasar kripto menawarkan peluang besar jika dipadukan dengan pemahaman siklus makro.</p>
+                <h4>Fokus Pembahasan:</h4>
+                <ul>
+                    <li><b>Bitcoin Halving & Market Cycle:</b> Memahami siklus 4 tahunan Bitcoin dan bagaimana ia memengaruhi *bull market* dan *bear market*.</li>
+                    <li><b>Altcoin Fundamental:</b> Cara meriset *whitepaper*, *tokenomics* (supply & demand), dan kegunaan (utility) sebuah koin sebelum berinvestasi.</li>
+                    <li><b>DeFi & Web3:</b> Desentralisasi finansial, staking, farming, dan bagaimana *smart contract* bekerja tanpa pihak ketiga.</li>
+                </ul>
+                <p><i>Rule of Thumb: Not your keys, not your coins. Selalu amankan aset digital Anda di Cold Wallet untuk investasi jangka panjang.</i></p>
+            </div>
+        </div>
+
+        <!-- Modul 3 -->
+        <div class="mod-item">
+            <div class="mod-hdr">📈 Modul 3: Ekuitas & Pasar Saham</div>
+            <div class="mod-body">
+                <p>Pasar saham adalah tempat kita membeli kepemilikan bisnis sungguhan. Di sini, kesabaran adalah kunci utama.</p>
+                <h4>Pendekatan RHN Capital:</h4>
+                <ul>
+                    <li><b>Analisa Fundamental:</b> Membaca laporan keuangan, mengukur valuasi (PER, PBV), dan menilai *Gudang* uang (Cash Flow) sebuah perusahaan.</li>
+                    <li><b>Dividen Investing:</b> Mengincar *passive income* dari perusahaan Bluechip yang rutin membagikan keuntungan kepada pemegang sahamnya.</li>
+                    <li><b>Momentum Trading:</b> Memanfaatkan rotasi sektor dan laporan kuartalan untuk mengambil profit dari pergerakan harga jangka pendek-menengah.</li>
+                </ul>
+                <p><i>Prinsip: Di pasar saham, uang mengalir dari orang yang tidak sabaran kepada orang yang sabar.</i></p>
+            </div>
+        </div>
+
+        <!-- Modul 4 -->
+        <div class="mod-item">
+            <div class="mod-hdr">💱 Modul 4: Valas (Forex) & Smart Money Concepts</div>
+            <div class="mod-body">
+                <p>Forex adalah pasar paling likuid di dunia. Harga digerakkan oleh institusi besar (Bank Sentral). Untuk bertahan, kita harus trading searah dengan mereka.</p>
+                <h4>Teknik & Strategi:</h4>
+                <ul>
+                    <li><b>Smart Money Concepts (SMC):</b> Mencari jejak institusi melalui Order Block, Fair Value Gap (FVG), dan Liquidity Sweep.</li>
+                    <li><b>Market Structure:</b> Identifikasi tren sejati (Higher High, Higher Low) dan perpindahan tren (Change of Character / ChoCh).</li>
+                    <li><b>Makroekonomi:</b> Pengaruh rilis data ekonomi krusial seperti NFP (Non-Farm Payroll), CPI (Inflasi), dan keputusan Suku Bunga (Interest Rates) terhadap pair seperti XAUUSD dan EURUSD.</li>
+                </ul>
+                <p><i>Catatan: Forex bukan skema cepat kaya. Ini adalah seni membaca probabilitas arah uang dunia.</i></p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ==========================================
+     KEMBALI KE FOOTER ASLI
+     ========================================== -->
 
 <footer>
 © 2026 RHN CAPITAL — Investment Platform
