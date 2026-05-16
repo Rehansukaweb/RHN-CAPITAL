@@ -74,11 +74,11 @@ body {
 .auth-emblem {
   width: 64px; height: 64px; border-radius: 16px; object-fit: cover;
   margin-bottom: 16px; border: 1px solid var(--border);
-  box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1);
+  box-shadow: 0 16px 32px rgba(255, 214, 10, 0.1); background-color: var(--card);
 }
 .logo-emblem {
   width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
-  border: 1.5px solid rgba(201,168,76,0.5);
+  border: 1.5px solid rgba(201,168,76,0.5); background-color: var(--card);
 }
 
 /* ===== AUTH SCREEN ===== */
@@ -170,7 +170,7 @@ body.light-mode .nav-btn.active { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* METRICS CARDS (FIX ANGKA & PROGRESS BAR ASLI) */
+/* METRICS CARDS */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
 .m-card {
   background: var(--card); border-radius: var(--radius); padding: 28px;
@@ -290,52 +290,69 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE (FIXED GRID 2x2 MENTOK TANPA SCROLL HORIZONTAL)
    ========================================================================== */
 @media (max-width: 768px) {
   body { padding: 0; margin: 0; }
   
-  .top-ext-links { justify-content: center; padding: 12px; }
-  .topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
+  .top-ext-links { justify-content: center; flex-wrap: wrap; padding: 12px 16px; gap: 8px; }
+  .nav-ext-btn { font-size: 11px; }
+
+  .topbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 16px; border-bottom: none; }
   .topbar-right { width: 100%; justify-content: space-between; gap: 4px; }
   .live-clock { display: none; }
-  .user-info { gap: 8px; }
+  .user-info { gap: 8px; border-left: none; padding-left: 0; }
   .usd-rate-box .lbl { display: none; }
   
   .nav {
-    padding: 0 20px 16px 20px; margin: 0;
+    padding: 0 16px 16px 16px; margin: 0;
     display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; justify-content: flex-start;
   }
-  .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 18px; font-size: 12px; border: 1px solid var(--border); }
+  .nav-btn { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 16px; font-size: 11px; border: 1px solid var(--border); }
 
   .main { padding: 0; padding-bottom: 40px; }
   
-  .metrics { display: flex; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 20px 24px; gap: 16px; margin: 0; }
-  .m-card { flex: 0 0 85%; scroll-snap-align: center; padding: 24px; border-radius: 24px; }
+  /* FIX KOTAK TOTAL PEMASUKAN DKK JADI 2x2 GRID MENTOK DI LAYAR */
+  .metrics { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px; 
+    padding: 0 16px 24px 16px; 
+    margin: 0; 
+  }
+  .m-card { 
+    padding: 16px 12px; 
+    border-radius: 16px; 
+    flex: none; /* Matikan flex untuk scroll horizontal */
+  }
+  .m-val { font-size: 18px; } /* Ukuran font disesuaikan biar pas di dalam grid */
+  .m-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .m-sub { font-size: 10px; margin-top: 6px; }
+  .m-bar { margin-top: 10px; }
   
   .panel { grid-template-columns: 1fr; gap: 0; }
   .card { border-radius: 0; border-left: none; border-right: none; margin-bottom: 16px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .card-head { padding: 20px; }
-  .form-body { padding: 0 20px 24px; }
+  .card-head { padding: 16px; }
+  .form-body { padding: 0 16px 20px; }
   
   /* MOBILE TABLE */
   .tbl-wrap { padding: 0; }
   table.htbl thead { display: none; }
   table.htbl tbody { display: block; width: 100%; }
-  table.htbl tr { display: flex; flex-wrap: wrap; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border) !important; }
+  table.htbl tr { display: flex; flex-wrap: wrap; align-items: center; padding: 16px; border-bottom: 1px solid var(--border) !important; }
   table.htbl td { display: block; border: none !important; padding: 0 !important; }
   
   table.htbl td:nth-child(1) { width: 100% !important; order: 3; margin-top: 6px; } 
-  table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 16px; } 
+  table.htbl td:nth-child(2) { width: 60% !important; order: 1; font-size: 15px; } 
   table.htbl td:nth-child(3), table.htbl td:nth-child(4) { display: none; } 
-  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 16px !important; white-space: nowrap; } 
+  table.htbl td:nth-child(5) { width: 40% !important; order: 2; font-size: 15px !important; white-space: nowrap; } 
   table.htbl td:nth-child(6) { width: 100% !important; order: 4; text-align: right !important; margin-top: -24px; } 
-  .del-btn { padding: 4px; opacity: 1; font-size: 16px !important; }
+  .del-btn { padding: 4px; opacity: 1; font-size: 14px !important; }
   
-  .recent-item { padding: 16px 20px; }
-  .period-bar, .filter-bar { padding: 16px 20px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .recent-item { padding: 16px; }
+  .period-bar, .filter-bar { padding: 16px; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; }
   .filter-bar input, .filter-bar select { width: 100%; flex: 0 0 80%; scroll-snap-align: start; }
-  .sum-grid { grid-template-columns: 1fr; gap: 0; padding: 0 20px 20px; background: var(--card); }
+  .sum-grid { grid-template-columns: 1fr; gap: 0; padding: 0 16px 20px; background: var(--card); }
   .sum-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
   .sum-item:last-child { border-bottom: none; }
 }
@@ -352,7 +369,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <img src="1000092571.jpg" class="auth-emblem" alt="RHN Capital Logo">
+      <img src="logo.jpg" class="auth-emblem" alt="RHN Capital Logo" onerror="this.style.display='none'">
       <div class="auth-title">RHN CAPITAL</div>
       <div class="auth-sub">Masuk untuk mengakses arus keuangan Anda</div>
     </div>
@@ -383,7 +400,7 @@ table.htbl th:nth-child(6), table.htbl td:nth-child(6) { width: 80px; text-align
 <div id="app-screen">
 <div class="topbar">
   <div class="logo">
-    <img src="1000092571.jpg" class="logo-emblem" alt="RHN Capital Logo">
+    <img src="logo.jpg" class="logo-emblem" alt="RHN Capital Logo" onerror="this.style.display='none'">
     <div>
       <div class="logo-name">RHN CAPITAL</div>
       <div class="logo-tagline">Arus Keuangan</div>
