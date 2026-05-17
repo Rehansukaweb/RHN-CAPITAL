@@ -232,7 +232,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (FULL EDGE-TO-EDGE TAPI BULET/TIDAK KAKU KOTAK)
+   MOBILE RESPONSIVE (100% PERSIS BINANCE: FULL LAYAR & NGGAK KAKU)
    ========================================================================== */
 @media (max-width: 768px) {
   .top-ext-links { justify-content: center; padding: 0 16px 16px; }
@@ -242,45 +242,52 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .user-row { flex-direction: row; justify-content: flex-start; }
   .nav { padding: 0 16px 20px; }
   
-  /* MAIN MEPET LAYAR KIRI KANAN TOTAL (PADDING 0) */
+  /* PADDING KIRI KANAN NOL BIAR MENTOK LAYAR TOTAL */
   .main { padding: 0 0 80px 0; }
   
-  /* KOTAK RINGKASAN DIKEMBALIKAN BULET MEMANJANG (TIDAK KAKU) TAPI LEBARNYA FULL */
-  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0; background: transparent; border: none; }
-  .metrics .m-card { border-radius: 24px; border: 1px solid var(--border); background: var(--card); }
+  /* METRICS (PEMASUKAN PENGELUARAN DLL): BULET EMPUK & TIDAK KOTAK SHARP */
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; background: transparent; border: none; }
+  .metrics .m-card { border-radius: 24px; border: none; background: var(--bg2); padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   
-  .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0 0 24px 0; background: transparent; border: none; }
-  .sum-grid .m-card { border-radius: 24px; border: 1px solid var(--border); background: var(--card); }
+  .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; margin-bottom: 24px; background: transparent; border: none; }
+  .sum-grid .m-card { border-radius: 24px; border: none; background: var(--bg2); padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .sum-grid .m-card:nth-child(3) { grid-column: span 2; }
 
-  /* PANEL KARTU FORMS */
+  /* KARTU FORM/LAYOUT UTAMA: BIKIN MENTOK KE LAYAR JUGA */
   .panel { display: flex; flex-direction: column; gap: 16px; background: transparent; }
-  .card { padding: 20px 12px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 0; }
+  .card { padding: 24px 0; border-radius: 0; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 0; background: var(--bg); }
   
-  .filter-bar { flex-direction: column; gap: 12px; padding: 0 12px; }
-  .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; }
+  /* BERI PADDING PADA ISI KARTU AGAR TEKS AMAN DARI TEPI LAYAR */
+  .card-head { padding: 0 16px; }
+  .form-row { padding: 0 16px; }
+  .type-toggle { margin-left: 16px; margin-right: 16px; width: calc(100% - 32px); }
+  .submit-btn { margin-left: 16px; margin-right: 16px; width: calc(100% - 32px); border-radius: 16px; }
+  .filter-bar { flex-direction: column; gap: 12px; padding: 0 16px; }
+  .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
+  .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
   
-  /* HISTORY ITEM BULET MEMANJANG, UKURANNYA MENTOK KE LAYAR HP */
-  .list-wrap { padding: 0; margin: 0; } 
+  .chart-wrap { padding: 0 16px; }
+  .period-bar { padding: 0 16px 8px 16px; }
+  
+  /* HISTORY ITEM (RIWAYAT TRANSAKSI): DIUBAH JADI BARISAN NATIVE, BUKAN KOTAK! */
+  .list-wrap { padding: 0; margin: 0; }
   .recent-item { 
-      flex-direction: column; align-items: flex-start; gap: 12px; 
-      padding: 16px 16px; 
-      border-radius: 24px; /* Supaya history bulet empuk / tidak kotak */
-      border: 1px solid var(--border); 
-      margin-bottom: 12px; 
-      background: var(--card); 
+      flex-direction: row; /* Berbaris rapi seperti Binance */
+      align-items: center; 
+      gap: 12px; 
+      padding: 16px; /* Jarak pas dari tepi layar */
+      border-radius: 0; /* Mentok layar, tidak bersudut */
+      border: none; /* HILANGKAN garis pinggir supaya tidak berbentuk "kotak" */
+      border-bottom: 1px solid var(--border); /* Pemisah tipis di bawah antar riwayat */
+      margin-bottom: 0; 
+      background: transparent; /* Menyatu dengan background aplikasi */
   }
-  .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; margin-left: 0; }
-  .ri-amounts-col { align-items: flex-start; } /* Rata kiri di HP */
-  .del-btn-recent { margin-top: 0; }
+  .recent-item:last-child { border-bottom: none; }
+  .ri-right-wrap { width: auto; flex-direction: column; justify-content: center; align-items: flex-end; margin-left: auto; }
+  .ri-amounts-col { align-items: flex-end; text-align: right; } 
+  .del-btn-recent { margin-top: 6px; }
   
   .cat-badge { display: inline-block !important; }
-  
-  .chart-wrap { padding: 0 12px; }
-  .period-bar { padding: 0 12px 8px; }
-
-  .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
-  .submit-btn { padding: 18px; font-size: 14px; border-radius: 16px; }
 }
 
 @media (min-width: 769px) {
