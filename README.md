@@ -232,7 +232,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (FULL EDGE-TO-EDGE MEPET LAYAR TOTAL)
+   MOBILE RESPONSIVE (FULL EDGE-TO-EDGE TAPI BULET/TIDAK KAKU KOTAK)
    ========================================================================== */
 @media (max-width: 768px) {
   .top-ext-links { justify-content: center; padding: 0 16px 16px; }
@@ -245,36 +245,42 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   /* MAIN MEPET LAYAR KIRI KANAN TOTAL (PADDING 0) */
   .main { padding: 0 0 80px 0; }
   
-  /* KOTAK RINGKASAN DIKEMBALIKAN BULET MEMANJANG (TIDAK KOTAK SHARP) */
-  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; background: transparent; border: none; }
-  .metrics .m-card { border-radius: 16px; border: 1px solid var(--border); background: var(--card); }
+  /* KOTAK RINGKASAN DIKEMBALIKAN BULET MEMANJANG (TIDAK KAKU) TAPI LEBARNYA FULL */
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0; background: transparent; border: none; }
+  .metrics .m-card { border-radius: 24px; border: 1px solid var(--border); background: var(--card); }
   
-  .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; background: transparent; border: none; margin-bottom: 24px; }
-  .sum-grid .m-card { border-radius: 16px; border: 1px solid var(--border); background: var(--card); }
+  .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0; margin: 0 0 24px 0; background: transparent; border: none; }
+  .sum-grid .m-card { border-radius: 24px; border: 1px solid var(--border); background: var(--card); }
   .sum-grid .m-card:nth-child(3) { grid-column: span 2; }
 
-  /* PANEL DAN KARTU BAWAH MEPET LAYAR BANGET (FULL BLEED) */
+  /* PANEL KARTU FORMS */
   .panel { display: flex; flex-direction: column; gap: 16px; background: transparent; }
-  .card { padding: 20px 16px; border-radius: 0; border-left: none; border-right: none; margin-bottom: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .card { padding: 20px 12px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 0; }
   
-  .filter-bar { flex-direction: column; gap: 12px; }
+  .filter-bar { flex-direction: column; gap: 12px; padding: 0 12px; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; }
   
-  /* RIWAYAT EDGE-TO-EDGE (GARIS NYENTUH UJUNG LAYAR HP) */
-  .list-wrap { padding: 0; margin: 0 -16px; } /* Menarik list ke ujung layar melewati padding card */
-  .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 0; border-left: none; border-right: none; border-top: none; border-bottom: 1px solid var(--border); margin-bottom: 0; background: var(--card); }
+  /* HISTORY ITEM BULET MEMANJANG, UKURANNYA MENTOK KE LAYAR HP */
+  .list-wrap { padding: 0; margin: 0; } 
+  .recent-item { 
+      flex-direction: column; align-items: flex-start; gap: 12px; 
+      padding: 16px 16px; 
+      border-radius: 24px; /* Supaya history bulet empuk / tidak kotak */
+      border: 1px solid var(--border); 
+      margin-bottom: 12px; 
+      background: var(--card); 
+  }
   .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; margin-left: 0; }
   .ri-amounts-col { align-items: flex-start; } /* Rata kiri di HP */
   .del-btn-recent { margin-top: 0; }
   
   .cat-badge { display: inline-block !important; }
   
-  /* Chart dan filter date dipastikan pas di layar */
-  .chart-wrap { padding: 0; }
-  .period-bar { padding: 0 0 8px; }
+  .chart-wrap { padding: 0 12px; }
+  .period-bar { padding: 0 12px 8px; }
 
-  .f-input-dark { padding: 18px 16px; font-size: 15px; }
-  .submit-btn { padding: 18px; font-size: 14px; }
+  .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
+  .submit-btn { padding: 18px; font-size: 14px; border-radius: 16px; }
 }
 
 @media (min-width: 769px) {
@@ -374,17 +380,17 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
       <button class="submit-btn" id="save-btn" onclick="addTx()">SIMPAN TRANSAKSI</button>
     </div>
     
-    <div class="card" style="padding-bottom:0;">
-      <div class="card-head" style="padding:0; margin-top:0;"><div class="card-title">Aktivitas Terakhir</div></div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Aktivitas Terakhir</div></div>
       <div id="recent-list" class="list-wrap" style="max-height:600px;overflow-y:auto;"></div>
     </div>
   </div>
 </div>
 
 <div id="page-harian" class="page">
-  <div class="sum-grid" id="daily-sum" style="margin-bottom:0;"></div>
-  <div class="card" style="padding-bottom:0;">
-    <div class="card-head" style="padding:0; margin-top:0;">
+  <div class="sum-grid" id="daily-sum"></div>
+  <div class="card">
+    <div class="card-head">
       <div class="card-title">Laporan Harian</div>
       <div style="margin-top:12px;">
          <input type="date" id="pick-daily" onchange="renderDaily()" class="f-input-dark">
@@ -396,9 +402,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
 <div id="page-mingguan" class="page">
   <div class="period-bar" id="week-sel"></div>
-  <div class="sum-grid" id="week-sum" style="margin-bottom:0;"></div>
-  <div class="card" style="padding-bottom:0;">
-    <div class="card-head" style="padding:0; margin-top:0;"><div class="card-title">Laporan Mingguan</div></div>
+  <div class="sum-grid" id="week-sum"></div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
       <div style="height:200px"><canvas id="chartWeek"></canvas></div>
@@ -409,9 +415,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
 <div id="page-bulanan" class="page">
   <div class="period-bar" id="month-sel"></div>
-  <div class="sum-grid" id="month-sum" style="margin-bottom:0;"></div>
-  <div class="card" style="padding-bottom:0;">
-    <div class="card-head" style="padding:0; margin-top:0;"><div class="card-title">Laporan Bulanan</div></div>
+  <div class="sum-grid" id="month-sum"></div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
       <div style="height:200px"><canvas id="chartMonth"></canvas></div>
@@ -422,9 +428,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
 <div id="page-tahunan" class="page">
   <div class="period-bar" id="year-sel"></div>
-  <div class="sum-grid" id="year-sum" style="margin-bottom:0;"></div>
-  <div class="card" style="padding-bottom:0;">
-    <div class="card-head" style="padding:0; margin-top:0;"><div class="card-title">Laporan Tahunan</div></div>
+  <div class="sum-grid" id="year-sum"></div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
       <div style="height:200px"><canvas id="chartYear"></canvas></div>
@@ -434,9 +440,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 </div>
 
 <div id="page-riwayat" class="page">
-  <div class="sum-grid" id="all-sum" style="margin-bottom:0;"></div>
-  <div class="card" style="padding-bottom:0;">
-    <div class="card-head" style="padding:0; margin-top:0;"><div class="card-title">Semua Riwayat</div></div>
+  <div class="sum-grid" id="all-sum"></div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Semua Riwayat</div></div>
     <div class="filter-bar">
       <select id="flt-type" class="f-input-dark" onchange="renderAll()">
         <option value="">Semua Filter</option>
