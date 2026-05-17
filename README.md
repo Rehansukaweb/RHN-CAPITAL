@@ -270,6 +270,10 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   
   /* Elemen form dan teks diberi margin agar tetap aman terbaca (tidak nabrak layar) */
   .card-head, .form-row, .filter-bar, .chart-wrap, .period-bar { padding-left: 16px !important; padding-right: 16px !important; }
+  
+  /* PERBAIKAN DI SINI: Biar filter & search bar berjejer ke bawah di HP */
+  .filter-bar { flex-direction: column; } 
+  
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
   .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
