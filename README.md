@@ -146,7 +146,7 @@ body {
 .inc .m-bar-fill { background: var(--green2); } .exp .m-bar-fill { background: var(--red2); }
 .bal .m-bar-fill { background: var(--border2); } .cnt .m-bar-fill { background: var(--blue); }
 
-/* SUMMARY GRID (DIBUAT SAMA SEPERTI METRICS CARDS) */
+/* SUMMARY GRID */
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
 
 /* FORMS */
@@ -198,7 +198,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .cat-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text3); text-transform: uppercase; display: inline-block; white-space: nowrap; }
 
 .ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-left: 12px; }
+.ri-amounts-col { display: flex; flex-direction: column; align-items: flex-end; }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
+.ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 
 /* CHART & FILTERS BAR */
@@ -255,6 +257,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   
   .recent-item { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px 12px; }
   .ri-right-wrap { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; margin-left: 0; }
+  .ri-amounts-col { align-items: flex-start; } /* Rata kiri di HP */
   .del-btn-recent { margin-top: 0; }
   
   .cat-badge { display: inline-block !important; }
@@ -528,7 +531,7 @@ function renderSumGrid(el,arr){
   `; 
 }
 
-const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div>`;
+const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amounts-col"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="ri-usd">${getUSD(t.amount)}</div></div><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div>`;
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
