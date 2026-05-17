@@ -1,4 +1,3 @@
-
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -232,7 +231,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE (100% PERSIS BINANCE: FULL LAYAR & NGGAK KAKU)
+   MOBILE RESPONSIVE (100% PERSIS BINANCE: FULL MENTOK LAYAR & BULET EMPUK)
    ========================================================================== */
 @media (max-width: 768px) {
   .top-ext-links { justify-content: center; padding: 0 16px 16px; }
@@ -242,51 +241,55 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .user-row { flex-direction: row; justify-content: flex-start; }
   .nav { padding: 0 16px 20px; }
   
-  /* PADDING KIRI KANAN NOL BIAR MENTOK LAYAR TOTAL */
-  .main { padding: 0 0 80px 0; }
+  /* PENGHILANG JARAK SAMPING TOTAL BIAR MENTOK LAYAR */
+  .main { padding: 0 0 80px 0 !important; width: 100%; overflow-x: hidden; }
   
-  /* METRICS (PEMASUKAN PENGELUARAN DLL): BULET EMPUK & TIDAK KOTAK SHARP */
-  .metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; background: transparent; border: none; }
-  .metrics .m-card { border-radius: 24px; border: none; background: var(--bg2); padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  /* METRICS & SUMMARY: KOTAK BULET MEMANJANG, MENTOK KIRI KANAN */
+  .metrics { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px; 
+    padding: 0 !important; /* Membunuh padding 16px yang tersembunyi */
+    margin: 0 !important;
+    background: transparent; border: none; 
+  }
+  .metrics .m-card { border-radius: 24px !important; border-left: none; border-right: none; }
   
-  .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px; margin-bottom: 24px; background: transparent; border: none; }
-  .sum-grid .m-card { border-radius: 24px; border: none; background: var(--bg2); padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-  .sum-grid .m-card:nth-child(3) { grid-column: span 2; }
+  .sum-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px; 
+    padding: 0 !important; /* Membunuh padding 16px yang tersembunyi */
+    margin: 0 0 24px 0 !important; 
+    background: transparent; border: none; 
+  }
+  .sum-grid .m-card { border-radius: 24px !important; border-left: none; border-right: none; }
+  .sum-grid .m-card:nth-child(3) { grid-column: span 2; } /* Saldo bersih bulet memanjang full */
 
-  /* KARTU FORM/LAYOUT UTAMA: BIKIN MENTOK KE LAYAR JUGA */
+  /* BUNGKUSAN CARD TRANSPARAN (AGAR KONTEN BISA NYENTUH LAYAR) */
   .panel { display: flex; flex-direction: column; gap: 16px; background: transparent; }
-  .card { padding: 24px 0; border-radius: 0; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 0; background: var(--bg); }
+  .card { padding: 16px 0 !important; border-radius: 0 !important; border: none !important; background: transparent !important; margin-bottom: 0; }
   
-  /* BERI PADDING PADA ISI KARTU AGAR TEKS AMAN DARI TEPI LAYAR */
-  .card-head { padding: 0 16px; }
-  .form-row { padding: 0 16px; }
-  .type-toggle { margin-left: 16px; margin-right: 16px; width: calc(100% - 32px); }
-  .submit-btn { margin-left: 16px; margin-right: 16px; width: calc(100% - 32px); border-radius: 16px; }
-  .filter-bar { flex-direction: column; gap: 12px; padding: 0 16px; }
+  /* Elemen form dan teks diberi margin agar tetap aman terbaca (tidak nabrak layar) */
+  .card-head, .form-row, .filter-bar, .chart-wrap, .period-bar { padding-left: 16px !important; padding-right: 16px !important; }
+  .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
   .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
   
-  .chart-wrap { padding: 0 16px; }
-  .period-bar { padding: 0 16px 8px 16px; }
-  
-  /* HISTORY ITEM (RIWAYAT TRANSAKSI): DIUBAH JADI BARISAN NATIVE, BUKAN KOTAK! */
-  .list-wrap { padding: 0; margin: 0; }
+  /* HISTORY ITEM (RIWAYAT TRANSAKSI): BULET MEMANJANG 100% MENTOK LAYAR */
+  .list-wrap { padding: 0 !important; margin: 0 !important; width: 100%; }
   .recent-item { 
-      flex-direction: row; /* Berbaris rapi seperti Binance */
+      width: 100% !important; /* Paksa memanjang sentuh ujung layar */
+      margin: 0 0 12px 0 !important; 
+      padding: 16px 16px !important; 
+      border-radius: 24px !important; /* Tetap bulet empuk tidak kaku */
+      border-left: none !important; /* Menghilangkan batas kiri kanan biar nyatu ke HP */
+      border-right: none !important;
+      background: var(--card); 
+      flex-direction: row; 
+      justify-content: space-between; 
       align-items: center; 
-      gap: 12px; 
-      padding: 16px; /* Jarak pas dari tepi layar */
-      border-radius: 0; /* Mentok layar, tidak bersudut */
-      border: none; /* HILANGKAN garis pinggir supaya tidak berbentuk "kotak" */
-      border-bottom: 1px solid var(--border); /* Pemisah tipis di bawah antar riwayat */
-      margin-bottom: 0; 
-      background: transparent; /* Menyatu dengan background aplikasi */
   }
-  .recent-item:last-child { border-bottom: none; }
-  .ri-right-wrap { width: auto; flex-direction: column; justify-content: center; align-items: flex-end; margin-left: auto; }
-  .ri-amounts-col { align-items: flex-end; text-align: right; } 
+  .ri-right-wrap { margin-left: 0; align-items: flex-end; }
   .del-btn-recent { margin-top: 6px; }
-  
   .cat-badge { display: inline-block !important; }
 }
 
@@ -294,7 +297,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .metrics { grid-template-columns: repeat(4, 1fr); }
   /* GRID SUMMARY UNTUK DESKTOP (3 KOLOM SEJAJAR) */
   .sum-grid { grid-template-columns: repeat(3, 1fr); }
-  
   .panel { grid-template-columns: 400px 1fr; }
 }
 </style>
