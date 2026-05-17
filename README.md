@@ -271,7 +271,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   /* Elemen form dan teks diberi margin agar tetap aman terbaca (tidak nabrak layar) */
   .card-head, .form-row, .filter-bar, .chart-wrap, .period-bar { padding-left: 16px !important; padding-right: 16px !important; }
   
-  /* PERBAIKAN DI SINI: Biar filter & search bar berjejer ke bawah di HP */
+  /* Biar filter & search bar berjejer ke bawah di HP */
   .filter-bar { flex-direction: column; } 
   
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
@@ -297,11 +297,26 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .cat-badge { display: inline-block !important; }
 }
 
+/* ==========================================================================
+   DESKTOP RESPONSIVE (LEBIH RAPI & TERSTRUKTUR GRID)
+   ========================================================================== */
 @media (min-width: 769px) {
-  .metrics { grid-template-columns: repeat(4, 1fr); }
-  /* GRID SUMMARY UNTUK DESKTOP (3 KOLOM SEJAJAR) */
-  .sum-grid { grid-template-columns: repeat(3, 1fr); }
-  .panel { grid-template-columns: 400px 1fr; }
+  .metrics { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .sum-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  
+  /* Form di kiri (380px), Riwayat di kanan sisa layarnya */
+  .panel { 
+    display: grid; 
+    grid-template-columns: 380px 1fr; 
+    gap: 24px; 
+    align-items: start; 
+  }
+
+  /* Rapihin sedikit jarak pinggir biar elegan di layar gede */
+  .main, .header-area, .nav, .top-ext-links, .top-title { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+  }
 }
 </style>
 </head>
@@ -482,15 +497,11 @@ if(localStorage.getItem('theme') === 'light') { document.body.classList.add('lig
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-/* PERBAIKAN DI SINI: Nambahin initializeFirestore & persistentLocalCache buat OFFLINE MODE */
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
-
-/* PERBAIKAN DI SINI: Manggil Database pakai mode Offline */
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
 const CATS = { income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya'] };
@@ -531,6 +542,7 @@ onAuthStateChanged(auth,user=>{
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
 
 window.addTx=async function(){ if(!currentUser)return; const amt=parseFloat(document.getElementById('f-amount').value), cat=document.getElementById('f-cat').value, note=document.getElementById('f-note').value.trim(), dt=document.getElementById('f-date').value; if(!amt||!cat)return alert('Isi data yang lengkap.'); document.getElementById('save-btn').textContent='...'; try{ await addDoc(collection(db,'users',currentUser.uid,'transactions'),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()}); document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; } catch(e){alert(e.message);} document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; };
+
 window.delTx=async function(id){ if(!currentUser||!confirm('Yakin mau hapus riwayat ini?'))return; await deleteDoc(doc(db,'users',currentUser.uid,'transactions',id)); };
 
 window.selType=function(t){ curType=t; document.getElementById('btn-inc').classList.toggle('active',t==='income'); document.getElementById('btn-exp').classList.toggle('active',t==='expense'); const s=document.getElementById('f-cat'); s.innerHTML='<option value="">Pilih kategori...</option>'; CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); };
