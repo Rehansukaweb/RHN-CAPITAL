@@ -4,6 +4,12 @@
 <meta name="color-scheme" content="dark light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Arus Keuangan — RHN CAPITAL</title>
+
+<!-- TAMBAHAN UNTUK PWA (AGAR BISA DI-INSTALL KE HP) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050505">
+<link rel="apple-touch-icon" href="RHN LOGO.jpg">
+
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -150,7 +156,8 @@ body {
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
 
 /* FORMS */
-.card { background: var(--card); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 24px; }
+/* DITAMBAH padding: 32px agar kotak kiri sedikit lebih panjang dan presisi dengan 5 transaksi */
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); margin-bottom: 24px; }
 .card-head { margin-bottom: 16px; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .card-sub { font-size: 12px; color: var(--text3); }
@@ -202,6 +209,11 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
+
+/* CSS EDIT & DOWNLOAD CSV */
+.action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
+.edit-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
+.export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
 
 /* CHART & FILTERS BAR */
 .chart-wrap { margin-bottom: 24px; }
@@ -274,6 +286,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   
   /* Biar filter & search bar berjejer ke bawah di HP */
   .filter-bar { flex-direction: column; } 
+  .export-btn { width: 100%; text-align: center; border-radius: 16px; padding: 18px 16px; }
   
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
@@ -294,7 +307,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
       align-items: center; 
   }
   .ri-right-wrap { margin-left: 0; align-items: flex-end; }
-  .del-btn-recent { margin-top: 6px; }
+  .del-btn-recent, .edit-btn-recent { margin-top: 0px; }
   .cat-badge { display: inline-block !important; }
 }
 
@@ -407,12 +420,13 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
       <div class="form-row"><label class="form-label">KATEGORI</label><select id="f-cat" class="f-input-dark"></select></div>
       <div class="form-row"><label class="form-label">KETERANGAN</label><textarea id="f-note" class="f-input-dark" placeholder="Catatan transaksi..."></textarea></div>
       <div class="form-row"><label class="form-label">WAKTU</label><input type="datetime-local" id="f-date" class="f-input-dark"></div>
+      <button class="submit-btn" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none; background:var(--bg3); color:var(--text); margin-bottom:8px;">BATAL EDIT</button>
       <button class="submit-btn" id="save-btn" onclick="addTx()">SIMPAN TRANSAKSI</button>
     </div>
     
     <div class="card">
       <div class="card-head"><div class="card-title">Aktivitas Terakhir</div></div>
-      <div id="recent-list" class="list-wrap" style="max-height:600px;overflow-y:auto;"></div>
+      <div id="recent-list" class="list-wrap"></div>
     </div>
   </div>
 </div>
@@ -480,6 +494,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         <option value="expense">Pengeluaran Saja</option>
       </select>
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
+      <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
     </div>
     <div class="list-wrap" id="all-body"></div>
   </div>
@@ -499,7 +514,7 @@ if(localStorage.getItem('theme') === 'light') { document.body.classList.add('lig
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
 const app = initializeApp(firebaseConfig); 
@@ -508,6 +523,7 @@ const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
 const CATS = { income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya'] };
 let txs=[], curType='income', activePage='dashboard', charts={}, currentUSDRate = 16000, currentUser=null, unsubListener=null, authMode='login';
+let editId = null;
 
 const fmt = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
@@ -543,9 +559,12 @@ onAuthStateChanged(auth,user=>{
 
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
 
-window.addTx=async function(){ if(!currentUser)return; const amt=parseFloat(document.getElementById('f-amount').value), cat=document.getElementById('f-cat').value, note=document.getElementById('f-note').value.trim(), dt=document.getElementById('f-date').value; if(!amt||!cat)return Swal.fire({icon:'warning',text:'Isi data dengan lengkap saja',confirmButtonColor:'#3085d6',confirmButtonText:'OKE'}); document.getElementById('save-btn').textContent='...'; try{ await addDoc(collection(db,'users',currentUser.uid,'transactions'),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()}); document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; } catch(e){alert(e.message);} document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; };
+window.addTx=async function(){ if(!currentUser)return; const amt=parseFloat(document.getElementById('f-amount').value), cat=document.getElementById('f-cat').value, note=document.getElementById('f-note').value.trim(), dt=document.getElementById('f-date').value; if(!amt||!cat)return Swal.fire({icon:'warning',text:'Isi data dengan lengkap saja',confirmButtonColor:'#3085d6',confirmButtonText:'OKE'}); document.getElementById('save-btn').textContent='...'; try{ if(editId){ await updateDoc(doc(db,'users',currentUser.uid,'transactions',editId),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO()}); cancelEdit(); } else { await addDoc(collection(db,'users',currentUser.uid,'transactions'),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()}); } document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; } catch(e){Swal.fire('Error', e.message, 'error'); document.getElementById('save-btn').textContent=editId?'UPDATE TRANSAKSI':'SIMPAN TRANSAKSI';} };
 
 window.delTx=async function(id){ if(!currentUser||!confirm('Yakin mau hapus riwayat ini?'))return; await deleteDoc(doc(db,'users',currentUser.uid,'transactions',id)); };
+
+window.editTx=function(id){ const t=txs.find(x=>x.id===id); if(!t)return; editId=id; selType(t.type); document.getElementById('f-amount').value=t.amount; setTimeout(()=>document.getElementById('f-cat').value=t.category,50); document.getElementById('f-note').value=t.note==='-'?'':t.note; document.getElementById('f-date').value=t.date; document.getElementById('save-btn').textContent='UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display='block'; switchPage('dashboard'); };
+window.cancelEdit=function(){ editId=null; document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; document.getElementById('f-date').value=nowISO(); document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display='none'; };
 
 window.selType=function(t){ curType=t; document.getElementById('btn-inc').classList.toggle('active',t==='income'); document.getElementById('btn-exp').classList.toggle('active',t==='expense'); const s=document.getElementById('f-cat'); s.innerHTML='<option value="">Pilih kategori...</option>'; CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); };
 
@@ -581,7 +600,7 @@ function renderSumGrid(el,arr){
   `; 
 }
 
-const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amounts-col"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="ri-usd">${getUSD(t.amount)}</div></div><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div>`;
+const createTxCard = (t) => `<div class="recent-item"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amounts-col"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="ri-usd">${getUSD(t.amount)}</div></div><div class="action-btns"><button class="edit-btn-recent" onclick="editTx('${t.id}')">EDIT</button><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div></div>`;
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
@@ -603,8 +622,15 @@ function renderYearly(){ const years={};txs.forEach(t=>{const k=t.date.slice(0,4
 window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showYear(k)};
 function showYear(k){ const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('year-sum'),arr); renderList(document.getElementById('year-body'),arr); const MNTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], inc=new Array(12).fill(0),exp=new Array(12).fill(0); arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else exp[m]+=t.amount}); mkChart('chartYear',MNTHS,inc,exp); }
 window.renderAll=function(){ const tf=document.getElementById('flt-type').value, s=(document.getElementById('flt-search').value||'').toLowerCase(); let arr=[...txs]; if(tf)arr=arr.filter(t=>t.type===tf); if(s)arr=arr.filter(t=>t.note.toLowerCase().includes(s)||t.category.toLowerCase().includes(s)); arr.sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('all-sum'),arr); renderList(document.getElementById('all-body'),arr); };
-function refreshAll(){ renderMetrics(); renderList(document.getElementById('recent-list'), txs.slice(0,10)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
+
+/* DIUBAH MENJADI 5 AKTIFITAS TERAKHIR */
+function refreshAll(){ renderMetrics(); renderList(document.getElementById('recent-list'), txs.slice(0,5)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
+
 document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO(); selType('income');
+
+window.exportCSV=function(){ if(!txs.length)return Swal.fire('Kosong','Tidak ada data untuk diunduh','info'); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
+
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.log('SW Error:', e)); }); }
 </script>
 </body>
 </html>
