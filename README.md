@@ -415,10 +415,11 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         <button class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</button>
         <button class="t-btn expense" id="btn-exp" onclick="selType('expense')">- Pengeluaran</button>
       </div>
-      <div class="form-row"><label class="form-label">JUMLAH (RP)</label><input type="number" id="f-amount" class="f-input-dark" placeholder="0"></div>
+      
+      <div class="form-row"><label class="form-label">JUMLAH (RP)</label><input type="text" inputmode="numeric" id="f-amount" class="f-input-dark" placeholder="0"></div>
+      
       <div class="form-row"><label class="form-label">KATEGORI</label><select id="f-cat" class="f-input-dark"></select></div>
       <div class="form-row"><label class="form-label">KETERANGAN</label><textarea id="f-note" class="f-input-dark" placeholder="Catatan transaksi..."></textarea></div>
-      
       <div class="form-row">
         <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
           <span>WAKTU</span>
@@ -426,7 +427,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         </label>
         <input type="datetime-local" id="f-date" class="f-input-dark">
       </div>
-      
       <button class="submit-btn" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none; background:var(--bg3); color:var(--text); margin-bottom:8px;">BATAL EDIT</button>
       <button class="submit-btn" id="save-btn" onclick="addTx()">SIMPAN TRANSAKSI</button>
     </div>
@@ -789,6 +789,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   
   if (amountInput) {
     amountInput.type = 'text'; 
+    amountInput.inputMode = 'numeric'; // MEMAKSA HP MENGELUARKAN KEYBOARD NUMPAD
     
     amountInput.addEventListener('blur', function() {
         let val = this.value.replace(/[^0-9+\-*/().]/g, ''); 
