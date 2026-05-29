@@ -759,6 +759,29 @@ window.addEventListener('DOMContentLoaded', (event) => {
   };
 
   // ---------------------------------------------------------
+  // BUG FIX NATIVE KELUAR (KONFIRMASI LOGOUT ELEGAN)
+  // ---------------------------------------------------------
+  const originalDoLogout = window.doLogout;
+  window.doLogout = function() {
+    if (navigator.vibrate) navigator.vibrate(20);
+    Swal.fire({
+      title: 'Keluar Akun?',
+      text: "Lu yakin mau keluar dari aplikasi?",
+      icon: 'warning',
+      showCancelButton: true,
+      background: 'var(--bg2)',
+      color: 'var(--text)',
+      confirmButtonColor: 'var(--red2)', 
+      cancelButtonColor: 'var(--bg3)',
+      confirmButtonText: 'Ya, Keluar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        originalDoLogout();
+      }
+    });
+  };
+
+  // ---------------------------------------------------------
   // KALKULATOR AUTO-MATH & SHAKE ERROR PROTEKSI (UPDATED: REAL-TIME DOTS)
   // ---------------------------------------------------------
   const amountInput = document.getElementById('f-amount');
