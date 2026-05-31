@@ -335,7 +335,8 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 </head>
 <body>
 
-<div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+<!-- BANNER OFFLINE TAMBAHAN -->
+<div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; left:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
