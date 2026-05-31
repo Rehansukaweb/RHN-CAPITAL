@@ -335,6 +335,10 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 </head>
 <body>
 
+<div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+  ⚠️ Koneksi Terputus - Mode Offline Aktif
+</div>
+
 <div class="top-title">RHN-CAPITAL</div>
 <div class="top-ext-links">
   <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
@@ -705,6 +709,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const Toast = Swal.mixin({
     toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true,
     background: 'var(--bg2)', color: 'var(--text)'
+  });
+
+  // ---------------------------------------------------------
+  // DETEKSI OFFLINE/ONLINE PWA
+  // ---------------------------------------------------------
+  window.addEventListener('offline', () => {
+    document.getElementById('offline-banner').style.display = 'block';
+    Toast.fire({ icon: 'warning', title: 'Koneksi Terputus!' });
+  });
+  window.addEventListener('online', () => {
+    document.getElementById('offline-banner').style.display = 'none';
+    Toast.fire({ icon: 'success', title: 'Online Kembali!' });
   });
 
   // MATIKAN ANIMASI GRAFIK CHART.JS (ANTI NAIK-TURUN)
