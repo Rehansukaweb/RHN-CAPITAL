@@ -155,7 +155,7 @@ body {
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
 
 /* FORMS */
-/* DITAMBAH padding: 32px agar kotak kiri sedikit lebih panjang dan presisi dengan 5 transaksi */
+/* DITAMBAH padding: 32px agar kotak kiri sedikit lebih panjang dan presisi dengan 6 transaksi */
 .card { background: var(--card); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); margin-bottom: 24px; }
 .card-head { margin-bottom: 16px; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -331,6 +331,15 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
     margin: 0 auto; 
   }
 }
+
+/* STYLING HUTANG PIUTANG & DOMPET */
+.t-btn.debt.active { background: var(--bg2); color: var(--gold); border: 1px solid var(--gold); }
+.t-btn.recv.active { background: var(--bg2); color: var(--blue); border: 1px solid var(--blue); }
+.ri-icon.debt { color: var(--gold); background: rgba(251, 191, 36, 0.15); }
+.ri-icon.recv { color: var(--blue); background: rgba(59, 130, 246, 0.15); }
+.ri-amount.debt { color: var(--gold); }
+.ri-amount.recv { color: var(--blue); }
+.wallet-badge { background: var(--bg3); color: var(--text2); font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid var(--border2); text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -416,14 +425,27 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         <div class="card-title">Tambah Transaksi</div>
         <div class="card-sub">Catat pemasukan atau pengeluaran baru</div>
       </div>
-      <div class="type-toggle">
-        <button class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</button>
-        <button class="t-btn expense" id="btn-exp" onclick="selType('expense')">- Pengeluaran</button>
+      <div class="type-toggle" style="flex-wrap: wrap; gap: 8px;">
+        <button class="t-btn income active" id="btn-inc" onclick="selType('income')" style="flex-basis: 48%;">+ Pemasukan</button>
+        <button class="t-btn expense" id="btn-exp" onclick="selType('expense')" style="flex-basis: 48%;">- Pengeluaran</button>
+        <button class="t-btn debt" id="btn-debt" onclick="selType('debt')" style="flex-basis: 48%;">💳 Hutang</button>
+        <button class="t-btn recv" id="btn-recv" onclick="selType('recv')" style="flex-basis: 48%;">💸 Piutang</button>
       </div>
       
       <div class="form-row"><label class="form-label">JUMLAH (RP)</label><input type="text" inputmode="numeric" id="f-amount" class="f-input-dark" placeholder="0"></div>
       
       <div class="form-row"><label class="form-label">KATEGORI</label><select id="f-cat" class="f-input-dark"></select></div>
+      <div class="form-row">
+        <label class="form-label">SUMBER DANA / DOMPET</label>
+        <select id="f-wallet" class="f-input-dark">
+          <option value="Kas Tunai">Kas Tunai</option>
+          <option value="DANA">DANA</option>
+          <option value="GoPay">GoPay</option>
+          <option value="ShopeePay">ShopeePay</option>
+          <option value="MT5 Trading">Saldo MT5 Trading</option>
+          <option value="Rekening Bank">Rekening Bank</option>
+        </select>
+      </div>
       <div class="form-row"><label class="form-label">KETERANGAN</label><textarea id="f-note" class="f-input-dark" placeholder="Catatan transaksi..."></textarea></div>
       <div class="form-row">
         <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
@@ -533,7 +555,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-const CATS = { income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya'] };
+const CATS = { 
+  income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], 
+  expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya'],
+  debt: ['Pinjaman Bank', 'Pinjaman Pribadi', 'Titipan Dana', 'Lainnya'],
+  recv: ['Dipinjam Teman', 'Kasbon Karyawan', 'Lainnya'] 
+};
 let txs=[], curType='income', activePage='dashboard', charts={}, currentUSDRate = 16000, currentUser=null, unsubListener=null, authMode='login';
 let editId = null;
 
@@ -571,18 +598,132 @@ onAuthStateChanged(auth,user=>{
 
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
 
-window.addTx=async function(){ if(!currentUser)return; const amt=parseFloat(document.getElementById('f-amount').value), cat=document.getElementById('f-cat').value, note=document.getElementById('f-note').value.trim(), dt=document.getElementById('f-date').value; if(!amt||!cat)return Swal.fire({icon:'warning',text:'Isi data dengan lengkap saja',confirmButtonColor:'#3085d6',confirmButtonText:'OKE'}); document.getElementById('save-btn').textContent='...'; try{ if(editId){ await updateDoc(doc(db,'users',currentUser.uid,'transactions',editId),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO()}); cancelEdit(); } else { await addDoc(collection(db,'users',currentUser.uid,'transactions'),{type:curType,amount:amt,category:cat,note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()}); } document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; } catch(e){Swal.fire('Error', e.message, 'error'); document.getElementById('save-btn').textContent=editId?'UPDATE TRANSAKSI':'SIMPAN TRANSAKSI';} };
+window.addTx=async function(){ 
+  if(!currentUser) return; 
+  
+  const amountInput = document.getElementById('f-amount');
+  const catInput = document.getElementById('f-cat');
+  
+  const rawValue = amountInput.value.replace(/\./g, '');
+  const amt = parseFloat(rawValue);
+  const cat = catInput.value; 
+  const note = document.getElementById('f-note').value.trim();
+  const dt = document.getElementById('f-date').value; 
+  const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai';
+  
+  if(!amt || !cat || isNaN(amt)){
+    if(!amt || isNaN(amt)) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); }
+    if(!cat) { catInput.classList.add('shake-error'); setTimeout(() => catInput.classList.remove('shake-error'), 400); }
+    return Swal.fire({
+       position: 'center', icon: 'warning', title: 'Oops...', text: 'Isi nominal dan kategori!', 
+       showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
+    });
+  }
+  
+  if(document.activeElement) document.activeElement.blur();
+  
+  const saveBtn = document.getElementById('save-btn');
+  saveBtn.textContent='MENYIMPAN...'; 
+  saveBtn.style.opacity = '0.7';
+  saveBtn.disabled = true;
+
+  try{ 
+    if(editId){ 
+      await updateDoc(doc(db,'users',currentUser.uid,'transactions',editId),{type:curType,amount:amt,category:cat,wallet:wallet,note:note||'-',date:dt||nowISO()}); 
+      cancelEdit(); 
+    } else { 
+      await addDoc(collection(db,'users',currentUser.uid,'transactions'),{type:curType,amount:amt,category:cat,wallet:wallet,note:note||'-',date:dt||nowISO(),createdAt:serverTimestamp()}); 
+    } 
+    
+    amountInput.value=''; document.getElementById('f-note').value=''; 
+    
+    // --- ANIMASI TERSIMPAN AKTIF ---
+    saveBtn.style.opacity = '1';
+    saveBtn.style.transform = 'scale(0.95)';
+    setTimeout(() => saveBtn.style.transform = 'scale(1)', 150);
+    
+    saveBtn.style.background = 'var(--green2)';
+    saveBtn.style.color = '#000';
+    saveBtn.textContent = 'TERSIMPAN ✅';
+    saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)';
+    
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
+    let titleMsg = 'Berhasil Disimpan!';
+    if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!';
+    if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!';
+    
+    // Notif pop up di TENGAH
+    Swal.fire({
+       position: 'center',
+       icon: 'success',
+       title: titleMsg,
+       showConfirmButton: false,
+       timer: 2000,
+       background: 'var(--card)',
+       color: 'var(--text)',
+       backdrop: 'rgba(0,0,0,0.6)'
+    });
+    
+    // Reset kembali ke keadaan normal setelah 2 detik
+    setTimeout(() => {
+        saveBtn.style.boxShadow = 'none';
+        saveBtn.disabled = false;
+        window.setRealLocalTime();
+        selType(curType); 
+    }, 2000);
+    // ---------------------------------
+
+  } catch(e){
+    Swal.fire({position: 'center', icon: 'error', title: 'Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
+    saveBtn.textContent='COBA LAGI';
+    saveBtn.style.opacity = '1';
+    saveBtn.disabled = false;
+  } 
+};
 
 window.delTx=async function(id){ if(!currentUser||!confirm('Yakin mau hapus riwayat ini?'))return; await deleteDoc(doc(db,'users',currentUser.uid,'transactions',id)); };
 
-window.editTx=function(id){ const t=txs.find(x=>x.id===id); if(!t)return; editId=id; selType(t.type); document.getElementById('f-amount').value=t.amount; setTimeout(()=>document.getElementById('f-cat').value=t.category,50); document.getElementById('f-note').value=t.note==='-'?'':t.note; document.getElementById('f-date').value=t.date; document.getElementById('save-btn').textContent='UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display='block'; switchPage('dashboard'); };
+window.editTx=function(id){ 
+  const t=txs.find(x=>x.id===id); if(!t)return; 
+  editId=id; selType(t.type); 
+  document.getElementById('f-amount').value=t.amount; 
+  setTimeout(()=>document.getElementById('f-cat').value=t.category,50); 
+  if(document.getElementById('f-wallet') && t.wallet) document.getElementById('f-wallet').value = t.wallet;
+  document.getElementById('f-note').value=t.note==='-'?'':t.note; 
+  document.getElementById('f-date').value=t.date; 
+  document.getElementById('save-btn').textContent='UPDATE TRANSAKSI'; 
+  document.getElementById('cancel-edit-btn').style.display='block'; 
+  switchPage('dashboard'); 
+};
 window.cancelEdit=function(){ editId=null; document.getElementById('f-amount').value=''; document.getElementById('f-note').value=''; document.getElementById('f-date').value=nowISO(); document.getElementById('save-btn').textContent='SIMPAN TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display='none'; };
 
-window.selType=function(t){ curType=t; document.getElementById('btn-inc').classList.toggle('active',t==='income'); document.getElementById('btn-exp').classList.toggle('active',t==='expense'); const s=document.getElementById('f-cat'); s.innerHTML='<option value="">Pilih kategori...</option>'; CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); };
+window.selType=function(t){ 
+  curType=t; 
+  document.getElementById('btn-inc').classList.toggle('active',t==='income'); 
+  document.getElementById('btn-exp').classList.toggle('active',t==='expense'); 
+  const btnDebt=document.getElementById('btn-debt'); if(btnDebt) btnDebt.classList.toggle('active',t==='debt');
+  const btnRecv=document.getElementById('btn-recv'); if(btnRecv) btnRecv.classList.toggle('active',t==='recv');
+  
+  const s=document.getElementById('f-cat'); 
+  s.innerHTML='<option value="">Pilih kategori...</option>'; 
+  if(CATS[t]){ CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); }
+  
+  const saveBtn = document.getElementById('save-btn');
+  if(saveBtn){
+    if(t==='income'){ saveBtn.style.background='var(--green2)'; saveBtn.style.color='#000'; saveBtn.textContent='SIMPAN PEMASUKAN'; }
+    else if(t==='expense'){ saveBtn.style.background='var(--red2)'; saveBtn.style.color='#fff'; saveBtn.textContent='SIMPAN PENGELUARAN'; }
+    else if(t==='debt'){ saveBtn.style.background='var(--gold)'; saveBtn.style.color='#000'; saveBtn.textContent='CATAT HUTANG'; }
+    else if(t==='recv'){ saveBtn.style.background='var(--blue)'; saveBtn.style.color='#fff'; saveBtn.textContent='CATAT PIUTANG'; }
+  }
+};
 
 window.switchPage=function(p){ document.querySelectorAll('.page').forEach(el=>el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active')); document.getElementById('page-'+p).classList.add('active'); const pages=['dashboard','harian','mingguan','bulanan','tahunan','riwayat']; document.querySelectorAll('.nav-btn')[pages.indexOf(p)].classList.add('active'); activePage=p;refreshAll(); };
 
-function calcSum(arr){ const inc=arr.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0), exp=arr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0); return{inc,exp,bal:inc-exp,count:arr.length}; }
+function calcSum(arr){ 
+  const inc=arr.filter(t=>t.type==='income'||t.type==='debt').reduce((s,t)=>s+t.amount,0);
+  const exp=arr.filter(t=>t.type==='expense'||t.type==='recv').reduce((s,t)=>s+t.amount,0);
+  return{inc,exp,bal:inc-exp,count:arr.length}; 
+}
 
 function renderSumGrid(el,arr){ 
   const s=calcSum(arr); 
@@ -612,7 +753,13 @@ function renderSumGrid(el,arr){
   `; 
 }
 
-const createTxCard = (t) => `<div class="recent-item" data-id="${t.id}"><div class="ri-left"><div class="ri-icon ${t.type}">${t.type==='income'?'↑':'↓'}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span></div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amounts-col"><div class="ri-amount">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="ri-usd">${getUSD(t.amount)}</div></div><div class="action-btns"><button class="edit-btn-recent" onclick="editTx('${t.id}')">EDIT</button><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div></div>`;
+const createTxCard = (t) => {
+  let icon = t.type==='income'?'↑':t.type==='expense'?'↓':t.type==='debt'?'💳':'💸';
+  let sign = (t.type==='income' || t.type==='debt') ? '+' : '-';
+  let walletBadge = t.wallet ? `<span class="wallet-badge">${t.wallet}</span>` : '';
+  return `<div class="recent-item" data-id="${t.id}"><div class="ri-left"><div class="ri-icon ${t.type}">${icon}</div><div><div class="ri-note">${t.note} <span class="cat-badge">${t.category}</span>${walletBadge}</div><div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div></div></div><div class="ri-right-wrap"><div class="ri-amounts-col"><div class="ri-amount ${t.type}">${sign}${fmt(t.amount)}</div><div class="ri-usd">${getUSD(t.amount)}</div></div><div class="action-btns"><button class="edit-btn-recent" onclick="editTx('${t.id}')">EDIT</button><button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button></div></div></div>`;
+};
+
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
@@ -635,8 +782,8 @@ window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').for
 function showYear(k){ const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('year-sum'),arr); renderList(document.getElementById('year-body'),arr); const MNTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], inc=new Array(12).fill(0),exp=new Array(12).fill(0); arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else exp[m]+=t.amount}); mkChart('chartYear',MNTHS,inc,exp); }
 window.renderAll=function(){ const tf=document.getElementById('flt-type').value, s=(document.getElementById('flt-search').value||'').toLowerCase(); let arr=[...txs]; if(tf)arr=arr.filter(t=>t.type===tf); if(s)arr=arr.filter(t=>t.note.toLowerCase().includes(s)||t.category.toLowerCase().includes(s)); arr.sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('all-sum'),arr); renderList(document.getElementById('all-body'),arr); };
 
-/* DIUBAH MENJADI 5 AKTIFITAS TERAKHIR */
-function refreshAll(){ renderMetrics(); renderList(document.getElementById('recent-list'), txs.slice(0,5)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
+/* DIUBAH MENJADI 6 AKTIFITAS TERAKHIR BIAR SEJAJAR */
+function refreshAll(){ renderMetrics(); renderList(document.getElementById('recent-list'), txs.slice(0,6)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
 
 document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO(); selType('income');
 
@@ -706,10 +853,15 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navi
 <script>
 window.addEventListener('DOMContentLoaded', (event) => {
   
-  // TOAST NOTIFICATION
+  // TOAST NOTIFICATION - DIUBAH KE POP UP TENGAH
   const Toast = Swal.mixin({
-    toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true,
-    background: 'var(--bg2)', color: 'var(--text)'
+    position: 'center', 
+    showConfirmButton: false, 
+    timer: 2000, 
+    timerProgressBar: true,
+    background: 'var(--card)', 
+    color: 'var(--text)',
+    backdrop: 'rgba(0,0,0,0.6)'
   });
 
   // ---------------------------------------------------------
@@ -738,8 +890,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     if (navigator.vibrate) navigator.vibrate(20);
     Swal.fire({
       title: 'Hapus Transaksi?', text: "Data yang dihapus tidak bisa dikembalikan.",
-      icon: 'warning', showCancelButton: true, background: 'var(--bg2)', color: 'var(--text)',
-      confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus'
+      icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)',
+      confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus',
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         const nativeConfirm = window.confirm;
@@ -763,11 +916,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
       text: "Data akan dimasukkan ke form untuk diubah.",
       icon: 'question',
       showCancelButton: true,
-      background: 'var(--bg2)',
+      background: 'var(--card)',
       color: 'var(--text)',
       confirmButtonColor: 'var(--blue)', 
       cancelButtonColor: 'var(--bg3)',
-      confirmButtonText: 'Ya, Edit'
+      confirmButtonText: 'Ya, Edit',
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         originalEditTx(id);
@@ -786,11 +940,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
       text: "Lu yakin mau keluar dari aplikasi?",
       icon: 'warning',
       showCancelButton: true,
-      background: 'var(--bg2)',
+      background: 'var(--card)',
       color: 'var(--text)',
       confirmButtonColor: 'var(--red2)', 
       cancelButtonColor: 'var(--bg3)',
-      confirmButtonText: 'Ya, Keluar'
+      confirmButtonText: 'Ya, Keluar',
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         originalDoLogout();
@@ -799,7 +954,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   };
 
   // ---------------------------------------------------------
-  // KALKULATOR AUTO-MATH & SHAKE ERROR PROTEKSI (UPDATED: REAL-TIME DOTS)
+  // KALKULATOR AUTO-MATH & FORMATTITIK (UPDATED)
   // ---------------------------------------------------------
   const amountInput = document.getElementById('f-amount');
   const catInput = document.getElementById('f-cat');
@@ -812,8 +967,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         let val = this.value.replace(/[^0-9+\-*/().]/g, ''); 
         try {
             if(val && /[+\-*/]/.test(val)) {
-                // PROTEKSI: Karena sekarang ada titik otomatis pas diketik, 
-                // kita hapus dulu titiknya sebelum masukin ke kalkulator biar eval-nya nggak eror
+                // PROTEKSI
                 let cleanMath = val.replace(/\./g, '');
                 let result = eval(cleanMath); 
                 this.value = parseInt(result, 10).toLocaleString('id-ID');
@@ -828,52 +982,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     amountInput.addEventListener('input', function(e) {
       let raw = this.value.replace(/[^0-9+\-*/().]/g, '');
-      
-      // Kalau lu lagi ngetik tanda tambah/kurang/kali/bagi, titik otomatis distop dulu biar rumus lu aman
       if(/[+\-*/()]/.test(raw)) {
           this.value = raw;
       } else {
-          // Kalau lu cuma ngetik angka biasa, langsung tembak pakai titik ribuan otomatis
           let nums = raw.replace(/\./g, '');
           this.value = nums ? parseInt(nums, 10).toLocaleString('id-ID') : '';
       }
     });
-
-    const originalAddTx = window.addTx;
-    window.addTx = async function() {
-      if(document.activeElement) { document.activeElement.blur(); } 
-
-      const rawValue = amountInput.value.replace(/\./g, '');
-      const selectedCat = catInput ? catInput.value : '';
-
-      if(!rawValue || !selectedCat || isNaN(rawValue)) {
-        if(!rawValue || isNaN(rawValue)) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); }
-        if(!selectedCat) { catInput.classList.add('shake-error'); setTimeout(() => catInput.classList.remove('shake-error'), 400); }
-        
-        amountInput.type = 'number'; amountInput.value = ''; 
-        await originalAddTx(); 
-        amountInput.type = 'text'; amountInput.value = '';
-        return; 
-      }
-
-      amountInput.type = 'number';
-      amountInput.value = rawValue;
-
-      try {
-        await originalAddTx();
-        if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
-        Toast.fire({ icon: 'success', title: 'Transaksi Berhasil Disimpan!' });
-        
-        setTimeout(() => {
-          window.setRealLocalTime();
-          amountInput.type = 'text';
-          amountInput.focus();
-        }, 200);
-      } catch(err) {
-        if (navigator.vibrate) navigator.vibrate([50, 100, 50]); 
-      }
-      amountInput.type = 'text'; amountInput.value = '';
-    };
   }
 
   // FUNGSI WAKTU GLOBAL BIAR BISA DIPANGGIL TOMBOL "SEKARANG"
@@ -927,7 +1042,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         Swal.fire({
             title: 'Pindah Tab?', text: "Ada nominal yang belum lu simpan. Lanjut pindah?", icon: 'warning',
             showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal',
-            background: 'var(--bg2)', color: 'var(--text)', confirmButtonColor: 'var(--border2)'
+            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)',
+            position: 'center', backdrop: 'rgba(0,0,0,0.6)'
         }).then((result) => {
             if (result.isConfirmed) { originalSwitchPage(p); } 
         });
