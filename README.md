@@ -395,7 +395,21 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   </div>
 </div>
 
-<div id="app-screen">
+<div id="pin-screen" style="display:none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 9999;">
+  <div class="auth-box">
+    <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
+    <div class="auth-title" id="pin-title">Masukkan PIN</div>
+    <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
+    <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
+    <div class="form-row">
+       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••">
+    </div>
+    <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
+    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:24px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetAccount()">Ganti Akun / Reset PIN</button>
+  </div>
+</div>
+
+<div id="app-screen" style="display:none;">
 <div class="header-area">
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
@@ -570,6 +584,23 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
 </div></div>
 
+<!-- ========================================================================= -->
+<!-- SCRIPT ANTI-FLICKER: NGECEK LOKAL SINKRON SEBELUM FIREBASE LOAD -->
+<!-- ========================================================================= -->
+<script>
+  const lastUid = localStorage.getItem('last_uid_rhn');
+  const savedPin = lastUid ? localStorage.getItem('app_pin_' + lastUid) : null;
+  if (savedPin) {
+     // Kalo ketemu memori PIN, BUNUH layar auth saat ini juga secara instan
+     document.getElementById('auth-screen').style.display = 'none';
+     document.getElementById('pin-screen').style.display = 'flex';
+     document.getElementById('pin-title').textContent = 'Masukkan PIN';
+     document.getElementById('pin-sub').textContent = 'Keamanan aktif';
+     document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI';
+     window.pinMode = 'verify';
+  }
+</script>
+
 <script type="module">
 window.toggleTheme = function() {
   document.body.classList.toggle('light-mode');
@@ -623,11 +654,117 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
-window.doLogout=async function(){ if(unsubListener){unsubListener();unsubListener=null;} txs=[]; await signOut(auth); };
 
-onAuthStateChanged(auth,user=>{
-  if(user){ currentUser=user; document.getElementById('auth-screen').style.display='none'; document.getElementById('app-screen').style.display='block'; setLoading(false); const name=user.displayName||user.email.split('@')[0]; document.getElementById('user-name').textContent=name; document.getElementById('user-avatar').textContent=name.charAt(0).toUpperCase(); listenTransactions(user.uid); }
-  else { currentUser=null; document.getElementById('auth-screen').style.display='flex'; document.getElementById('app-screen').style.display='none'; if(unsubListener){unsubListener();unsubListener=null;} txs=[]; }
+window.doLogout=async function(){ 
+  if(unsubListener){unsubListener();unsubListener=null;} 
+  txs=[]; 
+  localStorage.removeItem('last_uid_rhn'); // Bersihkan memori uid login
+  await signOut(auth); 
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    localStorage.setItem('last_uid_rhn', user.uid); // Simpan uid buat load secepat kilat besok-besok
+    document.getElementById('auth-screen').style.display = 'none';
+    
+    const savedPin = localStorage.getItem('app_pin_' + user.uid);
+    if (!savedPin) {
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('pin-screen').style.display = 'flex';
+      document.getElementById('pin-title').textContent = 'Buat PIN Baru';
+      document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk akses cepat';
+      document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN';
+      window.pinMode = 'setup';
+    } else {
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('pin-screen').style.display = 'flex';
+      document.getElementById('pin-title').textContent = 'Masukkan PIN';
+      document.getElementById('pin-sub').textContent = 'Keamanan aktif';
+      document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI';
+      window.pinMode = 'verify';
+      
+      // Kalo user ketik PIN super kilat sebelum Firebase ready
+      if (window.pendingUnlock) {
+          window.pendingUnlock = false;
+          unlockApp();
+      }
+    }
+  } else {
+    currentUser = null;
+    localStorage.removeItem('last_uid_rhn');
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'none';
+    if (unsubListener) { unsubListener(); unsubListener = null; }
+    txs = [];
+  }
+});
+
+window.verifyPin = function() {
+  const pinInput = document.getElementById('app-pin').value;
+  const errEl = document.getElementById('pin-err');
+  if (pinInput.length < 6) { errEl.textContent = 'PIN harus 6 digit.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  if (window.pinMode === 'setup') {
+    localStorage.setItem('app_pin_' + currentUser.uid, pinInput);
+    Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
+    unlockApp();
+  } else {
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+    if (!uid) return;
+    
+    const savedPin = localStorage.getItem('app_pin_' + uid);
+    if (pinInput === savedPin) {
+      if (currentUser) {
+        unlockApp();
+      } else {
+        // Tahan sebentar kalo Firebase telat sepersekian detik ngerespon
+        document.getElementById('pin-title').textContent = 'Memuat Data...';
+        document.getElementById('pin-sub').textContent = 'Tunggu sebentar...';
+        document.getElementById('app-pin').blur(); 
+        window.pendingUnlock = true;
+      }
+    } else {
+      errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block';
+      document.getElementById('app-pin').value = '';
+      document.getElementById('app-pin').classList.add('shake-error');
+      setTimeout(() => document.getElementById('app-pin').classList.remove('shake-error'), 400);
+      if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+    }
+  }
+};
+
+function unlockApp() {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  setLoading(false);
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+  listenTransactions(currentUser.uid);
+  document.getElementById('app-pin').value = '';
+}
+
+window.resetAccount = function() {
+  Swal.fire({
+    title: 'Ganti Akun?', text: "PIN di perangkat ini akan direset dan lu harus login Email lagi.",
+    icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)',
+    confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      if (currentUser) localStorage.removeItem('app_pin_' + currentUser.uid);
+      localStorage.removeItem('last_uid_rhn');
+      document.getElementById('app-pin').value = '';
+      doLogout();
+    }
+  });
+};
+
+document.getElementById('app-pin').addEventListener('input', function(e) {
+  this.value = this.value.replace(/[^0-9]/g, '');
+  if (this.value.length === 6) { window.verifyPin(); }
 });
 
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
@@ -1350,4 +1487,3 @@ window.addEventListener('DOMContentLoaded', (event) => {
 </script>
 </body>
 </html>
-
