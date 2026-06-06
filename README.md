@@ -151,12 +151,12 @@ body {
 .inc .m-bar-fill { background: var(--green2); } .exp .m-bar-fill { background: var(--red2); }
 .bal .m-bar-fill { background: var(--border2); } .cnt .m-bar-fill { background: var(--blue); }
 
-/* WALLET BALANCES SCROLL (INFO SALDO KECIL) */
-.wallet-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 24px; padding-bottom: 4px; }
+/* WALLET BALANCES SCROLL (INFO SALDO KECIL) - 3x2 COMPACT */
+.wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .wallet-scroll::-webkit-scrollbar { display: none; }
-.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; flex-shrink: 0; min-width: 120px; display: flex; flex-direction: column; justify-content: center; }
-.w-label { font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); }
+.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .w-val.min { color: var(--red2); }
 
 /* SUMMARY GRID */
@@ -274,8 +274,8 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   }
   .metrics .m-card { border-radius: 24px !important; border-left: none; border-right: none; }
   
-  .wallet-scroll { padding-left: 16px; padding-right: 16px; margin: 8px 0 16px 0 !important; width: 100%; }
-  .w-card { border-radius: 16px !important; }
+  .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-left: 16px; padding-right: 16px; margin: 8px 0 16px 0 !important; width: 100%; }
+  .w-card { border-radius: 12px !important; padding: 6px !important; }
 
   .sum-grid { 
     grid-template-columns: repeat(2, 1fr); 
@@ -329,8 +329,8 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .sum-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
   
   /* Dompet stretch biar lurus presisi mentok ujung Hari Ini */
-  .wallet-scroll { display: flex; gap: 24px; overflow-x: hidden; padding-bottom: 0; }
-  .w-card { flex: 1; min-width: 0; }
+  .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
+  .w-card { min-width: 0; }
 
   /* Form di kiri (380px), Riwayat di kanan sisa layarnya */
   .panel { 
@@ -365,7 +365,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 </head>
 <body>
 
-<!-- BANNER OFFLINE TAMBAHAN -->
 <div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; left:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
@@ -584,9 +583,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
 </div></div>
 
-<!-- ========================================================================= -->
-<!-- SCRIPT ANTI-FLICKER: NGECEK LOKAL SINKRON SEBELUM FIREBASE LOAD -->
-<!-- ========================================================================= -->
 <script>
   const lastUid = localStorage.getItem('last_uid_rhn');
   const savedPin = lastUid ? localStorage.getItem('app_pin_' + lastUid) : null;
