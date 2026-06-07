@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -908,9 +909,13 @@ const createTxCard = (t) => {
   let walletBadge = t.wallet ? `<span class="wallet-badge">${t.wallet}</span>` : '';
   if(t.type === 'transfer') walletBadge = `<span class="wallet-badge">${t.wallet} ➔ ${t.walletTo}</span>`;
 
+  // =====================================================================
+  // TOMBOL AKSI: LUNAS (Hutang) dan SUDAH BAYAR (Piutang)
+  // Muncul di samping tombol EDIT dan HAPUS pada setiap kartu transaksi
+  // =====================================================================
   let actionBtn = '';
   if (t.type === 'debt' && !t.isPaid) {
-      actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">BAYAR</button>`;
+      actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`;
   } else if (t.type === 'debt' && t.isPaid) {
       actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`;
   } else if (t.type === 'recv' && !t.isPaid) {
@@ -1501,41 +1506,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
   resetIdle(); 
 
 });
-</script>
-<!-- TAMBAHAN SCRIPT: Mengubah teks tombol Hutang & Piutang murni tanpa menyentuh kode asli -->
-<script>
-  (function() {
-    const updateButtonsText = () => {
-      document.querySelectorAll('.edit-btn-recent').forEach(btn => {
-        const onclickAttr = btn.getAttribute('onclick') || '';
-        // Ubah tombol BAYAR (Hutang) menjadi LUNAS
-        if (onclickAttr.includes('payDebt') && btn.innerText.trim() === 'BAYAR') {
-          btn.innerText = 'LUNAS';
-        }
-        // Ubah tombol SUDAH BAYAR (Piutang) menjadi TELAH DIBAYAR
-        if (onclickAttr.includes('payRecv') && btn.innerText.trim() === 'SUDAH BAYAR') {
-          btn.innerText = 'TELAH DIBAYAR';
-        }
-      });
-    };
-
-    const observer = new MutationObserver((mutations) => {
-      let shouldUpdate = false;
-      mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length > 0) shouldUpdate = true;
-      });
-      if (shouldUpdate) updateButtonsText();
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const targetNode = document.getElementById('app-screen');
-      if (targetNode) {
-        observer.observe(targetNode, { childList: true, subtree: true });
-      }
-      setTimeout(updateButtonsText, 500);
-      setTimeout(updateButtonsText, 1500);
-    });
-  })();
 </script>
 </body>
 </html>
