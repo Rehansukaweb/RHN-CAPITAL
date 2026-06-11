@@ -452,6 +452,8 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
+    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:16px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
+    <div style="font-size: 10px; color: var(--gold); margin-top: 6px; text-align: center;">*Cek folder SPAM jika email reset tidak masuk</div>
   </div>
 </div>
 
@@ -672,7 +674,7 @@ window.toggleTheme = function() {
 if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
@@ -714,6 +716,37 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
+
+window.doResetPassword = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  hideErr();
+  
+  if (!email) {
+    return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.');
+  }
+  
+  setLoading(true);
+  document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
+  
+  try {
+    await sendPasswordResetEmail(auth, email);
+    Swal.fire({
+      position: 'center', 
+      icon: 'success', 
+      title: 'Email Terkirim!', 
+      html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu untuk link ganti kata sandi.', 
+      showConfirmButton: true, 
+      background: 'var(--card)', 
+      color: 'var(--text)',
+      backdrop: 'rgba(0,0,0,0.6)'
+    });
+  } catch(e) {
+    showErr(e.message);
+  }
+  
+  setLoading(false);
+  document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
+};
 
 window.doLogout=async function(){ 
   if(unsubListener){unsubListener();unsubListener=null;} 
