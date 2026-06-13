@@ -635,7 +635,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:100px"><canvas id="chartWeek"></canvas></div>
+      <div style="height:250px"><canvas id="chartWeek"></canvas></div>
     </div>
     <div class="list-wrap" id="week-body"></div>
   </div>
@@ -648,7 +648,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:100px"><canvas id="chartMonth"></canvas></div>
+      <div style="height:250px"><canvas id="chartMonth"></canvas></div>
     </div>
     <div class="list-wrap" id="month-body"></div>
   </div>
@@ -661,7 +661,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:100px"><canvas id="chartYear"></canvas></div>
+      <div style="height:250px"><canvas id="chartYear"></canvas></div>
     </div>
     <div class="list-wrap" id="year-body"></div>
   </div>
@@ -686,7 +686,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
         <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
       </div>
-      <div style="height:100px"><canvas id="chartRiwayat"></canvas></div>
+      <div style="height:250px"><canvas id="chartRiwayat"></canvas></div>
     </div>
 
     <div class="list-wrap" id="all-body"></div>
@@ -2024,16 +2024,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
       document.body.classList.remove('idle-mode');
   };
 
-  // Event listener yang jauh lebih ringan & akurat (passive: true agar tidak memberatkan browser)
-  ['click','touchstart','scroll','keypress'].forEach(evt => {
+  // Event listener yang jauh lebih ringan & akurat
+  ['click','touchstart','mousemove','keypress'].forEach(evt => {
       window.addEventListener(evt, window.resetIdle, { passive: true });
   });
 
-  // Loop Pengecekan Paksa setiap 2 detik
+  // Loop Pengecekan Paksa setiap 1 detik
   setInterval(() => {
       const appScreen = document.getElementById('app-screen');
       // Hanya jalan jika user sedang di dalam aplikasi (layar utama)
-      if (appScreen && appScreen.style.display !== 'none') {
+      if (appScreen && appScreen.style.display === 'block') {
           const idleTime = Date.now() - window.lastActiveTime;
 
           // Mode redup (Idle 120 detik)
@@ -2041,7 +2041,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               document.body.classList.add('idle-mode');
           }
 
-          // EKSEKUSI KUNCI 30 DETIK JIKA FITUR AKTIF
+          // EKSEKUSI KUNCI 30 DETIK SECARA PAKSA & AGRESIF
           if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
               if (idleTime > 30000) {
                   appScreen.style.display = 'none';
@@ -2065,7 +2065,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               }
           }
       }
-  }, 2000);
+  }, 1000); // Cek tiap detik
 
 });
 
