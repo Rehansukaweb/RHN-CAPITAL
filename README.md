@@ -40,17 +40,17 @@
   --radius: 16px; 
 }
 
-/* FIX: Mode Terang yang lebih redup & gak bikin silau */
+/* FIX: Mode Terang yang lebih redup, adem di mata, & tulisan tajam */
 body.light-mode {
-  --bg: #EAECEF; 
-  --bg2: #F4F5F7; 
-  --bg3: #DFE2E6;
-  --card: #F4F5F7; 
-  --border: #D1D5DB; 
+  --bg: #DFE2E6; 
+  --bg2: #E9EDF1; 
+  --bg3: #D0D5DB;
+  --card: #E9EDF1; 
+  --border: #C2C8D0; 
   --border2: #9CA3AF;
-  --text: #1F2937; 
+  --text: #111827; 
   --text2: #374151; 
-  --text3: #6B7280;
+  --text3: #4B5563;
   --blue-title: #0056b3;
 }
 
@@ -178,29 +178,32 @@ body {
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .card-sub { font-size: 12px; color: var(--text3); }
 
-.type-toggle { display: flex; background: var(--bg3); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
-.t-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text3); transition: 0.2s; }
-.t-btn.income.active { background: var(--bg2); color: var(--green2); }
-.t-btn.expense.active { background: var(--bg2); color: var(--text); }
+.type-toggle { display: flex; background: var(--bg3); border-radius: 16px; padding: 4px; margin-bottom: 20px; }
+.t-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text3); transition: 0.2s; }
+.t-btn.income.active { background: var(--bg2); color: var(--green2); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.t-btn.expense.active { background: var(--bg2); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
 .f-input-dark {
-  width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border);
+  width: 100%; padding: 16px; border-radius: 16px;
+  border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
   outline: none; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500;
-  appearance: none; -webkit-appearance: none; transition: border-color 0.3s;
+  appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
-.f-input-dark:focus { border-color: var(--gold); }
+.f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
+
 select.f-input-dark {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; cursor: pointer;
 }
-select.f-input-dark option { background: var(--card); color: var(--text); }
+select.f-input-dark option { background: var(--bg2); color: var(--text); font-weight: 500; padding: 12px; }
 
 .form-row { margin-bottom: 16px; }
 .form-label { font-size: 10px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-row textarea { height: 100px; resize: none; }
-.submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
+.form-row textarea { height: 100px; resize: none; border-radius: 16px; }
+.submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
 
 /* HISTORY CARDS */
 .list-wrap { padding: 8px 0; }
@@ -632,7 +635,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:200px"><canvas id="chartWeek"></canvas></div>
+      <div style="height:100px"><canvas id="chartWeek"></canvas></div>
     </div>
     <div class="list-wrap" id="week-body"></div>
   </div>
@@ -645,7 +648,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:200px"><canvas id="chartMonth"></canvas></div>
+      <div style="height:100px"><canvas id="chartMonth"></canvas></div>
     </div>
     <div class="list-wrap" id="month-body"></div>
   </div>
@@ -658,7 +661,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
     <div class="chart-wrap">
       <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div></div>
-      <div style="height:200px"><canvas id="chartYear"></canvas></div>
+      <div style="height:100px"><canvas id="chartYear"></canvas></div>
     </div>
     <div class="list-wrap" id="year-body"></div>
   </div>
@@ -678,13 +681,12 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
     </div>
     
-    <!-- FIX: Tambahan Grafik Riwayat Berdasarkan Dompet -->
     <div class="chart-wrap" style="margin-top: 16px;">
       <div class="chart-legend">
         <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
         <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
       </div>
-      <div style="height:200px"><canvas id="chartRiwayat"></canvas></div>
+      <div style="height:100px"><canvas id="chartRiwayat"></canvas></div>
     </div>
 
     <div class="list-wrap" id="all-body"></div>
@@ -849,7 +851,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v3.2 Pro</div>
+        <div class="set-sub">RHN Capital OS v3.3 Pro Max</div>
       </div>
     </div>
     <div class="set-item">
@@ -1128,7 +1130,7 @@ onAuthStateChanged(auth, user => {
       }
     }
     
-    // FIX TRIGGER AUTOLOCK SAAT PERTAMA LOAD
+    // START TIMER SETELAH LOAD
     if(window.resetIdle) window.resetIdle();
     
   } else {
@@ -1186,7 +1188,7 @@ function unlockApp() {
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
   
-  // FIX: RESTART TIMER SETELAH UNLOCK
+  // RESET TIMER SETELAH UNLOCK
   if(window.resetIdle) window.resetIdle();
 }
 
@@ -1553,7 +1555,7 @@ function renderWalletBalances() {
   container.innerHTML = html;
 }
 
-function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'"}},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
+function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4,barPercentage:0.6},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},maxRotation:0,minRotation:0},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
 
 window.renderDaily=function(){ const pick=document.getElementById('pick-daily').value, target=pick?new Date(pick).toDateString():new Date().toDateString(), arr=txs.filter(t=>new Date(t.date).toDateString()===target).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'),arr); renderList(document.getElementById('daily-body'), arr); };
 function wkKey(d){
@@ -1680,8 +1682,6 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navi
   .m-card.bal, .ri-amount, .cat-badge { cursor: pointer; transition: 0.2s; }
   .ri-amount:hover, .cat-badge:hover { opacity: 0.7; }
   
-  .f-input-dark:focus { box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2); }
-  
   .inc .m-bar-fill { background: linear-gradient(90deg, #10B981 0%, #34D399 100%); }
   .exp .m-bar-fill { background: linear-gradient(90deg, #F87171 0%, #FCA5A5 100%); }
   
@@ -1691,8 +1691,8 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navi
   body.global-privacy .m-val, body.global-privacy .ri-amount, body.global-privacy .usd-pill, body.global-privacy .ri-usd, body.global-privacy .w-val { filter: blur(6px); transition: 0.3s; user-select: none; }
   body.idle-mode { filter: brightness(0.6) blur(2px); transition: 0.5s ease; pointer-events: none; } 
 
-  .ewallet-badge { background: rgba(59, 130, 246, 0.2); color: #60A5FA; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.5); }
-  .trading-badge { background: rgba(245, 158, 11, 0.2); color: #FBBF24; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.5); }
+  .ewallet-badge { background: rgba(59, 130, 246, 0.2); color: #0266CC; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.5); }
+  .trading-badge { background: rgba(245, 158, 11, 0.2); color: #D97706; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.5); }
 
   .big-money-glow { text-shadow: 0 0 12px rgba(251, 191, 36, 0.8); color: var(--gold) !important; }
 
@@ -1970,7 +1970,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               } else if(catText.includes('jajan') || catText.includes('makan') || catText.includes('loss')) {
                   badge.style.background = 'rgba(248, 113, 113, 0.15)'; badge.style.color = 'var(--red2)'; badge.style.borderColor = 'rgba(248, 113, 113, 0.4)';
               } else if(catText.includes('utilitas') || catText.includes('transportasi') || catText.includes('ongkos')) {
-                  badge.style.background = 'rgba(59, 130, 246, 0.15)'; badge.style.color = '#60A5FA'; badge.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                  badge.style.background = 'rgba(59, 130, 246, 0.15)'; badge.style.color = '#0266CC'; badge.style.borderColor = 'rgba(59, 130, 246, 0.4)';
               }
               badge.dataset.colored = 'true';
           }
@@ -2016,35 +2016,56 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
   };
 
-  // FIX: TRIGGER AUTO LOCK YG GAK JALAN KEMARIN
-  let idleTimeout, autoLockTimeout;
+  // FIX: SISTEM AUTO-LOCK 30 DETIK (BULLETPROOF LOOP)
+  window.lastActiveTime = Date.now();
+
   window.resetIdle = () => {
+      window.lastActiveTime = Date.now();
       document.body.classList.remove('idle-mode');
-      clearTimeout(idleTimeout);
-      clearTimeout(autoLockTimeout);
-      
-      idleTimeout = setTimeout(() => {
-          document.body.classList.add('idle-mode');
-      }, 120000); 
-      
-      // Hitung 30 Detik kalau fiturnya On
-      if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
-          autoLockTimeout = setTimeout(() => {
-              const appScreen = document.getElementById('app-screen');
-              // Hanya kunci jika app screen emang lagi kebuka
-              if (appScreen && appScreen.style.display !== 'none') {
-                  appScreen.style.display = 'none';
-                  document.getElementById('pin-screen').style.display = 'flex';
-                  document.getElementById('pin-title').textContent = 'Masukkan PIN';
-                  document.getElementById('pin-sub').textContent = 'Sesi terkunci (30 detik)';
-                  document.getElementById('pin-submit-btn').textContent = 'BUKA';
-                  window.pinMode = 'verify';
-                  if (navigator.vibrate) navigator.vibrate(50);
-              }
-          }, 30000); // 30.000 ms = 30 Detik
-      }
   };
-  ['mousemove','mousedown','keypress','touchstart','scroll'].forEach(evt => window.addEventListener(evt, window.resetIdle, true));
+
+  // Event listener yang jauh lebih ringan & akurat (passive: true agar tidak memberatkan browser)
+  ['click','touchstart','scroll','keypress'].forEach(evt => {
+      window.addEventListener(evt, window.resetIdle, { passive: true });
+  });
+
+  // Loop Pengecekan Paksa setiap 2 detik
+  setInterval(() => {
+      const appScreen = document.getElementById('app-screen');
+      // Hanya jalan jika user sedang di dalam aplikasi (layar utama)
+      if (appScreen && appScreen.style.display !== 'none') {
+          const idleTime = Date.now() - window.lastActiveTime;
+
+          // Mode redup (Idle 120 detik)
+          if (idleTime > 120000) {
+              document.body.classList.add('idle-mode');
+          }
+
+          // EKSEKUSI KUNCI 30 DETIK JIKA FITUR AKTIF
+          if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
+              if (idleTime > 30000) {
+                  appScreen.style.display = 'none';
+                  const pinScreen = document.getElementById('pin-screen');
+                  if (pinScreen) pinScreen.style.display = 'flex';
+                  
+                  const pinTitle = document.getElementById('pin-title');
+                  if (pinTitle) pinTitle.textContent = 'Otomatis Terkunci';
+                  
+                  const pinSub = document.getElementById('pin-sub');
+                  if (pinSub) pinSub.textContent = 'Aplikasi tertidur (30 detik)';
+                  
+                  window.pinMode = 'verify';
+                  const pinInput = document.getElementById('app-pin');
+                  if (pinInput) pinInput.value = '';
+                  
+                  if (navigator.vibrate) navigator.vibrate([50, 50]);
+                  
+                  // Reset timer biar gak ngeloop eksekusinya selagi di layar PIN
+                  window.lastActiveTime = Date.now();
+              }
+          }
+      }
+  }, 2000);
 
 });
 
