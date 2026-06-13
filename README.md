@@ -40,10 +40,17 @@
   --radius: 16px; 
 }
 
+/* FIX: Mode Terang yang lebih redup & gak bikin silau */
 body.light-mode {
-  --bg: #F8F9FA; --bg2: #FFFFFF; --bg3: #E9ECEF;
-  --card: #FFFFFF; --border: #DEE2E6; --border2: #CED4DA;
-  --text: #111111; --text2: #444444; --text3: #6C757D;
+  --bg: #EAECEF; 
+  --bg2: #F4F5F7; 
+  --bg3: #DFE2E6;
+  --card: #F4F5F7; 
+  --border: #D1D5DB; 
+  --border2: #9CA3AF;
+  --text: #1F2937; 
+  --text2: #374151; 
+  --text3: #6B7280;
   --blue-title: #0056b3;
 }
 
@@ -286,7 +293,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 
   .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 !important; margin: 0 0 24px 0 !important; background: transparent; border: none; }
   .sum-grid .m-card { border-radius: 24px !important; border-left: none; border-right: none; }
-  .sum-grid .m-card:nth-child(3) { grid-column: span 2; }
 
   .panel { display: flex; flex-direction: column; gap: 16px; background: transparent; }
   .card { padding: 16px 0 !important; border-radius: 0 !important; border: none !important; background: transparent !important; margin-bottom: 0; }
@@ -317,7 +323,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
    ========================================================================== */
 @media (min-width: 769px) {
   .metrics { grid-template-columns: repeat(4, 1fr); gap: 24px; }
-  .sum-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .sum-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
   .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
   .w-card { min-width: 0; }
   .panel { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
@@ -671,6 +677,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
       <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
     </div>
+    
+    <!-- FIX: Tambahan Grafik Riwayat Berdasarkan Dompet -->
+    <div class="chart-wrap" style="margin-top: 16px;">
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
+      </div>
+      <div style="height:200px"><canvas id="chartRiwayat"></canvas></div>
+    </div>
+
     <div class="list-wrap" id="all-body"></div>
   </div>
 </div>
@@ -727,17 +743,15 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 
   <div class="set-group">
-    <div class="set-title">⚙️ 6 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
+    <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
     <div class="set-item">
       <div>
         <div class="set-label">Kunci Otomatis (Auto-Lock)</div>
-        <div class="set-sub">Kunci aplikasi otomatis jika didiamkan</div>
+        <div class="set-sub">Kunci otomatis jika didiamkan 30 detik</div>
       </div>
       <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs()">
-        <option value="off">Mati</option>
-        <option value="1">1 Menit</option>
-        <option value="5">5 Menit</option>
-        <option value="10">10 Menit</option>
+        <option value="off">Tidak Aktif</option>
+        <option value="on">Aktif</option>
       </select>
     </div>
     <div class="set-item">
@@ -796,6 +810,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-sub">Tampilkan label "Belum Lunas" secara tegas di riwayat</div>
       </div>
       <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">7. Anti Intip Saldo</div>
+        <div class="set-sub">Sembunyikan/blur nominal saldo di seluruh aplikasi</div>
+      </div>
+      <select id="ext_antiintip" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -892,7 +916,8 @@ let extraPrefs = {
     ext_budget: 'off', 
     ext_hidezero: 'off', 
     ext_walletpct: 'off', 
-    ext_debtbadge: 'off'
+    ext_debtbadge: 'off',
+    ext_antiintip: 'off'
 };
 
 const fmtFull = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
@@ -1004,9 +1029,17 @@ window.saveExtraPrefs = function() {
         ext_budget: document.getElementById('ext_budget').value, 
         ext_hidezero: document.getElementById('ext_hidezero').value, 
         ext_walletpct: document.getElementById('ext_walletpct').value, 
-        ext_debtbadge: document.getElementById('ext_debtbadge').value 
+        ext_debtbadge: document.getElementById('ext_debtbadge').value,
+        ext_antiintip: document.getElementById('ext_antiintip').value
     };
     localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
+    
+    if(extraPrefs.ext_antiintip === 'on') {
+        document.body.classList.add('global-privacy');
+    } else {
+        document.body.classList.remove('global-privacy');
+    }
+
     if(window.resetIdle) window.resetIdle();
     refreshAll();
 };
@@ -1058,9 +1091,14 @@ onAuthStateChanged(auth, user => {
     const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
     if(savedExtraPrefs) {
         extraPrefs = JSON.parse(savedExtraPrefs);
-        ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge'].forEach(id => {
+        ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
             if(document.getElementById(id) && extraPrefs[id]) document.getElementById(id).value = extraPrefs[id];
         });
+        if(extraPrefs.ext_antiintip === 'on') {
+            document.body.classList.add('global-privacy');
+        } else {
+            document.body.classList.remove('global-privacy');
+        }
     }
     
     setTimeout(() => {
@@ -1089,6 +1127,10 @@ onAuthStateChanged(auth, user => {
           unlockApp();
       }
     }
+    
+    // FIX TRIGGER AUTOLOCK SAAT PERTAMA LOAD
+    if(window.resetIdle) window.resetIdle();
+    
   } else {
     currentUser = null;
     localStorage.removeItem('last_uid_rhn');
@@ -1143,6 +1185,9 @@ function unlockApp() {
   document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
+  
+  // FIX: RESTART TIMER SETELAH UNLOCK
+  if(window.resetIdle) window.resetIdle();
 }
 
 window.resetAccount = function() {
@@ -1346,8 +1391,12 @@ function calcSum(arr){
 
 function renderSumGrid(el,arr, isDash = false){ 
   const s=calcSum(arr); 
+  const ts = calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString()));
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0; 
+  
   const warnStyle = (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_warnbalance === 'on' && s.bal < 50000) ? `style="border-color: var(--red2); box-shadow: 0 0 15px rgba(248,113,113,0.3);"` : '';
+  const dailyColor = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'color: var(--red2); text-shadow: 0 0 10px rgba(248,113,113,0.5);' : '';
+  const dailyBorder = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'border-color: rgba(248,113,113,0.5);' : '';
 
   el.innerHTML=`
     <div class="m-card inc">
@@ -1370,6 +1419,12 @@ function renderSumGrid(el,arr, isDash = false){
       <div class="usd-pill">${getUSD(s.bal)}</div>
       <div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div>
       <div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div>
+    </div>
+    <div class="m-card cnt" style="${dailyBorder}">
+      <div class="m-label">HARI INI ${dailyColor ? '⚠️ OVER LIMIT' : ''}</div>
+      <div class="m-val" style="${dailyColor}">${ts.count} transaksi</div>
+      <div class="m-sub" style="font-weight:700;">+ ${fmt(ts.inc, isDash)} | - <span style="${dailyColor}">${fmt(ts.exp, isDash)}</span></div>
+      <div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%; background: ${dailyColor ? 'var(--red2)' : 'var(--blue)'};"></div></div>
     </div>
   `; 
 }
@@ -1428,19 +1483,7 @@ const createTxCard = (t) => {
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 
 function renderMetrics(){
-  const s=calcSum(txs), ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString())), pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
-  
-  const dailyColor = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'color: var(--red2); text-shadow: 0 0 10px rgba(248,113,113,0.5);' : '';
-  const dailyBorder = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'border-color: rgba(248,113,113,0.5);' : '';
-
   renderSumGrid(document.getElementById('metric-cards'), txs, true);
-  
-  document.getElementById('metric-cards').innerHTML += `<div class="m-card cnt" style="${dailyBorder}">
-    <div class="m-label">HARI INI ${dailyColor ? '⚠️ OVER LIMIT' : ''}</div>
-    <div class="m-val" style="${dailyColor}">${ts.count} transaksi</div>
-    <div class="m-sub" style="font-weight:700;">+ ${fmt(ts.inc, true)} | - <span style="${dailyColor}">${fmt(ts.exp, true)}</span></div>
-    <div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%; background: ${dailyColor ? 'var(--red2)' : 'var(--blue)'};"></div></div>
-  </div>`;
 }
 
 function renderWalletBalances() {
@@ -1530,7 +1573,31 @@ function showMonth(k){ const arr=txs.filter(t=>t.date.slice(0,7)===k).sort((a,b)
 function renderYearly(){ const years={};txs.forEach(t=>{const k=t.date.slice(0,4);(years[k]=years[k]||[]).push(t)}); const keys=Object.keys(years).sort().reverse(); document.getElementById('year-sel').innerHTML=keys.map((k,i)=>`<button class="p-btn${i===0?' active':''}" onclick="selYear('${k}',this)">${k}</button>`).join(''); if(keys.length)showYear(keys[0]); }
 window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showYear(k)};
 function showYear(k){ const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('year-sum'),arr); renderList(document.getElementById('year-body'),arr); const MNTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], inc=new Array(12).fill(0),exp=new Array(12).fill(0); arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else if(t.type==='expense')exp[m]+=t.amount;else if(t.type==='debt'){inc[m]+=t.amount;if(t.isPaid)exp[m]+=t.amount;}else if(t.type==='recv'){exp[m]+=t.amount;if(t.isPaid)inc[m]+=t.amount;}}); mkChart('chartYear',MNTHS,inc,exp); }
-window.renderAll=function(){ const tf=document.getElementById('flt-type').value, s=(document.getElementById('flt-search').value||'').toLowerCase(); let arr=[...txs]; if(tf)arr=arr.filter(t=>t.type===tf); if(s)arr=arr.filter(t=>t.note.toLowerCase().includes(s)||t.category.toLowerCase().includes(s)); arr.sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('all-sum'),arr); renderList(document.getElementById('all-body'),arr); };
+
+// DASAR FUNGSI RENDER ALL
+window.renderAll = function(){ 
+  const tf = document.getElementById('flt-type').value; 
+  const s = (document.getElementById('flt-search').value||'').toLowerCase(); 
+  let arr = [...txs]; 
+  if(tf) arr = arr.filter(t => t.type === tf); 
+  if(s) arr = arr.filter(t => t.note.toLowerCase().includes(s) || t.category.toLowerCase().includes(s)); 
+  arr.sort((a,b) => new Date(b.date) - new Date(a.date)); 
+  renderSumGrid(document.getElementById('all-sum'), arr); 
+  renderList(document.getElementById('all-body'), arr); 
+
+  // FIX: Tambahkan data ke Chart Riwayat (Berdasarkan Wallet/Dompet)
+  const wObj = {};
+  arr.forEach(t => {
+     const w = t.wallet || 'Kas Tunai';
+     if(!wObj[w]) wObj[w] = {inc: 0, exp: 0};
+     if(t.type === 'income') wObj[w].inc += t.amount;
+     else if(t.type === 'expense') wObj[w].exp += t.amount;
+  });
+  const wLabels = Object.keys(wObj);
+  const wInc = wLabels.map(w => wObj[w].inc);
+  const wExp = wLabels.map(w => wObj[w].exp);
+  mkChart('chartRiwayat', wLabels, wInc, wExp);
+};
 
 function refreshAll(){ renderMetrics(); renderWalletBalances(); renderList(document.getElementById('recent-list'), txs.slice(0,6)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
 
@@ -1949,6 +2016,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
   };
 
+  // FIX: TRIGGER AUTO LOCK YG GAK JALAN KEMARIN
   let idleTimeout, autoLockTimeout;
   window.resetIdle = () => {
       document.body.classList.remove('idle-mode');
@@ -1959,20 +2027,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
           document.body.classList.add('idle-mode');
       }, 120000); 
       
-      if (typeof currentUser !== 'undefined' && currentUser && typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock !== 'off') {
-          const ms = parseInt(extraPrefs.ext_autolock) * 60000;
+      // Hitung 30 Detik kalau fiturnya On
+      if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
           autoLockTimeout = setTimeout(() => {
-              document.getElementById('app-screen').style.display = 'none';
-              document.getElementById('pin-screen').style.display = 'flex';
-              document.getElementById('pin-title').textContent = 'Masukkan PIN';
-              document.getElementById('pin-sub').textContent = 'Sesi terkunci otomatis (AFK)';
-              document.getElementById('pin-submit-btn').textContent = 'BUKA';
-              window.pinMode = 'verify';
-          }, ms);
+              const appScreen = document.getElementById('app-screen');
+              // Hanya kunci jika app screen emang lagi kebuka
+              if (appScreen && appScreen.style.display !== 'none') {
+                  appScreen.style.display = 'none';
+                  document.getElementById('pin-screen').style.display = 'flex';
+                  document.getElementById('pin-title').textContent = 'Masukkan PIN';
+                  document.getElementById('pin-sub').textContent = 'Sesi terkunci (30 detik)';
+                  document.getElementById('pin-submit-btn').textContent = 'BUKA';
+                  window.pinMode = 'verify';
+                  if (navigator.vibrate) navigator.vibrate(50);
+              }
+          }, 30000); // 30.000 ms = 30 Detik
       }
   };
   ['mousemove','mousedown','keypress','touchstart','scroll'].forEach(evt => window.addEventListener(evt, window.resetIdle, true));
-  window.resetIdle(); 
 
 });
 
