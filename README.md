@@ -1555,7 +1555,7 @@ function renderWalletBalances() {
   container.innerHTML = html;
 }
 
-function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4,barPercentage:0.6},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},maxRotation:0,minRotation:0},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
+function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4,barPercentage:0.6},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},autoSkip:false,maxRotation:45,minRotation:0},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
 
 window.renderDaily=function(){ const pick=document.getElementById('pick-daily').value, target=pick?new Date(pick).toDateString():new Date().toDateString(), arr=txs.filter(t=>new Date(t.date).toDateString()===target).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'),arr); renderList(document.getElementById('daily-body'), arr); };
 function wkKey(d){
@@ -2019,53 +2019,49 @@ window.addEventListener('DOMContentLoaded', (event) => {
   // FIX: SISTEM AUTO-LOCK 30 DETIK (BULLETPROOF LOOP)
   window.lastActiveTime = Date.now();
 
+  window.checkLock = () => {
+      const appScreen = document.getElementById('app-screen');
+      if (appScreen && appScreen.style.display === 'block') {
+          if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
+              if (Date.now() - window.lastActiveTime > 30000) {
+                  appScreen.style.display = 'none';
+                  const pinScreen = document.getElementById('pin-screen');
+                  if (pinScreen) pinScreen.style.display = 'flex';
+                  const pinTitle = document.getElementById('pin-title');
+                  if (pinTitle) pinTitle.textContent = 'Otomatis Terkunci';
+                  const pinSub = document.getElementById('pin-sub');
+                  if (pinSub) pinSub.textContent = 'Aplikasi tertidur (30 detik)';
+                  window.pinMode = 'verify';
+                  const pinInput = document.getElementById('app-pin');
+                  if (pinInput) pinInput.value = '';
+                  if (navigator.vibrate) navigator.vibrate([50, 50]);
+                  window.lastActiveTime = Date.now();
+                  return true;
+              }
+          }
+      }
+      return false;
+  };
+
   window.resetIdle = () => {
+      if (window.checkLock()) return;
       window.lastActiveTime = Date.now();
       document.body.classList.remove('idle-mode');
   };
 
-  // Event listener yang jauh lebih ringan & akurat
-  ['click','touchstart','mousemove','keypress'].forEach(evt => {
+  ['click','touchstart','mousemove','keypress','scroll','visibilitychange'].forEach(evt => {
       window.addEventListener(evt, window.resetIdle, { passive: true });
   });
 
-  // Loop Pengecekan Paksa setiap 1 detik
   setInterval(() => {
+      window.checkLock();
       const appScreen = document.getElementById('app-screen');
-      // Hanya jalan jika user sedang di dalam aplikasi (layar utama)
       if (appScreen && appScreen.style.display === 'block') {
-          const idleTime = Date.now() - window.lastActiveTime;
-
-          // Mode redup (Idle 120 detik)
-          if (idleTime > 120000) {
+          if (Date.now() - window.lastActiveTime > 120000) {
               document.body.classList.add('idle-mode');
           }
-
-          // EKSEKUSI KUNCI 30 DETIK SECARA PAKSA & AGRESIF
-          if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
-              if (idleTime > 30000) {
-                  appScreen.style.display = 'none';
-                  const pinScreen = document.getElementById('pin-screen');
-                  if (pinScreen) pinScreen.style.display = 'flex';
-                  
-                  const pinTitle = document.getElementById('pin-title');
-                  if (pinTitle) pinTitle.textContent = 'Otomatis Terkunci';
-                  
-                  const pinSub = document.getElementById('pin-sub');
-                  if (pinSub) pinSub.textContent = 'Aplikasi tertidur (30 detik)';
-                  
-                  window.pinMode = 'verify';
-                  const pinInput = document.getElementById('app-pin');
-                  if (pinInput) pinInput.value = '';
-                  
-                  if (navigator.vibrate) navigator.vibrate([50, 50]);
-                  
-                  // Reset timer biar gak ngeloop eksekusinya selagi di layar PIN
-                  window.lastActiveTime = Date.now();
-              }
-          }
       }
-  }, 1000); // Cek tiap detik
+  }, 1000);
 
 });
 
