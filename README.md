@@ -110,10 +110,13 @@ body {
   display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 700; font-size: 12px;
 }
 .u-name { font-size: 12px; font-weight: 600; color: var(--text); }
-.logout-btn {
-  background: transparent; border: 1px solid var(--border2); color: var(--text3);
-  padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase;
-}
+
+/* TOMBOL PENGATURAN & KELUAR */
+.user-action-wrap { display: flex; gap: 6px; padding-right: 4px; align-items: center; }
+.setting-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; padding: 0; }
+.logout-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); height: 32px; padding: 0 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+.setting-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--text); color: var(--text); }
+.logout-btn:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); color: var(--red2); }
 
 /* NAVIGATION TABS */
 .nav {
@@ -153,10 +156,11 @@ body {
 /* WALLET BALANCES SCROLL */
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .wallet-scroll::-webkit-scrollbar { display: none; }
-.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .w-val.min { color: var(--red2); }
+.w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
 /* SUMMARY GRID */
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
@@ -219,6 +223,19 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
 .edit-btn-recent { background: transparent; border: none; color: var(--text3); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
+
+/* SETTINGS MODULE */
+.set-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+.set-title { font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px; border-bottom: 1px solid var(--border2); padding-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.set-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border2); }
+.set-item:last-child { border-bottom: none; padding-bottom: 0; }
+.set-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.set-sub { font-size: 10px; color: var(--text3); margin-top: 4px; font-weight: 500; }
+.set-action { padding: 8px 16px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; white-space: nowrap; }
+.set-action:hover { background: var(--bg2); border-color: var(--gold); color: var(--gold); }
+.set-action.danger { color: var(--red2); border-color: rgba(248,113,113,0.3); }
+.set-action.danger:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); }
+.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; font-family: 'Outfit', sans-serif; cursor: pointer; }
 
 /* CHART & FILTERS BAR */
 .chart-wrap { margin-bottom: 24px; }
@@ -288,6 +305,11 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   .ri-right-wrap { margin-left: 0; align-items: flex-end; }
   .del-btn-recent, .edit-btn-recent { margin-top: 0px; }
   .cat-badge { display: inline-block !important; }
+
+  /* MOBILE FIX FOR SETTINGS */
+  .set-group { border-radius: 0; border-left: none; border-right: none; padding: 20px 16px; }
+  .logout-btn { padding: 0 8px; font-size: 9px; height: 28px; }
+  .setting-btn { width: 28px; height: 28px; padding: 4px; }
 }
 
 /* ==========================================================================
@@ -316,6 +338,9 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 .ri-amount.transfer { color: var(--text); }
 
 .wallet-badge { background: var(--bg3); color: var(--text2); font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid var(--border2); text-transform: uppercase; }
+
+/* HIDE USD UTILITY CSS */
+body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
    SPLASH SCREEN V3: ULTIMATE MASTERPIECE (RHN CAPITAL)
@@ -409,7 +434,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
 </head>
 <body>
 
-<!-- SPLASH SCREEN START -->
 <div id="splash-screen">
   <div class="splash-particles" id="splash-particles"></div>
   <div class="splash-content">
@@ -424,8 +448,6 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
     <div class="splash-sub">ARUS KEUANGAN</div>
   </div>
 </div>
-<!-- SPLASH SCREEN END -->
-
 <div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; left:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
@@ -482,7 +504,7 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   </div>
   
   <div class="status-row">
-    <div class="status-pill">
+    <div class="status-pill usd-status-pill">
       <span class="usd-val" id="usd-rate-val">...</span>
     </div>
     <div class="status-pill">
@@ -498,7 +520,12 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
         <div class="u-avatar" id="user-avatar">?</div>
         <div class="u-name" id="user-name">Memuat...</div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">KELUAR</button>
+      <div class="user-action-wrap">
+        <button class="setting-btn" onclick="switchPage('pengaturan')" title="Pengaturan">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <button class="logout-btn" onclick="doLogout()">KELUAR</button>
+      </div>
     </div>
   </div>
 </div>
@@ -648,6 +675,170 @@ select.f-input-dark option { background: var(--card); color: var(--text); }
   </div>
 </div>
 
+<div id="page-pengaturan" class="page">
+  
+  <div class="set-group">
+    <div class="set-title">🔒 KEAMANAN AKUN</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Reset Kata Sandi</div>
+        <div class="set-sub">Kirim link reset ke email kamu</div>
+      </div>
+      <button class="set-action" onclick="reqResetPasswordViaSettings()">KIRIM LINK</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Ubah PIN Keamanan</div>
+        <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
+      </div>
+      <button class="set-action" onclick="changePinInApp()">GANTI PIN</button>
+    </div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">⚡ PREFERENSI BAWAAN FORM</div>
+    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah transaksi setiap aplikasi dibuka.</div>
+    
+    <div class="set-item">
+      <div><div class="set-label">Tipe Transaksi</div></div>
+      <select id="pref-type" class="set-select" onchange="updatePrefCategories()">
+        <option value="expense">Pengeluaran</option>
+        <option value="income">Pemasukan</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div><div class="set-label">Kategori Rutin</div></div>
+      <select id="pref-cat" class="set-select"></select>
+    </div>
+    <div class="set-item">
+      <div><div class="set-label">Dompet Utama</div></div>
+      <select id="pref-wallet" class="set-select">
+        <option value="Kas Tunai">Kas Tunai</option>
+        <option value="DANA">DANA</option>
+        <option value="GoPay">GoPay</option>
+        <option value="ShopeePay">ShopeePay</option>
+        <option value="MT5 Trading">Saldo MT5 Trading</option>
+        <option value="Rekening Bank">Rekening Bank</option>
+      </select>
+    </div>
+    <div class="set-item" style="justify-content: flex-end; padding-top: 16px;">
+      <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="savePreferences()">SIMPAN PREFERENSI</button>
+    </div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">⚙️ 6 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Kunci Otomatis (Auto-Lock)</div>
+        <div class="set-sub">Kunci aplikasi otomatis jika didiamkan</div>
+      </div>
+      <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="1">1 Menit</option>
+        <option value="5">5 Menit</option>
+        <option value="10">10 Menit</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">1. Sembunyikan Dompet Bersaldo Nol</div>
+        <div class="set-sub">Hilangkan dompet dari layar jika uangnya kosong</div>
+      </div>
+      <select id="ext_hidezero" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">2. Tampilkan Persentase Aset (%)</div>
+        <div class="set-sub">Tampilkan porsi persentase saldo di tiap dompet</div>
+      </div>
+      <select id="ext_walletpct" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">3. Format Angka Ringkas (Dashboard)</div>
+        <div class="set-sub">Ubah format panjang Rp 1.500.000 menjadi 1,5 Jt</div>
+      </div>
+      <select id="ext_shortnum" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">4. Peringatan Saldo Kritis</div>
+        <div class="set-sub">Efek merah menyala bila saldo keseluruhan turun di bawah 50rb</div>
+      </div>
+      <select id="ext_warnbalance" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">5. Mode Hemat Harian (Budget Alert)</div>
+        <div class="set-sub">Indikator merah jika pengeluaran harian melebihi Rp 100.000</div>
+      </div>
+      <select id="ext_budget" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">6. Sorotan Label Hutang & Piutang</div>
+        <div class="set-sub">Tampilkan label "Belum Lunas" secara tegas di riwayat</div>
+      </div>
+      <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs()">
+        <option value="off">Mati</option>
+        <option value="on">Aktif</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="set-group">
+    <div class="set-title">💾 MANAJEMEN DATA</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Unduh Laporan CSV</div>
+        <div class="set-sub">Ekspor semua riwayat transaksi untuk di Excel</div>
+      </div>
+      <button class="set-action" onclick="exportCSV()">UNDUH DATA</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Hapus Semua Riwayat</div>
+        <div class="set-sub">Peringatan: Format ulang seluruh database akun ini</div>
+      </div>
+      <button class="set-action danger" onclick="deleteAllData()">FORMAT DATA</button>
+    </div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">ℹ️ DETAIL APLIKASI</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Versi Sistem</div>
+        <div class="set-sub">RHN Capital OS v3.2 Pro</div>
+      </div>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Hapus Cache Lokal</div>
+        <div class="set-sub">Perbaiki jika aplikasi terasa berat</div>
+      </div>
+      <button class="set-action danger" onclick="clearLocalCache()">BERSIHKAN</button>
+    </div>
+  </div>
+
+</div>
+
 </div></div>
 
 <script>
@@ -688,10 +879,32 @@ const CATS = {
   debt: ['Pinjaman Bank', 'Pinjaman Pribadi', 'Titipan Dana', 'Lainnya'],
   recv: ['Dipinjam Teman', 'Kasbon Karyawan', 'Lainnya'] 
 };
+
 let txs=[], curType='income', activePage='dashboard', charts={}, currentUSDRate = 16000, currentUser=null, unsubListener=null, authMode='login';
 let editId = null;
 
-const fmt = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
+// VARIABEL PREFERENSI & PENGATURAN EKSTRA
+let appPrefs = { type: 'income', category: '', wallet: 'Kas Tunai' };
+let extraPrefs = { 
+    ext_autolock: 'off', 
+    ext_warnbalance: 'off', 
+    ext_shortnum: 'off', 
+    ext_budget: 'off', 
+    ext_hidezero: 'off', 
+    ext_walletpct: 'off', 
+    ext_debtbadge: 'off'
+};
+
+const fmtFull = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
+const fmt = (n, isDash = false) => {
+    if (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_shortnum === 'on') {
+        if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toFixed(2).replace('.',',') + ' M';
+        if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000000).toFixed(2).replace('.',',') + ' Jt';
+        if (Math.abs(n) >= 10000) return 'Rp ' + (n/1000).toFixed(1).replace('.',',') + ' Rb';
+    }
+    return fmtFull(n);
+};
+
 const fmtDate = dt => new Date(dt).toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
 const fmtTime = dt => new Date(dt).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 const nowISO = () => new Date().toISOString().slice(0,16);
@@ -718,34 +931,111 @@ window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-log
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
 window.doResetPassword = async function() {
-  const email = document.getElementById('auth-email').value.trim();
-  hideErr();
-  
-  if (!email) {
-    return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.');
-  }
-  
-  setLoading(true);
-  document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
-  
-  try {
-    await sendPasswordResetEmail(auth, email);
-    Swal.fire({
-      position: 'center', 
-      icon: 'success', 
-      title: 'Email Terkirim!', 
-      html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu untuk link ganti kata sandi.', 
-      showConfirmButton: true, 
-      background: 'var(--card)', 
-      color: 'var(--text)',
-      backdrop: 'rgba(0,0,0,0.6)'
+  const email = document.getElementById('auth-email').value.trim(); hideErr();
+  if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); }
+  setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
+  try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); }
+  setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
+};
+
+window.reqResetPasswordViaSettings = async function() {
+    if (!currentUser) return;
+    try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Gagal', e.message, 'error'); }
+}
+
+window.clearLocalCache = function() {
+    Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', background: 'var(--card)', color: 'var(--text)' }).then((res) => {
+        if(res.isConfirmed) {
+            let tempLastUid = localStorage.getItem('last_uid_rhn'); let tempPin = localStorage.getItem('app_pin_' + tempLastUid);
+            localStorage.clear();
+            if(tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid);
+            if(tempPin) localStorage.setItem('app_pin_' + tempLastUid, tempPin);
+            Swal.fire({position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); setTimeout(()=>location.reload(), 1500);
+        }
     });
-  } catch(e) {
-    showErr(e.message);
-  }
-  
-  setLoading(false);
-  document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
+}
+
+window.deleteAllData = async function() {
+    if(!currentUser) return;
+    const savedPin = localStorage.getItem('app_pin_' + currentUser.uid);
+    Swal.fire({
+        title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password',
+        inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' },
+        icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)'
+    }).then(async (res) => {
+        if(res.isConfirmed) {
+            if (res.value !== savedPin) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'});
+            Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            try { for(let t of txs) await deleteDoc(doc(db,'users',currentUser.uid,'transactions',t.id)); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+    });
+}
+
+window.updatePrefCategories = function(resetCat = true) {
+    const selType = document.getElementById('pref-type').value;
+    const catDrop = document.getElementById('pref-cat');
+    if(!catDrop) return;
+    catDrop.innerHTML = ''; 
+    if(CATS[selType]) {
+        CATS[selType].forEach(c => { let opt = document.createElement('option'); opt.value = c; opt.textContent = c; catDrop.appendChild(opt); });
+    }
+    if(!resetCat && appPrefs.category) { setTimeout(() => catDrop.value = appPrefs.category, 50); }
+    if(!resetCat) { document.getElementById('pref-type').value = appPrefs.type || 'income'; document.getElementById('pref-wallet').value = appPrefs.wallet || 'Kas Tunai'; }
+}
+
+window.savePreferences = function() {
+    if(!currentUser) return;
+    appPrefs = { type: document.getElementById('pref-type').value, category: document.getElementById('pref-cat').value, wallet: document.getElementById('pref-wallet').value };
+    localStorage.setItem('rhn_prefs_' + currentUser.uid, JSON.stringify(appPrefs));
+    Swal.fire({position: 'center', icon: 'success', title: 'Tersimpan!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
+    selType(appPrefs.type);
+    setTimeout(() => {
+        if(document.getElementById('f-cat') && appPrefs.category) document.getElementById('f-cat').value = appPrefs.category;
+        if(document.getElementById('f-wallet') && appPrefs.wallet) document.getElementById('f-wallet').value = appPrefs.wallet;
+    }, 50);
+}
+
+window.saveExtraPrefs = function() {
+    if(!currentUser) return;
+    extraPrefs = { 
+        ext_autolock: document.getElementById('ext_autolock').value, 
+        ext_warnbalance: document.getElementById('ext_warnbalance').value, 
+        ext_shortnum: document.getElementById('ext_shortnum').value, 
+        ext_budget: document.getElementById('ext_budget').value, 
+        ext_hidezero: document.getElementById('ext_hidezero').value, 
+        ext_walletpct: document.getElementById('ext_walletpct').value, 
+        ext_debtbadge: document.getElementById('ext_debtbadge').value 
+    };
+    localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
+    if(window.resetIdle) window.resetIdle();
+    refreshAll();
+};
+
+window.changePinInApp = async function() {
+    if(!currentUser) return;
+    const savedPin = localStorage.getItem('app_pin_' + currentUser.uid);
+
+    const { value: oldPin } = await Swal.fire({
+        title: 'Masukkan PIN Lama', input: 'password',
+        inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)', confirmButtonText: 'LANJUT'
+    });
+
+    if (!oldPin) return;
+    if (oldPin !== savedPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'});
+
+    const { value: newPin } = await Swal.fire({
+        title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password',
+        inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU'
+    });
+
+    if (newPin && newPin.length === 6) {
+        localStorage.setItem('app_pin_' + currentUser.uid, newPin);
+        Swal.fire({icon:'success', title:'PIN Berhasil Diganti!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+    } else if (newPin) {
+        Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'});
+    }
 };
 
 window.doLogout=async function(){ 
@@ -761,6 +1051,23 @@ onAuthStateChanged(auth, user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
+    // LOAD SETTINGS
+    const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
+    if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
+    
+    const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
+    if(savedExtraPrefs) {
+        extraPrefs = JSON.parse(savedExtraPrefs);
+        ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge'].forEach(id => {
+            if(document.getElementById(id) && extraPrefs[id]) document.getElementById(id).value = extraPrefs[id];
+        });
+    }
+    
+    setTimeout(() => {
+        window.updatePrefCategories(false); 
+        if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); }
+    }, 200);
+
     const savedPin = localStorage.getItem('app_pin_' + user.uid);
     if (!savedPin) {
       document.getElementById('app-screen').style.display = 'none';
@@ -942,7 +1249,17 @@ window.addTx=async function(){
         saveBtn.style.boxShadow = 'none';
         saveBtn.disabled = false;
         window.setRealLocalTime();
-        selType(curType); 
+        
+        // Auto kembali ke setting preferensi (jika ada) setelah simpan
+        if(appPrefs && appPrefs.type) {
+            selType(appPrefs.type);
+            setTimeout(() => {
+                if(document.getElementById('f-cat') && appPrefs.category) document.getElementById('f-cat').value = appPrefs.category;
+                if(document.getElementById('f-wallet') && appPrefs.wallet) document.getElementById('f-wallet').value = appPrefs.wallet;
+            }, 50);
+        } else {
+            selType('income');
+        }
     }, 2000);
 
   } catch(e){
@@ -976,10 +1293,13 @@ window.selType=function(t){
   document.getElementById('btn-exp').classList.toggle('active',t==='expense'); 
   const btnDebt=document.getElementById('btn-debt'); if(btnDebt) btnDebt.classList.toggle('active',t==='debt');
   const btnRecv=document.getElementById('btn-recv'); if(btnRecv) btnRecv.classList.toggle('active',t==='recv');
+  const btnTransfer=document.getElementById('btn-transfer'); if(btnTransfer) btnTransfer.classList.toggle('active',t==='transfer');
   
   const s=document.getElementById('f-cat'); 
-  s.innerHTML='<option value="">Pilih kategori...</option>'; 
-  if(CATS[t]){ CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); }
+  if (s) {
+      s.innerHTML='<option value="">Pilih kategori...</option>'; 
+      if(CATS[t]){ CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); }
+  }
   
   const saveBtn = document.getElementById('save-btn');
   if(saveBtn){
@@ -987,10 +1307,25 @@ window.selType=function(t){
     else if(t==='expense'){ saveBtn.style.background='var(--red2)'; saveBtn.style.color='#fff'; saveBtn.textContent='SIMPAN PENGELUARAN'; }
     else if(t==='debt'){ saveBtn.style.background='var(--gold)'; saveBtn.style.color='#000'; saveBtn.textContent='CATAT HUTANG'; }
     else if(t==='recv'){ saveBtn.style.background='var(--blue)'; saveBtn.style.color='#fff'; saveBtn.textContent='CATAT PIUTANG'; }
+    else if(t==='transfer'){ saveBtn.style.background='var(--text)'; saveBtn.style.color='var(--bg)'; saveBtn.textContent='LAKUKAN TRANSFER'; }
+  }
+
+  const catRow = document.getElementById('row-cat');
+  const walletToRow = document.getElementById('row-wallet-to');
+  const walletLabel = document.getElementById('label-wallet');
+
+  if (t === 'transfer') {
+      if (catRow) catRow.style.display = 'none';
+      if (walletToRow) walletToRow.style.display = 'block';
+      if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)';
+  } else {
+      if (catRow) catRow.style.display = 'block';
+      if (walletToRow) walletToRow.style.display = 'none';
+      if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET';
   }
 };
 
-window.switchPage=function(p){ document.querySelectorAll('.page').forEach(el=>el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active')); document.getElementById('page-'+p).classList.add('active'); const pages=['dashboard','harian','mingguan','bulanan','tahunan','riwayat']; document.querySelectorAll('.nav-btn')[pages.indexOf(p)].classList.add('active'); activePage=p;refreshAll(); };
+window.switchPage=function(p){ document.querySelectorAll('.page').forEach(el=>el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active')); document.getElementById('page-'+p).classList.add('active'); const pages=['dashboard','harian','mingguan','bulanan','tahunan','riwayat']; const idx = pages.indexOf(p); if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } activePage=p;refreshAll(); };
 
 function calcSum(arr){
   let inc = 0, exp = 0;
@@ -1009,27 +1344,29 @@ function calcSum(arr){
   return {inc, exp, bal: inc - exp, count: arr.length};
 }
 
-function renderSumGrid(el,arr){ 
+function renderSumGrid(el,arr, isDash = false){ 
   const s=calcSum(arr); 
   const pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0; 
+  const warnStyle = (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_warnbalance === 'on' && s.bal < 50000) ? `style="border-color: var(--red2); box-shadow: 0 0 15px rgba(248,113,113,0.3);"` : '';
+
   el.innerHTML=`
     <div class="m-card inc">
       <div class="m-label">TOTAL PEMASUKAN</div>
-      <div class="m-val">${fmt(s.inc)}</div>
+      <div class="m-val">${fmt(s.inc, isDash)}</div>
       <div class="usd-pill">${getUSD(s.inc)}</div>
       <div class="m-sub">${s.inc>0?s.count+' transaksi':'-'}</div>
       <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div>
     </div>
     <div class="m-card exp">
       <div class="m-label">TOTAL PENGELUARAN</div>
-      <div class="m-val">${fmt(s.exp)}</div>
+      <div class="m-val">${fmt(s.exp, isDash)}</div>
       <div class="usd-pill">${getUSD(s.exp)}</div>
       <div class="m-sub">${pct}% dari pemasukan</div>
       <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div>
     </div>
-    <div class="m-card bal">
-      <div class="m-label">SALDO BERSIH</div>
-      <div class="m-val">${fmt(s.bal)}</div>
+    <div class="m-card bal" ${warnStyle}>
+      <div class="m-label">SALDO BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div>
+      <div class="m-val">${fmt(s.bal, isDash)}</div>
       <div class="usd-pill">${getUSD(s.bal)}</div>
       <div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div>
       <div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div>
@@ -1048,6 +1385,14 @@ const createTxCard = (t) => {
   if(t.type === 'transfer') walletBadge = `<span class="wallet-badge">${t.wallet} ➔ ${t.walletTo}</span>`;
 
   let actionBtn = '';
+  let debtWarn = '';
+
+  if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_debtbadge === 'on') {
+      if ((t.type === 'debt' || t.type === 'recv') && !t.isPaid) {
+          debtWarn = `<div style="font-size:8px; font-weight:800; background:var(--red2); color:#000; padding:2px 6px; border-radius:4px; display:inline-block; margin-left:8px;">BELUM LUNAS</div>`;
+      }
+  }
+
   if (t.type === 'debt' && !t.isPaid) {
       actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`;
   } else if (t.type === 'debt' && t.isPaid) {
@@ -1062,13 +1407,13 @@ const createTxCard = (t) => {
     <div class="ri-left">
       <div class="ri-icon ${t.type}">${icon}</div>
       <div>
-        <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span>${walletBadge}</div>
+        <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span>${walletBadge}${debtWarn}</div>
         <div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div>
       </div>
     </div>
     <div class="ri-right-wrap">
       <div class="ri-amounts-col">
-        <div class="ri-amount ${t.type}">${sign}${fmt(t.amount)}</div>
+        <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div>
         <div class="ri-usd">${getUSD(t.amount)}</div>
       </div>
       <div class="action-btns">
@@ -1084,13 +1429,25 @@ function renderList(container, arr) { container.innerHTML = arr.length ? arr.map
 
 function renderMetrics(){
   const s=calcSum(txs), ts=calcSum(txs.filter(t=>new Date(t.date).toDateString()===new Date().toDateString())), pct=s.inc>0?Math.min(100,Math.round((s.exp/s.inc)*100)):0;
-  document.getElementById('metric-cards').innerHTML=`<div class="m-card inc"><div class="m-label">TOTAL PEMASUKAN</div><div class="m-val">${fmt(s.inc)}</div><div class="usd-pill">${getUSD(s.inc)}</div><div class="m-sub">${s.count} transaksi</div><div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div></div><div class="m-card exp"><div class="m-label">TOTAL PENGELUARAN</div><div class="m-val">${fmt(s.exp)}</div><div class="usd-pill">${getUSD(s.exp)}</div><div class="m-sub">${pct}% dari pemasukan</div><div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div></div><div class="m-card bal"><div class="m-label">SALDO BERSIH</div><div class="m-val">${fmt(s.bal)}</div><div class="usd-pill">${getUSD(s.bal)}</div><div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${s.inc>0?Math.max(0,Math.min(100,Math.round((s.bal/s.inc)*100))):0}%"></div></div></div><div class="m-card cnt"><div class="m-label">HARI INI</div><div class="m-val">${ts.count} transaksi</div><div class="m-sub" style="font-weight:700;">${ts.inc>0?fmt(ts.inc):'Kosong'}</div><div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%"></div></div></div>`;
+  
+  const dailyColor = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'color: var(--red2); text-shadow: 0 0 10px rgba(248,113,113,0.5);' : '';
+  const dailyBorder = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'border-color: rgba(248,113,113,0.5);' : '';
+
+  renderSumGrid(document.getElementById('metric-cards'), txs, true);
+  
+  document.getElementById('metric-cards').innerHTML += `<div class="m-card cnt" style="${dailyBorder}">
+    <div class="m-label">HARI INI ${dailyColor ? '⚠️ OVER LIMIT' : ''}</div>
+    <div class="m-val" style="${dailyColor}">${ts.count} transaksi</div>
+    <div class="m-sub" style="font-weight:700;">+ ${fmt(ts.inc, true)} | - <span style="${dailyColor}">${fmt(ts.exp, true)}</span></div>
+    <div class="m-bar"><div class="m-bar-fill" style="width:${ts.count>0?100:0}%; background: ${dailyColor ? 'var(--red2)' : 'var(--blue)'};"></div></div>
+  </div>`;
 }
 
 function renderWalletBalances() {
   const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Rekening Bank': 0 };
   let hutangBal = 0;
   let piutangBal = 0;
+  let totalAset = 0;
 
   txs.forEach(t => {
     let w = t.wallet || 'Kas Tunai';
@@ -1132,16 +1489,22 @@ function renderWalletBalances() {
     }
   });
   
+  for(let key in wallets) { if(wallets[key] > 0) totalAset += wallets[key]; }
+
   const container = document.getElementById('wallet-balances');
   if (!container) return;
   
-  let html = Object.entries(wallets).map(([name, bal]) => 
-    `<div class="w-card"><div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmt(bal)}</div><div style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div></div>`
-  ).join('');
+  let html = Object.entries(wallets).filter(([name, bal]) => {
+      if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_hidezero === 'on' && bal === 0) return false;
+      return true;
+  }).map(([name, bal]) => {
+      let pct = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_walletpct === 'on' && totalAset > 0 && bal > 0) ? `<div class="w-pct-badge" style="display:block;">${((bal/totalAset)*100).toFixed(1)}%</div>` : '';
+      return `<div class="w-card" style="position:relative;">${pct}<div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div></div>`
+  }).join('');
 
   html += `<div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: inherit;">
-    <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05);"><div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div><div class="w-val min">${fmt(hutangBal)}</div><div style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div></div>
-    <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05);"><div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div><div class="w-val min">${fmt(piutangBal)}</div><div style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div></div>
+    <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05);"><div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div><div class="w-val min">${fmtFull(hutangBal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div></div>
+    <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05);"><div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div><div class="w-val min">${fmtFull(piutangBal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div></div>
   </div>`;
 
   container.innerHTML = html;
@@ -1171,54 +1534,54 @@ window.renderAll=function(){ const tf=document.getElementById('flt-type').value,
 
 function refreshAll(){ renderMetrics(); renderWalletBalances(); renderList(document.getElementById('recent-list'), txs.slice(0,6)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
 
-document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO(); selType('income');
+document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO();
 
 window.exportCSV=function(){ if(!txs.length)return Swal.fire('Kosong','Tidak ada data untuk diunduh','info'); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
 
 window.payDebt = async function(id) {
-    if(!currentUser) return;
-    Swal.fire({
-        title: 'Bayar Hutang?',
-        text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.",
-        icon: 'question',
-        showCancelButton: true,
-        background: 'var(--card)', color: 'var(--text)',
-        confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
-        confirmButtonText: 'Ya, Bayar Lunas',
-        position: 'center', backdrop: 'rgba(0,0,0,0.6)'
-    }).then(async (result) => {
-        if(result.isConfirmed) {
-            try {
-                await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
-                Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
-            } catch(e) {
-                Swal.fire('Error', e.message, 'error');
-            }
-        }
-    });
+  if(!currentUser) return;
+  Swal.fire({
+      title: 'Bayar Hutang?',
+      text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.",
+      icon: 'question',
+      showCancelButton: true,
+      background: 'var(--card)', color: 'var(--text)',
+      confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+      confirmButtonText: 'Ya, Bayar Lunas',
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+  }).then(async (result) => {
+      if(result.isConfirmed) {
+          try {
+              await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
+              Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
+          } catch(e) {
+              Swal.fire('Error', e.message, 'error');
+          }
+      }
+  });
 };
 
 window.payRecv = async function(id) {
-    if(!currentUser) return;
-    Swal.fire({
-        title: 'Piutang Dibayar?',
-        text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.",
-        icon: 'question',
-        showCancelButton: true,
-        background: 'var(--card)', color: 'var(--text)',
-        confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
-        confirmButtonText: 'Ya, Sudah Dibayar',
-        position: 'center', backdrop: 'rgba(0,0,0,0.6)'
-    }).then(async (result) => {
-        if(result.isConfirmed) {
-            try {
-                await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
-                Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
-            } catch(e) {
-                Swal.fire('Error', e.message, 'error');
-            }
-        }
-    });
+  if(!currentUser) return;
+  Swal.fire({
+      title: 'Piutang Dibayar?',
+      text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.",
+      icon: 'question',
+      showCancelButton: true,
+      background: 'var(--card)', color: 'var(--text)',
+      confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
+      confirmButtonText: 'Ya, Sudah Dibayar',
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+  }).then(async (result) => {
+      if(result.isConfirmed) {
+          try {
+              await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
+              Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
+          } catch(e) {
+              Swal.fire('Error', e.message, 'error');
+          }
+      }
+  });
 };
 
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.log('SW Error:', e)); }); }
@@ -1269,84 +1632,6 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navi
   #scroll-to-top { position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px; background: var(--blue-title); color: #fff; border: none; border-radius: 50%; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; z-index: 999; display: none; align-items: center; justify-content: center; transition: 0.3s; }
   #scroll-to-top:hover { background: var(--blue); transform: scale(1.05); }
 
-  /* ==========================================================================
-     SPLASH SCREEN V3: ULTIMATE MASTERPIECE (RHN CAPITAL)
-     ========================================================================== */
-  #splash-screen {
-    position: fixed; inset: 0; 
-    background: radial-gradient(circle at center, #121215 0%, #050505 100%);
-    z-index: 999999; display: flex; align-items: center; justify-content: center; overflow: hidden;
-  }
-
-  #splash-screen.splash-exit {
-    animation: diveIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-  }
-
-  @keyframes diveIn {
-    0% { transform: scale(1); opacity: 1; filter: blur(0); }
-    100% { transform: scale(1.5); opacity: 0; filter: blur(10px); visibility: hidden; }
-  }
-
-  .splash-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-  .particle {
-    position: absolute; background: var(--gold); border-radius: 50%;
-    box-shadow: 0 0 10px var(--gold); opacity: 0; 
-    animation: floatParticle 3s infinite ease-in-out;
-  }
-
-  @keyframes floatParticle {
-    0% { transform: translateY(0) scale(0); opacity: 0; }
-    50% { opacity: 0.6; }
-    100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
-  }
-
-  .splash-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
-
-  .splash-logo-box { 
-    position: relative; width: 100px; height: 100px; margin-bottom: 24px; 
-    display: flex; align-items: center; justify-content: center; 
-  }
-
-  .splash-ring {
-    position: absolute; inset: -10px; 
-    border: 2px dashed rgba(245, 158, 11, 0.5); border-radius: 24px;
-    animation: spinRing 8s linear infinite, popIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  }
-
-  .splash-img {
-    width: 85px; height: 85px; border-radius: 18px; border: 2px solid var(--gold); padding: 3px;
-    box-shadow: 0 0 30px rgba(245, 158, 11, 0.4); opacity: 0;
-    animation: logoZoomFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
-  }
-
-  .splash-img-shine {
-    position: absolute; inset: 0; border-radius: 18px; overflow: hidden; pointer-events: none;
-  }
-  .splash-img-shine::after {
-    content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
-    transform: rotate(45deg) translateX(-100%);
-    animation: flashShine 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1) 0.8s;
-  }
-
-  .splash-title-wrap { overflow: hidden; padding-bottom: 5px; }
-  .splash-title {
-    color: var(--text); font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800;
-    text-shadow: 0 4px 20px rgba(245, 158, 11, 0.6); transform: translateY(100%); opacity: 0;
-    animation: revealText 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
-  }
-
-  .splash-sub {
-    color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 4px; margin-top: 8px; opacity: 0;
-    animation: fadeSub 1s ease forwards 1s;
-  }
-
-  @keyframes spinRing { 100% { transform: rotate(360deg); } }
-  @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes logoZoomFade { 0% { transform: scale(0.5); opacity: 0; filter: blur(5px); } 100% { transform: scale(1); opacity: 1; filter: blur(0); } }
-  @keyframes flashShine { 0% { transform: rotate(45deg) translateX(-100%); } 100% { transform: rotate(45deg) translateX(100%); } }
-  @keyframes revealText { 0% { transform: translateY(100%); opacity: 0; letter-spacing: 12px; } 100% { transform: translateY(0); opacity: 1; letter-spacing: 3px; } }
-  @keyframes fadeSub { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
 </style>
 
 <script>
@@ -1500,7 +1785,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const originalRefreshAll = window.refreshAll;
   window.refreshAll = function() { originalRefreshAll(); setTimeout(applyBalanceColor, 50); };
   const originalRenderSumGrid = window.renderSumGrid;
-  window.renderSumGrid = function(el, arr) { originalRenderSumGrid(el, arr); setTimeout(applyBalanceColor, 50); };
+  window.renderSumGrid = function(el, arr, isDash) { originalRenderSumGrid(el, arr, isDash); setTimeout(applyBalanceColor, 50); };
 
   document.addEventListener('click', e => {
       const balCard = e.target.closest('.m-card.bal');
@@ -1512,7 +1797,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
   const originalSwitchPage = window.switchPage;
   window.switchPage = function(p) {
-    if (amountInput && amountInput.value && amountInput.value !== '' && p !== 'dashboard') {
+    if (amountInput && amountInput.value && amountInput.value !== '' && p !== 'dashboard' && p !== 'pengaturan') {
         Swal.fire({
             title: 'Pindah Tab?', text: "Ada nominal yang belum lu simpan. Lanjut pindah?", icon: 'warning',
             showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal',
@@ -1567,6 +1852,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                searchInput.value = cat;
                Toast.fire({ icon: 'info', title: `Filter: ${cat}` });
            }
+           window.switchPage('riwayat');
            window.renderAll();
        }
     }
@@ -1663,63 +1949,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
   };
 
-  const originalSelType = window.selType;
-  window.selType = function(t) {
-    originalSelType(t);
-    const saveBtn = document.getElementById('save-btn');
-    if (saveBtn) {
-      if (t === 'income') { saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; } 
-      else if (t === 'expense') { saveBtn.style.background = 'var(--red2)'; saveBtn.style.color = '#fff'; }
-      else if (t === 'debt') { saveBtn.style.background = 'var(--gold)'; saveBtn.style.color = '#000'; }
-      else if (t === 'recv') { saveBtn.style.background = 'var(--blue)'; saveBtn.style.color = '#fff'; }
-      else if (t === 'transfer') { saveBtn.style.background = 'var(--text)'; saveBtn.style.color = 'var(--bg)'; }
-    }
-    
-    const btnTransfer = document.getElementById('btn-transfer');
-    if (btnTransfer) btnTransfer.classList.toggle('active', t === 'transfer');
-
-    const catRow = document.getElementById('row-cat');
-    const walletToRow = document.getElementById('row-wallet-to');
-    const walletLabel = document.getElementById('label-wallet');
-
-    if (t === 'transfer') {
-        if (catRow) catRow.style.display = 'none';
-        if (walletToRow) walletToRow.style.display = 'block';
-        if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)';
-        if (saveBtn) saveBtn.textContent = 'LAKUKAN TRANSFER';
-    } else {
-        if (catRow) catRow.style.display = 'block';
-        if (walletToRow) walletToRow.style.display = 'none';
-        if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET';
-    }
-  };
-  setTimeout(() => { if (window.selType) window.selType('income'); }, 200);
-
-  const footer = document.createElement('div');
-  footer.innerHTML = "RHN CAPITAL FINANCE &copy; 2026";
-  footer.style.cssText = "text-align:center; padding:24px 24px 0px; font-size:10px; color:var(--text3); font-weight:700; letter-spacing:1px; opacity:0.5;";
-  document.querySelector('.main').appendChild(footer);
-
-  let idleTimeout;
-  const resetIdle = () => {
+  let idleTimeout, autoLockTimeout;
+  window.resetIdle = () => {
       document.body.classList.remove('idle-mode');
       clearTimeout(idleTimeout);
+      clearTimeout(autoLockTimeout);
+      
       idleTimeout = setTimeout(() => {
           document.body.classList.add('idle-mode');
       }, 120000); 
+      
+      if (typeof currentUser !== 'undefined' && currentUser && typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock !== 'off') {
+          const ms = parseInt(extraPrefs.ext_autolock) * 60000;
+          autoLockTimeout = setTimeout(() => {
+              document.getElementById('app-screen').style.display = 'none';
+              document.getElementById('pin-screen').style.display = 'flex';
+              document.getElementById('pin-title').textContent = 'Masukkan PIN';
+              document.getElementById('pin-sub').textContent = 'Sesi terkunci otomatis (AFK)';
+              document.getElementById('pin-submit-btn').textContent = 'BUKA';
+              window.pinMode = 'verify';
+          }, ms);
+      }
   };
-  window.addEventListener('mousemove', resetIdle);
-  window.addEventListener('mousedown', resetIdle);
-  window.addEventListener('keypress', resetIdle);
-  window.addEventListener('touchstart', resetIdle);
-  window.addEventListener('scroll', resetIdle, true);
-  resetIdle(); 
+  ['mousemove','mousedown','keypress','touchstart','scroll'].forEach(evt => window.addEventListener(evt, window.resetIdle, true));
+  window.resetIdle(); 
 
 });
 
-// SCRIPT SPLASH SCREEN V3 (ULTIMATE)
 window.addEventListener('load', () => {
-  // Buat partikel debu emas berterbangan acak
   const pContainer = document.getElementById('splash-particles');
   if (pContainer) {
     for (let i = 0; i < 15; i++) {
@@ -1735,12 +1992,10 @@ window.addEventListener('load', () => {
     }
   }
 
-  // Durasi sebelum transisi 'Dive-In' (zoom maju) dimulai
   setTimeout(() => {
     const splash = document.getElementById('splash-screen');
     if (splash) {
       splash.classList.add('splash-exit');
-      // Hapus div splash dari web setelah animasi selesai biar gak numpuk
       setTimeout(() => splash.remove(), 800);
     }
   }, 3000); 
