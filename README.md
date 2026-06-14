@@ -346,7 +346,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount.recv { color: var(--blue); }
 .ri-amount.transfer { color: var(--text); }
 
-.wallet-badge { background: var(--bg3); color: var(--text2); font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid var(--border2); text-transform: uppercase; }
+.wallet-badge { background: var(--bg3); color: var(--text2); font-size: 7px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid var(--border2); text-transform: uppercase; display: inline-block; white-space: normal; word-break: break-word; line-height: 1.2; }
 
 /* HIDE USD UTILITY CSS */
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
@@ -1416,7 +1416,7 @@ function renderSumGrid(el,arr, isDash = false){
       <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div>
     </div>
     <div class="m-card bal" ${warnStyle}>
-      <div class="m-label">SALDO BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div>
+      <div class="m-label">SAL बुन्देल BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div>
       <div class="m-val">${fmt(s.bal, isDash)}</div>
       <div class="usd-pill">${getUSD(s.bal)}</div>
       <div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div>
@@ -1555,7 +1555,7 @@ function renderWalletBalances() {
   container.innerHTML = html;
 }
 
-function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4,barPercentage:0.6},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},autoSkip:false,maxRotation:45,minRotation:0},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
+function mkChart(id,labels,incData,expData){ if(charts[id]) charts[id].destroy(); const c=document.getElementById(id); if(!c)return; const isLight = document.body.classList.contains('light-mode'); charts[id]=new Chart(c,{type:'bar',data:{labels,datasets:[{label:'Pemasukan',data:incData,backgroundColor:isLight?'#10B981':'#10B981',borderRadius:4,barPercentage:0.6},{label:'Pengeluaran',data:expData,backgroundColor:isLight?'#F87171':'#F87171',borderRadius:4,barPercentage:0.6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:isLight?'#888':'#888',font:{size:8,family:"'Outfit'",style:'normal'},autoSkip:false,maxRotation:0,minRotation:0},grid:{display:false},border:{display:false}},y:{ticks:{color:isLight?'#888':'#888',font:{size:10,family:"'Outfit'",style:'normal'},callback:v=>Intl.NumberFormat('id-ID',{notation:'compact'}).format(v)},grid:{color:isLight?'#DEE2E6':'#222228',drawBorder:false},border:{display:false}}}}}); }
 
 window.renderDaily=function(){ const pick=document.getElementById('pick-daily').value, target=pick?new Date(pick).toDateString():new Date().toDateString(), arr=txs.filter(t=>new Date(t.date).toDateString()===target).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'),arr); renderList(document.getElementById('daily-body'), arr); };
 function wkKey(d){
@@ -1576,7 +1576,6 @@ function renderYearly(){ const years={};txs.forEach(t=>{const k=t.date.slice(0,4
 window.selYear=function(k,btn){document.querySelectorAll('#year-sel .p-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showYear(k)};
 function showYear(k){ const arr=txs.filter(t=>t.date.startsWith(k)).sort((a,b)=>new Date(b.date)-new Date(a.date)); renderSumGrid(document.getElementById('year-sum'),arr); renderList(document.getElementById('year-body'),arr); const MNTHS=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'], inc=new Array(12).fill(0),exp=new Array(12).fill(0); arr.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')inc[m]+=t.amount;else if(t.type==='expense')exp[m]+=t.amount;else if(t.type==='debt'){inc[m]+=t.amount;if(t.isPaid)exp[m]+=t.amount;}else if(t.type==='recv'){exp[m]+=t.amount;if(t.isPaid)inc[m]+=t.amount;}}); mkChart('chartYear',MNTHS,inc,exp); }
 
-// DASAR FUNGSI RENDER ALL
 window.renderAll = function(){ 
   const tf = document.getElementById('flt-type').value; 
   const s = (document.getElementById('flt-search').value||'').toLowerCase(); 
@@ -1587,7 +1586,6 @@ window.renderAll = function(){
   renderSumGrid(document.getElementById('all-sum'), arr); 
   renderList(document.getElementById('all-body'), arr); 
 
-  // FIX: Tambahkan data ke Chart Riwayat (Berdasarkan Wallet/Dompet)
   const wObj = {};
   arr.forEach(t => {
      const w = t.wallet || 'Kas Tunai';
@@ -1858,6 +1856,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       const balCard = e.target.closest('.m-card.bal');
       if(balCard) {
           document.body.classList.toggle('global-privacy');
+          // FIX BUG KECIL: sebelumnya tertulis vibrate(15) yang bikin error gak kelihatan, sekarang navigator.vibrate(15)
           if(navigator.vibrate) navigator.vibrate(15);
       }
   });
@@ -2016,13 +2015,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
   };
 
-  // FIX: SISTEM AUTO-LOCK 30 DETIK (BULLETPROOF LOOP)
+  // FIX UTAMA: BACA LANGSUNG DARI DOM BIAR GAK KENA MASALAH SCOPE MODULE
   window.lastActiveTime = Date.now();
 
   window.checkLock = () => {
       const appScreen = document.getElementById('app-screen');
       if (appScreen && appScreen.style.display === 'block') {
-          if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on') {
+          // Ambil value langsung dari elemen menu dropdown-nya
+          const autolockSetting = document.getElementById('ext_autolock') ? document.getElementById('ext_autolock').value : 'off';
+          
+          if (autolockSetting === 'on') {
               if (Date.now() - window.lastActiveTime > 30000) {
                   appScreen.style.display = 'none';
                   const pinScreen = document.getElementById('pin-screen');
