@@ -1416,7 +1416,7 @@ function renderSumGrid(el,arr, isDash = false){
       <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div>
     </div>
     <div class="m-card bal" ${warnStyle}>
-      <div class="m-label">SAL बुन्देल BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div>
+      <div class="m-label">SALDO BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div>
       <div class="m-val">${fmt(s.bal, isDash)}</div>
       <div class="usd-pill">${getUSD(s.bal)}</div>
       <div class="m-sub">${s.bal>=0?'Surplus':'Defisit'}</div>
