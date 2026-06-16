@@ -65,6 +65,9 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+/* FIX POP-UP MUNCUL DI BELAKANG LAYAR PIN */
+.swal2-container { z-index: 100000 !important; }
+
 /* TOP TEXT & EXTERNAL LINKS */
 .top-title {
   color: var(--blue-title); font-size: 22px; font-weight: 800;
@@ -498,7 +501,11 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
        <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••">
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
-    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:24px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetAccount()">Ganti Akun / Reset PIN</button>
+    
+    <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetAccount()">Ganti Akun</button>
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetPinFromLogin()">Reset PIN</button>
+    </div>
   </div>
 </div>
 
@@ -1046,31 +1053,57 @@ window.saveExtraPrefs = function() {
 window.changePinInApp = async function() {
     if(!currentUser) return;
 
-    const { value: oldPin } = await Swal.fire({
-        title: 'Masukkan PIN Lama', input: 'password',
-        inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
-        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)', confirmButtonText: 'LANJUT'
+    // LANGSUNG KELUAR OPSI, TANPA MINTA PIN LAMA DULUAN
+    const { value: choice } = await Swal.fire({
+        title: 'Pengaturan PIN',
+        text: 'Pilih aksi yang mau lu lakuin:',
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Lupa PIN (Buat Baru)',
+        denyButtonText: 'Ingat PIN (Ganti PIN)',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)'
     });
 
-    if (!oldPin) return;
-    if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'});
+    const promptNewPin = async () => {
+        const { value: newPin } = await Swal.fire({
+            title: 'Buat PIN Baru',
+            text: 'Masukkan 6 angka PIN baru kamu',
+            input: 'password',
+            inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+            background: 'var(--card)', color: 'var(--text)',
+            confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU'
+        });
 
-    const { value: newPin } = await Swal.fire({
-        title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password',
-        inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
-        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU'
-    });
-
-    if (newPin && newPin.length === 6) {
-        try {
-            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true });
-            window.userCloudPin = newPin;
-            Swal.fire({icon:'success', title:'PIN Berhasil Diganti!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
-        } catch(e) {
-            Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'});
+        if (newPin && newPin.length === 6) {
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true });
+                window.userCloudPin = newPin;
+                Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+            } catch(e) {
+                Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'});
+            }
+        } else if (newPin) {
+            Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'});
         }
-    } else if (newPin) {
-        Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'});
+    };
+
+    if (choice === true) {
+        // LUPA PIN -> Bikin langsung PIN baru
+        promptNewPin();
+    } else if (choice === false) {
+        // INGAT PIN -> Minta PIN lama dulu
+        const { value: oldPin } = await Swal.fire({
+            title: 'Masukkan PIN Lama',
+            input: 'password',
+            inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)'
+        });
+        if (!oldPin) return;
+        if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'});
+        promptNewPin();
     }
 };
 
@@ -1221,6 +1254,68 @@ window.resetAccount = function() {
       doLogout();
     }
   });
+};
+
+// FIX PERMINTAAN: FUNGSI RESET PIN DARI HALAMAN AWAL (OPSI LANGSUNG MUNCUL)
+window.resetPinFromLogin = async function() {
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+    if (!uid) {
+        return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'});
+    }
+
+    // LANGSUNG KELUAR OPSI, TANPA MINTA PIN LAMA DULUAN
+    const { value: choice } = await Swal.fire({
+        title: 'Opsi Keamanan',
+        text: 'Pilih tindakan untuk PIN lu:',
+        icon: 'question',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Lupa PIN (Buat Baru)',
+        denyButtonText: 'Ingat PIN (Ganti PIN)',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)'
+    });
+
+    const promptNewPin = async () => {
+        const { value: newPin } = await Swal.fire({
+            title: 'Buat PIN Baru',
+            text: 'Masukkan 6 angka PIN baru kamu',
+            input: 'password',
+            inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+            background: 'var(--card)', color: 'var(--text)',
+            confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU'
+        });
+
+        if (newPin && newPin.length === 6) {
+            try {
+                await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true });
+                window.userCloudPin = newPin;
+                Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+                document.getElementById('app-pin').value = '';
+            } catch(e) {
+                Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'});
+            }
+        } else if (newPin) {
+            Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'});
+        }
+    };
+
+    if (choice === true) {
+        // LUPA PIN -> Langsung ke prompt PIN BARU
+        promptNewPin();
+    } else if (choice === false) {
+        // GANTI PIN -> Minta PIN lama dulu
+        const { value: oldPin } = await Swal.fire({
+            title: 'Masukkan PIN Lama',
+            input: 'password',
+            inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true },
+            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)'
+        });
+        if (!oldPin) return;
+        if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'});
+        promptNewPin();
+    }
 };
 
 document.getElementById('app-pin').addEventListener('input', function(e) {
