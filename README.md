@@ -520,12 +520,22 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
   
   <div class="status-row">
-    <div class="status-pill usd-status-pill">
-      <span class="usd-val" id="usd-rate-val">...</span>
+    <!-- Pill USD -->
+    <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
+      <span class="usd-val" id="usd-rate-val" style="font-size: 11px;">...</span>
     </div>
-    <div class="status-pill">
-      <span class="sync-dot" id="sync-dot" style="background:var(--text3);"></span>
-      <span class="sync-text" id="sync-label">MENGHUBUNGKAN...</span>
+    
+    <!-- Pill XAU (Dibuat Atas-Bawah & Diperkecil) -->
+    <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
+      <span style="line-height: 1;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span id="xau-idr-oz" style="display: none;"></span>
+      <span style="line-height: 1;">/GR <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+    </div>
+
+    <!-- Pill Tersinkron (Disamakan ukurannya) -->
+    <div class="status-pill" style="padding: 6px 4px; gap: 4px;">
+      <span class="sync-dot" id="sync-dot" style="background:var(--text3); width: 6px; height: 6px;"></span>
+      <span class="sync-text" id="sync-label" style="font-size: 8px; letter-spacing: 0.5px;">MENGHUBUNGKAN...</span>
     </div>
   </div>
 
@@ -954,6 +964,27 @@ function initLiveUSD() {
 }
 async function fetchUSDRate() { try { const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD'); currentUSDRate = (await res.json()).rates.IDR; document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate); refreshAll(); } catch (e) { document.getElementById('usd-rate-val').textContent = "Offline"; } }
 fetchUSDRate().then(initLiveUSD); setInterval(fetchUSDRate, 300000); 
+
+function initLiveXAU() {
+  const socketXAU = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
+  socketXAU.addEventListener('message', e => {
+      const newPrice = parseFloat(JSON.parse(e.data).c);
+      if (newPrice) {
+          const xauRate = document.getElementById('xau-rate-val');
+          if(xauRate) xauRate.textContent = '$' + newPrice.toFixed(2);
+          if(currentUSDRate > 0) {
+              const idrPriceOz = newPrice * currentUSDRate;
+              const idrPriceGram = idrPriceOz / 31.1034768; 
+              const ozEl = document.getElementById('xau-idr-oz');
+              if(ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
+              const grEl = document.getElementById('xau-idr-gr');
+              if(grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
+          }
+      }
+  });
+  socketXAU.addEventListener('close', () => setTimeout(initLiveXAU, 3000));
+}
+initLiveXAU();
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
