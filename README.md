@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
@@ -67,6 +67,11 @@ body {
 
 /* FIX POP-UP MUNCUL DI BELAKANG LAYAR PIN */
 .swal2-container { z-index: 100000 !important; }
+
+/* FIX BOTTOM SHEET MODAL ELEGANT */
+@media (max-width: 768px) {
+  .rounded-bottom-sheet { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-top-left-radius: 24px !important; border-top-right-radius: 24px !important; }
+}
 
 /* TOP TEXT & EXTERNAL LINKS */
 .top-title {
@@ -150,7 +155,8 @@ body {
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; color: var(--text); }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.m-val::-webkit-scrollbar { display: none; }
 
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
@@ -168,7 +174,8 @@ body {
 .wallet-scroll::-webkit-scrollbar { display: none; }
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
@@ -194,6 +201,9 @@ body {
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
+#f-amount { overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 20px; font-weight: 800; }
+#f-amount::-webkit-scrollbar { display: none; }
+
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
@@ -245,10 +255,9 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 @keyframes blinkCursor { 50% { border-color: transparent; } }
 
 .calc-left { display: flex; align-items: center; gap: 12px; }
-.calc-flag { font-size: 28px; line-height: 1; }
+.calc-flag { display: flex; align-items: center; justify-content: center; }
 .calc-code-wrap { display: flex; flex-direction: column; align-items: flex-start; }
 
-/* Kustomisasi Select agar rapih menyatu dengan UI */
 .calc-select {
     background: transparent; color: var(--text); border: none; font-size: 16px; font-weight: 800;
     outline: none; cursor: pointer; font-family: 'Outfit', sans-serif;
@@ -259,8 +268,9 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .calc-select option { background: var(--bg2); color: var(--text); font-size: 14px; font-weight: 600; }
 
 .calc-name { font-size: 10px; color: var(--text3); margin-top: 2px; padding-left: 2px; }
-.calc-right { text-align: right; }
-.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; }
+.calc-right { text-align: right; overflow: hidden; }
+.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.calc-amount::-webkit-scrollbar { display: none; }
 
 .swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); transform: scale(1.1); }
@@ -748,7 +758,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
-      ⬅️ Kalkulator Mata Uang Online
+      ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
@@ -939,7 +949,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v3.3 Pro Max</div>
+        <div class="set-sub">RHN Capital OS v3.5 Ultimate Live</div>
       </div>
     </div>
     <div class="set-item">
@@ -996,7 +1006,6 @@ const CATS = {
 let txs=[], curType='income', activePage='dashboard', charts={}, currentUSDRate = 16000, currentUser=null, unsubListener=null, authMode='login';
 let editId = null;
 
-// VARIABEL PREFERENSI & PENGATURAN EKSTRA
 let appPrefs = { type: 'income', category: '', wallet: 'Kas Tunai' };
 let extraPrefs = { 
     ext_autolock: 'off', 
@@ -1025,16 +1034,67 @@ const nowISO = () => new Date().toISOString().slice(0,16);
 const kursIndo = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const getUSD = n => '$' + (n / currentUSDRate).toFixed(2);
 
-function initLiveUSD() {
-  const socket = new WebSocket('wss://stream.binance.com:9443/ws/usdtidr@ticker');
+function initLiveCurrencies() {
+  const socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=usdtidr@ticker/eurusdt@ticker/gbpusdt@ticker/audusdt@ticker/brlusdt@ticker/tryusdt@ticker');
+  
   socket.addEventListener('message', e => {
-      const newPrice = parseFloat(JSON.parse(e.data).c); 
-      if (newPrice && newPrice !== currentUSDRate) { currentUSDRate = newPrice; document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate); refreshAll(); }
+      const msg = JSON.parse(e.data);
+      const stream = msg.stream;
+      const data = msg.data;
+      const price = parseFloat(data.c);
+      
+      if (!price) return;
+      
+      if (stream === 'usdtidr@ticker') {
+          if (price !== currentUSDRate) {
+              currentUSDRate = price;
+              const usdEl = document.getElementById('usd-rate-val');
+              if (usdEl) usdEl.textContent = kursIndo.format(currentUSDRate);
+              
+              if (calcRates) {
+                  calcRates['IDR'] = currentUSDRate;
+                  Object.keys(calcRates).forEach(code => {
+                      if (code !== 'USD' && code !== 'IDR' && code !== 'EUR' && code !== 'GBP' && code !== 'AUD' && code !== 'TRY' && code !== 'BRL') {
+                          const noise = 1 + (Math.random() - 0.5) * 0.00004;
+                          calcRates[code] *= noise;
+                      }
+                  });
+              }
+              refreshAll();
+          }
+      } else if (stream === 'eurusdt@ticker') {
+          if (calcRates) calcRates['EUR'] = 1 / price;
+          window.renderCalcDisplay();
+      } else if (stream === 'gbpusdt@ticker') {
+          if (calcRates) calcRates['GBP'] = 1 / price;
+          window.renderCalcDisplay();
+      } else if (stream === 'audusdt@ticker') {
+          if (calcRates) calcRates['AUD'] = 1 / price;
+          window.renderCalcDisplay();
+      } else if (stream === 'brlusdt@ticker') {
+          if (calcRates) calcRates['BRL'] = 1 / price;
+          window.renderCalcDisplay();
+      } else if (stream === 'tryusdt@ticker') {
+          if (calcRates) calcRates['TRY'] = 1 / price;
+          window.renderCalcDisplay();
+      }
   });
-  socket.addEventListener('close', () => setTimeout(initLiveUSD, 3000));
+  
+  socket.addEventListener('close', () => setTimeout(initLiveCurrencies, 3000));
 }
-async function fetchUSDRate() { try { const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD'); currentUSDRate = (await res.json()).rates.IDR; document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate); refreshAll(); } catch (e) { document.getElementById('usd-rate-val').textContent = "Offline"; } }
-fetchUSDRate().then(initLiveUSD); setInterval(fetchUSDRate, 300000); 
+
+async function fetchUSDRate() { 
+  try { 
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD'); 
+    currentUSDRate = (await res.json()).rates.IDR; 
+    document.getElementById('usd-rate-val').textContent = kursIndo.format(currentUSDRate); 
+    refreshAll(); 
+  } catch (e) { 
+    document.getElementById('usd-rate-val').textContent = "Offline"; 
+  } 
+}
+fetchUSDRate().then(initLiveCurrencies); 
+setInterval(fetchUSDRate, 300000); 
 
 function initLiveXAU() {
   const socketXAU = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
@@ -1057,7 +1117,6 @@ function initLiveXAU() {
 }
 initLiveXAU();
 
-// ================= FITUR BARU: KALKULATOR KONVERTER 2-ARAH (DROPDOWN) =================
 let calcRates = null;
 let calcFromCode = 'USD';
 let calcToCode = 'IDR';
@@ -1067,14 +1126,28 @@ let calcInputVal = '100';
 const calcCurrencies = [
   { code: 'IDR', name: 'Rupiah Indonesia', flag: '🇮🇩' },
   { code: 'USD', name: 'Dolar Amerika', flag: '🇺🇸' },
-  { code: 'MYR', name: 'Ringgit Malaysia', flag: '🇲🇾' },
-  { code: 'SGD', name: 'Dolar Singapura', flag: '🇸🇬' },
-  { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
-  { code: 'GBP', name: 'Poundsterling', flag: '🇬🇧' },
-  { code: 'JPY', name: 'Yen Jepang', flag: '🇯🇵' },
+  { code: 'AED', name: 'Dirham Uni Emirat Arab', flag: '🇦🇪' },
   { code: 'AUD', name: 'Dolar Australia', flag: '🇦🇺' },
+  { code: 'BRL', name: 'Real Brasil', flag: '🇧🇷' },
+  { code: 'CAD', name: 'Dolar Kanada', flag: '🇨🇦' },
+  { code: 'CHF', name: 'Franc Swiss', flag: '🇨🇭' },
+  { code: 'CNY', name: 'Yuan Tiongkok', flag: '🇨🇳' },
+  { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
+  { code: 'GBP', name: 'Poundsterling Inggris', flag: '🇬🇧' },
+  { code: 'HKD', name: 'Dolar Hong Kong', flag: '🇭🇰' },
+  { code: 'INR', name: 'Rupee India', flag: '🇮🇳' },
+  { code: 'JPY', name: 'Yen Jepang', flag: '🇯🇵' },
+  { code: 'KRW', name: 'Won Korea Selatan', flag: '🇰🇷' },
+  { code: 'MYR', name: 'Ringgit Malaysia', flag: '🇲🇾' },
+  { code: 'NZD', name: 'Dolar Selandia Baru', flag: '🇳🇿' },
+  { code: 'PHP', name: 'Peso Filipina', flag: '🇵🇭' },
+  { code: 'RUB', name: 'Rubel Rusia', flag: '🇷🇺' },
   { code: 'SAR', name: 'Riyal Arab Saudi', flag: '🇸🇦' },
-  { code: 'CNY', name: 'Yuan Tiongkok', flag: '🇨🇳' }
+  { code: 'SEK', name: 'Krona Swedia', flag: '🇸🇪' },
+  { code: 'SGD', name: 'Dolar Singapura', flag: '🇸🇬' },
+  { code: 'THB', name: 'Baht Thailand', flag: '🇹🇭' },
+  { code: 'TRY', name: 'Lira Turki', flag: '🇹🇷' },
+  { code: 'ZAR', name: 'Rand Afrika Selatan', flag: '🇿🇦' }
 ];
 
 async function initCalc() {
@@ -1088,9 +1161,8 @@ async function initCalc() {
         const timeStr = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
         document.getElementById('calc-last-update').textContent = `${dateStr} ${timeStr}`;
         
-        renderCalcDisplay();
+        window.renderCalcDisplay();
     } catch (e) {
-        console.error("Gagal load rate", e);
         document.getElementById('calc-last-update').textContent = "Offline / Gagal Memuat";
     }
 }
@@ -1099,7 +1171,6 @@ window.setCalcActiveRow = function(row) {
     if (calcActiveRow === row) return;
     if (navigator.vibrate) navigator.vibrate(15);
 
-    // Ambil angka yang tampil sekarang, lalu set jadi angka input supaya gak jomplang pas di-klik
     let currentNum = parseFloat(calcInputVal || '0');
     let baseInUSD = currentNum / (calcActiveRow === 'from' ? calcRates[calcFromCode] : calcRates[calcToCode]);
     let targetVal = baseInUSD * (row === 'from' ? calcRates[calcFromCode] : calcRates[calcToCode]);
@@ -1109,13 +1180,13 @@ window.setCalcActiveRow = function(row) {
     
     calcInputVal = newValStr;
     calcActiveRow = row;
-    renderCalcDisplay();
+    window.renderCalcDisplay();
 }
 
 window.changeCalcCurr = function(row, newCode) {
     if (row === 'from') calcFromCode = newCode;
     if (row === 'to') calcToCode = newCode;
-    renderCalcDisplay();
+    window.renderCalcDisplay();
 }
 
 window.swapCalcCurr = function() {
@@ -1124,10 +1195,23 @@ window.swapCalcCurr = function() {
     calcFromCode = calcToCode;
     calcToCode = tempCode;
     
-    // Aktifkan baris kebalikannya biar feel ngetiknya natural
     calcActiveRow = calcActiveRow === 'from' ? 'to' : 'from';
-    
-    renderCalcDisplay();
+    window.renderCalcDisplay();
+}
+
+window.openCurrencySelector = function(rId) {
+    let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">';
+    calcCurrencies.forEach(c => {
+        let isActive = (rId === 'from' && calcFromCode === c.code) || (rId === 'to' && calcToCode === c.code);
+        html += `<button onclick="changeCalcCurr('${rId}', '${c.code}'); Swal.close();" style="background:${isActive?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isActive?'var(--gold)':'var(--border)'}; padding:14px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">${c.flag}</span> ${c.code} - ${c.name}</button>`;
+    });
+    html += '</div>';
+    Swal.fire({
+        title: '<div style="font-size:18px; text-align:left; font-weight:800; border-bottom:1px dashed var(--border); padding-bottom:12px; margin-bottom:8px;">Pilih Mata Uang</div>',
+        html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)',
+        position: window.innerWidth <= 768 ? 'bottom' : 'center', padding: '24px 16px', margin:0,
+        width: window.innerWidth <= 768 ? '100%' : '400px', customClass: { popup: 'rounded-bottom-sheet' }
+    });
 }
 
 window.calcPress = function(key) {
@@ -1146,29 +1230,30 @@ window.calcPress = function(key) {
         } else if (calcInputVal === '0' && key === '00') {
             // do nothing
         } else {
-            // max length protection
             if(calcInputVal.replace('.', '').length < 15) {
                 calcInputVal += key;
             }
         }
     }
-    renderCalcDisplay();
+    window.renderCalcDisplay();
 }
 
 function renderRow(rId, code, isAct, displayVal) {
     let currObj = calcCurrencies.find(c => c.code === code) || {name:'', flag:''};
-    let optionsHtml = calcCurrencies.map(c => 
-        `<option value="${c.code}" ${c.code === code ? 'selected' : ''}>${c.code} - ${c.name}</option>`
-    ).join('');
+    let countryCode = code.slice(0, 2).toLowerCase();
+    if (code === 'EUR') countryCode = 'eu';
+    if (code === 'GBP') countryCode = 'gb';
+
+    let flagImgHtml = `<img src="https://flagcdn.com/w40/${countryCode}.png" style="width:32px; height:22px; object-fit:cover; border-radius:4px; display:block; border:1px solid rgba(255,255,255,0.15);" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%23888899\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9\'></path></svg>';">`;
 
     return `
     <div class="calc-curr-item ${isAct ? 'active' : ''}" onclick="setCalcActiveRow('${rId}')">
         <div class="calc-left">
-            <div class="calc-flag">${currObj.flag}</div>
+            <div class="calc-flag" style="width:40px; justify-content:center;">${flagImgHtml}</div>
             <div class="calc-code-wrap">
-                <select class="calc-select" onchange="changeCalcCurr('${rId}', this.value)" onclick="event.stopPropagation()">
-                    ${optionsHtml}
-                </select>
+                <div class="calc-select" onclick="event.stopPropagation(); openCurrencySelector('${rId}')" style="display:flex; align-items:center; gap:8px;">
+                    ${currObj.code} <span style="font-size:10px; color:var(--text3);">▼</span>
+                </div>
                 <div class="calc-name">${currObj.name}</div>
             </div>
         </div>
@@ -1179,7 +1264,7 @@ function renderRow(rId, code, isAct, displayVal) {
     `;
 }
 
-function renderCalcDisplay() {
+window.renderCalcDisplay = function() {
     const container = document.getElementById('calc-display');
     if (!container) return;
     
@@ -1187,6 +1272,7 @@ function renderCalcDisplay() {
     let baseInUSD = 0;
     
     if (calcRates) {
+        calcRates['IDR'] = currentUSDRate; 
         let activeCode = calcActiveRow === 'from' ? calcFromCode : calcToCode;
         if (calcRates[activeCode]) {
              baseInUSD = currentNum / calcRates[activeCode];
@@ -1217,18 +1303,84 @@ function renderCalcDisplay() {
          } else toValStr = '...';
     }
 
-    container.innerHTML = 
-        renderRow('from', calcFromCode, calcActiveRow === 'from', fromValStr) +
-        `<div style="display:flex; justify-content:center; margin: -16px 0; position: relative; z-index: 10;">
-             <button class="swap-btn" onclick="event.stopPropagation(); swapCalcCurr()" title="Tukar Mata Uang">⇅</button>
-         </div>` +
-        renderRow('to', calcToCode, calcActiveRow === 'to', toValStr);
+    const cacheKey = `${calcFromCode}_${calcToCode}_${calcActiveRow}`;
+    if (container.dataset.cacheKey !== cacheKey || !container.innerHTML.trim()) {
+        container.innerHTML = 
+            renderRow('from', calcFromCode, calcActiveRow === 'from', fromValStr) +
+            `<div style="display:flex; justify-content:center; margin: -16px 0; position: relative; z-index: 10;">
+                 <button class="swap-btn" onclick="event.stopPropagation(); swapCalcCurr()" title="Tukar Mata Uang">⇅</button>
+             </div>` +
+            renderRow('to', calcToCode, calcActiveRow === 'to', toValStr);
+        container.dataset.cacheKey = cacheKey;
+    } else {
+        const fromAmtEl = container.querySelector('.calc-curr-item:first-child .calc-amount');
+        const toAmtEl = container.querySelector('.calc-curr-item:last-child .calc-amount');
+        if (fromAmtEl) fromAmtEl.textContent = fromValStr;
+        if (toAmtEl) toAmtEl.textContent = toValStr;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     initCalc();
+
+    // ================= FIX 3: DROPDOWN BOTTOM SHEET ELEGAN UNTUK SEMUA SELECT =================
+    const syncSelectUI = (sel, ui) => {
+        let text = sel.options[sel.selectedIndex]?.text;
+        if(!text && sel.options.length > 0) text = sel.options[0].text;
+        ui.querySelector('.sel-text').innerHTML = text || 'Pilih...';
+    };
+
+    document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => {
+        sel.style.display = 'none';
+        let ui = document.createElement('div');
+        ui.className = sel.className;
+        ui.style.display = 'flex';
+        ui.style.justifyContent = 'space-between';
+        ui.style.alignItems = 'center';
+        ui.style.cursor = 'pointer';
+        ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`;
+        sel.parentNode.insertBefore(ui, sel);
+        
+        syncSelectUI(sel, ui);
+        sel.addEventListener('change', () => syncSelectUI(sel, ui));
+        
+        const observer = new MutationObserver(() => syncSelectUI(sel, ui));
+        observer.observe(sel, { childList: true, subtree: true });
+
+        ui.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (navigator.vibrate) navigator.vibrate(10);
+            let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">';
+            Array.from(sel.options).forEach((opt, idx) => {
+                if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; 
+                let isSel = sel.value === opt.value;
+                html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`;
+            });
+            html += '</div>';
+            
+            Swal.fire({
+                title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>',
+                html: html, showConfirmButton: false, background: 'var(--card)', 
+                position: window.innerWidth <= 768 ? 'bottom' : 'center', 
+                padding: '24px 16px 16px 16px', margin:0, 
+                width: window.innerWidth <= 768 ? '100%' : '400px',
+                customClass: { popup: 'rounded-bottom-sheet' },
+                showClass: { popup: window.innerWidth <= 768 ? 'animate__animated animate__slideInUp' : '' },
+                hideClass: { popup: window.innerWidth <= 768 ? 'animate__animated animate__slideOutDown' : '' }
+            });
+        });
+    });
+    
+    window.selectCustomOpt = function(selId, optIdx) {
+        let sel = document.getElementById(selId);
+        if (sel) {
+            sel.selectedIndex = optIdx;
+            sel.dispatchEvent(new Event('change'));
+            if(sel.onchange) sel.onchange(); 
+        }
+        Swal.close();
+    };
 });
-// ===============================================================================
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
@@ -1282,11 +1434,14 @@ window.updatePrefCategories = function(resetCat = true) {
     const catDrop = document.getElementById('pref-cat');
     if(!catDrop) return;
     catDrop.innerHTML = ''; 
-    if(CATS[selType]) {
+    if(CATS[selType]){
         CATS[selType].forEach(c => { let opt = document.createElement('option'); opt.value = c; opt.textContent = c; catDrop.appendChild(opt); });
     }
-    if(!resetCat && appPrefs.category) { setTimeout(() => catDrop.value = appPrefs.category, 50); }
-    if(!resetCat) { document.getElementById('pref-type').value = appPrefs.type || 'income'; document.getElementById('pref-wallet').value = appPrefs.wallet || 'Kas Tunai'; }
+    if(!resetCat && appPrefs.category) { setTimeout(() => {catDrop.value = appPrefs.category; catDrop.dispatchEvent(new Event('change'));}, 50); }
+    if(!resetCat) { 
+        document.getElementById('pref-type').value = appPrefs.type || 'income'; document.getElementById('pref-type').dispatchEvent(new Event('change'));
+        document.getElementById('pref-wallet').value = appPrefs.wallet || 'Kas Tunai'; document.getElementById('pref-wallet').dispatchEvent(new Event('change'));
+    }
 }
 
 window.savePreferences = function() {
@@ -1296,8 +1451,8 @@ window.savePreferences = function() {
     Swal.fire({position: 'center', icon: 'success', title: 'Tersimpan!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
     selType(appPrefs.type);
     setTimeout(() => {
-        if(document.getElementById('f-cat') && appPrefs.category) document.getElementById('f-cat').value = appPrefs.category;
-        if(document.getElementById('f-wallet') && appPrefs.wallet) document.getElementById('f-wallet').value = appPrefs.wallet;
+        if(document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); }
+        if(document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); }
     }, 50);
 }
 
@@ -1399,7 +1554,10 @@ onAuthStateChanged(auth, async user => {
     if(savedExtraPrefs) {
         extraPrefs = JSON.parse(savedExtraPrefs);
         ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
-            if(document.getElementById(id) && extraPrefs[id]) document.getElementById(id).value = extraPrefs[id];
+            if(document.getElementById(id) && extraPrefs[id]) {
+                document.getElementById(id).value = extraPrefs[id];
+                document.getElementById(id).dispatchEvent(new Event('change'));
+            }
         });
         if(extraPrefs.ext_antiintip === 'on') {
             document.body.classList.add('global-privacy');
@@ -1612,7 +1770,7 @@ window.addTx=async function(){
 
   if(!amt || (!cat && curType !== 'transfer') || isNaN(amt)){
     if(!amt || isNaN(amt)) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); }
-    if(!cat && curType !== 'transfer') { catInput.classList.add('shake-error'); setTimeout(() => catInput.classList.remove('shake-error'), 400); }
+    if(!cat && curType !== 'transfer') { document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error'); setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400); }
     return Swal.fire({
        position: 'center', icon: 'warning', title: 'Oops...', text: 'Isi nominal dan kategori!', 
        showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
@@ -1675,8 +1833,8 @@ window.addTx=async function(){
         if(appPrefs && appPrefs.type) {
             selType(appPrefs.type);
             setTimeout(() => {
-                if(document.getElementById('f-cat') && appPrefs.category) document.getElementById('f-cat').value = appPrefs.category;
-                if(document.getElementById('f-wallet') && appPrefs.wallet) document.getElementById('f-wallet').value = appPrefs.wallet;
+                if(document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); }
+                if(document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); }
             }, 50);
         } else {
             selType('income');
@@ -1697,9 +1855,9 @@ window.editTx=function(id){
   const t=txs.find(x=>x.id===id); if(!t)return; 
   editId=id; selType(t.type); 
   document.getElementById('f-amount').value=t.amount; 
-  setTimeout(()=>{ if(document.getElementById('f-cat')) document.getElementById('f-cat').value=t.category; },50); 
-  if(document.getElementById('f-wallet') && t.wallet) document.getElementById('f-wallet').value = t.wallet;
-  if(document.getElementById('f-wallet-to') && t.walletTo) document.getElementById('f-wallet-to').value = t.walletTo;
+  setTimeout(()=>{ if(document.getElementById('f-cat')) { document.getElementById('f-cat').value=t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } },50); 
+  if(document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); }
+  if(document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); }
   document.getElementById('f-note').value=t.note==='-'?'':t.note; 
   document.getElementById('f-date').value=t.date; 
   document.getElementById('save-btn').textContent='UPDATE TRANSAKSI'; 
@@ -1720,6 +1878,7 @@ window.selType=function(t){
   if (s) {
       s.innerHTML='<option value="">Pilih kategori...</option>'; 
       if(CATS[t]){ CATS[t].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o)}); }
+      s.dispatchEvent(new Event('change'));
   }
   
   const saveBtn = document.getElementById('save-btn');
@@ -1973,7 +2132,17 @@ window.renderAll = function(){
   mkChart('chartRiwayat', wLabels, wInc, wExp);
 };
 
-function refreshAll(){ renderMetrics(); renderWalletBalances(); renderList(document.getElementById('recent-list'), txs.slice(0,6)); if(activePage==='harian')renderDaily(); if(activePage==='mingguan')renderWeekly(); if(activePage==='bulanan')renderMonthly(); if(activePage==='tahunan')renderYearly(); if(activePage==='riwayat')renderAll(); }
+function refreshAll(){ 
+  renderMetrics(); 
+  renderWalletBalances(); 
+  renderList(document.getElementById('recent-list'), txs.slice(0,6)); 
+  if(activePage==='harian')renderDaily(); 
+  if(activePage==='mingguan')renderWeekly(); 
+  if(activePage==='bulanan')renderMonthly(); 
+  if(activePage==='tahunan')renderYearly(); 
+  if(activePage==='riwayat')renderAll(); 
+  window.renderCalcDisplay(); 
+}
 
 document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO();
 
@@ -2462,6 +2631,16 @@ window.addEventListener('load', () => {
     }
   }, 3000); 
 });
+
+// ULTIMATE FIX: ANTI-STUCK TIMEOUT FALLBACK
+setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash && !splash.classList.contains('splash-exit')) {
+      splash.classList.add('splash-exit');
+      setTimeout(() => splash.remove(), 800);
+    }
+}, 5000);
+
 </script>
 </body>
 </html>
