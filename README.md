@@ -68,10 +68,8 @@ body {
 /* FIX POP-UP MUNCUL DI BELAKANG LAYAR PIN */
 .swal2-container { z-index: 100000 !important; }
 
-/* FIX BOTTOM SHEET MODAL ELEGANT */
-@media (max-width: 768px) {
-  .rounded-bottom-sheet { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-top-left-radius: 24px !important; border-top-right-radius: 24px !important; }
-}
+/* FIX CENTERED MODAL ELEGANT */
+.centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
 
 /* TOP TEXT & EXTERNAL LINKS */
 .top-title {
@@ -1209,8 +1207,8 @@ window.openCurrencySelector = function(rId) {
     Swal.fire({
         title: '<div style="font-size:18px; text-align:left; font-weight:800; border-bottom:1px dashed var(--border); padding-bottom:12px; margin-bottom:8px;">Pilih Mata Uang</div>',
         html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)',
-        position: window.innerWidth <= 768 ? 'bottom' : 'center', padding: '24px 16px', margin:0,
-        width: window.innerWidth <= 768 ? '100%' : '400px', customClass: { popup: 'rounded-bottom-sheet' }
+        position: 'center', padding: '24px 16px', margin:0,
+        width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' }
     });
 }
 
@@ -1360,13 +1358,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             Swal.fire({
                 title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>',
-                html: html, showConfirmButton: false, background: 'var(--card)', 
-                position: window.innerWidth <= 768 ? 'bottom' : 'center', 
+                html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)',
+                position: 'center', 
                 padding: '24px 16px 16px 16px', margin:0, 
-                width: window.innerWidth <= 768 ? '100%' : '400px',
-                customClass: { popup: 'rounded-bottom-sheet' },
-                showClass: { popup: window.innerWidth <= 768 ? 'animate__animated animate__slideInUp' : '' },
-                hideClass: { popup: window.innerWidth <= 768 ? 'animate__animated animate__slideOutDown' : '' }
+                width: window.innerWidth <= 768 ? '90%' : '400px',
+                customClass: { popup: 'centered-modal' }
             });
         });
     });
