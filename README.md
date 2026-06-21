@@ -231,11 +231,47 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 .del-btn-recent { background: transparent; border: none; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
-
-/* CSS EDIT & DOWNLOAD CSV */
-.action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
 .edit-btn-recent { background: transparent; border: none; color: var(--text3); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
+.action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
+
+/* ==========================================================================
+   CSS KONVERTER MATA UANG 2-ARAH (DROPDOWN) 
+   ========================================================================== */
+.calc-curr-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; border-radius: 12px; transition: 0.2s; margin-bottom: 4px; border: 1px solid transparent; }
+.calc-curr-item:hover { background: rgba(255,255,255,0.02); border-color: var(--border); }
+.calc-curr-item.active { background: rgba(16, 185, 129, 0.05); border-color: var(--green2); }
+.calc-curr-item.active .calc-amount { color: var(--green2); border-right: 2px solid var(--green2); padding-right: 6px; animation: blinkCursor 1s step-end infinite; }
+@keyframes blinkCursor { 50% { border-color: transparent; } }
+
+.calc-left { display: flex; align-items: center; gap: 12px; }
+.calc-flag { font-size: 28px; line-height: 1; }
+.calc-code-wrap { display: flex; flex-direction: column; align-items: flex-start; }
+
+/* Kustomisasi Select agar rapih menyatu dengan UI */
+.calc-select {
+    background: transparent; color: var(--text); border: none; font-size: 16px; font-weight: 800;
+    outline: none; cursor: pointer; font-family: 'Outfit', sans-serif;
+    appearance: none; -webkit-appearance: none; padding-right: 18px;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat; background-position: right center;
+}
+.calc-select option { background: var(--bg2); color: var(--text); font-size: 14px; font-weight: 600; }
+
+.calc-name { font-size: 10px; color: var(--text3); margin-top: 2px; padding-left: 2px; }
+.calc-right { text-align: right; }
+.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; }
+
+.swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); transform: scale(1.1); }
+.swap-btn:active { transform: scale(0.9); }
+
+.calc-keypad-wrap { background: #1A1C1F; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
+.calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
+.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+.calc-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+.calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
+.calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
 
 /* SETTINGS MODULE */
 .set-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
@@ -520,19 +556,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
   
   <div class="status-row">
-    <!-- Pill USD -->
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 11px;">...</span>
     </div>
     
-    <!-- Pill XAU (Dibuat Atas-Bawah & Diperkecil) -->
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
       <span style="line-height: 1;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
       <span style="line-height: 1;">/GR <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
 
-    <!-- Pill Tersinkron (Disamakan ukurannya) -->
     <div class="status-pill" style="padding: 6px 4px; gap: 4px;">
       <span class="sync-dot" id="sync-dot" style="background:var(--text3); width: 6px; height: 6px;"></span>
       <span class="sync-text" id="sync-label" style="font-size: 8px; letter-spacing: 0.5px;">MENGHUBUNGKAN...</span>
@@ -711,6 +744,44 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </div>
 
 <div id="page-pengaturan" class="page">
+  
+  <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
+  <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
+    <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
+      ⬅️ Kalkulator Mata Uang Online
+    </div>
+    
+    <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
+      <!-- List otomatis di-generate JavaScript -->
+    </div>
+    
+    <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
+      Diperbarui pada <span id="calc-last-update">...</span>
+    </div>
+
+    <div class="calc-keypad-wrap">
+      <div class="calc-keypad">
+        <button class="calc-btn" onclick="calcPress('7')">7</button>
+        <button class="calc-btn" onclick="calcPress('8')">8</button>
+        <button class="calc-btn" onclick="calcPress('9')">9</button>
+        <button class="calc-btn calc-btn-ac" onclick="calcPress('AC')">AC</button>
+        
+        <button class="calc-btn" onclick="calcPress('4')">4</button>
+        <button class="calc-btn" onclick="calcPress('5')">5</button>
+        <button class="calc-btn" onclick="calcPress('6')">6</button>
+        
+        <button class="calc-btn" onclick="calcPress('1')">1</button>
+        <button class="calc-btn" onclick="calcPress('2')">2</button>
+        <button class="calc-btn" onclick="calcPress('3')">3</button>
+        <button class="calc-btn calc-btn-del" onclick="calcPress('DEL')">⌫</button>
+        
+        <button class="calc-btn" onclick="calcPress('00')">00</button>
+        <button class="calc-btn" onclick="calcPress('0')">0</button>
+        <button class="calc-btn" onclick="calcPress('.')">,</button>
+      </div>
+    </div>
+  </div>
+  <!-- ====================================================================================== -->
   
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
@@ -986,6 +1057,179 @@ function initLiveXAU() {
 }
 initLiveXAU();
 
+// ================= FITUR BARU: KALKULATOR KONVERTER 2-ARAH (DROPDOWN) =================
+let calcRates = null;
+let calcFromCode = 'USD';
+let calcToCode = 'IDR';
+let calcActiveRow = 'from';
+let calcInputVal = '100';
+
+const calcCurrencies = [
+  { code: 'IDR', name: 'Rupiah Indonesia', flag: '🇮🇩' },
+  { code: 'USD', name: 'Dolar Amerika', flag: '🇺🇸' },
+  { code: 'MYR', name: 'Ringgit Malaysia', flag: '🇲🇾' },
+  { code: 'SGD', name: 'Dolar Singapura', flag: '🇸🇬' },
+  { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
+  { code: 'GBP', name: 'Poundsterling', flag: '🇬🇧' },
+  { code: 'JPY', name: 'Yen Jepang', flag: '🇯🇵' },
+  { code: 'AUD', name: 'Dolar Australia', flag: '🇦🇺' },
+  { code: 'SAR', name: 'Riyal Arab Saudi', flag: '🇸🇦' },
+  { code: 'CNY', name: 'Yuan Tiongkok', flag: '🇨🇳' }
+];
+
+async function initCalc() {
+    try {
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const data = await response.json();
+        calcRates = data.rates;
+        
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('id-ID', { year:'numeric', month:'2-digit', day:'2-digit' }).replace(/\//g, '-');
+        const timeStr = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+        document.getElementById('calc-last-update').textContent = `${dateStr} ${timeStr}`;
+        
+        renderCalcDisplay();
+    } catch (e) {
+        console.error("Gagal load rate", e);
+        document.getElementById('calc-last-update').textContent = "Offline / Gagal Memuat";
+    }
+}
+
+window.setCalcActiveRow = function(row) {
+    if (calcActiveRow === row) return;
+    if (navigator.vibrate) navigator.vibrate(15);
+
+    // Ambil angka yang tampil sekarang, lalu set jadi angka input supaya gak jomplang pas di-klik
+    let currentNum = parseFloat(calcInputVal || '0');
+    let baseInUSD = currentNum / (calcActiveRow === 'from' ? calcRates[calcFromCode] : calcRates[calcToCode]);
+    let targetVal = baseInUSD * (row === 'from' ? calcRates[calcFromCode] : calcRates[calcToCode]);
+    
+    let newValStr = targetVal.toString();
+    if(newValStr.includes('.')) newValStr = targetVal.toFixed(2).replace(/\.?0+$/, '');
+    
+    calcInputVal = newValStr;
+    calcActiveRow = row;
+    renderCalcDisplay();
+}
+
+window.changeCalcCurr = function(row, newCode) {
+    if (row === 'from') calcFromCode = newCode;
+    if (row === 'to') calcToCode = newCode;
+    renderCalcDisplay();
+}
+
+window.swapCalcCurr = function() {
+    if (navigator.vibrate) navigator.vibrate(15);
+    let tempCode = calcFromCode;
+    calcFromCode = calcToCode;
+    calcToCode = tempCode;
+    
+    // Aktifkan baris kebalikannya biar feel ngetiknya natural
+    calcActiveRow = calcActiveRow === 'from' ? 'to' : 'from';
+    
+    renderCalcDisplay();
+}
+
+window.calcPress = function(key) {
+    if (navigator.vibrate) navigator.vibrate(20);
+    
+    if (key === 'AC') {
+        calcInputVal = '0';
+    } else if (key === 'DEL') {
+        calcInputVal = calcInputVal.slice(0, -1);
+        if (calcInputVal === '') calcInputVal = '0';
+    } else if (key === '.') {
+        if (!calcInputVal.includes('.')) calcInputVal += '.';
+    } else {
+        if (calcInputVal === '0' && key !== '00') {
+            calcInputVal = key;
+        } else if (calcInputVal === '0' && key === '00') {
+            // do nothing
+        } else {
+            // max length protection
+            if(calcInputVal.replace('.', '').length < 15) {
+                calcInputVal += key;
+            }
+        }
+    }
+    renderCalcDisplay();
+}
+
+function renderRow(rId, code, isAct, displayVal) {
+    let currObj = calcCurrencies.find(c => c.code === code) || {name:'', flag:''};
+    let optionsHtml = calcCurrencies.map(c => 
+        `<option value="${c.code}" ${c.code === code ? 'selected' : ''}>${c.code} - ${c.name}</option>`
+    ).join('');
+
+    return `
+    <div class="calc-curr-item ${isAct ? 'active' : ''}" onclick="setCalcActiveRow('${rId}')">
+        <div class="calc-left">
+            <div class="calc-flag">${currObj.flag}</div>
+            <div class="calc-code-wrap">
+                <select class="calc-select" onchange="changeCalcCurr('${rId}', this.value)" onclick="event.stopPropagation()">
+                    ${optionsHtml}
+                </select>
+                <div class="calc-name">${currObj.name}</div>
+            </div>
+        </div>
+        <div class="calc-right">
+            <div class="calc-amount">${displayVal}</div>
+        </div>
+    </div>
+    `;
+}
+
+function renderCalcDisplay() {
+    const container = document.getElementById('calc-display');
+    if (!container) return;
+    
+    let currentNum = parseFloat(calcInputVal || '0');
+    let baseInUSD = 0;
+    
+    if (calcRates) {
+        let activeCode = calcActiveRow === 'from' ? calcFromCode : calcToCode;
+        if (calcRates[activeCode]) {
+             baseInUSD = currentNum / calcRates[activeCode];
+        }
+    }
+
+    let fromValStr = '0';
+    if (calcActiveRow === 'from') {
+         let parts = calcInputVal.split('.');
+         let intPart = parts[0] ? parseInt(parts[0], 10).toLocaleString('id-ID') : '0';
+         fromValStr = parts.length > 1 ? `${intPart},${parts[1]}` : intPart;
+    } else {
+         if (calcRates && calcRates[calcFromCode]) {
+             let val = baseInUSD * calcRates[calcFromCode];
+             fromValStr = val === 0 ? '0' : val.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 4});
+         } else fromValStr = '...';
+    }
+
+    let toValStr = '0';
+    if (calcActiveRow === 'to') {
+         let parts = calcInputVal.split('.');
+         let intPart = parts[0] ? parseInt(parts[0], 10).toLocaleString('id-ID') : '0';
+         toValStr = parts.length > 1 ? `${intPart},${parts[1]}` : intPart;
+    } else {
+         if (calcRates && calcRates[calcToCode]) {
+             let val = baseInUSD * calcRates[calcToCode];
+             toValStr = val === 0 ? '0' : val.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 4});
+         } else toValStr = '...';
+    }
+
+    container.innerHTML = 
+        renderRow('from', calcFromCode, calcActiveRow === 'from', fromValStr) +
+        `<div style="display:flex; justify-content:center; margin: -16px 0; position: relative; z-index: 10;">
+             <button class="swap-btn" onclick="event.stopPropagation(); swapCalcCurr()" title="Tukar Mata Uang">⇅</button>
+         </div>` +
+        renderRow('to', calcToCode, calcActiveRow === 'to', toValStr);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCalc();
+});
+// ===============================================================================
+
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
 function setLoading(on){ document.getElementById('auth-submit-btn').disabled=on; document.getElementById('auth-submit-btn').textContent=on?'Memproses...':(authMode==='login'?'MASUK':'DAFTAR'); }
@@ -1084,7 +1328,6 @@ window.saveExtraPrefs = function() {
 window.changePinInApp = async function() {
     if(!currentUser) return;
 
-    // LANGSUNG KELUAR OPSI, TANPA MINTA PIN LAMA DULUAN
     const { value: choice } = await Swal.fire({
         title: 'Pengaturan PIN',
         text: 'Pilih aksi yang mau lu lakuin:',
@@ -1122,10 +1365,8 @@ window.changePinInApp = async function() {
     };
 
     if (choice === true) {
-        // LUPA PIN -> Bikin langsung PIN baru
         promptNewPin();
     } else if (choice === false) {
-        // INGAT PIN -> Minta PIN lama dulu
         const { value: oldPin } = await Swal.fire({
             title: 'Masukkan PIN Lama',
             input: 'password',
@@ -1151,7 +1392,6 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
-    // LOAD SETTINGS
     const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
     if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
     
@@ -1173,7 +1413,6 @@ onAuthStateChanged(auth, async user => {
         if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); }
     }, 200);
 
-    // FETCH PIN FROM FIREBASE
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
         const secSnap = await getDoc(secRef);
@@ -1205,7 +1444,6 @@ onAuthStateChanged(auth, async user => {
         console.error("Gagal memuat PIN dari Cloud:", err);
     }
     
-    // START TIMER SETELAH LOAD
     if(window.resetIdle) window.resetIdle();
     
   } else {
@@ -1269,7 +1507,6 @@ function unlockApp() {
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
   
-  // RESET TIMER SETELAH UNLOCK
   if(window.resetIdle) window.resetIdle();
 }
 
@@ -1287,14 +1524,12 @@ window.resetAccount = function() {
   });
 };
 
-// FIX PERMINTAAN: FUNGSI RESET PIN DARI HALAMAN AWAL (OPSI LANGSUNG MUNCUL)
 window.resetPinFromLogin = async function() {
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
     if (!uid) {
         return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'});
     }
 
-    // LANGSUNG KELUAR OPSI, TANPA MINTA PIN LAMA DULUAN
     const { value: choice } = await Swal.fire({
         title: 'Opsi Keamanan',
         text: 'Pilih tindakan untuk PIN lu:',
@@ -1333,10 +1568,8 @@ window.resetPinFromLogin = async function() {
     };
 
     if (choice === true) {
-        // LUPA PIN -> Langsung ke prompt PIN BARU
         promptNewPin();
     } else if (choice === false) {
-        // GANTI PIN -> Minta PIN lama dulu
         const { value: oldPin } = await Swal.fire({
             title: 'Masukkan PIN Lama',
             input: 'password',
@@ -1439,7 +1672,6 @@ window.addTx=async function(){
         saveBtn.disabled = false;
         window.setRealLocalTime();
         
-        // Auto kembali ke setting preferensi (jika ada) setelah simpan
         if(appPrefs && appPrefs.type) {
             selType(appPrefs.type);
             setTimeout(() => {
@@ -1998,7 +2230,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
       const balCard = e.target.closest('.m-card.bal');
       if(balCard) {
           document.body.classList.toggle('global-privacy');
-          // FIX BUG KECIL: sebelumnya tertulis vibrate(15) yang bikin error gak kelihatan, sekarang navigator.vibrate(15)
           if(navigator.vibrate) navigator.vibrate(15);
       }
   });
@@ -2157,13 +2388,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
   };
 
-  // FIX UTAMA: BACA LANGSUNG DARI DOM BIAR GAK KENA MASALAH SCOPE MODULE
   window.lastActiveTime = Date.now();
 
   window.checkLock = () => {
       const appScreen = document.getElementById('app-screen');
       if (appScreen && appScreen.style.display === 'block') {
-          // Ambil value langsung dari elemen menu dropdown-nya
           const autolockSetting = document.getElementById('ext_autolock') ? document.getElementById('ext_autolock').value : 'off';
           
           if (autolockSetting === 'on') {
