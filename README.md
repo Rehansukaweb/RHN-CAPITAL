@@ -991,8 +991,9 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </script>
 
 <script type="module">
+// GANTI IMPOR SIGNINWITHPOPUP MENJADI SIGNINWITHREDIRECT DI BAWAH INI
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
@@ -1418,7 +1419,7 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
-/* === FUNGSI LOGIN GOOGLE BARU === */
+/* === FUNGSI LOGIN GOOGLE BARU (MENGGUNAKAN REDIRECT UNTUK APK) === */
 window.doGoogleLogin = async function() {
     hideErr();
     setLoading(true);
@@ -1427,8 +1428,8 @@ window.doGoogleLogin = async function() {
     
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
-        // Kalau sukses, onAuthStateChanged otomatis jalan
+        // MENGGUNAKAN REDIRECT UNTUK MENGHINDARI ERROR WebView 403
+        await signInWithRedirect(auth, provider);
     } catch (error) {
         showErr(error.message);
         setLoading(false);
