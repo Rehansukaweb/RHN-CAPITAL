@@ -853,7 +853,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
   <div class="set-group">
     <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
-    <!-- PERHATIKAN PERUBAHAN DI SINI: onchange="saveExtraPrefs(false)" -->
     <div class="set-item">
       <div>
         <div class="set-label">Kunci Otomatis (Auto-Lock)</div>
@@ -959,7 +958,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v3.5 Ultimate Live</div>
+        <div class="set-sub">RHN Capital OS v3.6 Ultimate Live</div>
       </div>
     </div>
     <div class="set-item">
@@ -989,13 +988,32 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+
+// PERBAIKAN 1: Menangkap hasil redirect saat aplikasi terbuka ulang setelah login Google agar tidak stuck
+getRedirectResult(auth).then((result) => {
+    if(result) { window.resetAuthUI(); }
+}).catch((error) => {
+    window.resetAuthUI();
+    showErr("Login gagal/ditolak: " + error.message);
+});
+
+// PERBAIKAN 2: Fungsi mutlak untuk mengembalikan tombol ke keadaan normal
+window.resetAuthUI = function() {
+    const btn = document.getElementById('auth-submit-btn');
+    if(btn) { btn.disabled = false; btn.textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; }
+    const btnG = document.getElementById('btn-google');
+    if(btnG) {
+        btnG.disabled = false;
+        btnG.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> MASUK DENGAN GOOGLE`;
+    }
+};
 
 window.toggleTheme = function() {
   document.body.classList.toggle('light-mode');
@@ -1407,25 +1425,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
-function setLoading(on){ document.getElementById('auth-submit-btn').disabled=on; document.getElementById('auth-submit-btn').textContent=on?'Memproses...':(authMode==='login'?'MASUK':'DAFTAR'); }
+
+// PERBAIKAN 3: Fungsi setLoading dibuat lebih aman untuk menghindari lag
+function setLoading(on){ 
+    const btn = document.getElementById('auth-submit-btn');
+    if(btn) {
+        btn.disabled = on; 
+        btn.textContent = on ? 'MEMPROSES...' : (authMode === 'login' ? 'MASUK' : 'DAFTAR'); 
+    }
+    const btnG = document.getElementById('btn-google');
+    if(btnG) btnG.disabled = on;
+}
+
 function setSyncStatus(ok){ document.getElementById('sync-dot').style.background=ok?'var(--green2)':'var(--red2)'; document.getElementById('sync-label').textContent=ok?'TERSINKRON':'OFFLINE'; document.getElementById('sync-dot').style.boxShadow = ok ? '0 0 8px var(--green2)' : 'none'; }
 
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
-window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
+// PERBAIKAN 4: Tambah catch reset agar tombol tidak nyangkut saat akun diblokir/gagal
+window.doAuth = async function(){ 
+    const email = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-pass').value; 
+    hideErr(); 
+    if(!email || !pass) return showErr('Kredensial kosong.'); 
+    setLoading(true); 
+    
+    try { 
+        if(authMode === 'login') {
+            await signInWithEmailAndPassword(auth, email, pass); 
+        } else { 
+            if(pass !== document.getElementById('auth-pass2').value) {
+                window.resetAuthUI();
+                return showErr('Sandi beda.'); 
+            }
+            await createUserWithEmailAndPassword(auth, email, pass); 
+        } 
+    } catch(e) { 
+        window.resetAuthUI(); // MENGHILANGKAN LAG MEMPROSES
+        let msg = e.message;
+        if(e.code === 'auth/user-disabled') msg = 'Akun ini telah diblokir oleh admin.';
+        if(e.code === 'auth/invalid-credential') msg = 'Email atau Sandi salah.';
+        showErr(msg); 
+    } 
+};
+
+// PERBAIKAN 5: Prioritaskan Popup di WebView APK agar tidak keluar app, dengan fallback anti-lag
 window.doGoogleLogin = async function() {
     hideErr();
     setLoading(true);
     const btnGoogle = document.getElementById('btn-google');
-    if(btnGoogle) btnGoogle.textContent = 'MEMPROSES...';
+    if(btnGoogle) btnGoogle.innerHTML = `<span style="font-weight:800; color:#444;">MEMPROSES...</span>`;
     
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithRedirect(auth, provider);
+        // Tembak pake Popup dulu (menghindari APK keluar)
+        await signInWithPopup(auth, provider);
+        window.resetAuthUI();
     } catch (error) {
-        showErr(error.message);
-        setLoading(false);
-        if(btnGoogle) btnGoogle.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> MASUK DENGAN GOOGLE`;
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+            // Kalau popup diblokir WebView, baru tembak redirect
+            try {
+                await signInWithRedirect(auth, provider);
+            } catch (err2) {
+                window.resetAuthUI();
+                showErr(err2.message);
+            }
+        } else {
+            // Kalau error lain (misal diblokir/disabled)
+            window.resetAuthUI();
+            let msg = error.message;
+            if(error.code === 'auth/user-disabled') msg = 'Akun Google ini telah diblokir oleh admin.';
+            showErr(msg);
+        }
     }
 };
 
@@ -1434,7 +1504,7 @@ window.doResetPassword = async function() {
   if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); }
   setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
   try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); }
-  setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
+  window.resetAuthUI();
 };
 
 window.reqResetPasswordViaSettings = async function() {
@@ -1498,7 +1568,6 @@ window.savePreferences = function() {
     }, 50);
 }
 
-// PERBAIKAN: Fungsi saveExtraPrefs sekarang bisa di-skip bagian nyimpan ke Cloud-nya saat awal buka aplikasi
 window.saveExtraPrefs = function(skipCloudSave = false) {
     if(!currentUser) return;
     
@@ -1627,13 +1696,11 @@ onAuthStateChanged(auth, async user => {
         if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
     }
 
-    // PERBAIKAN: Update value HTML secara diam-diam tanpa men-trigger "SIMPAN KE CLOUD"
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
         const el = document.getElementById(id);
         if(el && extraPrefs[id]) {
             el.value = extraPrefs[id];
             
-            // Paksa update UI teks dropdown custom tanpa menyentuh event onchange yang bikin nulis ke cloud
             const uiText = el.previousElementSibling?.querySelector('.sel-text');
             if(uiText) {
                 let optText = el.querySelector(`option[value="${extraPrefs[id]}"]`)?.text;
@@ -1642,7 +1709,6 @@ onAuthStateChanged(auth, async user => {
         }
     });
 
-    // Jalankan efek logika fiturnya saja, tapi JANGAN simpan data ke Cloud karena ini data hasil download dari Cloud
     window.saveExtraPrefs(true);
     
     setTimeout(() => {
