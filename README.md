@@ -753,13 +753,15 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
+  <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
-      </div>
+      <!-- List otomatis di-generate JavaScript -->
+    </div>
     
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
       Diperbarui pada <span id="calc-last-update">...</span>
@@ -787,6 +789,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
     </div>
   </div>
+  <!-- ====================================================================================== -->
+  
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
@@ -1732,18 +1736,9 @@ window.resetPinFromLogin = async function() {
     }
 };
 
-// FIX 1: Delay PIN untuk mencegah Double Event (Race Condition)
 document.getElementById('app-pin').addEventListener('input', function(e) {
   this.value = this.value.replace(/[^0-9]/g, '');
-  if (this.value.length === 6) { 
-      this.blur(); // Turunkan keyboard HP
-      document.getElementById('pin-title').textContent = 'Memverifikasi...';
-      
-      // Kasih jeda dikit biar gak tabrakan
-      setTimeout(() => { 
-          window.verifyPin(); 
-      }, 50);
-  }
+  if (this.value.length === 6) { window.verifyPin(); }
 });
 
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
@@ -1769,25 +1764,12 @@ window.addTx=async function(){
       return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
   }
 
-  // FIX 2: POP-UP KONFIRMASI FORM KOSONG JELAS + KOTAK BERGETAR
   if(!amt || (!cat && curType !== 'transfer') || isNaN(amt)){
-    if(!amt || isNaN(amt)) { 
-        amountInput.classList.add('shake-error'); 
-        setTimeout(() => amountInput.classList.remove('shake-error'), 400); 
-        amountInput.focus(); 
-    }
-    if(!cat && curType !== 'transfer') { 
-        const visibleDropdown = catInput.previousElementSibling;
-        if(visibleDropdown) {
-            visibleDropdown.classList.add('shake-error');
-            setTimeout(() => visibleDropdown.classList.remove('shake-error'), 400);
-        }
-    }
+    if(!amt || isNaN(amt)) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); }
+    if(!cat && curType !== 'transfer') { document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error'); setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400); }
     return Swal.fire({
-       title: 'Data Belum Lengkap!',
-       html: 'Silakan masukkan <b>Nominal Jumlah uang (Rp)</b> dan tentukan <b>Kategori</b> finansial terlebih dahulu bro.',
-       icon: 'warning', confirmButtonText: 'SIAP, SAYA LENGKAPI', confirmButtonColor: 'var(--gold)',
-       background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
+       position: 'center', icon: 'warning', title: 'Oops...', text: 'Isi nominal dan kategori!', 
+       showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
     });
   }
   
