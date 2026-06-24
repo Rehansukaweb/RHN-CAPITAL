@@ -753,15 +753,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
-  <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
-      <!-- List otomatis di-generate JavaScript -->
-    </div>
+      </div>
     
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
       Diperbarui pada <span id="calc-last-update">...</span>
@@ -789,8 +787,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
     </div>
   </div>
-  <!-- ====================================================================================== -->
-  
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
@@ -976,15 +972,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </script>
 
 <script type="module">
-window.toggleTheme = function() {
-  document.body.classList.toggle('light-mode');
-  const isLight = document.body.classList.contains('light-mode');
-  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  refreshAll(); 
-};
-if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -993,6 +980,16 @@ const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", auth
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+
+window.toggleTheme = function() {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  if(window.saveToCloudPreferences) window.saveToCloudPreferences();
+  refreshAll(); 
+};
+if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
 
 const CATS = { 
   income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], 
@@ -1014,6 +1011,22 @@ let extraPrefs = {
     ext_walletpct: 'off', 
     ext_debtbadge: 'off',
     ext_antiintip: 'off'
+};
+
+// --- FUNGSI BARU: SINKRONISASI PENGATURAN KE CLOUD ---
+window.saveToCloudPreferences = async function() {
+    if (!currentUser) return;
+    const prefsRef = doc(db, 'users', currentUser.uid, 'settings', 'preferences');
+    const theme = localStorage.getItem('theme') || 'dark';
+    try {
+        await setDoc(prefsRef, {
+            appPrefs: appPrefs,
+            extraPrefs: extraPrefs,
+            theme: theme
+        }, { merge: true });
+    } catch (e) {
+        console.error("Gagal sinkron pengaturan ke cloud:", e);
+    }
 };
 
 const fmtFull = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
@@ -1444,6 +1457,9 @@ window.savePreferences = function() {
     if(!currentUser) return;
     appPrefs = { type: document.getElementById('pref-type').value, category: document.getElementById('pref-cat').value, wallet: document.getElementById('pref-wallet').value };
     localStorage.setItem('rhn_prefs_' + currentUser.uid, JSON.stringify(appPrefs));
+    
+    if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
+
     Swal.fire({position: 'center', icon: 'success', title: 'Tersimpan!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
     selType(appPrefs.type);
     setTimeout(() => {
@@ -1465,6 +1481,8 @@ window.saveExtraPrefs = function() {
         ext_antiintip: document.getElementById('ext_antiintip').value
     };
     localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
+    
+    if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
     
     if(extraPrefs.ext_antiintip === 'on') {
         document.body.classList.add('global-privacy');
@@ -1543,23 +1561,51 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
-    const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
-    if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
-    
-    const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
-    if(savedExtraPrefs) {
-        extraPrefs = JSON.parse(savedExtraPrefs);
-        ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
-            if(document.getElementById(id) && extraPrefs[id]) {
-                document.getElementById(id).value = extraPrefs[id];
-                document.getElementById(id).dispatchEvent(new Event('change'));
+    // --- LOAD PENGATURAN DARI CLOUD SEBELUM LOKAL ---
+    try {
+        const prefsRef = doc(db, 'users', user.uid, 'settings', 'preferences');
+        const prefsSnap = await getDoc(prefsRef);
+        if (prefsSnap.exists()) {
+            const data = prefsSnap.data();
+            if (data.appPrefs) {
+                appPrefs = data.appPrefs;
+                localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs));
             }
-        });
-        if(extraPrefs.ext_antiintip === 'on') {
-            document.body.classList.add('global-privacy');
+            if (data.extraPrefs) {
+                extraPrefs = data.extraPrefs;
+                localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs));
+            }
+            if (data.theme) {
+                localStorage.setItem('theme', data.theme);
+                if(data.theme === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
+                else { document.body.classList.remove('light-mode'); document.getElementById('theme-toggle').textContent = '🌙'; }
+            }
         } else {
-            document.body.classList.remove('global-privacy');
+            // Fallback ke local storage
+            const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
+            if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
+            const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
+            if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
         }
+    } catch(err) {
+        console.error("Gagal memuat pengaturan cloud:", err);
+        const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
+        if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
+        const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
+        if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
+    }
+
+    // Terapkan pengaturan ke UI
+    ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
+        if(document.getElementById(id) && extraPrefs[id]) {
+            document.getElementById(id).value = extraPrefs[id];
+            document.getElementById(id).dispatchEvent(new Event('change'));
+        }
+    });
+    if(extraPrefs.ext_antiintip === 'on') {
+        document.body.classList.add('global-privacy');
+    } else {
+        document.body.classList.remove('global-privacy');
     }
     
     setTimeout(() => {
