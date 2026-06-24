@@ -65,32 +65,10 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* ==========================================================================
-   FIX UI: SWEETALERT SUPER CEPAT, PREMIUM & ANTI-LAMBAT
-   ========================================================================== */
+/* FIX POP-UP MUNCUL DI BELAKANG LAYAR PIN */
 .swal2-container { z-index: 100000 !important; }
-.swal2-popup {
-  border-radius: 24px !important;
-  border: 1px solid var(--border) !important;
-  background: var(--card) !important;
-  color: var(--text) !important;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.8) !important;
-  padding: 16px 16px 24px 16px !important;
-  /* Animasi super kilat 0.2s, hilangkan bounce bawaan yang bikin kerasa lambat */
-  animation: swalSnappy 0.2s cubic-bezier(0.1, 0.7, 0.1, 1) forwards !important; 
-}
-@keyframes swalSnappy {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.swal2-backdrop-show {
-  background: rgba(0, 0, 0, 0.7) !important;
-  animation: swalBgSnappy 0.2s ease forwards !important;
-}
-@keyframes swalBgSnappy {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
+
+/* FIX CENTERED MODAL ELEGANT */
 .centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
 
 /* TOP TEXT & EXTERNAL LINKS */
@@ -342,11 +320,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 8px; }
 .auth-tab.active { background: var(--bg2); color: var(--text); }
 .auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
-.auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; transition: 0.2s; }
-
-/* GOOGLE BTN */
-.btn-google { background: #FFFFFF !important; color: #000000 !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; border: 1px solid #ddd !important; }
-.btn-google:hover { background: #f1f1f1 !important; transform: scale(0.98); }
+.auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 
 /* ==========================================================================
    MOBILE RESPONSIVE
@@ -552,21 +526,11 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
     </div>
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
-    
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
-    
-    <div style="display:flex; align-items:center; margin: 20px 0 10px 0;">
-        <hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);"><span style="font-size:10px; font-weight:800; color:var(--text3); padding:0 12px; letter-spacing:1px;">ATAU</span><hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);">
-    </div>
-    <button type="button" class="auth-btn btn-google" id="btn-google" onclick="doGoogleLogin(event)">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        MASUK DENGAN GOOGLE
-    </button>
-    
-    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:20px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
+    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:16px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
     <div style="font-size: 10px; color: var(--gold); margin-top: 6px; text-align: center;">Cek folder SPAM jika email reset tidak masuk</div>
   </div>
 </div>
@@ -625,7 +589,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
       <div class="user-action-wrap">
         <button class="setting-btn" onclick="switchPage('pengaturan')" title="Pengaturan">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
         <button class="logout-btn" onclick="doLogout()">KELUAR</button>
       </div>
@@ -795,7 +759,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
-    </div>
+      </div>
     
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
       Diperbarui pada <span id="calc-last-update">...</span>
@@ -823,7 +787,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
     </div>
   </div>
-  
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
@@ -880,7 +843,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">Kunci Otomatis (Auto-Lock)</div>
         <div class="set-sub">Kunci otomatis jika didiamkan 30 detik</div>
       </div>
-      <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Tidak Aktif</option>
         <option value="on">Aktif</option>
       </select>
@@ -890,7 +853,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">1. Sembunyikan Dompet Bersaldo Nol</div>
         <div class="set-sub">Hilangkan dompet dari layar jika uangnya kosong</div>
       </div>
-      <select id="ext_hidezero" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_hidezero" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -900,7 +863,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">2. Tampilkan Persentase Aset (%)</div>
         <div class="set-sub">Tampilkan porsi persentase saldo di tiap dompet</div>
       </div>
-      <select id="ext_walletpct" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_walletpct" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -910,7 +873,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">3. Format Angka Ringkas (Dashboard)</div>
         <div class="set-sub">Ubah format panjang Rp 1.500.000 menjadi 1,5 Jt</div>
       </div>
-      <select id="ext_shortnum" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_shortnum" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -920,7 +883,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">4. Peringatan Saldo Kritis</div>
         <div class="set-sub">Efek merah menyala bila saldo keseluruhan turun di bawah 50rb</div>
       </div>
-      <select id="ext_warnbalance" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_warnbalance" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -930,7 +893,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">5. Mode Hemat Harian (Budget Alert)</div>
         <div class="set-sub">Indikator merah jika pengeluaran harian melebihi Rp 100.000</div>
       </div>
-      <select id="ext_budget" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_budget" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -940,7 +903,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">6. Sorotan Label Hutang & Piutang</div>
         <div class="set-sub">Tampilkan label "Belum Lunas" secara tegas di riwayat</div>
       </div>
-      <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -950,7 +913,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">7. Anti Intip Saldo</div>
         <div class="set-sub">Sembunyikan/blur nominal saldo di seluruh aplikasi</div>
       </div>
-      <select id="ext_antiintip" class="set-select" onchange="saveExtraPrefs(false)">
+      <select id="ext_antiintip" class="set-select" onchange="saveExtraPrefs()">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -980,7 +943,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v3.6 Ultimate Live</div>
+        <div class="set-sub">RHN Capital OS v3.5 Ultimate Live</div>
       </div>
     </div>
     <div class="set-item">
@@ -1009,41 +972,23 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </script>
 
 <script type="module">
+window.toggleTheme = function() {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  refreshAll(); 
+};
+if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
-
-getRedirectResult(auth).then((result) => {
-    if(result) { window.resetAuthUI(); }
-}).catch((error) => {
-    window.resetAuthUI();
-    showErr("Login gagal/ditolak: " + error.message);
-});
-
-window.resetAuthUI = function() {
-    const btn = document.getElementById('auth-submit-btn');
-    if(btn) { btn.disabled = false; btn.textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; }
-    const btnG = document.getElementById('btn-google');
-    if(btnG) {
-        btnG.disabled = false;
-        btnG.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> MASUK DENGAN GOOGLE`;
-    }
-};
-
-window.toggleTheme = function() {
-  document.body.classList.toggle('light-mode');
-  const isLight = document.body.classList.contains('light-mode');
-  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  if(window.saveToCloudPreferences) window.saveToCloudPreferences();
-  refreshAll(); 
-};
-if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
 
 const CATS = { 
   income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], 
@@ -1065,21 +1010,6 @@ let extraPrefs = {
     ext_walletpct: 'off', 
     ext_debtbadge: 'off',
     ext_antiintip: 'off'
-};
-
-window.saveToCloudPreferences = async function() {
-    if (!currentUser) return;
-    const prefsRef = doc(db, 'users', currentUser.uid, 'settings', 'preferences');
-    const theme = localStorage.getItem('theme') || 'dark';
-    try {
-        await setDoc(prefsRef, {
-            appPrefs: appPrefs,
-            extraPrefs: extraPrefs,
-            theme: theme
-        }, { merge: true });
-    } catch (e) {
-        console.error("Gagal sinkron pengaturan ke cloud:", e);
-    }
 };
 
 const fmtFull = n => 'Rp '+Math.round(n).toLocaleString('id-ID');
@@ -1387,6 +1317,7 @@ window.renderCalcDisplay = function() {
 document.addEventListener('DOMContentLoaded', () => {
     initCalc();
 
+    // ================= FIX 3: DROPDOWN BOTTOM SHEET ELEGAN UNTUK SEMUA SELECT =================
     const syncSelectUI = (sel, ui) => {
         let text = sel.options[sel.selectedIndex]?.text;
         if(!text && sel.options.length > 0) text = sel.options[0].text;
@@ -1445,75 +1376,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
-
-function setLoading(on){ 
-    const btn = document.getElementById('auth-submit-btn');
-    if(btn) {
-        btn.disabled = on; 
-        btn.textContent = on ? 'MEMPROSES...' : (authMode === 'login' ? 'MASUK' : 'DAFTAR'); 
-    }
-    const btnG = document.getElementById('btn-google');
-    if(btnG) btnG.disabled = on;
-}
-
+function setLoading(on){ document.getElementById('auth-submit-btn').disabled=on; document.getElementById('auth-submit-btn').textContent=on?'Memproses...':(authMode==='login'?'MASUK':'DAFTAR'); }
 function setSyncStatus(ok){ document.getElementById('sync-dot').style.background=ok?'var(--green2)':'var(--red2)'; document.getElementById('sync-label').textContent=ok?'TERSINKRON':'OFFLINE'; document.getElementById('sync-dot').style.boxShadow = ok ? '0 0 8px var(--green2)' : 'none'; }
 
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
-
-window.doAuth = async function(){ 
-    const email = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-pass').value; 
-    hideErr(); 
-    if(!email || !pass) return showErr('Kredensial kosong.'); 
-    setLoading(true); 
-    
-    try { 
-        if(authMode === 'login') {
-            await signInWithEmailAndPassword(auth, email, pass); 
-        } else { 
-            if(pass !== document.getElementById('auth-pass2').value) {
-                window.resetAuthUI();
-                return showErr('Sandi beda.'); 
-            }
-            await createUserWithEmailAndPassword(auth, email, pass); 
-        } 
-    } catch(e) { 
-        window.resetAuthUI(); 
-        let msg = e.message;
-        if(e.code === 'auth/user-disabled') msg = 'Akun ini telah diblokir oleh admin.';
-        if(e.code === 'auth/invalid-credential') msg = 'Email atau Sandi salah.';
-        showErr(msg); 
-    } 
-};
-
-window.doGoogleLogin = async function(e) {
-    if(e) e.preventDefault(); 
-    hideErr();
-    setLoading(true);
-    const btnGoogle = document.getElementById('btn-google');
-    if(btnGoogle) btnGoogle.innerHTML = `<span style="font-weight:800; color:#444;">MEMPROSES...</span>`;
-    
-    const provider = new GoogleAuthProvider();
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        window.resetAuthUI();
-        let msg = error.message;
-        if(error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
-            msg = 'Popup diblokir. Izinkan popup browser untuk login Google.';
-        } else if(error.code === 'auth/user-disabled') {
-            msg = 'Akun Google ini telah diblokir oleh admin.';
-        }
-        showErr(msg);
-    }
-};
+window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
 window.doResetPassword = async function() {
   const email = document.getElementById('auth-email').value.trim(); hideErr();
   if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); }
   setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
-  try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { showErr(e.message); }
-  window.resetAuthUI();
+  try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); }
+  setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
 };
 
 window.reqResetPasswordViaSettings = async function() {
@@ -1566,9 +1440,6 @@ window.savePreferences = function() {
     if(!currentUser) return;
     appPrefs = { type: document.getElementById('pref-type').value, category: document.getElementById('pref-cat').value, wallet: document.getElementById('pref-wallet').value };
     localStorage.setItem('rhn_prefs_' + currentUser.uid, JSON.stringify(appPrefs));
-    
-    if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
-
     Swal.fire({position: 'center', icon: 'success', title: 'Tersimpan!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
     selType(appPrefs.type);
     setTimeout(() => {
@@ -1577,9 +1448,8 @@ window.savePreferences = function() {
     }, 50);
 }
 
-window.saveExtraPrefs = function(skipCloudSave = false) {
+window.saveExtraPrefs = function() {
     if(!currentUser) return;
-    
     extraPrefs = { 
         ext_autolock: document.getElementById('ext_autolock').value, 
         ext_warnbalance: document.getElementById('ext_warnbalance').value, 
@@ -1590,11 +1460,7 @@ window.saveExtraPrefs = function(skipCloudSave = false) {
         ext_debtbadge: document.getElementById('ext_debtbadge').value,
         ext_antiintip: document.getElementById('ext_antiintip').value
     };
-    
-    if (!skipCloudSave) {
-        localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
-        if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
-    }
+    localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
     
     if(extraPrefs.ext_antiintip === 'on') {
         document.body.classList.add('global-privacy');
@@ -1673,55 +1539,23 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
-    try {
-        const prefsRef = doc(db, 'users', user.uid, 'settings', 'preferences');
-        const prefsSnap = await getDoc(prefsRef);
-        if (prefsSnap.exists()) {
-            const data = prefsSnap.data();
-            if (data.appPrefs) {
-                appPrefs = data.appPrefs;
-                localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs));
+    const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
+    if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
+    
+    const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
+    if(savedExtraPrefs) {
+        extraPrefs = JSON.parse(savedExtraPrefs);
+        ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
+            if(document.getElementById(id) && extraPrefs[id]) {
+                document.getElementById(id).value = extraPrefs[id];
+                document.getElementById(id).dispatchEvent(new Event('change'));
             }
-            if (data.extraPrefs) {
-                extraPrefs = data.extraPrefs;
-                localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs));
-            }
-            if (data.theme) {
-                localStorage.setItem('theme', data.theme);
-                if(data.theme === 'light') { document.body.classList.add('light-mode'); document.getElementById('theme-toggle').textContent = '☀️'; }
-                else { document.body.classList.remove('light-mode'); document.getElementById('theme-toggle').textContent = '🌙'; }
-            }
+        });
+        if(extraPrefs.ext_antiintip === 'on') {
+            document.body.classList.add('global-privacy');
         } else {
-            const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
-            if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
-            const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
-            if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
+            document.body.classList.remove('global-privacy');
         }
-    } catch(err) {
-        console.error("Gagal memuat pengaturan cloud:", err);
-        const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
-        if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
-        const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
-        if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
-    }
-
-    ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el && extraPrefs[id]) {
-            el.value = extraPrefs[id];
-            
-            const uiText = el.previousElementSibling?.querySelector('.sel-text');
-            if(uiText) {
-                let optText = el.querySelector(`option[value="${extraPrefs[id]}"]`)?.text;
-                if(optText) uiText.innerHTML = optText;
-            }
-        }
-    });
-
-    if(extraPrefs.ext_antiintip === 'on') {
-        document.body.classList.add('global-privacy');
-    } else {
-        document.body.classList.remove('global-privacy');
     }
     
     setTimeout(() => {
@@ -1784,7 +1618,7 @@ window.verifyPin = async function() {
     try {
         await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true });
         window.userCloudPin = pinInput;
-        Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
+        Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
         unlockApp();
     } catch(e) {
         errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block';
@@ -1806,8 +1640,6 @@ window.verifyPin = async function() {
     } else {
       errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block';
       document.getElementById('app-pin').value = '';
-      document.getElementById('pin-title').textContent = 'Masukkan PIN';
-      document.getElementById('pin-sub').textContent = 'Keamanan aktif';
       document.getElementById('app-pin').classList.add('shake-error');
       setTimeout(() => document.getElementById('app-pin').classList.remove('shake-error'), 400);
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
@@ -1819,22 +1651,11 @@ function unlockApp() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'block';
   setLoading(false);
-  
   const name = currentUser.displayName || currentUser.email.split('@')[0];
   document.getElementById('user-name').textContent = name;
-  
-  const avatarEl = document.getElementById('user-avatar');
-  if (currentUser.photoURL) {
-      avatarEl.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-      avatarEl.style.border = "none";
-  } else {
-      avatarEl.textContent = name.charAt(0).toUpperCase();
-  }
-
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
-  document.getElementById('pin-title').textContent = 'Masukkan PIN';
-  document.getElementById('pin-sub').textContent = 'Keamanan aktif';
   
   if(window.resetIdle) window.resetIdle();
 }
@@ -1911,17 +1732,16 @@ window.resetPinFromLogin = async function() {
     }
 };
 
-// FIX BARU: PERBAIKAN DELAY INPUT PIN (KEYBOARD INSTANTLY DROPS)
+// FIX 1: Delay PIN untuk mencegah Double Event (Race Condition)
 document.getElementById('app-pin').addEventListener('input', function(e) {
   this.value = this.value.replace(/[^0-9]/g, '');
   if (this.value.length === 6) { 
-      this.blur(); // MENGHILANGKAN KEYBOARD HP SECARA INSTAN
-      document.getElementById('pin-title').textContent = 'MEMBUKA...';
-      document.getElementById('pin-sub').textContent = 'Otentikasi berhasil';
+      this.blur(); // Turunkan keyboard HP
+      document.getElementById('pin-title').textContent = 'Memverifikasi...';
       
-      // Memberikan jeda sangat sedikit agar UI sempet berubah sebelum CPU bekerja verifikasi data
-      setTimeout(() => {
-          window.verifyPin();
+      // Kasih jeda dikit biar gak tabrakan
+      setTimeout(() => { 
+          window.verifyPin(); 
       }, 50);
   }
 });
@@ -1946,28 +1766,28 @@ window.addTx=async function(){
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
   
   if(curType === 'transfer' && wallet === walletTo){
-      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)'});
+      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
   }
 
-  // FIX BARU: PERBAIKAN POP-UP KONFIRMASI FORM SUPER JELAS & TEGAS
+  // FIX 2: POP-UP KONFIRMASI FORM KOSONG JELAS + KOTAK BERGETAR
   if(!amt || (!cat && curType !== 'transfer') || isNaN(amt)){
     if(!amt || isNaN(amt)) { 
         amountInput.classList.add('shake-error'); 
         setTimeout(() => amountInput.classList.remove('shake-error'), 400); 
-        amountInput.focus(); // Arahkan pengguna langsung ke input
+        amountInput.focus(); 
     }
     if(!cat && curType !== 'transfer') { 
-        document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error'); 
-        setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400); 
+        const visibleDropdown = catInput.previousElementSibling;
+        if(visibleDropdown) {
+            visibleDropdown.classList.add('shake-error');
+            setTimeout(() => visibleDropdown.classList.remove('shake-error'), 400);
+        }
     }
-    
     return Swal.fire({
-       title: 'Data Belum Lengkap!', 
-       html: 'Silakan isi <b>Nominal Transaksi</b> dan pilih <b>Kategori</b> terlebih dahulu sebelum menyimpan.', 
-       icon: 'warning', 
-       confirmButtonText: 'LENGKAPI SEKARANG',
-       confirmButtonColor: 'var(--gold)',
-       background: 'var(--card)', color: 'var(--text)'
+       title: 'Data Belum Lengkap!',
+       html: 'Silakan masukkan <b>Nominal Jumlah uang (Rp)</b> dan tentukan <b>Kategori</b> finansial terlebih dahulu bro.',
+       icon: 'warning', confirmButtonText: 'SIAP, SAYA LENGKAPI', confirmButtonColor: 'var(--gold)',
+       background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
     });
   }
   
@@ -2013,9 +1833,10 @@ window.addTx=async function(){
        icon: 'success',
        title: titleMsg,
        showConfirmButton: false,
-       timer: 1500, // Dipercepat biar nggak nunggu lama
+       timer: 2000,
        background: 'var(--card)',
-       color: 'var(--text)'
+       color: 'var(--text)',
+       backdrop: 'rgba(0,0,0,0.6)'
     });
     
     setTimeout(() => {
@@ -2032,10 +1853,10 @@ window.addTx=async function(){
         } else {
             selType('income');
         }
-    }, 1500);
+    }, 2000);
 
   } catch(e){
-    Swal.fire({position: 'center', icon: 'error', title: 'Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)'}); 
+    Swal.fire({position: 'center', icon: 'error', title: 'Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
     saveBtn.textContent='COBA LAGI';
     saveBtn.style.opacity = '1';
     saveBtn.disabled = false;
@@ -2339,7 +2160,7 @@ function refreshAll(){
 
 document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO();
 
-window.exportCSV=function(){ if(!txs.length)return Swal.fire({title: 'Kosong', text: 'Tidak ada data untuk diunduh', icon: 'info', background: 'var(--card)', color: 'var(--text)'}); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
+window.exportCSV=function(){ if(!txs.length)return Swal.fire('Kosong','Tidak ada data untuk diunduh','info'); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
 
 window.payDebt = async function(id) {
   if(!currentUser) return;
@@ -2351,14 +2172,14 @@ window.payDebt = async function(id) {
       background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Bayar Lunas',
-      position: 'center'
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
   }).then(async (result) => {
       if(result.isConfirmed) {
           try {
               await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
               Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
           } catch(e) {
-              Swal.fire({title: 'Error', text: e.message, icon: 'error', background: 'var(--card)', color: 'var(--text)'});
+              Swal.fire('Error', e.message, 'error');
           }
       }
   });
@@ -2374,14 +2195,14 @@ window.payRecv = async function(id) {
       background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Sudah Dibayar',
-      position: 'center'
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
   }).then(async (result) => {
       if(result.isConfirmed) {
           try {
               await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
               Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
           } catch(e) {
-              Swal.fire({title: 'Error', text: e.message, icon: 'error', background: 'var(--card)', color: 'var(--text)'});
+              Swal.fire('Error', e.message, 'error');
           }
       }
   });
@@ -2441,10 +2262,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const Toast = Swal.mixin({
     position: 'center', 
     showConfirmButton: false, 
-    timer: 1500, // Dipercepat biar nggak kelamaan
+    timer: 2000, 
     timerProgressBar: true,
     background: 'var(--card)', 
-    color: 'var(--text)'
+    color: 'var(--text)',
+    backdrop: 'rgba(0,0,0,0.6)'
   });
 
   window.addEventListener('offline', () => {
@@ -2468,7 +2290,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       title: 'Hapus Transaksi?', text: "Data yang dihapus tidak bisa dikembalikan.",
       icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus',
-      position: 'center'
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         const nativeConfirm = window.confirm;
@@ -2494,7 +2316,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       confirmButtonColor: 'var(--blue)', 
       cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Edit',
-      position: 'center'
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         originalEditTx(id);
@@ -2515,7 +2337,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       confirmButtonColor: 'var(--red2)', 
       cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Keluar',
-      position: 'center'
+      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
     }).then((result) => {
       if (result.isConfirmed) {
         originalDoLogout();
@@ -2602,7 +2424,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             title: 'Pindah Tab?', text: "Ada nominal yang belum lu simpan. Lanjut pindah?", icon: 'warning',
             showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal',
             background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)',
-            position: 'center'
+            position: 'center', backdrop: 'rgba(0,0,0,0.6)'
         }).then((result) => {
             if (result.isConfirmed) { originalSwitchPage(p); } 
         });
@@ -2726,7 +2548,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
           if (hour >= 5 && hour < 11) greeting = 'Pagi ☀️';
           else if (hour >= 11 && hour < 15) greeting = 'Siang 🌤️';
           else if (hour >= 15 && hour < 18) greeting = 'Sore 🌇';
-          
           const nameParts = userNameEl.innerText.split(' ');
           userNameEl.innerText = `${greeting}, ${nameParts[0]}!`;
           userNameEl.dataset.greeted = 'true';
@@ -2825,6 +2646,7 @@ window.addEventListener('load', () => {
   }, 3000); 
 });
 
+// ULTIMATE FIX: ANTI-STUCK TIMEOUT FALLBACK
 setTimeout(() => {
     const splash = document.getElementById('splash-screen');
     if (splash && !splash.classList.contains('splash-exit')) {
