@@ -536,7 +536,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
     
-    <!-- GOOGLE LOGIN BUTTON -->
     <div style="display:flex; align-items:center; margin: 20px 0 10px 0;">
         <hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);"><span style="font-size:10px; font-weight:800; color:var(--text3); padding:0 12px; letter-spacing:1px;">ATAU</span><hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);">
     </div>
@@ -768,14 +767,12 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
-  <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
-      <!-- List otomatis di-generate JavaScript -->
     </div>
     
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
@@ -804,7 +801,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
     </div>
   </div>
-  <!-- ====================================================================================== -->
   
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
@@ -857,12 +853,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
   <div class="set-group">
     <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
+    <!-- PERHATIKAN PERUBAHAN DI SINI: onchange="saveExtraPrefs(false)" -->
     <div class="set-item">
       <div>
         <div class="set-label">Kunci Otomatis (Auto-Lock)</div>
         <div class="set-sub">Kunci otomatis jika didiamkan 30 detik</div>
       </div>
-      <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_autolock" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Tidak Aktif</option>
         <option value="on">Aktif</option>
       </select>
@@ -872,7 +869,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">1. Sembunyikan Dompet Bersaldo Nol</div>
         <div class="set-sub">Hilangkan dompet dari layar jika uangnya kosong</div>
       </div>
-      <select id="ext_hidezero" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_hidezero" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -882,7 +879,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">2. Tampilkan Persentase Aset (%)</div>
         <div class="set-sub">Tampilkan porsi persentase saldo di tiap dompet</div>
       </div>
-      <select id="ext_walletpct" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_walletpct" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -892,7 +889,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">3. Format Angka Ringkas (Dashboard)</div>
         <div class="set-sub">Ubah format panjang Rp 1.500.000 menjadi 1,5 Jt</div>
       </div>
-      <select id="ext_shortnum" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_shortnum" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -902,7 +899,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">4. Peringatan Saldo Kritis</div>
         <div class="set-sub">Efek merah menyala bila saldo keseluruhan turun di bawah 50rb</div>
       </div>
-      <select id="ext_warnbalance" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_warnbalance" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -912,7 +909,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">5. Mode Hemat Harian (Budget Alert)</div>
         <div class="set-sub">Indikator merah jika pengeluaran harian melebihi Rp 100.000</div>
       </div>
-      <select id="ext_budget" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_budget" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -922,7 +919,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">6. Sorotan Label Hutang & Piutang</div>
         <div class="set-sub">Tampilkan label "Belum Lunas" secara tegas di riwayat</div>
       </div>
-      <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_debtbadge" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -932,7 +929,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div class="set-label">7. Anti Intip Saldo</div>
         <div class="set-sub">Sembunyikan/blur nominal saldo di seluruh aplikasi</div>
       </div>
-      <select id="ext_antiintip" class="set-select" onchange="saveExtraPrefs()">
+      <select id="ext_antiintip" class="set-select" onchange="saveExtraPrefs(false)">
         <option value="off">Mati</option>
         <option value="on">Aktif</option>
       </select>
@@ -991,7 +988,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </script>
 
 <script type="module">
-// GANTI IMPOR SIGNINWITHPOPUP MENJADI SIGNINWITHREDIRECT DI BAWAH INI
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -1033,7 +1029,6 @@ let extraPrefs = {
     ext_antiintip: 'off'
 };
 
-// --- FUNGSI BARU: FORCE SINKRONISASI PENGATURAN KE CLOUD ---
 window.saveToCloudPreferences = async function() {
     if (!currentUser) return;
     const prefsRef = doc(db, 'users', currentUser.uid, 'settings', 'preferences');
@@ -1354,7 +1349,6 @@ window.renderCalcDisplay = function() {
 document.addEventListener('DOMContentLoaded', () => {
     initCalc();
 
-    // ================= FIX 3: DROPDOWN BOTTOM SHEET ELEGAN UNTUK SEMUA SELECT =================
     const syncSelectUI = (sel, ui) => {
         let text = sel.options[sel.selectedIndex]?.text;
         if(!text && sel.options.length > 0) text = sel.options[0].text;
@@ -1419,7 +1413,6 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
-/* === FUNGSI LOGIN GOOGLE BARU (MENGGUNAKAN REDIRECT UNTUK APK) === */
 window.doGoogleLogin = async function() {
     hideErr();
     setLoading(true);
@@ -1428,7 +1421,6 @@ window.doGoogleLogin = async function() {
     
     const provider = new GoogleAuthProvider();
     try {
-        // MENGGUNAKAN REDIRECT UNTUK MENGHINDARI ERROR WebView 403
         await signInWithRedirect(auth, provider);
     } catch (error) {
         showErr(error.message);
@@ -1506,21 +1498,25 @@ window.savePreferences = function() {
     }, 50);
 }
 
-window.saveExtraPrefs = function() {
+// PERBAIKAN: Fungsi saveExtraPrefs sekarang bisa di-skip bagian nyimpan ke Cloud-nya saat awal buka aplikasi
+window.saveExtraPrefs = function(skipCloudSave = false) {
     if(!currentUser) return;
-    extraPrefs = { 
-        ext_autolock: document.getElementById('ext_autolock').value, 
-        ext_warnbalance: document.getElementById('ext_warnbalance').value, 
-        ext_shortnum: document.getElementById('ext_shortnum').value, 
-        ext_budget: document.getElementById('ext_budget').value, 
-        ext_hidezero: document.getElementById('ext_hidezero').value, 
-        ext_walletpct: document.getElementById('ext_walletpct').value, 
-        ext_debtbadge: document.getElementById('ext_debtbadge').value,
-        ext_antiintip: document.getElementById('ext_antiintip').value
-    };
-    localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
     
-    if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
+    if (!skipCloudSave) {
+        extraPrefs = { 
+            ext_autolock: document.getElementById('ext_autolock').value, 
+            ext_warnbalance: document.getElementById('ext_warnbalance').value, 
+            ext_shortnum: document.getElementById('ext_shortnum').value, 
+            ext_budget: document.getElementById('ext_budget').value, 
+            ext_hidezero: document.getElementById('ext_hidezero').value, 
+            ext_walletpct: document.getElementById('ext_walletpct').value, 
+            ext_debtbadge: document.getElementById('ext_debtbadge').value,
+            ext_antiintip: document.getElementById('ext_antiintip').value
+        };
+        localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs));
+        
+        if(window.saveToCloudPreferences) window.saveToCloudPreferences(); // SINKRON KE CLOUD
+    }
     
     if(extraPrefs.ext_antiintip === 'on') {
         document.body.classList.add('global-privacy');
@@ -1599,7 +1595,6 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
-    // --- LOAD PENGATURAN DARI CLOUD SEBELUM LOKAL (FORCE OVERRIDE) ---
     try {
         const prefsRef = doc(db, 'users', user.uid, 'settings', 'preferences');
         const prefsSnap = await getDoc(prefsRef);
@@ -1619,7 +1614,6 @@ onAuthStateChanged(auth, async user => {
                 else { document.body.classList.remove('light-mode'); document.getElementById('theme-toggle').textContent = '🌙'; }
             }
         } else {
-            // Fallback ke local storage jika belum pernah simpan di cloud
             const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
             if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
             const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
@@ -1633,27 +1627,23 @@ onAuthStateChanged(auth, async user => {
         if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
     }
 
-    // TERAPKAN PENGATURAN KE UI SECARA PAKSA (FORCE UPDATE UI)
+    // PERBAIKAN: Update value HTML secara diam-diam tanpa men-trigger "SIMPAN KE CLOUD"
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
         const el = document.getElementById(id);
         if(el && extraPrefs[id]) {
             el.value = extraPrefs[id];
-            el.dispatchEvent(new Event('change'));
             
-            // Paksa update teks dropdown custom
+            // Paksa update UI teks dropdown custom tanpa menyentuh event onchange yang bikin nulis ke cloud
             const uiText = el.previousElementSibling?.querySelector('.sel-text');
             if(uiText) {
-                let optText = el.options[el.selectedIndex]?.text;
-                uiText.innerHTML = optText || 'Pilih...';
+                let optText = el.querySelector(`option[value="${extraPrefs[id]}"]`)?.text;
+                if(optText) uiText.innerHTML = optText;
             }
         }
     });
 
-    if(extraPrefs.ext_antiintip === 'on') {
-        document.body.classList.add('global-privacy');
-    } else {
-        document.body.classList.remove('global-privacy');
-    }
+    // Jalankan efek logika fiturnya saja, tapi JANGAN simpan data ke Cloud karena ini data hasil download dari Cloud
+    window.saveExtraPrefs(true);
     
     setTimeout(() => {
         window.updatePrefCategories(false); 
@@ -1749,11 +1739,9 @@ function unlockApp() {
   document.getElementById('app-screen').style.display = 'block';
   setLoading(false);
   
-  // NAMA DARI GOOGLE / EMAIL
   const name = currentUser.displayName || currentUser.email.split('@')[0];
   document.getElementById('user-name').textContent = name;
   
-  // AVATAR DARI GOOGLE JIKA ADA
   const avatarEl = document.getElementById('user-avatar');
   if (currentUser.photoURL) {
       avatarEl.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
@@ -2635,7 +2623,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
           else if (hour >= 11 && hour < 15) greeting = 'Siang 🌤️';
           else if (hour >= 15 && hour < 18) greeting = 'Sore 🌇';
           
-          // Mengambil nama user
           const nameParts = userNameEl.innerText.split(' ');
           userNameEl.innerText = `${greeting}, ${nameParts[0]}!`;
           userNameEl.dataset.greeted = 'true';
@@ -2734,7 +2721,6 @@ window.addEventListener('load', () => {
   }, 3000); 
 });
 
-// ULTIMATE FIX: ANTI-STUCK TIMEOUT FALLBACK
 setTimeout(() => {
     const splash = document.getElementById('splash-screen');
     if (splash && !splash.classList.contains('splash-exit')) {
