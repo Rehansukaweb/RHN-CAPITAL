@@ -65,10 +65,32 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* FIX POP-UP MUNCUL DI BELAKANG LAYAR PIN */
+/* ==========================================================================
+   FIX UI: SWEETALERT SUPER CEPAT, PREMIUM & ANTI-LAMBAT
+   ========================================================================== */
 .swal2-container { z-index: 100000 !important; }
-
-/* FIX CENTERED MODAL ELEGANT */
+.swal2-popup {
+  border-radius: 24px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  color: var(--text) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.8) !important;
+  padding: 16px 16px 24px 16px !important;
+  /* Animasi super kilat 0.2s, hilangkan bounce bawaan yang bikin kerasa lambat */
+  animation: swalSnappy 0.2s cubic-bezier(0.1, 0.7, 0.1, 1) forwards !important; 
+}
+@keyframes swalSnappy {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.swal2-backdrop-show {
+  background: rgba(0, 0, 0, 0.7) !important;
+  animation: swalBgSnappy 0.2s ease forwards !important;
+}
+@keyframes swalBgSnappy {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
 .centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
 
 /* TOP TEXT & EXTERNAL LINKS */
@@ -539,7 +561,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div style="display:flex; align-items:center; margin: 20px 0 10px 0;">
         <hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);"><span style="font-size:10px; font-weight:800; color:var(--text3); padding:0 12px; letter-spacing:1px;">ATAU</span><hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);">
     </div>
-    <!-- FIX 1: TYPE="BUTTON" dan EVENT pada onclick ditambahkan -->
     <button type="button" class="auth-btn btn-google" id="btn-google" onclick="doGoogleLogin(event)">
         <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         MASUK DENGAN GOOGLE
@@ -604,7 +625,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
       <div class="user-action-wrap">
         <button class="setting-btn" onclick="switchPage('pengaturan')" title="Pengaturan">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
         <button class="logout-btn" onclick="doLogout()">KELUAR</button>
       </div>
@@ -997,7 +1018,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-// PERBAIKAN 1: Menangkap hasil redirect saat aplikasi terbuka ulang setelah login Google agar tidak stuck
 getRedirectResult(auth).then((result) => {
     if(result) { window.resetAuthUI(); }
 }).catch((error) => {
@@ -1005,7 +1025,6 @@ getRedirectResult(auth).then((result) => {
     showErr("Login gagal/ditolak: " + error.message);
 });
 
-// PERBAIKAN 2: Fungsi mutlak untuk mengembalikan tombol ke keadaan normal
 window.resetAuthUI = function() {
     const btn = document.getElementById('auth-submit-btn');
     if(btn) { btn.disabled = false; btn.textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; }
@@ -1427,7 +1446,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function showErr(msg){ const el=document.getElementById('auth-err'); el.textContent=msg; el.style.display='block'; }
 function hideErr(){ document.getElementById('auth-err').style.display='none'; }
 
-// PERBAIKAN 3: Fungsi setLoading dibuat lebih aman untuk menghindari lag
 function setLoading(on){ 
     const btn = document.getElementById('auth-submit-btn');
     if(btn) {
@@ -1442,7 +1460,6 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 
-// PERBAIKAN 4: Tambah catch reset agar tombol tidak nyangkut saat akun diblokir/gagal
 window.doAuth = async function(){ 
     const email = document.getElementById('auth-email').value.trim();
     const pass = document.getElementById('auth-pass').value; 
@@ -1461,7 +1478,7 @@ window.doAuth = async function(){
             await createUserWithEmailAndPassword(auth, email, pass); 
         } 
     } catch(e) { 
-        window.resetAuthUI(); // MENGHILANGKAN LAG MEMPROSES
+        window.resetAuthUI(); 
         let msg = e.message;
         if(e.code === 'auth/user-disabled') msg = 'Akun ini telah diblokir oleh admin.';
         if(e.code === 'auth/invalid-credential') msg = 'Email atau Sandi salah.';
@@ -1469,9 +1486,8 @@ window.doAuth = async function(){
     } 
 };
 
-// FIX BARU: PERBAIKAN FUNGSI GOOGLE LOGIN (ANTI REFRESH)
 window.doGoogleLogin = async function(e) {
-    if(e) e.preventDefault(); // FIX: Menghentikan browser refresh otomatis
+    if(e) e.preventDefault(); 
     hideErr();
     setLoading(true);
     const btnGoogle = document.getElementById('btn-google');
@@ -1480,7 +1496,6 @@ window.doGoogleLogin = async function(e) {
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
-        // FIX: Hapus redirect. Biarkan onAuthStateChanged yang otomatis memasukkan user ke dashboard
     } catch (error) {
         window.resetAuthUI();
         let msg = error.message;
@@ -1497,7 +1512,7 @@ window.doResetPassword = async function() {
   const email = document.getElementById('auth-email').value.trim(); hideErr();
   if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); }
   setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...';
-  try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); }
+  try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { showErr(e.message); }
   window.resetAuthUI();
 };
 
@@ -1562,11 +1577,9 @@ window.savePreferences = function() {
     }, 50);
 }
 
-// FIX BARU: FUNGSI SINKRONISASI 7 FITUR KE CLOUD
 window.saveExtraPrefs = function(skipCloudSave = false) {
     if(!currentUser) return;
     
-    // Ambil state terbaru dari UI / Form Pengaturan
     extraPrefs = { 
         ext_autolock: document.getElementById('ext_autolock').value, 
         ext_warnbalance: document.getElementById('ext_warnbalance').value, 
@@ -1654,7 +1667,6 @@ window.doLogout=async function(){
   await signOut(auth); 
 };
 
-// FIX BARU: PERBAIKAN PENARIKAN DATA CLOUD (ON AUTH STATE CHANGED)
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
@@ -1706,7 +1718,6 @@ onAuthStateChanged(auth, async user => {
         }
     });
 
-    // FIX: Terapkan anti intip langsung, JANGAN panggil saveExtraPrefs(true) di sini agar data cloud gak keriset
     if(extraPrefs.ext_antiintip === 'on') {
         document.body.classList.add('global-privacy');
     } else {
@@ -1773,7 +1784,7 @@ window.verifyPin = async function() {
     try {
         await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true });
         window.userCloudPin = pinInput;
-        Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
+        Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
         unlockApp();
     } catch(e) {
         errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block';
@@ -1795,6 +1806,8 @@ window.verifyPin = async function() {
     } else {
       errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block';
       document.getElementById('app-pin').value = '';
+      document.getElementById('pin-title').textContent = 'Masukkan PIN';
+      document.getElementById('pin-sub').textContent = 'Keamanan aktif';
       document.getElementById('app-pin').classList.add('shake-error');
       setTimeout(() => document.getElementById('app-pin').classList.remove('shake-error'), 400);
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
@@ -1820,6 +1833,8 @@ function unlockApp() {
 
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
+  document.getElementById('pin-title').textContent = 'Masukkan PIN';
+  document.getElementById('pin-sub').textContent = 'Keamanan aktif';
   
   if(window.resetIdle) window.resetIdle();
 }
@@ -1896,9 +1911,19 @@ window.resetPinFromLogin = async function() {
     }
 };
 
+// FIX BARU: PERBAIKAN DELAY INPUT PIN (KEYBOARD INSTANTLY DROPS)
 document.getElementById('app-pin').addEventListener('input', function(e) {
   this.value = this.value.replace(/[^0-9]/g, '');
-  if (this.value.length === 6) { window.verifyPin(); }
+  if (this.value.length === 6) { 
+      this.blur(); // MENGHILANGKAN KEYBOARD HP SECARA INSTAN
+      document.getElementById('pin-title').textContent = 'MEMBUKA...';
+      document.getElementById('pin-sub').textContent = 'Otentikasi berhasil';
+      
+      // Memberikan jeda sangat sedikit agar UI sempet berubah sebelum CPU bekerja verifikasi data
+      setTimeout(() => {
+          window.verifyPin();
+      }, 50);
+  }
 });
 
 function listenTransactions(uid){ if(unsubListener)unsubListener(); unsubListener=onSnapshot(query(collection(db,'users',uid,'transactions'),orderBy('createdAt','desc')), snap=>{txs=snap.docs.map(d=>({id:d.id,...d.data()}));setSyncStatus(true);refreshAll();}, err=>{console.error(err);setSyncStatus(false);} ); }
@@ -1921,15 +1946,28 @@ window.addTx=async function(){
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
   
   if(curType === 'transfer' && wallet === walletTo){
-      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
+      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)'});
   }
 
+  // FIX BARU: PERBAIKAN POP-UP KONFIRMASI FORM SUPER JELAS & TEGAS
   if(!amt || (!cat && curType !== 'transfer') || isNaN(amt)){
-    if(!amt || isNaN(amt)) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); }
-    if(!cat && curType !== 'transfer') { document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error'); setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400); }
+    if(!amt || isNaN(amt)) { 
+        amountInput.classList.add('shake-error'); 
+        setTimeout(() => amountInput.classList.remove('shake-error'), 400); 
+        amountInput.focus(); // Arahkan pengguna langsung ke input
+    }
+    if(!cat && curType !== 'transfer') { 
+        document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error'); 
+        setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400); 
+    }
+    
     return Swal.fire({
-       position: 'center', icon: 'warning', title: 'Oops...', text: 'Isi nominal dan kategori!', 
-       showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
+       title: 'Data Belum Lengkap!', 
+       html: 'Silakan isi <b>Nominal Transaksi</b> dan pilih <b>Kategori</b> terlebih dahulu sebelum menyimpan.', 
+       icon: 'warning', 
+       confirmButtonText: 'LENGKAPI SEKARANG',
+       confirmButtonColor: 'var(--gold)',
+       background: 'var(--card)', color: 'var(--text)'
     });
   }
   
@@ -1975,10 +2013,9 @@ window.addTx=async function(){
        icon: 'success',
        title: titleMsg,
        showConfirmButton: false,
-       timer: 2000,
+       timer: 1500, // Dipercepat biar nggak nunggu lama
        background: 'var(--card)',
-       color: 'var(--text)',
-       backdrop: 'rgba(0,0,0,0.6)'
+       color: 'var(--text)'
     });
     
     setTimeout(() => {
@@ -1995,10 +2032,10 @@ window.addTx=async function(){
         } else {
             selType('income');
         }
-    }, 2000);
+    }, 1500);
 
   } catch(e){
-    Swal.fire({position: 'center', icon: 'error', title: 'Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
+    Swal.fire({position: 'center', icon: 'error', title: 'Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)'}); 
     saveBtn.textContent='COBA LAGI';
     saveBtn.style.opacity = '1';
     saveBtn.disabled = false;
@@ -2302,7 +2339,7 @@ function refreshAll(){
 
 document.getElementById('pick-daily').value=nowISO().slice(0,10); document.getElementById('f-date').value=nowISO();
 
-window.exportCSV=function(){ if(!txs.length)return Swal.fire('Kosong','Tidak ada data untuk diunduh','info'); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
+window.exportCSV=function(){ if(!txs.length)return Swal.fire({title: 'Kosong', text: 'Tidak ada data untuk diunduh', icon: 'info', background: 'var(--card)', color: 'var(--text)'}); let csv="Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t=>{ const d=t.date.split('T'); csv+=`${d[0]},${d[1]||'-'},${t.type==='income'?'Pemasukan':'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Laporan_Keuangan_RHN.csv'; link.click(); };
 
 window.payDebt = async function(id) {
   if(!currentUser) return;
@@ -2314,14 +2351,14 @@ window.payDebt = async function(id) {
       background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Bayar Lunas',
-      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+      position: 'center'
   }).then(async (result) => {
       if(result.isConfirmed) {
           try {
               await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
               Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
           } catch(e) {
-              Swal.fire('Error', e.message, 'error');
+              Swal.fire({title: 'Error', text: e.message, icon: 'error', background: 'var(--card)', color: 'var(--text)'});
           }
       }
   });
@@ -2337,14 +2374,14 @@ window.payRecv = async function(id) {
       background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Sudah Dibayar',
-      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+      position: 'center'
   }).then(async (result) => {
       if(result.isConfirmed) {
           try {
               await updateDoc(doc(db,'users',currentUser.uid,'transactions',id), { isPaid: true });
               Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'});
           } catch(e) {
-              Swal.fire('Error', e.message, 'error');
+              Swal.fire({title: 'Error', text: e.message, icon: 'error', background: 'var(--card)', color: 'var(--text)'});
           }
       }
   });
@@ -2404,11 +2441,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
   const Toast = Swal.mixin({
     position: 'center', 
     showConfirmButton: false, 
-    timer: 2000, 
+    timer: 1500, // Dipercepat biar nggak kelamaan
     timerProgressBar: true,
     background: 'var(--card)', 
-    color: 'var(--text)',
-    backdrop: 'rgba(0,0,0,0.6)'
+    color: 'var(--text)'
   });
 
   window.addEventListener('offline', () => {
@@ -2432,7 +2468,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       title: 'Hapus Transaksi?', text: "Data yang dihapus tidak bisa dikembalikan.",
       icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)',
       confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus',
-      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+      position: 'center'
     }).then((result) => {
       if (result.isConfirmed) {
         const nativeConfirm = window.confirm;
@@ -2458,7 +2494,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       confirmButtonColor: 'var(--blue)', 
       cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Edit',
-      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+      position: 'center'
     }).then((result) => {
       if (result.isConfirmed) {
         originalEditTx(id);
@@ -2479,7 +2515,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       confirmButtonColor: 'var(--red2)', 
       cancelButtonColor: 'var(--bg3)',
       confirmButtonText: 'Ya, Keluar',
-      position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+      position: 'center'
     }).then((result) => {
       if (result.isConfirmed) {
         originalDoLogout();
@@ -2566,7 +2602,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             title: 'Pindah Tab?', text: "Ada nominal yang belum lu simpan. Lanjut pindah?", icon: 'warning',
             showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal',
             background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)',
-            position: 'center', backdrop: 'rgba(0,0,0,0.6)'
+            position: 'center'
         }).then((result) => {
             if (result.isConfirmed) { originalSwitchPage(p); } 
         });
