@@ -320,7 +320,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 8px; }
 .auth-tab.active { background: var(--bg2); color: var(--text); }
 .auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
-.auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
+.auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; transition: 0.2s; }
+
+/* GOOGLE BTN */
+.btn-google { background: #FFFFFF !important; color: #000000 !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; border: 1px solid #ddd !important; }
+.btn-google:hover { background: #f1f1f1 !important; transform: scale(0.98); }
 
 /* ==========================================================================
    MOBILE RESPONSIVE
@@ -526,11 +530,22 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
     </div>
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
+    
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
-    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:16px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
+    
+    <!-- GOOGLE LOGIN BUTTON -->
+    <div style="display:flex; align-items:center; margin: 20px 0 10px 0;">
+        <hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);"><span style="font-size:10px; font-weight:800; color:var(--text3); padding:0 12px; letter-spacing:1px;">ATAU</span><hr style="flex:1; border:none; border-bottom: 1px solid var(--border2);">
+    </div>
+    <button class="auth-btn btn-google" id="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        MASUK DENGAN GOOGLE
+    </button>
+    
+    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:20px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
     <div style="font-size: 10px; color: var(--gold); margin-top: 6px; text-align: center;">Cek folder SPAM jika email reset tidak masuk</div>
   </div>
 </div>
@@ -753,13 +768,15 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
+  <!-- ================= FITUR KONVERTER MATA UANG ONLINE (NEW DROPDOWN UI) ================= -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;">
-      </div>
+      <!-- List otomatis di-generate JavaScript -->
+    </div>
     
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
       Diperbarui pada <span id="calc-last-update">...</span>
@@ -787,6 +804,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </div>
     </div>
   </div>
+  <!-- ====================================================================================== -->
+  
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
@@ -973,7 +992,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", authDomain: "rhn-capital.firebaseapp.com", projectId: "rhn-capital", storageBucket: "rhn-capital.firebasestorage.app", messagingSenderId: "74905216682", appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" };
@@ -1013,7 +1032,7 @@ let extraPrefs = {
     ext_antiintip: 'off'
 };
 
-// --- FUNGSI BARU: SINKRONISASI PENGATURAN KE CLOUD ---
+// --- FUNGSI BARU: FORCE SINKRONISASI PENGATURAN KE CLOUD ---
 window.saveToCloudPreferences = async function() {
     if (!currentUser) return;
     const prefsRef = doc(db, 'users', currentUser.uid, 'settings', 'preferences');
@@ -1399,6 +1418,24 @@ function setSyncStatus(ok){ document.getElementById('sync-dot').style.background
 window.switchTab=function(mode){ authMode=mode; document.getElementById('tab-login').classList.toggle('active',mode==='login'); document.getElementById('tab-register').classList.toggle('active',mode==='register'); document.getElementById('field-confirm').style.display=mode==='register'?'block':'none'; document.getElementById('auth-submit-btn').textContent=mode==='login'?'MASUK':'DAFTAR'; hideErr(); };
 window.doAuth=async function(){ const email=document.getElementById('auth-email').value.trim(), pass=document.getElementById('auth-pass').value; hideErr(); if(!email||!pass)return showErr('Kredensial kosong.'); setLoading(true); try{ if(authMode==='login') await signInWithEmailAndPassword(auth,email,pass); else { if(pass!==document.getElementById('auth-pass2').value)return showErr('Sandi beda.'); await createUserWithEmailAndPassword(auth,email,pass); } } catch(e){ showErr(e.message); setLoading(false); } };
 
+/* === FUNGSI LOGIN GOOGLE BARU === */
+window.doGoogleLogin = async function() {
+    hideErr();
+    setLoading(true);
+    const btnGoogle = document.getElementById('btn-google');
+    if(btnGoogle) btnGoogle.textContent = 'MEMPROSES...';
+    
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+        // Kalau sukses, onAuthStateChanged otomatis jalan
+    } catch (error) {
+        showErr(error.message);
+        setLoading(false);
+        if(btnGoogle) btnGoogle.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> MASUK DENGAN GOOGLE`;
+    }
+};
+
 window.doResetPassword = async function() {
   const email = document.getElementById('auth-email').value.trim(); hideErr();
   if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); }
@@ -1561,7 +1598,7 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('last_uid_rhn', user.uid);
     document.getElementById('auth-screen').style.display = 'none';
     
-    // --- LOAD PENGATURAN DARI CLOUD SEBELUM LOKAL ---
+    // --- LOAD PENGATURAN DARI CLOUD SEBELUM LOKAL (FORCE OVERRIDE) ---
     try {
         const prefsRef = doc(db, 'users', user.uid, 'settings', 'preferences');
         const prefsSnap = await getDoc(prefsRef);
@@ -1581,7 +1618,7 @@ onAuthStateChanged(auth, async user => {
                 else { document.body.classList.remove('light-mode'); document.getElementById('theme-toggle').textContent = '🌙'; }
             }
         } else {
-            // Fallback ke local storage
+            // Fallback ke local storage jika belum pernah simpan di cloud
             const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid);
             if(savedPrefs) { appPrefs = JSON.parse(savedPrefs); }
             const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid);
@@ -1595,13 +1632,22 @@ onAuthStateChanged(auth, async user => {
         if(savedExtraPrefs) { extraPrefs = JSON.parse(savedExtraPrefs); }
     }
 
-    // Terapkan pengaturan ke UI
+    // TERAPKAN PENGATURAN KE UI SECARA PAKSA (FORCE UPDATE UI)
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
-        if(document.getElementById(id) && extraPrefs[id]) {
-            document.getElementById(id).value = extraPrefs[id];
-            document.getElementById(id).dispatchEvent(new Event('change'));
+        const el = document.getElementById(id);
+        if(el && extraPrefs[id]) {
+            el.value = extraPrefs[id];
+            el.dispatchEvent(new Event('change'));
+            
+            // Paksa update teks dropdown custom
+            const uiText = el.previousElementSibling?.querySelector('.sel-text');
+            if(uiText) {
+                let optText = el.options[el.selectedIndex]?.text;
+                uiText.innerHTML = optText || 'Pilih...';
+            }
         }
     });
+
     if(extraPrefs.ext_antiintip === 'on') {
         document.body.classList.add('global-privacy');
     } else {
@@ -1701,9 +1747,20 @@ function unlockApp() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app-screen').style.display = 'block';
   setLoading(false);
+  
+  // NAMA DARI GOOGLE / EMAIL
   const name = currentUser.displayName || currentUser.email.split('@')[0];
   document.getElementById('user-name').textContent = name;
-  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+  
+  // AVATAR DARI GOOGLE JIKA ADA
+  const avatarEl = document.getElementById('user-avatar');
+  if (currentUser.photoURL) {
+      avatarEl.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+      avatarEl.style.border = "none";
+  } else {
+      avatarEl.textContent = name.charAt(0).toUpperCase();
+  }
+
   listenTransactions(currentUser.uid);
   document.getElementById('app-pin').value = '';
   
@@ -2576,6 +2633,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
           if (hour >= 5 && hour < 11) greeting = 'Pagi ☀️';
           else if (hour >= 11 && hour < 15) greeting = 'Siang 🌤️';
           else if (hour >= 15 && hour < 18) greeting = 'Sore 🌇';
+          
+          // Mengambil nama user
           const nameParts = userNameEl.innerText.split(' ');
           userNameEl.innerText = `${greeting}, ${nameParts[0]}!`;
           userNameEl.dataset.greeted = 'true';
