@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- SCRIPT ANTI-ZOOM SISTEM HP (KUNCI MUTLAK TAMPILAN) -->
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     var testEl = document.createElement('div');
@@ -179,7 +180,7 @@ body {
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
@@ -473,6 +474,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
+<!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
@@ -518,9 +520,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- ==============================================
+     APP SCREEN (DASHBOARD KETIKA LOGIN)
+     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
+  <!-- LOGO & JUDUL -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -529,6 +535,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
+  <!-- TOMBOL NAVIGASI HALAMAN -->
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
@@ -536,6 +543,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
+  <!-- STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 9px;">...</span>
@@ -581,6 +589,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div class="main">
 
+<!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
@@ -660,6 +669,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- PAGES -->
 <div id="page-harian" class="page">
   <div class="sum-grid" id="daily-sum"></div>
   <div class="card">
@@ -747,6 +757,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
+  <!-- KALKULATOR MATA UANG ONLINE -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
@@ -1345,7 +1356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         ui.addEventListener('click', (e) => { 
             e.stopPropagation(); 
-            if (navigator.vibrate) vibrate(10); 
+            if (navigator.vibrate) navigator.vibrate(10); 
             
             let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; 
             Array.from(sel.options).forEach((opt, idx) => { 
@@ -2017,43 +2028,30 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
-  const dt = document.getElementById('f-date').value;
-
   // LOGIKA VALIDASI SPESIFIK
   const isAmtEmpty = !amt || isNaN(amt);
   const isCatEmpty = !cat;
-  const isDateEmpty = !dt;
 
-  let missing = [];
-  if (isAmtEmpty) missing.push("Nominal");
-  if (isCatEmpty && curType !== 'transfer') missing.push("Kategori");
-  if (isDateEmpty) missing.push("Waktu");
-
-  if (missing.length > 0) {
-      let msg = "";
-      if (missing.length === 1) msg = "Anda belum isi " + missing[0] + ".";
-      else if (missing.length === 2) msg = "Anda belum isi " + missing[0] + " dan " + missing[1] + ".";
-      else msg = "Anda belum isi " + missing.slice(0, -1).join(", ") + " dan " + missing[missing.length - 1] + ".";
-
-      if (missing.includes("Nominal")) {
-          amountInput.classList.add('shake-error');
-          setTimeout(() => amountInput.classList.remove('shake-error'), 400);
-      }
-      if (missing.includes("Kategori") && curType !== 'transfer') {
-          let catRow = document.getElementById('row-cat');
-          if (catRow) {
-              catRow.classList.add('shake-error');
-              setTimeout(() => catRow.classList.remove('shake-error'), 400);
-          }
-      }
-      if (missing.includes("Waktu")) {
-          document.getElementById('f-date').classList.add('shake-error');
-          setTimeout(() => document.getElementById('f-date').classList.remove('shake-error'), 400);
-      }
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Peringatan!', text: msg, showConfirmButton: false, timer: 3000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  if (isAmtEmpty && isCatEmpty && curType !== 'transfer') {
+      amountInput.classList.add('shake-error');
+      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
+      setTimeout(() => {
+          amountInput.classList.remove('shake-error');
+          document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error');
+      }, 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Kosong!', text: 'Nominal dan Kategori belum diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  } else if (isAmtEmpty) {
+      amountInput.classList.add('shake-error');
+      setTimeout(() => amountInput.classList.remove('shake-error'), 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  } else if (isCatEmpty && curType !== 'transfer') {
+      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
+      setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   }
 
   const note = document.getElementById('f-note').value.trim();
+  const dt = document.getElementById('f-date').value; 
   const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai';
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
   
