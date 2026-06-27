@@ -13,7 +13,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- SCRIPT ANTI-ZOOM SISTEM HP (KUNCI MUTLAK TAMPILAN) -->
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     var testEl = document.createElement('div');
@@ -360,7 +359,6 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 }
 
 @media (min-width: 769px) {
-  .status-row { justify-content: center; } /* Tambahan untuk memusatkan status row di laptop */
   .metrics { grid-template-columns: repeat(4, 1fr); gap: 24px; }
   .sum-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
   .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
@@ -475,7 +473,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
-<!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
@@ -521,13 +518,9 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<!-- ==============================================
-     APP SCREEN (DASHBOARD KETIKA LOGIN)
-     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
-  <!-- LOGO & JUDUL -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -536,7 +529,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
-  <!-- TOMBOL NAVIGASI HALAMAN -->
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
@@ -544,7 +536,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
-  <!-- STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 9px;">...</span>
@@ -590,7 +581,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div class="main">
 
-<!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
@@ -670,7 +660,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<!-- PAGES -->
 <div id="page-harian" class="page">
   <div class="sum-grid" id="daily-sum"></div>
   <div class="card">
@@ -758,7 +747,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
-  <!-- KALKULATOR MATA UANG ONLINE -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
@@ -2791,21 +2779,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(e => console.log('SW Error:', e)); 
     }); 
 }
-
-// ==========================================================================
-// SCRIPT PENUTUP SPLASH SCREEN (BIAR GAK NGE-HANG)
-// ==========================================================================
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.classList.add('splash-exit');
-      setTimeout(() => {
-        splash.style.display = 'none';
-      }, 800);
-    }
-  }, 2500);
-});
 </script>
 
 <style>
@@ -2846,6 +2819,438 @@ window.addEventListener('load', () => {
   .trading-badge { background: rgba(245, 158, 11, 0.2); color: #D97706; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.5); }
   .big-money-glow { text-shadow: 0 0 12px rgba(251, 191, 36, 0.8); color: var(--gold) !important; }
   .swal-btn-darktext { color: #000 !important; font-weight: 800 !important; }
+
+  #scroll-to-top { 
+      position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px; 
+      background: var(--blue-title); color: #fff; border: none; border-radius: 50%; 
+      font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; 
+      z-index: 999; display: none; align-items: center; justify-content: center; transition: 0.3s; 
+  }
+  #scroll-to-top:hover { background: var(--blue); transform: scale(1.05); }
+
 </style>
+
+<script>
+window.addEventListener('DOMContentLoaded', (event) => {
+  const Toast = Swal.mixin({ 
+      position: 'center', showConfirmButton: false, timer: 2000, 
+      timerProgressBar: true, background: 'var(--card)', 
+      color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' 
+  });
+  
+  window.addEventListener('offline', () => { 
+      document.getElementById('offline-banner').style.display = 'block'; 
+      Toast.fire({ icon: 'warning', title: 'Koneksi Terputus!' }); 
+  });
+  
+  window.addEventListener('online', () => { 
+      document.getElementById('offline-banner').style.display = 'none'; 
+      Toast.fire({ icon: 'success', title: 'Online Kembali!' }); 
+  });
+
+  if (window.Chart) { 
+      Chart.defaults.animation = false; 
+      Chart.defaults.transitions.active.animation.duration = 0; 
+  }
+
+  const originalDelTx = window.delTx; 
+  window.delTx = function(id) { 
+      if (navigator.vibrate) navigator.vibrate(20); 
+      Swal.fire({ 
+          title: 'Hapus Transaksi?', text: "Data yang dihapus tidak bisa dikembalikan.", 
+          icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', 
+          confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', 
+          confirmButtonText: 'Ya, Hapus', position: 'center', backdrop: 'rgba(0,0,0,0.6)' 
+      }).then((result) => { 
+          if (result.isConfirmed) { 
+              const nativeConfirm = window.confirm; 
+              window.confirm = () => true; 
+              originalDelTx(id).then(() => { 
+                  window.confirm = nativeConfirm; 
+                  Toast.fire({ icon: 'success', title: 'Data terhapus!' }); 
+              }).catch(err => { 
+                  window.confirm = nativeConfirm; 
+              }); 
+          } 
+      }); 
+  };
+  
+  const originalEditTx = window.editTx; 
+  window.editTx = function(id) { 
+      if (navigator.vibrate) navigator.vibrate(20); 
+      originalEditTx(id); 
+  };
+  
+  const originalDoLogout = window.doLogout; 
+  window.doLogout = function() { 
+      if (navigator.vibrate) navigator.vibrate(20); 
+      Swal.fire({ 
+          title: 'Keluar Akun?', text: "Lu yakin mau keluar dari aplikasi?", 
+          icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', 
+          confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', 
+          confirmButtonText: 'Ya, Keluar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' 
+      }).then((result) => { 
+          if (result.isConfirmed) { 
+              originalDoLogout(); 
+          } 
+      }); 
+  };
+
+  const amountInput = document.getElementById('f-amount'); 
+  const catInput = document.getElementById('f-cat');
+  
+  if (amountInput) { 
+      amountInput.type = 'text'; 
+      amountInput.inputMode = 'numeric'; 
+      
+      amountInput.addEventListener('blur', function() { 
+          let val = this.value.replace(/[^0-9+\-*/().]/g, ''); 
+          try { 
+              if (val && /[+\-*/]/.test(val)) { 
+                  let cleanMath = val.replace(/\./g, ''); 
+                  let result = new Function('return (' + cleanMath + ')')(); 
+                  this.value = parseInt(result, 10).toLocaleString('id-ID'); 
+                  Toast.fire({ icon: 'info', title: 'Auto-hitung berhasil!' }); 
+              } else if (val) { 
+                  this.value = parseInt(val.replace(/\./g, ''), 10).toLocaleString('id-ID'); 
+              } 
+          } catch (e) { 
+              this.value = ''; 
+          } 
+      }); 
+      
+      amountInput.addEventListener('input', function(e) { 
+          let raw = this.value.replace(/[^0-9+\-*/().]/g, ''); 
+          if (/[+\-*/()]/.test(raw)) { 
+              this.value = raw; 
+          } else { 
+              let nums = raw.replace(/\./g, ''); 
+              this.value = nums ? parseInt(nums, 10).toLocaleString('id-ID') : ''; 
+          } 
+      }); 
+  }
+
+  window.setRealLocalTime = function() { 
+      const now = new Date(); 
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+      const dateInput = document.getElementById('f-date'); 
+      if (dateInput) dateInput.value = now.toISOString().slice(0,16); 
+  }; 
+  window.setRealLocalTime(); 
+  
+  const originalCancelEdit = window.cancelEdit; 
+  window.cancelEdit = function() { 
+      originalCancelEdit(); 
+      window.setRealLocalTime(); 
+  };
+
+  function applyBalanceColor() { 
+      document.querySelectorAll('.m-card.bal').forEach(card => { 
+          const el = card.querySelector('.m-val'); 
+          const textVal = el.innerText; 
+          if (textVal.includes('-')) { 
+              el.style.color = 'var(--red2)'; 
+              card.style.boxShadow = '0 0 15px rgba(248,113,113,0.15)'; 
+              card.style.borderColor = 'rgba(248,113,113,0.4)'; 
+          } else { 
+              card.style.boxShadow = 'none'; 
+              card.style.borderColor = 'var(--border)'; 
+              if (textVal !== 'Rp 0' && textVal !== 'Rp NaN' && textVal !== '') { 
+                  el.style.color = 'var(--green2)'; 
+              } else { 
+                  el.style.color = 'var(--text)'; 
+              } 
+          } 
+      }); 
+  }
+  
+  const originalRefreshAll = window.refreshAll; 
+  window.refreshAll = function() { 
+      originalRefreshAll(); 
+      setTimeout(applyBalanceColor, 50); 
+  };
+  
+  const originalRenderSumGrid = window.renderSumGrid; 
+  window.renderSumGrid = function(el, arr, isDash) { 
+      originalRenderSumGrid(el, arr, isDash); 
+      setTimeout(applyBalanceColor, 50); 
+  };
+
+  document.addEventListener('click', e => { 
+      const balCard = e.target.closest('.m-card.bal'); 
+      if(balCard) { 
+          document.body.classList.toggle('global-privacy'); 
+          if(navigator.vibrate) vibrate(15); 
+      } 
+  });
+
+  const originalSwitchPage = window.switchPage; 
+  window.switchPage = function(p) { 
+      if (amountInput && amountInput.value && amountInput.value !== '' && p !== 'dashboard' && p !== 'pengaturan') { 
+          Swal.fire({ 
+              title: 'Pindah Tab?', text: "Ada nominal yang belum lu simpan. Lanjut pindah?", icon: 'warning', 
+              showCancelButton: true, confirmButtonText: 'Tetap Pindah', cancelButtonText: 'Batal', 
+              background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)', 
+              position: 'center', backdrop: 'rgba(0,0,0,0.6)' 
+          }).then((result) => { 
+              if (result.isConfirmed) { 
+                  originalSwitchPage(p); 
+              } 
+          }); 
+      } else { 
+          originalSwitchPage(p); 
+      } 
+  };
+
+  const scrollTopBtn = document.createElement('button'); 
+  scrollTopBtn.id = 'scroll-to-top'; 
+  scrollTopBtn.innerHTML = '⬆️'; 
+  document.body.appendChild(scrollTopBtn); 
+  
+  scrollTopBtn.onclick = () => { 
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  }; 
+  
+  window.addEventListener('scroll', () => { 
+      let currentScroll = window.pageYOffset; 
+      if (currentScroll > 400) { 
+          scrollTopBtn.style.display = 'flex'; 
+      } else { 
+          scrollTopBtn.style.display = 'none'; 
+      } 
+  });
+
+  document.addEventListener('keydown', function(e) { 
+      if (e.altKey && e.key.toLowerCase() === 'n') { 
+          e.preventDefault(); 
+          window.switchPage('dashboard'); 
+          if(amountInput) amountInput.focus(); 
+      } 
+      if (e.altKey && e.key.toLowerCase() === 's') { 
+          e.preventDefault(); 
+          const saveBtn = document.getElementById('save-btn'); 
+          if(saveBtn) saveBtn.click(); 
+      } 
+  });
+  
+  document.addEventListener('dblclick', function(e) { 
+      const txCard = e.target.closest('.recent-item'); 
+      if (txCard) { 
+          const editBtn = txCard.querySelector('.edit-btn-recent'); 
+          if (editBtn) { 
+              if (navigator.vibrate) navigator.vibrate([15, 30]); 
+              editBtn.click(); 
+          } 
+      } 
+  });
+  
+  document.body.addEventListener('click', function(e) { 
+      if (e.target && e.target.classList.contains('cat-badge')) { 
+          const cat = e.target.innerText.replace(/[^a-zA-Z0-9\s]/g, '').trim(); 
+          const searchInput = document.getElementById('flt-search'); 
+          if (searchInput) { 
+              if (searchInput.value === cat) { 
+                  searchInput.value = ''; 
+              } else { 
+                  searchInput.value = cat; 
+                  Toast.fire({ icon: 'info', title: `Filter: ${cat}` }); 
+              } 
+              window.switchPage('riwayat'); 
+              window.renderAll(); 
+          } 
+      } 
+  });
+
+  let pressTimer; 
+  document.body.addEventListener('touchstart', function(e) { 
+      const txCard = e.target.closest('.recent-item'); 
+      if(txCard) { 
+          pressTimer = window.setTimeout(function() { 
+              const delBtn = txCard.querySelector('.del-btn-recent'); 
+              if(delBtn) { 
+                  if (navigator.vibrate) navigator.vibrate([40, 40]); 
+                  delBtn.click(); 
+              } 
+          }, 1000); 
+      } 
+  }); 
+  document.body.addEventListener('touchend', function(e) { clearTimeout(pressTimer); }); 
+  document.body.addEventListener('touchmove', function(e) { clearTimeout(pressTimer); });
+
+  const uiObserver = new MutationObserver(() => { 
+      const todayStr = new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short'}); 
+      const yesterdayStr = new Date(Date.now() - 86400000).toLocaleDateString('id-ID',{day:'2-digit',month:'short'}); 
+      
+      document.querySelectorAll('.ri-meta').forEach(meta => { 
+          if (meta.innerText.includes(todayStr) && !meta.innerText.includes('Hari Ini')) { 
+              meta.innerHTML = meta.innerHTML.replace(todayStr, '<span style="color:var(--gold);font-weight:700;">Hari Ini</span>'); 
+          } else if(meta.innerText.includes(yesterdayStr) && !meta.innerText.includes('Kemarin')) { 
+              meta.innerHTML = meta.innerHTML.replace(yesterdayStr, '<span style="font-weight:700;">Kemarin</span>'); 
+          } 
+      });
+      
+      document.querySelectorAll('.recent-item').forEach(card => { 
+          const amountEl = card.querySelector('.ri-amount'); 
+          if(amountEl && !amountEl.dataset.glowChecked) { 
+              const nominalRaw = amountEl.innerText.replace(/[^0-9]/g, ''); 
+              if(parseInt(nominalRaw) >= 5000000) { 
+                  amountEl.classList.add('big-money-glow'); 
+              } 
+              amountEl.dataset.glowChecked = 'true'; 
+          }
+          
+          const badge = card.querySelector('.cat-badge'); 
+          if(badge && !badge.dataset.colored) { 
+              const catText = badge.innerText.toLowerCase(); 
+              if(catText.includes('investasi') || catText.includes('profit') || catText.includes('bonus')) { 
+                  badge.style.background = 'rgba(251, 191, 36, 0.15)'; 
+                  badge.style.color = 'var(--gold)'; 
+                  badge.style.borderColor = 'rgba(251, 191, 36, 0.4)'; 
+              } else if(catText.includes('jajan') || catText.includes('makan') || catText.includes('loss')) { 
+                  badge.style.background = 'rgba(248, 113, 113, 0.15)'; 
+                  badge.style.color = 'var(--red2)'; 
+                  badge.style.borderColor = 'rgba(248, 113, 113, 0.4)'; 
+              } else if(catText.includes('utilitas') || catText.includes('transportasi') || catText.includes('ongkos')) { 
+                  badge.style.background = 'rgba(59, 130, 246, 0.15)'; 
+                  badge.style.color = '#0266CC'; 
+                  badge.style.borderColor = 'rgba(59, 130, 246, 0.4)'; 
+              } 
+              badge.dataset.colored = 'true'; 
+          }
+          
+          const noteEl = card.querySelector('.ri-note'); 
+          if(noteEl && !noteEl.dataset.badged) { 
+              const txt = noteEl.innerText.toLowerCase(); 
+              let badgesHTML = ''; 
+              if(txt.includes('dana') || txt.includes('gopay') || txt.includes('shopeepay')) { 
+                  badgesHTML += `<span class="ewallet-badge">💳 E-WALLET</span>`; 
+              } 
+              if(txt.includes('xauusd') || txt.includes('smc') || txt.includes('mt5')) { 
+                  badgesHTML += `<span class="trading-badge">📈 TRADING</span>`; 
+              } 
+              if(badgesHTML !== '') { 
+                  noteEl.innerHTML += badgesHTML; 
+              } 
+              noteEl.dataset.badged = 'true'; 
+          }
+      });
+      
+      const userNameEl = document.getElementById('user-name'); 
+      if (userNameEl && userNameEl.innerText !== 'Memuat...' && !userNameEl.dataset.greeted) { 
+          const hour = new Date().getHours(); 
+          let greeting = 'Malam 🌙'; 
+          if (hour >= 5 && hour < 11) greeting = 'Pagi ☀️'; 
+          else if (hour >= 11 && hour < 15) greeting = 'Siang 🌤️'; 
+          else if (hour >= 15 && hour < 18) greeting = 'Sore 🌇'; 
+          
+          const nameParts = userNameEl.innerText.split(' '); 
+          userNameEl.innerText = `${greeting}, ${nameParts[0]}!`; 
+          userNameEl.dataset.greeted = 'true'; 
+      }
+  }); 
+  uiObserver.observe(document.getElementById('app-screen'), { childList: true, subtree: true });
+
+  const originalRenderAll = window.renderAll; 
+  window.renderAll = function() { 
+      originalRenderAll(); 
+      const searchInput = document.getElementById('flt-search'); 
+      if (searchInput && searchInput.value.trim() !== '') { 
+          const keyword = searchInput.value.trim().toLowerCase(); 
+          document.querySelectorAll('#all-body .ri-note').forEach(noteEl => { 
+              const originalHTML = noteEl.innerHTML; 
+              const regex = new RegExp(`(${keyword})`, "gi"); 
+              noteEl.innerHTML = originalHTML.replace(/(>([^<]+)<)/ig, function(match, p1, p2) { 
+                  return ">" + p2.replace(regex, `<mark style="background:var(--gold); color:#000; border-radius:2px; padding:0 2px;">$1</mark>`) + "<"; 
+              }); 
+          }); 
+      } 
+  };
+
+  window.lastActiveTime = Date.now();
+  window.checkLock = () => { 
+      const appScreen = document.getElementById('app-screen'); 
+      if (appScreen && appScreen.style.display === 'block') { 
+          const autolockSetting = document.getElementById('ext_autolock') ? document.getElementById('ext_autolock').value : 'off'; 
+          if (autolockSetting === 'on') { 
+              if (Date.now() - window.lastActiveTime > 30000) { 
+                  appScreen.style.display = 'none'; 
+                  const pinScreen = document.getElementById('pin-screen'); 
+                  if (pinScreen) pinScreen.style.display = 'flex'; 
+                  
+                  const pinTitle = document.getElementById('pin-title'); 
+                  if (pinTitle) pinTitle.textContent = 'Otomatis Terkunci'; 
+                  
+                  const pinSub = document.getElementById('pin-sub'); 
+                  if (pinSub) pinSub.textContent = 'Aplikasi tertidur (30 detik)'; 
+                  
+                  window.pinMode = 'verify'; 
+                  
+                  const pinInput = document.getElementById('app-pin'); 
+                  if (pinInput) pinInput.value = ''; 
+                  
+                  if (navigator.vibrate) navigator.vibrate([50, 50]); 
+                  window.lastActiveTime = Date.now(); 
+                  return true; 
+              } 
+          } 
+      } 
+      return false; 
+  };
+  
+  window.resetIdle = () => { 
+      if (window.checkLock()) return; 
+      window.lastActiveTime = Date.now(); 
+      document.body.classList.remove('idle-mode'); 
+  };
+  
+  ['click','touchstart','mousemove','keypress','scroll','visibilitychange'].forEach(evt => { 
+      window.addEventListener(evt, window.resetIdle, { passive: true }); 
+  });
+  
+  setInterval(() => { 
+      window.checkLock(); 
+      const appScreen = document.getElementById('app-screen'); 
+      if (appScreen && appScreen.style.display === 'block') { 
+          if (Date.now() - window.lastActiveTime > 120000) { 
+              document.body.classList.add('idle-mode'); 
+          } 
+      } 
+  }, 1000);
+});
+
+window.addEventListener('load', () => {
+  const pContainer = document.getElementById('splash-particles'); 
+  if (pContainer) { 
+      for (let i = 0; i < 15; i++) { 
+          const p = document.createElement('div'); 
+          p.className = 'particle'; 
+          p.style.left = Math.random() * 100 + '%'; 
+          p.style.top = Math.random() * 100 + '%'; 
+          p.style.width = Math.random() * 4 + 2 + 'px'; 
+          p.style.height = p.style.width; 
+          p.style.animationDelay = Math.random() * 2 + 's'; 
+          p.style.animationDuration = Math.random() * 2 + 2 + 's'; 
+          pContainer.appendChild(p); 
+      } 
+  }
+  
+  setTimeout(() => { 
+      const splash = document.getElementById('splash-screen'); 
+      if (splash) { 
+          splash.classList.add('splash-exit'); 
+          setTimeout(() => splash.remove(), 800); 
+      } 
+  }, 3000); 
+});
+
+setTimeout(() => { 
+    const splash = document.getElementById('splash-screen'); 
+    if (splash && !splash.classList.contains('splash-exit')) { 
+        splash.classList.add('splash-exit'); 
+        setTimeout(() => splash.remove(), 800); 
+    } 
+}, 5000);
+
+</script>
 </body>
 </html>
