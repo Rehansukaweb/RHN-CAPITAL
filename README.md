@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- SCRIPT ANTI-ZOOM SISTEM HP (KUNCI MUTLAK TAMPILAN) -->
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     var testEl = document.createElement('div');
@@ -35,7 +36,6 @@
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; }
 
-/* FIX: Menyembunyikan judul otomatis (tulisan biru & garis) bawaan GitHub Pages */
 h1, hr, .page-header, .site-header, .project-name { display: none !important; }
 
 :root {
@@ -60,7 +60,6 @@ h1, hr, .page-header, .site-header, .project-name { display: none !important; }
   --radius: 16px; 
 }
 
-/* FIX: Mode Terang yang lebih redup, adem di mata, & tulisan tajam */
 body.light-mode {
   --bg: #DFE2E6; 
   --bg2: #E9EDF1; 
@@ -97,7 +96,7 @@ body {
 .logo-text .main-text { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
 .logo-text .sub-text { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; }
 
-/* EXTERNAL LINKS (Pindah ke bawah Logo) */
+/* EXTERNAL LINKS */
 .top-ext-links {
   display: flex; gap: 16px; padding: 0 0 24px 0;
   flex-wrap: wrap; align-items: center; justify-content: center;
@@ -165,7 +164,7 @@ body {
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
   font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
@@ -179,9 +178,9 @@ body {
 
 /* WALLETS */
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
-.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
+.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
@@ -384,7 +383,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   SPLASH SCREEN V3: ULTIMATE MASTERPIECE (RHN CAPITAL)
+   SPLASH SCREEN V3: ULTIMATE MASTERPIECE
    ========================================================================== */
 #splash-screen {
   position: fixed; inset: 0; 
@@ -475,6 +474,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
+<!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
@@ -520,9 +520,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- ==============================================
+     APP SCREEN (DASHBOARD KETIKA LOGIN)
+     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
+  <!-- LOGO & JUDUL -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -531,6 +535,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
+  <!-- TOMBOL NAVIGASI HALAMAN -->
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
@@ -538,15 +543,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
+  <!-- STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 9px;">...</span>
     </div>
     
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
-      <span style="line-height: 1;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
-      <span style="line-height: 1;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
 
     <div class="status-pill" style="padding: 6px 4px; gap: 4px;">
@@ -583,6 +589,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div class="main">
 
+<!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
@@ -662,6 +669,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- PAGES -->
 <div id="page-harian" class="page">
   <div class="sum-grid" id="daily-sum"></div>
   <div class="card">
@@ -749,6 +757,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
+  <!-- KALKULATOR MATA UANG ONLINE -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
@@ -978,7 +987,6 @@ if (localStorage.getItem('theme') === 'light') {
   document.getElementById('theme-toggle').textContent = '☀️'; 
 }
 
-// IMPORT GOOGLE AUTHENTICATION PROVIDER
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
@@ -1004,9 +1012,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
+// KATEGORI DIPERBANYAK
 const CATS = { 
-  income: ['Pemberian','Investasi','Ongkos Harian','Bonus','Dividen','Profit','Transfer Masuk','Lainnya'], 
-  expense: ['Jajan','Pembelian Aset(Investasi)','Infak','Kas','Utilitas','Transportasi','Makan','Minum','Loss','Lainnya'],
+  income: ['Gaji', 'Hasil Trading', 'Bonus / THR', 'Penjualan', 'Pendapatan Lainnya', 'Pemberian', 'Investasi', 'Ongkos Harian', 'Dividen', 'Profit', 'Transfer Masuk', 'Lainnya'], 
+  expense: ['Makan & Minum', 'Transportasi', 'Tagihan', 'Belanja Bulanan', 'Cicilan', 'Hiburan / Nongkrong', 'Sedekah / Donasi', 'Jajan', 'Pembelian Aset(Investasi)', 'Infak', 'Kas', 'Utilitas', 'Loss', 'Pengeluaran Lainnya', 'Lainnya'],
   debt: ['Pinjaman Bank', 'Pinjaman Pribadi', 'Titipan Dana', 'Lainnya'],
   recv: ['Dipinjam Teman', 'Kasbon Karyawan', 'Lainnya'] 
 };
@@ -1021,7 +1030,14 @@ let extraPrefs = {
     ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off'
 };
 
-const fmtFull = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+// FORMAT MILYARAN
+const fmtFull = n => {
+    if (Math.abs(n) >= 1000000000) {
+        return 'Rp ' + (n / 1000000000).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' Miliar';
+    }
+    return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+};
+
 const fmt = (n, isDash = false) => {
     if (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_shortnum === 'on') {
         if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toFixed(2).replace('.',',') + ' M';
@@ -1406,7 +1422,6 @@ window.switchTab = function(mode) {
     hideErr(); 
 };
 
-// GOOGLE LOGIN FUNCTION
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
     hideErr(); 
@@ -1582,7 +1597,6 @@ window.updatePrefCategories = function(resetCat = true) {
     } 
 };
 
-// SAVE PREFS TO FIREBASE 
 window.savePreferences = async function() {
     if (!currentUser) return;
     
@@ -1614,9 +1628,7 @@ window.savePreferences = async function() {
     }, 50);
 };
 
-// SAVE EXTRA PREFS TO FIREBASE
 window.saveExtraPrefs = async function() {
-    // KUNCI AUTO-SAVE JIKA APLIKASI SEDANG MEMUAT
     if (!currentUser || window.isAppLoading) return;
     
     extraPrefs = { 
@@ -1724,7 +1736,6 @@ window.doLogout = async function() {
     await signOut(auth); 
 };
 
-// LOAD SETTINGS FROM FIREBASE ON LOGIN
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
@@ -1756,13 +1767,11 @@ onAuthStateChanged(auth, async user => {
         console.error("Gagal sinkron data pengaturan", err);
     }
 
-    // TAHAP 1: AKTIFKAN KUNCI AUTO-SAVE SAAT MEMUAT PREFERENSI APLIKASI
     window.isAppLoading = true;
 
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => {
         if (document.getElementById(id) && extraPrefs[id]) {
             document.getElementById(id).value = extraPrefs[id];
-            // Event change ini tidak akan me-reset database karena window.isAppLoading = true
             document.getElementById(id).dispatchEvent(new Event('change'));
         }
     });
@@ -1782,7 +1791,6 @@ onAuthStateChanged(auth, async user => {
         }
     }, 200);
 
-    // TAHAP 2: LEPASKAN KUNCI AUTO-SAVE SETELAH 1 DETIK (Tunggu semua tombol selesai diatur)
     setTimeout(() => { 
         window.isAppLoading = false; 
     }, 1000); 
@@ -2008,7 +2016,6 @@ function listenTransactions(uid) {
     }); 
 }
 
-// VALIDATION TANPA KONFIRMASI (LANGSUNG SIMPAN)
 window.addTx = async function() { 
   if(!currentUser) return; 
   
@@ -2021,6 +2028,28 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
+  // LOGIKA VALIDASI SPESIFIK
+  const isAmtEmpty = !amt || isNaN(amt);
+  const isCatEmpty = !cat;
+
+  if (isAmtEmpty && isCatEmpty && curType !== 'transfer') {
+      amountInput.classList.add('shake-error');
+      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
+      setTimeout(() => {
+          amountInput.classList.remove('shake-error');
+          document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error');
+      }, 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Kosong!', text: 'Nominal dan Kategori belum diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  } else if (isAmtEmpty) {
+      amountInput.classList.add('shake-error');
+      setTimeout(() => amountInput.classList.remove('shake-error'), 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  } else if (isCatEmpty && curType !== 'transfer') {
+      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
+      setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  }
+
   const note = document.getElementById('f-note').value.trim();
   const dt = document.getElementById('f-date').value; 
   const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai';
@@ -2028,28 +2057,6 @@ window.addTx = async function() {
   
   if (curType === 'transfer' && wallet === walletTo) {
       return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
-  }
-
-  // VALIDASI SPESIFIK: JUMLAH
-  if (!amt || isNaN(amt)) {
-      amountInput.classList.add('shake-error');
-      setTimeout(() => amountInput.classList.remove('shake-error'), 400);
-      return Swal.fire({
-          position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!',
-          text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.',
-          showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
-      });
-  }
-
-  // VALIDASI SPESIFIK: KATEGORI
-  if (!cat && curType !== 'transfer') {
-      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
-      setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400);
-      return Swal.fire({
-          position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!',
-          text: 'Silakan pilih Kategori transaksi terlebih dahulu.',
-          showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
-      });
   }
 
   if (document.activeElement) document.activeElement.blur();
@@ -2777,7 +2784,6 @@ if ('serviceWorker' in navigator) {
   .page { animation: none !important; transition: none !important; } 
   .m-bar-fill { transition: none !important; } 
   
-  /* CSS TAMBAHAN UNTUK MENGHILANGKAN EFEK RENGGANG / SHIFTING LAYAR */
   body.swal2-shown, body.swal2-height-auto { padding-right: 0 !important; }
 
   .nav { 
@@ -2867,7 +2873,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }); 
   };
   
-  // EDIT DIUBAH AGAR LANGSUNG TANPA KONFIRMASI
   const originalEditTx = window.editTx; 
   window.editTx = function(id) { 
       if (navigator.vibrate) navigator.vibrate(20); 
