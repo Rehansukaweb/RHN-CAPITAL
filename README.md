@@ -18,6 +18,9 @@
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+/* FIX: Menyembunyikan judul otomatis (tulisan biru & garis) bawaan GitHub Pages */
+h1, hr, .page-header, .site-header, .project-name { display: none !important; }
+
 :root {
   --bg: #050505; 
   --bg2: #121215; 
@@ -68,16 +71,18 @@ body {
 .swal2-container { z-index: 100000 !important; }
 .centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
 
-/* TOP TEXT & EXTERNAL LINKS */
-.top-title {
-  color: var(--blue-title); font-size: 22px; font-weight: 800;
-  padding: 16px 24px 8px; letter-spacing: -0.5px;
-  text-align: center; /* Diubah ke tengah */
-}
+/* HEADER */
+.header-area { padding: 20px 24px; }
+.logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; justify-content: center; }
+.logo-img { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--gold2); padding: 2px; }
+.logo-img img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
+.logo-text .main-text { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
+.logo-text .sub-text { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+
+/* EXTERNAL LINKS (Pindah ke bawah Logo) */
 .top-ext-links {
-  display: flex; gap: 16px; padding: 0 24px 16px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap; align-items: center; justify-content: center; /* Diubah ke tengah */
+  display: flex; gap: 16px; padding: 0 0 24px 0;
+  flex-wrap: wrap; align-items: center; justify-content: center;
 }
 .nav-ext-btn {
   background: transparent; border: none; color: var(--gold);
@@ -85,14 +90,6 @@ body {
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .nav-ext-btn:hover { color: var(--text); }
-
-/* HEADER */
-.header-area { padding: 20px 24px; }
-.logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: center; /* Logo dan Teks di tengah jika diperlukan, tapi ini standar kiri, kita biarkan atau setel jika mau */ }
-.logo-img { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--gold2); padding: 2px; }
-.logo-img img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
-.logo-text .main-text { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
-.logo-text .sub-text { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
 
 .status-row { display: flex; gap: 12px; margin-bottom: 20px; }
 .status-pill {
@@ -304,7 +301,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
    MOBILE RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
-  .top-ext-links { justify-content: center; padding: 0 16px 16px; }
+  .top-ext-links { justify-content: center; padding: 0 0 16px 0; }
   .header-area { padding: 16px; }
   .status-row { flex-direction: row; }
   .status-pill { flex: 1; }
@@ -351,7 +348,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
   .w-card { min-width: 0; }
   .panel { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
-  .main, .header-area, .nav, .top-ext-links, .top-title { max-width: 1200px; margin: 0 auto; }
+  .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
 }
 
 /* STYLING HUTANG PIUTANG & DOMPET */
@@ -460,14 +457,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
-<div class="top-title">RHN CAPITAL</div>
-<div class="top-ext-links">
-  <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
-  <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
-  <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 JURNAL ASET ↗</button>
-  <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
-</div>
-
 <!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
@@ -514,8 +503,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- ==============================================
+     APP SCREEN (DASHBOARD KETIKA LOGIN)
+     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
+  
+  <!-- 1. LOGO & JUDUL (Paling Atas) -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -523,7 +517,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <div class="sub-text">ARUS KEUANGAN</div>
     </div>
   </div>
+
+  <!-- 2. TOMBOL NAVIGASI HALAMAN (Tepat di Bawah Logo) -->
+  <div class="top-ext-links">
+    <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 JURNAL ASET ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
+  </div>
   
+  <!-- 3. STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 11px;">...</span>
