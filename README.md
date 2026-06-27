@@ -12,6 +12,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- SCRIPT ANTI-ZOOM SISTEM HP (KUNCI MUTLAK TAMPILAN) -->
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    var testEl = document.createElement('div');
+    testEl.style.cssText = 'font-size: 100px; position: absolute; visibility: hidden; z-index: -999;';
+    document.body.appendChild(testEl);
+    
+    var actualSize = parseFloat(window.getComputedStyle(testEl).fontSize);
+    document.body.removeChild(testEl);
+    
+    if (actualSize !== 100 && actualSize > 0) {
+       var zoomRatio = 100 / actualSize;
+       document.documentElement.style.zoom = zoomRatio;
+    }
+  });
+</script>
+
 <style>
 /* ==========================================================================
    TEMA ORIGINAL (GELAP PEKAT) + TEKS NOMINAL PUTIH ELEGAN
@@ -457,6 +475,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
+<!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
@@ -502,9 +521,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- ==============================================
+     APP SCREEN (DASHBOARD KETIKA LOGIN)
+     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
+  <!-- 1. LOGO & JUDUL (Paling Atas) -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -513,6 +536,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
+  <!-- 2. TOMBOL NAVIGASI HALAMAN (Tepat di Bawah Logo) -->
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
@@ -520,6 +544,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
+  <!-- 3. STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 11px;">...</span>
@@ -565,6 +590,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div class="main">
 
+<!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
@@ -644,6 +670,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
+<!-- PAGES -->
 <div id="page-harian" class="page">
   <div class="sum-grid" id="daily-sum"></div>
   <div class="card">
@@ -731,6 +758,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
+  <!-- KALKULATOR MATA UANG ONLINE -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
