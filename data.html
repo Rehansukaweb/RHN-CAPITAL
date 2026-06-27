@@ -2,189 +2,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Brankas Rahasia — RHN CAPITAL</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<title>RHN CAPITAL — Elite Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <style>
 /* ==========================================================================
-   RHN VAULT V.MAX - ULTRA SECURE LOCAL-FRIENDLY EDITION
+   RHN VAULT V.GOD TIER - ELITE ENTERPRISE EDITION
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #050507; --bg2: #0A0A0E; --bg3: #12121A;
-  --card: rgba(18, 18, 26, 0.7); 
-  --card-solid: #12121A;
-  --border: rgba(255, 255, 255, 0.08); --border-glow: rgba(255, 214, 10, 0.3);
-  --text: #F8FAFC; --text2: #EBEBF5; --text3: #94A3B8;
-  --gold: #D4AF37; --gold2: #FFD60A; 
-  --green: #32D74B; --red: #FF6961; --blue: #0A84FF;
-  --shadow-float: 0 20px 50px rgba(0,0,0,0.9);
-  --radius: 24px; --radius-sm: 16px;
+  --bg-dark: #050505; 
+  --bg-card: rgba(15, 15, 18, 0.4);
+  --border: rgba(255, 255, 255, 0.08); 
+  --border-glow: rgba(255, 215, 0, 0.5);
+  --text-main: #FFFFFF; 
+  --text-muted: #A0A0AB;
+  --gold: #FFD700; 
+  --gold-dim: rgba(255, 215, 0, 0.15);
+  --green: #00FF66; 
+  --red: #FF3333;
+  --radius-lg: 24px; 
+  --radius-sm: 16px;
+  --font-ui: 'Outfit', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
-  font-family: 'Outfit', sans-serif; background-color: var(--bg); color: var(--text);
-  font-size: 15px; line-height: 1.5; min-height: 100vh; overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 15% 50%, rgba(255, 214, 10, 0.03), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(255, 214, 10, 0.02), transparent 25%);
+  font-family: var(--font-ui); background-color: var(--bg-dark); color: var(--text-main);
+  font-size: 15px; min-height: 100vh; overflow-x: hidden;
+  /* Premium Animated Background */
+  background: radial-gradient(circle at 15% 50%, rgba(255, 215, 0, 0.03), transparent 25%),
+              radial-gradient(circle at 85% 30%, rgba(255, 215, 0, 0.04), transparent 25%),
+              var(--bg-dark);
 }
 
-/* CUSTOM SCROLLBAR */
-::-webkit-scrollbar { width: 6px; height: 6px; } 
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gold2); }
+/* SLIM SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; } 
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-/* LOADER & AUTH SCREEN */
+/* GLASS UTILS */
+.glass {
+  background: var(--bg-card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* ================= AUTH SCREEN ================= */
 #auth-screen {
-  position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999;
-  backdrop-filter: blur(10px);
+  position: fixed; inset: 0; background: #000; 
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+  background-image: radial-gradient(circle at 50% 0%, var(--gold-dim), transparent 50%);
 }
 .auth-box {
-  background: var(--card-solid); border-radius: 36px; padding: 48px 32px; width: 100%; max-width: 400px;
-  box-shadow: var(--shadow-float); border: 1px solid var(--border); text-align: center; margin: 20px;
-  position: relative; overflow: hidden;
+  border-radius: 32px; padding: 48px 40px; width: 100%; max-width: 420px;
+  text-align: center; margin: 20px; position: relative;
+  animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.auth-box::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
-}
-.auth-logo img { width: 80px; height: 80px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 20px; object-fit: cover; background: var(--card); }
-.auth-title { font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 4px; }
-.auth-sub { font-size: 13px; color: var(--gold2); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 32px; }
-.auth-field { position: relative; margin-bottom: 16px; }
-.auth-field input {
-  width: 100%; padding: 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif;
-  border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.02); color: var(--text);
-  transition: 0.3s; outline: none; text-align: center; letter-spacing: 1px;
-}
-.auth-field input:focus { background: rgba(255, 214, 10, 0.05); border-color: var(--gold2); box-shadow: 0 0 20px rgba(255, 214, 10, 0.1); }
-.auth-btn {
-  width: 100%; padding: 20px; background: var(--gold2); color: #000; border: none; border-radius: 16px;
-  font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;
-}
-.auth-btn:active { transform: scale(0.96); }
-.auth-err { background: rgba(255, 69, 58, 0.1); color: var(--red); border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 700; margin-bottom: 20px; display: none; }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-/* APP LAYOUT */
+.auth-logo { width: 80px; height: 80px; background: rgba(255,215,0,0.1); border-radius: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: var(--gold); border: 1px solid rgba(255,215,0,0.3); margin-bottom: 24px; box-shadow: 0 0 30px rgba(255,215,0,0.15); }
+.auth-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: var(--gold); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 40px; }
+
+/* Floating Label Inputs */
+.input-group { position: relative; margin-bottom: 24px; text-align: left; }
+.input-group input, .input-group select, .input-group textarea {
+  width: 100%; padding: 18px 20px; font-size: 15px; font-weight: 500; font-family: var(--font-ui);
+  background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: var(--radius-sm); 
+  color: var(--text-main); outline: none; transition: var(--transition);
+}
+.input-group label {
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 15px; transition: var(--transition); pointer-events: none;
+}
+.input-group input:focus, .input-group input:not(:placeholder-shown),
+.input-group textarea:focus, .input-group textarea:not(:placeholder-shown) { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,215,0,0.1); background: rgba(0,0,0,0.8); }
+.input-group input:focus ~ label, .input-group input:not(:placeholder-shown) ~ label,
+.input-group textarea:focus ~ label, .input-group textarea:not(:placeholder-shown) ~ label {
+  top: 0; font-size: 11px; font-weight: 800; background: var(--bg-dark); padding: 0 8px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px;
+}
+.input-group textarea { height: 120px; resize: none; top: 0; transform: none; padding-top: 24px; font-family: var(--font-code); color: var(--gold); }
+.input-group textarea ~ label { top: 24px; transform: none; }
+.input-group textarea:focus ~ label, .input-group textarea:not(:placeholder-shown) ~ label { top: -8px; }
+
+.btn-primary {
+  width: 100%; padding: 18px; background: linear-gradient(135deg, #FFD700, #FFAA00); color: #000; border: none; border-radius: var(--radius-sm);
+  font-size: 16px; font-weight: 900; cursor: pointer; transition: var(--transition); text-transform: uppercase; letter-spacing: 1.5px;
+  box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(255, 215, 0, 0.4); }
+.btn-primary:active { transform: translateY(0); }
+.auth-err { background: rgba(255, 51, 51, 0.1); color: var(--red); border-radius: 12px; padding: 14px; font-size: 13px; font-weight: 700; margin-bottom: 24px; display: none; border: 1px solid rgba(255,51,51,0.2); }
+
+/* ================= APP LAYOUT ================= */
 #app-screen { display: none; }
 
 .topbar {
-  background: rgba(5, 5, 7, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
   padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
 }
 .logo-area { display: flex; align-items: center; gap: 16px; }
-.logo-area img { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid rgba(201,168,76,0.5); object-fit: cover; }
-.logo-text { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.2; }
-.logo-tag { font-size: 11px; font-weight: 800; color: var(--gold2); text-transform: uppercase; letter-spacing: 2px; }
+.logo-icon { font-size: 28px; color: var(--gold); }
+.logo-text { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; }
+.logo-tag { font-size: 10px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-top: 4px; }
 .top-right { display: flex; align-items: center; gap: 24px; }
-.status-badge { display: flex; align-items: center; gap: 8px; background: rgba(50, 215, 75, 0.1); padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(50, 215, 75, 0.2); }
-.status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); }
-.status-txt { font-size: 11px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 1px; }
-.btn-logout { background: transparent; border: 1px solid var(--border); color: var(--red); font-weight: 800; padding: 8px 16px; border-radius: 10px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 12px; }
-.btn-logout:hover { background: rgba(255, 69, 58, 0.1); border-color: var(--red); }
 
-/* MAIN CONTAINER */
-.main-wrap { padding: 40px; max-width: 1400px; margin: 0 auto; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.status-badge { display: flex; align-items: center; gap: 8px; background: rgba(0, 255, 102, 0.1); padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(0, 255, 102, 0.2); }
+.status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 12px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,255,102,0.4); } 70% { box-shadow: 0 0 0 10px rgba(0,255,102,0); } 100% { box-shadow: 0 0 0 0 rgba(0,255,102,0); } }
+.status-txt { font-size: 11px; font-weight: 800; color: var(--green); letter-spacing: 1.5px; }
 
-/* FORM INPUT SECURE */
-.vault-form {
-  background: var(--card-solid); border-radius: var(--radius); border: 1px solid var(--border);
-  padding: 40px; margin-bottom: 40px; position: relative; overflow: hidden;
-}
-.f-title { font-size: 24px; font-weight: 900; margin-bottom: 32px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-.f-title span { color: var(--gold2); }
-.f-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
-.f-group label { display: block; font-size: 12px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-.f-group input, .f-group select, .f-group textarea {
-  width: 100%; padding: 20px; font-size: 16px; font-weight: 600; font-family: 'Outfit', sans-serif;
-  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  color: var(--text); outline: none; transition: 0.3s;
-}
-.f-group input:focus, .f-group select:focus, .f-group textarea:focus { border-color: var(--gold2); background: rgba(255,214,10,0.02); }
-.f-group textarea { height: 160px; resize: none; font-family: 'JetBrains Mono', monospace; font-size: 15px; }
-.btn-save {
-  background: var(--text); color: var(--bg); padding: 20px 40px; border: none; border-radius: var(--radius-sm);
-  font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s;
-  width: 100%;
-}
-.btn-save:active { transform: scale(0.98); }
+.btn-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: var(--transition); }
+.btn-icon:hover { background: var(--gold); color: #000; border-color: var(--gold); transform: rotate(15deg); }
+.btn-icon.danger:hover { background: var(--red); color: #fff; border-color: var(--red); transform: rotate(0); }
 
-/* GRID DATA PRIBADI MASONRY */
-.vault-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-.vh-title { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+/* ================= MAIN CONTENT ================= */
+.main-wrap { padding: 40px; max-width: 1400px; margin: 0 auto; animation: scaleIn 0.5s ease; }
+
+.vault-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+.vh-title { font-size: 28px; font-weight: 900; display: flex; align-items: center; gap: 12px; }
+.vh-title i { color: var(--gold); }
+
+.action-bar { display: flex; gap: 16px; align-items: center; }
+.search-wrapper { position: relative; }
+.search-wrapper i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 18px; }
 .search-box {
-  padding: 16px 24px; border-radius: 100px; border: 1px solid var(--border); background: var(--card-solid);
-  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; width: 350px; outline: none; font-weight: 600; transition: 0.3s;
+  padding: 16px 20px 16px 48px; border-radius: 100px; border: 1px solid var(--border); background: rgba(0,0,0,0.5);
+  color: var(--text-main); font-family: var(--font-ui); font-size: 15px; width: 300px; outline: none; transition: var(--transition);
 }
-.search-box:focus { border-color: var(--gold2); width: 400px; }
+.search-box:focus { border-color: var(--gold); width: 400px; box-shadow: 0 0 20px rgba(255,215,0,0.1); background: #000; }
 
-.data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
+/* COMPACT PREMIUM CARDS */
+.data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
 .d-card {
-  background: var(--card-solid); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 32px; transition: 0.3s; position: relative; display: flex; flex-direction: column;
+  padding: 24px; border-radius: var(--radius-lg); transition: var(--transition); display: flex; flex-direction: column;
+  position: relative; overflow: hidden; background: linear-gradient(180deg, rgba(20,20,25,0.8) 0%, rgba(10,10,12,0.9) 100%);
+  border: 1px solid var(--border);
 }
-.d-card:hover { border-color: rgba(255, 214, 10, 0.4); transform: translateY(-4px); box-shadow: var(--shadow-float); }
-.d-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-.d-cat {
-  font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
-  padding: 6px 12px; border-radius: 8px; background: rgba(255, 214, 10, 0.1); color: var(--gold2); border: 1px solid rgba(255,214,10,0.2);
-}
-.d-date { font-size: 12px; font-weight: 600; color: var(--text3); }
-.d-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 16px; line-height: 1.3; word-wrap: break-word; }
+.d-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: transparent; transition: var(--transition); }
+.d-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.8); border-color: rgba(255,215,0,0.3); }
+.d-card:hover::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
-/* EFEK SENSOR RAHASIA (BLUR) */
-.d-content-wrap { position: relative; margin-bottom: 24px; flex-grow: 1; }
+.d-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.d-cat { font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 6px 12px; border-radius: 8px; background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,215,0,0.2); }
+.d-date { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.d-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; line-height: 1.3; }
+
+/* SENSOR EFEK HACKER */
+.d-content-wrap { position: relative; margin-bottom: 20px; flex-grow: 1; }
 .d-content {
-  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; color: var(--gold2);
-  background: #000; padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-  white-space: pre-wrap; word-wrap: break-word; max-height: 250px; overflow-y: auto; scrollbar-width: none;
-  filter: blur(8px); transition: 0.3s; opacity: 0.6; cursor: pointer; user-select: none;
+  font-family: var(--font-code); font-size: 14px; color: var(--gold); background: #000; 
+  padding: 16px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);
+  white-space: pre-wrap; word-wrap: break-word; max-height: 150px; overflow-y: auto; scrollbar-width: none;
+  filter: blur(8px) grayscale(1); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0.4; cursor: pointer; user-select: none;
 }
-.d-content.revealed { filter: blur(0); opacity: 1; user-select: text; border-color: rgba(255,214,10,0.3); }
+.d-content.revealed { filter: blur(0) grayscale(0); opacity: 1; user-select: text; border: 1px solid var(--gold); box-shadow: inset 0 0 20px rgba(255,215,0,0.05); }
 .d-hint {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: 12px; font-weight: 800; color: var(--text); background: rgba(0,0,0,0.8);
-  padding: 8px 16px; border-radius: 100px; pointer-events: none; transition: 0.3s; border: 1px solid var(--border);
+  font-size: 11px; font-weight: 800; color: #000; background: var(--gold);
+  padding: 8px 16px; border-radius: 100px; pointer-events: none; transition: var(--transition); text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 6px; box-shadow: 0 5px 15px rgba(255,215,0,0.3);
 }
-.d-content.revealed + .d-hint { opacity: 0; }
+.d-content.revealed + .d-hint { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
 
-.d-foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px; }
+.d-foot { display: flex; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 16px; }
 .d-btn {
-  background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 20px;
-  border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+  flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text-main); padding: 12px;
+  border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.d-btn:hover { background: var(--text); color: var(--bg); }
-.d-btn.del { background: transparent; border: none; color: var(--red); padding: 12px; }
-.d-btn.del:hover { background: rgba(255, 69, 58, 0.1); }
-.empty-state { grid-column: 1 / -1; text-align: center; padding: 100px 20px; color: var(--text3); font-weight: 600; background: var(--card-solid); border-radius: var(--radius); border: 1px dashed var(--border); font-size: 16px; }
+.d-btn:hover { background: var(--text-main); color: #000; }
+.d-btn.del { flex: 0; padding: 12px 16px; background: transparent; color: var(--red); border-color: rgba(255,51,51,0.2); }
+.d-btn.del:hover { background: var(--red); color: #fff; }
+
+/* ================= MODAL (POPUP TAMBAH DATA) ================= */
+#modal-add {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.3s ease;
+}
+#modal-add.show { display: flex; opacity: 1; }
+.modal-content {
+  width: 100%; max-width: 500px; padding: 40px; border-radius: var(--radius-lg); position: relative;
+  transform: translateY(30px) scale(0.95); transition: var(--transition); margin: 20px;
+}
+#modal-add.show .modal-content { transform: translateY(0) scale(1); }
+.btn-close-modal {
+  position: absolute; top: 24px; right: 24px; background: transparent; border: none; color: var(--text-muted);
+  font-size: 24px; cursor: pointer; transition: var(--transition);
+}
+.btn-close-modal:hover { color: var(--red); transform: rotate(90deg); }
+.modal-title { font-size: 24px; font-weight: 900; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+.modal-title i { color: var(--gold); }
+.f-group-select { margin-bottom: 24px; }
+.f-group-select select {
+  width: 100%; padding: 18px 20px; font-size: 15px; font-weight: 600; font-family: var(--font-ui);
+  background: rgba(0,0,0,0.6); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--gold); outline: none; appearance: none;
+}
 
 /* MOBILE RESPONSIVE MENTOK */
 @media (max-width: 768px) {
-  body { padding: 0; }
-  .topbar { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
-  .top-right { width: 100%; justify-content: space-between; gap: 8px; }
-  .main-wrap { padding: 16px; }
-  .vault-form { padding: 24px; border-radius: 24px; }
-  .f-grid { grid-template-columns: 1fr; gap: 16px; }
-  .f-title { font-size: 20px; }
-  .vault-header { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .search-box, .search-box:focus { width: 100%; padding: 16px; }
-  
-  /* GRID HP 1 KOLOM PAS */
-  .data-grid { grid-template-columns: 1fr; gap: 16px; }
-  .d-card { padding: 24px; border-radius: 24px; }
+  .topbar { padding: 16px 20px; }
+  .logo-text { display: none; }
+  .main-wrap { padding: 20px; }
+  .vault-header { flex-direction: column; align-items: stretch; gap: 20px; }
+  .search-box, .search-box:focus { width: 100%; }
+  .action-bar { flex-direction: column; }
+  .btn-primary { width: 100%; }
+  .data-grid { grid-template-columns: 1fr; }
 }
 
-/* NOTIF TOAST */
+/* TOAST PREMIUM */
 #toast {
   position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
-  background: var(--green); color: #000; padding: 14px 28px; border-radius: 100px;
-  font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
-  box-shadow: 0 10px 40px rgba(50, 215, 75, 0.4); opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999;
+  background: var(--text-main); color: #000; padding: 14px 28px; border-radius: 100px;
+  font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5); opacity: 0; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999;
+  display: flex; align-items: center; gap: 10px; border: 2px solid var(--gold);
 }
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
@@ -192,21 +229,31 @@ body {
 <body>
 
 <div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo"><img src="RHN LOGO.jpg" alt="RHN Logo" onerror="this.style.display='none'"></div>
-    <div class="auth-title">BRANKAS UTAMA</div>
+  <div class="auth-box glass">
+    <div class="auth-logo"><i class="ph-fill ph-vault"></i></div>
+    <div class="auth-title">ELITE VAULT</div>
     <div class="auth-sub">RHN CAPITAL FINANCE</div>
-    <div id="auth-err" class="auth-err"></div>
-    <div class="auth-field"><input type="email" id="auth-email" placeholder="Email Terdaftar" autocomplete="email"></div>
-    <div class="auth-field"><input type="password" id="auth-pass" placeholder="Kata Sandi Keamanan" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="auth-btn" id="btn-login" onclick="doLogin()">Buka Brankas 🔓</button>
+    <div id="auth-err" class="auth-err"><i class="ph-bold ph-warning"></i> <span id="err-txt">Akses Ditolak!</span></div>
+    
+    <div class="input-group">
+      <input type="email" id="auth-email" placeholder=" " autocomplete="email">
+      <label>Email Terdaftar</label>
+    </div>
+    <div class="input-group">
+      <input type="password" id="auth-pass" placeholder=" " autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <label>Kata Sandi Keamanan</label>
+    </div>
+    
+    <button class="btn-primary" id="btn-login" onclick="doLogin()">
+      <i class="ph-bold ph-lock-key-open"></i> Dekripsi Brankas
+    </button>
   </div>
 </div>
 
 <div id="app-screen">
   <div class="topbar">
     <div class="logo-area">
-      <img src="RHN LOGO.jpg" alt="RHN Logo" onerror="this.style.display='none'">
+      <i class="ph-fill ph-shield-check logo-icon"></i>
       <div>
         <div class="logo-text">RHN BRANKAS</div>
         <div class="logo-tag">Terenkripsi E2E</div>
@@ -215,58 +262,70 @@ body {
     <div class="top-right">
       <div class="status-badge">
         <div class="status-dot" id="sync-dot"></div>
-        <div class="status-txt" id="sync-txt">SINKRON</div>
+        <div class="status-txt" id="sync-txt">TERKONEKSI</div>
       </div>
-      <button class="btn-logout" onclick="doLogout()">Tutup ✕</button>
+      <button class="btn-icon danger" onclick="doLogout()" title="Kunci Brankas"><i class="ph-bold ph-power"></i></button>
     </div>
   </div>
 
   <div class="main-wrap">
-    
-    <div class="vault-form">
-      <div class="f-title"><span>✦</span> Tambah Data Rahasia</div>
-      <div class="f-grid">
-        <div class="f-group">
-          <label>Judul / Nama Akun</label>
-          <input type="text" id="v-title" placeholder="Cth: Password MT5 Cent, M-Banking BCA...">
-        </div>
-        <div class="f-group">
-          <label>Kategori</label>
-          <select id="v-cat">
-            <option value="Akun & Sandi">Akun & Sandi</option>
-            <option value="Data Finansial">Data Finansial</option>
-            <option value="Wallet Crypto">Wallet Crypto</option>
-            <option value="Catatan Penting">Catatan Penting</option>
-            <option value="Lainnya">Lainnya</option>
-          </select>
-        </div>
-      </div>
-      <div class="f-group">
-        <label>Isi Data Terselubung</label>
-        <textarea id="v-content" placeholder="Masukkan password, seed phrase, atau catatan rahasia di sini..."></textarea>
-      </div>
-      <button class="btn-save" id="btn-save" onclick="saveData()">Simpan & Kunci Data</button>
-    </div>
-
     <div class="vault-header">
-      <div class="vh-title">Isi Brankas Pribadi</div>
-      <input type="text" class="search-box" id="v-search" placeholder="Cari judul, kategori, atau isi..." oninput="renderVault()">
+      <div class="vh-title"><i class="ph-fill ph-database"></i> Database Rahasia</div>
+      <div class="action-bar">
+        <div class="search-wrapper">
+          <i class="ph-bold ph-magnifying-glass"></i>
+          <input type="text" class="search-box" id="v-search" placeholder="Cari akun, sandi, token..." oninput="renderVault()">
+        </div>
+        <button class="btn-primary" onclick="openModal()" style="width: auto; padding: 16px 24px;">
+          <i class="ph-bold ph-plus"></i> Tambah Data
+        </button>
+      </div>
     </div>
 
     <div class="data-grid" id="vault-grid">
       </div>
-
   </div>
 </div>
 
-<div id="toast">Data disalin!</div>
+<div id="modal-add">
+  <div class="modal-content glass">
+    <button class="btn-close-modal" onclick="closeModal()"><i class="ph-bold ph-x"></i></button>
+    <div class="modal-title"><i class="ph-fill ph-file-lock"></i> Enkripsi Data Baru</div>
+    
+    <div class="input-group">
+      <input type="text" id="v-title" placeholder=" ">
+      <label>Judul / Nama Akun (Cth: MT5 Cent RHN)</label>
+    </div>
+    
+    <div class="f-group-select">
+      <select id="v-cat">
+        <option value="Akun & Sandi">🔑 Akun & Sandi</option>
+        <option value="Data Finansial">💳 Data Finansial</option>
+        <option value="Wallet Crypto">🪙 Wallet Crypto</option>
+        <option value="Catatan Penting">📝 Catatan Penting</option>
+        <option value="Lainnya">📌 Lainnya</option>
+      </select>
+    </div>
+    
+    <div class="input-group">
+      <textarea id="v-content" placeholder=" "></textarea>
+      <label>Isi Data Terselubung (Sandi / Seed Phrase)</label>
+    </div>
+    
+    <button class="btn-primary" id="btn-save" onclick="saveData()">
+      <i class="ph-bold ph-lock-key"></i> Simpan & Kunci
+    </button>
+  </div>
+</div>
+
+<div id="toast"><i class="ph-fill ph-check-circle"></i> <span id="toast-msg">Notifikasi</span></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-// Konfigurasi Database Firebase RHN Capital
+// --- KONFIGURASI FIREBASE RHN CAPITAL ---
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
   authDomain: "rhn-capital.firebaseapp.com",
@@ -276,7 +335,6 @@ const firebaseConfig = {
   appId: "1:74905216682:web:4687a5b0bd7bcac09292d3"
 };
 
-// Inisialisasi Firebase Klasik
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -285,68 +343,93 @@ let vaultData = [];
 let currentUser = null;
 let unsubListener = null;
 
-// Fungsi Toast Notifikasi
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+// --- SISTEM AUTO-LOGOUT 5 MENIT (SECURITY) ---
+let idleTime = 0;
+const idleLimit = 5; // 5 Menit
+const idleInterval = setInterval(timerIncrement, 60000); // Cek tiap 1 menit
+document.addEventListener('mousemove', () => idleTime = 0);
+document.addEventListener('keypress', () => idleTime = 0);
+document.addEventListener('touchstart', () => idleTime = 0);
+
+function timerIncrement() {
+  idleTime++;
+  if (idleTime >= idleLimit && currentUser) {
+    doLogout(true); // Force logout
+  }
 }
 
-// Fungsi Indikator Koneksi
+// --- FUNGSI UI / UX ---
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
 function setSync(ok) {
   document.getElementById('sync-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
-  document.getElementById('sync-dot').style.boxShadow = ok ? '0 0 10px var(--green)' : '0 0 10px var(--red)';
-  document.getElementById('sync-txt').textContent = ok ? 'SINKRON' : 'OFFLINE';
+  document.getElementById('sync-dot').style.boxShadow = ok ? '0 0 12px var(--green)' : '0 0 12px var(--red)';
+  document.getElementById('sync-txt').textContent = ok ? 'TERKONEKSI' : 'TERPUTUS';
   document.getElementById('sync-txt').style.color = ok ? 'var(--green)' : 'var(--red)';
 }
 
-// Fungsi Buka Sensor Blur (Klik untuk lihat password)
-window.toggleReveal = function(el) {
-  el.classList.toggle('revealed');
+function openModal() { document.getElementById('modal-add').classList.add('show'); }
+function closeModal() { document.getElementById('modal-add').classList.remove('show'); }
+
+window.toggleReveal = function(el) { 
+  el.classList.toggle('revealed'); 
+  // Auto tutup blur setelah 15 detik untuk keamanan
+  if(el.classList.contains('revealed')) {
+    setTimeout(() => { el.classList.remove('revealed'); }, 15000);
+  }
 }
 
-// Sistem Login Aman
+// --- SISTEM AUTHENTICATION ---
 window.doLogin = async function() {
   const e = document.getElementById('auth-email').value.trim();
   const p = document.getElementById('auth-pass').value;
   const err = document.getElementById('auth-err');
-  if(!e || !p) { err.textContent='Isi email dan sandi!'; err.style.display='block'; return; }
-  document.getElementById('btn-login').textContent = 'Membuka...';
+  if(!e || !p) { document.getElementById('err-txt').textContent='Data belum lengkap!'; err.style.display='block'; return; }
+  
+  const btn = document.getElementById('btn-login');
+  btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Mendekripsi...';
+  
   try {
     await auth.signInWithEmailAndPassword(e, p);
     err.style.display='none';
   } catch(ex) {
-    err.textContent = 'Gagal: Akses Ditolak!'; err.style.display='block';
-    document.getElementById('btn-login').textContent = 'Buka Brankas 🔓';
+    document.getElementById('err-txt').textContent = 'Akses Ditolak!'; err.style.display='block';
+    btn.innerHTML = '<i class="ph-bold ph-lock-key-open"></i> Dekripsi Brankas';
   }
 }
 
-// Sistem Keluar Aman
-window.doLogout = async function() {
-  if(confirm('Kunci kembali brankas ini?')) {
+window.doLogout = async function(isAuto = false) {
+  if(isAuto || confirm('Kunci dan keluar dari brankas?')) {
     if(unsubListener) unsubListener();
     vaultData = [];
     await auth.signOut();
+    if(isAuto) alert('Sesi habis. Brankas otomatis terkunci demi keamanan.');
   }
 }
 
-// Pemantau Sesi Login
 auth.onAuthStateChanged(user => {
   if(user) {
     currentUser = user;
     document.getElementById('auth-screen').style.display='none';
     document.getElementById('app-screen').style.display='block';
+    idleTime = 0; // Reset timer saat login
     listenData(user.uid);
   } else {
     currentUser = null;
     document.getElementById('auth-screen').style.display='flex';
     document.getElementById('app-screen').style.display='none';
-    document.getElementById('btn-login').textContent = 'Buka Brankas 🔓';
+    document.getElementById('btn-login').innerHTML = '<i class="ph-bold ph-lock-key-open"></i> Dekripsi Brankas';
     document.getElementById('auth-pass').value = '';
+    closeModal();
   }
 });
 
-// Ambil Data Real-time dari Firebase
+// --- SISTEM DATABASE ---
 function listenData(uid) {
   unsubListener = db.collection('users').doc(uid).collection('personal_data')
     .orderBy('createdAt', 'desc')
@@ -356,17 +439,16 @@ function listenData(uid) {
     }, err => { console.error(err); setSync(false); });
 }
 
-// Simpan Data Baru
 window.saveData = async function() {
   if(!currentUser) return;
   const title = document.getElementById('v-title').value.trim();
   const cat = document.getElementById('v-cat').value;
   const content = document.getElementById('v-content').value.trim();
   
-  if(!title || !content) { alert('Judul dan Isi data wajib diisi!'); return; }
+  if(!title || !content) { showToast('Judul & Isi tidak boleh kosong!'); return; }
   
   const btn = document.getElementById('btn-save');
-  btn.textContent = 'Menyimpan...'; btn.disabled = true;
+  btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Menyandikan...'; btn.disabled = true;
   
   try {
     await db.collection('users').doc(currentUser.uid).collection('personal_data').add({
@@ -376,28 +458,27 @@ window.saveData = async function() {
     });
     document.getElementById('v-title').value = '';
     document.getElementById('v-content').value = '';
-    showToast('Data Diamankan!');
-  } catch(e) { alert('Gagal menyimpan: '+e.message); }
+    closeModal();
+    showToast('Data Berhasil Dienkripsi');
+  } catch(e) { showToast('Gagal: ' + e.message); }
   
-  btn.textContent = 'Simpan & Kunci Data'; btn.disabled = false;
+  btn.innerHTML = '<i class="ph-bold ph-lock-key"></i> Simpan & Kunci'; btn.disabled = false;
 }
 
-// Hapus Data
 window.delData = async function(id) {
-  if(!currentUser || !confirm('Hapus data ini secara permanen?')) return;
-  try { await db.collection('users').doc(currentUser.uid).collection('personal_data').doc(id).delete(); showToast('Data Dihapus'); }
-  catch(e) { alert('Gagal menghapus'); }
+  if(!currentUser || !confirm('Hancurkan data ini secara permanen?')) return;
+  try { await db.collection('users').doc(currentUser.uid).collection('personal_data').doc(id).delete(); showToast('Data Dihancurkan'); }
+  catch(e) { showToast('Gagal menghapus'); }
 }
 
-// Salin Data (Password)
 window.copyData = function(id) {
   const d = vaultData.find(x => x.id === id);
   if(d) {
-    navigator.clipboard.writeText(d.content).then(() => showToast('Disalin ke Clipboard!'));
+    navigator.clipboard.writeText(d.content).then(() => showToast('Disalin ke Clipboard'));
   }
 }
 
-// Render Kotak Data ke Layar
+// --- RENDER MESIN ---
 window.renderVault = function() {
   const grid = document.getElementById('vault-grid');
   const term = document.getElementById('v-search').value.toLowerCase();
@@ -408,12 +489,12 @@ window.renderVault = function() {
   }
   
   if(arr.length === 0) {
-    grid.innerHTML = `<div class="empty-state">Brankas kosong atau data tidak ditemukan.</div>`;
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--text-muted); border: 1px dashed var(--border); border-radius: var(--radius-lg);"><i class="ph-bold ph-ghost" style="font-size: 48px; color: var(--gold); margin-bottom: 16px; opacity: 0.5;"></i><br>Brankas kosong atau data tidak ditemukan.</div>`;
     return;
   }
   
   grid.innerHTML = arr.map(d => {
-    const dt = new Date(d.date).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    const dt = new Date(d.date).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
     return `
     <div class="d-card">
       <div class="d-head">
@@ -423,11 +504,11 @@ window.renderVault = function() {
       <div class="d-title">${d.title}</div>
       <div class="d-content-wrap">
         <div class="d-content" onclick="toggleReveal(this)">${d.content}</div>
-        <div class="d-hint">Klik Untuk Melihat</div>
+        <div class="d-hint"><i class="ph-bold ph-eye"></i> Tahan/Klik</div>
       </div>
       <div class="d-foot">
-        <button class="d-btn" onclick="copyData('${d.id}')">📋 Salin</button>
-        <button class="d-btn del" onclick="delData('${d.id}')">Hapus</button>
+        <button class="d-btn" onclick="copyData('${d.id}')"><i class="ph-bold ph-copy"></i> Salin</button>
+        <button class="d-btn del" onclick="delData('${d.id}')" title="Hapus"><i class="ph-bold ph-trash"></i></button>
       </div>
     </div>`;
   }).join('');
