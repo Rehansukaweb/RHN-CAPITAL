@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <meta name="color-scheme" content="dark light">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Arus Keuangan — RHN CAPITAL</title>
+<title>Arus Keuangan | RHN CAPITAL</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#050505">
@@ -72,11 +72,12 @@ body {
 .top-title {
   color: var(--blue-title); font-size: 22px; font-weight: 800;
   padding: 16px 24px 8px; letter-spacing: -0.5px;
+  text-align: center; /* Diubah ke tengah */
 }
 .top-ext-links {
   display: flex; gap: 16px; padding: 0 24px 16px;
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap; align-items: center; justify-content: flex-start;
+  flex-wrap: wrap; align-items: center; justify-content: center; /* Diubah ke tengah */
 }
 .nav-ext-btn {
   background: transparent; border: none; color: var(--gold);
@@ -87,7 +88,7 @@ body {
 
 /* HEADER */
 .header-area { padding: 20px 24px; }
-.logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: center; /* Logo dan Teks di tengah jika diperlukan, tapi ini standar kiri, kita biarkan atau setel jika mau */ }
 .logo-img { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--gold2); padding: 2px; }
 .logo-img img { width: 100%; height: 100%; border-radius: 8px; object-fit: cover; }
 .logo-text .main-text { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
@@ -459,7 +460,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
-<div class="top-title">RHN-CAPITAL</div>
+<div class="top-title">RHN CAPITAL</div>
 <div class="top-ext-links">
   <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
   <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
