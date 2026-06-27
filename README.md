@@ -180,7 +180,7 @@ body {
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
@@ -2029,30 +2029,43 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
+  const dt = document.getElementById('f-date').value;
+
   // LOGIKA VALIDASI SPESIFIK
   const isAmtEmpty = !amt || isNaN(amt);
   const isCatEmpty = !cat;
+  const isDateEmpty = !dt;
 
-  if (isAmtEmpty && isCatEmpty && curType !== 'transfer') {
-      amountInput.classList.add('shake-error');
-      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
-      setTimeout(() => {
-          amountInput.classList.remove('shake-error');
-          document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error');
-      }, 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Kosong!', text: 'Nominal dan Kategori belum diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
-  } else if (isAmtEmpty) {
-      amountInput.classList.add('shake-error');
-      setTimeout(() => amountInput.classList.remove('shake-error'), 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
-  } else if (isCatEmpty && curType !== 'transfer') {
-      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
-      setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  let missing = [];
+  if (isAmtEmpty) missing.push("Nominal");
+  if (isCatEmpty && curType !== 'transfer') missing.push("Kategori");
+  if (isDateEmpty) missing.push("Waktu");
+
+  if (missing.length > 0) {
+      let msg = "";
+      if (missing.length === 1) msg = "Anda belum isi " + missing[0] + ".";
+      else if (missing.length === 2) msg = "Anda belum isi " + missing[0] + " dan " + missing[1] + ".";
+      else msg = "Anda belum isi " + missing.slice(0, -1).join(", ") + " dan " + missing[missing.length - 1] + ".";
+
+      if (missing.includes("Nominal")) {
+          amountInput.classList.add('shake-error');
+          setTimeout(() => amountInput.classList.remove('shake-error'), 400);
+      }
+      if (missing.includes("Kategori") && curType !== 'transfer') {
+          let catRow = document.getElementById('row-cat');
+          if (catRow) {
+              catRow.classList.add('shake-error');
+              setTimeout(() => catRow.classList.remove('shake-error'), 400);
+          }
+      }
+      if (missing.includes("Waktu")) {
+          document.getElementById('f-date').classList.add('shake-error');
+          setTimeout(() => document.getElementById('f-date').classList.remove('shake-error'), 400);
+      }
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Peringatan!', text: msg, showConfirmButton: false, timer: 3000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   }
 
   const note = document.getElementById('f-note').value.trim();
-  const dt = document.getElementById('f-date').value; 
   const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai';
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
   
