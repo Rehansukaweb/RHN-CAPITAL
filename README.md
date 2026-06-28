@@ -364,6 +364,9 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .setting-btn { width: 28px; height: 28px; padding: 4px; }
 }
 
+/* ==========================================================================
+   DESKTOP RESPONSIVE (LAPTOP/PC)
+   ========================================================================== */
 @media (min-width: 769px) {
   .metrics { grid-template-columns: repeat(4, 1fr); gap: 24px; }
   .sum-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
@@ -371,6 +374,16 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .w-card { min-width: 0; }
   .panel { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
   .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
+  
+  /* PERBAIKAN: Rata Tengah Khusus Laptop untuk Info USD, XAU, & Tersinkron */
+  .status-row { 
+      justify-content: center; 
+      align-items: center; 
+  }
+  .status-row .status-pill { 
+      flex: 0 1 auto !important; 
+      min-width: 180px; 
+  }
 }
 
 /* STYLING HUTANG PIUTANG & DOMPET */
@@ -388,74 +401,97 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   SPLASH SCREEN V3: ULTIMATE MASTERPIECE
+   SPLASH SCREEN V4: ULTRA PREMIUM MASTERPIECE (ANTI-STUCK)
    ========================================================================== */
 #splash-screen {
-  position: fixed; inset: 0; 
-  background: radial-gradient(circle at center, #121215 0%, #050505 100%);
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, #1a1a24 0%, #050505 100%);
   z-index: 999999; display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 
-#splash-screen.splash-exit { animation: diveIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
-@keyframes diveIn {
-  0% { transform: scale(1); opacity: 1; filter: blur(0); }
-  100% { transform: scale(1.5); opacity: 0; filter: blur(10px); visibility: hidden; }
+#splash-screen::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
+  animation: pulseBg 3s ease-in-out infinite alternate;
+}
+@keyframes pulseBg { 0% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+#splash-screen.splash-exit { animation: cinematicExit 1s cubic-bezier(0.8, 0, 0.2, 1) forwards; }
+@keyframes cinematicExit {
+  0% { transform: scale(1); opacity: 1; filter: blur(0) brightness(1); }
+  40% { transform: scale(0.95); opacity: 1; filter: blur(2px) brightness(1.2); }
+  100% { transform: scale(1.5); opacity: 0; filter: blur(15px) brightness(0); visibility: hidden; }
 }
 
 .splash-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .particle {
   position: absolute; background: var(--gold); border-radius: 50%;
-  box-shadow: 0 0 10px var(--gold); opacity: 0; 
-  animation: floatParticle 3s infinite ease-in-out;
+  box-shadow: 0 0 15px var(--gold), 0 0 30px var(--gold); opacity: 0;
+  animation: floatParticlePremium 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes floatParticlePremium {
+  0% { transform: translateY(20px) scale(0); opacity: 0; }
+  50% { opacity: 0.8; transform: translateY(-30px) scale(1.2); }
+  100% { transform: translateY(-80px) scale(0); opacity: 0; }
 }
 
-@keyframes floatParticle {
-  0% { transform: translateY(0) scale(0); opacity: 0; }
-  50% { opacity: 0.6; }
-  100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+.splash-content {
+  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
+  padding: 40px; border-radius: 32px; backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03);
+  background: rgba(18, 18, 21, 0.4);
 }
 
-.splash-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
-.splash-logo-box { position: relative; width: 110px; height: 110px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+.splash-logo-box { position: relative; width: 120px; height: 120px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
+
 .splash-ring {
-  position: absolute; inset: -5px; 
-  border: 2px dashed rgba(245, 158, 11, 0.5); border-radius: 24px;
-  animation: spinRing 10s linear infinite, popIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  position: absolute; inset: -8px; border: 2px solid transparent;
+  border-top-color: var(--gold); border-bottom-color: var(--gold);
+  border-radius: 50%;
+  animation: spinRingSmooth 4s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+.splash-ring-inner {
+  position: absolute; inset: -2px; border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 50%;
+  animation: spinRingReverse 6s linear infinite;
 }
 
 .splash-img {
-  width: 90px; height: 90px; border-radius: 18px; border: 2px solid var(--gold); padding: 3px;
-  box-shadow: 0 0 35px rgba(245, 158, 11, 0.5); opacity: 0;
-  animation: logoZoomFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
+  width: 96px; height: 96px; border-radius: 24px; border: 2px solid var(--gold); padding: 4px;
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.2);
+  opacity: 0; transform: translateY(20px) scale(0.8);
+  animation: elegantLogoReveal 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s;
 }
 
-.splash-img-shine { position: absolute; width: 90px; height: 90px; border-radius: 18px; overflow: hidden; pointer-events: none; }
+.splash-img-shine { position: absolute; inset: 0; border-radius: 24px; overflow: hidden; pointer-events: none; z-index: 5; }
 .splash-img-shine::after {
   content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
   transform: rotate(45deg) translateX(-100%);
-  animation: flashShine 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1) 1s;
+  animation: flashShinePremium 3s infinite cubic-bezier(0.4, 0, 0.2, 1) 1.5s;
 }
 
-.splash-title-wrap { overflow: hidden; padding-bottom: 5px; }
+.splash-title-wrap { overflow: hidden; padding-bottom: 5px; position: relative; }
 .splash-title {
-  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800;
-  text-shadow: 0 4px 20px rgba(245, 158, 11, 0.6); 
+  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
+  text-shadow: 0 4px 30px rgba(245, 158, 11, 0.8); background: linear-gradient(to right, #fff, #FBBF24, #fff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto;
   transform: translateY(100%); opacity: 0;
-  animation: revealText 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
+  animation: revealTextPremium 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.8s, shimmerText 3s linear infinite 2s;
 }
 
 .splash-sub {
-  color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 4px; margin-top: 4px; opacity: 0;
-  animation: fadeSub 1s ease forwards 1.2s;
+  color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: 6px; margin-top: 8px; opacity: 0;
+  text-transform: uppercase;
+  animation: fadeSubPremium 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 1.4s;
 }
 
-@keyframes spinRing { 100% { transform: rotate(360deg); } }
-@keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-@keyframes logoZoomFade { 0% { transform: scale(0.5); opacity: 0; filter: blur(5px); } 100% { transform: scale(1); opacity: 1; filter: blur(0); } }
-@keyframes flashShine { 0% { transform: rotate(45deg) translateX(-100%); } 100% { transform: rotate(45deg) translateX(100%); } }
-@keyframes revealText { 0% { transform: translateY(100%); opacity: 0; letter-spacing: 12px; } 100% { transform: translateY(0); opacity: 1; letter-spacing: 3px; } }
-@keyframes fadeSub { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes spinRingSmooth { 0% { transform: rotate(0deg) scale(0.8); opacity: 0; } 20% { opacity: 1; transform: rotate(72deg) scale(1.05); } 80% { transform: rotate(288deg) scale(0.95); } 100% { transform: rotate(360deg) scale(1); opacity: 0; } }
+@keyframes spinRingReverse { 100% { transform: rotate(-360deg); } }
+@keyframes elegantLogoReveal { 0% { transform: translateY(30px) scale(0.8); opacity: 0; filter: blur(10px); } 100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); } }
+@keyframes flashShinePremium { 0% { transform: rotate(45deg) translateX(-100%); opacity: 0; } 20% { opacity: 1; } 80% { transform: rotate(45deg) translateX(100%); opacity: 0; } 100% { opacity: 0; } }
+@keyframes revealTextPremium { 0% { transform: translateY(100%); opacity: 0; letter-spacing: 20px; filter: blur(5px); } 100% { transform: translateY(0); opacity: 1; letter-spacing: 4px; filter: blur(0); } }
+@keyframes shimmerText { to { background-position: 200% center; } }
+@keyframes fadeSubPremium { 0% { opacity: 0; transform: translateY(15px); letter-spacing: 12px; } 100% { opacity: 1; transform: translateY(0); letter-spacing: 6px; } }
 </style>
 </head>
 <body>
@@ -465,6 +501,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   <div class="splash-content">
     <div class="splash-logo-box">
       <div class="splash-ring"></div>
+      <div class="splash-ring-inner"></div>
       <img src="RHN LOGO.jpg" alt="RHN Capital Logo" class="splash-img">
       <div class="splash-img-shine"></div>
     </div>
@@ -3279,10 +3316,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }, 1000);
 });
 
-window.addEventListener('load', () => {
+// SCRIPT SPLASH SCREEN V4 (AUTO HILANG)
+window.addEventListener('DOMContentLoaded', () => {
   const pContainer = document.getElementById('splash-particles'); 
   if (pContainer) { 
-      for (let i = 0; i < 15; i++) { 
+      for (let i = 0; i < 25; i++) { 
           const p = document.createElement('div'); 
           p.className = 'particle'; 
           p.style.left = Math.random() * 100 + '%'; 
@@ -3290,28 +3328,23 @@ window.addEventListener('load', () => {
           p.style.width = Math.random() * 4 + 2 + 'px'; 
           p.style.height = p.style.width; 
           p.style.animationDelay = Math.random() * 2 + 's'; 
-          p.style.animationDuration = Math.random() * 2 + 2 + 's'; 
+          p.style.animationDuration = Math.random() * 2 + 3 + 's'; 
           pContainer.appendChild(p); 
       } 
   }
   
+  // BIANG KEROK TERATASI: 3.8 Detik auto tutup!
   setTimeout(() => { 
       const splash = document.getElementById('splash-screen'); 
       if (splash) { 
           splash.classList.add('splash-exit'); 
-          setTimeout(() => splash.remove(), 800); 
+          setTimeout(() => {
+              splash.style.display = 'none'; 
+              splash.remove(); 
+          }, 1000); 
       } 
-  }, 3000); 
+  }, 3800); 
 });
-
-setTimeout(() => { 
-    const splash = document.getElementById('splash-screen'); 
-    if (splash && !splash.classList.contains('splash-exit')) { 
-        splash.classList.add('splash-exit'); 
-        setTimeout(() => splash.remove(), 800); 
-    } 
-}, 5000);
-
 </script>
 </body>
 </html>
