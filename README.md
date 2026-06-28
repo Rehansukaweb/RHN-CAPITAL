@@ -13,7 +13,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- SCRIPT ANTI-ZOOM SISTEM HP (KUNCI MUTLAK TAMPILAN) -->
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     var testEl = document.createElement('div');
@@ -474,7 +473,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   ⚠️ Koneksi Terputus - Mode Offline Aktif
 </div>
 
-<!-- LAYAR OTENTIKASI (DENGAN GOOGLE) -->
 <div id="auth-screen">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
@@ -520,13 +518,9 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<!-- ==============================================
-     APP SCREEN (DASHBOARD KETIKA LOGIN)
-     ============================================== -->
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
-  <!-- LOGO & JUDUL -->
   <div class="logo-row">
     <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo"></div>
     <div class="logo-text">
@@ -535,7 +529,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
-  <!-- TOMBOL NAVIGASI HALAMAN -->
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
@@ -543,7 +536,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
-  <!-- STATUS BAR (SINKRONISASI DLL) -->
   <div class="status-row">
     <div class="status-pill usd-status-pill" style="padding: 6px 4px;">
       <span class="usd-val" id="usd-rate-val" style="font-size: 9px;">...</span>
@@ -589,7 +581,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div class="main">
 
-<!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
@@ -625,7 +616,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
           <option value="GoPay">GoPay</option>
           <option value="ShopeePay">ShopeePay</option>
           <option value="MT5 Trading">Saldo MT5 Trading</option>
-          <option value="Rekening Bank">Rekening Bank</option>
+          <option value="Bank">Bank</option>
           <option value="Hutang">Hutang (Tarik/Bayar)</option>
           <option value="Piutang">Piutang (Beri/Tarik)</option>
         </select>
@@ -639,7 +630,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
           <option value="GoPay">GoPay</option>
           <option value="ShopeePay">ShopeePay</option>
           <option value="MT5 Trading">Saldo MT5 Trading</option>
-          <option value="Rekening Bank">Rekening Bank</option>
+          <option value="Bank">Bank</option>
           <option value="Hutang">Hutang (Tarik/Bayar)</option>
           <option value="Piutang">Piutang (Beri/Tarik)</option>
         </select>
@@ -669,7 +660,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<!-- PAGES -->
 <div id="page-harian" class="page">
   <div class="sum-grid" id="daily-sum"></div>
   <div class="card">
@@ -757,7 +747,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 <div id="page-pengaturan" class="page">
   
-  <!-- KALKULATOR MATA UANG ONLINE -->
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
       ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
@@ -830,7 +819,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <option value="GoPay">GoPay</option>
         <option value="ShopeePay">ShopeePay</option>
         <option value="MT5 Trading">Saldo MT5 Trading</option>
-        <option value="Rekening Bank">Rekening Bank</option>
+        <option value="Bank">Bank</option>
       </select>
     </div>
     <div class="set-item" style="justify-content: flex-end; padding-top: 16px;">
@@ -959,6 +948,12 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 </div>
 
+<div style="text-align: center; padding: 24px; font-size: 10px; color: var(--text3); margin-top: 32px; border-top: 1px dashed var(--border2); line-height: 1.6;">
+    &copy; 2026 RHN CAPITAL. Hak Cipta Dilindungi.<br>
+    Platform Arus Keuangan yang aman, cepat, dan terenkripsi.<br>
+    Didesain khusus untuk memudahkan pengelolaan aset dan transaksi Anda secara presisi.
+</div>
+
 </div></div>
 
 <script>
@@ -1030,17 +1025,17 @@ let extraPrefs = {
     ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off'
 };
 
-// FORMAT MILYARAN
+// FORMAT MILYARAN (TIDAK BOCOR, PRESISI 3 DESIMAL)
 const fmtFull = n => {
     if (Math.abs(n) >= 1000000000) {
-        return 'Rp ' + (n / 1000000000).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' Miliar';
+        return 'Rp ' + (n / 1000000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' M';
     }
     return 'Rp ' + Math.round(n).toLocaleString('id-ID');
 };
 
 const fmt = (n, isDash = false) => {
     if (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_shortnum === 'on') {
-        if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toFixed(2).replace('.',',') + ' M';
+        if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' M';
         if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000000).toFixed(2).replace('.',',') + ' Jt';
         if (Math.abs(n) >= 10000) return 'Rp ' + (n/1000).toFixed(1).replace('.',',') + ' Rb';
     }
@@ -2021,6 +2016,7 @@ window.addTx = async function() {
   
   const amountInput = document.getElementById('f-amount');
   const catInput = document.getElementById('f-cat');
+  const noteInput = document.getElementById('f-note');
   
   const rawValue = amountInput.value.replace(/\./g, '');
   const amt = parseFloat(rawValue);
@@ -2028,29 +2024,36 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
-  // LOGIKA VALIDASI SPESIFIK
+  // LOGIKA VALIDASI SUPER KETAT
   const isAmtEmpty = !amt || isNaN(amt);
   const isCatEmpty = !cat;
+  const note = noteInput.value.trim();
+  const isNoteEmpty = !note;
 
-  if (isAmtEmpty && isCatEmpty && curType !== 'transfer') {
+  if (isAmtEmpty && isCatEmpty && isNoteEmpty && curType !== 'transfer') {
       amountInput.classList.add('shake-error');
-      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
+      catInput.parentNode.previousSibling.classList.add('shake-error');
+      noteInput.classList.add('shake-error');
       setTimeout(() => {
           amountInput.classList.remove('shake-error');
-          document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error');
+          catInput.parentNode.previousSibling.classList.remove('shake-error');
+          noteInput.classList.remove('shake-error');
       }, 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Kosong!', text: 'Nominal dan Kategori belum diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Masih Kosong!', text: 'Nominal, Kategori, dan Keterangan harus diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   } else if (isAmtEmpty) {
       amountInput.classList.add('shake-error');
       setTimeout(() => amountInput.classList.remove('shake-error'), 400);
       return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   } else if (isCatEmpty && curType !== 'transfer') {
-      document.getElementById('f-cat').parentNode.previousSibling.classList.add('shake-error');
-      setTimeout(() => document.getElementById('f-cat').parentNode.previousSibling.classList.remove('shake-error'), 400);
+      catInput.parentNode.previousSibling.classList.add('shake-error');
+      setTimeout(() => catInput.parentNode.previousSibling.classList.remove('shake-error'), 400);
       return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+  } else if (isNoteEmpty) {
+      noteInput.classList.add('shake-error');
+      setTimeout(() => noteInput.classList.remove('shake-error'), 400);
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Keterangan Kosong!', text: 'Jangan lupa isi keterangan transaksinya ya.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   }
 
-  const note = document.getElementById('f-note').value.trim();
   const dt = document.getElementById('f-date').value; 
   const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai';
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
@@ -2072,7 +2075,7 @@ window.addTx = async function() {
           amount: amt,
           category: cat,
           wallet: wallet,
-          note: note || '-',
+          note: note,
           date: dt || nowISO()
       };
       
@@ -2406,7 +2409,7 @@ function renderMetrics() {
 }
 
 function renderWalletBalances() { 
-    const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Rekening Bank': 0 }; 
+    const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 }; 
     let hutangBal = 0; 
     let piutangBal = 0; 
     let totalAset = 0; 
@@ -2846,6 +2849,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
       Toast.fire({ icon: 'success', title: 'Online Kembali!' }); 
   });
 
+  // LOGIKA KONFIRMASI KELUAR APLIKASI KETIKA MENCET BACK DI HP
+  window.history.pushState({ noBackExitsApp: true }, '');
+  window.addEventListener('popstate', function(event) {
+      Swal.fire({
+          title: 'Keluar Aplikasi?',
+          text: "Anda serius ingin keluar dari aplikasi RHN CAPITAL?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: 'var(--red2)',
+          cancelButtonColor: 'var(--bg3)',
+          confirmButtonText: 'Ya, Keluar',
+          cancelButtonText: 'Batal',
+          background: 'var(--card)',
+          color: 'var(--text)',
+          backdrop: 'rgba(0,0,0,0.6)',
+          position: 'center'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.history.back();
+          } else {
+              window.history.pushState({ noBackExitsApp: true }, '');
+          }
+      });
+  });
+
   if (window.Chart) { 
       Chart.defaults.animation = false; 
       Chart.defaults.transitions.active.animation.duration = 0; 
@@ -2873,10 +2901,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }); 
   };
   
+  // MODIFIKASI KONFIRMASI TOMBOL EDIT
   const originalEditTx = window.editTx; 
   window.editTx = function(id) { 
       if (navigator.vibrate) navigator.vibrate(20); 
-      originalEditTx(id); 
+      Swal.fire({
+          title: 'Edit Transaksi?',
+          text: "Data riwayat ini akan ditarik ke form untuk diubah.",
+          icon: 'question',
+          showCancelButton: true,
+          background: 'var(--card)',
+          color: 'var(--text)',
+          confirmButtonColor: 'var(--blue)',
+          cancelButtonColor: 'var(--bg3)',
+          confirmButtonText: 'Ya, Edit',
+          cancelButtonText: 'Batal',
+          position: 'center',
+          backdrop: 'rgba(0,0,0,0.6)'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              originalEditTx(id);
+          }
+      });
   };
   
   const originalDoLogout = window.doLogout; 
