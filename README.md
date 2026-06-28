@@ -243,11 +243,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 
-/* UPDATE: Tombol Edit dan Hapus dibuat bawaan (tidak mencolok) */
-.edit-btn-recent { background: transparent; border: none; color: var(--text3); padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; text-decoration: underline; }
-.del-btn-recent { background: transparent; border: none; color: var(--text3); padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; text-decoration: underline; }
-.edit-btn-recent:hover { color: var(--text); }
-.del-btn-recent:hover { color: var(--red2); }
+/* UPDATE: Tombol Edit dan Hapus dibuat lebih bagus dan menonjol */
+.edit-btn-recent { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
+.del-btn-recent { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
+.edit-btn-recent:hover { background: var(--blue); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+.del-btn-recent:hover { background: var(--red2); color: #fff; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4); }
 
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
