@@ -401,8 +401,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   🌟 SPLASH SCREEN V6: GLASSMORPHISM & CLEAN TECH (ROMBAK TOTAL)
-   Fokus pada kemewahan, profesional, dan loading bar yang responsif.
+   🌟 SPLASH SCREEN V6: GLASSMORPHISM & TEKS TENGAH (ROMBAK TOTAL)
    ========================================================================== */
 #splash-screen {
   position: fixed; inset: 0; background: #050505; z-index: 999999;
@@ -431,13 +430,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   100% { opacity: 0; transform: scale(1.05); filter: blur(10px); visibility: hidden; }
 }
 
-/* Panel Kaca Utama (Glassmorphism) */
+/* Panel Kaca Utama (Glassmorphism) - Dibuat Center Total */
 .splash-glass-panel {
-  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
+  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px 60px; background: rgba(18, 18, 21, 0.6);
   border: 1px solid rgba(251, 191, 36, 0.1); border-radius: 32px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); text-align: center;
   transform: translateY(20px); opacity: 0;
   animation: panelUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
 }
@@ -445,16 +444,16 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Logo Flip 3D */
+/* Logo Animasi */
 .splash-logo-container { position: relative; margin-bottom: 24px; }
 .splash-img-new {
   width: 80px; height: 80px; border-radius: 20px;
   border: 2px solid rgba(251, 191, 36, 0.8); padding: 4px;
-  opacity: 0; transform: scale(0.8) rotate(-10deg);
-  animation: logoFlip 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s;
+  opacity: 0; transform: scale(0.8);
+  animation: logoFlipSimple 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s;
 }
-@keyframes logoFlip {
-  to { opacity: 1; transform: scale(1) rotate(0deg); }
+@keyframes logoFlipSimple {
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* Pendaran (Glow) di belakang logo */
@@ -469,21 +468,22 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   to { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
 }
 
-/* Teks Menyapu Ke Atas (Slide Up Mask) */
-.splash-text-mask { overflow: hidden; padding-bottom: 4px; margin-bottom: 8px; }
+/* Teks Utama (RHN CAPITAL) Dibuat Center & Scale Animasi */
+.splash-text-mask { display: flex; justify-content: center; width: 100%; padding-bottom: 4px; margin-bottom: 8px; }
 .splash-title-new {
   font-size: 32px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
-  letter-spacing: 4px; transform: translateY(100%);
+  letter-spacing: 4px; text-align: center;
   background: linear-gradient(90deg, #fff 0%, var(--gold) 50%, #fff 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  animation: textSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.8s;
+  opacity: 0; transform: scale(0.9);
+  animation: titleFadeScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.8s;
 }
-@keyframes textSlideUp { to { transform: translateY(0); } }
+@keyframes titleFadeScale { to { opacity: 1; transform: scale(1); } }
 
-/* Subtitle Muncul Perlahan */
+/* Subtitle (ARUS KEUANGAN) Tengah */
 .splash-subtitle-new {
   font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 6px;
-  opacity: 0; text-transform: uppercase;
+  opacity: 0; text-transform: uppercase; text-align: center; width: 100%;
   animation: fadeSub 0.8s ease forwards 1.2s;
 }
 @keyframes fadeSub { to { opacity: 1; } }
@@ -508,7 +508,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </head>
 <body>
 
-<!-- HTML SPLASH SCREEN V6 -->
+<!-- HTML SPLASH SCREEN V6 (TELAH DISESUAIKAN) -->
 <div id="splash-screen">
   <div class="splash-bg-grid"></div>
   <div class="splash-glass-panel">
