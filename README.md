@@ -163,7 +163,9 @@ body {
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
+/* UPDATE: font-size diturunkan, text-overflow: clip untuk scroll horizontal */
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
   font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
@@ -179,7 +181,9 @@ body {
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block; }
+/* UPDATE: font-size diturunkan, text-overflow: clip untuk scroll horizontal */
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
@@ -240,8 +244,13 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amounts-col { display: flex; flex-direction: column; align-items: flex-end; }
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
-.del-btn-recent, .edit-btn-recent { background: transparent; border: none; color: var(--text3); font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; }
-.del-btn-recent { color: var(--red2); }
+
+/* UPDATE: Tombol Edit dan Hapus dibuat lebih jelas */
+.edit-btn-recent { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; border-radius: 6px; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; }
+.del-btn-recent { background: rgba(248, 113, 113, 0.1); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; border-radius: 6px; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; }
+.edit-btn-recent:hover { background: var(--blue); color: #fff; }
+.del-btn-recent:hover { background: var(--red2); color: #fff; }
+
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
 
@@ -2024,7 +2033,7 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
-  // LOGIKA VALIDASI SUPER KETAT
+  // UPDATE: Memperjelas pesan error kosong dengan tombol (bukan sekedar merah / timer passif)
   const isAmtEmpty = !amt || isNaN(amt);
   const isCatEmpty = !cat;
   const note = noteInput.value.trim();
@@ -2039,19 +2048,19 @@ window.addTx = async function() {
           catInput.parentNode.previousSibling.classList.remove('shake-error');
           noteInput.classList.remove('shake-error');
       }, 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Masih Kosong!', text: 'Nominal, Kategori, dan Keterangan harus diisi!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Masih Kosong!', text: 'Nominal, Kategori, dan Keterangan harus diisi!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   } else if (isAmtEmpty) {
       amountInput.classList.add('shake-error');
       setTimeout(() => amountInput.classList.remove('shake-error'), 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   } else if (isCatEmpty && curType !== 'transfer') {
       catInput.parentNode.previousSibling.classList.add('shake-error');
       setTimeout(() => catInput.parentNode.previousSibling.classList.remove('shake-error'), 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   } else if (isNoteEmpty) {
       noteInput.classList.add('shake-error');
       setTimeout(() => noteInput.classList.remove('shake-error'), 400);
-      return Swal.fire({ position: 'center', icon: 'warning', title: 'Keterangan Kosong!', text: 'Jangan lupa isi keterangan transaksinya ya.', showConfirmButton: false, timer: 2500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+      return Swal.fire({ position: 'center', icon: 'warning', title: 'Keterangan Kosong!', text: 'Jangan lupa isi keterangan transaksinya ya.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
   }
 
   const dt = document.getElementById('f-date').value; 
@@ -2059,7 +2068,7 @@ window.addTx = async function() {
   const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai';
   
   if (curType === 'transfer' && wallet === walletTo) {
-      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: false, timer: 2000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
+      return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
   }
 
   if (document.activeElement) document.activeElement.blur();
