@@ -243,7 +243,6 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 
-/* UPDATE: Tombol Edit dan Hapus dibuat lebih bagus dan menonjol */
 .edit-btn-recent { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
 .del-btn-recent { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
 .edit-btn-recent:hover { background: var(--blue); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
@@ -2013,11 +2012,12 @@ function listenTransactions(uid) {
             let data = d.data();
             
             // ==========================================
-            // LOGIKA MERGE/PENGHAPUSAN REKENING B/
-            // Otomatis menimpa transaksi lama agar terbaca sebagai "Bank" saja
+            // LOGIKA MERGE/PENGHAPUSAN REKENING BANK
+            // Otomatis menimpa semua variasi "Rekening" agar terbaca sebagai "Bank" saja
+            // Jadi kotaknya pasti balik rapi ke 6 doang!
             // ==========================================
-            if (data.wallet === 'REKENING B/') data.wallet = 'Bank';
-            if (data.walletTo === 'REKENING B/') data.walletTo = 'Bank';
+            if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank';
+            if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank';
             
             return {id: d.id, ...data};
         }); 
