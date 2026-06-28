@@ -401,116 +401,131 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   SPLASH SCREEN V4: ULTRA PREMIUM MASTERPIECE (ANTI-STUCK)
+   🌟 SPLASH SCREEN V6: GLASSMORPHISM & CLEAN TECH (ROMBAK TOTAL)
+   Fokus pada kemewahan, profesional, dan loading bar yang responsif.
    ========================================================================== */
 #splash-screen {
-  position: fixed; inset: 0;
-  background: radial-gradient(circle at center, #1a1a24 0%, #050505 100%);
-  z-index: 999999; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  position: fixed; inset: 0; background: #050505; z-index: 999999;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 
-#splash-screen::before {
-  content: ""; position: absolute; inset: 0;
-  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
-  animation: pulseBg 3s ease-in-out infinite alternate;
+/* Background Tech Grid Bergerak */
+.splash-bg-grid {
+  position: absolute; inset: 0;
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(251, 191, 36, 0.03) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(251, 191, 36, 0.03) 1px, transparent 1px);
+  animation: gridMove 10s linear infinite;
 }
-@keyframes pulseBg { 0% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
-
-#splash-screen.splash-exit { animation: cinematicExit 1s cubic-bezier(0.8, 0, 0.2, 1) forwards; }
-@keyframes cinematicExit {
-  0% { transform: scale(1); opacity: 1; filter: blur(0) brightness(1); }
-  40% { transform: scale(0.95); opacity: 1; filter: blur(2px) brightness(1.2); }
-  100% { transform: scale(1.5); opacity: 0; filter: blur(15px) brightness(0); visibility: hidden; }
-}
-
-.splash-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.particle {
-  position: absolute; background: var(--gold); border-radius: 50%;
-  box-shadow: 0 0 15px var(--gold), 0 0 30px var(--gold); opacity: 0;
-  animation: floatParticlePremium 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes floatParticlePremium {
-  0% { transform: translateY(20px) scale(0); opacity: 0; }
-  50% { opacity: 0.8; transform: translateY(-30px) scale(1.2); }
-  100% { transform: translateY(-80px) scale(0); opacity: 0; }
+@keyframes gridMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
 }
 
-.splash-content {
+/* Animasi Exit Splash */
+#splash-screen.splash-exit {
+  animation: exitSplash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes exitSplash {
+  0% { opacity: 1; transform: scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.05); filter: blur(10px); visibility: hidden; }
+}
+
+/* Panel Kaca Utama (Glassmorphism) */
+.splash-glass-panel {
   position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
-  padding: 40px; border-radius: 32px; backdrop-filter: blur(10px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.03);
-  background: rgba(18, 18, 21, 0.4);
+  padding: 40px 60px; background: rgba(18, 18, 21, 0.6);
+  border: 1px solid rgba(251, 191, 36, 0.1); border-radius: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  transform: translateY(20px); opacity: 0;
+  animation: panelUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+}
+@keyframes panelUp {
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.splash-logo-box { position: relative; width: 120px; height: 120px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
-
-.splash-ring {
-  position: absolute; inset: -8px; border: 2px solid transparent;
-  border-top-color: var(--gold); border-bottom-color: var(--gold);
-  border-radius: 50%;
-  animation: spinRingSmooth 4s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+/* Logo Flip 3D */
+.splash-logo-container { position: relative; margin-bottom: 24px; }
+.splash-img-new {
+  width: 80px; height: 80px; border-radius: 20px;
+  border: 2px solid rgba(251, 191, 36, 0.8); padding: 4px;
+  opacity: 0; transform: scale(0.8) rotate(-10deg);
+  animation: logoFlip 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s;
 }
-.splash-ring-inner {
-  position: absolute; inset: -2px; border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 50%;
-  animation: spinRingReverse 6s linear infinite;
-}
-
-.splash-img {
-  width: 96px; height: 96px; border-radius: 24px; border: 2px solid var(--gold); padding: 4px;
-  box-shadow: 0 0 40px rgba(245, 158, 11, 0.3), inset 0 0 20px rgba(245, 158, 11, 0.2);
-  opacity: 0; transform: translateY(20px) scale(0.8);
-  animation: elegantLogoReveal 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s;
+@keyframes logoFlip {
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 
-.splash-img-shine { position: absolute; inset: 0; border-radius: 24px; overflow: hidden; pointer-events: none; z-index: 5; }
-.splash-img-shine::after {
-  content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
-  transform: rotate(45deg) translateX(-100%);
-  animation: flashShinePremium 3s infinite cubic-bezier(0.4, 0, 0.2, 1) 1.5s;
+/* Pendaran (Glow) di belakang logo */
+.splash-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 100px; height: 100px; background: rgba(251, 191, 36, 0.4);
+  border-radius: 50%; filter: blur(20px); opacity: 0; z-index: -1;
+  animation: pulseGlowNew 2s infinite alternate 1s;
+}
+@keyframes pulseGlowNew {
+  from { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+  to { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
 }
 
-.splash-title-wrap { overflow: hidden; padding-bottom: 5px; position: relative; }
-.splash-title {
-  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
-  text-shadow: 0 4px 30px rgba(245, 158, 11, 0.8); background: linear-gradient(to right, #fff, #FBBF24, #fff);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto;
-  transform: translateY(100%); opacity: 0;
-  animation: revealTextPremium 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.8s, shimmerText 3s linear infinite 2s;
+/* Teks Menyapu Ke Atas (Slide Up Mask) */
+.splash-text-mask { overflow: hidden; padding-bottom: 4px; margin-bottom: 8px; }
+.splash-title-new {
+  font-size: 32px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
+  letter-spacing: 4px; transform: translateY(100%);
+  background: linear-gradient(90deg, #fff 0%, var(--gold) 50%, #fff 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: textSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.8s;
+}
+@keyframes textSlideUp { to { transform: translateY(0); } }
+
+/* Subtitle Muncul Perlahan */
+.splash-subtitle-new {
+  font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 6px;
+  opacity: 0; text-transform: uppercase;
+  animation: fadeSub 0.8s ease forwards 1.2s;
+}
+@keyframes fadeSub { to { opacity: 1; } }
+
+/* Loading Bar Pintar */
+.splash-loader {
+  width: 100%; height: 3px; background: rgba(255,255,255,0.1);
+  border-radius: 4px; margin-top: 30px; overflow: hidden; position: relative;
+}
+.splash-loader-bar {
+  position: absolute; top: 0; left: 0; height: 100%; background: var(--gold);
+  width: 0%; border-radius: 4px;
+  animation: loadBar 2s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.5s;
+}
+@keyframes loadBar {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
 }
 
-.splash-sub {
-  color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: 6px; margin-top: 8px; opacity: 0;
-  text-transform: uppercase;
-  animation: fadeSubPremium 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 1.4s;
-}
-
-@keyframes spinRingSmooth { 0% { transform: rotate(0deg) scale(0.8); opacity: 0; } 20% { opacity: 1; transform: rotate(72deg) scale(1.05); } 80% { transform: rotate(288deg) scale(0.95); } 100% { transform: rotate(360deg) scale(1); opacity: 0; } }
-@keyframes spinRingReverse { 100% { transform: rotate(-360deg); } }
-@keyframes elegantLogoReveal { 0% { transform: translateY(30px) scale(0.8); opacity: 0; filter: blur(10px); } 100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); } }
-@keyframes flashShinePremium { 0% { transform: rotate(45deg) translateX(-100%); opacity: 0; } 20% { opacity: 1; } 80% { transform: rotate(45deg) translateX(100%); opacity: 0; } 100% { opacity: 0; } }
-@keyframes revealTextPremium { 0% { transform: translateY(100%); opacity: 0; letter-spacing: 20px; filter: blur(5px); } 100% { transform: translateY(0); opacity: 1; letter-spacing: 4px; filter: blur(0); } }
-@keyframes shimmerText { to { background-position: 200% center; } }
-@keyframes fadeSubPremium { 0% { opacity: 0; transform: translateY(15px); letter-spacing: 12px; } 100% { opacity: 1; transform: translateY(0); letter-spacing: 6px; } }
 </style>
 </head>
 <body>
 
+<!-- HTML SPLASH SCREEN V6 -->
 <div id="splash-screen">
-  <div class="splash-particles" id="splash-particles"></div>
-  <div class="splash-content">
-    <div class="splash-logo-box">
-      <div class="splash-ring"></div>
-      <div class="splash-ring-inner"></div>
-      <img src="RHN LOGO.jpg" alt="RHN Capital Logo" class="splash-img">
-      <div class="splash-img-shine"></div>
+  <div class="splash-bg-grid"></div>
+  <div class="splash-glass-panel">
+    <div class="splash-logo-container">
+      <img src="RHN LOGO.jpg" alt="RHN Capital Logo" class="splash-img-new">
+      <div class="splash-glow"></div>
     </div>
-    <div class="splash-title-wrap">
-      <div class="splash-title">RHN CAPITAL</div>
+    <div class="splash-text-mask">
+      <div class="splash-title-new">RHN CAPITAL</div>
     </div>
-    <div class="splash-sub">ARUS KEUANGAN</div>
+    <div class="splash-subtitle-new">ARUS KEUANGAN</div>
+    <div class="splash-loader">
+      <div class="splash-loader-bar"></div>
+    </div>
   </div>
 </div>
+<!-- AKHIR HTML SPLASH SCREEN -->
 
 <div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; left:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   ⚠️ Koneksi Terputus - Mode Offline Aktif
@@ -3316,24 +3331,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }, 1000);
 });
 
-// SCRIPT SPLASH SCREEN V4 (AUTO HILANG)
+// SCRIPT SPLASH SCREEN V6 (AUTO HILANG)
 window.addEventListener('DOMContentLoaded', () => {
-  const pContainer = document.getElementById('splash-particles'); 
-  if (pContainer) { 
-      for (let i = 0; i < 25; i++) { 
-          const p = document.createElement('div'); 
-          p.className = 'particle'; 
-          p.style.left = Math.random() * 100 + '%'; 
-          p.style.top = Math.random() * 100 + '%'; 
-          p.style.width = Math.random() * 4 + 2 + 'px'; 
-          p.style.height = p.style.width; 
-          p.style.animationDelay = Math.random() * 2 + 's'; 
-          p.style.animationDuration = Math.random() * 2 + 3 + 's'; 
-          pContainer.appendChild(p); 
-      } 
-  }
-  
-  // BIANG KEROK TERATASI: 3.8 Detik auto tutup!
+  // Animasi Splash Screen V6 akan otomatis fade out dan hilang
+  // Tepat saat loading bar penuh (sekitar 2.5 - 3 detik)
   setTimeout(() => { 
       const splash = document.getElementById('splash-screen'); 
       if (splash) { 
@@ -3341,9 +3342,9 @@ window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
               splash.style.display = 'none'; 
               splash.remove(); 
-          }, 1000); 
+          }, 600); // 600ms durasi fade out dari keyframe
       } 
-  }, 3800); 
+  }, 3000); 
 });
 </script>
 </body>
