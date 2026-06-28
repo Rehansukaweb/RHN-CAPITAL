@@ -163,7 +163,6 @@ body {
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-/* UPDATE: font-size diturunkan, text-overflow: clip untuk scroll horizontal */
 .m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
@@ -181,7 +180,6 @@ body {
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* UPDATE: font-size diturunkan, text-overflow: clip untuk scroll horizontal */
 .w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
@@ -245,11 +243,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 
-/* UPDATE: Tombol Edit dan Hapus dibuat lebih jelas */
-.edit-btn-recent { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; border-radius: 6px; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; }
-.del-btn-recent { background: rgba(248, 113, 113, 0.1); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; border-radius: 6px; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; }
-.edit-btn-recent:hover { background: var(--blue); color: #fff; }
-.del-btn-recent:hover { background: var(--red2); color: #fff; }
+/* UPDATE: Tombol Edit dan Hapus dibuat bawaan (tidak mencolok) */
+.edit-btn-recent { background: transparent; border: none; color: var(--text3); padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; text-decoration: underline; }
+.del-btn-recent { background: transparent; border: none; color: var(--text3); padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.2s; text-decoration: underline; }
+.edit-btn-recent:hover { color: var(--text); }
+.del-btn-recent:hover { color: var(--red2); }
 
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
@@ -2011,7 +2009,18 @@ function listenTransactions(uid) {
     if (unsubListener) unsubListener(); 
     
     unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { 
-        txs = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+        txs = snap.docs.map(d => {
+            let data = d.data();
+            
+            // ==========================================
+            // LOGIKA MERGE/PENGHAPUSAN REKENING B/
+            // Otomatis menimpa transaksi lama agar terbaca sebagai "Bank" saja
+            // ==========================================
+            if (data.wallet === 'REKENING B/') data.wallet = 'Bank';
+            if (data.walletTo === 'REKENING B/') data.walletTo = 'Bank';
+            
+            return {id: d.id, ...data};
+        }); 
         setSyncStatus(true); 
         refreshAll(); 
     }, err => { 
@@ -2033,7 +2042,6 @@ window.addTx = async function() {
   let cat = catInput.value; 
   if (curType === 'transfer') cat = 'Transfer Antar Dompet';
 
-  // UPDATE: Memperjelas pesan error kosong dengan tombol (bukan sekedar merah / timer passif)
   const isAmtEmpty = !amt || isNaN(amt);
   const isCatEmpty = !cat;
   const note = noteInput.value.trim();
