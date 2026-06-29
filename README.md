@@ -128,12 +128,12 @@ body {
   flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
   padding: 4px 12px 4px 4px; display: flex; align-items: center; justify-content: space-between;
 }
-.user-pill-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.user-pill-left { display: flex; align-items: center; gap: 10px; }
 .u-avatar {
   width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--gold);
   display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 700; font-size: 12px;
 }
-.u-name { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;}
+.u-name { font-size: 12px; font-weight: 600; color: var(--text); }
 
 .user-action-wrap { display: flex; gap: 6px; padding-right: 4px; align-items: center; }
 .setting-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; padding: 0; }
@@ -249,7 +249,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .del-btn-recent:hover { background: var(--red2); color: #fff; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4); }
 
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
-.action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; flex-wrap: wrap;}
+.action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; }
 
 /* KALKULATOR MATA UANG */
 .calc-curr-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; border-radius: 12px; transition: 0.2s; margin-bottom: 4px; border: 1px solid transparent; }
@@ -302,7 +302,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
-.filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
+.filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; }
 .filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
 .filter-bar input.f-input-dark { flex: 1; }
 
@@ -347,7 +347,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .card-head, .form-row, .filter-bar, .chart-wrap, .period-bar { padding-left: 16px !important; padding-right: 16px !important; }
   
   .filter-bar { flex-direction: column; } 
-  .export-btn { width: 100%; text-align: center; border-radius: 16px; padding: 18px 16px; margin-left: 0 !important; margin-top: 8px;}
+  .export-btn { width: 100%; text-align: center; border-radius: 16px; padding: 18px 16px; }
   
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
@@ -375,6 +375,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .panel { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
   .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
   
+  /* PERBAIKAN: Rata Tengah Khusus Laptop untuk Info USD, XAU, & Tersinkron */
   .status-row { 
       justify-content: center; 
       align-items: center; 
@@ -400,13 +401,14 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   🌟 SPLASH SCREEN V6
+   🌟 SPLASH SCREEN V6: GLASSMORPHISM & TEKS TENGAH (ROMBAK TOTAL)
    ========================================================================== */
 #splash-screen {
   position: fixed; inset: 0; background: #050505; z-index: 999999;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 
+/* Background Tech Grid Bergerak */
 .splash-bg-grid {
   position: absolute; inset: 0;
   background-size: 40px 40px;
@@ -419,6 +421,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   100% { transform: translateY(40px); }
 }
 
+/* Animasi Exit Splash */
 #splash-screen.splash-exit {
   animation: exitSplash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -427,6 +430,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   100% { opacity: 0; transform: scale(1.05); filter: blur(10px); visibility: hidden; }
 }
 
+/* Panel Kaca Utama (Glassmorphism) - Dibuat Center Total */
 .splash-glass-panel {
   position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px 60px; background: rgba(18, 18, 21, 0.6);
@@ -440,6 +444,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* Logo Animasi */
 .splash-logo-container { position: relative; margin-bottom: 24px; }
 .splash-img-new {
   width: 80px; height: 80px; border-radius: 20px;
@@ -451,6 +456,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Pendaran (Glow) di belakang logo */
 .splash-glow {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: 100px; height: 100px; background: rgba(251, 191, 36, 0.4);
@@ -462,6 +468,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   to { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
 }
 
+/* Teks Utama (RHN CAPITAL) Dibuat Center & Scale Animasi */
 .splash-text-mask { display: flex; justify-content: center; width: 100%; padding-bottom: 4px; margin-bottom: 8px; }
 .splash-title-new {
   font-size: 32px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
@@ -473,6 +480,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 }
 @keyframes titleFadeScale { to { opacity: 1; transform: scale(1); } }
 
+/* Subtitle (ARUS KEUANGAN) Tengah */
 .splash-subtitle-new {
   font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 6px;
   opacity: 0; text-transform: uppercase; text-align: center; width: 100%;
@@ -480,6 +488,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 }
 @keyframes fadeSub { to { opacity: 1; } }
 
+/* Loading Bar Pintar */
 .splash-loader {
   width: 100%; height: 3px; background: rgba(255,255,255,0.1);
   border-radius: 4px; margin-top: 30px; overflow: hidden; position: relative;
@@ -495,44 +504,11 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   100% { width: 100%; }
 }
 
-/* ==========================================================================
-   FIX TAMPILAN MOBILE: MENGECILKAN TOMBOL & KODE BIAR GAK NUMPUK
-   ========================================================================== */
-#user-transfer-info {
-    font-size: 8px !important;
-    padding: 2px 5px !important;
-    margin-left: 4px !important;
-    letter-spacing: 0.5px !important;
-    white-space: nowrap !important;
-}
-
-@media (max-width: 768px) {
-    .edit-btn-recent, .del-btn-recent {
-        padding: 5px 8px !important;
-        font-size: 8px !important;
-        white-space: nowrap !important;
-    }
-    .action-btns {
-        gap: 4px !important;
-        margin-top: 8px !important;
-    }
-    .ri-amount {
-        font-size: 13px !important;
-        white-space: nowrap !important;
-    }
-    .cat-badge, .wallet-badge {
-        font-size: 7px !important;
-        padding: 2px 4px !important;
-    }
-    .ri-right-wrap {
-        flex-shrink: 0 !important;
-        margin-left: 8px !important;
-    }
-}
 </style>
 </head>
 <body>
 
+<!-- HTML SPLASH SCREEN V6 (TELAH DISESUAIKAN) -->
 <div id="splash-screen">
   <div class="splash-bg-grid"></div>
   <div class="splash-glass-panel">
@@ -549,6 +525,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 </div>
+<!-- AKHIR HTML SPLASH SCREEN -->
 
 <div id="offline-banner" style="display:none; background:#F87171; color:#000; text-align:center; padding:10px; font-size:12px; font-weight:800; position:fixed; top:0; left:0; width:100%; z-index:100000; text-transform:uppercase; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   ⚠️ Koneksi Terputus - Mode Offline Aktif
@@ -639,11 +616,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="user-pill">
       <div class="user-pill-left">
         <div class="u-avatar" id="user-avatar">?</div>
-        <div class="u-name" style="display: flex; align-items: center; flex-wrap: wrap;">
-          <span id="user-name">Memuat...</span>
-          <!-- TAMPILAN MURNI 3 ANGKA -->
-          <span id="user-transfer-info" style="font-size: 9px; font-weight: 800; color: var(--bg); background: var(--gold); padding: 2px 6px; border-radius: 4px; margin-left: 8px; display: none; letter-spacing: 0.5px;">Memuat Kode...</span>
-        </div>
+        <div class="u-name" id="user-name">Memuat...</div>
       </div>
       <div class="user-action-wrap">
         <button class="setting-btn" onclick="switchPage('pengaturan')" title="Pengaturan">
@@ -818,7 +791,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       </select>
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
       <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
-      <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
     </div>
     <div class="chart-wrap" style="margin-top: 16px;">
       <div class="chart-legend">
@@ -1093,7 +1065,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-// KATEGORI
+// KATEGORI DIPERBANYAK
 const CATS = { 
   income: ['Gaji', 'Hasil Trading', 'Bonus / THR', 'Penjualan', 'Pendapatan Lainnya', 'Pemberian', 'Investasi', 'Ongkos Harian', 'Dividen', 'Profit', 'Transfer Masuk', 'Lainnya'], 
   expense: ['Makan & Minum', 'Transportasi', 'Tagihan', 'Belanja Bulanan', 'Cicilan', 'Hiburan / Nongkrong', 'Sedekah / Donasi', 'Jajan', 'Pembelian Aset(Investasi)', 'Infak', 'Kas', 'Utilitas', 'Loss', 'Pengeluaran Lainnya', 'Lainnya'],
@@ -1111,140 +1083,7 @@ let extraPrefs = {
     ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off'
 };
 
-// ==============================================================
-// INISIALISASI FUNGSI TRANSFER (VERSI 3 ANGKA MURNI)
-// ==============================================================
-window.initTransferAccount = async function() {
-    if (!currentUser) return;
-    const infoEl = document.getElementById('user-transfer-info');
-    
-    try {
-        const trRef = doc(db, 'users', currentUser.uid, 'settings', 'transfer');
-        const trSnap = await getDoc(trRef);
-        let tCode;
-
-        // Bikin baru otomatis kalau belum ada KODE, ATAU kalau kode lamanya bukan 3 angka
-        if (!trSnap.exists() || !trSnap.data().transferCode || trSnap.data().transferCode.length !== 3) {
-            // Generate 3 Angka secara acak (contoh: 482, 195, dll)
-            tCode = Math.floor(100 + Math.random() * 900).toString();
-
-            // Prioritas Tampilkan Ke Layar Dulu Biar Keliatan
-            if (infoEl) {
-                infoEl.textContent = `KODE: ${tCode}`;
-                infoEl.style.display = 'inline-block';
-            }
-
-            // Simpan Ke Firebase di balik layar
-            await setDoc(trRef, { transferCode: tCode }, { merge: true });
-            await setDoc(doc(db, 'transfer_registry', tCode), { uid: currentUser.uid }); 
-        } else {
-            // Data sudah ada di cloud & panjangnya udah bener 3
-            tCode = trSnap.data().transferCode;
-            
-            if (infoEl) {
-                infoEl.textContent = `KODE: ${tCode}`;
-                infoEl.style.display = 'inline-block';
-            }
-        }
-    } catch (err) {
-        console.error("Gagal memuat Kode Transfer", err);
-        if (infoEl) {
-            infoEl.textContent = `⚠️ GAGAL MEMUAT KODE`;
-            infoEl.style.background = 'var(--red2)';
-            infoEl.style.color = '#fff';
-            infoEl.style.display = 'inline-block';
-        }
-    }
-};
-
-window.promptTransfer = async function(txId) {
-    if (!currentUser) return;
-    const t = txs.find(x => x.id === txId);
-    if (!t) return;
-
-    const { value: targetCode } = await Swal.fire({
-        title: 'Transfer 1 Transaksi',
-        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka Tujuan" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:24px; letter-spacing:8px;">',
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'TRANSFER SEKARANG',
-        cancelButtonText: 'Batal',
-        background: 'var(--card)',
-        color: 'var(--text)',
-        confirmButtonColor: 'var(--blue)',
-        cancelButtonColor: 'var(--bg3)',
-        preConfirm: () => {
-            return document.getElementById('swal-tcode').value
-        }
-    });
-
-    if (targetCode) {
-        if (targetCode.length !== 3) return Swal.fire({icon:'error', title:'Harus 3 Angka!', background:'var(--card)', color:'var(--text)'});
-        window.executeTransfer([t], targetCode, true);
-    }
-};
-
-window.promptTransferAll = async function() {
-    if (!currentUser) return;
-    if (txs.length === 0) return Swal.fire({icon:'info', title:'Data Kosong!', background:'var(--card)', color:'var(--text)'});
-
-    const { value: targetCode } = await Swal.fire({
-        title: 'Transfer Semua Riwayat',
-        html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka Tujuan" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:24px; letter-spacing:8px;">',
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'TRANSFER SEMUA',
-        cancelButtonText: 'Batal',
-        background: 'var(--card)',
-        color: 'var(--text)',
-        confirmButtonColor: 'var(--blue)',
-        cancelButtonColor: 'var(--bg3)',
-        preConfirm: () => {
-            return document.getElementById('swal-tcode-all').value
-        }
-    });
-
-    if (targetCode) {
-        if (targetCode.length !== 3) return Swal.fire({icon:'error', title:'Harus 3 Angka!', background:'var(--card)', color:'var(--text)'});
-        window.executeTransfer(txs, targetCode, false);
-    }
-};
-
-window.executeTransfer = async function(txList, targetCode, isSingle) {
-    Swal.fire({title: 'Memproses Transfer...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-
-    try {
-        const registryRef = doc(db, 'transfer_registry', targetCode);
-        const registrySnap = await getDoc(registryRef);
-
-        if (!registrySnap.exists()) {
-            return Swal.fire({icon:'error', title:'Transfer Gagal', text:'Kode 3 Angka tidak ditemukan! Pastikan akun tujuan buka aplikasinya.', background:'var(--card)', color:'var(--text)'});
-        }
-
-        const targetUid = registrySnap.data().uid;
-
-        if (targetUid === currentUser.uid) {
-            return Swal.fire({icon:'warning', title:'Gagal', text:'Nggak bisa transfer ke akun lu sendiri bro!', background:'var(--card)', color:'var(--text)'});
-        }
-
-        for (let t of txList) {
-            let payload = { ...t };
-            delete payload.id; 
-            payload.createdAt = serverTimestamp(); 
-            
-            await addDoc(collection(db, 'users', targetUid, 'transactions'), payload);
-            await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id));
-        }
-
-        Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 transaksi berhasil dipindahkan.' : `${txList.length} transaksi dipindahkan.`, background:'var(--card)', color:'var(--text)'});
-    } catch(e) {
-        Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal (Cek Rules Firebase): " + e.message, background:'var(--card)', color:'var(--text)'});
-    }
-};
-// ==============================================================
-
-
+// FORMAT MILYARAN (TIDAK BOCOR, PRESISI 3 DESIMAL)
 const fmtFull = n => {
     if (Math.abs(n) >= 1000000000) {
         return 'Rp ' + (n / 1000000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' M';
@@ -1267,6 +1106,7 @@ const nowISO = () => new Date().toISOString().slice(0,16);
 const kursIndo = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const getUSD = n => '$' + (n / currentUSDRate).toFixed(2);
 
+// LIVE BINANCE
 function initLiveCurrencies() {
   const socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=usdtidr@ticker/eurusdt@ticker/gbpusdt@ticker/audusdt@ticker/brlusdt@ticker/tryusdt@ticker');
   socket.addEventListener('message', e => { 
@@ -1949,8 +1789,6 @@ window.doLogout = async function() {
     await signOut(auth); 
 };
 
-
-// DETEKSI LOGON
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
@@ -2116,11 +1954,6 @@ function unlockApp() {
     const name = currentUser.displayName || currentUser.email.split('@')[0]; 
     document.getElementById('user-name').textContent = name; 
     document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase(); 
-
-    // MUNCULKAN KODE PAS APLIKASI KBUKA
-    if (typeof window.initTransferAccount === 'function') {
-        window.initTransferAccount();
-    }
     
     listenTransactions(currentUser.uid); 
     document.getElementById('app-pin').value = ''; 
@@ -2229,8 +2062,15 @@ function listenTransactions(uid) {
     unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { 
         txs = snap.docs.map(d => {
             let data = d.data();
+            
+            // ==========================================
+            // LOGIKA MERGE/PENGHAPUSAN REKENING BANK
+            // Otomatis menimpa semua variasi "Rekening" agar terbaca sebagai "Bank" saja
+            // Jadi kotaknya pasti balik rapi ke 6 doang!
+            // ==========================================
             if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank';
             if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank';
+            
             return {id: d.id, ...data};
         }); 
         setSyncStatus(true); 
@@ -2623,7 +2463,6 @@ const createTxCard = (t) => {
             <div class="action-btns"> 
                 ${actionBtn} 
                 <button class="edit-btn-recent" onclick="editTx('${t.id}')">EDIT</button> 
-                <button class="edit-btn-recent" onclick="promptTransfer('${t.id}')" style="color:var(--text); border:1px solid var(--border2); background:var(--bg3);">TRANSFER</button>
                 <button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button> 
             </div> 
         </div> 
@@ -3079,6 +2918,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       Toast.fire({ icon: 'success', title: 'Online Kembali!' }); 
   });
 
+  // LOGIKA KONFIRMASI KELUAR APLIKASI KETIKA MENCET BACK DI HP
   window.history.pushState({ noBackExitsApp: true }, '');
   window.addEventListener('popstate', function(event) {
       Swal.fire({
@@ -3130,6 +2970,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }); 
   };
   
+  // MODIFIKASI KONFIRMASI TOMBOL EDIT
   const originalEditTx = window.editTx; 
   window.editTx = function(id) { 
       if (navigator.vibrate) navigator.vibrate(20); 
@@ -3490,7 +3331,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
   }, 1000);
 });
 
+// SCRIPT SPLASH SCREEN V6 (AUTO HILANG)
 window.addEventListener('DOMContentLoaded', () => {
+  // Animasi Splash Screen V6 akan otomatis fade out dan hilang
+  // Tepat saat loading bar penuh (sekitar 2.5 - 3 detik)
   setTimeout(() => { 
       const splash = document.getElementById('splash-screen'); 
       if (splash) { 
@@ -3498,7 +3342,7 @@ window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
               splash.style.display = 'none'; 
               splash.remove(); 
-          }, 600); 
+          }, 600); // 600ms durasi fade out dari keyframe
       } 
   }, 3000); 
 });
