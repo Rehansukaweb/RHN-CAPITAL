@@ -495,6 +495,40 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   100% { width: 100%; }
 }
 
+/* ==========================================================================
+   FIX TAMPILAN MOBILE: MENGECILKAN TOMBOL & KODE BIAR GAK NUMPUK
+   ========================================================================== */
+#user-transfer-info {
+    font-size: 8px !important;
+    padding: 2px 5px !important;
+    margin-left: 4px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 768px) {
+    .edit-btn-recent, .del-btn-recent {
+        padding: 5px 8px !important;
+        font-size: 8px !important;
+        white-space: nowrap !important;
+    }
+    .action-btns {
+        gap: 4px !important;
+        margin-top: 8px !important;
+    }
+    .ri-amount {
+        font-size: 13px !important;
+        white-space: nowrap !important;
+    }
+    .cat-badge, .wallet-badge {
+        font-size: 7px !important;
+        padding: 2px 4px !important;
+    }
+    .ri-right-wrap {
+        flex-shrink: 0 !important;
+        margin-left: 8px !important;
+    }
+}
 </style>
 </head>
 <body>
