@@ -1370,7 +1370,7 @@ function renderRow(rId, code, isAct, displayVal) {
         <div class="calc-select" onclick="event.stopPropagation(); openCurrencySelector('${rId}')" style="display:flex; align-items:center; gap:8px;">${currObj.code} <span style="font-size:10px; color:var(--text3);">▼</span></div>
         <div class="calc-name">${currObj.name}</div>
       </div>
-     </div>
+    </div>
     <div class="calc-right"><div class="calc-amount">${displayVal}</div></div>
   </div>`; 
 }
@@ -1545,7 +1545,7 @@ const createTxCard = (t) => {
                 <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span>${walletBadge}${debtWarn}</div> 
                 <div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div> 
             </div> 
-        </div> 
+            </div> 
         <div class="ri-right-wrap"> 
             <div class="ri-amounts-col"> 
                 <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div> 
@@ -1745,6 +1745,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 window.addEventListener('DOMContentLoaded', () => { setTimeout(() => { const splash = document.getElementById('splash-screen'); if (splash) { splash.classList.add('splash-exit'); setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); } }, 3000); });
+if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(r) { for(let i of r) i.unregister(); }); }
 </script>
 </body>
 </html>
