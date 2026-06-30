@@ -36,6 +36,18 @@
 
 h1, hr, .page-header, .site-header, .project-name { display: none !important; }
 
+/* CSS PENGHILANG PAKSA WATERMARK HOSTING & ELEMEN NYASAR */
+div[style*="z-index: 9999999"], 
+div[style*="z-index: 999999"], 
+img[alt*="webhost"], 
+a[href*="host"],
+a[href*="github"] { 
+    display: none !important; 
+    opacity: 0 !important; 
+    visibility: hidden !important; 
+    pointer-events: none !important;
+}
+
 :root {
   --bg: #050505; 
   --bg2: #121215; 
@@ -208,7 +220,6 @@ body {
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
-/* Menghilangkan panah (spinner) pada input number di seluruh browser */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1742,10 +1753,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
   window.resetIdle = () => { if (window.checkLock()) return; window.lastActiveTime = Date.now(); document.body.classList.remove('idle-mode'); };
   ['click','touchstart','mousemove','keypress','scroll','visibilitychange'].forEach(evt => { window.addEventListener(evt, window.resetIdle, { passive: true }); });
   setInterval(() => { window.checkLock(); const appScreen = document.getElementById('app-screen'); if (appScreen && appScreen.style.display === 'block') { if (Date.now() - window.lastActiveTime > 120000) { document.body.classList.add('idle-mode'); } } }, 1000);
+  
+  // SCRIPT PENGHANCUR ELEMEN LIAR (WATERMARK/TEKS NYASAR)
+  setTimeout(() => {
+      document.querySelectorAll('body > *:not(#splash-screen):not(#offline-banner):not(#auth-screen):not(#pin-screen):not(#app-screen):not(script):not(style)').forEach(el => {
+          el.remove();
+      });
+  }, 1000);
 });
 
 window.addEventListener('DOMContentLoaded', () => { setTimeout(() => { const splash = document.getElementById('splash-screen'); if (splash) { splash.classList.add('splash-exit'); setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); } }, 3000); });
-if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(r) { for(let i of r) i.unregister(); }); }
+
 </script>
 </body>
 </html>
