@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Arus Keuangan | RHN CAPITAL</title>
 
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
 
@@ -35,18 +36,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; }
 
 h1, hr, .page-header, .site-header, .project-name { display: none !important; }
-
-/* CSS PENGHILANG PAKSA WATERMARK HOSTING & ELEMEN NYASAR */
-div[style*="z-index: 9999999"], 
-div[style*="z-index: 999999"], 
-img[alt*="webhost"], 
-a[href*="host"],
-a[href*="github"] { 
-    display: none !important; 
-    opacity: 0 !important; 
-    visibility: hidden !important; 
-    pointer-events: none !important;
-}
 
 :root {
   --bg: #050505; 
@@ -220,6 +209,7 @@ body {
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
+/* Menghilangkan panah (spinner) pada input number di seluruh browser */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1556,7 +1546,7 @@ const createTxCard = (t) => {
                 <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span>${walletBadge}${debtWarn}</div> 
                 <div class="ri-meta">${fmtDate(t.date)} · ${fmtTime(t.date)}</div> 
             </div> 
-            </div> 
+        </div> 
         <div class="ri-right-wrap"> 
             <div class="ri-amounts-col"> 
                 <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div> 
@@ -1637,6 +1627,7 @@ window.exportCSV = function() { if (!txs.length) return Swal.fire('Kosong', 'Tid
 window.payDebt = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Bayar Hutang?', text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Bayar Lunas', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 window.payRecv = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Piutang Dibayar?', text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Dibayar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.log('SW Error:', e)); }); }
 </script>
 
 <style>
@@ -1753,17 +1744,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
   window.resetIdle = () => { if (window.checkLock()) return; window.lastActiveTime = Date.now(); document.body.classList.remove('idle-mode'); };
   ['click','touchstart','mousemove','keypress','scroll','visibilitychange'].forEach(evt => { window.addEventListener(evt, window.resetIdle, { passive: true }); });
   setInterval(() => { window.checkLock(); const appScreen = document.getElementById('app-screen'); if (appScreen && appScreen.style.display === 'block') { if (Date.now() - window.lastActiveTime > 120000) { document.body.classList.add('idle-mode'); } } }, 1000);
-  
-  // SCRIPT PENGHANCUR ELEMEN LIAR (WATERMARK/TEKS NYASAR)
-  setTimeout(() => {
-      document.querySelectorAll('body > *:not(#splash-screen):not(#offline-banner):not(#auth-screen):not(#pin-screen):not(#app-screen):not(script):not(style)').forEach(el => {
-          el.remove();
-      });
-  }, 1000);
 });
 
 window.addEventListener('DOMContentLoaded', () => { setTimeout(() => { const splash = document.getElementById('splash-screen'); if (splash) { splash.classList.add('splash-exit'); setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); } }, 3000); });
-
 </script>
 </body>
 </html>
