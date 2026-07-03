@@ -641,6 +641,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   <button class="nav-btn" onclick="switchPage('bulanan')">BULANAN</button>
   <button class="nav-btn" onclick="switchPage('tahunan')">TAHUNAN</button>
   <button class="nav-btn" onclick="switchPage('riwayat')">RIWAYAT</button>
+  <!-- TOMBOL ADMIN DARI PERBAIKAN -->
+  <button class="nav-btn" id="nav-admin" onclick="switchPage('admin')" style="display:none; color: var(--gold);">👑 ADMIN</button>
 </div>
 
 <div class="main">
@@ -807,6 +809,22 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <div style="height:250px"><canvas id="chartRiwayat"></canvas></div>
     </div>
     <div class="list-wrap" id="all-body"></div>
+  </div>
+</div>
+
+<!-- HALAMAN ADMIN DARI PERBAIKAN -->
+<div id="page-admin" class="page">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">👑 Aktivitas Seluruh User (Admin Only)</div>
+      <div class="card-sub">Memantau transaksi dari semua pengguna di database.</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="loadAllUsersData()" style="background:var(--gold); color:#000;">🔄 MUAT DATA SEMUA USER</button>
+    </div>
+    <div class="list-wrap" id="admin-all-body">
+      <div style="padding:40px;text-align:center;color:#888;font-size:12px;">Klik tombol muat data untuk memanggil database.</div>
+    </div>
   </div>
 </div>
 
@@ -1053,10 +1071,12 @@ import {
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
   GoogleAuthProvider, signInWithPopup 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// IMPORT FIRESTORE PERBAIKAN ADMIN (Tambahan collectionGroup, getDocs)
 import { 
   initializeFirestore, persistentLocalCache, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, 
-  serverTimestamp, getDoc, setDoc 
+  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -1428,6 +1448,16 @@ window.doLogout = async function() { if (unsubListener) { unsubListener(); unsub
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); document.getElementById('auth-screen').style.display = 'none';
+    
+    // --- FITUR ADMIN: Otomatis ngecek kalau email lu yang login ---
+    const adminEmail = "rehantop245@gmail.com"; 
+    if (user.email === adminEmail) {
+        document.getElementById('nav-admin').style.display = 'inline-block';
+    } else {
+        document.getElementById('nav-admin').style.display = 'none';
+    }
+    // -------------------------------------------------------------
+
     try {
         const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await getDoc(prefRef);
         if (prefSnap.exists()) { const data = prefSnap.data(); if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } } else { const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid); if(savedPrefs) appPrefs = JSON.parse(savedPrefs); const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid); if(savedExtraPrefs) extraPrefs = JSON.parse(savedExtraPrefs); }
@@ -1455,6 +1485,57 @@ function unlockApp() { document.getElementById('pin-screen').style.display = 'no
 window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu harus login Email lagi.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('last_uid_rhn'); document.getElementById('app-pin').value = ''; doLogout(); } }); };
 window.resetPinFromLogin = async function() { const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); const promptNewPin = async () => { const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); if (newPin && newPin.length === 6) { try { await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); window.userCloudPin = newPin; Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); document.getElementById('app-pin').value = ''; } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } }; if (choice === true) { promptNewPin(); } else if (choice === false) { const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); if (!oldPin) return; if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); promptNewPin(); } };
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
+
+// --- FITUR ADMIN: FUNGSI TARIK DATA DARI SEMUA USER ---
+window.loadAllUsersData = async function() {
+  if (!currentUser) return;
+  const adminContainer = document.getElementById('admin-all-body');
+  adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--gold);font-size:12px;">Memuat data dari server...</div>';
+  
+  try {
+    const txQuery = query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(txQuery);
+    
+    if (snap.empty) {
+      adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
+      return;
+    }
+
+    let allUsersTxs = snap.docs.map(d => {
+      let data = d.data();
+      let pathSegments = d.ref.path.split('/');
+      let ownerUid = pathSegments.length > 2 ? pathSegments[1] : 'Unknown';
+      return { id: d.id, ownerUid: ownerUid, ...data };
+    });
+
+    adminContainer.innerHTML = allUsersTxs.map(t => {
+      let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
+      let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
+      if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
+      
+      return `
+      <div class="recent-item" style="border-left: 4px solid var(--gold);"> 
+          <div class="ri-left"> 
+              <div class="ri-icon ${t.type}">${icon}</div> 
+              <div> 
+                  <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span></div> 
+                  <div class="ri-meta">UID: ${t.ownerUid.substring(0,8)}... · ${fmtDate(t.date)}</div> 
+              </div> 
+          </div> 
+          <div class="ri-right-wrap"> 
+              <div class="ri-amounts-col"> 
+                  <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div> 
+              </div> 
+          </div> 
+      </div>`;
+    }).join('');
+
+    Swal.fire({icon: 'success', title: 'Data Ditemukan', text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, background: 'var(--card)', color: 'var(--text)', timer: 2000});
+  } catch (error) {
+    adminContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Pastikan akun ini adalah Admin dan Rules Firebase sudah diset. Error: ${error.message}</div>`;
+  }
+};
+// -----------------------------------------------------
 
 function listenTransactions(uid) { if (unsubListener) unsubListener(); unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { txs = snap.docs.map(d => { let data = d.data(); if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank'; if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank'; return {id: d.id, ...data}; }); setSyncStatus(true); refreshAll(); }, err => { console.error(err); setSyncStatus(false); }); }
 
@@ -1511,7 +1592,7 @@ window.selType = function(t) {
     if (t === 'transfer') { if (catRow) catRow.style.display = 'none'; if (walletToRow) walletToRow.style.display = 'block'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)'; } else { if (catRow) catRow.style.display = 'block'; if (walletToRow) walletToRow.style.display = 'none'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET'; } 
 };
 
-window.switchPage = function(p) { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); document.getElementById('page-' + p).classList.add('active'); const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat']; const idx = pages.indexOf(p); if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } activePage = p; refreshAll(); };
+window.switchPage = function(p) { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); document.getElementById('page-' + p).classList.add('active'); const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin']; const idx = pages.indexOf(p); if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } activePage = p; refreshAll(); };
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
 
