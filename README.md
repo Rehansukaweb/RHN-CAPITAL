@@ -641,7 +641,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   <button class="nav-btn" onclick="switchPage('bulanan')">BULANAN</button>
   <button class="nav-btn" onclick="switchPage('tahunan')">TAHUNAN</button>
   <button class="nav-btn" onclick="switchPage('riwayat')">RIWAYAT</button>
-  <!-- TOMBOL ADMIN DARI PERBAIKAN -->
   <button class="nav-btn" id="nav-admin" onclick="switchPage('admin')" style="display:none; color: var(--gold);">👑 ADMIN</button>
 </div>
 
@@ -812,7 +811,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<!-- HALAMAN ADMIN DARI PERBAIKAN -->
 <div id="page-admin" class="page">
   <div class="card">
     <div class="card-head">
@@ -1449,6 +1447,11 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); document.getElementById('auth-screen').style.display = 'none';
     
+    // Perekaman Email Otomatis Tiap Ada Akun Login
+    try {
+        setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
+    } catch(e) {}
+    
     // --- FITUR ADMIN: Otomatis ngecek kalau email lu yang login ---
     const adminEmail = "rehantop245@gmail.com"; 
     if (user.email === adminEmail) {
@@ -1486,11 +1489,11 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); const promptNewPin = async () => { const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); if (newPin && newPin.length === 6) { try { await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); window.userCloudPin = newPin; Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); document.getElementById('app-pin').value = ''; } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } }; if (choice === true) { promptNewPin(); } else if (choice === false) { const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); if (!oldPin) return; if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); promptNewPin(); } };
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
 
-// --- FITUR ADMIN: FUNGSI TARIK DATA DARI SEMUA USER ---
+// --- FITUR ADMIN: FUNGSI TARIK DATA DARI SEMUA USER TANPA ANGKA ACAK ---
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
   const adminContainer = document.getElementById('admin-all-body');
-  adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--gold);font-size:12px;">Memuat data dari server...</div>';
+  adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--gold);font-size:12px;">Memuat data akun dari server...</div>';
   
   try {
     const txQuery = query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'));
@@ -1508,10 +1511,37 @@ window.loadAllUsersData = async function() {
       return { id: d.id, ownerUid: ownerUid, ...data };
     });
 
+    // Cari email asli untuk semua akun yang ditemukan
+    let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
+    let userEmails = {};
+    
+    for (let uid of uniqueUids) {
+        if (uid === currentUser.uid) {
+            userEmails[uid] = currentUser.email;
+        } else {
+            try {
+                let uSnap = await getDoc(doc(db, 'users', uid));
+                if (uSnap.exists() && uSnap.data().email) {
+                    userEmails[uid] = uSnap.data().email;
+                }
+            } catch(err) {}
+        }
+    }
+
     adminContainer.innerHTML = allUsersTxs.map(t => {
       let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
       let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
       if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
+      
+      // Tampilkan Email asli. Kalau tidak ketemu, hilangkan angka acak total!
+      let ownerLabel = t.ownerEmail || userEmails[t.ownerUid];
+      if (!ownerLabel) {
+          if (t.ownerUid === currentUser.uid) {
+              ownerLabel = currentUser.email;
+          } else {
+              ownerLabel = "Akun Terdaftar (Data Lama)";
+          }
+      }
       
       return `
       <div class="recent-item" style="border-left: 4px solid var(--gold);"> 
@@ -1519,7 +1549,8 @@ window.loadAllUsersData = async function() {
               <div class="ri-icon ${t.type}">${icon}</div> 
               <div> 
                   <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span></div> 
-                  <div class="ri-meta">UID: ${t.ownerUid.substring(0,8)}... · ${fmtDate(t.date)}</div> 
+                  <div class="ri-meta" style="color: var(--gold); margin-bottom: 2px;">👤 ${ownerLabel}</div> 
+                  <div class="ri-meta">📅 ${fmtDate(t.date)} · ⏱️ ${fmtTime(t.date)}</div> 
               </div> 
           </div> 
           <div class="ri-right-wrap"> 
@@ -1539,6 +1570,7 @@ window.loadAllUsersData = async function() {
 
 function listenTransactions(uid) { if (unsubListener) unsubListener(); unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { txs = snap.docs.map(d => { let data = d.data(); if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank'; if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank'; return {id: d.id, ...data}; }); setSyncStatus(true); refreshAll(); }, err => { console.error(err); setSyncStatus(false); }); }
 
+// --- FITUR ADMIN: Simpan Owner Email di transaksi baru ---
 window.addTx = async function() { 
   if(!currentUser) return; 
   const amountInput = document.getElementById('f-amount'); const catInput = document.getElementById('f-cat'); const noteInput = document.getElementById('f-note'); 
@@ -1554,7 +1586,7 @@ window.addTx = async function() {
   const saveBtn = document.getElementById('save-btn'); saveBtn.textContent = 'MENYIMPAN...'; saveBtn.style.opacity = '0.7'; saveBtn.disabled = true;
 
   try { 
-      let payload = { type: curType, amount: amt, category: cat, wallet: wallet, note: note, date: dt || nowISO() }; 
+      let payload = { type: curType, amount: amt, category: cat, wallet: wallet, note: note, date: dt || nowISO(), ownerEmail: currentUser.email }; 
       if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') payload.isPaid = false;
       if (editId) { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editId), payload); cancelEdit(); } else { payload.createdAt = serverTimestamp(); await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload); } 
       amountInput.value = ''; document.getElementById('f-note').value = ''; 
@@ -1566,6 +1598,7 @@ window.addTx = async function() {
       setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 50); } else { selType('income'); } }, 2000);
   } catch(e) { Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; } 
 };
+// -------------------------------------------------------------
 
 window.delTx = async function(id) { if (!currentUser || !confirm('Yakin mau hapus riwayat ini?')) return; await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', id)); };
 
