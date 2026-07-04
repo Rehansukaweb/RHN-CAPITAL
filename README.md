@@ -1511,18 +1511,27 @@ window.loadAllUsersData = async function() {
       return { id: d.id, ownerUid: ownerUid, ...data };
     });
 
-    // Cari email asli untuk semua akun yang ditemukan
+    // Cari email dan nama asli untuk semua akun yang ditemukan
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
-    let userEmails = {};
+    let userInfos = {};
     
     for (let uid of uniqueUids) {
         if (uid === currentUser.uid) {
-            userEmails[uid] = currentUser.email;
+            userInfos[uid] = {
+                email: currentUser.email,
+                nama: currentUser.displayName || currentUser.email.split('@')[0]
+            };
         } else {
             try {
                 let uSnap = await getDoc(doc(db, 'users', uid));
-                if (uSnap.exists() && uSnap.data().email) {
-                    userEmails[uid] = uSnap.data().email;
+                if (uSnap.exists()) {
+                    let dUser = uSnap.data();
+                    if (dUser.email) {
+                        userInfos[uid] = {
+                            email: dUser.email,
+                            nama: dUser.nama || dUser.email.split('@')[0]
+                        };
+                    }
                 }
             } catch(err) {}
         }
@@ -1533,14 +1542,17 @@ window.loadAllUsersData = async function() {
       let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
       if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
       
-      // Tampilkan Email asli. Kalau tidak ketemu, hilangkan angka acak total!
-      let ownerLabel = t.ownerEmail || userEmails[t.ownerUid];
-      if (!ownerLabel) {
-          if (t.ownerUid === currentUser.uid) {
-              ownerLabel = currentUser.email;
-          } else {
-              ownerLabel = "Akun Terdaftar (Data Lama)";
-          }
+      // Ambil data nama dan email dari mapping
+      let fallbackInfo = userInfos[t.ownerUid] || {};
+      let finalEmail = t.ownerEmail || fallbackInfo.email;
+      let ownerLabel = "";
+      
+      if (finalEmail) {
+          let finalNama = fallbackInfo.nama || finalEmail.split('@')[0];
+          ownerLabel = `${finalNama} (${finalEmail})`;
+      } else {
+          // Fallback jika belum pernah login sejak update sehingga data user belum tersimpan
+          ownerLabel = `User-${t.ownerUid.substring(0,6)} (Perlu Login Ulang)`;
       }
       
       return `
