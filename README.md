@@ -1447,10 +1447,27 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); document.getElementById('auth-screen').style.display = 'none';
     
-    // Perekaman Email Otomatis Tiap Ada Akun Login
+    // Perekaman Email Otomatis & Auto-Update Transaksi Lama
     try {
-        setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
-    } catch(e) {}
+        // 1. Simpan profile user ke database
+        await setDoc(doc(db, 'users', user.uid), { 
+            email: user.email, 
+            nama: user.displayName || user.email.split('@')[0] 
+        }, { merge: true });
+        
+        // 2. Tarik semua riwayat transaksi lama milik akun ini
+        const txRef = collection(db, 'users', user.uid, 'transactions');
+        const txSnap = await getDocs(txRef);
+        
+        // 3. Update otomatis: Jika transaksi lama belum ada cap emailnya, tempelkan emailnya sekarang!
+        txSnap.forEach(d => {
+            if (!d.data().ownerEmail) {
+                updateDoc(d.ref, { ownerEmail: user.email });
+            }
+        });
+    } catch(e) { 
+        console.error("Gagal sinkron email lama", e); 
+    }
     
     // --- FITUR ADMIN: Otomatis ngecek kalau email lu yang login ---
     const adminEmail = "rehantop245@gmail.com"; 
