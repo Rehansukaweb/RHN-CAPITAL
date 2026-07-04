@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Arus Keuangan | RHN CAPITAL</title>
 
-<link rel="manifest" href="manifest.json">
+<!-- Link Manifest Dihapus Sesuai Permintaan -->
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
 
@@ -209,15 +209,9 @@ body {
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
-/* Menghilangkan panah (spinner) pada input number di seluruh browser */
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type="number"] {
-  -moz-appearance: textfield;
-}
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
 
 select.f-input-dark {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
@@ -1015,7 +1009,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v3.5 Ultimate Live</div>
+        <div class="set-sub">RHN Capital OS v3.5 Ultimate Live (Fixed No Cache)</div>
       </div>
     </div>
     <div class="set-item">
@@ -1447,36 +1441,40 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); document.getElementById('auth-screen').style.display = 'none';
     
-    // Perekaman Email Otomatis & Auto-Update Transaksi Lama
+    // =============================================================================
+    // UPDATE TERBARU: Perekaman Email Otomatis & Auto-Update Transaksi Lama (VERSI ANTI GAGAL)
+    // =============================================================================
     try {
-        // 1. Simpan profile user ke database
         await setDoc(doc(db, 'users', user.uid), { 
             email: user.email, 
             nama: user.displayName || user.email.split('@')[0] 
         }, { merge: true });
         
-        // 2. Tarik semua riwayat transaksi lama milik akun ini
         const txRef = collection(db, 'users', user.uid, 'transactions');
         const txSnap = await getDocs(txRef);
         
-        // 3. Update otomatis: Jika transaksi lama belum ada cap emailnya, tempelkan emailnya sekarang!
+        const promises = [];
         txSnap.forEach(d => {
             if (!d.data().ownerEmail) {
-                updateDoc(d.ref, { ownerEmail: user.email });
+                promises.push(updateDoc(d.ref, { ownerEmail: user.email }));
             }
         });
+        
+        if (promises.length > 0) {
+            await Promise.all(promises);
+            console.log("Update email lama selesai 100%!");
+        }
     } catch(e) { 
         console.error("Gagal sinkron email lama", e); 
     }
+    // =============================================================================
     
-    // --- FITUR ADMIN: Otomatis ngecek kalau email lu yang login ---
     const adminEmail = "rehantop245@gmail.com"; 
     if (user.email === adminEmail) {
         document.getElementById('nav-admin').style.display = 'inline-block';
     } else {
         document.getElementById('nav-admin').style.display = 'none';
     }
-    // -------------------------------------------------------------
 
     try {
         const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await getDoc(prefRef);
@@ -1506,7 +1504,6 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); const promptNewPin = async () => { const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); if (newPin && newPin.length === 6) { try { await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); window.userCloudPin = newPin; Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); document.getElementById('app-pin').value = ''; } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } }; if (choice === true) { promptNewPin(); } else if (choice === false) { const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); if (!oldPin) return; if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); promptNewPin(); } };
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
 
-// --- FITUR ADMIN: FUNGSI TARIK DATA DARI SEMUA USER TANPA ANGKA ACAK ---
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
   const adminContainer = document.getElementById('admin-all-body');
@@ -1528,7 +1525,6 @@ window.loadAllUsersData = async function() {
       return { id: d.id, ownerUid: ownerUid, ...data };
     });
 
-    // Cari email dan nama asli untuk semua akun yang ditemukan
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
     let userInfos = {};
     
@@ -1559,7 +1555,6 @@ window.loadAllUsersData = async function() {
       let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
       if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
       
-      // Ambil data nama dan email dari mapping
       let fallbackInfo = userInfos[t.ownerUid] || {};
       let finalEmail = t.ownerEmail || fallbackInfo.email;
       let ownerLabel = "";
@@ -1568,7 +1563,6 @@ window.loadAllUsersData = async function() {
           let finalNama = fallbackInfo.nama || finalEmail.split('@')[0];
           ownerLabel = `${finalNama} (${finalEmail})`;
       } else {
-          // Fallback jika belum pernah login sejak update sehingga data user belum tersimpan
           ownerLabel = `User-${t.ownerUid.substring(0,6)} (Perlu Login Ulang)`;
       }
       
@@ -1595,11 +1589,9 @@ window.loadAllUsersData = async function() {
     adminContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Pastikan akun ini adalah Admin dan Rules Firebase sudah diset. Error: ${error.message}</div>`;
   }
 };
-// -----------------------------------------------------
 
 function listenTransactions(uid) { if (unsubListener) unsubListener(); unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { txs = snap.docs.map(d => { let data = d.data(); if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank'; if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank'; return {id: d.id, ...data}; }); setSyncStatus(true); refreshAll(); }, err => { console.error(err); setSyncStatus(false); }); }
 
-// --- FITUR ADMIN: Simpan Owner Email di transaksi baru ---
 window.addTx = async function() { 
   if(!currentUser) return; 
   const amountInput = document.getElementById('f-amount'); const catInput = document.getElementById('f-cat'); const noteInput = document.getElementById('f-note'); 
@@ -1627,7 +1619,6 @@ window.addTx = async function() {
       setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 50); } else { selType('income'); } }, 2000);
   } catch(e) { Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; } 
 };
-// -------------------------------------------------------------
 
 window.delTx = async function(id) { if (!currentUser || !confirm('Yakin mau hapus riwayat ini?')) return; await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', id)); };
 
@@ -1770,7 +1761,7 @@ window.exportCSV = function() { if (!txs.length) return Swal.fire('Kosong', 'Tid
 window.payDebt = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Bayar Hutang?', text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Bayar Lunas', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 window.payRecv = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Piutang Dibayar?', text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Dibayar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.log('SW Error:', e)); }); }
+// KODE SERVICE WORKER DIHAPUS DARI SINI
 </script>
 
 <style>
