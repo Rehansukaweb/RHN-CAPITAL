@@ -432,13 +432,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   width: 90px; height: 90px; border-radius: 24px;
   border: 2px solid var(--gold); padding: 4px;
   opacity: 0; transform: translateY(20px);
-  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
 }
 
 .splash-text-group {
   margin-top: 24px; text-align: center;
   opacity: 0; transform: translateY(20px);
-  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;
+  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
 }
 
 .splash-title-minimal {
@@ -454,7 +454,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 .splash-line-loader {
   width: 0%; height: 2px; background: var(--gold);
   margin-top: 32px; border-radius: 2px;
-  animation: expandLine 2s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.8s;
+  animation: expandLine 1s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.3s;
 }
 
 @keyframes fadeUpItem {
@@ -1030,7 +1030,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v4.2 Ultimate (Kategori, Tabungan & Koreksi)</div>
+        <div class="set-sub">RHN Capital OS v4.3 Ultimate (Kategori, Tabungan & Koreksi)</div>
       </div>
     </div>
     <div class="set-item">
@@ -1052,15 +1052,33 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 </div></div>
 
+<!-- ========================================================================================= 
+     LOGIC PIN INSTAN TANPA DELAY & BYPASS SPLASH SCREEN 
+     ========================================================================================= -->
 <script>
   const lastUid = localStorage.getItem('last_uid_rhn');
+  const localPin = localStorage.getItem('local_pin_rhn');
+  window.appUnlocked = false; 
+
   if (lastUid) {
-     document.getElementById('auth-screen').style.display = 'none';
-     document.getElementById('pin-screen').style.display = 'flex';
-     document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
-     document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
-     document.getElementById('app-pin').style.display = 'none';
-     window.pinMode = 'verify';
+     document.addEventListener("DOMContentLoaded", () => {
+         document.getElementById('auth-screen').style.display = 'none';
+         document.getElementById('pin-screen').style.display = 'flex';
+         document.getElementById('app-pin').style.display = 'block';
+         
+         if (localPin) {
+             // Pin sudah pernah diset, langsung verifikasi dari HP
+             document.getElementById('pin-title').textContent = 'Masukkan PIN';
+             document.getElementById('pin-sub').textContent = 'Keamanan Aktif';
+             window.pinMode = 'verify_local';
+             setTimeout(() => document.getElementById('app-pin').focus(), 100);
+         } else {
+             // Pin lokal tidak ada, tunggu server
+             document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
+             document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
+             window.pinMode = 'verify';
+         }
+     });
   }
 </script>
 
@@ -1250,7 +1268,7 @@ const fmtFull = n => {
 const fmt = (n, isDash = false) => {
     if (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_shortnum === 'on') {
         if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' M';
-        if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000000).toFixed(2).replace('.',',') + ' Jt';
+        if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000).toFixed(2).replace('.',',') + ' Jt';
         if (Math.abs(n) >= 10000) return 'Rp ' + (n/1000).toFixed(1).replace('.',',') + ' Rb';
     }
     return fmtFull(n);
@@ -1458,7 +1476,7 @@ window.doAuth = async function() { const email = document.getElementById('auth-e
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await sendPasswordResetEmail(auth, email); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 1500); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 // ==============================================================
 // FITUR: MANAJEMEN KATEGORI CUSTOM
@@ -1560,12 +1578,39 @@ window.saveExtraPrefs = async function() {
     if (window.resetIdle) window.resetIdle(); refreshAll(); 
 };
 
-window.changePinInApp = async function() { if (!currentUser) return; const { value: choice } = await Swal.fire({ title: 'Pengaturan PIN', text: 'Pilih aksi yang mau lu lakuin:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); const promptNewPin = async () => { const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); if (newPin && newPin.length === 6) { try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); window.userCloudPin = newPin; Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } }; if (choice === true) { promptNewPin(); } else if (choice === false) { const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); if (!oldPin) return; if (oldPin !== window.userCloudPin) { return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); } promptNewPin(); } };
-window.doLogout = async function() { if (unsubListener) { unsubListener(); unsubListener = null; } txs = []; deletedTxs = []; localStorage.removeItem('last_uid_rhn'); await signOut(auth); };
+window.changePinInApp = async function() { 
+    if (!currentUser) return; 
+    const { value: choice } = await Swal.fire({ title: 'Pengaturan PIN', text: 'Pilih aksi yang mau lu lakuin:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); 
+    const promptNewPin = async () => { 
+        const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); 
+        if (newPin && newPin.length === 6) { 
+            try { 
+                await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+                window.userCloudPin = newPin; 
+                localStorage.setItem('local_pin_rhn', newPin);
+                Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); 
+            } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
+    }; 
+    if (choice === true) { promptNewPin(); } else if (choice === false) { 
+        const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); 
+        if (!oldPin) return; 
+        if (oldPin !== window.userCloudPin && oldPin !== localStorage.getItem('local_pin_rhn')) { return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); } 
+        promptNewPin(); 
+    } 
+};
+
+window.doLogout = async function() { 
+    if (unsubListener) { unsubListener(); unsubListener = null; } 
+    txs = []; deletedTxs = []; 
+    localStorage.removeItem('last_uid_rhn'); 
+    localStorage.removeItem('local_pin_rhn');
+    await signOut(auth); 
+};
 
 onAuthStateChanged(auth, async user => {
   if (user) {
-    currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); document.getElementById('auth-screen').style.display = 'none';
+    currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     
     try {
         await setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
@@ -1629,23 +1674,135 @@ onAuthStateChanged(auth, async user => {
     if (extraPrefs.ext_antiintip === 'on') { document.body.classList.add('global-privacy'); } else { document.body.classList.remove('global-privacy'); }
     setTimeout(() => { window.updatePrefCategories(false); if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); } }, 200);
     setTimeout(() => { window.isAppLoading = false; }, 1000); 
+    
+    // Auth Check PIN
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
-        const secSnap = await getDoc(secRef); document.getElementById('app-pin').style.display = 'block';
-        if (!secSnap.exists() || !secSnap.data().pin) { document.getElementById('app-screen').style.display = 'none'; document.getElementById('pin-screen').style.display = 'flex'; document.getElementById('pin-title').textContent = 'Buat PIN Baru'; document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk akses cepat'; document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; window.pinMode = 'setup'; window.userCloudPin = null; } else { document.getElementById('app-screen').style.display = 'none'; document.getElementById('pin-screen').style.display = 'flex'; document.getElementById('pin-title').textContent = 'Masukkan PIN'; document.getElementById('pin-sub').textContent = 'Keamanan aktif'; document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; window.pinMode = 'verify'; window.userCloudPin = secSnap.data().pin; if (window.pendingUnlock) { window.pendingUnlock = false; unlockApp(); } }
+        const secSnap = await getDoc(secRef); 
+        document.getElementById('app-pin').style.display = 'block';
+        if (!secSnap.exists() || !secSnap.data().pin) { 
+            // Belum pernah set PIN
+            if (!window.appUnlocked) {
+                document.getElementById('app-screen').style.display = 'none'; 
+                document.getElementById('pin-screen').style.display = 'flex'; 
+                document.getElementById('pin-title').textContent = 'Buat PIN Baru'; 
+                document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk akses cepat'; 
+                document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
+                window.pinMode = 'setup'; 
+                window.userCloudPin = null; 
+            }
+        } else { 
+            window.userCloudPin = secSnap.data().pin; 
+            localStorage.setItem('local_pin_rhn', window.userCloudPin); // Sync dengan lokal
+            if (!window.appUnlocked) {
+                document.getElementById('app-screen').style.display = 'none'; 
+                document.getElementById('pin-screen').style.display = 'flex'; 
+                document.getElementById('pin-title').textContent = 'Masukkan PIN'; 
+                document.getElementById('pin-sub').textContent = 'Keamanan aktif'; 
+                document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; 
+                window.pinMode = 'verify'; 
+            } else {
+                // UI sudah terbuka duluan berkat cache lokal, tinggal muat nama & data
+                unlockApp();
+            }
+        }
     } catch(err) { console.error(err); }
     if(window.resetIdle) window.resetIdle();
   } else {
-    currentUser = null; localStorage.removeItem('last_uid_rhn'); document.getElementById('auth-screen').style.display = 'flex'; document.getElementById('app-screen').style.display = 'none'; document.getElementById('pin-screen').style.display = 'none';
-    if (unsubListener) { unsubListener(); unsubListener = null; } txs = []; deletedTxs = [];
+    currentUser = null; 
+    localStorage.removeItem('last_uid_rhn'); 
+    localStorage.removeItem('local_pin_rhn');
+    document.getElementById('auth-screen').style.display = 'flex'; 
+    document.getElementById('app-screen').style.display = 'none'; 
+    document.getElementById('pin-screen').style.display = 'none';
+    if (unsubListener) { unsubListener(); unsubListener = null; } 
+    txs = []; deletedTxs = [];
   }
 });
 
-window.verifyPin = async function() { const pinInput = document.getElementById('app-pin').value; const errEl = document.getElementById('pin-err'); if (pinInput.length < 6) { errEl.textContent = 'PIN harus 6 digit.'; errEl.style.display = 'block'; return; } errEl.style.display = 'none'; if (window.pinMode === 'setup') { document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); window.userCloudPin = pinInput; Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); unlockApp(); } catch(e) { errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; } } else { const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); if (!uid) return; if (pinInput === window.userCloudPin) { if (currentUser) { unlockApp(); } else { document.getElementById('pin-title').textContent = 'Memuat Data...'; document.getElementById('pin-sub').textContent = 'Tunggu sebentar...'; document.getElementById('app-pin').blur(); window.pendingUnlock = true; } } else { errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block'; document.getElementById('app-pin').value = ''; document.getElementById('app-pin').classList.add('shake-error'); setTimeout(() => document.getElementById('app-pin').classList.remove('shake-error'), 400); if (navigator.vibrate) navigator.vibrate([30, 50, 30]); } } };
+window.verifyPin = async function() { 
+    const pinInput = document.getElementById('app-pin').value; 
+    const errEl = document.getElementById('pin-err'); 
+    if (pinInput.length < 6) { errEl.textContent = 'PIN harus 6 digit.'; errEl.style.display = 'block'; return; } 
+    errEl.style.display = 'none'; 
 
-function unlockApp() { document.getElementById('pin-screen').style.display = 'none'; document.getElementById('app-screen').style.display = 'block'; setLoading(false); const name = currentUser.displayName || currentUser.email.split('@')[0]; document.getElementById('user-name').textContent = name; if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } listenTransactions(currentUser.uid); document.getElementById('app-pin').value = ''; if (window.resetIdle) window.resetIdle(); }
-window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu harus login Email lagi.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('last_uid_rhn'); document.getElementById('app-pin').value = ''; doLogout(); } }); };
-window.resetPinFromLogin = async function() { const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); const promptNewPin = async () => { const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); if (newPin && newPin.length === 6) { try { await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); window.userCloudPin = newPin; Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); document.getElementById('app-pin').value = ''; } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } }; if (choice === true) { promptNewPin(); } else if (choice === false) { const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); if (!oldPin) return; if (oldPin !== window.userCloudPin) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); promptNewPin(); } };
+    if (window.pinMode === 'setup') { 
+        document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; 
+        try { 
+            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
+            window.userCloudPin = pinInput; 
+            localStorage.setItem('local_pin_rhn', pinInput);
+            Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
+            window.appUnlocked = true;
+            unlockApp(); 
+        } catch(e) { 
+            errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
+            document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
+        } 
+    } else { 
+        const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
+        if (!uid) return; 
+        
+        const localPin = localStorage.getItem('local_pin_rhn');
+
+        if (pinInput === localPin || pinInput === window.userCloudPin) { 
+            window.appUnlocked = true;
+            unlockApp(); 
+        } else { 
+            errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block'; 
+            document.getElementById('app-pin').value = ''; 
+            document.getElementById('app-pin').classList.add('shake-error'); 
+            setTimeout(() => document.getElementById('app-pin').classList.remove('shake-error'), 400); 
+            if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
+        } 
+    } 
+};
+
+function unlockApp() { 
+    document.getElementById('pin-screen').style.display = 'none'; 
+    document.getElementById('app-screen').style.display = 'block'; 
+    setLoading(false); 
+    
+    // Jika Firebase sudah siap, load data
+    if (currentUser) {
+        const name = currentUser.displayName || currentUser.email.split('@')[0]; 
+        document.getElementById('user-name').textContent = name; 
+        if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
+        listenTransactions(currentUser.uid); 
+    } else {
+        // UI terbuka duluan pakai PIN Cache lokal, biarkan onAuthStateChanged yg memanggil data
+        document.getElementById('user-name').textContent = 'Memuat...';
+    }
+
+    document.getElementById('app-pin').value = ''; 
+    if (window.resetIdle) window.resetIdle(); 
+}
+
+window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu harus login Email lagi.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn'); document.getElementById('app-pin').value = ''; doLogout(); } }); };
+window.resetPinFromLogin = async function() { 
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
+    if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
+    const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); 
+    const promptNewPin = async () => { 
+        const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); 
+        if (newPin && newPin.length === 6) { 
+            try { 
+                await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+                window.userCloudPin = newPin; 
+                localStorage.setItem('local_pin_rhn', newPin);
+                Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); 
+                document.getElementById('app-pin').value = ''; 
+            } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
+    }; 
+    if (choice === true) { promptNewPin(); } else if (choice === false) { 
+        const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); 
+        if (!oldPin) return; 
+        if (oldPin !== window.userCloudPin && oldPin !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); 
+        promptNewPin(); 
+    } 
+};
+
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
 
 window.loadAllUsersData = async function() {
@@ -2132,18 +2289,27 @@ function renderMetrics() { renderSumGrid(document.getElementById('metric-cards')
 // ==============================================================
 window.promptKoreksi = async function(walletName, recordedBal) {
     if(!currentUser) return;
-    const { value: actualBal } = await Swal.fire({
+    const { value: formValues } = await Swal.fire({
         title: `Koreksi Saldo ${walletName}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
-               <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">Masukkan saldo nyata kamu saat ini:</div>`,
-        input: 'number',
-        inputPlaceholder: 'Saldo Asli...',
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
+               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
+               <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
-        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)'
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)',
+        preConfirm: () => {
+            const amt = document.getElementById('swal-koreksi-amt').value;
+            const note = document.getElementById('swal-koreksi-note').value;
+            if (!amt) { Swal.showValidationMessage('Saldo asli harus diisi!'); return false; }
+            if (!note) { Swal.showValidationMessage('Keterangan harus diisi biar riwayatnya jelas!'); return false; }
+            return { amt: parseFloat(amt), note: note };
+        }
     });
 
-    if(actualBal !== undefined && actualBal !== '') {
-        const actual = parseFloat(actualBal);
+    if(formValues) {
+        const actual = formValues.amt;
+        const userNote = formValues.note;
         const diff = actual - recordedBal;
         if(diff === 0) return Swal.fire({icon:'info', title:'Saldo Sudah Sesuai!', background:'var(--card)', color:'var(--text)'});
         
@@ -2157,7 +2323,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
         
         try {
             await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
-               type: typeStr, amount: amt, category: 'Lainnya', wallet: walletName, note: 'Penyesuaian Saldo (Koreksi Otomatis)', date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
+               type: typeStr, amount: amt, category: 'Lainnya', wallet: walletName, note: userNote, date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
             });
             Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Ditambahkan transaksi <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)'});
         } catch(e) {
@@ -2359,7 +2525,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
   setInterval(() => { window.checkLock(); const appScreen = document.getElementById('app-screen'); if (appScreen && appScreen.style.display === 'block') { if (Date.now() - window.lastActiveTime > 120000) { document.body.classList.add('idle-mode'); } } }, 1000);
 });
 
-window.addEventListener('DOMContentLoaded', () => { setTimeout(() => { const splash = document.getElementById('splash-screen'); if (splash) { splash.classList.add('splash-exit'); setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); } }, 3000); });
+// Splash Screen 3 detik tetap jalan tanpa loading lambat
+window.addEventListener('DOMContentLoaded', () => { 
+    const splash = document.getElementById('splash-screen'); 
+    if (splash) { 
+        const delay = 3000; // Kembalikan ke 3 detik sesuai request
+        setTimeout(() => { 
+            splash.classList.add('splash-exit'); 
+            setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); 
+        }, delay); 
+    } 
+});
 </script>
 </body>
 </html>
