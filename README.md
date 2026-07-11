@@ -408,119 +408,75 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   🌟 SPLASH SCREEN V6
+   🌟 SPLASH SCREEN V8 (MINIMALIST, ELEGAN, BEDA TOTAL)
    ========================================================================== */
 #splash-screen {
   position: fixed; inset: 0; background: #050505; z-index: 999999;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-}
-
-.splash-bg-grid {
-  position: absolute; inset: 0;
-  background-size: 40px 40px;
-  background-image: linear-gradient(to right, rgba(251, 191, 36, 0.03) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(251, 191, 36, 0.03) 1px, transparent 1px);
-  animation: gridMove 10s linear infinite;
-}
-@keyframes gridMove {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(40px); }
+  display: flex; align-items: center; justify-content: center;
 }
 
 #splash-screen.splash-exit {
-  animation: exitSplash 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes exitSplash {
-  0% { opacity: 1; transform: scale(1); filter: blur(0); }
-  100% { opacity: 0; transform: scale(1.05); filter: blur(10px); visibility: hidden; }
+  animation: splashSlideUpOut 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
 }
 
-.splash-glass-panel {
-  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 40px 60px; background: rgba(18, 18, 21, 0.6);
-  border: 1px solid rgba(251, 191, 36, 0.1); border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(12px); text-align: center;
-  transform: translateY(20px); opacity: 0;
-  animation: panelUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
-}
-@keyframes panelUp {
-  to { transform: translateY(0); opacity: 1; }
+@keyframes splashSlideUpOut {
+  to { transform: translateY(-100%); opacity: 0; visibility: hidden; }
 }
 
-.splash-logo-container { position: relative; margin-bottom: 24px; }
-.splash-img-new {
-  width: 80px; height: 80px; border-radius: 20px;
-  border: 2px solid rgba(251, 191, 36, 0.8); padding: 4px;
-  opacity: 0; transform: scale(0.8);
-  animation: logoFlipSimple 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s;
-}
-@keyframes logoFlipSimple {
-  to { opacity: 1; transform: scale(1); }
+.splash-content {
+  display: flex; flex-direction: column; align-items: center;
 }
 
-.splash-glow {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 100px; height: 100px; background: rgba(251, 191, 36, 0.4);
-  border-radius: 50%; filter: blur(20px); opacity: 0; z-index: -1;
-  animation: pulseGlowNew 2s infinite alternate 1s;
-}
-@keyframes pulseGlowNew {
-  from { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
-  to { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+.splash-logo-minimal {
+  width: 90px; height: 90px; border-radius: 24px;
+  border: 2px solid var(--gold); padding: 4px;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
 }
 
-.splash-text-mask { display: flex; justify-content: center; width: 100%; padding-bottom: 4px; margin-bottom: 8px; }
-.splash-title-new {
-  font-size: 32px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
-  letter-spacing: 4px; text-align: center;
-  background: linear-gradient(90deg, #fff 0%, var(--gold) 50%, #fff 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  opacity: 0; transform: scale(0.9);
-  animation: titleFadeScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.8s;
-}
-@keyframes titleFadeScale { to { opacity: 1; transform: scale(1); } }
-
-.splash-subtitle-new {
-  font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 6px;
-  opacity: 0; text-transform: uppercase; text-align: center; width: 100%;
-  animation: fadeSub 0.8s ease forwards 1.2s;
-}
-@keyframes fadeSub { to { opacity: 1; } }
-
-.splash-loader {
-  width: 100%; height: 3px; background: rgba(255,255,255,0.1);
-  border-radius: 4px; margin-top: 30px; overflow: hidden; position: relative;
-}
-.splash-loader-bar {
-  position: absolute; top: 0; left: 0; height: 100%; background: var(--gold);
-  width: 0%; border-radius: 4px;
-  animation: loadBar 2s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.5s;
-}
-@keyframes loadBar {
-  0% { width: 0%; }
-  50% { width: 70%; }
-  100% { width: 100%; }
+.splash-text-group {
+  margin-top: 24px; text-align: center;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUpItem 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s;
 }
 
+.splash-title-minimal {
+  font-size: 36px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
+  letter-spacing: 6px; margin-bottom: 8px;
+}
+
+.splash-subtitle-minimal {
+  font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: 8px;
+  text-transform: uppercase;
+}
+
+.splash-line-loader {
+  width: 0%; height: 2px; background: var(--gold);
+  margin-top: 32px; border-radius: 2px;
+  animation: expandLine 2s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.8s;
+}
+
+@keyframes fadeUpItem {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes expandLine {
+  0% { width: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  100% { width: 150px; opacity: 0; }
+}
 </style>
 </head>
 <body>
 
 <div id="splash-screen">
-  <div class="splash-bg-grid"></div>
-  <div class="splash-glass-panel">
-    <div class="splash-logo-container">
-      <img src="RHN LOGO.jpg" alt="RHN Capital Logo" class="splash-img-new">
-      <div class="splash-glow"></div>
+  <div class="splash-content">
+    <img src="RHN LOGO.jpg" alt="RHN Capital Logo" class="splash-logo-minimal">
+    <div class="splash-text-group">
+      <div class="splash-title-minimal">RHN CAPITAL</div>
+      <div class="splash-subtitle-minimal">ARUS KEUANGAN</div>
     </div>
-    <div class="splash-text-mask">
-      <div class="splash-title-new">RHN CAPITAL</div>
-    </div>
-    <div class="splash-subtitle-new">ARUS KEUANGAN</div>
-    <div class="splash-loader">
-      <div class="splash-loader-bar"></div>
-    </div>
+    <div class="splash-line-loader"></div>
   </div>
 </div>
 
