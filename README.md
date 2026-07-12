@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Arus Keuangan | RHN CAPITAL</title>
 
-<!-- Link Manifest Dihapus Sesuai Permintaan -->
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
 
@@ -601,12 +600,10 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   <div class="metrics" id="metric-cards"></div>
   <div id="wallet-balances" class="wallet-scroll"></div>
   
-  <!-- Fitur Target Tabungan -->
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <div class="card-title" style="margin:0; font-size:14px;">🎯 Target Tabungan</div>
       <button onclick="addSavingsGoal()" style="background:transparent; border:1px solid var(--gold); color:var(--gold); border-radius:8px; padding:4px 12px; font-size:10px; font-weight:800; cursor:pointer;">+ BUAT TARGET</button>
   </div>
-  <!-- Di sini grid diubah jadi flex -->
   <div id="savings-goals-container" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px;"></div>
 
   <div class="panel">
@@ -778,7 +775,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
       <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
       
-      <!-- BATCH DELETE TOGGLES -->
       <button class="export-btn" id="btn-batch-del" onclick="execBatchDelete()" style="display:none; background:var(--red2); color:#fff; margin-left:8px;">🗑️ HAPUS TERPILIH</button>
       <button class="export-btn" onclick="toggleBatchMode()" style="background:var(--bg3); color:var(--text); margin-left:8px;">PILIH BANYAK ☑</button>
     </div>
@@ -1052,9 +1048,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
 </div></div>
 
-<!-- ========================================================================================= 
-     LOGIC PIN INSTAN TANPA DELAY & BYPASS SPLASH SCREEN 
-     ========================================================================================= -->
 <script>
   const lastUid = localStorage.getItem('last_uid_rhn');
   const localPin = localStorage.getItem('local_pin_rhn');
@@ -1071,7 +1064,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
              document.getElementById('pin-title').textContent = 'Masukkan PIN';
              document.getElementById('pin-sub').textContent = 'Keamanan Aktif';
              window.pinMode = 'verify_local';
-             setTimeout(() => document.getElementById('app-pin').focus(), 100);
+             // PERBAIKAN: Fokus ditunda ke 3600ms (mengikuti selesainya splash screen animasi) biar gak bentrok 
+             setTimeout(() => document.getElementById('app-pin').focus(), 3600);
          } else {
              // Pin lokal tidak ada, tunggu server
              document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
