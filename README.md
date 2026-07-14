@@ -30,7 +30,7 @@
 
 <style>
 /* ==========================================================================
-   TEMA ORIGINAL (GELAP PEKAT) + TEKS NOMINAL PUTIH ELEGAN
+   TEMA ORIGINAL (GELAP PEKAT)
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; }
 
@@ -408,7 +408,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
 /* ==========================================================================
-   🌟 SPLASH SCREEN V8 (MINIMALIST, ELEGAN, BEDA TOTAL)
+   🌟 SPLASH SCREEN V8
    ========================================================================== */
 #splash-screen {
   position: fixed; inset: 0; background: #050505; z-index: 999999;
@@ -511,7 +511,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 </div>
 
-<div id="pin-screen" style="display:none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 9999;">
+<div id="pin-screen" onclick="document.getElementById('app-pin').focus()" ontouchstart="document.getElementById('app-pin').focus()" style="display:none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 9999;">
   <div class="auth-box">
     <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
     <div class="auth-title" id="pin-title">Masukkan PIN</div>
@@ -523,8 +523,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
     <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
-      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetAccount()">Ganti Akun</button>
-      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetPinFromLogin()">Reset PIN</button>
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="event.stopPropagation(); resetAccount()">Ganti Akun</button>
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="event.stopPropagation(); resetPinFromLogin()">Reset PIN</button>
     </div>
   </div>
 </div>
@@ -861,6 +861,17 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   </div>
 
   <div class="set-group">
+    <div class="set-title">⏱️ MANAJEMEN TRANSAKSI RUTIN</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Atur Jadwal Otomatis</div>
+        <div class="set-sub">Lihat dan matikan transaksi yang berulang otomatis</div>
+      </div>
+      <button class="set-action" style="background:var(--blue); color:#fff; border:none;" onclick="manageRecurring()">LIHAT JADWAL</button>
+    </div>
+  </div>
+
+  <div class="set-group">
     <div class="set-title">🗑️ TEMPAT SAMPAH & RECOVERY</div>
     <div class="set-item">
         <div>
@@ -1026,7 +1037,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v4.3 Ultimate (Kategori, Tabungan & Koreksi)</div>
+        <div class="set-sub">RHN Capital OS v4.5 (Pembaruan Tombol Rutin)</div>
       </div>
     </div>
     <div class="set-item">
@@ -1053,6 +1064,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   const localPin = localStorage.getItem('local_pin_rhn');
   window.appUnlocked = false; 
 
+  const forceFocusPin = () => {
+      const pinEl = document.getElementById('app-pin');
+      if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
+          pinEl.focus();
+      }
+  };
+
   if (lastUid) {
      document.addEventListener("DOMContentLoaded", () => {
          document.getElementById('auth-screen').style.display = 'none';
@@ -1060,14 +1078,13 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
          document.getElementById('app-pin').style.display = 'block';
          
          if (localPin) {
-             // Pin sudah pernah diset, langsung verifikasi dari HP
              document.getElementById('pin-title').textContent = 'Masukkan PIN';
              document.getElementById('pin-sub').textContent = 'Keamanan Aktif';
              window.pinMode = 'verify_local';
-             // PERBAIKAN: Fokus ditunda ke 3600ms (mengikuti selesainya splash screen animasi) biar gak bentrok 
-             setTimeout(() => document.getElementById('app-pin').focus(), 3600);
+             
+             setTimeout(forceFocusPin, 3600);
+             setTimeout(forceFocusPin, 4000); 
          } else {
-             // Pin lokal tidak ada, tunggu server
              document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
              document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
              window.pinMode = 'verify';
@@ -1122,7 +1139,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-// KATEGORI DEFAULT
 window.defaultCATS = { 
   income: ['Gaji', 'Hasil Trading', 'Bonus / THR', 'Penjualan', 'Pendapatan Lainnya', 'Pemberian', 'Investasi', 'Ongkos Harian', 'Dividen', 'Profit', 'Transfer Masuk', 'Lainnya'], 
   expense: ['Makan & Minum', 'Transportasi', 'Tagihan', 'Belanja Bulanan', 'Cicilan', 'Hiburan / Nongkrong', 'Sedekah / Donasi', 'Jajan', 'Pembelian Aset(Investasi)', 'Infak', 'Kas', 'Utilitas', 'Loss', 'Pengeluaran Lainnya', 'Lainnya'],
@@ -1144,9 +1160,6 @@ let extraPrefs = {
     ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off'
 };
 
-// ==============================================================
-// TRANSFER (VERSI 3 ANGKA)
-// ==============================================================
 window.initTransferAccount = async function() {
     if (!currentUser) return;
     const infoEl = document.getElementById('user-transfer-info');
@@ -1669,13 +1682,11 @@ onAuthStateChanged(auth, async user => {
     setTimeout(() => { window.updatePrefCategories(false); if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); } }, 200);
     setTimeout(() => { window.isAppLoading = false; }, 1000); 
     
-    // Auth Check PIN
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
         const secSnap = await getDoc(secRef); 
         document.getElementById('app-pin').style.display = 'block';
         if (!secSnap.exists() || !secSnap.data().pin) { 
-            // Belum pernah set PIN
             if (!window.appUnlocked) {
                 document.getElementById('app-screen').style.display = 'none'; 
                 document.getElementById('pin-screen').style.display = 'flex'; 
@@ -1687,7 +1698,7 @@ onAuthStateChanged(auth, async user => {
             }
         } else { 
             window.userCloudPin = secSnap.data().pin; 
-            localStorage.setItem('local_pin_rhn', window.userCloudPin); // Sync dengan lokal
+            localStorage.setItem('local_pin_rhn', window.userCloudPin);
             if (!window.appUnlocked) {
                 document.getElementById('app-screen').style.display = 'none'; 
                 document.getElementById('pin-screen').style.display = 'flex'; 
@@ -1696,7 +1707,6 @@ onAuthStateChanged(auth, async user => {
                 document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; 
                 window.pinMode = 'verify'; 
             } else {
-                // UI sudah terbuka duluan berkat cache lokal, tinggal muat nama & data
                 unlockApp();
             }
         }
@@ -1757,14 +1767,12 @@ function unlockApp() {
     document.getElementById('app-screen').style.display = 'block'; 
     setLoading(false); 
     
-    // Jika Firebase sudah siap, load data
     if (currentUser) {
         const name = currentUser.displayName || currentUser.email.split('@')[0]; 
         document.getElementById('user-name').textContent = name; 
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         listenTransactions(currentUser.uid); 
     } else {
-        // UI terbuka duluan pakai PIN Cache lokal, biarkan onAuthStateChanged yg memanggil data
         document.getElementById('user-name').textContent = 'Memuat...';
     }
 
@@ -2013,21 +2021,41 @@ window.execBatchDelete = async function() {
 
 window.showRecycleBin = function() {
     if(deletedTxs.length === 0) return Swal.fire({icon:'info', title:'Sampah Kosong', text:'Belum ada data yang terhapus.', background:'var(--card)', color:'var(--text)'});
-    let html = '<div style="max-height:60vh; overflow-y:auto; text-align:left;">';
+    
+    let html = '<div style="margin-bottom:12px;"><button onclick="emptyRecycleBin()" style="width:100%; background:rgba(248, 113, 113, 0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; transition:0.2s;">🗑️ KOSONGKAN SEMUA SAMPAH</button></div>';
+    html += '<div style="max-height:55vh; overflow-y:auto; text-align:left;">';
+    
     deletedTxs.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
         html += `
         <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
             <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(t.note)} (${t.category})</div>
             <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">${fmtFull(t.amount)} | ${fmtDate(t.date)}</div>
             <div style="display:flex; gap:8px;">
-                <button onclick="restoreTx('${t.id}')" style="background:rgba(16, 185, 129, 0.2); color:var(--green2); border:1px solid var(--green2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">PULIHKAN</button>
-                <button onclick="hardDeleteTx('${t.id}')" style="background:rgba(248, 113, 113, 0.2); color:var(--red2); border:1px solid var(--red2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">HAPUS PERMANEN</button>
+                <button onclick="restoreTx('${t.id}')" style="background:rgba(16, 185, 129, 0.2); color:var(--green2); border:1px solid var(--green2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">PULIHKAN</button>
+                <button onclick="hardDeleteTx('${t.id}')" style="background:rgba(248, 113, 113, 0.2); color:var(--red2); border:1px solid var(--red2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">HAPUS PERMANEN</button>
             </div>
         </div>`;
     });
     html += '</div>';
     Swal.fire({title: 'Tempat Sampah 🗑️', html: html, showConfirmButton: false, background:'var(--card)', color:'var(--text)'});
 };
+
+window.emptyRecycleBin = async function() {
+    Swal.fire({ title: 'Kosongkan Semua?', text: "Seluruh data di tempat sampah ini akan musnah selamanya dan tidak bisa dikembalikan.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Musnahkan', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
+        if(res.isConfirmed) {
+            Swal.fire({title: 'Memusnahkan Data...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            try {
+                for (let t of deletedTxs) {
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id));
+                }
+                Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:1500, showConfirmButton:false});
+            } catch(e) {
+                Swal.fire('Error', e.message, 'error');
+            }
+        }
+    });
+};
+
 window.restoreTx = async function(id) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: false });
@@ -2106,9 +2134,6 @@ function renderBudgets(k) {
     container.innerHTML = html;
 }
 
-// ==============================================================
-// FITUR: TARGET TABUNGAN (SAVINGS GOAL)
-// ==============================================================
 window.renderSavings = function() {
     const container = document.getElementById('savings-goals-container');
     if(!container) return;
@@ -2278,9 +2303,6 @@ const createTxCard = (t) => {
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 function renderMetrics() { renderSumGrid(document.getElementById('metric-cards'), txs, true); }
 
-// ==============================================================
-// FITUR: KOREKSI SALDO (BALANCE RECONCILIATION)
-// ==============================================================
 window.promptKoreksi = async function(walletName, recordedBal) {
     if(!currentUser) return;
     const { value: formValues } = await Swal.fire({
@@ -2364,7 +2386,46 @@ function renderWalletBalances() {
 function mkChart(id, labels, incData, expData) { 
     if (charts[id]) charts[id].destroy(); const c = document.getElementById(id); if (!c) return; 
     const isLight = document.body.classList.contains('light-mode'); const isMobile = window.innerWidth <= 768; 
-    charts[id] = new Chart(c, { type: 'bar', data: { labels, datasets: [ {label: 'Pemasukan', data: incData, backgroundColor: isLight ? '#10B981' : '#10B981', borderRadius: 4, barPercentage: 0.6}, {label: 'Pengeluaran', data: expData, backgroundColor: isLight ? '#F87171' : '#F87171', borderRadius: 4, barPercentage: 0.6} ] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: { x: { ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Outfit'", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, grid: {display: false}, border: {display: false} }, y: { ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 8 : 10, family: "'Outfit'", style: 'normal'}, callback: v => Intl.NumberFormat('id-ID', {notation: 'compact'}).format(v)}, grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, border: {display: false} } } } }); 
+    charts[id] = new Chart(c, { 
+        type: 'bar', 
+        data: { 
+            labels, 
+            datasets: [ 
+                {label: 'Pemasukan', data: incData, backgroundColor: isLight ? '#10B981' : '#10B981', borderRadius: 4, barPercentage: 0.6}, 
+                {label: 'Pengeluaran', data: expData, backgroundColor: isLight ? '#F87171' : '#F87171', borderRadius: 4, barPercentage: 0.6} 
+            ] 
+        }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: {
+                legend: {display: false},
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                        }
+                    },
+                    titleFont: { family: "'Outfit'", size: 10 },
+                    bodyFont: { family: "'Outfit'", size: 10 }
+                }
+            }, 
+            scales: { 
+                x: { 
+                    ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Outfit'", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, 
+                    grid: {display: false}, border: {display: false} 
+                }, 
+                y: { 
+                    ticks: {
+                        color: isLight ? '#888' : '#888', 
+                        font: {size: isMobile ? 6 : 10, family: "'Outfit'", style: 'normal'}, 
+                        callback: v => new Intl.NumberFormat('id-ID').format(v) 
+                    }, 
+                    grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, border: {display: false} 
+                } 
+            } 
+        } 
+    }); 
 }
 
 window.renderDaily = function() { const pick = document.getElementById('pick-daily').value; const target = pick ? new Date(pick).toDateString() : new Date().toDateString(); const arr = txs.filter(t => new Date(t.date).toDateString() === target).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'), arr); renderList(document.getElementById('daily-body'), arr); };
@@ -2404,6 +2465,74 @@ window.exportCSV = function() { if (!txs.length) return Swal.fire('Kosong', 'Tid
 window.payDebt = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Bayar Hutang?', text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Bayar Lunas', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 window.payRecv = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Piutang Dibayar?', text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Dibayar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
+// ==============================================================
+// FITUR: MANAJEMEN TRANSAKSI RUTIN (DIPERBARUI)
+// ==============================================================
+window.manageRecurring = async function() {
+    if(!currentUser) return;
+    Swal.fire({title: 'Memuat jadwal rutin...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+    
+    try {
+        const recSnap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
+        
+        if(recSnap.empty) {
+            return Swal.fire({icon: 'info', title: 'Kosong', text: 'Tidak ada transaksi otomatis yang sedang aktif.', background: 'var(--card)', color: 'var(--text)'});
+        }
+        
+        // TOMBOL MASTER KILL SWITCH
+        let html = '<div style="margin-bottom:12px;"><button onclick="stopAllRecurring()" style="width:100%; background:rgba(248, 113, 113, 0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; transition:0.2s;">🛑 NONAKTIFKAN SEMUA RUTIN</button></div>';
+        html += '<div style="max-height:50vh; overflow-y:auto; text-align:left;">';
+        
+        recSnap.forEach(d => {
+            let data = d.data();
+            let intervalName = data.interval === 'daily' ? 'Harian' : (data.interval === 'weekly' ? 'Mingguan' : 'Bulanan');
+            html += `
+            <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
+                <div style="font-size:12px; font-weight:700; color:var(--text); display:flex; justify-content:space-between;">
+                    <span>${escapeHTML(data.note)}</span>
+                    <span class="cat-badge">${intervalName}</span>
+                </div>
+                <div style="font-size:10px; color:var(--text3); margin-bottom:12px; margin-top:4px;">${fmtFull(data.amount)} | Kategori: ${data.category}</div>
+                <button onclick="stopRecurring('${d.id}')" style="background:rgba(248, 113, 113, 0.2); color:var(--red2); border:1px solid var(--red2); padding:8px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; width:100%; transition:0.2s;">NONAKTIFKAN RUTIN INI</button>
+            </div>`;
+        });
+        html += '</div>';
+        
+        Swal.fire({title: 'Jadwal Rutin Aktif ⏱️', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
+    } catch(e) {
+        Swal.fire('Error', e.message, 'error');
+    }
+};
+
+window.stopRecurring = async function(id) {
+    Swal.fire({ title: 'Nonaktifkan Rutin?', text: "Transaksi ini tidak akan muncul sendiri lagi besok.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Nonaktifkan!', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
+        if(res.isConfirmed) {
+            Swal.fire({title: 'Mematikan alarm...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'recurring_txs', id));
+            Swal.fire({icon:'success', title:'Otomatis Dinonaktifkan!', timer:1500, showConfirmButton:false, background: 'var(--card)', color: 'var(--text)'});
+            
+            setTimeout(() => window.manageRecurring(), 1500);
+        }
+    });
+};
+
+window.stopAllRecurring = async function() {
+    Swal.fire({ title: 'Nonaktifkan Semua?', text: "Semua jadwal transaksi rutin akan dimatikan selamanya.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Nonaktifkan Semua', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
+        if(res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+            try {
+                const snap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
+                for(let d of snap.docs) {
+                    await deleteDoc(d.ref);
+                }
+                Swal.fire({icon:'success', title:'Semua Dinonaktifkan!', background:'var(--card)', color:'var(--text)', timer:1500, showConfirmButton:false});
+                setTimeout(() => window.manageRecurring(), 1500);
+            } catch (e) {
+                Swal.fire('Error', e.message, 'error');
+            }
+        }
+    });
+};
 </script>
 
 <style>
@@ -2519,16 +2648,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
   setInterval(() => { window.checkLock(); const appScreen = document.getElementById('app-screen'); if (appScreen && appScreen.style.display === 'block') { if (Date.now() - window.lastActiveTime > 120000) { document.body.classList.add('idle-mode'); } } }, 1000);
 });
 
-// Splash Screen 3 detik tetap jalan tanpa loading lambat
 window.addEventListener('DOMContentLoaded', () => { 
     const splash = document.getElementById('splash-screen'); 
     if (splash) { 
-        const delay = 3000; // Kembalikan ke 3 detik sesuai request
+        const delay = 3000; 
         setTimeout(() => { 
-            splash.classList.add('splash-exit'); 
-            setTimeout(() => { splash.style.display = 'none'; splash.remove(); }, 600); 
-        }, delay); 
-    } 
+            splash.classList.add('splash-exit');
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 600); 
+        }, delay);
+    }
 });
 </script>
 </body>
