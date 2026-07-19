@@ -16,6 +16,16 @@
 
 <script>
   window.addEventListener('DOMContentLoaded', function() {
+    // --- FIX SPLASH SCREEN ---
+    setTimeout(function() {
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.classList.add('splash-exit');
+        setTimeout(() => { splash.style.display = 'none'; }, 600);
+      }
+    }, 2000);
+
+    // Zoom checker
     var testEl = document.createElement('div');
     testEl.style.cssText = 'font-size: 100px; position: absolute; visibility: hidden; z-index: -999;';
     document.body.appendChild(testEl);
@@ -228,6 +238,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 /* HISTORY CARDS */
 .list-wrap { padding: 8px 0; }
+/* Scrollbar khusus list-wrap biar elegan */
+.list-wrap::-webkit-scrollbar { width: 6px; }
+.list-wrap::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+.list-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
 .recent-item {
   padding: 16px; margin-bottom: 12px; border-radius: 16px; 
   background: var(--bg2); border: 1px solid var(--border); 
@@ -382,17 +397,18 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .sum-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
   .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
   .w-card { min-width: 0; }
-  .panel { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
+  
+  /* --- FIX PANEL AGAR TINGGINYA SAMA DAN BISA DI SCROLL --- */
+  .panel { display: flex; align-items: stretch; gap: 24px; }
+  .panel > .card:nth-child(1) { width: 380px; flex-shrink: 0; margin-bottom: 0; }
+  .panel > .card:nth-child(2) { flex-grow: 1; display: flex; flex-direction: column; margin-bottom: 0; }
+  /* Height 0 dipadukan flex-grow 1 memaksa kontainer list ngikutin tinggi form sebelah kirinya */
+  .panel > .card:nth-child(2) .list-wrap { flex-grow: 1; overflow-y: auto; height: 0; padding-right: 8px; }
+  
   .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
   
-  .status-row { 
-      justify-content: center; 
-      align-items: center; 
-  }
-  .status-row .status-pill { 
-      flex: 0 1 auto !important; 
-      min-width: 180px; 
-  }
+  .status-row { justify-content: center; align-items: center; }
+  .status-row .status-pill { flex: 0 1 auto !important; min-width: 180px; }
 }
 
 /* STYLING HUTANG PIUTANG & DOMPET */
@@ -842,29 +858,132 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 
   <!-- FITUR TAMBAHAN: GENERATOR QRIS PENGGUNA -->
   <div class="set-group">
-    <div class="set-title">💳 GENERATOR QRIS PENGGUNA</div>
-    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Setiap akun pengguna bisa menempelkan string payload data QRIS Statis Merchant miliknya (seperti GoBiz, DANA Bisnis, Nobu, dll) agar bisa di-generate nominal dinamis otomatis.</div>
+    <!-- Judul ini sekaligus jadi Tombol Rahasia buat input data base QRIS Statis -->
+    <div class="set-title" onclick="window.promptInputQris()" style="cursor: default;" title="Ketuk untuk mengatur Data QRIS (Rahasia)">💳 GENERATOR QRIS PENGGUNA</div>
+
+    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Masukkan nominal tagihan untuk membuat QR Code pembayaran.</div>
     
     <div class="form-row">
-      <label class="form-label">Data QRIS Statis Anda (Raw String Payload)</label>
-      <textarea id="qris-base-string" class="f-input-dark" style="height: 80px;" placeholder="Tempel teks kode QRIS Anda di sini..."></textarea>
-    </div>
-    <div class="form-row" style="text-align: right;">
-      <button class="set-action" style="background: var(--gold); color: #000; font-weight: 800; border: none;" onclick="window.saveUserQrisBase()">💾 SIMPAN STR STRING QRIS</button>
-    </div>
-
-    <div style="border-top: 1px dashed var(--border2); margin-top: 16px; padding-top: 16px;"></div>
-
-    <div class="form-row">
-      <label class="form-label">Nominal Tagihan Pelanggan (Rp)</label>
+      <label class="form-label">Nominal Tagihan (Rp)</label>
       <input type="text" inputmode="numeric" id="qris-nominal" class="f-input-dark" placeholder="Contoh: 150.000" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');">
+    </div>
+    
+    <div class="form-row">
+      <label class="form-label">Tipe Pencatatan</label>
+      <select id="qris-tipe" class="f-input-dark">
+        <option value="income">Pemasukan (Penjualan / Gaji dll)</option>
+        <option value="transfer">Transfer (Titip Saldo via QRIS)</option>
+      </select>
+    </div>
+    
+    <div class="form-row">
+      <label class="form-label">Dompet Tujuan (QRIS Cair Ke Mana?)</label>
+      <select id="qris-wallet" class="f-input-dark">
+        <option value="GoPay">GoPay</option>
+        <option value="DANA">DANA</option>
+        <option value="ShopeePay">ShopeePay</option>
+        <option value="Bank">Bank</option>
+      </select>
+    </div>
+    
+    <div class="form-row">
+      <label class="form-label">Keterangan</label>
+      <input type="text" id="qris-note" class="f-input-dark" placeholder="Contoh: Bayar jajan / TF dari Budi">
     </div>
     
     <button class="set-action" style="width: 100%; margin-bottom: 16px; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 12px;" onclick="window.generateQris()">BUAT QRIS DINAMIS</button>
     
-    <div id="qris-qrcode-container" style="display: none; justify-content: center; background: #fff; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
-      <div id="qris-qrcode"></div>
+    <!-- FRAME POSTER QRIS RESMI STANDARD NASIONAL -->
+    <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px), radial-gradient(#e2e8f0 1.2px, #ffffff 1.2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;">
+      
+      <!-- Ornamen Sisi Kiri Segitiga Merah -->
+      <div style="position: absolute; left: 0; top: 22%; width: 0; height: 0; border-top: 45px transparent solid; border-bottom: 45px transparent solid; border-left: 24px solid #d91b29; z-index: 2;"></div>
+      
+      <!-- Header Row (QRIS Logo Kiri, GPN Kanan) -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 20px; padding: 0 4px; z-index: 3;">
+        <!-- QRIS Logo Vector Official -->
+        <div style="display: flex; align-items: flex-start; gap: 4px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 24px;">
+          <div style="height: 18px; width: 4px; border-left: 2px solid #0f172a; border-bottom: 2px solid #0f172a; margin-top: 2px;"></div>
+          <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 2px;">
+            <span style="font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 800; color: #0f172a; line-height: 1.1;">QR Code Standar</span>
+            <span style="font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 800; color: #0f172a; line-height: 1.1;">Pembayaran Nasional</span>
+          </div>
+        </div>
+        <!-- GPN Logo Vector -->
+        <div>
+          <svg width="45" height="35" viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 2 L42 2 L35 11 Z" fill="#d91b29"/>
+            <path d="M25 6 L45 7 L37 16 Z" fill="#d91b29"/>
+            <path d="M28 11 L48 12 L40 21 Z" fill="#d91b29"/>
+            <text x="2" y="30" font-family="'Outfit', sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Detail Identitas Merchant Resmi -->
+      <div style="text-align: center; margin-bottom: 14px; width: 100%; z-index: 3; color: #000000;">
+        <div style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; color: #000000;">RHN CAPITAL FINANCE</div>
+        <div style="font-size: 11px; font-weight: 600; color: #334155; margin-bottom: 2px; letter-spacing: 0.2px;">NMID: ID1026489225353</div>
+        <div style="font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">A01</div>
+      </div>
+
+      <!-- Wadah Cetak Kode QR -->
+      <div style="background: #ffffff; padding: 10px; border-radius: 14px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; z-index: 3;">
+        <div id="qris-qrcode" style="padding: 2px; background: #ffffff;"></div>
+      </div>
+
+      <!-- Footer Publikasi ASPI -->
+      <div style="text-align: center; margin-bottom: 20px; width: 100%; z-index: 3;">
+        <div style="font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: #0f172a; letter-spacing: 0.4px; margin-bottom: 1px;">SATU QRIS untuk semua</div>
+        <div style="font-size: 8.5px; font-weight: 600; color: #64748B;">Cek aplikasi penyelenggara di: <span style="color: #0f172a; font-weight: 700;">www.aspi-qris.id</span></div>
+      </div>
+
+      <!-- Kaki Cetakan Informasi (Metadata Kiri, Panduan Pembayaran Kanan Merah) -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 120%; margin-left: -10%; margin-right: -10%; background: transparent; position: relative; z-index: 3; padding-left: 10%; box-sizing: border-box;">
+        
+        <!-- Cetakan Kode Sistem Kiri (dengan Hari Tanggal Dinamis) -->
+        <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 8px; font-weight: 700; line-height: 1.4; font-family: 'Outfit', sans-serif;">
+          <div>Dicetak oleh: 93600914</div>
+          <div id="qris-print-version">Versi cetak: -</div>
+        </div>
+
+        <!-- Ribbon Langkah-Langkah Panduan Merah -->
+        <div style="background: #d91b29; color: #ffffff; padding: 5px 20px 8px 30px; width: 56%; clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%); display: flex; flex-direction: column; align-items: flex-end; box-sizing: border-box;">
+          <div style="font-size: 7.5px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.2px; width: 100%; text-align: right; padding-right: 4px;">Cara pembayaran QRIS</div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px; align-items: center; width: 100%;">
+            
+            <!-- Langkah 1 -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+              <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><rect x="5" y="2" width="14" height="20" rx="2"></rect><circle cx="12" cy="18" r="1"></circle></svg>
+              </div>
+              <span style="font-size: 5px; font-weight: 800; white-space: nowrap;">Buka Aplikasi</span>
+              <span style="font-size: 4.5px; font-weight: 500; white-space: nowrap; margin-top: -2px; opacity: 0.85;">Berlogo QRIS</span>
+            </div>
+            
+            <!-- Langkah 2 -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+              <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </div>
+              <span style="font-size: 5px; font-weight: 800; white-space: nowrap;">Scan dan cek</span>
+            </div>
+            
+            <!-- Langkah 3 -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+              <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <span style="font-size: 5px; font-weight: 800; white-space: nowrap;">Bayar</span>
+            </div>
+            
+          </div>
+        </div>
+
+      </div>
     </div>
+    <!-- SELESAI FRAME POSTER QRIS RESMI -->
     
     <button id="btn-qris-konfirmasi" class="set-action" style="width: 100%; display: none; background: var(--green2); color: #000; border: none; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onclick="window.konfirmasiPembayaranQris()">✅ KONFIRMASI SUDAH BAYAR</button>
   </div>
@@ -1069,7 +1188,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     <div class="set-item">
       <div>
         <div class="set-label">Versi Sistem</div>
-        <div class="set-sub">RHN Capital OS v4.6 (Dynamic Payload QRIS Enabled)</div>
+        <div class="set-sub">RHN Capital OS v4.7 (Transfer Perantara)</div>
       </div>
     </div>
     <div class="set-item">
@@ -1189,19 +1308,30 @@ function crc16(str) {
     return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
 }
 
-window.saveUserQrisBase = async function() {
-    if(!currentUser) return Swal.fire({icon:'error', title:'Akses Ditolak', text:'Silakan login terlebih dahulu.', background:'var(--card)', color:'var(--text)'});
-    const baseStr = document.getElementById('qris-base-string').value.trim();
-    if(!baseStr) return Swal.fire({icon:'warning', title:'Kosong', text:'Masukkan string QRIS statis valid terlebih dahulu!', background:'var(--card)', color:'var(--text)'});
+window.promptInputQris = async function() {
+    const { value: qrisString } = await Swal.fire({
+        title: 'Input Data QRIS Statis',
+        input: 'textarea',
+        inputPlaceholder: 'Tempel teks payload kode QRIS lu di sini...',
+        inputValue: window.userQrisBase || "",
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--gold)',
+        confirmButtonText: 'SIMPAN',
+    });
 
-    try {
-        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), {
-            userQrisBase: baseStr
-        }, { merge: true });
-        window.userQrisBase = baseStr;
-        Swal.fire({icon:'success', title:'QRIS Disimpan!', text:'Kode QRIS berhasil diikat di cloud akun kamu.', background:'var(--card)', color:'var(--text)', timer:1500, showConfirmButton:false});
-    } catch(e) {
-        Swal.fire({icon:'error', title:'Gagal Menyimpan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    if (qrisString) {
+        window.userQrisBase = qrisString.trim();
+        if(currentUser) {
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), {
+                    userQrisBase: window.userQrisBase
+                }, { merge: true });
+                Swal.fire({icon: 'success', title: 'Data QRIS Tersimpan!', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false});
+            } catch(e) {
+                Swal.fire({icon: 'error', title: 'Gagal Menyimpan', text: e.message, background: 'var(--card)', color: 'var(--text)'});
+            }
+        }
     }
 };
 
@@ -1215,7 +1345,7 @@ window.generateQris = function() {
 
     const currentBase = window.userQrisBase || QRIS_STATIS_ASLI;
     if(currentBase.length < 20 || !currentBase.startsWith("00")) {
-        Swal.fire({ icon: 'error', title: 'Format QRIS Invalid', text: 'String QRIS terdeteksi rusak atau bukan standar merchant resmi (EMVCo).', background: 'var(--card)', color: 'var(--text)' });
+        Swal.fire({ icon: 'error', title: 'Format QRIS Invalid', text: 'String QRIS terdeteksi rusak atau bukan standar merchant resmi.', background: 'var(--card)', color: 'var(--text)' });
         return;
     }
 
@@ -1233,6 +1363,12 @@ window.generateQris = function() {
     const qrContainer = document.getElementById("qris-qrcode-container");
     const qrElement = document.getElementById("qris-qrcode");
     
+    const now = new Date();
+    const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][now.getDay()];
+    const tanggal = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second:'2-digit' });
+    document.getElementById("qris-print-version").innerText = `Versi cetak: ${namaHari}, ${tanggal} ${waktu}`;
+
     qrElement.innerHTML = ""; 
     qrContainer.style.display = "flex"; 
 
@@ -1247,32 +1383,47 @@ window.generateQris = function() {
 window.konfirmasiPembayaranQris = async function() {
     const nominalRaw = document.getElementById("qris-nominal").value;
     const nominalInput = nominalRaw.replace(/\./g, '');
+    if (!nominalInput) return Swal.fire({ icon: 'warning', title: 'Nominal Kosong', text: 'Tolong isi nominalnya bro.', background: 'var(--card)', color: 'var(--text)' });
     if (!currentUser) return;
+
+    const qrisTipe = document.getElementById("qris-tipe").value;
+    const qrisWallet = document.getElementById("qris-wallet").value;
+    const qrisNote = document.getElementById("qris-note").value.trim() || 'Pembayaran QRIS';
 
     const btn = document.getElementById("btn-qris-konfirmasi");
     btn.innerText = "MENYIMPAN..."; btn.disabled = true;
 
     try {
-        await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
-            type: 'income',
+        let payload = {
+            type: qrisTipe,
             amount: parseFloat(nominalInput),
-            category: 'Penjualan', 
-            wallet: 'GoPay',       
-            note: 'Pembayaran QRIS',
+            note: qrisNote,
             date: nowISO(),
             ownerEmail: currentUser.email,
             createdAt: serverTimestamp(),
             isDeleted: false
-        });
+        };
+
+        if (qrisTipe === 'transfer') {
+            payload.category = 'Transfer Antar Dompet';
+            payload.wallet = 'Kas Tunai';
+            payload.walletTo = qrisWallet;
+        } else {
+            payload.category = 'Pemasukan QRIS';
+            payload.wallet = qrisWallet;
+        }
+
+        await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload);
 
         Swal.fire({
             icon: 'success',
             title: 'Terkonfirmasi!',
-            text: 'Pemasukan Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat ke GoPay.',
+            text: 'Data Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat masuk ke ' + qrisWallet,
             background: 'var(--card)', color: 'var(--text)',
             confirmButtonColor: 'var(--green2)'
         }).then(() => {
             document.getElementById("qris-nominal").value = "";
+            document.getElementById("qris-note").value = "";
             document.getElementById("qris-qrcode-container").style.display = "none";
             btn.style.display = "none";
             btn.innerText = "✅ KONFIRMASI SUDAH BAYAR";
@@ -1284,7 +1435,6 @@ window.konfirmasiPembayaranQris = async function() {
         btn.disabled = false;
     }
 };
-// ==============================================================
 
 window.defaultCATS = { 
   income: ['Gaji', 'Hasil Trading', 'Bonus / THR', 'Penjualan', 'Pendapatan Lainnya', 'Pemberian', 'Investasi', 'Ongkos Harian', 'Dividen', 'Profit', 'Transfer Masuk', 'Lainnya'], 
@@ -1787,9 +1937,7 @@ onAuthStateChanged(auth, async user => {
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
             if (data.categories) { window.userCats = data.categories; } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
             if (data.savingsGoals) { window.savingsGoals = data.savingsGoals; } else { window.savingsGoals = []; }
-            // Ambil string custom base QRIS milik pengguna jika ada
-            if (data.userQrisBase) { window.userQrisBase = data.userQrisBase; document.getElementById('qris-base-string').value = data.userQrisBase; }
-            else { window.userQrisBase = ""; document.getElementById('qris-base-string').value = ""; }
+            if (data.userQrisBase) { window.userQrisBase = data.userQrisBase; } else { window.userQrisBase = ""; }
         } else { 
             const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid); if(savedPrefs) appPrefs = JSON.parse(savedPrefs); 
             const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid); if(savedExtraPrefs) extraPrefs = JSON.parse(savedExtraPrefs); 
@@ -1797,7 +1945,6 @@ onAuthStateChanged(auth, async user => {
             window.userCats = JSON.parse(JSON.stringify(window.defaultCATS));
             window.savingsGoals = [];
             window.userQrisBase = "";
-            document.getElementById('qris-base-string').value = "";
         }
     } catch(err) { console.error("Gagal sinkron data pengaturan", err); }
 
@@ -1815,7 +1962,7 @@ onAuthStateChanged(auth, async user => {
 
             if (shouldRun) {
                 await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-                   type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
+                   type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo || null, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
                 });
                 
                 let nextD = new Date();
@@ -2020,7 +2167,7 @@ window.loadAllUsersData = async function() {
       } else {
           ownerLabel = `User-${t.ownerUid.substring(0,6)} (Perlu Login Ulang)`;
       }
-      
+
       return `
       <div class="recent-item" style="border-left: 4px solid var(--gold);"> 
           <div class="ri-left"> 
@@ -2122,6 +2269,7 @@ window.addTx = async function() {
   try { 
       let payload = { type: curType, amount: amt, category: cat, wallet: wallet, note: note, date: dt || nowISO(), ownerEmail: currentUser.email, isDeleted: false }; 
       if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') payload.isPaid = false;
+      
       if (editId) { 
           await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editId), payload); cancelEdit(); 
       } else { 
@@ -2423,9 +2571,13 @@ const createTxCard = (t) => {
     if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-'; 
     let walletBadge = t.wallet ? `<span class="wallet-badge">${t.wallet}</span>` : ''; 
     if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${t.wallet} ➔ ${t.walletTo}</span>`; 
-    let actionBtn = ''; let debtWarn = ''; 
-    if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_debtbadge === 'on') { if ((t.type === 'debt' || t.type === 'recv') && !t.isPaid) { debtWarn = `<div style="font-size:8px; font-weight:800; background:var(--red2); color:#000; padding:2px 6px; border-radius:4px; display:inline-block; margin-left:8px;">BELUM LUNAS</div>`; } } 
+    
+    let debtWarn = ''; 
+    if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_debtbadge === 'on') { if ((t.type === 'debt' || t.type === 'recv') && !t.isPaid) { debtWarn = `<div style="font-size:8px; font-weight:800; background:var(--red2); color:#000; padding:2px 6px; border-radius:4px; display:inline-block; margin-left:6px;">BELUM LUNAS</div>`; } } 
+    
+    let actionBtn = ''; 
     if (t.type === 'debt' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`; } else if (t.type === 'debt' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } else if (t.type === 'recv' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--blue); border: 1px solid var(--blue); padding: 4px 8px; border-radius: 6px; background: rgba(59, 130, 246, 0.1);" onclick="payRecv('${t.id}')">SUDAH BAYAR</button>`; } else if (t.type === 'recv' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } 
+    
     let cbHtml = batchMode ? `<input type="checkbox" class="batch-cb" value="${t.id}" style="margin-right:12px; width:20px; height:20px; flex-shrink:0;">` : '';
     return `
     <div class="recent-item" data-id="${t.id}"> 
@@ -2586,182 +2738,173 @@ function wkKey(d) { const dt = new Date(d); const day = dt.getDay(); const diff 
 
 function renderWeekly() { const weeks = {}; txs.forEach(t => { const k = wkKey(t.date); (weeks[k] = weeks[k] || []).push(t); }); const keys = Object.keys(weeks).sort().reverse().slice(0, 8); document.getElementById('week-sel').innerHTML = keys.map((k, i) => { const m = new Date(k), s = new Date(k); s.setDate(s.getDate() + 6); return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selWeek('${k}',this)">${m.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})} – ${s.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})}</button>`; }).join(''); if (keys.length) showWeek(keys[0]); }
 window.selWeek = function(k, btn) { document.querySelectorAll('#week-sel .p-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); showWeek(k); };
-function showWeek(k) { const arr = txs.filter(t => wkKey(t.date) === k).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('week-sum'), arr); renderList(document.getElementById('week-body'), arr); const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']; const inc = new Array(7).fill(0), exp = new Array(7).fill(0); arr.forEach(t => { const idx = (new Date(t.date).getDay() + 6) % 7; if (t.type === 'income') inc[idx] += t.amount; else if (t.type === 'expense') exp[idx] += t.amount; else if (t.type === 'debt') { inc[idx] += t.amount; if (t.isPaid) exp[idx] += t.amount; } else if (t.type === 'recv') { exp[idx] += t.amount; if (t.isPaid) inc[idx] += t.amount; } }); mkChart('chartWeek', days, inc, exp); }
 
-function renderMonthly() { const months = {}; txs.forEach(t => { const k = t.date.slice(0, 7); (months[k] = months[k] || []).push(t); }); const keys = Object.keys(months).sort().reverse().slice(0, 12); document.getElementById('month-sel').innerHTML = keys.map((k, i) => { const [y, m] = k.split('-'); const d = new Date(y, m - 1); return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selMonth('${k}',this)">${d.toLocaleDateString('id-ID', {month: 'long', year: 'numeric'})}</button>`; }).join(''); if (keys.length) showMonth(keys[0]); }
-window.selMonth = function(k, btn) { document.querySelectorAll('#month-sel .p-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); showMonth(k); };
-function showMonth(k) { 
-    const arr = txs.filter(t => t.date.slice(0, 7) === k).sort((a, b) => new Date(b.date) - new Date(a.date)); 
-    renderSumGrid(document.getElementById('month-sum'), arr); 
-    renderList(document.getElementById('month-body'), arr); 
-    const [y, m] = k.split('-'); const dim = new Date(y, m, 0).getDate(); const labels = [], inc = new Array(dim).fill(0), exp = new Array(dim).fill(0); 
-    for (let i = 1; i <= dim; i++) labels.push(i + ''); 
-    arr.forEach(t => { const d = new Date(t.date).getDate() - 1; if (t.type === 'income') inc[d] += t.amount; else if (t.type === 'expense') exp[d] += t.amount; else if (t.type === 'debt') { inc[d] += t.amount; if (t.isPaid) exp[d] += t.amount; } else if (t.type === 'recv') { exp[d] += t.amount; if (t.isPaid) inc[d] += t.amount; } }); 
-    mkChart('chartMonth', labels, inc, exp); 
-    renderBudgets(k);
+function showWeek(k) {
+    const arr = txs.filter(t => wkKey(t.date) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('week-sum'), arr);
+    renderList(document.getElementById('week-body'), arr);
+    let incData = [0,0,0,0,0,0,0], expData = [0,0,0,0,0,0,0];
+    arr.forEach(t => {
+        let day = new Date(t.date).getDay();
+        let idx = day === 0 ? 6 : day - 1;
+        if (t.type === 'income') incData[idx] += t.amount;
+        if (t.type === 'expense') expData[idx] += t.amount;
+    });
+    mkChart('chartWeek', ['Sen','Sel','Rab','Kam','Jum','Sab','Min'], incData, expData);
 }
 
-function renderYearly() { const years = {}; txs.forEach(t => { const k = t.date.slice(0, 4); (years[k] = years[k] || []).push(t); }); const keys = Object.keys(years).sort().reverse(); document.getElementById('year-sel').innerHTML = keys.map((k, i) => `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selYear('${k}',this)">${k}</button>`).join(''); if (keys.length) showYear(keys[0]); }
-window.selYear = function(k, btn) { document.querySelectorAll('#year-sel .p-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); showYear(k); };
-function showYear(k) { const arr = txs.filter(t => t.date.startsWith(k)).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('year-sum'), arr); renderList(document.getElementById('year-body'), arr); const MNTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; const inc = new Array(12).fill(0), exp = new Array(12).fill(0); arr.forEach(t => { const m = new Date(t.date).getMonth(); if (t.type === 'income') inc[m] += t.amount; else if (t.type === 'expense') exp[m] += t.amount; else if (t.type === 'debt') { inc[m] += t.amount; if (t.isPaid) exp[m] += t.amount; } else if (t.type === 'recv') { exp[m] += t.amount; if (t.isPaid) inc[m] += t.amount; } }); mkChart('chartYear', MNTHS, inc, exp); }
+window.renderMonthly = function() {
+    const months = {};
+    txs.forEach(t => {
+        const k = t.date.slice(0, 7);
+        (months[k] = months[k] || []).push(t);
+    });
+    const keys = Object.keys(months).sort().reverse().slice(0, 12);
+    document.getElementById('month-sel').innerHTML = keys.map((k, i) => {
+        const [y, m] = k.split('-');
+        const nama = new Date(y, m - 1).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selMonth('${k}',this)">${nama}</button>`;
+    }).join('');
+    if (keys.length) showMonth(keys[0]);
+};
+window.selMonth = function(k, btn) {
+    document.querySelectorAll('#month-sel .p-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showMonth(k);
+};
+function showMonth(k) {
+    const arr = txs.filter(t => t.date.slice(0, 7) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('month-sum'), arr);
+    renderList(document.getElementById('month-body'), arr);
+    if(window.renderBudgets) renderBudgets(k);
+    let days = new Date(k.split('-')[0], k.split('-')[1], 0).getDate();
+    let labels = Array.from({length: days}, (_, i) => i + 1);
+    let incData = new Array(days).fill(0), expData = new Array(days).fill(0);
+    arr.forEach(t => {
+        let d = new Date(t.date).getDate() - 1;
+        if (t.type === 'income') incData[d] += t.amount;
+        if (t.type === 'expense') expData[d] += t.amount;
+    });
+    mkChart('chartMonth', labels, incData, expData);
+}
 
-window.renderAll = function() { const tf = document.getElementById('flt-type').value; const s = (document.getElementById('flt-search').value || '').toLowerCase(); let arr = [...txs]; if (tf) arr = arr.filter(t => t.type === tf); if (s) arr = arr.filter(t => t.note.toLowerCase().includes(s) || t.category.toLowerCase().includes(s)); arr.sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('all-sum'), arr); renderList(document.getElementById('all-body'), arr); const wObj = {}; arr.forEach(t => { const w = t.wallet || 'Kas Tunai'; if (!wObj[w]) wObj[w] = {inc: 0, exp: 0}; if (t.type === 'income') wObj[w].inc += t.amount; else if (t.type === 'expense') wObj[w].exp += t.amount; }); const wLabels = Object.keys(wObj); const wInc = wLabels.map(w => wObj[w].inc); const wExp = wLabels.map(w => wObj[w].exp); mkChart('chartRiwayat', wLabels, wInc, wExp); };
+window.renderYearly = function() {
+    const years = {};
+    txs.forEach(t => {
+        const k = t.date.slice(0, 4);
+        (years[k] = years[k] || []).push(t);
+    });
+    const keys = Object.keys(years).sort().reverse();
+    document.getElementById('year-sel').innerHTML = keys.map((k, i) => {
+        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selYear('${k}',this)">${k}</button>`;
+    }).join('');
+    if (keys.length) showYear(keys[0]);
+};
+window.selYear = function(k, btn) {
+    document.querySelectorAll('#year-sel .p-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    showYear(k);
+};
+function showYear(k) {
+    const arr = txs.filter(t => t.date.slice(0, 4) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('year-sum'), arr);
+    renderList(document.getElementById('year-body'), arr);
+    let incData = new Array(12).fill(0), expData = new Array(12).fill(0);
+    arr.forEach(t => {
+        let m = new Date(t.date).getMonth();
+        if (t.type === 'income') incData[m] += t.amount;
+        if (t.type === 'expense') expData[m] += t.amount;
+    });
+    mkChart('chartYear', ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'], incData, expData);
+}
 
-function refreshAll() { renderMetrics(); renderWalletBalances(); window.renderSavings(); renderList(document.getElementById('recent-list'), txs.slice(0, 6)); if (activePage === 'harian') renderDaily(); if (activePage === 'mingguan') renderWeekly(); if (activePage === 'bulanan') renderMonthly(); if (activePage === 'tahunan') renderYearly(); if (activePage === 'riwayat') renderAll(); window.renderCalcDisplay(); }
-
-document.getElementById('pick-daily').value = nowISO().slice(0, 10); 
-document.getElementById('f-date').value = nowISO();
-
-window.exportCSV = function() { if (!txs.length) return Swal.fire('Kosong', 'Tidak ada data untuk diunduh', 'info'); let csv = "Tanggal,Waktu,Tipe,Kategori,Nominal(Rp),Keterangan\n"; txs.forEach(t => { const d = t.date.split('T'); csv += `${d[0]},${d[1] || '-'},${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'},${t.category},${t.amount},"${t.note}"\n`; }); const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'}); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'Laporan_Keuangan_RHN.csv'; link.click(); };
-
-window.payDebt = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Bayar Hutang?', text: "Saldo bersih / dompet lo akan dipotong otomatis untuk bayar hutang ini.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Bayar Lunas', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Hutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
-window.payRecv = async function(id) { if (!currentUser) return; Swal.fire({ title: 'Piutang Dibayar?', text: "Uang kembali utuh, saldo bersih / dompet lo akan otomatis bertambah.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Dibayar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then(async (result) => { if (result.isConfirmed) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true }); Swal.fire({position: 'center', icon: 'success', title: 'Piutang Lunas!', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
-
-// ==============================================================
-// FITUR: MANAJEMEN TRANSAKSI RUTIN
-// ==============================================================
-window.manageRecurring = async function() {
-    if(!currentUser) return;
-    Swal.fire({title: 'Memuat jadwal rutin...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+window.renderAll = function() {
+    let arr = [...txs];
+    const typeFilter = document.getElementById('flt-type').value;
+    const searchFilter = document.getElementById('flt-search').value.toLowerCase();
+    if (typeFilter) arr = arr.filter(t => t.type === typeFilter);
+    if (searchFilter) arr = arr.filter(t => t.note.toLowerCase().includes(searchFilter) || t.category.toLowerCase().includes(searchFilter));
+    arr.sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('all-sum'), arr);
+    renderList(document.getElementById('all-body'), arr);
     
-    try {
-        const recSnap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
-        
-        if(recSnap.empty) {
-            return Swal.fire({icon: 'info', title: 'Kosong', text: 'Tidak ada transaksi otomatis yang sedang aktif.', background: 'var(--card)', color: 'var(--text)'});
-        }
-        
-        let html = '<div style="margin-bottom:12px;"><button onclick="stopAllRecurring()" style="width:100%; background:rgba(248, 113, 113, 0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; transition:0.2s;">🛑 NONAKTIFKAN SEMUA RUTIN</button></div>';
-        html += '<div style="max-height:50vh; overflow-y:auto; text-align:left;">';
-        
-        recSnap.forEach(d => {
-            let data = d.data();
-            let intervalName = data.interval === 'daily' ? 'Harian' : (data.interval === 'weekly' ? 'Mingguan' : 'Bulanan');
-            html += `
-            <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
-                <div style="font-size:12px; font-weight:700; color:var(--text); display:flex; justify-content:space-between;">
-                    <span>${escapeHTML(data.note)}</span>
-                    <span class="cat-badge">${intervalName}</span>
-                </div>
-                <div style="font-size:10px; color:var(--text3); margin-bottom:12px; margin-top:4px;">${fmtFull(data.amount)} | Kategori: ${data.category}</div>
-                <button onclick="stopRecurring('${d.id}')" style="background:rgba(248, 113, 113, 0.2); color:var(--red2); border:1px solid var(--red2); padding:8px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; width:100%; transition:0.2s;">NONAKTIFKAN RUTIN INI</button>
-            </div>`;
+    let incData = [0,0,0,0,0,0], expData = [0,0,0,0,0,0], labels = [];
+    for (let i=5; i>=0; i--) {
+        let d = new Date(); d.setMonth(d.getMonth() - i);
+        labels.push(d.toLocaleDateString('id-ID', {month:'short', year:'2-digit'}));
+        let k = d.toISOString().slice(0,7);
+        arr.forEach(t => {
+            if (t.date.slice(0,7) === k) {
+                if (t.type === 'income') incData[5-i] += t.amount;
+                if (t.type === 'expense') expData[5-i] += t.amount;
+            }
         });
-        html += '</div>';
-        
-        Swal.fire({title: 'Jadwal Rutin Aktif ⏱️', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
-    } catch(e) {
-        Swal.fire('Error', e.message, 'error');
+    }
+    mkChart('chartRiwayat', labels, incData, expData);
+};
+
+window.exportCSV = function() {
+    if (!txs.length) return Swal.fire({icon: 'warning', title: 'Data Kosong!', background: 'var(--card)', color: 'var(--text)'});
+    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet,Catatan,Jumlah,Status\n';
+    txs.forEach(t => {
+        let status = (t.type === 'debt' || t.type === 'recv') ? (t.isPaid ? 'Lunas' : 'Belum Lunas') : 'Selesai';
+        csv += `"${fmtDate(t.date)}","${fmtTime(t.date)}","${t.type}","${t.category}","${t.wallet}","${t.note.replace(/"/g, '""')}","${t.amount}","${status}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'RHN_Capital_Export.csv'; a.click();
+    window.URL.revokeObjectURL(url);
+};
+
+window.payDebt = async function(id) {
+    Swal.fire({title: 'Lunasi Hutang?', text: "Saldo dompet terkait akan terpotong sesuai nominal.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--gold)', background:'var(--card)', color:'var(--text)', confirmButtonText: 'LUNASKAN'}).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+            Swal.fire({icon: 'success', title: 'Hutang Lunas!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+        }
+    });
+};
+
+window.payRecv = async function(id) {
+    Swal.fire({title: 'Terima Pembayaran Piutang?', text: "Saldo dompet terkait akan bertambah sesuai nominal.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--blue)', background:'var(--card)', color:'var(--text)', confirmButtonText: 'SUDAH DIBAYAR'}).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+            Swal.fire({icon: 'success', title: 'Piutang Lunas!', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+        }
+    });
+};
+
+window.setRealLocalTime = function() {
+    const dt = document.getElementById('f-date');
+    if (dt) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        dt.value = now.toISOString().slice(0, 16);
     }
 };
 
-window.stopRecurring = async function(id) {
-    Swal.fire({ title: 'Nonaktifkan Rutin?', text: "Transaksi ini tidak akan muncul sendiri lagi.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Nonaktifkan!', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
-        if(res.isConfirmed) {
-            Swal.fire({title: 'Mematikan alarm...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
-            await deleteDoc(doc(db, 'users', currentUser.uid, 'recurring_txs', id));
-            Swal.fire({icon:'success', title:'Otomatis Dinonaktifkan!', timer:1500, showConfirmButton:false, background: 'var(--card)', color: 'var(--text)'});
-            setTimeout(() => window.manageRecurring(), 1500);
-        }
-    });
-};
+function refreshAll() {
+    if (activePage === 'dashboard') { renderMetrics(); renderWalletBalances(); const arr = txs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 15); renderList(document.getElementById('recent-list'), arr); renderSavings(); }
+    else if (activePage === 'harian') renderDaily();
+    else if (activePage === 'mingguan') renderWeekly();
+    else if (activePage === 'bulanan') renderMonthly();
+    else if (activePage === 'tahunan') renderYearly();
+    else if (activePage === 'riwayat') renderAll();
+    else if (activePage === 'admin') loadAllUsersData();
+}
 
-window.stopAllRecurring = async function() {
-    Swal.fire({ title: 'Nonaktifkan Semua?', text: "Semua jadwal transaksi rutin akan dimatikan selamanya.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Nonaktifkan Semua', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
-        if(res.isConfirmed) {
-            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
-            try {
-                const snap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
-                for(let d of snap.docs) {
-                    await deleteDoc(d.ref);
-                }
-                Swal.fire({icon:'success', title:'Semua Dinonaktifkan!', background:'var(--card)', color:'var(--text)', timer:1500, showConfirmButton:false});
-                setTimeout(() => window.manageRecurring(), 1500);
-            } catch (e) {
-                Swal.fire('Error', e.message, 'error');
-            }
-        }
-    });
-};
+setInterval(() => {
+    const btn = document.getElementById('save-btn');
+    if (btn && btn.textContent.includes('TERSIMPAN')) {
+        btn.style.background = curType === 'income' ? 'var(--green2)' : curType === 'expense' ? 'var(--red2)' : curType === 'debt' ? 'var(--gold)' : curType === 'recv' ? 'var(--blue)' : 'var(--text)';
+        btn.style.color = (curType === 'income' || curType === 'debt') ? '#000' : '#fff';
+        btn.textContent = curType === 'income' ? 'SIMPAN PEMASUKAN' : curType === 'expense' ? 'SIMPAN PENGELUARAN' : curType === 'debt' ? 'CATAT HUTANG' : curType === 'recv' ? 'CATAT PIUTANG' : 'LAKUKAN TRANSFER';
+    }
+}, 3000);
+
+document.addEventListener('DOMContentLoaded', () => { window.setRealLocalTime(); });
 </script>
-
-<style>
-  html { overflow-y: scroll !important; } 
-  .page { animation: none !important; transition: none !important; } 
-  .m-bar-fill { transition: none !important; } 
-  
-  body.swal2-shown, body.swal2-height-auto { padding-right: 0 !important; }
-
-  .nav { 
-      position: sticky !important; top: 0; z-index: 100; 
-      background-color: var(--bg); border-bottom: 4px solid #000000 !important; 
-      padding-bottom: 12px !important; transition: none !important; 
-  } 
-  .main { padding-top: 16px !important; }
-  
-  .filter-bar { 
-      position: sticky !important; top: 70px; z-index: 90; 
-      background: var(--bg); padding-top: 16px !important; 
-      margin-top: -16px; padding-bottom: 16px !important; 
-      border-bottom: 1px solid var(--border); transition: 0.3s ease; 
-  }
-  .nav.hidden-nav + .main .filter-bar { top: 0px !important; }
-
-  .m-card.bal, .ri-amount, .cat-badge { cursor: pointer; transition: 0.2s; }
-  .ri-amount:hover, .cat-badge:hover { opacity: 0.7; }
-  
-  .inc .m-bar-fill { background: linear-gradient(90deg, #10B981 0%, #34D399 100%); }
-  .exp .m-bar-fill { background: linear-gradient(90deg, #F87171 0%, #FCA5A5 100%); }
-  
-  @pragma shake animation {
-      0%, 100% {transform: translateX(0);}
-      25% {transform: translateX(-5px);}
-      75% {transform: translateX(5px);}
-  }
-  .shake-error { animation: shake 0.3s ease-in-out; border-color: var(--red2) !important; box-shadow: 0 0 8px rgba(248,113,113,0.3) !important; }
-
-  body.global-privacy .m-val, body.global-privacy .ri-amount, body.global-privacy .usd-pill, body.global-privacy .ri-usd, body.global-privacy .w-val { filter: blur(6px); transition: 0.3s; user-select: none; }
-  body.idle-mode { filter: brightness(0.6) blur(2px); transition: 0.5s ease; pointer-events: none; } 
-
-  .ewallet-badge { background: rgba(59, 130, 246, 0.2); color: #0266CC; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(59, 130, 246, 0.5); }
-  .trading-badge { background: rgba(245, 158, 11, 0.2); color: #D97706; font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.5); }
-  .big-money-glow { text-shadow: 0 0 12px rgba(251, 191, 36, 0.8); color: var(--gold) !important; }
-
-  #scroll-to-top { 
-      position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px; 
-      background: var(--blue-title); color: #fff; border: none; border-radius: 50%; 
-      font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; 
-      z-index: 999; display: none; align-items: center; justify-content: center; transition: 0.3s; 
-  }
-</style>
-
-<script>
-window.addEventListener('DOMContentLoaded', (event) => {
-  const Toast = Swal.mixin({ position: 'center', showConfirmButton: false, timer: 2000, timerProgressBar: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
-  
-  window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'block'; Toast.fire({ icon: 'warning', title: 'Koneksi Terputus!' }); });
-  window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; Toast.fire({ icon: 'success', title: 'Online Kembali!' }); });
-
-  window.history.pushState({ noBackExitsApp: true }, '');
-  window.addEventListener('popstate', function(event) {
-      Swal.fire({ title: 'Keluar Aplikasi?', text: "Anda serius ingin keluar dari aplikasi RHN CAPITAL?", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Keluar', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)', position: 'center' }).then((result) => { if (result.isConfirmed) { window.history.back(); } else { window.history.pushState({ noBackExitsApp: true }, ''); } });
-  });
-
-  if (window.Chart) { Chart.defaults.animation = false; Chart.defaults.transitions.active.animation.duration = 0; }
-  
-  const originalEditTx = window.editTx; 
-  window.editTx = function(id) { if (navigator.vibrate) navigator.vibrate(20); Swal.fire({ title: 'Edit Transaksi?', text: "Data riwayat ini akan ditarik ke form untuk diubah.", icon: 'question', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Edit', cancelButtonText: 'Batal', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then((result) => { if (result.isConfirmed) { originalEditTx(id); } }); };
-  
-  const originalDoLogout = window.doLogout; 
-  window.doLogout = function() { if (navigator.vibrate) navigator.vibrate(20); Swal.fire({ title: 'Keluar Akun?', text: "Lu yakin mau keluar dari aplikasi?", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Keluar', position: 'center', backdrop: 'rgba(0,0,0,0.6)' }).then((result) => { if (result.isConfirmed) { originalDoLogout(); } }); };
-
-  // Menutup Animasi Pembuka (Splash Screen) secara aman tanpa stuck
-  setTimeout(() => {
-     const splash = document.getElementById('splash-screen');
-     if(splash) splash.classList.add('splash-exit');
-  }, 800);
-});
-</script>
-
 </body>
 </html>
