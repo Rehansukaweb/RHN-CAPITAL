@@ -30,19 +30,7 @@
         setTimeout(() => { splash.style.display = 'none'; }, 400);
       }
     }, 800);
-
-    // Zoom checker
-    var testEl = document.createElement('div');
-    testEl.style.cssText = 'font-size: 100px; position: absolute; visibility: hidden; z-index: -999;';
-    document.body.appendChild(testEl);
-    
-    var actualSize = parseFloat(window.getComputedStyle(testEl).fontSize);
-    document.body.removeChild(testEl);
-    
-    if (actualSize !== 100 && actualSize > 0) {
-       var zoomRatio = 100 / actualSize;
-       document.documentElement.style.zoom = zoomRatio;
-    }
+    // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
   });
 </script>
 
@@ -225,7 +213,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 .f-input-dark {
   width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
-  outline: none; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500;
+  outline: none; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 500;
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
@@ -386,7 +374,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
-  .f-input-dark { padding: 18px 16px; font-size: 15px; border-radius: 16px; }
+  .f-input-dark { padding: 18px 16px; font-size: 16px; border-radius: 16px; } /* Updated to 16px */
   
   .list-wrap { padding: 0 !important; margin: 0 !important; width: 100%; }
   .recent-item { width: 100% !important; margin: 0 0 12px 0 !important; padding: 12px 16px !important; border-radius: 24px !important; border-left: none !important; border-right: none !important; background: var(--card); flex-direction: row; justify-content: space-between; align-items: center; }
@@ -915,7 +903,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     
     <button class="set-action" style="width: 100%; margin-bottom: 16px; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 12px;" onclick="window.generateQris()">BUAT QRIS DINAMIS</button>
     
-    <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px), radial-gradient(#e2e8f0 1.2px, #ffffff 1.2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;">
+    <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 380px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px), radial-gradient(#e2e8f0 1.2px, #ffffff 1.2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;">
       
       <div style="position: absolute; left: 0; top: 22%; width: 0; height: 0; border-top: 45px transparent solid; border-bottom: 45px transparent solid; border-left: 24px solid #d91b29; z-index: 2;"></div>
       
@@ -944,7 +932,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         <div style="font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">A01</div>
       </div>
 
-      <div style="background: #ffffff; padding: 10px; border-radius: 14px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; z-index: 3;">
+      <div style="background: #ffffff; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; display: inline-flex; justify-content: center; align-items: center; margin-bottom: 16px; z-index: 3; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
         <div id="qris-qrcode" style="padding: 2px; background: #ffffff;"></div>
       </div>
 
@@ -960,7 +948,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
           <div id="qris-print-version" style="color: #000; font-weight: 800; font-size: 10px; margin-top: 2px;">Waktu Cetak: -</div>
         </div>
 
-        <div style="background: #d91b29; color: #ffffff; padding: 5px 20px 8px 30px; width: 56%; clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%); display: flex; flex-direction: column; align-items: flex-end; box-sizing: border-box;">
+        <div style="background: #d91b29; color: #ffffff; padding: 5px 20px 8px 30px; width: 60%; clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%); display: flex; flex-direction: column; align-items: flex-end; box-sizing: border-box;">
           <div style="font-size: 7.5px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.2px; width: 100%; text-align: right; padding-right: 4px;">Cara pembayaran QRIS</div>
           <div style="display: flex; justify-content: flex-end; gap: 8px; align-items: center; width: 100%;">
             
@@ -1254,6 +1242,26 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 </script>
 
 <script type="module">
+window.idleTimer = null;
+window.resetIdle = function() {
+    if (window.idleTimer) clearTimeout(window.idleTimer);
+    if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_autolock === 'on' && window.appUnlocked) {
+        window.idleTimer = setTimeout(() => {
+            window.appUnlocked = false;
+            document.getElementById('app-screen').style.display = 'none';
+            document.getElementById('pin-screen').style.display = 'flex';
+            document.getElementById('pin-title').textContent = 'Masukkan PIN';
+            document.getElementById('pin-sub').textContent = 'Terkunci Otomatis (30 Detik)';
+            document.getElementById('app-pin').value = '';
+            window.pinMode = 'verify';
+            if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+        }, 30000);
+    }
+};
+['touchstart', 'mousemove', 'keydown', 'scroll', 'click'].forEach(evt => {
+    document.addEventListener(evt, window.resetIdle, { passive: true });
+});
+
 window.toggleTheme = function() {
   document.body.classList.toggle('light-mode');
   const isLight = document.body.classList.contains('light-mode');
@@ -1379,7 +1387,7 @@ window.generateQris = function() {
     qrContainer.style.display = "flex"; 
 
     new QRCode(qrElement, {
-        text: qrisDinamis, width: 220, height: 220,
+        text: qrisDinamis, width: 200, height: 200,
         colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.M
     });
 
@@ -2907,13 +2915,14 @@ function showMonth(k) {
     renderSumGrid(document.getElementById('month-sum'), arr);
     renderList(document.getElementById('month-body'), arr);
     if(window.renderBudgets) renderBudgets(k);
-    let days = new Date(k.split('-')[0], k.split('-')[1], 0).getDate();
+    let days = new Date(k.split('-')[1], 0).getDate();
     let labels = Array.from({length: days}, (_, i) => i + 1);
     let incData = new Array(days).fill(0), expData = new Array(days).fill(0);
+    
     arr.forEach(t => {
-        let d = new Date(t.date).getDate() - 1;
-        if (t.type === 'income') incData[d] += t.amount;
-        if (t.type === 'expense') expData[d] += t.amount;
+        let day = parseInt(t.date.split('-')[2].slice(0, 2)) - 1;
+        if(t.type === 'income') incData[day] += t.amount;
+        if(t.type === 'expense') expData[day] += t.amount;
     });
     mkChart('chartMonth', labels, incData, expData);
 }
@@ -2921,87 +2930,110 @@ function showMonth(k) {
 window.renderYearly = function() {
     const years = {};
     txs.forEach(t => {
-        const k = t.date.slice(0, 4);
-        (years[k] = years[k] || []).push(t);
+        const y = t.date.slice(0, 4);
+        (years[y] = years[y] || []).push(t);
     });
     const keys = Object.keys(years).sort().reverse();
-    document.getElementById('year-sel').innerHTML = keys.map((k, i) => {
-        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selYear('${k}',this)">${k}</button>`;
+    document.getElementById('year-sel').innerHTML = keys.map((y, i) => {
+        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selYear('${y}',this)">${y}</button>`;
     }).join('');
     if (keys.length) showYear(keys[0]);
 };
-window.selYear = function(k, btn) {
+
+window.selYear = function(y, btn) {
     document.querySelectorAll('#year-sel .p-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    showYear(k);
+    showYear(y);
 };
-function showYear(k) {
-    const arr = txs.filter(t => t.date.slice(0, 4) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+function showYear(y) {
+    const arr = txs.filter(t => t.date.slice(0, 4) === y).sort((a, b) => new Date(b.date) - new Date(a.date));
     renderSumGrid(document.getElementById('year-sum'), arr);
     renderList(document.getElementById('year-body'), arr);
     let incData = new Array(12).fill(0), expData = new Array(12).fill(0);
     arr.forEach(t => {
-        let m = new Date(t.date).getMonth();
-        if (t.type === 'income') incData[m] += t.amount;
-        if (t.type === 'expense') expData[m] += t.amount;
+        let month = parseInt(t.date.slice(5, 7)) - 1;
+        if (t.type === 'income') incData[month] += t.amount;
+        if (t.type === 'expense') expData[month] += t.amount;
     });
     mkChart('chartYear', ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'], incData, expData);
 }
 
 window.renderAll = function() {
-    let arr = [...txs];
     const typeFilter = document.getElementById('flt-type').value;
     const searchFilter = document.getElementById('flt-search').value.toLowerCase();
-    if (typeFilter) arr = arr.filter(t => t.type === typeFilter);
-    if (searchFilter) arr = arr.filter(t => t.note.toLowerCase().includes(searchFilter) || t.category.toLowerCase().includes(searchFilter));
-    arr.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    let arr = txs.filter(t => {
+        let matchType = typeFilter ? t.type === typeFilter : true;
+        let matchSearch = (t.note && t.note.toLowerCase().includes(searchFilter)) || (t.category && t.category.toLowerCase().includes(searchFilter));
+        return matchType && matchSearch;
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     renderSumGrid(document.getElementById('all-sum'), arr);
     renderList(document.getElementById('all-body'), arr);
-    
-    let incData = [0,0,0,0,0,0], expData = [0,0,0,0,0,0], labels = [];
-    for (let i=5; i>=0; i--) {
-        let d = new Date(); d.setMonth(d.getMonth() - i);
-        labels.push(d.toLocaleDateString('id-ID', {month:'short', year:'2-digit'}));
-        let k = d.toISOString().slice(0,7);
-        arr.forEach(t => {
-            if (t.date.slice(0,7) === k) {
-                if (t.type === 'income') incData[5-i] += t.amount;
-                if (t.type === 'expense') expData[5-i] += t.amount;
-            }
-        });
-    }
+
+    let dates = {};
+    arr.forEach(t => {
+        let d = t.date.slice(0, 10);
+        if (!dates[d]) dates[d] = { inc: 0, exp: 0 };
+        if (t.type === 'income') dates[d].inc += t.amount;
+        if (t.type === 'expense') dates[d].exp += t.amount;
+    });
+    let sortedDates = Object.keys(dates).sort();
+    let incData = sortedDates.map(d => dates[d].inc);
+    let expData = sortedDates.map(d => dates[d].exp);
+    let labels = sortedDates.map(d => d.slice(5, 10)); 
     mkChart('chartRiwayat', labels, incData, expData);
 };
 
 window.exportCSV = function() {
-    if (!txs.length) return Swal.fire({icon: 'warning', title: 'Data Kosong!', background: 'var(--card)', color: 'var(--text)'});
-    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet,Catatan,Jumlah,Status\n';
+    if (!txs.length) return Swal.fire({icon: 'info', title: 'Data Kosong', background: 'var(--card)', color: 'var(--text)'});
+    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan,Pemilik\n';
     txs.forEach(t => {
-        let status = (t.type === 'debt' || t.type === 'recv') ? (t.isPaid ? 'Lunas' : 'Belum Lunas') : 'Selesai';
-        csv += `"${fmtDate(t.date)}","${fmtTime(t.date)}","${t.type}","${t.category}","${t.wallet}","${t.note.replace(/"/g, '""')}","${t.amount}","${status}"\n`;
+        let dt = new Date(t.date);
+        let dateStr = dt.toLocaleDateString('id-ID');
+        let timeStr = dt.toLocaleTimeString('id-ID');
+        let tWallet = t.wallet || '';
+        let tWalletTo = t.walletTo || '';
+        let tEmail = t.ownerEmail || '';
+        csv += `${dateStr},${timeStr},${t.type},"${t.category}","${tWallet}","${tWalletTo}",${t.amount},"${t.note}","${tEmail}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'RHN_Capital_Export.csv'; a.click();
-    window.URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'RHN_Capital_Report.csv');
+    a.click();
 };
 
 window.payDebt = async function(id) {
-    Swal.fire({title: 'Lunasi Hutang?', text: "Saldo dompet terkait akan terpotong sesuai nominal.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background:'var(--card)', color:'var(--text)', confirmButtonText: 'LUNASKAN'}).then(async (res) => {
+    Swal.fire({
+        title: 'Lunas?', text: "Hutang ini udah dibayar lunas?", icon: 'question', 
+        showCancelButton: true, confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', 
+        confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+    }).then(async (res) => {
         if (res.isConfirmed) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-            Swal.fire({icon: 'success', title: 'Hutang Lunas!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                Swal.fire({icon: 'success', title: 'Hutang Lunas!', timer: 1000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
         }
     });
 };
 
 window.payRecv = async function(id) {
-    Swal.fire({title: 'Terima Pembayaran Piutang?', text: "Saldo dompet terkait akan bertambah sesuai nominal.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background:'var(--card)', color:'var(--text)', confirmButtonText: 'SUDAH DIBAYAR'}).then(async (res) => {
+    Swal.fire({
+        title: 'Udah Dibayar?', text: "Piutang ini udah dibayar sama yang ngutang?", icon: 'question', 
+        showCancelButton: true, confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', 
+        confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+    }).then(async (res) => {
         if (res.isConfirmed) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-            Swal.fire({icon: 'success', title: 'Piutang Lunas!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                Swal.fire({icon: 'success', title: 'Piutang Lunas!', timer: 1000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
         }
     });
 };
@@ -3009,35 +3041,34 @@ window.payRecv = async function(id) {
 window.setRealLocalTime = function() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const isoTime = now.toISOString().slice(0, 16);
-    
-    const dt = document.getElementById('f-date');
-    if (dt) dt.value = isoTime;
-    
-    const qrisDt = document.getElementById('qris-date');
-    if (qrisDt) qrisDt.value = isoTime;
+    const localISOTime = now.toISOString().slice(0, 16);
+    if (document.getElementById('f-date')) document.getElementById('f-date').value = localISOTime;
+    if (document.getElementById('qris-date')) document.getElementById('qris-date').value = localISOTime;
 };
 
-function refreshAll() {
-    if (activePage === 'dashboard') { renderMetrics(); renderWalletBalances(); const arr = txs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20); renderList(document.getElementById('recent-list'), arr); renderSavings(); }
-    else if (activePage === 'harian') renderDaily();
-    else if (activePage === 'mingguan') renderWeekly();
-    else if (activePage === 'bulanan') renderMonthly();
-    else if (activePage === 'tahunan') renderYearly();
-    else if (activePage === 'riwayat') renderAll();
-    // BAGIAN ADMIN DIHAPUS DARI SINI BIAR GAK AUTO-LOAD & SPAM POPUP
-}
+window.refreshAll = function() {
+    if (activePage === 'dashboard') { 
+        renderMetrics(); 
+        renderList(document.getElementById('recent-list'), txs.slice(0, 10)); 
+        renderWalletBalances();
+        if (window.renderSavings) renderSavings();
+    } 
+    else if (activePage === 'harian') { 
+        document.getElementById('pick-daily').value = document.getElementById('pick-daily').value || nowISO().slice(0, 10); 
+        renderDaily(); 
+    } 
+    else if (activePage === 'mingguan') { renderWeekly(); } 
+    else if (activePage === 'bulanan') { renderMonthly(); } 
+    else if (activePage === 'tahunan') { renderYearly(); } 
+    else if (activePage === 'riwayat') { renderAll(); }
+    
+    if (calcRates) window.renderCalcDisplay();
+};
 
-setInterval(() => {
-    const btn = document.getElementById('save-btn');
-    if (btn && btn.textContent.includes('TERSIMPAN')) {
-        btn.style.background = curType === 'income' ? 'var(--green2)' : curType === 'expense' ? 'var(--red2)' : curType === 'debt' ? 'var(--gold)' : curType === 'recv' ? 'var(--blue)' : 'var(--text)';
-        btn.style.color = (curType === 'income' || curType === 'debt') ? '#000' : '#fff';
-        btn.textContent = curType === 'income' ? 'SIMPAN PEMASUKAN' : curType === 'expense' ? 'SIMPAN PENGELUARAN' : curType === 'debt' ? 'CATAT HUTANG' : curType === 'recv' ? 'CATAT PIUTANG' : 'LAKUKAN TRANSFER';
-    }
-}, 3000);
+// Set inisialisasi waktu saat web pertama kali dimuat
+window.setRealLocalTime();
+if (document.getElementById('f-date')) document.getElementById('f-date').value = nowISO().slice(0, 16);
 
-document.addEventListener('DOMContentLoaded', () => { window.setRealLocalTime(); });
 </script>
 </body>
 </html>
