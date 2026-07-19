@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -15,6 +16,12 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+  // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
+  const OriginalSwal = window.Swal;
+  window.Swal = OriginalSwal.mixin({
+    heightAuto: false
+  });
+
   window.addEventListener('DOMContentLoaded', function() {
     // --- FIX SPLASH SCREEN (DIPERCEPAT NO DELAY) ---
     setTimeout(function() {
@@ -23,7 +30,7 @@
         splash.classList.add('splash-exit');
         setTimeout(() => { splash.style.display = 'none'; }, 400);
       }
-    }, 800); // Dipercepat jadi 0.8 detik
+    }, 800);
 
     // Zoom checker
     var testEl = document.createElement('div');
@@ -92,6 +99,11 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Kunci lay out saat popup muncul agar tidak lompat */
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+  overflow: hidden !important;
 }
 
 .swal2-container { z-index: 100000 !important; }
@@ -238,7 +250,6 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
 
 /* HISTORY CARDS */
-/* Hapus max-height agar bisa full mengikuti panel kiri */
 #recent-list { overflow-y: auto; scrollbar-width: none; }
 #recent-list::-webkit-scrollbar { display: none; }
 
@@ -402,13 +413,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-bottom: 0; }
   .w-card { min-width: 0; }
   
-  /* --- FIX PANEL AGAR TINGGINYA SAMA --- */
   .panel { display: flex; align-items: stretch; gap: 24px; }
   .panel > .card:nth-child(1) { width: 380px; flex-shrink: 0; margin-bottom: 0; }
   .panel > .card:nth-child(2) { flex-grow: 1; display: flex; flex-direction: column; margin-bottom: 0; }
   .panel > .card:nth-child(2) .list-wrap { flex-grow: 1; overflow-y: auto; height: 0; padding-right: 8px; }
   
-  /* Hilangkan max-height di desktop agar mengisi ruang penuh */
   #recent-list { max-height: none !important; }
   
   .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
@@ -864,9 +873,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     </div>
   </div>
 
-  <!-- FITUR TAMBAHAN: GENERATOR QRIS PENGGUNA -->
   <div class="set-group">
-    <!-- Judul ini sekaligus jadi Tombol Rahasia buat input data base QRIS Statis -->
     <div class="set-title" onclick="window.promptInputQris()" style="cursor: default;" title="Ketuk untuk mengatur Data QRIS (Rahasia)">💳 GENERATOR QRIS PENGGUNA</div>
 
     <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Masukkan nominal tagihan untuk membuat QR Code pembayaran.</div>
@@ -899,7 +906,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
       <input type="text" id="qris-note" class="f-input-dark" placeholder="Contoh: Bayar jajan / TF dari Budi">
     </div>
     
-    <!-- TAMBAHAN: KOLOM WAKTU DAN TANGGAL UNTUK QRIS -->
     <div class="form-row">
       <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
         <span>WAKTU TRANSAKSI</span>
@@ -910,15 +916,11 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     
     <button class="set-action" style="width: 100%; margin-bottom: 16px; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 12px;" onclick="window.generateQris()">BUAT QRIS DINAMIS</button>
     
-    <!-- FRAME POSTER QRIS RESMI STANDARD NASIONAL -->
     <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px), radial-gradient(#e2e8f0 1.2px, #ffffff 1.2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;">
       
-      <!-- Ornamen Sisi Kiri Segitiga Merah -->
       <div style="position: absolute; left: 0; top: 22%; width: 0; height: 0; border-top: 45px transparent solid; border-bottom: 45px transparent solid; border-left: 24px solid #d91b29; z-index: 2;"></div>
       
-      <!-- Header Row (QRIS Logo Kiri, GPN Kanan) -->
       <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 20px; padding: 0 4px; z-index: 3;">
-        <!-- QRIS Logo Vector Official -->
         <div style="display: flex; align-items: flex-start; gap: 4px;">
           <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 24px;">
           <div style="height: 18px; width: 4px; border-left: 2px solid #0f172a; border-bottom: 2px solid #0f172a; margin-top: 2px;"></div>
@@ -927,7 +929,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
             <span style="font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 800; color: #0f172a; line-height: 1.1;">Pembayaran Nasional</span>
           </div>
         </div>
-        <!-- GPN Logo Vector -->
         <div>
           <svg width="45" height="35" viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M22 2 L42 2 L35 11 Z" fill="#d91b29"/>
@@ -938,39 +939,32 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
         </div>
       </div>
 
-      <!-- Detail Identitas Merchant Resmi -->
       <div style="text-align: center; margin-bottom: 14px; width: 100%; z-index: 3; color: #000000;">
         <div style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; color: #000000;">RHN CAPITAL FINANCE</div>
         <div style="font-size: 11px; font-weight: 600; color: #334155; margin-bottom: 2px; letter-spacing: 0.2px;">NMID: ID1026489225353</div>
         <div style="font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">A01</div>
       </div>
 
-      <!-- Wadah Cetak Kode QR -->
       <div style="background: #ffffff; padding: 10px; border-radius: 14px; border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; z-index: 3;">
         <div id="qris-qrcode" style="padding: 2px; background: #ffffff;"></div>
       </div>
 
-      <!-- Footer Publikasi ASPI -->
       <div style="text-align: center; margin-bottom: 20px; width: 100%; z-index: 3;">
         <div style="font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: #0f172a; letter-spacing: 0.4px; margin-bottom: 1px;">SATU QRIS untuk semua</div>
         <div style="font-size: 8.5px; font-weight: 600; color: #64748B;">Cek aplikasi penyelenggara di: <span style="color: #0f172a; font-weight: 700;">www.aspi-qris.id</span></div>
       </div>
 
-      <!-- Kaki Cetakan Informasi (Metadata Kiri, Panduan Pembayaran Kanan Merah) -->
       <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 120%; margin-left: -10%; margin-right: -10%; background: transparent; position: relative; z-index: 3; padding-left: 10%; box-sizing: border-box;">
         
-        <!-- Cetakan Kode Sistem Kiri (dengan Hari Tanggal Dinamis) -->
         <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 9px; font-weight: 700; line-height: 1.4; font-family: 'Outfit', sans-serif;">
           <div>Dicetak oleh: 93600914</div>
           <div id="qris-print-version" style="color: #000; font-weight: 800; font-size: 10px; margin-top: 2px;">Waktu Cetak: -</div>
         </div>
 
-        <!-- Ribbon Langkah-Langkah Panduan Merah -->
         <div style="background: #d91b29; color: #ffffff; padding: 5px 20px 8px 30px; width: 56%; clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%); display: flex; flex-direction: column; align-items: flex-end; box-sizing: border-box;">
           <div style="font-size: 7.5px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.2px; width: 100%; text-align: right; padding-right: 4px;">Cara pembayaran QRIS</div>
           <div style="display: flex; justify-content: flex-end; gap: 8px; align-items: center; width: 100%;">
             
-            <!-- Langkah 1 -->
             <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
               <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><rect x="5" y="2" width="14" height="20" rx="2"></rect><circle cx="12" cy="18" r="1"></circle></svg>
@@ -979,7 +973,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
               <span style="font-size: 4.5px; font-weight: 500; white-space: nowrap; margin-top: -2px; opacity: 0.85;">Berlogo QRIS</span>
             </div>
             
-            <!-- Langkah 2 -->
             <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
               <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
@@ -987,7 +980,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
               <span style="font-size: 5px; font-weight: 800; white-space: nowrap;">Scan dan cek</span>
             </div>
             
-            <!-- Langkah 3 -->
             <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
               <div style="background: #ffffff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#d91b29" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -997,14 +989,11 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
             
           </div>
         </div>
-
       </div>
     </div>
-    <!-- SELESAI FRAME POSTER QRIS RESMI -->
     
     <button id="btn-qris-konfirmasi" class="set-action" style="width: 100%; display: none; background: var(--green2); color: #000; border: none; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onclick="window.konfirmasiPembayaranQris()">✅ KONFIRMASI SUDAH BAYAR</button>
   </div>
-  <!-- SELESAI FITUR QRIS -->
 
   <div class="set-group">
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
@@ -1232,12 +1221,14 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
   const localPin = localStorage.getItem('local_pin_rhn');
   window.appUnlocked = false; 
 
-  // Memaksa fokus cepat dan agresif
   window.forceFocusPin = () => {
+      // FIX: Tahan keyboard kalau animasi splash screen masih jalan
+      const splash = document.getElementById('splash-screen');
+      if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
+
       const pinEl = document.getElementById('app-pin');
       if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
           pinEl.focus();
-          // Trick untuk mobile memaksa keyboard muncul (bila didukung browser)
           try { pinEl.click(); } catch(e){}
       }
   };
@@ -1253,7 +1244,6 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
              document.getElementById('pin-sub').textContent = 'Keamanan Aktif';
              window.pinMode = 'verify_local';
              
-             // Loop sangat agresif agar langsung kebuka tanpa delay
              window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
          } else {
              document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
@@ -1310,9 +1300,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-// ==============================================================
-// FITUR INTERMEDIATE: QRIS DINAMIS PER AKUN PENGGUNA
-// ==============================================================
 const QRIS_STATIS_ASLI = "00020101021126610014COM.GO-JEK.WWW01189360091430598840940210G0598840940303UMI51440014ID.CO.QRIS.WWW0215ID10264892253530303UMI5204899953033605802ID5919RHN CAPITAL FINANCE6005DEPOK61051645162070703A016304A525";
 window.userQrisBase = "";
 
@@ -1383,7 +1370,6 @@ window.generateQris = function() {
     const qrContainer = document.getElementById("qris-qrcode-container");
     const qrElement = document.getElementById("qris-qrcode");
     
-    // PENAMBAHAN WAKTU CETAK / TANGGAL DI POSTER
     const now = new Date();
     const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][now.getDay()];
     const tanggal = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -1410,7 +1396,6 @@ window.konfirmasiPembayaranQris = async function() {
     const qrisTipe = document.getElementById("qris-tipe").value;
     const qrisWallet = document.getElementById("qris-wallet").value;
     const qrisNote = document.getElementById("qris-note").value.trim() || 'Pembayaran QRIS';
-    // MENGAMBIL WAKTU DARI FORM QRIS BARU
     const qrisDate = document.getElementById("qris-date").value || nowISO(); 
 
     const btn = document.getElementById("btn-qris-konfirmasi");
@@ -1421,7 +1406,7 @@ window.konfirmasiPembayaranQris = async function() {
             type: qrisTipe,
             amount: parseFloat(nominalInput),
             note: qrisNote,
-            date: qrisDate, // <-- MEMAKAI WAKTU YANG SUDAH DIUPDATE
+            date: qrisDate, 
             ownerEmail: currentUser.email,
             createdAt: serverTimestamp(),
             isDeleted: false
@@ -1448,7 +1433,7 @@ window.konfirmasiPembayaranQris = async function() {
         }).then(() => {
             document.getElementById("qris-nominal").value = "";
             document.getElementById("qris-note").value = "";
-            window.setRealLocalTime(); // Reset jam otomatis
+            window.setRealLocalTime();
             document.getElementById("qris-qrcode-container").style.display = "none";
             btn.style.display = "none";
             btn.innerText = "✅ KONFIRMASI SUDAH BAYAR";
@@ -1823,9 +1808,6 @@ window.reqResetPasswordViaSettings = async function() { if (!currentUser) return
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
 window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
-// ==============================================================
-// FITUR: MANAJEMEN KATEGORI CUSTOM
-// ==============================================================
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
         title: 'Pilih Tipe Kategori',
@@ -1881,6 +1863,40 @@ window.promptAddCategory = async function(type) {
         Swal.fire({icon:'success', title:'Ditambahkan', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
     }
     manageCategories();
+};
+
+window.manageRecurring = async function() {
+    if(!currentUser) return;
+    Swal.fire({title: 'Memuat Jadwal...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+    try {
+        const snap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
+        if(snap.empty) {
+            return Swal.fire({icon:'info', title:'Kosong', text:'Belum ada jadwal transaksi rutin yang aktif.', background:'var(--card)', color:'var(--text)'});
+        }
+        let html = '<div style="max-height:60vh; overflow-y:auto; text-align:left;">';
+        snap.forEach(d => {
+            let r = d.data();
+            let intv = r.interval === 'daily' ? 'Harian' : (r.interval === 'weekly' ? 'Mingguan' : 'Bulanan');
+            html += `<div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
+                <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(r.note)} (${r.category})</div>
+                <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">${fmtFull(r.amount)} | ${intv} | Jam: ${r.runTime || '09:00'}</div>
+                <button onclick="stopRecurring('${d.id}')" style="width:100%; background:rgba(248, 113, 113, 0.1); color:var(--red2); border:1px solid var(--red2); padding:6px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">HENTIKAN JADWAL</button>
+            </div>`;
+        });
+        html += '</div>';
+        Swal.fire({title: 'Jadwal Rutin Aktif', html: html, showConfirmButton: false, background:'var(--card)', color:'var(--text)'});
+    } catch(e) { Swal.fire('Error', e.message, 'error'); }
+};
+
+window.stopRecurring = function(id) {
+    Swal.fire({ title: 'Hentikan Jadwal?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hentikan', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
+        if(res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading()});
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'recurring_txs', id));
+            Swal.fire({icon:'success', title:'Dihentikan', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+            manageRecurring();
+        }
+    });
 };
 
 window.updatePrefCategories = function(resetCat = true) { 
@@ -1945,9 +1961,6 @@ window.changePinInApp = async function() {
     } 
 };
 
-// ==================================================
-// LOGOUT DENGAN KONFIRMASI (FIX STUCK LOGIN)
-// ==================================================
 window.doLogout = function() { 
     Swal.fire({
         title: 'Keluar Akun?',
@@ -1965,7 +1978,6 @@ window.doLogout = function() {
             if (unsubListener) { unsubListener(); unsubListener = null; } 
             txs = []; deletedTxs = []; 
             
-            // Reset Data Lokal sepenuhnya
             localStorage.removeItem('last_uid_rhn'); 
             localStorage.removeItem('local_pin_rhn');
             window.appUnlocked = false; 
@@ -2059,7 +2071,7 @@ onAuthStateChanged(auth, async user => {
                 document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
                 window.pinMode = 'setup'; 
                 window.userCloudPin = null; 
-                setLoading(false); // Pastikan tombol reset saat layarnya berganti
+                setLoading(false); 
                 if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
             }
         } else { 
@@ -2072,7 +2084,7 @@ onAuthStateChanged(auth, async user => {
                 document.getElementById('pin-sub').textContent = 'Keamanan aktif'; 
                 document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; 
                 window.pinMode = 'verify'; 
-                setLoading(false); // Pastikan tombol reset saat layarnya berganti
+                setLoading(false); 
                 if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
             } else {
                 unlockApp();
@@ -2081,7 +2093,6 @@ onAuthStateChanged(auth, async user => {
     } catch(err) { console.error(err); setLoading(false); }
     if(window.resetIdle) window.resetIdle();
   } else {
-    // RESET SEMUA KEAMANAN JIKA LOGOUT/TIDAK ADA USER
     currentUser = null; 
     localStorage.removeItem('last_uid_rhn'); 
     localStorage.removeItem('local_pin_rhn');
@@ -2092,7 +2103,6 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('app-screen').style.display = 'none'; 
     document.getElementById('pin-screen').style.display = 'none';
     
-    // FIX tombol stuck "Memproses..."
     setLoading(false); 
     document.getElementById('auth-submit-btn').textContent = 'MASUK'; 
 
@@ -2153,7 +2163,6 @@ function unlockApp() {
         const name = currentUser.displayName || currentUser.email.split('@')[0]; 
         document.getElementById('user-name').textContent = name; 
         
-        // Update avatar dengan inisial nama jika sudah login
         const avatarEl = document.getElementById('user-avatar');
         if (avatarEl) {
             avatarEl.style.fontWeight = '800';
@@ -2201,14 +2210,24 @@ document.getElementById('app-pin').addEventListener('input', function(e) { this.
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
   const adminContainer = document.getElementById('admin-all-body');
-  adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:var(--gold);font-size:12px;">Memuat data akun dari server...</div>';
   
+  Swal.fire({
+      title: 'Memuat Database...',
+      html: 'Sedang menarik data seluruh pengguna.<br>Harap tunggu sebentar...',
+      background: 'var(--card)', 
+      color: 'var(--text)',
+      heightAuto: false, 
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading() }
+  });
+
   try {
     const txQuery = query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'));
     const snap = await getDocs(txQuery);
     
     if (snap.empty) {
       adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
+      Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data ditemukan.', background: 'var(--card)', color: 'var(--text)'});
       return;
     }
 
@@ -2278,9 +2297,18 @@ window.loadAllUsersData = async function() {
       </div>`;
     }).join('');
 
-    Swal.fire({icon: 'success', title: 'Data Ditemukan', text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, background: 'var(--card)', color: 'var(--text)', timer: 1000});
+    Swal.fire({
+        icon: 'success', 
+        title: 'Data Ditemukan', 
+        text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, 
+        background: 'var(--card)', color: 'var(--text)', 
+        timer: 1500,
+        showConfirmButton: false
+    });
+
   } catch (error) {
     adminContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`;
+    Swal.fire({icon: 'error', title: 'Gagal', text: error.message, background: 'var(--card)', color: 'var(--text)'});
   }
 };
 
@@ -2382,10 +2410,8 @@ window.addTx = async function() {
       let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
-      // Popup jadi jauh lebih cepat hilang (0.8s aja)
       Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
       
-      // Tombol menyimpan langsung reset super cepat
       setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 10); } else { selType('income'); } }, 800);
       const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
   } catch(e) { Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; } 
@@ -2643,7 +2669,16 @@ window.selType = function(t) {
     if (t === 'transfer') { if (catRow) catRow.style.display = 'none'; if (walletToRow) walletToRow.style.display = 'block'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)'; } else { if (catRow) catRow.style.display = 'block'; if (walletToRow) walletToRow.style.display = 'none'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET'; } 
 };
 
-window.switchPage = function(p) { document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); document.getElementById('page-' + p).classList.add('active'); const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin']; const idx = pages.indexOf(p); if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } activePage = p; refreshAll(); };
+window.switchPage = function(p) { 
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); 
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); 
+  document.getElementById('page-' + p).classList.add('active'); 
+  const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin']; 
+  const idx = pages.indexOf(p); 
+  if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } 
+  activePage = p; 
+  refreshAll(); 
+};
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
 
@@ -2985,14 +3020,13 @@ window.setRealLocalTime = function() {
 };
 
 function refreshAll() {
-    // Pada dashboard tampilkan 20 transaksi terbaru, scrollable dalam batasan container
     if (activePage === 'dashboard') { renderMetrics(); renderWalletBalances(); const arr = txs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20); renderList(document.getElementById('recent-list'), arr); renderSavings(); }
     else if (activePage === 'harian') renderDaily();
     else if (activePage === 'mingguan') renderWeekly();
     else if (activePage === 'bulanan') renderMonthly();
     else if (activePage === 'tahunan') renderYearly();
     else if (activePage === 'riwayat') renderAll();
-    else if (activePage === 'admin') loadAllUsersData();
+    // BAGIAN ADMIN DIHAPUS DARI SINI BIAR GAK AUTO-LOAD & SPAM POPUP
 }
 
 setInterval(() => {
