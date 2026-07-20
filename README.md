@@ -903,7 +903,8 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
     
     <button class="set-action" style="width: 100%; margin-bottom: 16px; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 12px;" onclick="window.generateQris()">BUAT QRIS DINAMIS</button>
     
-    <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 380px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0; background-image: radial-gradient(#e2e8f0 1.2px, transparent 1.2px), radial-gradient(#e2e8f0 1.2px, #ffffff 1.2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;">
+    <!-- FIX: BINTIK-BINTIK PUTIH DIHAPUS, DIGANTI BACKGROUND PUTIH POLOS -->
+    <div id="qris-qrcode-container" style="display: none; flex-direction: column; align-items: center; background: #ffffff; color: #000000; border-radius: 24px; padding: 24px 20px 0px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; width: 100%; max-width: 380px; margin-left: auto; margin-right: auto; box-sizing: border-box; border: 1px solid #e2e8f0;">
       
       <div style="position: absolute; left: 0; top: 22%; width: 0; height: 0; border-top: 45px transparent solid; border-bottom: 45px transparent solid; border-left: 24px solid #d91b29; z-index: 2;"></div>
       
@@ -1999,6 +2000,7 @@ window.doLogout = function() {
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
+    document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
     
     try {
         await setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
@@ -2162,6 +2164,8 @@ function unlockApp() {
         window.pinFocusInterval = null;
     }
     
+    // FIX: Memastikan Auth Screen ikut dihide saat berhasil unlock PIN.
+    document.getElementById('auth-screen').style.display = 'none'; 
     document.getElementById('pin-screen').style.display = 'none'; 
     document.getElementById('app-screen').style.display = 'block'; 
     setLoading(false); 
@@ -2872,202 +2876,212 @@ function mkChart(id, labels, incData, expData) {
 
 window.renderDaily = function() { const pick = document.getElementById('pick-daily').value; const target = pick ? new Date(pick).toDateString() : new Date().toDateString(); const arr = txs.filter(t => new Date(t.date).toDateString() === target).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'), arr); renderList(document.getElementById('daily-body'), arr); };
 
-function wkKey(d) { const dt = new Date(d); const day = dt.getDay(); const diff = dt.getDate() - day + (day === 0 ? -6 : 1); const monday = new Date(new Date(d).setDate(diff)); monday.setMinutes(monday.getMinutes() - monday.getTimezoneOffset()); return monday.toISOString().slice(0, 10); }
+function wkKey(d) { const dt = new Date(d); const day = dt.getDay(); const diff = dt.getDate() - day + (day === 0 ? -6 : 1); const monday = new Date(new Date(d).setDate(diff)); monday.setMinutes(monday.getMinutes() - monday.getTimezoneOffset()); return monday.toISOString().slice(0,10); }
 
-function renderWeekly() { const weeks = {}; txs.forEach(t => { const k = wkKey(t.date); (weeks[k] = weeks[k] || []).push(t); }); const keys = Object.keys(weeks).sort().reverse().slice(0, 8); document.getElementById('week-sel').innerHTML = keys.map((k, i) => { const m = new Date(k), s = new Date(k); s.setDate(s.getDate() + 6); return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selWeek('${k}',this)">${m.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})} – ${s.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})}</button>`; }).join(''); if (keys.length) showWeek(keys[0]); }
-window.selWeek = function(k, btn) { document.querySelectorAll('#week-sel .p-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); showWeek(k); };
+window.renderWeekly = function() {
+  const weeks = [...new Set(txs.map(t => wkKey(t.date)))].sort().reverse();
+  const sel = document.getElementById('week-sel');
+  if (!sel) return;
+  if (!weeks.length) { 
+      sel.innerHTML = ''; 
+      document.getElementById('week-body').innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; 
+      document.getElementById('week-sum').innerHTML = ''; 
+      if(charts['chartWeek']) charts['chartWeek'].destroy(); 
+      return; 
+  }
+  if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
+  
+  sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active='${w}'; renderWeekly()">${fmtDate(w)} - ${fmtDate(new Date(new Date(w).setDate(new Date(w).getDate()+6)))}</button>`).join('');
+  
+  const arr = txs.filter(t => wkKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
+  renderSumGrid(document.getElementById('week-sum'), arr);
+  renderList(document.getElementById('week-body'), arr);
+  
+  const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  const inc = Array(7).fill(0), exp = Array(7).fill(0);
+  arr.forEach(t => {
+    let d = new Date(t.date).getDay();
+    let idx = d === 0 ? 6 : d - 1;
+    if(t.type === 'income') inc[idx] += t.amount;
+    if(t.type === 'expense') exp[idx] += t.amount;
+  });
+  mkChart('chartWeek', days, inc, exp);
+};
 
-function showWeek(k) {
-    const arr = txs.filter(t => wkKey(t.date) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
-    renderSumGrid(document.getElementById('week-sum'), arr);
-    renderList(document.getElementById('week-body'), arr);
-    let incData = [0,0,0,0,0,0,0], expData = [0,0,0,0,0,0,0];
-    arr.forEach(t => {
-        let day = new Date(t.date).getDay();
-        let idx = day === 0 ? 6 : day - 1;
-        if (t.type === 'income') incData[idx] += t.amount;
-        if (t.type === 'expense') expData[idx] += t.amount;
-    });
-    mkChart('chartWeek', ['Sen','Sel','Rab','Kam','Jum','Sab','Min'], incData, expData);
-}
-
+function moKey(d) { return d.slice(0, 7); }
 window.renderMonthly = function() {
-    const months = {};
-    txs.forEach(t => {
-        const k = t.date.slice(0, 7);
-        (months[k] = months[k] || []).push(t);
-    });
-    const keys = Object.keys(months).sort().reverse().slice(0, 12);
-    document.getElementById('month-sel').innerHTML = keys.map((k, i) => {
-        const [y, m] = k.split('-');
-        const nama = new Date(y, m - 1).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
-        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selMonth('${k}',this)">${nama}</button>`;
-    }).join('');
-    if (keys.length) showMonth(keys[0]);
+  const mos = [...new Set(txs.map(t => moKey(t.date)))].sort().reverse();
+  const sel = document.getElementById('month-sel');
+  if (!sel) return;
+  if (!mos.length) { 
+      sel.innerHTML = ''; 
+      document.getElementById('month-body').innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; 
+      document.getElementById('month-sum').innerHTML = ''; 
+      if(charts['chartMonth']) charts['chartMonth'].destroy(); 
+      document.getElementById('budget-progress-container').innerHTML = ''; 
+      return; 
+  }
+  if (!sel.dataset.active || !mos.includes(sel.dataset.active)) sel.dataset.active = mos[0];
+  
+  const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  sel.innerHTML = mos.map(m => {
+    let [y, mo] = m.split('-');
+    return `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; renderMonthly()">${moNames[parseInt(mo)-1]} ${y}</button>`;
+  }).join('');
+  
+  const arr = txs.filter(t => moKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
+  renderSumGrid(document.getElementById('month-sum'), arr);
+  renderList(document.getElementById('month-body'), arr);
+  renderBudgets(sel.dataset.active);
+  
+  const daysInMo = new Date(sel.dataset.active.split('-')[0], sel.dataset.active.split('-')[1], 0).getDate();
+  const lbls = Array.from({length:daysInMo}, (_,i)=>i+1);
+  const inc = Array(daysInMo).fill(0), exp = Array(daysInMo).fill(0);
+  arr.forEach(t => {
+    let d = parseInt(t.date.split('-')[2].slice(0,2)) - 1;
+    if(t.type === 'income') inc[d] += t.amount;
+    if(t.type === 'expense') exp[d] += t.amount;
+  });
+  mkChart('chartMonth', lbls, inc, exp);
 };
-window.selMonth = function(k, btn) {
-    document.querySelectorAll('#month-sel .p-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    showMonth(k);
-};
-function showMonth(k) {
-    const arr = txs.filter(t => t.date.slice(0, 7) === k).sort((a, b) => new Date(b.date) - new Date(a.date));
-    renderSumGrid(document.getElementById('month-sum'), arr);
-    renderList(document.getElementById('month-body'), arr);
-    if(window.renderBudgets) renderBudgets(k);
-    let days = new Date(k.split('-')[1], 0).getDate();
-    let labels = Array.from({length: days}, (_, i) => i + 1);
-    let incData = new Array(days).fill(0), expData = new Array(days).fill(0);
-    
-    arr.forEach(t => {
-        let day = parseInt(t.date.split('-')[2].slice(0, 2)) - 1;
-        if(t.type === 'income') incData[day] += t.amount;
-        if(t.type === 'expense') expData[day] += t.amount;
-    });
-    mkChart('chartMonth', labels, incData, expData);
-}
 
+function yrKey(d) { return d.slice(0, 4); }
 window.renderYearly = function() {
-    const years = {};
-    txs.forEach(t => {
-        const y = t.date.slice(0, 4);
-        (years[y] = years[y] || []).push(t);
-    });
-    const keys = Object.keys(years).sort().reverse();
-    document.getElementById('year-sel').innerHTML = keys.map((y, i) => {
-        return `<button class="p-btn${i === 0 ? ' active' : ''}" onclick="selYear('${y}',this)">${y}</button>`;
-    }).join('');
-    if (keys.length) showYear(keys[0]);
+  const yrs = [...new Set(txs.map(t => yrKey(t.date)))].sort().reverse();
+  const sel = document.getElementById('year-sel');
+  if (!sel) return;
+  if (!yrs.length) { 
+      sel.innerHTML = ''; 
+      document.getElementById('year-body').innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; 
+      document.getElementById('year-sum').innerHTML = ''; 
+      if(charts['chartYear']) charts['chartYear'].destroy(); 
+      return; 
+  }
+  if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
+  
+  sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly()">${y}</button>`).join('');
+  
+  const arr = txs.filter(t => yrKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
+  renderSumGrid(document.getElementById('year-sum'), arr);
+  renderList(document.getElementById('year-body'), arr);
+  
+  const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const inc = Array(12).fill(0), exp = Array(12).fill(0);
+  arr.forEach(t => {
+    let m = parseInt(t.date.split('-')[1]) - 1;
+    if(t.type === 'income') inc[m] += t.amount;
+    if(t.type === 'expense') exp[m] += t.amount;
+  });
+  mkChart('chartYear', moNames, inc, exp);
 };
-
-window.selYear = function(y, btn) {
-    document.querySelectorAll('#year-sel .p-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    showYear(y);
-};
-
-function showYear(y) {
-    const arr = txs.filter(t => t.date.slice(0, 4) === y).sort((a, b) => new Date(b.date) - new Date(a.date));
-    renderSumGrid(document.getElementById('year-sum'), arr);
-    renderList(document.getElementById('year-body'), arr);
-    let incData = new Array(12).fill(0), expData = new Array(12).fill(0);
-    arr.forEach(t => {
-        let month = parseInt(t.date.slice(5, 7)) - 1;
-        if (t.type === 'income') incData[month] += t.amount;
-        if (t.type === 'expense') expData[month] += t.amount;
-    });
-    mkChart('chartYear', ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'], incData, expData);
-}
 
 window.renderAll = function() {
-    const typeFilter = document.getElementById('flt-type').value;
-    const searchFilter = document.getElementById('flt-search').value.toLowerCase();
-    
-    let arr = txs.filter(t => {
-        let matchType = typeFilter ? t.type === typeFilter : true;
-        let matchSearch = (t.note && t.note.toLowerCase().includes(searchFilter)) || (t.category && t.category.toLowerCase().includes(searchFilter));
-        return matchType && matchSearch;
-    }).sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    renderSumGrid(document.getElementById('all-sum'), arr);
-    renderList(document.getElementById('all-body'), arr);
-
-    let dates = {};
-    arr.forEach(t => {
-        let d = t.date.slice(0, 10);
-        if (!dates[d]) dates[d] = { inc: 0, exp: 0 };
-        if (t.type === 'income') dates[d].inc += t.amount;
-        if (t.type === 'expense') dates[d].exp += t.amount;
-    });
-    let sortedDates = Object.keys(dates).sort();
-    let incData = sortedDates.map(d => dates[d].inc);
-    let expData = sortedDates.map(d => dates[d].exp);
-    let labels = sortedDates.map(d => d.slice(5, 10)); 
-    mkChart('chartRiwayat', labels, incData, expData);
-};
-
-window.exportCSV = function() {
-    if (!txs.length) return Swal.fire({icon: 'info', title: 'Data Kosong', background: 'var(--card)', color: 'var(--text)'});
-    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan,Pemilik\n';
-    txs.forEach(t => {
-        let dt = new Date(t.date);
-        let dateStr = dt.toLocaleDateString('id-ID');
-        let timeStr = dt.toLocaleTimeString('id-ID');
-        let tWallet = t.wallet || '';
-        let tWalletTo = t.walletTo || '';
-        let tEmail = t.ownerEmail || '';
-        csv += `${dateStr},${timeStr},${t.type},"${t.category}","${tWallet}","${tWalletTo}",${t.amount},"${t.note}","${tEmail}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'RHN_Capital_Report.csv');
-    a.click();
+  const type = document.getElementById('flt-type')?.value || '';
+  const search = (document.getElementById('flt-search')?.value || '').toLowerCase();
+  let arr = [...txs].sort((a,b) => new Date(b.date) - new Date(a.date));
+  
+  if (type) arr = arr.filter(t => t.type === type);
+  if (search) arr = arr.filter(t => t.note.toLowerCase().includes(search) || t.category.toLowerCase().includes(search) || (t.wallet && t.wallet.toLowerCase().includes(search)));
+  
+  renderSumGrid(document.getElementById('all-sum'), arr);
+  renderList(document.getElementById('all-body'), arr);
+  
+  const mos = [...new Set(arr.map(t => moKey(t.date)))].sort();
+  const inc = Array(mos.length).fill(0), exp = Array(mos.length).fill(0);
+  arr.forEach(t => {
+    let idx = mos.indexOf(moKey(t.date));
+    if(t.type === 'income') inc[idx] += t.amount;
+    if(t.type === 'expense') exp[idx] += t.amount;
+  });
+  mkChart('chartRiwayat', mos, inc, exp);
 };
 
 window.payDebt = async function(id) {
+    if(!currentUser) return;
+    const t = txs.find(x => x.id === id);
+    if(!t) return;
     Swal.fire({
-        title: 'Lunas?', text: "Hutang ini udah dibayar lunas?", icon: 'question', 
-        showCancelButton: true, confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', 
-        confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+        title: 'Hutang Lunas?', text: "Saldo kas akan dikurangi sebesar hutang.", icon: 'warning', showCancelButton: true,
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
     }).then(async (res) => {
-        if (res.isConfirmed) {
-            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-            try {
-                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-                Swal.fire({icon: 'success', title: 'Hutang Lunas!', timer: 1000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        if(res.isConfirmed) {
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+            Swal.fire({icon: 'success', title: 'Hutang Terbayar', background: 'var(--card)', color: 'var(--text)', timer:800, showConfirmButton:false});
         }
     });
 };
 
 window.payRecv = async function(id) {
+    if(!currentUser) return;
+    const t = txs.find(x => x.id === id);
+    if(!t) return;
     Swal.fire({
-        title: 'Udah Dibayar?', text: "Piutang ini udah dibayar sama yang ngutang?", icon: 'question', 
-        showCancelButton: true, confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)', 
-        confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+        title: 'Piutang Dibayar?', text: "Saldo kas akan bertambah sebesar piutang.", icon: 'warning', showCancelButton: true,
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Bayar', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
     }).then(async (res) => {
-        if (res.isConfirmed) {
-            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-            try {
-                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-                Swal.fire({icon: 'success', title: 'Piutang Lunas!', timer: 1000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)'});
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        if(res.isConfirmed) {
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+            Swal.fire({icon: 'success', title: 'Piutang Diterima', background: 'var(--card)', color: 'var(--text)', timer:800, showConfirmButton:false});
         }
     });
+};
+
+window.exportCSV = function() {
+    if(!txs.length) return Swal.fire({icon:'error', title:'Data Kosong!', background:'var(--card)', color:'var(--text)'});
+    
+    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan\n';
+    const arr = [...txs].sort((a,b) => new Date(a.date) - new Date(b.date));
+    
+    arr.forEach(t => {
+        let dt = new Date(t.date);
+        let d = dt.toLocaleDateString('id-ID');
+        let tm = dt.toLocaleTimeString('id-ID');
+        let amt = t.amount;
+        let note = `"${t.note.replace(/"/g, '""')}"`;
+        let w = t.wallet || '-';
+        let wTo = t.walletTo || '-';
+        let cat = `"${t.category}"`;
+        
+        csv += `${d},${tm},${t.type},${cat},${w},${wTo},${amt},${note}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'RHN_Capital_Export.csv');
+    a.click();
 };
 
 window.setRealLocalTime = function() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const localISOTime = now.toISOString().slice(0, 16);
-    if (document.getElementById('f-date')) document.getElementById('f-date').value = localISOTime;
-    if (document.getElementById('qris-date')) document.getElementById('qris-date').value = localISOTime;
+    const dtInput = document.getElementById('f-date');
+    if (dtInput) dtInput.value = now.toISOString().slice(0, 16);
 };
 
 window.refreshAll = function() {
-    if (activePage === 'dashboard') { 
-        renderMetrics(); 
-        renderList(document.getElementById('recent-list'), txs.slice(0, 10)); 
-        renderWalletBalances();
-        if (window.renderSavings) renderSavings();
-    } 
-    else if (activePage === 'harian') { 
-        document.getElementById('pick-daily').value = document.getElementById('pick-daily').value || nowISO().slice(0, 10); 
-        renderDaily(); 
-    } 
-    else if (activePage === 'mingguan') { renderWeekly(); } 
-    else if (activePage === 'bulanan') { renderMonthly(); } 
-    else if (activePage === 'tahunan') { renderYearly(); } 
-    else if (activePage === 'riwayat') { renderAll(); }
+    if (!currentUser && !localStorage.getItem('last_uid_rhn')) return;
     
-    if (calcRates) window.renderCalcDisplay();
+    renderWalletBalances();
+    renderSavings();
+    
+    if (activePage === 'dashboard') {
+        renderMetrics();
+        renderList(document.getElementById('recent-list'), txs.slice(0, 10));
+    } else if (activePage === 'harian') renderDaily();
+    else if (activePage === 'mingguan') renderWeekly();
+    else if (activePage === 'bulanan') renderMonthly();
+    else if (activePage === 'tahunan') renderYearly();
+    else if (activePage === 'riwayat') renderAll();
 };
 
-// Set inisialisasi waktu saat web pertama kali dimuat
-window.setRealLocalTime();
-if (document.getElementById('f-date')) document.getElementById('f-date').value = nowISO().slice(0, 16);
+document.addEventListener("DOMContentLoaded", () => {
+    window.setRealLocalTime();
+});
+
+window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; });
+window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'block'; });
 
 </script>
 </body>
