@@ -2011,7 +2011,7 @@ onAuthStateChanged(auth, async user => {
         if (promises.length > 0) { await Promise.all(promises); }
     } catch(e) { console.error("Gagal sinkron email lama", e); }
     
-    const adminEmail = "huyrehan@gmail.com"; 
+    const adminEmail = "rehantop245@gmail.com"; 
     if (user.email === adminEmail) { document.getElementById('nav-admin').style.display = 'inline-block'; } else { document.getElementById('nav-admin').style.display = 'none'; }
 
     try {
