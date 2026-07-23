@@ -816,11 +816,9 @@ body.global-privacy #xau-idr-gr {
       <button class="export-btn" id="btn-batch-del" onclick="execBatchDelete()" style="display:none; background:var(--red2); color:#fff; margin-left:8px;">🗑️ HAPUS TERPILIH</button>
       <button class="export-btn" onclick="toggleBatchMode()" style="background:var(--bg3); color:var(--text); margin-left:8px;">PILIH BANYAK ☑</button>
     </div>
+    <div class="period-bar" id="riwayat-year-sel"></div>
     <div class="chart-wrap" style="margin-top: 16px;">
-      <div class="chart-legend">
-        <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
-        <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
-      </div>
+      <div class="chart-legend" id="riwayat-legend" style="flex-wrap: wrap;"></div>
       <div style="height:250px"><canvas id="chartRiwayat"></canvas></div>
     </div>
     <div class="list-wrap" id="all-body"></div>
@@ -2796,7 +2794,7 @@ window.cancelEdit = function() {
     document.getElementById('f-note').value = ''; 
     document.getElementById('f-date').value = nowISO(); 
     const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
-    document.getElementById('save-btn').textContent = 'SIM ঐতিহ্যN TRANSAKSI'; 
+    document.getElementById('save-btn').textContent = 'SIMPAN TRANSAKSI'; 
     document.getElementById('cancel-edit-btn').style.display = 'none'; 
 };
 
@@ -3079,250 +3077,142 @@ window.renderYearly = function() {
     if (!yrs.length) { 
         sel.innerHTML = ''; 
         document.getElementById('year-body').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>'; 
-        document.getElementById('year-sum').innerHTML = ''; 
-        if(charts['chartYear']) charts['chartYear'].destroy(); 
+        document.getElementById('year-sum').innerHTML = ''; if(charts['chartYear']) charts['chartYear'].destroy(); 
         return; 
     }
     if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
-    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly();">${y}</button>`).join('');
+    
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly();">Tahun ${y}</button>`).join('');
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
     renderSumGrid(document.getElementById('year-sum'), arr);
     renderList(document.getElementById('year-body'), arr);
     
-    let labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     let incD = Array(12).fill(0), expD = Array(12).fill(0);
     arr.forEach(t => { 
         let m = parseInt(t.date.slice(5,7)) - 1; 
         if(t.type === 'income') incD[m] += t.amount; 
         if(t.type === 'expense') expD[m] += t.amount; 
     });
-    mkChart('chartYear', labels, incD, expD);
+    mkChart('chartYear', months, incD, expD);
 };
 
 window.renderAll = function() {
-    // 1. Filter Data
-    const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
+    const typeFilter = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
     const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.toLowerCase() : '';
-    let arr = txs;
     
-    if (typeFlt) arr = arr.filter(t => t.type === typeFlt);
-    if (searchFlt) arr = arr.filter(t => t.note.toLowerCase().includes(searchFlt) || t.category.toLowerCase().includes(searchFlt));
+    let filtered = txs;
+    if (typeFilter) filtered = filtered.filter(t => t.type === typeFilter);
+    if (searchFlt) filtered = filtered.filter(t => (t.note && t.note.toLowerCase().includes(searchFlt)) || (t.category && t.category.toLowerCase().includes(searchFlt)));
     
-    arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+    filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
     
-    // 2. Render Angka dan List Transaksi
-    renderSumGrid(document.getElementById('all-sum'), arr);
-    renderList(document.getElementById('all-body'), arr);
+    const yrs = [...new Set(filtered.map(t => t.date.slice(0,4)))].sort().reverse();
+    const sel = document.getElementById('riwayat-year-sel');
     
-    // 3. --- LOGIKA BARU: HITUNG SALDO SEMUA DOMPET/E-WALLET ---
-    const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 };
-    let hutangBal = 0; let piutangBal = 0;
-    
-    txs.forEach(t => { 
-        let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; 
-        if (w !== 'Hutang' && w !== 'Piutang' && !wallets.hasOwnProperty(w)) wallets[w] = 0; 
-        if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang' && !wallets.hasOwnProperty(wTo)) wallets[wTo] = 0; 
+    if (!yrs.length) {
+        if(sel) sel.innerHTML = '';
+        document.getElementById('all-body').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
+        document.getElementById('all-sum').innerHTML = '';
+        if (charts['chartRiwayat']) charts['chartRiwayat'].destroy();
+        document.getElementById('riwayat-legend').style.display = 'none';
+        return;
+    }
+
+    if (sel) {
+        if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
+        sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; renderAll();">Tahun ${y}</button>`).join('');
         
-        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } 
-        else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } 
-        else if (t.type === 'transfer') { 
-            if (w === 'Hutang') hutangBal -= t.amount; 
-            else if (w === 'Piutang') piutangBal += t.amount; 
-            else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
+        const activeYr = sel.dataset.active;
+        const yearData = filtered.filter(t => t.date.slice(0,4) === activeYr);
+        renderSumGrid(document.getElementById('all-sum'), yearData);
+        renderList(document.getElementById('all-body'), yearData);
+
+        // Chart Pengeluaran per Kategori
+        const catTotals = {};
+        yearData.forEach(t => {
+            if (t.type === 'expense') {
+                catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
+            }
+        });
+        
+        const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+        const labels = sortedCats.map(x => x[0]);
+        const data = sortedCats.map(x => x[1]);
+        
+        if (charts['chartRiwayat']) charts['chartRiwayat'].destroy();
+        
+        const c = document.getElementById('chartRiwayat');
+        const legendEl = document.getElementById('riwayat-legend');
+        if (labels.length > 0) {
+            legendEl.style.display = 'flex';
+            legendEl.innerHTML = '<div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Kategori ('+activeYr+')</div>';
             
-            if (wTo === 'Hutang') hutangBal += t.amount; 
-            else if (wTo === 'Piutang') piutangBal -= t.amount; 
-            else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += t.amount; 
-        } 
-        else if (t.type === 'debt') { 
-            if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; 
-            if (!t.isPaid) hutangBal -= t.amount; 
-            else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
-        } 
-        else if (t.type === 'recv') { 
-            if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
-            if (!t.isPaid) piutangBal -= t.amount; 
-            else if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; 
-        } 
-    });
-
-    // 4. Siapkan Data untuk Grafik
-    let labels = [];
-    let dataBalances = [];
-    let bgColors = [];
-
-    // Warna khusus untuk tiap dompet biar grafiknya estetik
-    const walletColors = {
-        'Kas Tunai': '#10B981',   // Hijau
-        'DANA': '#3B82F6',        // Biru
-        'GoPay': '#10B981',       // Hijau
-        'ShopeePay': '#F59E0B',   // Orange
-        'MT5 Trading': '#FBBF24', // Kuning Emas
-        'Bank': '#8B5CF6'         // Ungu
-    };
-
-    for (let w in wallets) {
-        if (wallets[w] !== 0) { // Hanya tampilkan dompet yang ada isinya (tidak nol)
-            labels.push(w);
-            dataBalances.push(wallets[w]);
-            bgColors.push(walletColors[w] || '#3B82F6'); // Default biru
+            const isLight = document.body.classList.contains('light-mode');
+            charts['chartRiwayat'] = new Chart(c, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: '#F87171', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false } } } }
+            });
+        } else {
+            legendEl.style.display = 'none';
         }
     }
-    
-    // Tambahkan Hutang & Piutang ke grafik jika ada
-    if (hutangBal !== 0) { labels.push('Hutang'); dataBalances.push(hutangBal); bgColors.push('#F87171'); /* Merah */ }
-    if (piutangBal !== 0) { labels.push('Piutang'); dataBalances.push(piutangBal); bgColors.push('#3B82F6'); /* Biru */ }
-
-    // 5. --- BIKIN GRAFIK BARU ---
-    if (charts['chartRiwayat']) charts['chartRiwayat'].destroy(); 
-    const ctx = document.getElementById('chartRiwayat'); 
-    if (!ctx) return; 
-    
-    const isLight = document.body.classList.contains('light-mode');
-    
-    // Sembunyikan titik legend HTML lama karena grafiknya udah beda
-    const legendHtml = ctx.parentElement.previousElementSibling;
-    if(legendHtml && legendHtml.classList.contains('chart-legend')) {
-        legendHtml.style.display = 'none';
-    }
-
-    charts['chartRiwayat'] = new Chart(ctx, { 
-        type: 'bar', 
-        data: { 
-            labels: labels, 
-            datasets: [{ 
-                label: 'Total Saldo', 
-                data: dataBalances, 
-                backgroundColor: bgColors, 
-                borderRadius: 4, 
-                barPercentage: 0.6 
-            }] 
-        }, 
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) { 
-                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y); 
-                        }
-                    },
-                    titleFont: { family: "'Outfit'", size: 12 }, 
-                    bodyFont: { family: "'Outfit'", size: 12 }
-                }
-            }, 
-            scales: { 
-                x: { 
-                    ticks: {color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"}}, 
-                    grid: {display: false}, border: {display: false} 
-                }, 
-                y: { 
-                    ticks: { 
-                        color: isLight ? '#888' : '#888', 
-                        font: {size: 10, family: "'Outfit'"}, 
-                        callback: v => new Intl.NumberFormat('id-ID').format(v) 
-                    }, 
-                    grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, 
-                    border: {display: false} 
-                } 
-            } 
-        } 
-    });
 };
 
 window.exportCSV = function() {
-    if (!txs.length) return Swal.fire({icon:'info', title:'Data Kosong', background:'var(--card)', color:'var(--text)'});
-    
-    let csv = 'Tanggal,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan\n';
-    txs.forEach(t => {
-        let tType = t.type === 'income' ? 'Pemasukan' : (t.type === 'expense' ? 'Pengeluaran' : (t.type === 'transfer' ? 'Transfer' : (t.type === 'debt' ? 'Hutang' : 'Piutang')));
-        csv += `"${t.date}","${tType}","${t.category}","${t.wallet || ''}","${t.walletTo || ''}","${t.amount}","${t.note.replace(/"/g, '""')}"\n`;
+    if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
+    let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Tipe,Nominal,Kategori,Dompet Asal,Dompet Tujuan,Keterangan\n";
+    txs.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+        const row = [
+            fmtDate(t.date), fmtTime(t.date), t.type, t.amount, t.category, t.wallet || '', t.walletTo || '', (t.note || '').replace(/,/g, " ")
+        ];
+        csvContent += row.join(",") + "\n";
     });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a'); 
-    a.href = url; 
-    a.download = 'RHN_Capital_Riwayat.csv';
-    a.click(); 
-    window.URL.revokeObjectURL(url);
-};
-
-window.payDebt = async function(id) {
-    Swal.fire({
-        title: 'Lunas?', 
-        icon:'question', 
-        showCancelButton: true, 
-        confirmButtonText: 'Ya, Lunas', 
-        cancelButtonText: 'Batal', 
-        background:'var(--card)', color:'var(--text)',
-        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)'
-    }).then(async (res) => {
-        if(res.isConfirmed) {
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), {isPaid: true});
-            Swal.fire({icon:'success', title:'Hutang Lunas!', timer:800, showConfirmButton:false, background:'var(--card)', color:'var(--text)'});
-        }
-    });
-};
-
-window.payRecv = async function(id) {
-    Swal.fire({
-        title: 'Sudah Dibayar?', 
-        icon:'question', 
-        showCancelButton: true, 
-        confirmButtonText: 'Ya, Lunas', 
-        cancelButtonText: 'Batal', 
-        background:'var(--card)', color:'var(--text)',
-        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)'
-    }).then(async (res) => {
-        if(res.isConfirmed) {
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), {isPaid: true});
-            Swal.fire({icon:'success', title:'Piutang Lunas!', timer:800, showConfirmButton:false, background:'var(--card)', color:'var(--text)'});
-        }
-    });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "rhn_capital_laporan_keuangan.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };
 
 window.refreshAll = function() {
-    if (!currentUser) return;
-    
-    renderMetrics();
-    renderWalletBalances();
-    renderSavings();
-    
     if (activePage === 'dashboard') {
-        const arr = txs.slice(0, 10);
-        renderList(document.getElementById('recent-list'), arr);
-    } 
-    else if (activePage === 'harian') window.renderDaily();
-    else if (activePage === 'mingguan') window.renderWeekly();
-    else if (activePage === 'bulanan') window.renderMonthly();
-    else if (activePage === 'tahunan') window.renderYearly();
-    else if (activePage === 'riwayat') window.renderAll();
-    
-    if (window.renderCalcDisplay) window.renderCalcDisplay();
+        renderMetrics();
+        renderList(document.getElementById('recent-list'), txs.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10));
+        renderWalletBalances();
+        renderSavings();
+    } else if (activePage === 'harian') {
+        renderDaily();
+    } else if (activePage === 'mingguan') {
+        renderWeekly();
+    } else if (activePage === 'bulanan') {
+        renderMonthly();
+    } else if (activePage === 'tahunan') {
+        renderYearly();
+    } else if (activePage === 'riwayat') {
+        renderAll();
+    }
 };
 
 window.setRealLocalTime = function() {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const iso = now.toISOString().slice(0, 16);
-    
+    const d = new Date();
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    const localISO = new Date(d - tzOffset).toISOString().slice(0, 16);
     const fdate = document.getElementById('f-date');
-    if (fdate) fdate.value = iso;
-    
-    const qdate = document.getElementById('qris-date');
-    if (qdate) qdate.value = iso;
-    
-    const pdaily = document.getElementById('pick-daily');
-    if (pdaily && !pdaily.value) pdaily.value = now.toISOString().slice(0,10);
+    if (fdate) fdate.value = localISO;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.setRealLocalTime();
+// Mengatur waktu lokal secara otomatis saat aplikasi dibuka
+window.setRealLocalTime();
+
+// Mencegah auto-zoom menjengkelkan saat menekan input di iOS (iPhone/iPad)
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
 });
 
 </script>
