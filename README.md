@@ -3113,7 +3113,7 @@ window.renderAll = function() {
     renderSumGrid(document.getElementById('all-sum'), arr);
     renderList(document.getElementById('all-body'), arr);
     
-    let recent = arr.slice(0, 50).reverse();
+    let recent = arr.slice().reverse();
     let labels = recent.map(t => fmtDate(t.date));
     let incD = recent.map(t => t.type === 'income' ? t.amount : 0);
     let expD = recent.map(t => t.type === 'expense' ? t.amount : 0);
