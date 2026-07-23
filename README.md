@@ -3102,6 +3102,7 @@ window.renderYearly = function() {
 };
 
 window.renderAll = function() {
+    // 1. Filter Data
     const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
     const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.toLowerCase() : '';
     let arr = txs;
@@ -3110,14 +3111,127 @@ window.renderAll = function() {
     if (searchFlt) arr = arr.filter(t => t.note.toLowerCase().includes(searchFlt) || t.category.toLowerCase().includes(searchFlt));
     
     arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    // 2. Render Angka dan List Transaksi
     renderSumGrid(document.getElementById('all-sum'), arr);
     renderList(document.getElementById('all-body'), arr);
     
-    let recent = arr.slice().reverse();
-    let labels = recent.map(t => fmtDate(t.date));
-    let incD = recent.map(t => t.type === 'income' ? t.amount : 0);
-    let expD = recent.map(t => t.type === 'expense' ? t.amount : 0);
-    mkChart('chartRiwayat', labels, incD, expD);
+    // 3. --- LOGIKA BARU: HITUNG SALDO SEMUA DOMPET/E-WALLET ---
+    const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 };
+    let hutangBal = 0; let piutangBal = 0;
+    
+    txs.forEach(t => { 
+        let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; 
+        if (w !== 'Hutang' && w !== 'Piutang' && !wallets.hasOwnProperty(w)) wallets[w] = 0; 
+        if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang' && !wallets.hasOwnProperty(wTo)) wallets[wTo] = 0; 
+        
+        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } 
+        else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } 
+        else if (t.type === 'transfer') { 
+            if (w === 'Hutang') hutangBal -= t.amount; 
+            else if (w === 'Piutang') piutangBal += t.amount; 
+            else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
+            
+            if (wTo === 'Hutang') hutangBal += t.amount; 
+            else if (wTo === 'Piutang') piutangBal -= t.amount; 
+            else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += t.amount; 
+        } 
+        else if (t.type === 'debt') { 
+            if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; 
+            if (!t.isPaid) hutangBal -= t.amount; 
+            else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
+        } 
+        else if (t.type === 'recv') { 
+            if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; 
+            if (!t.isPaid) piutangBal -= t.amount; 
+            else if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; 
+        } 
+    });
+
+    // 4. Siapkan Data untuk Grafik
+    let labels = [];
+    let dataBalances = [];
+    let bgColors = [];
+
+    // Warna khusus untuk tiap dompet biar grafiknya estetik
+    const walletColors = {
+        'Kas Tunai': '#10B981',   // Hijau
+        'DANA': '#3B82F6',        // Biru
+        'GoPay': '#10B981',       // Hijau
+        'ShopeePay': '#F59E0B',   // Orange
+        'MT5 Trading': '#FBBF24', // Kuning Emas
+        'Bank': '#8B5CF6'         // Ungu
+    };
+
+    for (let w in wallets) {
+        if (wallets[w] !== 0) { // Hanya tampilkan dompet yang ada isinya (tidak nol)
+            labels.push(w);
+            dataBalances.push(wallets[w]);
+            bgColors.push(walletColors[w] || '#3B82F6'); // Default biru
+        }
+    }
+    
+    // Tambahkan Hutang & Piutang ke grafik jika ada
+    if (hutangBal !== 0) { labels.push('Hutang'); dataBalances.push(hutangBal); bgColors.push('#F87171'); /* Merah */ }
+    if (piutangBal !== 0) { labels.push('Piutang'); dataBalances.push(piutangBal); bgColors.push('#3B82F6'); /* Biru */ }
+
+    // 5. --- BIKIN GRAFIK BARU ---
+    if (charts['chartRiwayat']) charts['chartRiwayat'].destroy(); 
+    const ctx = document.getElementById('chartRiwayat'); 
+    if (!ctx) return; 
+    
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Sembunyikan titik legend HTML lama karena grafiknya udah beda
+    const legendHtml = ctx.parentElement.previousElementSibling;
+    if(legendHtml && legendHtml.classList.contains('chart-legend')) {
+        legendHtml.style.display = 'none';
+    }
+
+    charts['chartRiwayat'] = new Chart(ctx, { 
+        type: 'bar', 
+        data: { 
+            labels: labels, 
+            datasets: [{ 
+                label: 'Total Saldo', 
+                data: dataBalances, 
+                backgroundColor: bgColors, 
+                borderRadius: 4, 
+                barPercentage: 0.6 
+            }] 
+        }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { 
+                            return 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y); 
+                        }
+                    },
+                    titleFont: { family: "'Outfit'", size: 12 }, 
+                    bodyFont: { family: "'Outfit'", size: 12 }
+                }
+            }, 
+            scales: { 
+                x: { 
+                    ticks: {color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"}}, 
+                    grid: {display: false}, border: {display: false} 
+                }, 
+                y: { 
+                    ticks: { 
+                        color: isLight ? '#888' : '#888', 
+                        font: {size: 10, family: "'Outfit'"}, 
+                        callback: v => new Intl.NumberFormat('id-ID').format(v) 
+                    }, 
+                    grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, 
+                    border: {display: false} 
+                } 
+            } 
+        } 
+    });
 };
 
 window.exportCSV = function() {
