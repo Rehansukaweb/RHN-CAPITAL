@@ -3130,37 +3130,106 @@ window.renderAll = function() {
         renderSumGrid(document.getElementById('all-sum'), yearData);
         renderList(document.getElementById('all-body'), yearData);
 
-        // Chart Pengeluaran per Kategori
-        const catTotals = {};
+// Chart Pemasukan & Pengeluaran per Dompet (Termasuk Transfer)
+        const walletStats = {};
+        const initW = (w) => { if (!walletStats[w]) walletStats[w] = { inc: 0, exp: 0 }; };
+
         yearData.forEach(t => {
-            if (t.type === 'expense') {
-                catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
+            let w = t.wallet || 'Kas Tunai';
+            let wTo = t.walletTo;
+
+            // Hiraukan Hutang/Piutang sebagai dompet fisik utama di chart ini
+            if (w !== 'Hutang' && w !== 'Piutang') initW(w);
+            if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang') initW(wTo);
+
+            if (t.type === 'income') {
+                if (walletStats[w]) walletStats[w].inc += t.amount;
+            } else if (t.type === 'expense') {
+                if (walletStats[w]) walletStats[w].exp += t.amount;
+            } else if (t.type === 'transfer') {
+                // Transfer: Uang keluar dari dompet asal, uang masuk ke dompet tujuan
+                if (walletStats[w]) walletStats[w].exp += t.amount;
+                if (wTo && walletStats[wTo]) walletStats[wTo].inc += t.amount;
+            } else if (t.type === 'debt') {
+                // Dapat hutangan = uang masuk ke dompet
+                if (walletStats[w]) {
+                    walletStats[w].inc += t.amount;
+                    if (t.isPaid) walletStats[w].exp += t.amount; // Kalau dibayar = uang keluar
+                }
+            } else if (t.type === 'recv') {
+                // Ngasih hutang (piutang) = uang keluar dari dompet
+                if (walletStats[w]) {
+                    walletStats[w].exp += t.amount;
+                    if (t.isPaid) walletStats[w].inc += t.amount; // Kalau dilunasi = uang masuk
+                }
             }
         });
         
-        const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
-        const labels = sortedCats.map(x => x[0]);
-        const data = sortedCats.map(x => x[1]);
+        // Urutkan dari dompet dengan perputaran uang paling besar
+        const validWallets = Object.keys(walletStats).sort((a, b) => 
+            (walletStats[b].inc + walletStats[b].exp) - (walletStats[a].inc + walletStats[a].exp)
+        );
+
+        const labels = validWallets;
+        const incData = validWallets.map(w => walletStats[w].inc);
+        const expData = validWallets.map(w => walletStats[w].exp);
         
         if (charts['chartRiwayat']) charts['chartRiwayat'].destroy();
         
         const c = document.getElementById('chartRiwayat');
         const legendEl = document.getElementById('riwayat-legend');
+        
         if (labels.length > 0) {
             legendEl.style.display = 'flex';
-            legendEl.innerHTML = '<div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Kategori ('+activeYr+')</div>';
+            legendEl.style.gap = '16px';
+            legendEl.style.justifyContent = 'center';
+            legendEl.style.flexWrap = 'wrap';
+            legendEl.innerHTML = `
+                <div style="width: 100%; text-align: center; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: var(--text); text-transform: uppercase;">Arus Keuangan per Dompet (${activeYr})</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
+            `;
             
             const isLight = document.body.classList.contains('light-mode');
             charts['chartRiwayat'] = new Chart(c, {
                 type: 'bar',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: '#F87171', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false } } } }
+                data: { 
+                    labels: labels, 
+                    datasets: [
+                        { label: 'Pemasukan', data: incData, backgroundColor: isLight ? '#10B981' : '#10B981', borderRadius: 4, barPercentage: 0.6 },
+                        { label: 'Pengeluaran', data: expData, backgroundColor: isLight ? '#F87171' : '#F87171', borderRadius: 4, barPercentage: 0.6 }
+                    ] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                                }
+                            },
+                            titleFont: { family: "'Outfit'", size: 10 },
+                            bodyFont: { family: "'Outfit'", size: 10 }
+                        }
+                    }, 
+                    scales: { 
+                        x: { 
+                            ticks: { color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, 
+                            grid: {display: false}, border: {display: false} 
+                        }, 
+                        y: { 
+                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, 
+                            grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false } 
+                        } 
+                    } 
+                }
             });
         } else {
             legendEl.style.display = 'none';
         }
-    }
-};
 
 window.exportCSV = function() {
     if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
