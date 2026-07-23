@@ -3130,80 +3130,60 @@ window.renderAll = function() {
         renderSumGrid(document.getElementById('all-sum'), yearData);
         renderList(document.getElementById('all-body'), yearData);
 
-// Chart Pemasukan & Pengeluaran per Dompet (Termasuk Transfer)
-        const walletStats = {};
-        const initW = (w) => { if (!walletStats[w]) walletStats[w] = { inc: 0, exp: 0 }; };
+        // Chart Pemasukan & Pengeluaran per Dompet (Kas Tunai s/d Bank), termasuk transfer antar dompet
+        const walletList = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+        const incWallet = {}; const expWallet = {};
+        walletList.forEach(w => { incWallet[w] = 0; expWallet[w] = 0; });
 
         yearData.forEach(t => {
-            let w = t.wallet || 'Kas Tunai';
-            let wTo = t.walletTo;
-
-            // Hiraukan Hutang/Piutang sebagai dompet fisik utama di chart ini
-            if (w !== 'Hutang' && w !== 'Piutang') initW(w);
-            if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang') initW(wTo);
-
+            const w = t.wallet; const wTo = t.walletTo;
             if (t.type === 'income') {
-                if (walletStats[w]) walletStats[w].inc += t.amount;
+                if (incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
             } else if (t.type === 'expense') {
-                if (walletStats[w]) walletStats[w].exp += t.amount;
+                if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
             } else if (t.type === 'transfer') {
-                // Transfer: Uang keluar dari dompet asal, uang masuk ke dompet tujuan
-                if (walletStats[w]) walletStats[w].exp += t.amount;
-                if (wTo && walletStats[wTo]) walletStats[wTo].inc += t.amount;
+                // Dompet asal kehilangan dana (pengeluaran), dompet tujuan menerima dana (pemasukan)
+                if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+                if (incWallet.hasOwnProperty(wTo)) incWallet[wTo] += t.amount;
             } else if (t.type === 'debt') {
-                // Dapat hutangan = uang masuk ke dompet
-                if (walletStats[w]) {
-                    walletStats[w].inc += t.amount;
-                    if (t.isPaid) walletStats[w].exp += t.amount; // Kalau dibayar = uang keluar
-                }
+                // Uang hutang cair masuk ke dompet
+                if (incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
+                if (t.isPaid && expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
             } else if (t.type === 'recv') {
-                // Ngasih hutang (piutang) = uang keluar dari dompet
-                if (walletStats[w]) {
-                    walletStats[w].exp += t.amount;
-                    if (t.isPaid) walletStats[w].inc += t.amount; // Kalau dilunasi = uang masuk
-                }
+                // Uang dipinjamkan keluar dari dompet
+                if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+                if (t.isPaid && incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
             }
         });
-        
-        // Urutkan dari dompet dengan perputaran uang paling besar
-        const validWallets = Object.keys(walletStats).sort((a, b) => 
-            (walletStats[b].inc + walletStats[b].exp) - (walletStats[a].inc + walletStats[a].exp)
-        );
 
-        const labels = validWallets;
-        const incData = validWallets.map(w => walletStats[w].inc);
-        const expData = validWallets.map(w => walletStats[w].exp);
+        const labels = walletList;
+        const incData = walletList.map(w => incWallet[w]);
+        const expData = walletList.map(w => expWallet[w]);
+        const hasData = incData.some(v => v > 0) || expData.some(v => v > 0);
         
         if (charts['chartRiwayat']) charts['chartRiwayat'].destroy();
         
         const c = document.getElementById('chartRiwayat');
         const legendEl = document.getElementById('riwayat-legend');
-        
-        if (labels.length > 0) {
+        if (hasData) {
             legendEl.style.display = 'flex';
-            legendEl.style.gap = '16px';
-            legendEl.style.justifyContent = 'center';
-            legendEl.style.flexWrap = 'wrap';
-            legendEl.innerHTML = `
-                <div style="width: 100%; text-align: center; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: var(--text); text-transform: uppercase;">Arus Keuangan per Dompet (${activeYr})</div>
-                <div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan</div>
-                <div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran</div>
-            `;
+            legendEl.innerHTML = '<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Dompet ('+activeYr+')</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Dompet</div>';
             
             const isLight = document.body.classList.contains('light-mode');
+            const isMobile = window.innerWidth <= 768;
             charts['chartRiwayat'] = new Chart(c, {
                 type: 'bar',
-                data: { 
-                    labels: labels, 
+                data: {
+                    labels: labels,
                     datasets: [
-                        { label: 'Pemasukan', data: incData, backgroundColor: isLight ? '#10B981' : '#10B981', borderRadius: 4, barPercentage: 0.6 },
-                        { label: 'Pengeluaran', data: expData, backgroundColor: isLight ? '#F87171' : '#F87171', borderRadius: 4, barPercentage: 0.6 }
-                    ] 
+                        { label: 'Pemasukan', data: incData, backgroundColor: '#10B981', borderRadius: 4, barPercentage: 0.7 },
+                        { label: 'Pengeluaran', data: expData, backgroundColor: '#F87171', borderRadius: 4, barPercentage: 0.7 }
+                    ]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
@@ -3214,22 +3194,24 @@ window.renderAll = function() {
                             titleFont: { family: "'Outfit'", size: 10 },
                             bodyFont: { family: "'Outfit'", size: 10 }
                         }
-                    }, 
-                    scales: { 
-                        x: { 
-                            ticks: { color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, 
-                            grid: {display: false}, border: {display: false} 
-                        }, 
-                        y: { 
-                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: 10, family: "'Outfit'"} }, 
-                            grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false } 
-                        } 
-                    } 
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Outfit'"}, autoSkip: false, maxRotation: isMobile ? 30 : 0, minRotation: 0 },
+                            grid: { display: false }, border: { display: false }
+                        },
+                        y: {
+                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Outfit'"} },
+                            grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false }
+                        }
+                    }
                 }
             });
         } else {
             legendEl.style.display = 'none';
         }
+    }
+};
 
 window.exportCSV = function() {
     if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
