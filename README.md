@@ -22,14 +22,14 @@
   });
 
   window.addEventListener('DOMContentLoaded', function() {
-    // --- FIX SPLASH SCREEN (DIPERCEPAT NO DELAY) ---
+    // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
     setTimeout(function() {
       const splash = document.getElementById('splash-screen');
       if (splash) {
         splash.classList.add('splash-exit');
-        setTimeout(() => { splash.style.display = 'none'; }, 400);
+        setTimeout(() => { splash.style.display = 'none'; }, 800); // 800ms tunggu animasi kelar
       }
-    }, 800);
+    }, 2500); // Waktu tampil 2.5 detik
     // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
   });
 </script>
@@ -276,7 +276,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 /* KALKULATOR MATA UANG */
 .calc-curr-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; cursor: pointer; border-radius: 12px; transition: 0.2s; margin-bottom: 4px; border: 1px solid transparent; }
-.calc-curr-item:hover { background: rgba(255,255,255,0.02); border-color: var(--border); }
+.calc-curr-item:hover { background: rgba(128,128,128,0.1); border-color: var(--border); }
 .calc-curr-item.active { background: rgba(16, 185, 129, 0.05); border-color: var(--green2); }
 .calc-curr-item.active .calc-amount { color: var(--green2); border-right: 2px solid var(--green2); padding-right: 6px; animation: blinkCursor 1s step-end infinite; }
 @keyframes blinkCursor { 50% { border-color: transparent; } }
@@ -297,10 +297,11 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 .swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); }
-.calc-keypad-wrap { background: #1A1C1F; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
+/* Diubah warna bg nya pake variable tema biar nyesuaiin dengan light/dark mode */
+.calc-keypad-wrap { background: var(--bg3); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
 .calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
 .calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
-.calc-btn:active { background: rgba(255,255,255,0.1); }
+.calc-btn:active { background: rgba(128,128,128,0.2); }
 .calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
 .calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
 
@@ -427,6 +428,21 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, body.hide-usd .usd-status-pill { display: none !important; }
 
+/* ANTI INTIP SALDO (FITUR 7) */
+body.global-privacy .m-val,
+body.global-privacy .w-val,
+body.global-privacy .ri-amount,
+body.global-privacy .usd-pill,
+body.global-privacy .usd-wallet-val,
+body.global-privacy .ri-usd,
+body.global-privacy .usd-val,
+body.global-privacy #xau-idr-oz,
+body.global-privacy #xau-idr-gr {
+  filter: blur(6px);
+  user-select: none;
+  transition: filter 0.3s ease;
+}
+
 /* ==========================================================================
    🌟 SPLASH SCREEN V8
    ========================================================================== */
@@ -436,7 +452,7 @@ body.hide-usd .usd-pill, body.hide-usd .ri-usd, body.hide-usd .usd-wallet-val, b
 }
 
 #splash-screen.splash-exit {
-  animation: splashSlideUpOut 0.4s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+  animation: splashSlideUpOut 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards;
 }
 
 @keyframes splashSlideUpOut {
@@ -2780,7 +2796,7 @@ window.cancelEdit = function() {
     document.getElementById('f-note').value = ''; 
     document.getElementById('f-date').value = nowISO(); 
     const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
-    document.getElementById('save-btn').textContent = 'SIMPAN TRANSAKSI'; 
+    document.getElementById('save-btn').textContent = 'SIM ঐতিহ্যN TRANSAKSI'; 
     document.getElementById('cancel-edit-btn').style.display = 'none'; 
 };
 
@@ -3007,197 +3023,193 @@ window.renderWeekly = function() {
   }
   if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
   
-  sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active='${w}'; renderWeekly()">${fmtDate(w)} - ${fmtDate(new Date(new Date(w).setDate(new Date(w).getDate()+6)))}</button>`).join('');
-  
-  const arr = txs.filter(t => wkKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
+  sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active
+='${w}'; renderWeekly();">Minggu ${fmtDate(w)}</button>`).join('');
+  const targetWk = sel.dataset.active;
+  const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
   renderSumGrid(document.getElementById('week-sum'), arr);
   renderList(document.getElementById('week-body'), arr);
   
-  const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-  const inc = Array(7).fill(0), exp = Array(7).fill(0);
-  arr.forEach(t => {
-    let d = new Date(t.date).getDay();
-    let idx = d === 0 ? 6 : d - 1;
-    if(t.type === 'income') inc[idx] += t.amount;
-    if(t.type === 'expense') exp[idx] += t.amount;
+  const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  let incD = [0,0,0,0,0,0,0], expD = [0,0,0,0,0,0,0];
+  arr.forEach(t => { 
+      let d = new Date(t.date).getDay() - 1; 
+      if(d < 0) d = 6; 
+      if(t.type === 'income') incD[d] += t.amount; 
+      if(t.type === 'expense') expD[d] += t.amount; 
   });
-  mkChart('chartWeek', days, inc, exp);
+  mkChart('chartWeek', days, incD, expD);
 };
 
-function moKey(d) { return d.slice(0, 7); }
 window.renderMonthly = function() {
-  const mos = [...new Set(txs.map(t => moKey(t.date)))].sort().reverse();
-  const sel = document.getElementById('month-sel');
-  if (!sel) return;
-  if (!mos.length) { 
-      sel.innerHTML = ''; 
-      document.getElementById('month-body').innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; 
-      document.getElementById('month-sum').innerHTML = ''; 
-      if(charts['chartMonth']) charts['chartMonth'].destroy(); 
-      document.getElementById('budget-progress-container').innerHTML = ''; 
-      return; 
-  }
-  if (!sel.dataset.active || !mos.includes(sel.dataset.active)) sel.dataset.active = mos[0];
-  
-  const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  sel.innerHTML = mos.map(m => {
-    let [y, mo] = m.split('-');
-    return `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; renderMonthly()">${moNames[parseInt(mo)-1]} ${y}</button>`;
-  }).join('');
-  
-  const arr = txs.filter(t => moKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
-  renderSumGrid(document.getElementById('month-sum'), arr);
-  renderList(document.getElementById('month-body'), arr);
-  renderBudgets(sel.dataset.active);
-  
-  const daysInMo = new Date(sel.dataset.active.split('-')[0], sel.dataset.active.split('-')[1], 0).getDate();
-  const lbls = Array.from({length:daysInMo}, (_,i)=>i+1);
-  const inc = Array(daysInMo).fill(0), exp = Array(daysInMo).fill(0);
-  arr.forEach(t => {
-    let d = parseInt(t.date.split('-')[2].slice(0,2)) - 1;
-    if(t.type === 'income') inc[d] += t.amount;
-    if(t.type === 'expense') exp[d] += t.amount;
-  });
-  mkChart('chartMonth', lbls, inc, exp);
+    const mths = [...new Set(txs.map(t => t.date.slice(0,7)))].sort().reverse();
+    const sel = document.getElementById('month-sel');
+    if (!sel) return;
+    if (!mths.length) { 
+        sel.innerHTML = ''; 
+        document.getElementById('month-body').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>'; 
+        document.getElementById('month-sum').innerHTML = ''; 
+        if(charts['chartMonth']) charts['chartMonth'].destroy(); 
+        return; 
+    }
+    if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; renderMonthly();">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+    
+    const active = sel.dataset.active;
+    const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('month-sum'), arr);
+    renderList(document.getElementById('month-body'), arr);
+    
+    let daysInM = new Date(active.slice(0,4), active.slice(5,7), 0).getDate();
+    let labels = Array.from({length: daysInM}, (_, i) => i + 1);
+    let incD = Array(daysInM).fill(0), expD = Array(daysInM).fill(0);
+    arr.forEach(t => { 
+        let d = parseInt(t.date.slice(8,10)) - 1; 
+        if(t.type === 'income') incD[d] += t.amount; 
+        if(t.type === 'expense') expD[d] += t.amount; 
+    });
+    mkChart('chartMonth', labels, incD, expD);
+    renderBudgets(active);
 };
 
-function yrKey(d) { return d.slice(0, 4); }
 window.renderYearly = function() {
-  const yrs = [...new Set(txs.map(t => yrKey(t.date)))].sort().reverse();
-  const sel = document.getElementById('year-sel');
-  if (!sel) return;
-  if (!yrs.length) { 
-      sel.innerHTML = ''; 
-      document.getElementById('year-body').innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; 
-      document.getElementById('year-sum').innerHTML = ''; 
-      if(charts['chartYear']) charts['chartYear'].destroy(); 
-      return; 
-  }
-  if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
-  
-  sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly()">${y}</button>`).join('');
-  
-  const arr = txs.filter(t => yrKey(t.date) === sel.dataset.active).sort((a,b) => new Date(b.date) - new Date(a.date));
-  renderSumGrid(document.getElementById('year-sum'), arr);
-  renderList(document.getElementById('year-body'), arr);
-  
-  const moNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const inc = Array(12).fill(0), exp = Array(12).fill(0);
-  arr.forEach(t => {
-    let m = parseInt(t.date.split('-')[1]) - 1;
-    if(t.type === 'income') inc[m] += t.amount;
-    if(t.type === 'expense') exp[m] += t.amount;
-  });
-  mkChart('chartYear', moNames, inc, exp);
+    const yrs = [...new Set(txs.map(t => t.date.slice(0,4)))].sort().reverse();
+    const sel = document.getElementById('year-sel');
+    if (!sel) return;
+    if (!yrs.length) { 
+        sel.innerHTML = ''; 
+        document.getElementById('year-body').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>'; 
+        document.getElementById('year-sum').innerHTML = ''; 
+        if(charts['chartYear']) charts['chartYear'].destroy(); 
+        return; 
+    }
+    if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly();">${y}</button>`).join('');
+    
+    const active = sel.dataset.active;
+    const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('year-sum'), arr);
+    renderList(document.getElementById('year-body'), arr);
+    
+    let labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    let incD = Array(12).fill(0), expD = Array(12).fill(0);
+    arr.forEach(t => { 
+        let m = parseInt(t.date.slice(5,7)) - 1; 
+        if(t.type === 'income') incD[m] += t.amount; 
+        if(t.type === 'expense') expD[m] += t.amount; 
+    });
+    mkChart('chartYear', labels, incD, expD);
 };
 
 window.renderAll = function() {
-  const type = document.getElementById('flt-type')?.value || '';
-  const search = (document.getElementById('flt-search')?.value || '').toLowerCase();
-  let arr = [...txs].sort((a,b) => new Date(b.date) - new Date(a.date));
-  
-  if (type) arr = arr.filter(t => t.type === type);
-  if (search) arr = arr.filter(t => t.note.toLowerCase().includes(search) || t.category.toLowerCase().includes(search) || (t.wallet && t.wallet.toLowerCase().includes(search)));
-  
-  renderSumGrid(document.getElementById('all-sum'), arr);
-  renderList(document.getElementById('all-body'), arr);
-  
-  const mos = [...new Set(arr.map(t => moKey(t.date)))].sort();
-  const inc = Array(mos.length).fill(0), exp = Array(mos.length).fill(0);
-  arr.forEach(t => {
-    let idx = mos.indexOf(moKey(t.date));
-    if(t.type === 'income') inc[idx] += t.amount;
-    if(t.type === 'expense') exp[idx] += t.amount;
-  });
-  mkChart('chartRiwayat', mos, inc, exp);
+    const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
+    const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.toLowerCase() : '';
+    let arr = txs;
+    
+    if (typeFlt) arr = arr.filter(t => t.type === typeFlt);
+    if (searchFlt) arr = arr.filter(t => t.note.toLowerCase().includes(searchFlt) || t.category.toLowerCase().includes(searchFlt));
+    
+    arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+    renderSumGrid(document.getElementById('all-sum'), arr);
+    renderList(document.getElementById('all-body'), arr);
+    
+    let recent = arr.slice(0, 50).reverse();
+    let labels = recent.map(t => fmtDate(t.date));
+    let incD = recent.map(t => t.type === 'income' ? t.amount : 0);
+    let expD = recent.map(t => t.type === 'expense' ? t.amount : 0);
+    mkChart('chartRiwayat', labels, incD, expD);
+};
+
+window.exportCSV = function() {
+    if (!txs.length) return Swal.fire({icon:'info', title:'Data Kosong', background:'var(--card)', color:'var(--text)'});
+    
+    let csv = 'Tanggal,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan\n';
+    txs.forEach(t => {
+        let tType = t.type === 'income' ? 'Pemasukan' : (t.type === 'expense' ? 'Pengeluaran' : (t.type === 'transfer' ? 'Transfer' : (t.type === 'debt' ? 'Hutang' : 'Piutang')));
+        csv += `"${t.date}","${tType}","${t.category}","${t.wallet || ''}","${t.walletTo || ''}","${t.amount}","${t.note.replace(/"/g, '""')}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'RHN_Capital_Riwayat.csv';
+    a.click(); 
+    window.URL.revokeObjectURL(url);
 };
 
 window.payDebt = async function(id) {
-    if(!currentUser) return;
-    const t = txs.find(x => x.id === id);
-    if(!t) return;
     Swal.fire({
-        title: 'Hutang Lunas?', text: "Saldo kas akan dikurangi sebesar hutang.", icon: 'warning', showCancelButton: true,
-        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Lunas', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+        title: 'Lunas?', 
+        icon:'question', 
+        showCancelButton: true, 
+        confirmButtonText: 'Ya, Lunas', 
+        cancelButtonText: 'Batal', 
+        background:'var(--card)', color:'var(--text)',
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)'
     }).then(async (res) => {
         if(res.isConfirmed) {
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-            Swal.fire({icon: 'success', title: 'Hutang Terbayar', background: 'var(--card)', color: 'var(--text)', timer:800, showConfirmButton:false});
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), {isPaid: true});
+            Swal.fire({icon:'success', title:'Hutang Lunas!', timer:800, showConfirmButton:false, background:'var(--card)', color:'var(--text)'});
         }
     });
 };
 
 window.payRecv = async function(id) {
-    if(!currentUser) return;
-    const t = txs.find(x => x.id === id);
-    if(!t) return;
     Swal.fire({
-        title: 'Piutang Dibayar?', text: "Saldo kas akan bertambah sebesar piutang.", icon: 'warning', showCancelButton: true,
-        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Sudah Bayar', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)'
+        title: 'Sudah Dibayar?', 
+        icon:'question', 
+        showCancelButton: true, 
+        confirmButtonText: 'Ya, Lunas', 
+        cancelButtonText: 'Batal', 
+        background:'var(--card)', color:'var(--text)',
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)'
     }).then(async (res) => {
         if(res.isConfirmed) {
-            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-            Swal.fire({icon: 'success', title: 'Piutang Diterima', background: 'var(--card)', color: 'var(--text)', timer:800, showConfirmButton:false});
+            await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), {isPaid: true});
+            Swal.fire({icon:'success', title:'Piutang Lunas!', timer:800, showConfirmButton:false, background:'var(--card)', color:'var(--text)'});
         }
     });
 };
 
-window.exportCSV = function() {
-    if(!txs.length) return Swal.fire({icon:'error', title:'Data Kosong!', background:'var(--card)', color:'var(--text)'});
+window.refreshAll = function() {
+    if (!currentUser) return;
     
-    let csv = 'Tanggal,Waktu,Tipe,Kategori,Dompet Asal,Dompet Tujuan,Jumlah,Keterangan\n';
-    const arr = [...txs].sort((a,b) => new Date(a.date) - new Date(b.date));
+    renderMetrics();
+    renderWalletBalances();
+    renderSavings();
     
-    arr.forEach(t => {
-        let dt = new Date(t.date);
-        let d = dt.toLocaleDateString('id-ID');
-        let tm = dt.toLocaleTimeString('id-ID');
-        let amt = t.amount;
-        let note = `"${t.note.replace(/"/g, '""')}"`;
-        let w = t.wallet || '-';
-        let wTo = t.walletTo || '-';
-        let cat = `"${t.category}"`;
-        
-        csv += `${d},${tm},${t.type},${cat},${w},${wTo},${amt},${note}\n`;
-    });
+    if (activePage === 'dashboard') {
+        const arr = txs.slice(0, 10);
+        renderList(document.getElementById('recent-list'), arr);
+    } 
+    else if (activePage === 'harian') window.renderDaily();
+    else if (activePage === 'mingguan') window.renderWeekly();
+    else if (activePage === 'bulanan') window.renderMonthly();
+    else if (activePage === 'tahunan') window.renderYearly();
+    else if (activePage === 'riwayat') window.renderAll();
     
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'RHN_Capital_Export.csv');
-    a.click();
+    if (window.renderCalcDisplay) window.renderCalcDisplay();
 };
 
 window.setRealLocalTime = function() {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    const dtInput = document.getElementById('f-date');
-    if (dtInput) dtInput.value = now.toISOString().slice(0, 16);
+    const iso = now.toISOString().slice(0, 16);
+    
+    const fdate = document.getElementById('f-date');
+    if (fdate) fdate.value = iso;
+    
+    const qdate = document.getElementById('qris-date');
+    if (qdate) qdate.value = iso;
+    
+    const pdaily = document.getElementById('pick-daily');
+    if (pdaily && !pdaily.value) pdaily.value = now.toISOString().slice(0,10);
 };
 
-window.refreshAll = function() {
-    if (!currentUser && !localStorage.getItem('last_uid_rhn')) return;
-    
-    renderWalletBalances();
-    renderSavings();
-    
-    if (activePage === 'dashboard') {
-        renderMetrics();
-        renderList(document.getElementById('recent-list'), txs.slice(0, 10));
-    } else if (activePage === 'harian') renderDaily();
-    else if (activePage === 'mingguan') renderWeekly();
-    else if (activePage === 'bulanan') renderMonthly();
-    else if (activePage === 'tahunan') renderYearly();
-    else if (activePage === 'riwayat') renderAll();
-};
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
     window.setRealLocalTime();
 });
-
-window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; });
-window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'block'; });
 
 </script>
 </body>
