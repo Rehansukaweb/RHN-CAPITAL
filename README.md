@@ -8,32 +8,6 @@
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<!-- Library QRIS & SweetAlert2 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-  // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
-  const OriginalSwal = window.Swal;
-  window.Swal = OriginalSwal.mixin({
-    heightAuto: false
-  });
-
-  window.addEventListener('DOMContentLoaded', function() {
-    // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
-    setTimeout(function() {
-      const splash = document.getElementById('splash-screen');
-      if (splash) {
-        splash.classList.add('splash-exit');
-        setTimeout(() => { splash.style.display = 'none'; }, 800); // 800ms tunggu animasi kelar
-      }
-    }, 2500); // Waktu tampil 2.5 detik
-    // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
-  });
-</script>
-
 <style>
 /* ==========================================================================
    TEMA ORIGINAL (GELAP PEKAT)
@@ -502,6 +476,32 @@ body.global-privacy #xau-idr-gr {
   100% { width: 150px; opacity: 0; }
 }
 </style>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- Library QRIS & SweetAlert2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
+  const OriginalSwal = window.Swal;
+  window.Swal = OriginalSwal.mixin({
+    heightAuto: false
+  });
+
+  window.addEventListener('DOMContentLoaded', function() {
+    // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
+    setTimeout(function() {
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.classList.add('splash-exit');
+        setTimeout(() => { splash.style.display = 'none'; }, 800); // 800ms tunggu animasi kelar
+      }
+    }, 2500); // Waktu tampil 2.5 detik
+    // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
+  });
+</script>
 </head>
 <body>
 
