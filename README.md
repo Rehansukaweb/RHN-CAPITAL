@@ -223,6 +223,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   padding: 16px; margin-bottom: 12px; border-radius: 16px; 
   background: var(--bg2); border: 1px solid var(--border); 
   display: flex; align-items: center; justify-content: space-between;
+  min-height: 96px;
 }
 .ri-icon {
   width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
@@ -352,7 +353,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .f-input-dark { padding: 18px 16px; font-size: 16px; border-radius: 16px; } /* Updated to 16px */
   
   .list-wrap { padding: 0 !important; margin: 0 !important; width: 100%; }
-  .recent-item { width: 100% !important; margin: 0 0 12px 0 !important; padding: 12px 16px !important; border-radius: 24px !important; border-left: none !important; border-right: none !important; background: var(--card); flex-direction: row; justify-content: space-between; align-items: center; }
+  .recent-item { width: 100% !important; margin: 0 0 12px 0 !important; padding: 12px 16px !important; border-radius: 24px !important; border-left: none !important; border-right: none !important; background: var(--card); flex-direction: row; justify-content: space-between; align-items: center; min-height: 92px; }
   .ri-right-wrap { margin-left: 8px !important; align-items: flex-end; flex-shrink: 0; max-width: 55%; }
   .action-btns { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; justify-content: flex-end; width: 100%; }
   .action-btns::-webkit-scrollbar { display: none; }
@@ -1671,7 +1672,7 @@ const fmtFull = n => {
 const fmt = (n, isDash = false) => {
     if (isDash && typeof extraPrefs !== 'undefined' && extraPrefs.ext_shortnum === 'on') {
         if (Math.abs(n) >= 1000000000) return 'Rp ' + (n/1000000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' M';
-        if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000).toFixed(2).replace('.',',') + ' Jt';
+        if (Math.abs(n) >= 1000000) return 'Rp ' + (n/1000000).toFixed(2).replace('.',',') + ' Jt';
         if (Math.abs(n) >= 10000) return 'Rp ' + (n/1000).toFixed(1).replace('.',',') + ' Rb';
     }
     return fmtFull(n);
@@ -2315,25 +2316,16 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
-    const { value: choice } = await Swal.fire({ title: 'Opsi Keamanan', text: 'Pilih tindakan untuk PIN lu:', icon: 'question', showCancelButton: true, showDenyButton: true, confirmButtonText: 'Lupa PIN (Buat Baru)', denyButtonText: 'Ingat PIN (Ganti PIN)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', denyButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)' }); 
-    const promptNewPin = async () => { 
-        const { value: newPin } = await Swal.fire({ title: 'Buat PIN Baru', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU' }); 
-        if (newPin && newPin.length === 6) { 
-            try { 
-                await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
-                window.userCloudPin = newPin; 
-                localStorage.setItem('local_pin_rhn', newPin);
-                Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-                document.getElementById('app-pin').value = ''; 
-            } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
-        } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
-    }; 
-    if (choice === true) { promptNewPin(); } else if (choice === false) { 
-        const { value: oldPin } = await Swal.fire({ title: 'Masukkan PIN Lama', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--border2)' }); 
-        if (!oldPin) return; 
-        if (oldPin !== window.userCloudPin && oldPin !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon:'error', title:'PIN Lama Salah!', background:'var(--card)', color:'var(--text)'}); 
-        promptNewPin(); 
-    } 
+    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    if (newPin && newPin.length === 6) { 
+        try { 
+            await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            window.userCloudPin = newPin; 
+            localStorage.setItem('local_pin_rhn', newPin);
+            Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
+            document.getElementById('app-pin').value = ''; 
+        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+    } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
@@ -2480,6 +2472,54 @@ window.delTx = function(id) {
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         } 
     }); 
+};
+
+window.payDebt = async function(id) {
+    if (!currentUser) return;
+    const t = txs.find(x => x.id === id);
+    if (!t) return;
+    Swal.fire({
+        title: 'Tandai Lunas?',
+        html: `Hutang <b>"${escapeHTML(t.note)}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">Saldo dompet ${t.wallet} otomatis berkurang karena hutang dibayar.</span>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'YA, LUNAS',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)'
+    }).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                Swal.fire({icon:'success', title:'Hutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+    });
+};
+
+window.payRecv = async function(id) {
+    if (!currentUser) return;
+    const t = txs.find(x => x.id === id);
+    if (!t) return;
+    Swal.fire({
+        title: 'Tandai Sudah Dibayar?',
+        html: `Piutang <b>"${escapeHTML(t.note)}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">Saldo dompet ${t.wallet} otomatis bertambah karena piutang dibayar.</span>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'YA, SUDAH BAYAR',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)'
+    }).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                Swal.fire({icon:'success', title:'Piutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+    });
 };
 
 window.addTx = async function() { 
