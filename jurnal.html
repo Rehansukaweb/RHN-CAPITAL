@@ -270,6 +270,7 @@
   <!-- INPUT TRANSAKSI (HIDES ON VIEW MODE) -->
   <div class="card hide-on-view">
     <h2>Input Transaksi</h2>
+    <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
     <div class="grid-3">
       <div class="field">
         <label>Tanggal</label>
@@ -309,8 +310,9 @@
       </div>
     </div>
     
-    <div style="margin-top: 24px;">
-      <button class="btn-add" id="btnSaveTrade" onclick="window.addTrade()">+ TAMBAH TRANSAKSI</button>
+    <div style="margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="btn-add" id="btnSaveTrade" onclick="window.addTrade()" style="flex:1; min-width:200px;">+ TAMBAH TRANSAKSI</button>
+      <button class="btn-cancel-edit" id="btnCancelEdit" style="display:none;" onclick="window.cancelEdit()">BATAL EDIT</button>
     </div>
     <div class="btn-row" style="justify-content: flex-end; margin-top: 12px;">
       <button class="btn danger" onclick="window.resetAll()">HAPUS SEMUA DATA JURNAL</button>
@@ -405,6 +407,7 @@
   let currentUSDRate = 16000; 
   let unsubListener = null;
   let accountType = 'cent'; // 'cent' = nilai disimpan dalam USC (dibagi 100), 'standard' = nilai disimpan dalam USD (dibagi 1)
+  let editingId = null; // id transaksi yang sedang diedit (null = mode tambah baru)
 
   function unitDivisor(){ return accountType === 'cent' ? 100 : 1; }
   function unitLabel(){ return accountType === 'cent' ? 'USC' : 'USD'; }
@@ -628,21 +631,67 @@
     }
 
     const btn = document.getElementById('btnSaveTrade');
-    btn.innerText = 'MENYIMPAN...'; btn.disabled = true;
+    const isEditing = !!editingId;
+    btn.innerText = isEditing ? 'MENGUPDATE...' : 'MENYIMPAN...'; btn.disabled = true;
 
     try {
-        await addDoc(collection(db, 'users', currentUser.uid, 'jurnal_trading'), { date, pair, dir, session, lot, pnl, note, createdAt: serverTimestamp() });
-        document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
-        document.getElementById('tPnl').value=''; document.getElementById('tNote').value='';
-        Swal.fire({icon:'success', title:'Tersimpan!', timer: 800, showConfirmButton:false});
+        if(isEditing){
+            await setDoc(doc(db, 'users', currentUser.uid, 'jurnal_trading', editingId), { date, pair, dir, session, lot, pnl, note }, { merge: true });
+            Swal.fire({icon:'success', title:'Transaksi Diupdate!', timer: 800, showConfirmButton:false});
+            window.cancelEdit();
+        } else {
+            await addDoc(collection(db, 'users', currentUser.uid, 'jurnal_trading'), { date, pair, dir, session, lot, pnl, note, createdAt: serverTimestamp() });
+            document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
+            document.getElementById('tPnl').value=''; document.getElementById('tNote').value='';
+            Swal.fire({icon:'success', title:'Tersimpan!', timer: 800, showConfirmButton:false});
+        }
     } catch(err) { Swal.fire({icon:'error', title:'Error', text: err.message});
-    } finally { btn.innerText = '+ TAMBAH TRANSAKSI'; btn.disabled = false; }
+    } finally { btn.innerText = editingId ? 'UPDATE TRANSAKSI' : '+ TAMBAH TRANSAKSI'; btn.disabled = false; }
+  };
+
+  window.editTrade = function(id){
+    if(!currentUser || activeViewUid !== currentUser.uid) return;
+    const t = trades.find(tr => tr.id === id);
+    if(!t) return;
+
+    editingId = id;
+    document.getElementById('tDate').value = t.date;
+    document.getElementById('tPair').value = t.pair;
+    document.getElementById('tDir').value = t.dir;
+    document.getElementById('tSession').value = t.session;
+    document.getElementById('tLot').value = t.lot || '';
+    document.getElementById('tPnl').value = t.pnl;
+    document.getElementById('tNote').value = t.note || '';
+
+    document.getElementById('editModeBanner').classList.add('active');
+    document.getElementById('btnSaveTrade').innerText = 'UPDATE TRANSAKSI';
+    document.getElementById('btnCancelEdit').style.display = 'inline-flex';
+
+    document.querySelector('.card.hide-on-view').scrollIntoView({behavior:'smooth', block:'center'});
+  };
+
+  window.cancelEdit = function(){
+    editingId = null;
+    document.getElementById('tDate').valueAsDate = new Date();
+    document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
+    document.getElementById('tPnl').value=''; document.getElementById('tNote').value='';
+    document.getElementById('tDir').value = 'Buy';
+    document.getElementById('tSession').value = 'Asia';
+
+    document.getElementById('editModeBanner').classList.remove('active');
+    document.getElementById('btnSaveTrade').innerText = '+ TAMBAH TRANSAKSI';
+    document.getElementById('btnCancelEdit').style.display = 'none';
   };
 
   window.deleteTrade = function(id) {
     if(!currentUser || activeViewUid !== currentUser.uid) return;
     Swal.fire({ title: 'Hapus Transaksi?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red)', confirmButtonText: 'Ya, Hapus' })
-    .then(async (res) => { if (res.isConfirmed) await deleteDoc(doc(db, 'users', currentUser.uid, 'jurnal_trading', id)); });
+    .then(async (res) => {
+        if (res.isConfirmed) {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'jurnal_trading', id));
+            if(editingId === id) window.cancelEdit();
+        }
+    });
   };
 
   window.resetAll = function() {
@@ -656,6 +705,7 @@
                 const batch = writeBatch(db);
                 snap.forEach(d => batch.delete(doc(db, 'users', currentUser.uid, 'jurnal_trading', d.id)));
                 await batch.commit();
+                window.cancelEdit();
                 Swal.fire({icon:'success', title:'Bersih!', timer:1000, showConfirmButton:false});
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         }
@@ -849,7 +899,12 @@
         <td>${t.lot || '-'}</td>
         <td>${fmtDual(t.pnl)}</td>
         <td style="color:var(--muted); font-size:12px;">${t.note || '-'}</td>
-        <td class="hide-on-view"><button class="del-btn" onclick="window.deleteTrade('${t.id}')">Hapus</button></td>
+        <td class="hide-on-view">
+          <div class="action-btns">
+            <button class="edit-btn" onclick="window.editTrade('${t.id}')">Edit</button>
+            <button class="del-btn" onclick="window.deleteTrade('${t.id}')">Hapus</button>
+          </div>
+        </td>
       </tr>
     `).join('');
   }
