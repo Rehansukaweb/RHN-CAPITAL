@@ -163,7 +163,7 @@
 
   footer{ text-align:center; color:var(--muted); font-size:11px; font-weight: 600; padding:20px; }
 
-  /* READ ONLY MODE CSS (Hides Edit Inputs when viewing others) */
+  /* READ ONLY MODE CSS */
   body.view-only-mode .hide-on-view { display: none !important; }
   body.view-only-mode input#pTraderName, 
   body.view-only-mode input#pModal, 
@@ -182,6 +182,25 @@
   .auth-box p { font-size: 12px; color: var(--muted); margin-bottom: 24px; font-weight: 500;}
   .auth-box input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #f9fafb;}
   .auth-box input:focus { outline: none; border-color: var(--ink); }
+  
+  .ocr-box {
+      background: var(--ink);
+      color: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px dashed var(--gold);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+  }
+  .ocr-box label { color: var(--gold); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* OCR REVIEW MODAL */
+  .ocr-review-wrap table th, .ocr-review-wrap table td{ padding:6px 8px; font-size:11px; border-bottom:1px solid var(--line); }
+  .ocr-review-wrap table th{ background:#f3f4f6; text-transform:none; font-weight:800; color:#374151; }
+  .ocr-review-wrap tr.ocr-row-warn{ background:#fef2f2; }
+  .ocr-review-wrap input, .ocr-review-wrap select{ font-family:inherit; font-size:11px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; }
 
   @media(max-width:800px){ .grid-2, .grid-3, .grid-4, .grid-5, .stats-grid, .two-col{grid-template-columns:1fr 1fr;} }
   @media(max-width:520px){ 
@@ -193,6 +212,8 @@
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+<!-- Tesseract.js -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -227,7 +248,6 @@
 
   <div style="font-size:11px;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:12px;">
     <span id="liveRateTag">USD-IDR: Memuat...</span>
-    <!-- Class hide-on-view dihilangkan agar tombol selalu bisa dipanggil javascript saat view mode -->
     <button id="btnBackMine" onclick="window.returnToMyJournal()" style="display:none; background:var(--ink); color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:800; font-size:10px;">KEMBALI KE JURNALKU</button>
     <button onclick="window.doLogout()" class="hide-on-view" style="background:var(--red-light); color:var(--red); border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:800; font-size:10px;">KELUAR</button>
   </div>
@@ -270,6 +290,14 @@
   <!-- INPUT TRANSAKSI (HIDES ON VIEW MODE) -->
   <div class="card hide-on-view">
     <h2>Input Transaksi</h2>
+    
+    <!-- FITUR OCR SUPER AKURAT -->
+    <div class="ocr-box">
+        <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat)</label>
+        <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem akan membersihkan gambar, membaca berdasarkan posisi kolom (kiri: simbol/harga, kanan: tanggal/profit), lalu menampilkan hasil untuk kamu verifikasi sebelum disimpan.</div>
+    </div>
+
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
     <div class="grid-3">
       <div class="field">
@@ -311,7 +339,7 @@
     </div>
     
     <div style="margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap;">
-      <button class="btn-add" id="btnSaveTrade" onclick="window.addTrade()" style="flex:1; min-width:200px;">+ TAMBAH TRANSAKSI</button>
+      <button class="btn-add" id="btnSaveTrade" onclick="window.addTrade()" style="flex:1; min-width:200px;">+ TAMBAH TRANSAKSI MANUAL</button>
       <button class="btn-cancel-edit" id="btnCancelEdit" style="display:none;" onclick="window.cancelEdit()">BATAL EDIT</button>
     </div>
     <div class="btn-row" style="justify-content: flex-end; margin-top: 12px;">
@@ -406,8 +434,8 @@
   let calDate = new Date();
   let currentUSDRate = 16000; 
   let unsubListener = null;
-  let accountType = 'cent'; // 'cent' = nilai disimpan dalam USC (dibagi 100), 'standard' = nilai disimpan dalam USD (dibagi 1)
-  let editingId = null; // id transaksi yang sedang diedit (null = mode tambah baru)
+  let accountType = 'cent'; 
+  let editingId = null; 
 
   function unitDivisor(){ return accountType === 'cent' ? 100 : 1; }
   function unitLabel(){ return accountType === 'cent' ? 'USC' : 'USD'; }
@@ -451,15 +479,377 @@
   }
   function fmtPct(n){ return (n>=0?'+':'') + n.toFixed(2) + '%'; }
 
-  // LISTENER UNTUK DATA
+  // =========================================================================
+  // ============  MODUL OCR SUPER AKURAT (MULTI-LAYER CHECK)  =============
+  // =========================================================================
+
+  // Hitung selisih pip dari harga entry/exit
+  function getPipsText(pair, entry, exit){
+      let en = parseFloat(entry), ex = parseFloat(exit);
+      if (isNaN(en) || isNaN(ex)) return "";
+      let diff = Math.abs(en - ex);
+      let pips = 0;
+      let p = String(pair).toUpperCase();
+      if (p.includes('JPY')) {
+          pips = diff * 100;
+      } else if (p.includes('XAU') || p.includes('GOLD')) {
+          pips = diff * 10;
+      } else if (en < 5) {
+          pips = diff * 10000;
+      } else {
+          pips = diff;
+      }
+      return `(${pips.toFixed(1)} Pip)`;
+  }
+
+  function autoSession(){
+      const hr = new Date().getHours();
+      if (hr >= 14 && hr < 19) return "London";
+      if (hr >= 19 || hr < 4) return "New York";
+      return "Asia";
+  }
+
+  function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  function extractDateFromText(text){
+      const m = String(text).match(/(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/);
+      if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+      return null;
+  }
+
+  // -- LAPISAN 1: PREPROCESSING GAMBAR (upscale + Otsu binarization + deteksi polaritas) --
+  async function preprocessImageForOcr(file){
+      const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+      });
+      const img = await new Promise((resolve, reject) => {
+          const im = new Image();
+          im.onload = () => resolve(im);
+          im.onerror = reject;
+          im.src = dataUrl;
+      });
+
+      // Perbesar gambar supaya teks kecil terbaca lebih jelas oleh OCR
+      const scale = Math.min(3, Math.max(1, 1600 / img.width));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const n = data.length / 4;
+
+      const gray = new Uint8ClampedArray(n);
+      const hist = new Array(256).fill(0);
+      for (let i = 0; i < n; i++) {
+          const r = data[i*4], g = data[i*4+1], b = data[i*4+2];
+          const v = Math.round(0.299*r + 0.587*g + 0.114*b);
+          gray[i] = v; hist[v]++;
+      }
+
+      // Otsu's method: cari threshold optimal otomatis (bukan angka tetap)
+      let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+      let sumB = 0, wB = 0, wF = 0, maxVar = 0, threshold = 127;
+      for (let t = 0; t < 256; t++) {
+          wB += hist[t]; if (wB === 0) continue;
+          wF = n - wB; if (wF === 0) break;
+          sumB += t * hist[t];
+          const mB = sumB / wB, mF = (sum - sumB) / wF;
+          const varBetween = wB * wF * (mB - mF) * (mB - mF);
+          if (varBetween > maxVar) { maxVar = varBetween; threshold = t; }
+      }
+
+      // Deteksi otomatis: background gelap (dark mode MT5) atau terang
+      const darkCount = hist.slice(0, threshold).reduce((a,b) => a+b, 0);
+      const bgIsDark = darkCount > (n - darkCount);
+
+      for (let i = 0; i < n; i++) {
+          const isDarkPixel = gray[i] < threshold;
+          const isText = bgIsDark ? !isDarkPixel : isDarkPixel;
+          const outVal = isText ? 0 : 255; // hasil akhir: teks hitam di atas putih
+          data[i*4] = outVal; data[i*4+1] = outVal; data[i*4+2] = outVal;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      return canvas.toDataURL('image/png');
+  }
+
+  // -- LAPISAN 2: SUSUN ULANG BERDASARKAN KOORDINAT (bukan urutan teks linear) --
+  function groupRowsFromOcr(ocrData){
+      let lines = (ocrData.lines && ocrData.lines.length) ? ocrData.lines : null;
+      if (!lines) {
+          // fallback: susun manual dari data.words jika data.lines tidak tersedia
+          const words = ocrData.words || [];
+          const sorted = [...words].sort((a,b) => a.bbox.y0 - b.bbox.y0);
+          const rows = [];
+          const yThresh = 14;
+          sorted.forEach(w => {
+              let row = rows.find(r => Math.abs(r.y - w.bbox.y0) < yThresh);
+              if (!row) { row = { y: w.bbox.y0, words: [] }; rows.push(row); }
+              row.words.push(w);
+          });
+          lines = rows.map(r => ({ words: r.words, bbox: { y0: r.y } }));
+      }
+      return lines
+          .map(l => ({
+              y: l.bbox ? l.bbox.y0 : 0,
+              words: (l.words || []).map(w => ({ text: w.text, x0: w.bbox.x0, x1: w.bbox.x1 })).sort((a,b) => a.x0 - b.x0)
+          }))
+          .sort((a,b) => a.y - b.y);
+  }
+
+  // Pisahkan satu baris jadi kolom kiri & kanan berdasarkan celah horizontal terbesar
+  function splitColumns(words){
+      if (words.length < 2) return { left: words.map(w => w.text).join(' '), right: '' };
+      let maxGap = -1, splitIdx = words.length;
+      for (let i = 1; i < words.length; i++) {
+          const gap = words[i].x0 - words[i-1].x1;
+          if (gap > maxGap) { maxGap = gap; splitIdx = i; }
+      }
+      const avgWidth = words.reduce((s,w) => s + (w.x1 - w.x0), 0) / words.length;
+      if (maxGap < avgWidth * 1.5) {
+          return { left: words.map(w => w.text).join(' '), right: '' };
+      }
+      const left = words.slice(0, splitIdx).map(w => w.text).join(' ');
+      const right = words.slice(splitIdx).map(w => w.text).join(' ');
+      return { left, right };
+  }
+
+  // -- LAPISAN 3: PARSING TERSTRUKTUR (pasangkan baris header + baris harga) --
+  function parseMt5Rows(ocrData){
+      const rows = groupRowsFromOcr(ocrData).map(r => splitColumns(r.words));
+      const headerRe = /([A-Za-z]{3,10}\d{0,2}[a-z]?)[,\.\s]+\s*(buy|sell)\s+([\d.,]+)/i;
+      const priceRe = /-?\d[\d\s]*\.\d+/g;
+      const trades = [];
+      let pending = null;
+
+      for (let i = 0; i < rows.length; i++) {
+          const left = (rows[i].left || '').replace(/[|]/g, '').trim();
+          const right = (rows[i].right || '').trim();
+          const hm = left.match(headerRe);
+
+          if (hm) {
+              pending = null; // baris header baru menggantikan pending lama yang tak lengkap
+              let pair = hm[1].replace(/m$/i, '').toUpperCase();
+              let dir = /buy/i.test(hm[2]) ? 'Buy' : 'Sell';
+              let lot = parseFloat(hm[3].replace(/,/g, ''));
+              pending = { pair, dir, lot, date: extractDateFromText(right) };
+              continue;
+          }
+
+          if (pending) {
+              const nums = (left.match(priceRe) || []).map(s => parseFloat(s.replace(/\s/g, '')));
+              const pnlMatch = right.match(/-?\d[\d\s]*\.\d+/);
+              if (nums.length >= 2 && pnlMatch) {
+                  pending.entry = nums[0];
+                  pending.exit = nums[1];
+                  pending.pnl = parseFloat(pnlMatch[0].replace(/\s/g, ''));
+                  trades.push(pending);
+                  pending = null;
+              } else if (nums.length >= 3) {
+                  pending.entry = nums[0];
+                  pending.exit = nums[1];
+                  pending.pnl = nums[nums.length - 1];
+                  trades.push(pending);
+                  pending = null;
+              }
+              // jika baris ini tidak cocok, biarkan pending menunggu baris berikutnya
+          }
+      }
+      return trades;
+  }
+
+  // -- LAPISAN 4: VALIDASI SETIAP TRANSAKSI SEBELUM DITAMPILKAN UNTUK DIKONFIRMASI --
+  function validateTrade(t, existingTrades){
+      const warnings = [];
+      if (!t.pair || t.pair.length < 3) warnings.push('Pair tidak jelas');
+      if (!['Buy','Sell'].includes(t.dir)) warnings.push('Arah tidak jelas');
+      if (!t.lot || t.lot <= 0) warnings.push('Lot tidak valid');
+      if (t.entry === undefined || isNaN(t.entry)) warnings.push('Harga entry tidak terbaca');
+      if (t.exit === undefined || isNaN(t.exit)) warnings.push('Harga exit tidak terbaca');
+      if (t.pnl === undefined || isNaN(t.pnl)) warnings.push('P&L tidak terbaca');
+      if (!t.date) warnings.push('Tanggal tidak terbaca (pakai tanggal manual)');
+      const isDup = existingTrades.some(e =>
+          e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
+          Math.abs((parseFloat(e.lot)||0) - (t.lot||0)) < 0.001 &&
+          Math.abs((parseFloat(e.pnl)||0) - (t.pnl||0)) < 0.01
+      );
+      if (isDup) warnings.push('Kemungkinan duplikat (sudah ada di jurnal)');
+      return warnings;
+  }
+
+  // -- LAPISAN 5: MODAL VERIFIKASI MANUAL SEBELUM DATA DITULIS KE DATABASE --
+  function showOcrReviewModal(candidateTrades){
+      const rowsHtml = candidateTrades.map((t, i) => {
+          const warnings = validateTrade(t, trades);
+          const hasCriticalIssue = warnings.some(w => !w.includes('duplikat'));
+          const isDupOnly = warnings.length > 0 && !hasCriticalIssue;
+          const checked = hasCriticalIssue ? '' : (isDupOnly ? '' : 'checked');
+          const statusText = warnings.length ? ('⚠ ' + warnings.join(', ')) : '✓ OK';
+          const statusColor = warnings.length ? '#ef4444' : '#10b981';
+          return `
+          <tr class="${warnings.length ? 'ocr-row-warn' : ''}">
+            <td><input type="checkbox" id="rev_${i}_chk" ${checked}></td>
+            <td><input type="date" id="rev_${i}_date" value="${t.date || ''}" style="width:118px"></td>
+            <td><input type="text" id="rev_${i}_pair" value="${escapeHtml(t.pair || '')}" style="width:75px;text-transform:uppercase"></td>
+            <td>
+              <select id="rev_${i}_dir" style="width:68px">
+                <option value="Buy" ${t.dir === 'Buy' ? 'selected' : ''}>Buy</option>
+                <option value="Sell" ${t.dir === 'Sell' ? 'selected' : ''}>Sell</option>
+              </select>
+            </td>
+            <td><input type="number" step="0.01" id="rev_${i}_lot" value="${t.lot ?? ''}" style="width:55px"></td>
+            <td><input type="number" step="any" id="rev_${i}_entry" value="${t.entry ?? ''}" style="width:80px"></td>
+            <td><input type="number" step="any" id="rev_${i}_exit" value="${t.exit ?? ''}" style="width:80px"></td>
+            <td><input type="number" step="any" id="rev_${i}_pnl" value="${t.pnl ?? ''}" style="width:65px"></td>
+            <td style="font-size:10px;color:${statusColor};font-weight:700;">${statusText}</td>
+          </tr>`;
+      }).join('');
+
+      const html = `
+        <div class="ocr-review-wrap" style="text-align:left;">
+          <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">
+            Periksa hasil scan di bawah ini. Baris bertanda merah butuh perhatian (data tidak terbaca / duplikat) dan tidak dicentang otomatis.
+            Kamu bisa mengedit semua nilai sebelum menyimpan.
+          </div>
+          <div style="overflow-x:auto; max-height:360px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead><tr>
+              <th>✓</th><th>Tanggal</th><th>Pair</th><th>Arah</th><th>Lot</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th>Status</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          </div>
+        </div>`;
+
+      Swal.fire({
+          title: `🔍 Verifikasi ${candidateTrades.length} Transaksi Hasil Scan`,
+          html,
+          width: 820,
+          showCancelButton: true,
+          confirmButtonText: 'SIMPAN YANG DICENTANG',
+          cancelButtonText: 'BATAL',
+          confirmButtonColor: '#111827',
+          focusConfirm: false,
+          preConfirm: () => {
+              const results = [];
+              candidateTrades.forEach((t, i) => {
+                  const chk = document.getElementById(`rev_${i}_chk`);
+                  if (!chk || !chk.checked) return;
+                  const date = document.getElementById(`rev_${i}_date`).value;
+                  const pair = document.getElementById(`rev_${i}_pair`).value.trim().toUpperCase();
+                  const dir = document.getElementById(`rev_${i}_dir`).value;
+                  const lot = parseFloat(document.getElementById(`rev_${i}_lot`).value) || 0;
+                  const entry = document.getElementById(`rev_${i}_entry`).value;
+                  const exit = document.getElementById(`rev_${i}_exit`).value;
+                  const pnl = parseFloat(document.getElementById(`rev_${i}_pnl`).value);
+                  if (!date || !pair || isNaN(pnl)) return; // baris tak lengkap dilewati saat simpan
+                  const pipsText = (entry !== '' && exit !== '') ? getPipsText(pair, entry, exit) : '';
+                  const note = (entry !== '' && exit !== '') ? `${entry} -> ${exit} ${pipsText}`.trim() : (t.note || '');
+                  results.push({ date, pair, dir, session: t.session || autoSession(), lot, pnl, note });
+              });
+              if (results.length === 0) {
+                  Swal.showValidationMessage('Tidak ada transaksi tercentang / valid untuk disimpan.');
+                  return false;
+              }
+              return results;
+          }
+      }).then(async (res) => {
+          if (!res.isConfirmed || !res.value) return;
+          const finalTrades = res.value;
+          Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+          try {
+              const batch = writeBatch(db);
+              finalTrades.forEach(t => {
+                  const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
+                  batch.set(newRef, { ...t, createdAt: serverTimestamp() });
+              });
+              await batch.commit();
+              Swal.fire('Tersimpan!', `${finalTrades.length} transaksi berhasil disimpan ke jurnal.`, 'success');
+              const statusLabel = document.getElementById('ocrStatus');
+              statusLabel.innerText = 'Upload gambar lain kalau masih ada sisa riwayat.';
+              statusLabel.style.color = '#9ca3af';
+          } catch (e) {
+              Swal.fire('Error', e.message, 'error');
+          }
+      });
+  }
+
+  // -- ENTRY POINT: dipanggil saat user upload screenshot --
+  window.processOCR = async function(input) {
+      if (!input.files || input.files.length === 0) return;
+      if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan reload dan login.', 'error');
+
+      const file = input.files[0];
+      const statusLabel = document.getElementById('ocrStatus');
+      statusLabel.style.color = 'var(--gold)';
+
+      let worker = null;
+      try {
+          statusLabel.innerText = '⏳ Tahap 1/3: Membersihkan & memperbesar gambar...';
+          const processedImageURL = await preprocessImageForOcr(file);
+
+          statusLabel.innerText = '🧠 Tahap 2/3: AI membaca teks (mode presisi tinggi)...';
+          worker = await Tesseract.createWorker('eng');
+          await worker.setParameters({
+              tessedit_pageseg_mode: '6',
+              preserve_interword_spaces: '1'
+          });
+          const result = await worker.recognize(processedImageURL);
+          await worker.terminate();
+          worker = null;
+
+          statusLabel.innerText = '🔎 Tahap 3/3: Menyusun & memvalidasi transaksi...';
+          const candidateTrades = parseMt5Rows(result.data);
+
+          candidateTrades.forEach(t => {
+              if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
+              if (!t.session) t.session = autoSession();
+              if (t.entry !== undefined && t.exit !== undefined) {
+                  t.note = `${t.entry} -> ${t.exit} ${getPipsText(t.pair, t.entry, t.exit)}`.trim();
+              }
+          });
+
+          if (candidateTrades.length === 0) {
+              statusLabel.innerText = 'Tidak ada transaksi terdeteksi. Coba screenshot lebih jelas/terang & tidak miring.';
+              statusLabel.style.color = 'var(--red)';
+              Swal.fire('Format Tidak Terbaca', 'Pastikan screenshot menampilkan baris Posisi/Riwayat MT5 (simbol, buy/sell, lot, harga, profit) secara utuh dan tidak buram.', 'warning');
+              input.value = '';
+              return;
+          }
+
+          statusLabel.innerText = `Ditemukan ${candidateTrades.length} kandidat transaksi. Silakan verifikasi.`;
+          statusLabel.style.color = 'var(--green)';
+          showOcrReviewModal(candidateTrades);
+
+      } catch (e) {
+          console.error(e);
+          statusLabel.innerText = 'Error OCR: ' + e.message;
+          statusLabel.style.color = 'var(--red)';
+          if (worker) { try { await worker.terminate(); } catch (_) {} }
+          Swal.fire('Error AI', e.message, 'error');
+      } finally {
+          input.value = '';
+      }
+  };
+  // =========================================================================
+  // ========================  AKHIR MODUL OCR  =============================
+  // =========================================================================
+
   async function setupDataListener(targetUid, isReadOnly = false) {
       if(unsubListener) unsubListener();
       activeViewUid = targetUid;
       
-      // Atur Tampilan Berdasarkan Mode
       if(isReadOnly) {
           document.body.classList.add('view-only-mode');
-          // Tampilkan tombol keluar untuk semua orang
           const btnBack = document.getElementById('btnBackMine');
           btnBack.style.display = 'inline-block';
           btnBack.innerText = currentUser ? 'KEMBALI KE JURNALKU' : 'TUTUP PENCARIAN';
@@ -468,7 +858,6 @@
           document.getElementById('btnBackMine').style.display = 'none';
       }
 
-      // Ambil Profil
       const pSnap = await getDoc(doc(db, 'users', targetUid, 'settings', 'jurnal_profile'));
       if (pSnap.exists()) {
           const d = pSnap.data();
@@ -483,14 +872,12 @@
               document.getElementById('bannerView').innerText = `Melihat Portofolio: ${d.name || d.username} (Mode Baca Saja)`;
           }
       } else {
-          // Reset form if no profile
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
           accountType = 'cent';
           document.getElementById('pAccountType').value = 'cent';
       }
       updateUnitLabels();
 
-      // Listen Transaksi
       const q = query(collection(db, 'users', targetUid, 'jurnal_trading'), orderBy('createdAt', 'asc'));
       unsubListener = onSnapshot(q, (snap) => {
           trades = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
@@ -508,7 +895,6 @@
           setupDataListener(user.uid, false);
       } else {
           currentUser = null;
-          // Tampilkan Overlay jika sedang tidak melihat data publik
           if(!document.body.classList.contains('view-only-mode')) {
               document.getElementById('authOverlay').style.display = 'flex';
           }
@@ -535,38 +921,29 @@
       .then((res) => { if (res.isConfirmed) { signOut(auth); document.body.classList.remove('view-only-mode'); } });
   };
 
-  // Fungsi yang sudah diperbarui
   window.returnToMyJournal = function() {
       document.getElementById('topSearch').value = '';
       document.getElementById('searchPublicOverlay').value = '';
 
       if(currentUser) {
-          // Jika user punya akun, kembalikan ke jurnal miliknya
           setupDataListener(currentUser.uid, false);
       } else {
-          // Jika tidak login, tutup mode baca dan munculkan pop-up login lagi
           if(unsubListener) unsubListener();
           activeViewUid = null;
           document.body.classList.remove('view-only-mode');
           document.getElementById('btnBackMine').style.display = 'none';
           document.getElementById('authOverlay').style.display = 'flex';
-          
-          // Kosongkan data dari layar
-          trades = [];
-          renderAll();
+          trades = []; renderAll();
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
       }
   };
 
-  // FUNGSI PENCARIAN PUBLIK
   async function executeSearch(usernameInput) {
       if(!usernameInput) return Swal.fire('Kosong', 'Masukkan username publik!', 'warning');
-      
       Swal.fire({title:'Mencari...', didOpen:()=>Swal.showLoading()});
       try {
           const docRef = doc(db, 'public_usernames', usernameInput.toLowerCase());
           const docSnap = await getDoc(docRef);
-          
           if(docSnap.exists()) {
               const targetUid = docSnap.data().uid;
               document.getElementById('authOverlay').style.display = 'none';
@@ -575,45 +952,25 @@
           } else {
               Swal.fire('Tidak Ditemukan', `Username "${usernameInput}" tidak terdaftar.`, 'error');
           }
-      } catch(e) {
-          Swal.fire('Error', e.message, 'error');
-      }
+      } catch(e) { Swal.fire('Error', e.message, 'error'); }
   }
 
-  window.searchPortfolio = function() {
-      const val = document.getElementById('topSearch').value.trim();
-      executeSearch(val);
-  };
-  
-  window.searchFromOverlay = function() {
-      const val = document.getElementById('searchPublicOverlay').value.trim();
-      executeSearch(val);
-  };
+  window.searchPortfolio = function() { executeSearch(document.getElementById('topSearch').value.trim()); };
+  window.searchFromOverlay = function() { executeSearch(document.getElementById('searchPublicOverlay').value.trim()); };
 
   window.saveProfile = async function() {
-      // Prevent saving if not owner
       if (!currentUser || activeViewUid !== currentUser.uid) return; 
-      
       const name = document.getElementById('pTraderName').value;
       const modal = parseFloat(document.getElementById('pModal').value) || 0;
       const desc = document.getElementById('pDesc').value;
       const username = document.getElementById('pUsername').value.trim().toLowerCase();
       const accType = document.getElementById('pAccountType').value === 'standard' ? 'standard' : 'cent';
-      accountType = accType;
-      updateUnitLabels();
-      
+      accountType = accType; updateUnitLabels();
       try {
           await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType }, { merge: true });
-          
-          // Mendaftarkan Username ke koleksi publik agar bisa dicari orang
-          if(username) {
-              await setDoc(doc(db, 'public_usernames', username), { uid: currentUser.uid });
-          }
-          
+          if(username) await setDoc(doc(db, 'public_usernames', username), { uid: currentUser.uid });
           renderAll(); 
-      } catch(e) {
-          console.error("Gagal simpan profil", e);
-      }
+      } catch(e) { console.error("Gagal simpan profil", e); }
   };
 
   window.addTrade = async function() {
@@ -646,14 +1003,13 @@
             Swal.fire({icon:'success', title:'Tersimpan!', timer: 800, showConfirmButton:false});
         }
     } catch(err) { Swal.fire({icon:'error', title:'Error', text: err.message});
-    } finally { btn.innerText = editingId ? 'UPDATE TRANSAKSI' : '+ TAMBAH TRANSAKSI'; btn.disabled = false; }
+    } finally { btn.innerText = editingId ? 'UPDATE TRANSAKSI' : '+ TAMBAH TRANSAKSI MANUAL'; btn.disabled = false; }
   };
 
   window.editTrade = function(id){
     if(!currentUser || activeViewUid !== currentUser.uid) return;
     const t = trades.find(tr => tr.id === id);
     if(!t) return;
-
     editingId = id;
     document.getElementById('tDate').value = t.date;
     document.getElementById('tPair').value = t.pair;
@@ -666,7 +1022,6 @@
     document.getElementById('editModeBanner').classList.add('active');
     document.getElementById('btnSaveTrade').innerText = 'UPDATE TRANSAKSI';
     document.getElementById('btnCancelEdit').style.display = 'inline-flex';
-
     document.querySelector('.card.hide-on-view').scrollIntoView({behavior:'smooth', block:'center'});
   };
 
@@ -679,7 +1034,7 @@
     document.getElementById('tSession').value = 'Asia';
 
     document.getElementById('editModeBanner').classList.remove('active');
-    document.getElementById('btnSaveTrade').innerText = '+ TAMBAH TRANSAKSI';
+    document.getElementById('btnSaveTrade').innerText = '+ TAMBAH TRANSAKSI MANUAL';
     document.getElementById('btnCancelEdit').style.display = 'none';
   };
 
@@ -712,7 +1067,6 @@
     });
   };
 
-  // ENGINE & CALCULATION (Tidak ada perubahan)
   function calcStats(){
     const modal = parseFloat(document.getElementById('pModal').value) || 0;
     const totalPnl = trades.reduce((s,t)=>s+t.pnl,0);
@@ -898,7 +1252,7 @@
         <td>${t.session}</td>
         <td>${t.lot || '-'}</td>
         <td>${fmtDual(t.pnl)}</td>
-        <td style="color:var(--muted); font-size:12px;">${t.note || '-'}</td>
+        <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.note || '-'}</td>
         <td class="hide-on-view">
           <div class="action-btns">
             <button class="edit-btn" onclick="window.editTrade('${t.id}')">Edit</button>
