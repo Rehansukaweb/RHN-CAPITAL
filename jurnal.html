@@ -82,6 +82,7 @@
   .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
   .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .grid-5{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
   
   .field label{
     display:block; font-size:11px; color:var(--muted); margin-bottom:6px;
@@ -160,7 +161,8 @@
   body.view-only-mode input#pTraderName, 
   body.view-only-mode input#pModal, 
   body.view-only-mode input#pDesc, 
-  body.view-only-mode input#pUsername { 
+  body.view-only-mode input#pUsername,
+  body.view-only-mode select#pAccountType { 
       pointer-events: none; background: transparent; border: 1px dashed var(--line); color: var(--muted);
   }
   .banner-view { background: var(--gold); color: #000; padding: 10px; text-align: center; font-weight: 800; font-size: 13px; display: none; }
@@ -174,9 +176,9 @@
   .auth-box input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #f9fafb;}
   .auth-box input:focus { outline: none; border-color: var(--ink); }
 
-  @media(max-width:800px){ .grid-2, .grid-3, .grid-4, .stats-grid, .two-col{grid-template-columns:1fr 1fr;} }
+  @media(max-width:800px){ .grid-2, .grid-3, .grid-4, .grid-5, .stats-grid, .two-col{grid-template-columns:1fr 1fr;} }
   @media(max-width:520px){ 
-    .grid-2, .grid-3, .grid-4, .stats-grid, .two-col{grid-template-columns:1fr;}
+    .grid-2, .grid-3, .grid-4, .grid-5, .stats-grid, .two-col{grid-template-columns:1fr;}
     .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
     .cal-cell{min-height:60px; padding:6px;}
     .top-search-area { width: 100%; justify-content: space-between; }
@@ -225,19 +227,26 @@
 </header>
 
 <main>
-  <h1 class="page-title">Jurnal Trading (MT5 Cent)</h1>
-  <p class="page-sub">Catat transaksi dalam hitungan USC. Data otomatis terhubung dengan database RHN Capital.</p>
+  <h1 class="page-title">Jurnal Trading (MT5)</h1>
+  <p class="page-sub">Catat transaksi. Data otomatis terhubung dengan database RHN Capital.</p>
 
   <!-- PROFIL -->
   <div class="card">
     <h2>Profil &amp; Modal Awal</h2>
-    <div class="grid-4">
+    <div class="grid-5">
       <div class="field">
         <label>Nama Trader / Strategi</label>
         <input id="pTraderName" type="text" placeholder="Cth: Scalping Gold" onblur="window.saveProfile()" />
       </div>
       <div class="field">
-        <label>Modal Awal (USC)</label>
+        <label>Tipe Akun</label>
+        <select id="pAccountType" onchange="window.saveProfile()">
+          <option value="cent">Cent (USC)</option>
+          <option value="standard">Standard (USD)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label id="lblModal">Modal Awal (USC)</label>
         <input id="pModal" type="number" placeholder="Cth: 10000" step="1" onblur="window.saveProfile()"/>
       </div>
       <div class="field">
@@ -284,7 +293,7 @@
         <input id="tLot" type="number" step="0.01" placeholder="0.10" />
       </div>
       <div class="field">
-        <label>Profit / Loss (USC)</label>
+        <label id="lblPnl">Profit / Loss (USC)</label>
         <input id="tPnl" type="number" step="1" placeholder="Cth: 500 atau -120" />
       </div>
       <div class="field" style="grid-column:1/-1">
@@ -312,7 +321,7 @@
     <h2>Grafik Pertumbuhan</h2>
     <div class="tabs">
       <button class="tab-btn active" data-mode="growth" onclick="window.setChartMode('growth')">Growth (%)</button>
-      <button class="tab-btn" data-mode="balance" onclick="window.setChartMode('balance')">Balance (USC)</button>
+      <button class="tab-btn" data-mode="balance" onclick="window.setChartMode('balance')">Balance</button>
       <button class="tab-btn" data-mode="daily" onclick="window.setChartMode('daily')">Daily P&amp;L</button>
     </div>
     <div id="chartWrap"></div>
@@ -338,7 +347,7 @@
     <div class="card">
       <h2>Performa per Pair</h2>
       <table>
-        <thead><tr><th>Pair</th><th>Trades</th><th>Win Rate</th><th>P&amp;L (USC)</th></tr></thead>
+        <thead><tr><th>Pair</th><th>Trades</th><th>Win Rate</th><th id="lblPairPnl">P&amp;L</th></tr></thead>
         <tbody id="pairPerf"></tbody>
       </table>
     </div>
@@ -388,6 +397,26 @@
   let calDate = new Date();
   let currentUSDRate = 16000; 
   let unsubListener = null;
+  let accountType = 'cent'; // 'cent' = nilai disimpan dalam USC (dibagi 100), 'standard' = nilai disimpan dalam USD (dibagi 1)
+
+  function unitDivisor(){ return accountType === 'cent' ? 100 : 1; }
+  function unitLabel(){ return accountType === 'cent' ? 'USC' : 'USD'; }
+
+  function updateUnitLabels(){
+    const lbl = unitLabel();
+    document.getElementById('lblModal').textContent = `Modal Awal (${lbl})`;
+    document.getElementById('lblPnl').textContent = `Profit / Loss (${lbl})`;
+    document.getElementById('lblPairPnl').innerHTML = `P&amp;L (${lbl})`;
+    const modalInput = document.getElementById('pModal');
+    const pnlInput = document.getElementById('tPnl');
+    if(accountType === 'cent'){
+      modalInput.placeholder = 'Cth: 10000';
+      pnlInput.placeholder = 'Cth: 500 atau -120';
+    } else {
+      modalInput.placeholder = 'Cth: 100';
+      pnlInput.placeholder = 'Cth: 5 atau -1.2';
+    }
+  }
 
   async function fetchLiveRate() {
       try {
@@ -402,9 +431,9 @@
   }
   fetchLiveRate();
 
-  function fmtDual(uscVal) {
-      const isNeg = uscVal < 0;
-      const usdVal = Math.abs(uscVal) / 100;
+  function fmtDual(rawVal) {
+      const isNeg = rawVal < 0;
+      const usdVal = Math.abs(rawVal) / unitDivisor();
       const idrVal = usdVal * currentUSDRate;
       const strUsd = (isNeg ? '-' : '') + '$' + usdVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits:2});
       const strIdr = (isNeg ? '-' : '') + 'Rp ' + idrVal.toLocaleString('id-ID', {maximumFractionDigits:0});
@@ -437,6 +466,8 @@
           document.getElementById('pModal').value = d.modal || '';
           document.getElementById('pDesc').value = d.desc || '';
           document.getElementById('pUsername').value = d.username || '';
+          accountType = d.accountType === 'standard' ? 'standard' : 'cent';
+          document.getElementById('pAccountType').value = accountType;
           
           if(isReadOnly) {
               document.getElementById('bannerView').innerText = `Melihat Portofolio: ${d.name || d.username} (Mode Baca Saja)`;
@@ -444,7 +475,10 @@
       } else {
           // Reset form if no profile
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
+          accountType = 'cent';
+          document.getElementById('pAccountType').value = 'cent';
       }
+      updateUnitLabels();
 
       // Listen Transaksi
       const q = query(collection(db, 'users', targetUid, 'jurnal_trading'), orderBy('createdAt', 'asc'));
@@ -554,9 +588,12 @@
       const modal = parseFloat(document.getElementById('pModal').value) || 0;
       const desc = document.getElementById('pDesc').value;
       const username = document.getElementById('pUsername').value.trim().toLowerCase();
+      const accType = document.getElementById('pAccountType').value === 'standard' ? 'standard' : 'cent';
+      accountType = accType;
+      updateUnitLabels();
       
       try {
-          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username }, { merge: true });
+          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType }, { merge: true });
           
           // Mendaftarkan Username ke koleksi publik agar bisa dicari orang
           if(username) {
@@ -643,9 +680,10 @@
 
   function renderStats(){
     const s = calcStats();
-    const modalUsd = s.modal/100; const modalIdr = modalUsd * currentUSDRate;
-    const balUsd = s.balance/100; const balIdr = balUsd * currentUSDRate;
-    const pnlUsd = s.totalPnl/100; const pnlIdr = pnlUsd * currentUSDRate;
+    const div = unitDivisor();
+    const modalUsd = s.modal/div; const modalIdr = modalUsd * currentUSDRate;
+    const balUsd = s.balance/div; const balIdr = balUsd * currentUSDRate;
+    const pnlUsd = s.totalPnl/div; const pnlIdr = pnlUsd * currentUSDRate;
 
     const cards = [
       ['Gain (Pertumbuhan)', fmtPct(s.gainPct), s.gainPct>=0?'pos':'neg', 'Total ROI'],
@@ -670,18 +708,19 @@
     const wrap = document.getElementById('chartWrap');
     if(trades.length === 0){ wrap.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
     const modal = parseFloat(document.getElementById('pModal').value) || 0;
+    const div = unitDivisor();
     let points = []; let running = modal;
 
     if(chartMode === 'daily'){
       const byDate = {}; trades.forEach(t=>{ byDate[t.date] = (byDate[t.date]||0) + t.pnl; });
       const dates = Object.keys(byDate).sort();
-      points = dates.map(d=>({label:d, value:byDate[d]/100}));
+      points = dates.map(d=>({label:d, value:byDate[d]/div}));
       renderBarChart(wrap, points); return;
     }
 
     trades.forEach(t=>{
       running += t.pnl;
-      const val = chartMode === 'balance' ? (running/100) : (modal>0 ? ((running-modal)/modal*100) : 0);
+      const val = chartMode === 'balance' ? (running/div) : (modal>0 ? ((running-modal)/modal*100) : 0);
       points.push({label:t.date, value:val});
     });
     renderLineChart(wrap, points, chartMode);
@@ -748,11 +787,12 @@
     const dayNames = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
     let html = dayNames.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
     for(let i=0;i<startOffset;i++){ html += `<div class="cal-cell empty"></div>`; }
+    const div = unitDivisor();
     for(let d=1; d<=daysInMonth; d++){
       const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const info = byDate[dateStr]; let pnlHtml = '';
       if(info) {
-          const usdVal = Math.abs(info.pnl) / 100; const sign = info.pnl >= 0 ? '+' : '-';
+          const usdVal = Math.abs(info.pnl) / div; const sign = info.pnl >= 0 ? '+' : '-';
           pnlHtml = `<div class="d-count">${info.count} Trades</div><div class="d-pnl ${info.pnl>=0?'pos-cell':'neg-cell'}">${sign}$${usdVal.toFixed(2)}</div>`;
       }
       html += `<div class="cal-cell"><div class="d-num">${d}</div>${pnlHtml}</div>`;
@@ -764,12 +804,13 @@
     const sessions = ['Asia','London','New York','Overlap'];
     const wrap = document.getElementById('sessionPerf');
     if(trades.length === 0){ wrap.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
+    const div = unitDivisor();
     const maxAbs = Math.max(1, ...sessions.map(s=>{ const arr = trades.filter(t=>t.session===s); return Math.abs(arr.reduce((sum,t)=>sum+t.pnl,0)); }));
     wrap.innerHTML = sessions.map(s=>{
       const arr = trades.filter(t=>t.session===s); if(arr.length===0) return '';
       const pnl = arr.reduce((sum,t)=>sum+t.pnl,0);
       const wr = (arr.filter(t=>t.pnl>0).length/arr.length*100).toFixed(0);
-      const width = Math.max(4, Math.abs(pnl)/maxAbs*100); const usdVal = pnl / 100;
+      const width = Math.max(4, Math.abs(pnl)/maxAbs*100); const usdVal = pnl / div;
       return `<div class="bar-row"><div class="bar-top"><span><strong>${s}</strong> &nbsp; ${arr.length} trades &nbsp; ${wr}% WR</span><span class="${pnl>=0?'pos':'neg'}" style="font-weight:800; font-family:'JetBrains Mono', monospace;">${pnl>=0?'+':''}$${usdVal.toFixed(2)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${width}%; background:${pnl>=0?'var(--green)':'var(--red)'}"></div></div></div>`;
     }).join('') || '<div class="empty-state">Belum ada data.</div>';
   }
@@ -814,4 +855,4 @@
   window.addEventListener('resize', renderChart);
 </script>
 </body>
-</html>RT
+</html>
