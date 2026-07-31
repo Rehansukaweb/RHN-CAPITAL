@@ -42,13 +42,13 @@
     color: var(--ink);
   }
   header.topbar .brand span{color:var(--gold);}
-  
+
   .top-search-area { display:flex; gap:8px; align-items:center; }
   .top-search-area input { padding:8px 12px; border-radius:8px; border:1px solid var(--line); font-size:12px; font-family:inherit; outline:none; }
   .top-search-area input:focus { border-color:var(--ink); }
   .btn-search { background:var(--ink); color:#fff; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:800; font-size:11px; transition:0.2s; }
   .btn-search:hover { background:#374151; }
-  
+
   main{
     max-width:1180px;
     margin:0 auto;
@@ -83,7 +83,7 @@
   .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
   .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
   .grid-5{ display:grid; grid-template-columns:repeat(5,1fr); gap:16px; }
-  
+
   .field label{
     display:block; font-size:11px; color:var(--muted); margin-bottom:6px;
     font-weight:700; text-transform: uppercase; letter-spacing: 0.5px;
@@ -96,7 +96,7 @@
   .field input:focus, .field select:focus, .field textarea:focus{
     outline:none; border-color:var(--gold); background: #fff; box-shadow:0 0 0 3px rgba(251, 191, 36, 0.15);
   }
-  
+
   .btn-add {
     width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
     padding: 16px; border-radius: 12px; border: none; font-size: 15px; font-weight: 800;
@@ -105,7 +105,7 @@
     text-transform: uppercase; letter-spacing: 1px;
   }
   .btn-add:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); background: linear-gradient(135deg, #000, #1f2937); }
-  
+
   .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:12px 20px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition: 0.2s; }
   .btn.danger{background:var(--red-light); color:var(--red); border:1px solid var(--red);}
   .btn.danger:hover{background:var(--red); color:#fff;}
@@ -165,11 +165,11 @@
 
   /* READ ONLY MODE CSS */
   body.view-only-mode .hide-on-view { display: none !important; }
-  body.view-only-mode input#pTraderName, 
-  body.view-only-mode input#pModal, 
-  body.view-only-mode input#pDesc, 
+  body.view-only-mode input#pTraderName,
+  body.view-only-mode input#pModal,
+  body.view-only-mode input#pDesc,
   body.view-only-mode input#pUsername,
-  body.view-only-mode select#pAccountType { 
+  body.view-only-mode select#pAccountType {
       pointer-events: none; background: transparent; border: 1px dashed var(--line); color: var(--muted);
   }
   .banner-view { background: var(--gold); color: #000; padding: 10px; text-align: center; font-weight: 800; font-size: 13px; display: none; }
@@ -182,7 +182,7 @@
   .auth-box p { font-size: 12px; color: var(--muted); margin-bottom: 24px; font-weight: 500;}
   .auth-box input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; background: #f9fafb;}
   .auth-box input:focus { outline: none; border-color: var(--ink); }
-  
+
   .ocr-box {
       background: var(--ink);
       color: #fff;
@@ -196,14 +196,8 @@
   }
   .ocr-box label { color: var(--gold); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* OCR REVIEW MODAL */
-  .ocr-review-wrap table th, .ocr-review-wrap table td{ padding:6px 8px; font-size:11px; border-bottom:1px solid var(--line); }
-  .ocr-review-wrap table th{ background:#f3f4f6; text-transform:none; font-weight:800; color:#374151; }
-  .ocr-review-wrap tr.ocr-row-warn{ background:#fef2f2; }
-  .ocr-review-wrap input, .ocr-review-wrap select{ font-family:inherit; font-size:11px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; }
-
   @media(max-width:800px){ .grid-2, .grid-3, .grid-4, .grid-5, .stats-grid, .two-col{grid-template-columns:1fr 1fr;} }
-  @media(max-width:520px){ 
+  @media(max-width:520px){
     .grid-2, .grid-3, .grid-4, .grid-5, .stats-grid, .two-col{grid-template-columns:1fr;}
     .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
     .cal-cell{min-height:60px; padding:6px;}
@@ -229,7 +223,7 @@
        <input type="email" id="authEmail" placeholder="Email">
        <input type="password" id="authPass" placeholder="Kata Sandi">
        <button class="btn-add" id="btnLogin" onclick="window.doLogin()" style="margin-top: 10px;">MASUK</button>
-       
+
        <div style="margin-top: 30px; border-top: 1px solid var(--line); padding-top: 20px;">
            <p style="margin-bottom:10px;">Atau cari Portofolio orang lain (Publik)</p>
            <input type="text" id="searchPublicOverlay" placeholder="Masukkan Username...">
@@ -240,7 +234,7 @@
 
 <header class="topbar">
   <div class="brand">Jurnal<span>Trading</span> Firebase</div>
-  
+
   <div class="top-search-area">
     <input type="text" id="topSearch" placeholder="Cari username publik...">
     <button class="btn-search" onclick="window.searchPortfolio()">CARI</button>
@@ -290,12 +284,12 @@
   <!-- INPUT TRANSAKSI (HIDES ON VIEW MODE) -->
   <div class="card hide-on-view">
     <h2>Input Transaksi</h2>
-    
+
     <!-- FITUR OCR SUPER AKURAT -->
     <div class="ocr-box">
-        <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat)</label>
+        <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat + Auto Simpan)</label>
         <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
-        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem akan membersihkan gambar, membaca berdasarkan posisi kolom (kiri: simbol/harga, kanan: tanggal/profit), lalu menampilkan hasil untuk kamu verifikasi sebelum disimpan.</div>
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem membersihkan gambar, membaca berdasarkan posisi kolom, memvalidasi tiap baris (termasuk cek kewajaran pip), lalu LANGSUNG menyimpan baris yang valid. Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
     </div>
 
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
@@ -337,7 +331,7 @@
         <input id="tNote" type="text" placeholder="Cth: Setup flag pattern H1..." />
       </div>
     </div>
-    
+
     <div style="margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap;">
       <button class="btn-add" id="btnSaveTrade" onclick="window.addTrade()" style="flex:1; min-width:200px;">+ TAMBAH TRANSAKSI MANUAL</button>
       <button class="btn-cancel-edit" id="btnCancelEdit" style="display:none;" onclick="window.cancelEdit()">BATAL EDIT</button>
@@ -427,14 +421,14 @@
   const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
   let currentUser = null;
-  let activeViewUid = null; 
+  let activeViewUid = null;
   let trades = [];
   let chartMode = 'growth';
   let calDate = new Date();
-  let currentUSDRate = 16000; 
+  let currentUSDRate = 16000;
   let unsubListener = null;
-  let accountType = 'cent'; 
-  let editingId = null; 
+  let accountType = 'cent';
+  let editingId = null;
 
   function unitDivisor(){ return accountType === 'cent' ? 100 : 1; }
   function unitLabel(){ return accountType === 'cent' ? 'USC' : 'USD'; }
@@ -461,7 +455,7 @@
           const data = await res.json();
           currentUSDRate = data.rates.IDR;
           document.getElementById('liveRateTag').innerText = `USD-IDR: Rp ${currentUSDRate.toLocaleString('id-ID')}`;
-          renderAll(); 
+          renderAll();
       } catch (e) {
           console.error("Gagal ambil rate:", e);
       }
@@ -482,23 +476,40 @@
   // ============  MODUL OCR SUPER AKURAT (MULTI-LAYER CHECK)  =============
   // =========================================================================
 
-  // Hitung selisih pip dari harga entry/exit
-  function getPipsText(pair, entry, exit){
-      let en = parseFloat(entry), ex = parseFloat(exit);
-      if (isNaN(en) || isNaN(ex)) return "";
-      let diff = Math.abs(en - ex);
-      let pips = 0;
-      let p = String(pair).toUpperCase();
-      if (p.includes('JPY')) {
-          pips = diff * 100;
-      } else if (p.includes('XAU') || p.includes('GOLD')) {
-          pips = diff * 10;
-      } else if (en < 5) {
-          pips = diff * 10000;
-      } else {
-          pips = diff;
+  // -- Klasifikasi instrumen: menentukan pengali pip & batas kewajaran pergerakan harga per instrumen --
+  function pipUnit(pair){
+      const p = String(pair || '').toUpperCase();
+      if (p.includes('JPY')) return { multiplier: 100, maxReasonablePips: 500 };
+      if (p.includes('XAU') || p.includes('GOLD')) return { multiplier: 10, maxReasonablePips: 1000 };
+      if (p.includes('XAG') || p.includes('SILVER')) return { multiplier: 100, maxReasonablePips: 1000 };
+      if (p.includes('BTC') || p.includes('ETH') || p.includes('XBT')) return { multiplier: 1, maxReasonablePips: 1000000 };
+      return { multiplier: 10000, maxReasonablePips: 500 }; // pasangan forex standar 4-5 desimal
+  }
+
+  function countIntDigits(n){
+      return String(Math.trunc(Math.abs(n))).length;
+  }
+
+  // -- Hitung pip DAN validasi kewajarannya. Ini yang memperbaiki bug "40738.9 Pip":
+  //    kalau OCR salah baca digit (mis. "4076.844" terbaca "4.076"), jumlah digit di depan
+  //    koma antara entry & exit akan beda jauh, atau hasil pip-nya jadi tidak masuk akal
+  //    untuk instrumen tsb -> ditandai TIDAK VALID dan baris tidak ikut disimpan otomatis. --
+  function getPipsInfo(pair, entry, exit){
+      const en = parseFloat(entry), ex = parseFloat(exit);
+      if (isNaN(en) || isNaN(ex)) {
+          return { text: '', pips: null, valid: false, reason: 'Harga entry/exit tidak terbaca' };
       }
-      return `(${pips.toFixed(1)} Pip)`;
+      const dEntry = countIntDigits(en), dExit = countIntDigits(ex);
+      if (Math.abs(dEntry - dExit) > 1) {
+          return { text: '', pips: null, valid: false, reason: 'Format harga entry/exit tidak konsisten (kemungkinan salah baca OCR)' };
+      }
+      const unit = pipUnit(pair);
+      const diff = Math.abs(en - ex);
+      const pips = diff * unit.multiplier;
+      if (pips > unit.maxReasonablePips) {
+          return { text: `(${pips.toFixed(1)} Pip)`, pips, valid: false, reason: 'Jarak pip tidak wajar, kemungkinan salah baca harga' };
+      }
+      return { text: `(${pips.toFixed(1)} Pip)`, pips, valid: true, reason: '' };
   }
 
   function autoSession(){
@@ -518,7 +529,7 @@
       return null;
   }
 
-  // -- LAPISAN 1: PREPROCESSING GAMBAR (upscale + Otsu binarization + deteksi polaritas) --
+  // -- LAPISAN 1: PREPROCESSING GAMBAR (upscale + contrast stretch + Otsu binarization + deteksi polaritas) --
   async function preprocessImageForOcr(file){
       const dataUrl = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -534,7 +545,7 @@
       });
 
       // Perbesar gambar supaya teks kecil terbaca lebih jelas oleh OCR
-      const scale = Math.min(3, Math.max(1, 1600 / img.width));
+      const scale = Math.min(4, Math.max(1, 1800 / img.width));
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
@@ -547,12 +558,23 @@
       const data = imageData.data;
       const n = data.length / 4;
 
-      const gray = new Uint8ClampedArray(n);
-      const hist = new Array(256).fill(0);
+      let gray = new Float64Array(n);
+      let gMin = 255, gMax = 0;
       for (let i = 0; i < n; i++) {
           const r = data[i*4], g = data[i*4+1], b = data[i*4+2];
-          const v = Math.round(0.299*r + 0.587*g + 0.114*b);
-          gray[i] = v; hist[v]++;
+          const v = 0.299*r + 0.587*g + 0.114*b;
+          gray[i] = v;
+          if (v < gMin) gMin = v;
+          if (v > gMax) gMax = v;
+      }
+
+      // Contrast stretch: ratakan rentang gelap-terang supaya teks tipis lebih tegas sebelum threshold
+      const range0 = Math.max(1, gMax - gMin);
+      const hist = new Array(256).fill(0);
+      for (let i = 0; i < n; i++) {
+          const stretched = Math.round(((gray[i] - gMin) / range0) * 255);
+          gray[i] = stretched;
+          hist[stretched]++;
       }
 
       // Otsu's method: cari threshold optimal otomatis (bukan angka tetap)
@@ -666,123 +688,32 @@
       return trades;
   }
 
-  // -- LAPISAN 4: VALIDASI SETIAP TRANSAKSI SEBELUM DITAMPILKAN UNTUK DIKONFIRMASI --
-  function validateTrade(t, existingTrades){
-      const warnings = [];
-      if (!t.pair || t.pair.length < 3) warnings.push('Pair tidak jelas');
-      if (!['Buy','Sell'].includes(t.dir)) warnings.push('Arah tidak jelas');
-      if (!t.lot || t.lot <= 0) warnings.push('Lot tidak valid');
-      if (t.entry === undefined || isNaN(t.entry)) warnings.push('Harga entry tidak terbaca');
-      if (t.exit === undefined || isNaN(t.exit)) warnings.push('Harga exit tidak terbaca');
-      if (t.pnl === undefined || isNaN(t.pnl)) warnings.push('P&L tidak terbaca');
-      if (!t.date) warnings.push('Tanggal tidak terbaca (pakai tanggal manual)');
+  // -- LAPISAN 4: VALIDASI SETIAP TRANSAKSI. Hasil dari sini menentukan apakah baris
+  //    boleh disimpan otomatis atau harus dilewati (supaya tidak ada data salah masuk jurnal). --
+  function validateTrade(t, existingTrades, pipInfo){
+      const issues = [];
+      if (!t.pair || t.pair.length < 3) issues.push('Pair tidak jelas');
+      if (!['Buy','Sell'].includes(t.dir)) issues.push('Arah tidak jelas');
+      if (!t.lot || t.lot <= 0) issues.push('Lot tidak valid');
+      if (t.entry === undefined || isNaN(t.entry)) issues.push('Harga entry tidak terbaca');
+      if (t.exit === undefined || isNaN(t.exit)) issues.push('Harga exit tidak terbaca');
+      if (t.pnl === undefined || isNaN(t.pnl)) issues.push('P&L tidak terbaca');
+      if (!t.date) issues.push('Tanggal tidak terbaca');
+      if (pipInfo && pipInfo.valid === false && pipInfo.reason) issues.push(pipInfo.reason);
+
       const isDup = existingTrades.some(e =>
           e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
           Math.abs((parseFloat(e.lot)||0) - (t.lot||0)) < 0.001 &&
           Math.abs((parseFloat(e.pnl)||0) - (t.pnl||0)) < 0.01
       );
-      if (isDup) warnings.push('Kemungkinan duplikat (sudah ada di jurnal)');
-      return warnings;
+      if (isDup) issues.push('duplikat (sudah ada di jurnal)');
+      return issues;
   }
 
-  // -- LAPISAN 5: MODAL VERIFIKASI MANUAL SEBELUM DATA DITULIS KE DATABASE --
-  function showOcrReviewModal(candidateTrades){
-      const rowsHtml = candidateTrades.map((t, i) => {
-          const warnings = validateTrade(t, trades);
-          const hasCriticalIssue = warnings.some(w => !w.includes('duplikat'));
-          const isDupOnly = warnings.length > 0 && !hasCriticalIssue;
-          const checked = hasCriticalIssue ? '' : (isDupOnly ? '' : 'checked');
-          const statusText = warnings.length ? ('⚠ ' + warnings.join(', ')) : '✓ OK';
-          const statusColor = warnings.length ? '#ef4444' : '#10b981';
-          return `
-          <tr class="${warnings.length ? 'ocr-row-warn' : ''}">
-            <td><input type="checkbox" id="rev_${i}_chk" ${checked}></td>
-            <td><input type="date" id="rev_${i}_date" value="${t.date || ''}" style="width:118px"></td>
-            <td><input type="text" id="rev_${i}_pair" value="${escapeHtml(t.pair || '')}" style="width:75px;text-transform:uppercase"></td>
-            <td>
-              <select id="rev_${i}_dir" style="width:68px">
-                <option value="Buy" ${t.dir === 'Buy' ? 'selected' : ''}>Buy</option>
-                <option value="Sell" ${t.dir === 'Sell' ? 'selected' : ''}>Sell</option>
-              </select>
-            </td>
-            <td><input type="number" step="0.01" id="rev_${i}_lot" value="${t.lot ?? ''}" style="width:55px"></td>
-            <td><input type="number" step="any" id="rev_${i}_entry" value="${t.entry ?? ''}" style="width:80px"></td>
-            <td><input type="number" step="any" id="rev_${i}_exit" value="${t.exit ?? ''}" style="width:80px"></td>
-            <td><input type="number" step="any" id="rev_${i}_pnl" value="${t.pnl ?? ''}" style="width:65px"></td>
-            <td style="font-size:10px;color:${statusColor};font-weight:700;">${statusText}</td>
-          </tr>`;
-      }).join('');
-
-      const html = `
-        <div class="ocr-review-wrap" style="text-align:left;">
-          <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">
-            Periksa hasil scan di bawah ini. Baris bertanda merah butuh perhatian (data tidak terbaca / duplikat) dan tidak dicentang otomatis.
-            Kamu bisa mengedit semua nilai sebelum menyimpan.
-          </div>
-          <div style="overflow-x:auto; max-height:360px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px;">
-          <table style="width:100%; border-collapse:collapse;">
-            <thead><tr>
-              <th>✓</th><th>Tanggal</th><th>Pair</th><th>Arah</th><th>Lot</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th>Status</th>
-            </tr></thead>
-            <tbody>${rowsHtml}</tbody>
-          </table>
-          </div>
-        </div>`;
-
-      Swal.fire({
-          title: `🔍 Verifikasi ${candidateTrades.length} Transaksi Hasil Scan`,
-          html,
-          width: 820,
-          showCancelButton: true,
-          confirmButtonText: 'SIMPAN YANG DICENTANG',
-          cancelButtonText: 'BATAL',
-          confirmButtonColor: '#111827',
-          focusConfirm: false,
-          preConfirm: () => {
-              const results = [];
-              candidateTrades.forEach((t, i) => {
-                  const chk = document.getElementById(`rev_${i}_chk`);
-                  if (!chk || !chk.checked) return;
-                  const date = document.getElementById(`rev_${i}_date`).value;
-                  const pair = document.getElementById(`rev_${i}_pair`).value.trim().toUpperCase();
-                  const dir = document.getElementById(`rev_${i}_dir`).value;
-                  const lot = parseFloat(document.getElementById(`rev_${i}_lot`).value) || 0;
-                  const entry = document.getElementById(`rev_${i}_entry`).value;
-                  const exit = document.getElementById(`rev_${i}_exit`).value;
-                  const pnl = parseFloat(document.getElementById(`rev_${i}_pnl`).value);
-                  if (!date || !pair || isNaN(pnl)) return; // baris tak lengkap dilewati saat simpan
-                  const pipsText = (entry !== '' && exit !== '') ? getPipsText(pair, entry, exit) : '';
-                  const note = (entry !== '' && exit !== '') ? `${entry} -> ${exit} ${pipsText}`.trim() : (t.note || '');
-                  results.push({ date, pair, dir, session: t.session || autoSession(), lot, pnl, note });
-              });
-              if (results.length === 0) {
-                  Swal.showValidationMessage('Tidak ada transaksi tercentang / valid untuk disimpan.');
-                  return false;
-              }
-              return results;
-          }
-      }).then(async (res) => {
-          if (!res.isConfirmed || !res.value) return;
-          const finalTrades = res.value;
-          Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
-          try {
-              const batch = writeBatch(db);
-              finalTrades.forEach(t => {
-                  const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
-                  batch.set(newRef, { ...t, createdAt: serverTimestamp() });
-              });
-              await batch.commit();
-              Swal.fire('Tersimpan!', `${finalTrades.length} transaksi berhasil disimpan ke jurnal.`, 'success');
-              const statusLabel = document.getElementById('ocrStatus');
-              statusLabel.innerText = 'Upload gambar lain kalau masih ada sisa riwayat.';
-              statusLabel.style.color = '#9ca3af';
-          } catch (e) {
-              Swal.fire('Error', e.message, 'error');
-          }
-      });
-  }
-
-  // -- ENTRY POINT: dipanggil saat user upload screenshot --
+  // -- ENTRY POINT: dipanggil saat user upload screenshot.
+  //    Alur baru: scan -> validasi otomatis -> LANGSUNG simpan baris yang valid ke database.
+  //    Tidak ada lagi modal konfirmasi manual. Baris yang meragukan TIDAK disimpan otomatis
+  //    (supaya jurnal tetap akurat) dan hanya diberitahukan lewat notifikasi ringkas. --
   window.processOCR = async function(input) {
       if (!input.files || input.files.length === 0) return;
       if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan reload dan login.', 'error');
@@ -793,10 +724,10 @@
 
       let worker = null;
       try {
-          statusLabel.innerText = '⏳ Tahap 1/3: Membersihkan & memperbesar gambar...';
+          statusLabel.innerText = '⏳ Tahap 1/4: Membersihkan & memperbesar gambar...';
           const processedImageURL = await preprocessImageForOcr(file);
 
-          statusLabel.innerText = '🧠 Tahap 2/3: AI membaca teks (mode presisi tinggi)...';
+          statusLabel.innerText = '🧠 Tahap 2/4: AI membaca teks (mode presisi tinggi)...';
           worker = await Tesseract.createWorker('eng');
           await worker.setParameters({
               tessedit_pageseg_mode: '6',
@@ -806,28 +737,81 @@
           await worker.terminate();
           worker = null;
 
-          statusLabel.innerText = '🔎 Tahap 3/3: Menyusun & memvalidasi transaksi...';
-          const candidateTrades = parseMt5Rows(result.data);
+          statusLabel.innerText = '🔎 Tahap 3/4: Menyusun transaksi dari posisi kolom...';
+          const rawTrades = parseMt5Rows(result.data);
 
-          candidateTrades.forEach(t => {
+          rawTrades.forEach(t => {
               if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
               if (!t.session) t.session = autoSession();
-              if (t.entry !== undefined && t.exit !== undefined) {
-                  t.note = `${t.entry} -> ${t.exit} ${getPipsText(t.pair, t.entry, t.exit)}`.trim();
-              }
           });
 
-          if (candidateTrades.length === 0) {
+          if (rawTrades.length === 0) {
               statusLabel.innerText = 'Tidak ada transaksi terdeteksi. Coba screenshot lebih jelas/terang & tidak miring.';
               statusLabel.style.color = 'var(--red)';
               Swal.fire('Format Tidak Terbaca', 'Pastikan screenshot menampilkan baris Posisi/Riwayat MT5 (simbol, buy/sell, lot, harga, profit) secara utuh dan tidak buram.', 'warning');
-              input.value = '';
               return;
           }
 
-          statusLabel.innerText = `Ditemukan ${candidateTrades.length} kandidat transaksi. Silakan verifikasi.`;
-          statusLabel.style.color = 'var(--green)';
-          showOcrReviewModal(candidateTrades);
+          statusLabel.innerText = '✅ Tahap 4/4: Validasi otomatis & menyimpan...';
+
+          const toSave = [];
+          const skipped = [];
+
+          rawTrades.forEach(t => {
+              const pipInfo = (t.entry !== undefined && t.exit !== undefined)
+                  ? getPipsInfo(t.pair, t.entry, t.exit)
+                  : { valid: true, text: '' };
+              const issues = validateTrade(t, trades, pipInfo);
+              const critical = issues.filter(i => i !== 'duplikat (sudah ada di jurnal)');
+
+              if (critical.length > 0) {
+                  skipped.push({ pair: t.pair, date: t.date, reason: critical.join(', ') });
+                  return;
+              }
+              if (issues.includes('duplikat (sudah ada di jurnal)')) {
+                  skipped.push({ pair: t.pair, date: t.date, reason: 'Duplikat (sudah ada di jurnal)' });
+                  return;
+              }
+
+              const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.valid)
+                  ? `${t.entry} -> ${t.exit} ${pipInfo.text}`.trim()
+                  : (t.note || '');
+
+              toSave.push({ date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl, note });
+          });
+
+          if (toSave.length > 0) {
+              const batch = writeBatch(db);
+              toSave.forEach(t => {
+                  const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
+                  batch.set(newRef, { ...t, createdAt: serverTimestamp() });
+              });
+              await batch.commit();
+          }
+
+          if (toSave.length > 0 && skipped.length === 0) {
+              statusLabel.innerText = `${toSave.length} transaksi berhasil disimpan otomatis ke jurnal.`;
+              statusLabel.style.color = 'var(--green)';
+              Swal.fire({icon:'success', title:'Tersimpan!', text:`${toSave.length} transaksi berhasil disimpan otomatis.`, timer:1800, showConfirmButton:false});
+          } else if (toSave.length > 0 && skipped.length > 0) {
+              statusLabel.innerText = `${toSave.length} tersimpan otomatis, ${skipped.length} dilewati (perlu input manual).`;
+              statusLabel.style.color = 'var(--green)';
+              const listHtml = skipped.map(s => `<li style="margin-bottom:6px;text-align:left;"><strong>${escapeHtml(s.pair||'?')}</strong> ${escapeHtml(s.date||'-')} — <span style="color:var(--red)">${escapeHtml(s.reason)}</span></li>`).join('');
+              Swal.fire({
+                  icon: 'success',
+                  title: `Tersimpan ${toSave.length}, ${skipped.length} dilewati`,
+                  html: `<div style="font-size:12px;text-align:left;margin-bottom:8px;">Baris berikut TIDAK disimpan otomatis supaya data jurnal tetap akurat. Silakan tambahkan manual lewat form input di atas:</div><ul style="padding-left:18px;font-size:12px;">${listHtml}</ul>`
+              });
+          } else {
+              statusLabel.innerText = `Semua ${skipped.length} baris dilewati karena kurang yakin akurat. Silakan input manual.`;
+              statusLabel.style.color = 'var(--red)';
+              const listHtml = skipped.map(s => `<li style="margin-bottom:6px;text-align:left;"><strong>${escapeHtml(s.pair||'?')}</strong> ${escapeHtml(s.date||'-')} — <span style="color:var(--red)">${escapeHtml(s.reason)}</span></li>`).join('');
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Tidak ada yang disimpan otomatis',
+                  html: `<div style="font-size:12px;text-align:left;margin-bottom:8px;">Semua baris hasil scan kurang meyakinkan (kemungkinan salah baca harga), jadi tidak disimpan supaya jurnal tetap akurat:</div><ul style="padding-left:18px;font-size:12px;">${listHtml}</ul>`
+              });
+          }
 
       } catch (e) {
           console.error(e);
@@ -846,7 +830,7 @@
   async function setupDataListener(targetUid, isReadOnly = false) {
       if(unsubListener) unsubListener();
       activeViewUid = targetUid;
-      
+
       if(isReadOnly) {
           document.body.classList.add('view-only-mode');
           const btnBack = document.getElementById('btnBackMine');
@@ -866,7 +850,7 @@
           document.getElementById('pUsername').value = d.username || '';
           accountType = d.accountType === 'standard' ? 'standard' : 'cent';
           document.getElementById('pAccountType').value = accountType;
-          
+
           if(isReadOnly) {
               document.getElementById('bannerView').innerText = `Melihat Portofolio: ${d.name || d.username} (Mode Baca Saja)`;
           }
@@ -958,7 +942,7 @@
   window.searchFromOverlay = function() { executeSearch(document.getElementById('searchPublicOverlay').value.trim()); };
 
   window.saveProfile = async function() {
-      if (!currentUser || activeViewUid !== currentUser.uid) return; 
+      if (!currentUser || activeViewUid !== currentUser.uid) return;
       const name = document.getElementById('pTraderName').value;
       const modal = parseFloat(document.getElementById('pModal').value) || 0;
       const desc = document.getElementById('pDesc').value;
@@ -968,7 +952,7 @@
       try {
           await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType }, { merge: true });
           if(username) await setDoc(doc(db, 'public_usernames', username), { uid: currentUser.uid });
-          renderAll(); 
+          renderAll();
       } catch(e) { console.error("Gagal simpan profil", e); }
   };
 
@@ -1211,10 +1195,10 @@
   function renderTable(){
     const tbody = document.getElementById('tradeTable'); const emptyEl = document.getElementById('tradeEmpty');
     const isReadOnly = document.body.classList.contains('view-only-mode');
-    
+
     if(trades.length === 0){ tbody.innerHTML = ''; emptyEl.style.display = 'block'; return; }
     emptyEl.style.display = 'none';
-    
+
     tbody.innerHTML = trades.slice().reverse().map(t=>`
       <tr>
         <td style="font-weight:700;">${t.date.split('-').reverse().join('/')}</td>
