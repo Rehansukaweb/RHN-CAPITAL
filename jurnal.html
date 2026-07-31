@@ -824,8 +824,10 @@
 
           const toSaveDirect = [];
           const toPending = [];
+          const toUpdateExisting = [];
           let dupCount = 0;
           let refinedCount = 0;
+          let correctedDupCount = 0;
 
           rawTrades.forEach(t => {
               if (t.refinedByDigitPass) refinedCount++;
@@ -834,19 +836,43 @@
                   ? getPipsInfo(t.pair, t.entry, t.exit)
                   : { valid: true, text: '' };
 
-              // -- Cek duplikat: HANYA jika baris baru punya harga entry & exit, DAN ada transaksi lama
-              //    dengan tanggal+pair+arah sama YANG JUGA punya info harga (dari catatannya) dan harganya
-              //    cocok persis. Kalau tidak ada info harga untuk dibandingkan, jangan anggap duplikat. --
+              // -- Cek duplikat/hampir-duplikat: baris baru punya harga entry & exit, dan ada transaksi lama
+              //    dengan tanggal+pair+arah+lot+P&L sama (kandidat kuat "transaksi yang sama").
+              //      1) Kalau harganya cocok persis -> memang duplikat, dilewati (tidak disimpan lagi).
+              //      2) Kalau harganya BEDA tapi kandidat kuat itu ada -> kemungkinan salah satu bacaan OCR
+              //         (lama atau baru) keliru baca digit. Bandingkan konsistensi jumlah digit entry vs exit
+              //         di kedua versi; kalau bacaan baru lebih konsisten, KOREKSI otomatis catatan transaksi
+              //         yang sudah tersimpan (bukan menambah baris baru, bukan cuma dilewati begitu saja).
+              //      3) Kalau tidak ada info harga untuk dibandingkan sama sekali -> jangan anggap duplikat. --
               const canCheckDup = t.date && t.pair && ['Buy','Sell'].includes(t.dir) && !isNaN(t.pnl)
                   && t.entry !== undefined && t.exit !== undefined && !isNaN(t.entry) && !isNaN(t.exit);
               if (canCheckDup) {
-                  const isDup = trades.some(e => {
-                      if (e.date !== t.date || e.pair !== t.pair || e.dir !== t.dir) return false;
-                      const ePrices = extractPricesFromNote(e.note);
-                      if (!ePrices) return false; // transaksi lama tidak punya info harga -> tidak bisa dipastikan duplikat
-                      return Math.abs(ePrices.entry - t.entry) < 1e-6 && Math.abs(ePrices.exit - t.exit) < 1e-6;
-                  });
-                  if (isDup) { dupCount++; return; }
+                  const candidate = trades.find(e =>
+                      e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
+                      Math.abs((parseFloat(e.lot)||0) - (t.lot||0)) < 0.001 &&
+                      Math.abs((parseFloat(e.pnl)||0) - (t.pnl||0)) < 0.01
+                  );
+                  if (candidate) {
+                      const ePrices = extractPricesFromNote(candidate.note);
+                      if (ePrices) {
+                          const exactMatch = Math.abs(ePrices.entry - t.entry) < 1e-6 && Math.abs(ePrices.exit - t.exit) < 1e-6;
+                          if (exactMatch) { dupCount++; return; }
+
+                          const existingDiff = Math.abs(countIntDigits(ePrices.entry) - countIntDigits(ePrices.exit));
+                          const newDiff = Math.abs(countIntDigits(t.entry) - countIntDigits(t.exit));
+                          if (newDiff < existingDiff) {
+                              const newPipInfo = getPipsInfo(t.pair, t.entry, t.exit);
+                              const newNote = newPipInfo.valid
+                                  ? `${t.entry} -> ${t.exit} ${newPipInfo.text}`.trim()
+                                  : `${t.entry} -> ${t.exit}`;
+                              toUpdateExisting.push({ id: candidate.id, note: newNote });
+                              correctedDupCount++;
+                              return;
+                          }
+                          // bacaan lama sudah sama/lebih konsisten -> anggap ini transaksi baru yang berbeda,
+                          // biarkan lanjut diproses & disimpan seperti biasa di bawah.
+                      }
+                  }
               }
 
               const missingCritical = [];
@@ -880,7 +906,7 @@
               toSaveDirect.push({ date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl, note, flag: flags.join(', ') });
           });
 
-          if (toSaveDirect.length > 0 || toPending.length > 0) {
+          if (toSaveDirect.length > 0 || toPending.length > 0 || toUpdateExisting.length > 0) {
               const batch = writeBatch(db);
               toSaveDirect.forEach(t => {
                   const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
@@ -889,6 +915,9 @@
               toPending.forEach(t => {
                   const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_pending'));
                   batch.set(newRef, { ...t, createdAt: serverTimestamp() });
+              });
+              toUpdateExisting.forEach(u => {
+                  batch.set(doc(db, 'users', currentUser.uid, 'jurnal_trading', u.id), { note: u.note }, { merge: true });
               });
               await batch.commit();
           }
@@ -899,13 +928,14 @@
           if (flaggedCount > 0) summary += ` (${flaggedCount} ditandai ⚠ CEK di tabel riwayat)`;
           if (toPending.length > 0) summary += `, ${toPending.length} masuk daftar "Perlu Dicek Manual"`;
           if (dupCount > 0) summary += `, ${dupCount} duplikat dilewati`;
+          if (correctedDupCount > 0) summary += `, ${correctedDupCount} duplikat mirip dikoreksi otomatis`;
           if (refinedCount > 0) summary += `, ${refinedCount} harga dikoreksi lewat verifikasi digit-only`;
           summary += '.';
 
           statusLabel.innerText = summary;
-          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0) ? 'var(--green)' : 'var(--red)';
+          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0 || toUpdateExisting.length > 0) ? 'var(--green)' : 'var(--red)';
 
-          if (toSaveDirect.length === 0 && toPending.length === 0) {
+          if (toSaveDirect.length === 0 && toPending.length === 0 && toUpdateExisting.length === 0) {
               Swal.fire('Tidak Ada Transaksi Baru', dupCount > 0 ? 'Semua baris terdeteksi ternyata sudah ada di jurnal (duplikat, harga cocok persis).' : 'Tidak ada transaksi terbaca dari gambar ini.', 'info');
           } else {
               Swal.fire({
@@ -915,6 +945,7 @@
                            ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span> — tandanya ⚠ CEK di kolom Catatan tabel Riwayat Transaksi)` : ''}.</div>` : ''}
                            ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris datanya kurang lengkap, sekarang muncul di kartu <strong>"Perlu Dicek Manual"</strong> di atas form input — lengkapi lalu klik Simpan.</div>` : ''}
                            ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
+                           ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — dicek konsistensi digitnya, dan catatan transaksi lama <strong>langsung dikoreksi</strong> ke harga hasil pembacaan ulang (tidak ditambahkan sebagai baris baru).</div>` : ''}
                            ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit (lebih presisi).</div>` : ''}
                          </div>`
               });
