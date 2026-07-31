@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark light">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+<title>RHN GALLERY | Arus Galeri & Media</title>
+
+<meta name="theme-color" content="#050505">
+<link rel="apple-touch-icon" href="RHN LOGO.jpg">
+
+<style>
+/* ==========================================================================
+   TEMA ORIGINAL RHN CAPITAL (GELAP PEKAT)
+   ========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; }
+
+h1, hr, .page-header, .site-header, .project-name { display: none !important; }
+
+:root {
+  --bg: #050505; 
+  --bg2: #121215; 
+  --bg3: #1A1A1F;
+  --card: #121215;
+  --border: #222228; 
+  --border2: #33333E;
+  --text: #FFFFFF; 
+  --text2: #CCCCCC; 
+  --text3: #888899;
+  
+  --gold: #FBBF24; 
+  --gold2: #F59E0B; 
+  --green2: #10B981; 
+  --red2: #F87171;
+  --blue: #3B82F6;
+  --blue-title: #007BFF;
+  
+  --shadow-float: 0 12px 32px rgba(0,0,0,0.5);
+  --radius: 16px; 
+}
+
+body.light-mode {
+  --bg: #DFE2E6; 
+  --bg2: #E9EDF1; 
+  --bg3: #D0D5DB;
+  --card: #E9EDF1; 
+  --border: #C2C8D0; 
+  --border2: #9CA3AF;
+  --text: #111827; 
+  --text2: #374151; 
+  --text3: #4B5563;
+  --blue-title: #0056b3;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Modal Fix */
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: hidden !important; }
+.swal2-container { z-index: 100000 !important; }
+.centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
+
+/* HEADER */
+.header-area { padding: 20px 24px; }
+.logo-row { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-top: 10px; }
+.logo-img { width: 60px; height: 60px; border-radius: 14px; border: 1px solid var(--gold2); padding: 2px; }
+.logo-img img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; }
+.logo-text { text-align: center; }
+.logo-text .main-text { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
+.logo-text .sub-text { font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* USER ROW & STATUS */
+.status-row { display: flex; gap: 12px; margin-bottom: 20px; justify-content: center; }
+.status-pill { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+.sync-text { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+
+.user-row { display: flex; align-items: center; gap: 12px; position: relative; width: 100%; }
+.theme-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--gold); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; transition: 0.3s; }
+.theme-btn:hover { background: var(--bg3); }
+.user-pill { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 4px 12px 4px 4px; display: flex; align-items: center; justify-content: space-between; }
+.user-pill-left { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
+.u-avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 700; font-size: 14px; flex-shrink: 0; background: var(--bg3); }
+.u-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; max-width: 140px; }
+
+.user-action-wrap { display: flex; gap: 6px; padding-right: 4px; align-items: center; }
+.setting-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+.logout-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); height: 32px; padding: 0 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+.setting-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--text); color: var(--text); }
+.logout-btn:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); color: var(--red2); }
+
+/* NAVIGATION */
+.nav { padding: 0 24px 24px; display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn { padding: 10px 20px; font-size: 11px; font-weight: 700; color: var(--text3); border: 1px solid var(--border); border-radius: 100px; background: transparent; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+.nav-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* MAIN CONTENT */
+.main { padding: 0 24px 80px; max-width: 1400px; margin: 0 auto; }
+.page { display: none; animation: fadeIn 0.4s ease; } .page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+.m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; }
+.m-sub { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 12px; flex-grow: 1; }
+.m-bar { height: 4px; background: var(--bg3); border-radius: 2px; width: 100%; overflow: hidden; }
+.m-bar-fill { height: 100%; border-radius: 2px; background: var(--gold); transition: width 0.6s ease; }
+
+/* GALERI GRID */
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); margin-bottom: 24px; }
+.card-head { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.card-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.card-sub { font-size: 12px; color: var(--text3); }
+
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.gallery-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; position: relative; transition: all 0.3s ease; display: flex; flex-direction: column; }
+.gallery-card:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.gallery-img-wrap { width: 100%; height: 200px; position: relative; overflow: hidden; background: var(--bg3); }
+.gallery-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer; }
+.gallery-card:hover .gallery-img-wrap img { transform: scale(1.08); }
+
+.gallery-info { padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.gallery-title { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gallery-meta { font-size: 10px; color: var(--text3); display: flex; justify-content: space-between; align-items: center; }
+.album-badge { font-size: 8px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border2); color: var(--gold); text-transform: uppercase; }
+.gallery-actions { display: flex; gap: 4px; margin-top: 8px; }
+
+.g-btn { flex: 1; padding: 6px 2px; border-radius: 8px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text); font-size: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; white-space: nowrap; }
+.g-btn:hover { background: var(--border2); }
+.g-btn.dl { color: var(--blue); border-color: rgba(59,130,246,0.3); }
+.g-btn.dl:hover { background: rgba(59,130,246,0.15); }
+.g-btn.del { color: var(--red2); border-color: rgba(248,113,113,0.3); }
+.g-btn.del:hover { background: rgba(248,113,113,0.2); }
+
+/* FORMS */
+.f-input-dark { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--border); background-color: var(--bg2) !important; color: var(--text) !important; outline: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+.f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
+.form-row { margin-bottom: 16px; }
+.form-label { font-size: 10px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+
+input[type="file"] { padding: 12px; background: rgba(255, 255, 255, 0.05) !important; cursor: pointer; }
+input[type="file"]::file-selector-button { background: var(--gold); border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 12px; color: #000; font-family: 'Outfit', sans-serif; }
+
+/* MULTI PREVIEW BOX */
+.preview-box { width: 100%; min-height: 100px; border: 2px dashed var(--border2); border-radius: 16px; display: none; flex-wrap: wrap; gap: 8px; padding: 16px; margin-bottom: 16px; background: var(--bg3); align-items: center; justify-content: center; }
+.preview-box img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.preview-count { width: 100%; text-align: center; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+
+.submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
+.submit-btn:hover { background: var(--gold); color: #000; }
+.submit-btn:disabled { background: var(--border2); color: var(--text3); cursor: not-allowed; }
+
+/* SETTINGS & ANTI INTIP */
+.set-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+.set-title { font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px; border-bottom: 1px solid var(--border2); padding-bottom: 12px; }
+.set-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border2); }
+.set-item:last-child { border-bottom: none; }
+.set-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.set-sub { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; outline: none; }
+
+body.global-privacy .gallery-img-wrap img { filter: blur(12px); transition: filter 0.3s ease; }
+body.global-privacy .gallery-img-wrap:hover img { filter: blur(0px); }
+
+/* SPLASH SCREEN V8 */
+#splash-screen { position: fixed; inset: 0; background: #050505; z-index: 999999; display: flex; align-items: center; justify-content: center; }
+#splash-screen.splash-exit { animation: splashSlideUpOut 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards; }
+@keyframes splashSlideUpOut { to { transform: translateY(-100%); opacity: 0; visibility: hidden; } }
+.splash-content { display: flex; flex-direction: column; align-items: center; }
+.splash-logo-minimal { width: 90px; height: 90px; border-radius: 24px; border: 2px solid var(--gold); padding: 4px; opacity: 0; transform: translateY(20px); animation: fadeUpItem 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
+.splash-text-group { margin-top: 24px; text-align: center; opacity: 0; transform: translateY(20px); animation: fadeUpItem 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
+.splash-title-minimal { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: 6px; margin-bottom: 8px; }
+.splash-subtitle-minimal { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 6px; text-transform: uppercase; }
+.splash-line-loader { width: 0%; height: 2px; background: var(--gold); margin-top: 32px; border-radius: 2px; animation: expandLine 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.3s; }
+@keyframes fadeUpItem { to { opacity: 1; transform: translateY(0); } }
+@keyframes expandLine { 0% { width: 0%; opacity: 0; } 10% { opacity: 1; } 100% { width: 150px; opacity: 0; } }
+
+/* AUTH SCREEN & PIN */
+#auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.auth-box { background: var(--card); border-radius: 24px; padding: 40px 24px; width: 90%; max-width: 400px; border: 1px solid var(--border); text-align: center; }
+.auth-box img { width: 64px; border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--border2); }
+.auth-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: var(--text3); margin-bottom: 24px; }
+.auth-tabs { display: flex; background: var(--bg3); border-radius: 12px; padding: 4px; margin-bottom: 24px; }
+.auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 8px; }
+.auth-tab.active { background: var(--bg2); color: var(--text); }
+.auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
+.btn-google { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
+#pin-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+
+@media (max-width: 768px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .gallery-img-wrap { height: 140px; }
+  .card { padding: 16px !important; border-radius: 16px !important; }
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  const OriginalSwal = window.Swal;
+  window.Swal = OriginalSwal.mixin({ heightAuto: false });
+
+  window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.classList.add('splash-exit');
+        setTimeout(() => { splash.style.display = 'none'; }, 800);
+      }
+    }, 2500);
+  });
+</script>
+</head>
+<body>
+
+<!-- 1. SPLASH SCREEN V8 -->
+<div id="splash-screen">
+  <div class="splash-content">
+    <img src="RHN LOGO.jpg" alt="RHN Logo" class="splash-logo-minimal" onerror="this.src='https://via.placeholder.com/90/121215/FBBF24?text=RHN'">
+    <div class="splash-text-group">
+      <div class="splash-title-minimal">RHN GALLERY</div>
+      <div class="splash-subtitle-minimal">KOLEKSI MEDIA & ASET</div>
+    </div>
+    <div class="splash-line-loader"></div>
+  </div>
+</div>
+
+<!-- 2. AUTHENTICATION SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <img src="RHN LOGO.jpg" alt="RHN Logo" onerror="this.src='https://via.placeholder.com/64/121215/FBBF24?text=RHN'">
+    <div class="auth-title">RHN GALLERY</div>
+    <div class="auth-sub">Akses Masuk Ke Galeri Pribadi</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
+    </div>
+    <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
+    
+    <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
+    <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
+    
+    <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
+    
+    <button class="auth-btn btn-google" id="btn-google" onclick="doGoogleAuth()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+      MASUK DENGAN GOOGLE
+    </button>
+  </div>
+</div>
+
+<!-- 3. PIN SECURITY SCREEN -->
+<div id="pin-screen" style="display:none;">
+  <div class="auth-box">
+    <img src="RHN LOGO.jpg" alt="RHN Logo" onerror="this.src='https://via.placeholder.com/64/121215/FBBF24?text=RHN'">
+    <div class="auth-title" id="pin-title">Masukkan PIN</div>
+    <div class="auth-sub" id="pin-sub">Keamanan 6 Digit Keuangan & Media</div>
+    <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
+    <div class="form-row">
+      <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
+    </div>
+    <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA GALERI</button>
+    <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetAccount()">Ganti Akun</button>
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="resetPinFromLogin()">Reset PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. MAIN APP SCREEN -->
+<div id="app-screen" style="display:none;">
+  <div class="header-area">
+    <div class="logo-row">
+      <div class="logo-img"><img src="RHN LOGO.jpg" alt="Logo" onerror="this.src='https://via.placeholder.com/60/121215/FBBF24?text=RHN'"></div>
+      <div class="logo-text">
+        <div class="main-text">RHN GALLERY</div>
+        <div class="sub-text">MANAJEMEN GALERI & FOTO</div>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-pill">
+        <span class="sync-dot" id="sync-dot" style="background:var(--text3);"></span>
+        <span class="sync-text" id="sync-label">SINKRONISASI...</span>
+      </div>
+    </div>
+
+    <div class="user-row">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-toggle">🌙</button>
+      <div class="user-pill">
+        <div class="user-pill-left">
+          <div class="u-avatar" id="user-avatar">U</div>
+          <div class="u-name" id="user-name">Memuat...</div>
+        </div>
+        <div class="user-action-wrap">
+          <button class="setting-btn" onclick="switchPage('pengaturan')" title="Pengaturan">⚙️</button>
+          <button class="logout-btn" onclick="doLogout()">KELUAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchPage('dashboard')">DASHBOARD</button>
+    <button class="nav-btn" onclick="switchPage('galeri')">SEMUA FOTO</button>
+    <button class="nav-btn" onclick="switchPage('album')">ALBUM</button>
+    <button class="nav-btn" onclick="switchPage('tambah')" style="color:var(--gold); border-color:var(--gold);">+ UPLOAD FOTO</button>
+    <button class="nav-btn" onclick="switchPage('pengaturan')">PENGATURAN</button>
+  </div>
+
+  <div class="main">
+    
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+      <div class="metrics">
+        <div class="m-card">
+          <div class="m-label">TOTAL FOTO</div>
+          <div class="m-val" id="dash-total-foto">0</div>
+          <div class="m-sub">Tersimpan di Cloud</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="m-card">
+          <div class="m-label">TOTAL ALBUM</div>
+          <div class="m-val" id="dash-total-album">0</div>
+          <div class="m-sub">Kategori Foto</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:70%"></div></div>
+        </div>
+        <div class="m-card">
+          <div class="m-label">FOTO FAVORIT</div>
+          <div class="m-val" id="dash-fav-foto">0</div>
+          <div class="m-sub">Disukai</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:40%"></div></div>
+        </div>
+        <div class="m-card">
+          <div class="m-label">STATUS STORAGE</div>
+          <div class="m-val">AMAN</div>
+          <div class="m-sub">Kompresi Massal Aktif</div>
+          <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Upload Terbaru</div>
+          <button onclick="switchPage('galeri')" style="background:transparent; border:none; color:var(--gold); font-size:12px; font-weight:700; cursor:pointer;">LIHAT SEMUA ↗</button>
+        </div>
+        <div class="gallery-grid" id="recent-gallery-grid"></div>
+      </div>
+    </div>
+
+    <!-- GALERI PAGE -->
+    <div id="page-galeri" class="page">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Semua Koleksi Foto</div>
+        </div>
+        <div class="form-row" style="display:flex; gap:10px;">
+          <input type="text" id="gallery-search" class="f-input-dark" placeholder="Cari foto berdasarkan judul atau deskripsi..." oninput="renderGallery()">
+          <select id="gallery-filter-album" class="f-input-dark" style="width:180px;" onchange="renderGallery()"></select>
+        </div>
+        <div class="gallery-grid" id="main-gallery-grid"></div>
+      </div>
+    </div>
+
+    <!-- ALBUM PAGE -->
+    <div id="page-album" class="page">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Kategori Album</div>
+          <button onclick="promptAddAlbum()" style="background:var(--gold); color:#000; border:none; padding:8px 16px; border-radius:10px; font-weight:800; cursor:pointer;">+ BUAT ALBUM</button>
+        </div>
+        <div id="album-list-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:16px;"></div>
+      </div>
+    </div>
+
+    <!-- TAMBAH FOTO PAGE (MULTI UPLOAD FILE) -->
+    <div id="page-tambah" class="page">
+      <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-head">
+          <div class="card-title">Upload Banyak Foto</div>
+          <div class="card-sub" style="color:var(--gold);">Pilih file sebanyak yang lu mau</div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Pilih Foto (Bisa Seleksi Banyak)</label>
+          <input type="file" id="f-img-file" class="f-input-dark" accept="image/*" multiple>
+        </div>
+
+        <!-- Preview Gambar Sebelum Upload Massal -->
+        <div class="preview-box" id="preview-container"></div>
+
+        <div class="form-row">
+          <label class="form-label">Judul (Opsional)</label>
+          <input type="text" id="f-img-title" class="f-input-dark" placeholder="Kalo kosong, pake nama asli file">
+        </div>
+        
+        <div class="form-row">
+          <label class="form-label">Pilih Album</label>
+          <select id="f-img-album" class="f-input-dark"></select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Deskripsi / Catatan (Opsional)</label>
+          <input type="text" id="f-img-desc" class="f-input-dark" placeholder="Berlaku buat semua foto yang diupload...">
+        </div>
+        
+        <button class="submit-btn" id="btn-upload" onclick="tambahFotoBaru()">SIMPAN KE GALERI</button>
+      </div>
+    </div>
+
+    <!-- PENGATURAN PAGE -->
+    <div id="page-pengaturan" class="page">
+      <div class="set-group">
+        <div class="set-title">⚙️ PREFERENSI TAMPILAN GALERI</div>
+        <div class="set-item">
+          <div>
+            <div class="set-label">Mode Anti-Intip (Blur Mode)</div>
+            <div class="set-sub">Blur foto otomatis di galeri untuk menjaga kerahasiaan</div>
+          </div>
+          <select id="ext_antiintip" class="set-select" onchange="togglePrivacyMode()">
+            <option value="off">Mati</option>
+            <option value="on">Aktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="set-title">🔒 KEAMANAN AKUN</div>
+        <div class="set-item">
+          <div>
+            <div class="set-label">Ubah PIN Keamanan</div>
+            <div class="set-sub">Ganti 6 digit PIN tanpa perlu logout</div>
+          </div>
+          <button class="submit-btn" style="width:auto; padding:8px 16px; font-size:11px;" onclick="changePinInApp()">GANTI PIN</button>
+        </div>
+      </div>
+
+      <div class="set-group">
+        <div class="set-title">💾 MANAJEMEN DATA</div>
+        <div class="set-item">
+          <div>
+            <div class="set-label">Bersihkan Cache & Reload</div>
+            <div class="set-sub">Perbaiki jika galeri terasa lambat</div>
+          </div>
+          <button class="submit-btn" style="width:auto; padding:8px 16px; font-size:11px; background:var(--red2); color:#fff;" onclick="clearLocalCache()">BERSIHKAN</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FIREBASE SDK v10 -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = { 
+  apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", 
+  authDomain: "rhn-capital.firebaseapp.com", 
+  projectId: "rhn-capital", 
+  storageBucket: "rhn-capital.firebasestorage.app", 
+  messagingSenderId: "74905216682", 
+  appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" 
+};
+
+const app = initializeApp(firebaseConfig); 
+const auth = getAuth(app); 
+const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+
+let currentUser = null;
+let photos = [];
+let albums = ["Trading", "Pribadi", "Dokumen", "Lainnya"];
+let activePage = "dashboard";
+let authMode = "login";
+let unsubListener = null;
+
+// SINKRONISASI TEMA
+window.toggleTheme = function() {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme_gallery', isLight ? 'light' : 'dark');
+};
+if (localStorage.getItem('theme_gallery') === 'light') {
+  document.body.classList.add('light-mode');
+  document.getElementById('theme-toggle').textContent = '☀️';
+}
+
+// PRIVACY MODE
+window.togglePrivacyMode = function() {
+  const val = document.getElementById('ext_antiintip').value;
+  if(val === 'on') { document.body.classList.add('global-privacy'); }
+  else { document.body.classList.remove('global-privacy'); }
+  localStorage.setItem('privacy_gallery', val);
+};
+
+// NAVIGASI PAGE
+window.switchPage = function(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  const pages = ['dashboard', 'galeri', 'album', 'tambah', 'pengaturan'];
+  const idx = pages.indexOf(p);
+  if (idx !== -1) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  activePage = p;
+  refreshAll();
+};
+
+// AUTHENTICATION LOGIC
+window.switchTab = function(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR';
+};
+
+window.doAuth = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  if (!email || !pass) return alert("Isi email dan sandi!");
+  
+  try {
+    if (authMode === 'login') {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      if (pass !== document.getElementById('auth-pass2').value) return alert("Sandi tidak cocok!");
+      await createUserWithEmailAndPassword(auth, email, pass);
+    }
+  } catch(e) { alert(e.message); }
+};
+
+window.doGoogleAuth = async function() {
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider); } catch(e) { alert(e.message); }
+};
+
+window.doLogout = function() {
+  Swal.fire({
+    title: 'Keluar Akun?',
+    text: "Kamu akan keluar dari sesi galeri saat ini.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: 'var(--red2)',
+    confirmButtonText: 'Keluar',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then(async (res) => {
+    if(res.isConfirmed) {
+      if(unsubListener) unsubListener();
+      localStorage.removeItem('last_uid_rhn');
+      await signOut(auth);
+    }
+  });
+};
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    localStorage.setItem('last_uid_rhn', user.uid);
+    document.getElementById('auth-screen').style.display = 'none';
+    
+    const secRef = doc(db, 'users', user.uid, 'settings', 'security');
+    const secSnap = await getDoc(secRef);
+    if (!secSnap.exists() || !secSnap.data().pin) {
+      document.getElementById('pin-screen').style.display = 'flex';
+      document.getElementById('pin-title').textContent = 'Buat PIN Baru';
+      window.pinMode = 'setup';
+    } else {
+      window.userCloudPin = secSnap.data().pin;
+      document.getElementById('pin-screen').style.display = 'flex';
+      document.getElementById('pin-title').textContent = 'Masukkan PIN';
+      window.pinMode = 'verify';
+    }
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'none';
+  }
+});
+
+window.verifyPin = async function() {
+  const pinInput = document.getElementById('app-pin').value;
+  if (pinInput.length < 6) return alert("PIN harus 6 digit");
+
+  if (window.pinMode === 'setup') {
+    await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true });
+    window.userCloudPin = pinInput;
+    unlockApp();
+  } else {
+    if (pinInput === window.userCloudPin) {
+      unlockApp();
+    } else {
+      alert("PIN Salah!");
+      document.getElementById('app-pin').value = '';
+    }
+  }
+};
+
+function unlockApp() {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('user-avatar').textContent = currentUser.email.charAt(0).toUpperCase();
+  listenPhotos();
+}
+
+function listenPhotos() {
+  const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
+  unsubListener = onSnapshot(q, (snap) => {
+    photos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('sync-dot').style.background = 'var(--green2)';
+    document.getElementById('sync-label').textContent = 'TERSINKRON';
+    refreshAll();
+  }, (err) => {
+    document.getElementById('sync-dot').style.background = 'var(--red2)';
+    document.getElementById('sync-label').textContent = 'OFFLINE';
+  });
+}
+
+// ==========================================
+// SISTEM MULTI-UPLOAD FILE & KOMPRESI
+// ==========================================
+let uploadQueue = []; // Antrean Foto
+
+document.getElementById('f-img-file').addEventListener('change', async function(e) {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
+
+  const previewContainer = document.getElementById('preview-container');
+  previewContainer.style.display = 'flex';
+  
+  // Bersihkan preview & antrean sebelumnya
+  previewContainer.innerHTML = `<div class="preview-count">Memproses ${files.length} Foto...</div>`;
+  uploadQueue = [];
+
+  // Proses gambar satu-satu (kompresi ukuran)
+  for (let i = 0; i < files.length; i++) {
+    let file = files[i];
+    await processFileToCanvas(file);
+  }
+  
+  // Update tampilan jadi thumbnail Grid
+  previewContainer.innerHTML = `<div class="preview-count">${uploadQueue.length} Foto Siap Diupload</div>`;
+  uploadQueue.forEach(item => {
+    let img = document.createElement('img');
+    img.src = item.base64;
+    previewContainer.appendChild(img);
+  });
+});
+
+// Fungsi memproses foto pake Canvas biar gak berat
+function processFileToCanvas(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000; const MAX_HEIGHT = 1000;
+        let width = img.width; let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+        } else {
+          if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+        }
+        
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        let base64 = canvas.toDataURL('image/jpeg', 0.7);
+        let defaultTitle = file.name.split('.')[0]; // Ambil nama file tanpa .jpg/.png
+        
+        // Simpan ke antrean
+        uploadQueue.push({ base64: base64, defaultTitle: defaultTitle });
+        resolve();
+      }
+      img.src = event.target.result;
+    }
+    reader.readAsDataURL(file);
+  });
+}
+
+// Fungsi tombol submit upload
+window.tambahFotoBaru = async function() {
+  const manualTitle = document.getElementById('f-img-title').value.trim();
+  const album = document.getElementById('f-img-album').value;
+  const desc = document.getElementById('f-img-desc').value.trim();
+
+  if(uploadQueue.length === 0) return Swal.fire('Kosong', 'Pilih minimal satu foto dari HP/PC lu!', 'warning');
+
+  const btn = document.getElementById('btn-upload');
+  btn.textContent = `MENGUPLOAD ${uploadQueue.length} FOTO...`;
+  btn.disabled = true;
+
+  try {
+    // Looping buat ngirim ke Firestore secara berurutan
+    for (let i = 0; i < uploadQueue.length; i++) {
+      let item = uploadQueue[i];
+      
+      // Kalo ngetik judul, tambahin nomor biar gak bentrok namanya. 
+      // Kalo kosong, pake nama aslinya aja.
+      let finalTitle = manualTitle ? 
+        (uploadQueue.length > 1 ? `${manualTitle} - ${i + 1}` : manualTitle) : 
+        item.defaultTitle;
+
+      await addDoc(collection(db, 'users', currentUser.uid, 'photos'), {
+        title: finalTitle, 
+        url: item.base64,
+        album: album, 
+        desc: desc, 
+        isFav: false, 
+        createdAt: serverTimestamp()
+      });
+    }
+    
+    Swal.fire({icon: 'success', title: 'Upload Sukses!', text: `${uploadQueue.length} foto berhasil tersimpan.`, background: 'var(--card)', color: 'var(--text)', timer: 2000});
+    
+    // Reset Form & Antrean
+    document.getElementById('f-img-title').value = '';
+    document.getElementById('f-img-desc').value = '';
+    document.getElementById('f-img-file').value = '';
+    document.getElementById('preview-container').style.display = 'none';
+    document.getElementById('preview-container').innerHTML = '';
+    uploadQueue = [];
+    
+    switchPage('galeri');
+  } catch(e) { 
+    Swal.fire('Error Upload', e.message, 'error'); 
+  } finally {
+    btn.textContent = 'SIMPAN KE GALERI';
+    btn.disabled = false;
+  }
+};
+
+// ==========================================
+// FITUR UNDUH / DOWNLOAD FOTO KE HP/PC
+// ==========================================
+window.unduhFoto = function(id) {
+  const foto = photos.find(p => p.id === id);
+  if(!foto) return;
+  const safeTitle = foto.title ? foto.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() : 'rhn_foto';
+  const fileName = safeTitle + '.jpg';
+  
+  const link = document.createElement('a');
+  link.href = foto.url; link.download = fileName;
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+};
+
+window.hapusFoto = function(id) {
+  Swal.fire({
+    title: 'Hapus Foto?',
+    text: "Foto akan dihapus permanen.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: 'var(--red2)',
+    confirmButtonText: 'Hapus',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then(async (res) => {
+    if(res.isConfirmed) { await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', id)); }
+  });
+};
+
+window.toggleFav = async function(id, currentStatus) {
+  await updateDoc(doc(db, 'users', currentUser.uid, 'photos', id), { isFav: !currentStatus });
+};
+
+window.previewFoto = function(id) {
+  const foto = photos.find(p => p.id === id);
+  if(!foto) return;
+  Swal.fire({
+    title: foto.title,
+    text: foto.desc,
+    imageUrl: foto.url,
+    imageAlt: foto.title,
+    background: 'var(--card)', color: 'var(--text)',
+    confirmButtonColor: 'var(--gold)', confirmButtonText: 'Tutup'
+  });
+};
+
+window.promptAddAlbum = function() {
+  Swal.fire({
+    title: 'Buat Album Baru',
+    input: 'text',
+    inputPlaceholder: 'Nama Album...',
+    background: 'var(--card)', color: 'var(--text)',
+    showCancelButton: true
+  }).then((res) => {
+    if(res.value) { albums.push(res.value); refreshDropdowns(); switchPage('album'); }
+  });
+};
+
+// RENDER & REFRESH ALL
+function refreshDropdowns() {
+  const albumFilter = document.getElementById('gallery-filter-album');
+  const albumForm = document.getElementById('f-img-album');
+  if(albumFilter && albumForm) {
+    albumFilter.innerHTML = '<option value="">Semua Album</option>' + albums.map(a => `<option value="${a}">${a}</option>`).join('');
+    albumForm.innerHTML = albums.map(a => `<option value="${a}">${a}</option>`).join('');
+  }
+}
+
+function renderGallery() {
+  const container = document.getElementById('main-gallery-grid');
+  const recentContainer = document.getElementById('recent-gallery-grid');
+  const search = (document.getElementById('gallery-search')?.value || '').toLowerCase();
+  const filterAlbum = document.getElementById('gallery-filter-album')?.value || '';
+
+  let filtered = photos.filter(p => {
+    const matchSearch = (p.title || '').toLowerCase().includes(search) || (p.desc || '').toLowerCase().includes(search);
+    const matchAlbum = filterAlbum === '' || p.album === filterAlbum;
+    return matchSearch && matchAlbum;
+  });
+
+  const createCard = (p) => `
+    <div class="gallery-card">
+      <div class="gallery-img-wrap" onclick="previewFoto('${p.id}')">
+        <img src="${p.url}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/300x200/121215/888899?text=Error'">
+      </div>
+      <div class="gallery-info">
+        <div class="gallery-title">${p.title}</div>
+        <div class="gallery-meta">
+          <span class="album-badge">${p.album || 'Umum'}</span>
+          <span>${p.isFav ? '⭐' : ''}</span>
+        </div>
+        <div class="gallery-actions">
+          <button class="g-btn dl" onclick="unduhFoto('${p.id}')">⬇️ Unduh</button>
+          <button class="g-btn" onclick="toggleFav('${p.id}', ${p.isFav})">${p.isFav ? 'Unfav' : '⭐ Fav'}</button>
+          <button class="g-btn del" onclick="hapusFoto('${p.id}')">Hapus</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if(container) container.innerHTML = filtered.length ? filtered.map(createCard).join('') : '<div style="color:var(--text3); font-size:12px; grid-column:1/-1; text-align:center; padding:30px;">Belum ada foto.</div>';
+  if(recentContainer) recentContainer.innerHTML = photos.slice(0, 4).map(createCard).join('');
+}
+
+function renderAlbums() {
+  const container = document.getElementById('album-list-container');
+  if(!container) return;
+  container.innerHTML = albums.map(a => {
+    const count = photos.filter(p => p.album === a).length;
+    return `
+      <div class="card" style="margin-bottom:0; cursor:pointer;" onclick="document.getElementById('gallery-filter-album').value='${a}'; switchPage('galeri');">
+        <div style="font-size:24px; margin-bottom:8px;">📁</div>
+        <div style="font-weight:800; font-size:14px; color:var(--text);">${a}</div>
+        <div style="font-size:10px; color:var(--text3);">${count} Foto Tersimpan</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function refreshAll() {
+  document.getElementById('dash-total-foto').textContent = photos.length;
+  document.getElementById('dash-total-album').textContent = albums.length;
+  document.getElementById('dash-fav-foto').textContent = photos.filter(p => p.isFav).length;
+  refreshDropdowns(); renderGallery(); renderAlbums();
+}
+
+window.clearLocalCache = function() { localStorage.clear(); location.reload(); };
+
+window.changePinInApp = async function() {
+  const { value: newPin } = await Swal.fire({
+    title: 'Ganti PIN baru', input: 'password', inputAttributes: { maxlength: 6, inputmode: 'numeric' }, background: 'var(--card)', color: 'var(--text)'
+  });
+  if(newPin && newPin.length === 6) {
+    await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true });
+    window.userCloudPin = newPin; alert("PIN Berhasil diubah!");
+  }
+};
+
+document.getElementById('app-pin').addEventListener('input', function() { if (this.value.length === 6) verifyPin(); });
+</script>
+</body>
+</html>
