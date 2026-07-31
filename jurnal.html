@@ -289,7 +289,7 @@
     <div class="ocr-box">
         <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat + Auto Simpan)</label>
         <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
-        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem membersihkan gambar, membaca berdasarkan posisi kolom, memvalidasi tiap baris (termasuk cek kewajaran pip), lalu LANGSUNG menyimpan baris yang valid. Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem membersihkan gambar, membaca berdasarkan posisi kolom (dua tahap: teks lengkap + verifikasi khusus digit), memvalidasi tiap baris (termasuk cek kewajaran pip), lalu LANGSUNG menyimpan baris yang valid. Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
     </div>
 
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
@@ -339,6 +339,13 @@
     <div class="btn-row" style="justify-content: flex-end; margin-top: 12px;">
       <button class="btn danger" onclick="window.resetAll()">HAPUS SEMUA DATA JURNAL</button>
     </div>
+  </div>
+
+  <!-- PERLU DICEK MANUAL (hasil OCR yang datanya belum lengkap) -->
+  <div class="card hide-on-view" id="pendingCard" style="display:none; border-color: var(--red);">
+    <h2 style="color:var(--red);">🔶 Perlu Dicek Manual (Hasil Scan OCR)</h2>
+    <p style="font-size:12px;color:var(--muted);margin:-10px 0 16px;">Baris ini terdeteksi dari screenshot tapi ada data yang kurang yakin terbaca. Lengkapi lalu klik "Simpan ke Jurnal" — tidak akan hilang sampai kamu proses (tersimpan otomatis di database, aman walau reload/tutup browser).</p>
+    <div id="pendingList"></div>
   </div>
 
   <!-- STATS -->
@@ -427,6 +434,8 @@
   let calDate = new Date();
   let currentUSDRate = 16000;
   let unsubListener = null;
+  let unsubPendingListener = null;
+  let pendingItems = [];
   let accountType = 'cent';
   let editingId = null;
 
@@ -527,6 +536,19 @@
       const m = String(text).match(/(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/);
       if(m) return `${m[1]}-${m[2]}-${m[3]}`;
       return null;
+  }
+
+  // -- Parsing harga entry/exit dari catatan transaksi yang sudah tersimpan (format "entry -> exit ...") --
+  //    Dipakai untuk cek duplikat berbasis harga: kalau catatan lama tidak punya info harga,
+  //    kita tidak bisa membandingkan harga -> jangan dianggap duplikat.
+  function extractPricesFromNote(note){
+      if (!note) return null;
+      const m = String(note).match(/(-?\d[\d\s]*\.?\d*)\s*->\s*(-?\d[\d\s]*\.?\d*)/);
+      if (!m) return null;
+      const entry = parseFloat(m[1].replace(/\s/g, ''));
+      const exit = parseFloat(m[2].replace(/\s/g, ''));
+      if (isNaN(entry) || isNaN(exit)) return null;
+      return { entry, exit };
   }
 
   // -- LAPISAN 1: PREPROCESSING GAMBAR (upscale + contrast stretch + Otsu binarization + deteksi polaritas) --
@@ -645,8 +667,12 @@
   }
 
   // -- LAPISAN 3: PARSING TERSTRUKTUR (pasangkan baris header + baris harga) --
+  //    Setiap trade yang berhasil dipasangkan juga menyimpan `priceRowY`, yaitu koordinat-Y
+  //    baris tempat harga entry/exit ditemukan pada pass OCR utama. Ini dipakai belakangan
+  //    untuk mencocokkan baris yang sama pada pass OCR khusus digit (verifikasi presisi).
   function parseMt5Rows(ocrData){
-      const rows = groupRowsFromOcr(ocrData).map(r => splitColumns(r.words));
+      const grouped = groupRowsFromOcr(ocrData);
+      const rows = grouped.map(r => ({ y: r.y, ...splitColumns(r.words) }));
       const headerRe = /([A-Za-z]{3,10}\d{0,2}[a-z]?)[,\.\s]+\s*(buy|sell)\s+([\d.,]+)/i;
       const priceRe = /-?\d[\d\s]*\.\d+/g;
       const trades = [];
@@ -673,47 +699,76 @@
                   pending.entry = nums[0];
                   pending.exit = nums[1];
                   pending.pnl = parseFloat(pnlMatch[0].replace(/\s/g, ''));
+                  pending.priceRowY = rows[i].y;
                   trades.push(pending);
                   pending = null;
               } else if (nums.length >= 3) {
                   pending.entry = nums[0];
                   pending.exit = nums[1];
                   pending.pnl = nums[nums.length - 1];
+                  pending.priceRowY = rows[i].y;
                   trades.push(pending);
                   pending = null;
               }
               // jika baris ini tidak cocok, biarkan pending menunggu baris berikutnya
           }
       }
+      // Baris header terakhir yang belum sempat dipasangkan dengan harga (mis. terpotong di ujung screenshot)
+      // tetap dimasukkan supaya tidak hilang begitu saja - nanti akan masuk daftar "Perlu Dicek Manual"
+      if (pending) { trades.push(pending); pending = null; }
       return trades;
   }
 
-  // -- LAPISAN 4: VALIDASI SETIAP TRANSAKSI. Hasil dari sini menentukan apakah baris
-  //    boleh disimpan otomatis atau harus dilewati (supaya tidak ada data salah masuk jurnal). --
-  function validateTrade(t, existingTrades, pipInfo){
-      const issues = [];
-      if (!t.pair || t.pair.length < 3) issues.push('Pair tidak jelas');
-      if (!['Buy','Sell'].includes(t.dir)) issues.push('Arah tidak jelas');
-      if (!t.lot || t.lot <= 0) issues.push('Lot tidak valid');
-      if (t.entry === undefined || isNaN(t.entry)) issues.push('Harga entry tidak terbaca');
-      if (t.exit === undefined || isNaN(t.exit)) issues.push('Harga exit tidak terbaca');
-      if (t.pnl === undefined || isNaN(t.pnl)) issues.push('P&L tidak terbaca');
-      if (!t.date) issues.push('Tanggal tidak terbaca');
-      if (pipInfo && pipInfo.valid === false && pipInfo.reason) issues.push(pipInfo.reason);
+  // -- VERIFIKASI 2 TAHAP: pass kedua khusus membaca digit saja (whitelist angka/titik/koma/minus),
+  //    tanpa gangguan huruf yang bentuknya mirip angka (mis. "S" terbaca "5", "O" terbaca "0", dst).
+  //    Untuk tiap trade dari pass utama, cari baris pada pass digit-only yang Y-nya paling dekat
+  //    dengan `priceRowY`, lalu bandingkan konsistensi jumlah digit entry vs exit di kedua versi.
+  //    Kalau versi digit-only lebih konsisten (selisih jumlah digit lebih kecil), pakai versi itu. --
+  function refinePricesWithDigitPass(rawTrades, digitOcrData){
+      const digitRows = groupRowsFromOcr(digitOcrData).map(r => ({
+          y: r.y,
+          text: (r.words || []).map(w => w.text).join(' ')
+      }));
+      if (!digitRows.length) return rawTrades;
 
-      const isDup = existingTrades.some(e =>
-          e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
-          Math.abs((parseFloat(e.lot)||0) - (t.lot||0)) < 0.001 &&
-          Math.abs((parseFloat(e.pnl)||0) - (t.pnl||0)) < 0.01
-      );
-      if (isDup) issues.push('duplikat (sudah ada di jurnal)');
-      return issues;
+      rawTrades.forEach(t => {
+          if (t.entry === undefined || t.exit === undefined || t.priceRowY === undefined) return;
+
+          let best = null, bestDist = Infinity;
+          digitRows.forEach(dr => {
+              const dist = Math.abs(dr.y - t.priceRowY);
+              if (dist < bestDist) { bestDist = dist; best = dr; }
+          });
+          if (!best || bestDist > 20) return; // baris terlalu jauh, jangan dipaksakan cocok
+
+          const nums = (best.text.match(/-?\d[\d\s]*\.\d+/g) || []).map(s => parseFloat(s.replace(/\s/g, '')));
+          if (nums.length < 2) return;
+          const [dEntry, dExit] = nums;
+          if (isNaN(dEntry) || isNaN(dExit)) return;
+
+          const mainDiff = Math.abs(countIntDigits(t.entry) - countIntDigits(t.exit));
+          const digitDiff = Math.abs(countIntDigits(dEntry) - countIntDigits(dExit));
+
+          if (digitDiff < mainDiff) {
+              t.entry = dEntry;
+              t.exit = dExit;
+              t.refinedByDigitPass = true;
+          }
+      });
+      return rawTrades;
   }
 
-  // -- ENTRY POINT: dipanggil saat user upload screenshot.
-  //    Alur baru: scan -> validasi otomatis -> LANGSUNG simpan baris yang valid ke database.
-  //    Tidak ada lagi modal konfirmasi manual. Baris yang meragukan TIDAK disimpan otomatis
-  //    (supaya jurnal tetap akurat) dan hanya diberitahukan lewat notifikasi ringkas. --
+  // -- LAPISAN 4 & ENTRY POINT: dipanggil saat user upload screenshot.
+  //    Alur baru: scan (2 tahap: teks lengkap + verifikasi digit-only) -> setiap baris DIPASTIKAN
+  //    berakhir di salah satu dari 2 tempat, TIDAK ADA yang hilang/dibuang diam-diam:
+  //      1) Data intinya lengkap (pair, arah, tanggal, P&L angka valid) -> LANGSUNG masuk jurnal.
+  //         Kalau ada bagian yang kurang yakin (lot tidak kebaca / pip aneh), tetap disimpan
+  //         tapi ditandai label "⚠ CEK" yang tampil di tabel Riwayat Transaksi.
+  //      2) Data intinya belum lengkap -> masuk kartu "Perlu Dicek Manual" (tersimpan di database,
+  //         tidak hilang walau reload), tinggal dilengkapi & klik simpan.
+  //    Duplikat: HANYA ditandai duplikat kalau harga entry/exit tersedia di kedua sisi DAN cocok
+  //    persis. Kalau salah satu/kedua sisi tidak punya info harga, atau harganya beda, transaksi
+  //    tetap disimpan sebagai transaksi baru (supaya trade asli yang kebetulan mirip tidak ke-skip). --
   window.processOCR = async function(input) {
       if (!input.files || input.files.length === 0) return;
       if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan reload dan login.', 'error');
@@ -723,11 +778,12 @@
       statusLabel.style.color = 'var(--gold)';
 
       let worker = null;
+      let digitWorker = null;
       try {
-          statusLabel.innerText = '⏳ Tahap 1/4: Membersihkan & memperbesar gambar...';
+          statusLabel.innerText = '⏳ Tahap 1/5: Membersihkan & memperbesar gambar...';
           const processedImageURL = await preprocessImageForOcr(file);
 
-          statusLabel.innerText = '🧠 Tahap 2/4: AI membaca teks (mode presisi tinggi)...';
+          statusLabel.innerText = '🧠 Tahap 2/5: AI membaca teks (mode presisi tinggi)...';
           worker = await Tesseract.createWorker('eng');
           await worker.setParameters({
               tessedit_pageseg_mode: '6',
@@ -737,8 +793,20 @@
           await worker.terminate();
           worker = null;
 
-          statusLabel.innerText = '🔎 Tahap 3/4: Menyusun transaksi dari posisi kolom...';
+          statusLabel.innerText = '🔢 Tahap 3/5: Membaca ulang khusus digit untuk verifikasi presisi (lebih lambat, tapi lebih akurat)...';
+          digitWorker = await Tesseract.createWorker('eng');
+          await digitWorker.setParameters({
+              tessedit_pageseg_mode: '6',
+              preserve_interword_spaces: '1',
+              tessedit_char_whitelist: '0123456789.,-'
+          });
+          const digitResult = await digitWorker.recognize(processedImageURL);
+          await digitWorker.terminate();
+          digitWorker = null;
+
+          statusLabel.innerText = '🔎 Tahap 4/5: Menyusun transaksi dari posisi kolom & mencocokkan hasil verifikasi digit...';
           const rawTrades = parseMt5Rows(result.data);
+          refinePricesWithDigitPass(rawTrades, digitResult.data);
 
           rawTrades.forEach(t => {
               if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
@@ -752,64 +820,103 @@
               return;
           }
 
-          statusLabel.innerText = '✅ Tahap 4/4: Validasi otomatis & menyimpan...';
+          statusLabel.innerText = '✅ Tahap 5/5: Validasi otomatis & menyimpan...';
 
-          const toSave = [];
-          const skipped = [];
+          const toSaveDirect = [];
+          const toPending = [];
+          let dupCount = 0;
+          let refinedCount = 0;
 
           rawTrades.forEach(t => {
+              if (t.refinedByDigitPass) refinedCount++;
+
               const pipInfo = (t.entry !== undefined && t.exit !== undefined)
                   ? getPipsInfo(t.pair, t.entry, t.exit)
                   : { valid: true, text: '' };
-              const issues = validateTrade(t, trades, pipInfo);
-              const critical = issues.filter(i => i !== 'duplikat (sudah ada di jurnal)');
 
-              if (critical.length > 0) {
-                  skipped.push({ pair: t.pair, date: t.date, reason: critical.join(', ') });
+              // -- Cek duplikat: HANYA jika baris baru punya harga entry & exit, DAN ada transaksi lama
+              //    dengan tanggal+pair+arah sama YANG JUGA punya info harga (dari catatannya) dan harganya
+              //    cocok persis. Kalau tidak ada info harga untuk dibandingkan, jangan anggap duplikat. --
+              const canCheckDup = t.date && t.pair && ['Buy','Sell'].includes(t.dir) && !isNaN(t.pnl)
+                  && t.entry !== undefined && t.exit !== undefined && !isNaN(t.entry) && !isNaN(t.exit);
+              if (canCheckDup) {
+                  const isDup = trades.some(e => {
+                      if (e.date !== t.date || e.pair !== t.pair || e.dir !== t.dir) return false;
+                      const ePrices = extractPricesFromNote(e.note);
+                      if (!ePrices) return false; // transaksi lama tidak punya info harga -> tidak bisa dipastikan duplikat
+                      return Math.abs(ePrices.entry - t.entry) < 1e-6 && Math.abs(ePrices.exit - t.exit) < 1e-6;
+                  });
+                  if (isDup) { dupCount++; return; }
+              }
+
+              const missingCritical = [];
+              if (!t.pair || t.pair.length < 2) missingCritical.push('Pair tidak jelas');
+              if (!['Buy','Sell'].includes(t.dir)) missingCritical.push('Arah tidak jelas');
+              if (t.pnl === undefined || isNaN(t.pnl)) missingCritical.push('P&L tidak terbaca');
+              if (!t.date) missingCritical.push('Tanggal tidak terbaca');
+
+              if (missingCritical.length > 0) {
+                  toPending.push({
+                      date: t.date || '',
+                      pair: t.pair || '',
+                      dir: ['Buy','Sell'].includes(t.dir) ? t.dir : 'Buy',
+                      session: t.session || autoSession(),
+                      lot: t.lot || '',
+                      pnl: (t.pnl === undefined || isNaN(t.pnl)) ? '' : t.pnl,
+                      note: (t.entry !== undefined && t.exit !== undefined) ? `${t.entry} -> ${t.exit}`.trim() : '',
+                      reason: missingCritical.join(', ')
+                  });
                   return;
               }
-              if (issues.includes('duplikat (sudah ada di jurnal)')) {
-                  skipped.push({ pair: t.pair, date: t.date, reason: 'Duplikat (sudah ada di jurnal)' });
-                  return;
-              }
+
+              const flags = [];
+              if (!t.lot || t.lot <= 0) flags.push('Lot tidak terbaca, cek manual');
+              if (pipInfo.valid === false && pipInfo.reason) flags.push(pipInfo.reason);
 
               const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.valid)
                   ? `${t.entry} -> ${t.exit} ${pipInfo.text}`.trim()
-                  : (t.note || '');
+                  : (t.entry !== undefined && t.exit !== undefined ? `${t.entry} -> ${t.exit}` : (t.note || ''));
 
-              toSave.push({ date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl, note });
+              toSaveDirect.push({ date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl, note, flag: flags.join(', ') });
           });
 
-          if (toSave.length > 0) {
+          if (toSaveDirect.length > 0 || toPending.length > 0) {
               const batch = writeBatch(db);
-              toSave.forEach(t => {
+              toSaveDirect.forEach(t => {
                   const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
+                  batch.set(newRef, { ...t, createdAt: serverTimestamp() });
+              });
+              toPending.forEach(t => {
+                  const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_pending'));
                   batch.set(newRef, { ...t, createdAt: serverTimestamp() });
               });
               await batch.commit();
           }
 
-          if (toSave.length > 0 && skipped.length === 0) {
-              statusLabel.innerText = `${toSave.length} transaksi berhasil disimpan otomatis ke jurnal.`;
-              statusLabel.style.color = 'var(--green)';
-              Swal.fire({icon:'success', title:'Tersimpan!', text:`${toSave.length} transaksi berhasil disimpan otomatis.`, timer:1800, showConfirmButton:false});
-          } else if (toSave.length > 0 && skipped.length > 0) {
-              statusLabel.innerText = `${toSave.length} tersimpan otomatis, ${skipped.length} dilewati (perlu input manual).`;
-              statusLabel.style.color = 'var(--green)';
-              const listHtml = skipped.map(s => `<li style="margin-bottom:6px;text-align:left;"><strong>${escapeHtml(s.pair||'?')}</strong> ${escapeHtml(s.date||'-')} — <span style="color:var(--red)">${escapeHtml(s.reason)}</span></li>`).join('');
+          const flaggedCount = toSaveDirect.filter(t => t.flag).length;
+
+          let summary = `${toSaveDirect.length} transaksi tersimpan`;
+          if (flaggedCount > 0) summary += ` (${flaggedCount} ditandai ⚠ CEK di tabel riwayat)`;
+          if (toPending.length > 0) summary += `, ${toPending.length} masuk daftar "Perlu Dicek Manual"`;
+          if (dupCount > 0) summary += `, ${dupCount} duplikat dilewati`;
+          if (refinedCount > 0) summary += `, ${refinedCount} harga dikoreksi lewat verifikasi digit-only`;
+          summary += '.';
+
+          statusLabel.innerText = summary;
+          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0) ? 'var(--green)' : 'var(--red)';
+
+          if (toSaveDirect.length === 0 && toPending.length === 0) {
+              Swal.fire('Tidak Ada Transaksi Baru', dupCount > 0 ? 'Semua baris terdeteksi ternyata sudah ada di jurnal (duplikat, harga cocok persis).' : 'Tidak ada transaksi terbaca dari gambar ini.', 'info');
+          } else {
               Swal.fire({
                   icon: 'success',
-                  title: `Tersimpan ${toSave.length}, ${skipped.length} dilewati`,
-                  html: `<div style="font-size:12px;text-align:left;margin-bottom:8px;">Baris berikut TIDAK disimpan otomatis supaya data jurnal tetap akurat. Silakan tambahkan manual lewat form input di atas:</div><ul style="padding-left:18px;font-size:12px;">${listHtml}</ul>`
-              });
-          } else {
-              statusLabel.innerText = `Semua ${skipped.length} baris dilewati karena kurang yakin akurat. Silakan input manual.`;
-              statusLabel.style.color = 'var(--red)';
-              const listHtml = skipped.map(s => `<li style="margin-bottom:6px;text-align:left;"><strong>${escapeHtml(s.pair||'?')}</strong> ${escapeHtml(s.date||'-')} — <span style="color:var(--red)">${escapeHtml(s.reason)}</span></li>`).join('');
-              Swal.fire({
-                  icon: 'warning',
-                  title: 'Tidak ada yang disimpan otomatis',
-                  html: `<div style="font-size:12px;text-align:left;margin-bottom:8px;">Semua baris hasil scan kurang meyakinkan (kemungkinan salah baca harga), jadi tidak disimpan supaya jurnal tetap akurat:</div><ul style="padding-left:18px;font-size:12px;">${listHtml}</ul>`
+                  title: 'Selesai Diproses',
+                  html: `<div style="font-size:13px;text-align:left;">
+                           ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span> — tandanya ⚠ CEK di kolom Catatan tabel Riwayat Transaksi)` : ''}.</div>` : ''}
+                           ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris datanya kurang lengkap, sekarang muncul di kartu <strong>"Perlu Dicek Manual"</strong> di atas form input — lengkapi lalu klik Simpan.</div>` : ''}
+                           ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
+                           ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit (lebih presisi).</div>` : ''}
+                         </div>`
               });
           }
 
@@ -818,17 +925,87 @@
           statusLabel.innerText = 'Error OCR: ' + e.message;
           statusLabel.style.color = 'var(--red)';
           if (worker) { try { await worker.terminate(); } catch (_) {} }
+          if (digitWorker) { try { await digitWorker.terminate(); } catch (_) {} }
           Swal.fire('Error AI', e.message, 'error');
       } finally {
           input.value = '';
       }
   };
+
+  // -- Simpan item dari kartu "Perlu Dicek Manual" ke jurnal utama setelah dilengkapi --
+  window.savePendingItem = async function(id){
+      if (!currentUser || activeViewUid !== currentUser.uid) return;
+      const dateEl = document.getElementById(`pend_${id}_date`);
+      const pairEl = document.getElementById(`pend_${id}_pair`);
+      const dirEl = document.getElementById(`pend_${id}_dir`);
+      const lotEl = document.getElementById(`pend_${id}_lot`);
+      const pnlEl = document.getElementById(`pend_${id}_pnl`);
+      const noteEl = document.getElementById(`pend_${id}_note`);
+      if (!dateEl || !pairEl || !dirEl || !pnlEl) return;
+
+      const date = dateEl.value;
+      const pair = pairEl.value.trim().toUpperCase();
+      const dir = dirEl.value;
+      const lot = parseFloat(lotEl.value) || 0;
+      const pnl = parseFloat(pnlEl.value);
+      const note = noteEl.value.trim();
+
+      if (!date || !pair || isNaN(pnl)) {
+          return Swal.fire({icon:'warning', title:'Belum Lengkap', text:'Tanggal, Pair, dan P&L wajib diisi sebelum disimpan.'});
+      }
+
+      try {
+          const batch = writeBatch(db);
+          const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
+          batch.set(newRef, { date, pair, dir, session: autoSession(), lot, pnl, note, createdAt: serverTimestamp() });
+          batch.delete(doc(db, 'users', currentUser.uid, 'jurnal_pending', id));
+          await batch.commit();
+          Swal.fire({icon:'success', title:'Dipindahkan ke Jurnal!', timer:900, showConfirmButton:false});
+      } catch(e) { Swal.fire('Error', e.message, 'error'); }
+  };
+
+  // -- Buang item dari kartu "Perlu Dicek Manual" tanpa menyimpannya ke jurnal --
+  window.discardPendingItem = function(id){
+      if (!currentUser || activeViewUid !== currentUser.uid) return;
+      Swal.fire({ title: 'Buang Item Ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red)', confirmButtonText: 'Ya, Buang' })
+      .then(async (res) => {
+          if (res.isConfirmed) {
+              await deleteDoc(doc(db, 'users', currentUser.uid, 'jurnal_pending', id));
+          }
+      });
+  };
+
+  function renderPending(){
+      const card = document.getElementById('pendingCard');
+      const wrap = document.getElementById('pendingList');
+      if (!card || !wrap) return;
+      if (!pendingItems.length) { card.style.display = 'none'; wrap.innerHTML = ''; return; }
+      card.style.display = 'block';
+      wrap.innerHTML = pendingItems.map(p => `
+        <div style="border:1px solid var(--red-border); background:var(--red-light); border-radius:12px; padding:14px; margin-bottom:12px;">
+          <div style="font-size:11px; font-weight:800; color:var(--red); margin-bottom:10px;">⚠ ${escapeHtml(p.reason || 'Data tidak lengkap')}</div>
+          <div class="grid-5">
+            <div class="field"><label>Tanggal</label><input type="date" id="pend_${p.id}_date" value="${p.date||''}"></div>
+            <div class="field"><label>Pair</label><input type="text" id="pend_${p.id}_pair" value="${escapeHtml(p.pair||'')}" style="text-transform:uppercase"></div>
+            <div class="field"><label>Arah</label><select id="pend_${p.id}_dir"><option value="Buy" ${p.dir==='Buy'?'selected':''}>Buy</option><option value="Sell" ${p.dir==='Sell'?'selected':''}>Sell</option></select></div>
+            <div class="field"><label>Lot</label><input type="number" step="0.01" id="pend_${p.id}_lot" value="${p.lot||''}"></div>
+            <div class="field"><label>P&amp;L</label><input type="number" step="1" id="pend_${p.id}_pnl" value="${p.pnl||''}"></div>
+          </div>
+          <div class="field" style="margin-top:10px;"><label>Catatan</label><input type="text" id="pend_${p.id}_note" value="${escapeHtml(p.note||'')}"></div>
+          <div style="display:flex; gap:10px; margin-top:12px;">
+            <button class="btn" style="background:var(--ink); color:#fff; flex:1;" onclick="window.savePendingItem('${p.id}')">SIMPAN KE JURNAL</button>
+            <button class="btn danger" onclick="window.discardPendingItem('${p.id}')">BUANG</button>
+          </div>
+        </div>
+      `).join('');
+  }
   // =========================================================================
   // ========================  AKHIR MODUL OCR  =============================
   // =========================================================================
 
   async function setupDataListener(targetUid, isReadOnly = false) {
       if(unsubListener) unsubListener();
+      if(unsubPendingListener) unsubPendingListener();
       activeViewUid = targetUid;
 
       if(isReadOnly) {
@@ -869,6 +1046,17 @@
           console.error("Error mengambil data:", error);
           Swal.fire('Error Database', 'Kamu mungkin tidak punya akses ke data ini.', 'error');
       });
+
+      if (!isReadOnly) {
+          const qPending = query(collection(db, 'users', targetUid, 'jurnal_pending'), orderBy('createdAt', 'asc'));
+          unsubPendingListener = onSnapshot(qPending, (snap) => {
+              pendingItems = snap.docs.map(d => ({id: d.id, ...d.data()}));
+              renderPending();
+          });
+      } else {
+          pendingItems = [];
+          renderPending();
+      }
   }
 
   onAuthStateChanged(auth, async (user) => {
@@ -912,11 +1100,12 @@
           setupDataListener(currentUser.uid, false);
       } else {
           if(unsubListener) unsubListener();
+          if(unsubPendingListener) unsubPendingListener();
           activeViewUid = null;
           document.body.classList.remove('view-only-mode');
           document.getElementById('btnBackMine').style.display = 'none';
           document.getElementById('authOverlay').style.display = 'flex';
-          trades = []; renderAll();
+          trades = []; pendingItems = []; renderAll(); renderPending();
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
       }
   };
@@ -1207,7 +1396,7 @@
         <td>${t.session}</td>
         <td>${t.lot || '-'}</td>
         <td>${fmtDual(t.pnl)}</td>
-        <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.note || '-'}</td>
+        <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.flag ? `<span style="display:inline-block;background:var(--red-light);color:var(--red);font-size:9px;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:6px;" title="${escapeHtml(t.flag)}">⚠ CEK</span>` : ''}${t.note || '-'}</td>
         <td class="hide-on-view">
           <div class="action-btns">
             <button class="edit-btn" onclick="window.editTrade('${t.id}')">Edit</button>
