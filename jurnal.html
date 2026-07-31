@@ -359,7 +359,6 @@
     <div class="tabs">
       <button class="tab-btn active" data-mode="growth" onclick="window.setChartMode('growth')">Growth (%)</button>
       <button class="tab-btn" data-mode="balance" onclick="window.setChartMode('balance')">Balance</button>
-      <button class="tab-btn" data-mode="daily" onclick="window.setChartMode('daily')">Daily P&amp;L</button>
     </div>
     <div id="chartWrap"></div>
   </div>
@@ -1122,13 +1121,6 @@
     const div = unitDivisor();
     let points = []; let running = modal;
 
-    if(chartMode === 'daily'){
-      const byDate = {}; trades.forEach(t=>{ byDate[t.date] = (byDate[t.date]||0) + t.pnl; });
-      const dates = Object.keys(byDate).sort();
-      points = dates.map(d=>({label:d, value:byDate[d]/div}));
-      renderBarChart(wrap, points); return;
-    }
-
     trades.forEach(t=>{
       running += t.pnl;
       const val = chartMode === 'balance' ? (running/div) : (modal>0 ? ((running-modal)/modal*100) : 0);
@@ -1156,28 +1148,7 @@
       grid += `<text x="${padL-8}" y="${gy+4}" font-size="11" font-weight="600" fill="#9ca3af" text-anchor="end">${labelText}</text>`;
     }
 
-    const step = Math.max(1, Math.floor(points.length/8)); let xlabels = '';
-    points.forEach((p,i)=>{ if(i % step === 0 || i === points.length-1){ xlabels += `<text x="${x(i)}" y="${H-8}" font-size="10" font-weight="600" fill="#9ca3af" text-anchor="middle">${p.label.slice(5)}</text>`; }});
-    const dots = points.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.value)}" r="4" fill="#fbbf24" stroke="#fff" stroke-width="2" />`).join('');
-    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}<path d="${path}" fill="none" stroke="#111827" stroke-width="3"/>${dots}${xlabels}</svg>`;
-  }
-
-  function renderBarChart(wrap, points){
-    const W = wrap.clientWidth > 0 ? wrap.clientWidth : 1000; const H = 320;
-    const padL = 70, padR = 20, padT = 20, padB = 30;
-    const vals = points.map(p=>p.value);
-    const maxAbs = Math.max(1, ...vals.map(v=>Math.abs(v)));
-    const zeroY = padT + (H-padT-padB)/2; const scale = (H-padT-padB)/2 / maxAbs;
-    const bw = (W-padL-padR)/points.length * 0.6; const gap = (W-padL-padR)/points.length;
-    let bars = ''; let labels = '';
-    const step = Math.max(1, Math.floor(points.length/8));
-    points.forEach((p,i)=>{
-      const cx = padL + gap*i + gap/2; const h = Math.abs(p.value) * scale;
-      const yTop = p.value >= 0 ? zeroY - h : zeroY;
-      bars += `<rect x="${cx-bw/2}" y="${yTop}" width="${bw}" height="${Math.max(h,1)}" fill="${p.value>=0?'#10b981':'#ef4444'}" rx="4"/>`;
-      if(i % step === 0 || i === points.length-1){ labels += `<text x="${cx}" y="${H-8}" font-size="10" font-weight="600" fill="#9ca3af" text-anchor="middle">${p.label.slice(5)}</text>`; }
-    });
-    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}"><line x1="${padL}" y1="${zeroY}" x2="${W-padR}" y2="${zeroY}" stroke="#e5e7eb" stroke-width="2"/>${bars}${labels}<text x="${padL-8}" y="${padT+10}" font-size="11" font-weight="600" fill="#9ca3af" text-anchor="end">+$${maxAbs.toFixed(0)}</text><text x="${padL-8}" y="${H-padB-5}" font-size="11" font-weight="600" fill="#9ca3af" text-anchor="end">-$${maxAbs.toFixed(0)}</text></svg>`;
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${grid}<path d="${path}" fill="none" stroke="#10b981" stroke-width="3"/></svg>`;
   }
 
   window.calShift = function(dir){ calDate.setMonth(calDate.getMonth()+dir); renderCalendar(); };
