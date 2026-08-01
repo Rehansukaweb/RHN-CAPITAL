@@ -288,6 +288,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="page-main-title">Setelan</div>
         <div class="card-form">
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">🔐 Ganti PIN</button>
+          <button class="menu-btn danger" style="margin-bottom:10px;" onclick="mintaHapusSemuaFoto()">🧹 Hapus Semua Foto</button>
           <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)">🚪 Keluar Akun</button>
         </div>
       </div>
@@ -336,7 +337,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, deleteDoc, writeBatch, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
@@ -804,6 +805,85 @@ window.changePinInApp = async function() {
     }
   }
 };
+
+/* ==========================================================================
+   HAPUS SEMUA FOTO SEKALIGUS
+   Alur: konfirmasi dulu -> lalu wajib masukkan PIN yang benar -> baru foto
+   benar-benar dihapus. Ini sengaja dipisah 2 langkah biar tidak kepencet
+   tidak sengaja, mengingat aksinya permanen dan tidak bisa dibatalkan.
+   ========================================================================== */
+window.mintaHapusSemuaFoto = function() {
+  if (!photos.length) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada foto untuk dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1600, showConfirmButton: false });
+  }
+
+  customSwal.fire({
+    title: 'Hapus Semua Foto?',
+    text: `Tindakan ini akan menghapus ${photos.length} foto secara PERMANEN dan tidak bisa dibatalkan.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#F87171',
+    cancelButtonColor: '#222228',
+    confirmButtonText: '<span style="color:#000; font-weight:800;">Ya, Lanjutkan</span>',
+    cancelButtonText: 'Batal',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then((result) => {
+    if (result.isConfirmed) mintaPinHapusSemua();
+  });
+};
+
+async function mintaPinHapusSemua() {
+  const { value: pin } = await customSwal.fire({
+    title: 'Masukkan PIN Untuk Konfirmasi',
+    text: 'Demi keamanan, masukkan PIN 6 digit kamu untuk melanjutkan penghapusan.',
+    input: 'password',
+    inputAttributes: { maxlength: 6, inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off' },
+    background: 'var(--card)', color: 'var(--text)',
+    confirmButtonColor: '#F87171',
+    confirmButtonText: '<span style="color:#000; font-weight:800;">Hapus Sekarang</span>',
+    showCancelButton: true,
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => {
+      if (!value || !/^\d{6}$/.test(value)) return 'PIN harus 6 digit angka';
+    }
+  });
+
+  if (!pin) return; // dibatalkan
+
+  if (pin !== window.userCloudPin) {
+    customSwal.fire({ icon: 'error', title: 'PIN Salah', text: 'Foto tidak jadi dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    return;
+  }
+
+  await eksekusiHapusSemuaFoto();
+}
+
+async function eksekusiHapusSemuaFoto() {
+  customSwal.fire({
+    title: 'Menghapus semua foto...',
+    text: 'Mohon jangan tutup halaman ini dulu.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    // Firestore membatasi maksimal 500 operasi per batch, jadi foto dipecah
+    // per kelompok 500 biar tetap aman walau galerinya sangat besar.
+    const CHUNK = 500;
+    for (let i = 0; i < photos.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      const bagian = photos.slice(i, i + CHUNK);
+      bagian.forEach(p => batch.delete(doc(db, 'users', currentUser.uid, 'photos', p.id)));
+      await batch.commit();
+    }
+
+    customSwal.fire({ icon: 'success', title: 'Semua Foto Terhapus', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Gagal Menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  }
+}
 
 /* ==========================================================================
    FUNGSI VIEWER (BUKA FOTO, ZOOM, UNDUH, HAPUS)
