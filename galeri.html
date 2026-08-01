@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -116,7 +115,11 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .header-logo { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid var(--gold); }
 .header-title { font-size: 16px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
 .page-main-title { font-size: 28px; font-weight: 500; margin: 15px 20px 20px; color: var(--text); display: flex; align-items: center; justify-content: space-between; }
+.page-title-actions { display: flex; align-items: center; gap: 8px; }
 .photo-count-badge { font-size: 11px; font-weight: 700; color: var(--text2); background: var(--card); border: 1px solid var(--border); padding: 5px 10px; border-radius: 20px; }
+.download-all-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); color: var(--gold); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease; }
+.download-all-btn:hover { border-color: var(--gold); }
+.download-all-btn:active { transform: scale(0.9); }
 
 /* GRID FOTO RESPONSIVE */
 .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 4px 20px; }
@@ -166,25 +169,30 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 /* PHOTO VIEWER FULL SCREEN */
 #photo-viewer { position: absolute; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
 #photo-viewer.show { opacity: 1; pointer-events: auto; }
-.viewer-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%); position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
-.viewer-icon-btn { background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: transform 0.15s ease, background 0.2s ease; }
-.viewer-icon-btn:active { transform: scale(0.88); }
+.viewer-header { display: flex; align-items: center; gap: 12px; padding: max(15px, env(safe-area-inset-top)) 20px 45px; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 55%, transparent 100%); position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
+.viewer-icon-btn { flex-shrink: 0; background: rgba(255,255,255,0.08); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: transform 0.15s ease, background 0.2s ease; }
+.viewer-icon-btn:active { transform: scale(0.88); background: rgba(255,255,255,0.16); }
+.viewer-title { color: #fff; font-size: 13px; font-weight: 600; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .viewer-content { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; position: relative; width: 100%; height: 100%; }
 #viewer-img { max-width: 100%; max-height: 100vh; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease; cursor: zoom-in; transform-origin: center center; object-fit: contain; opacity: 0; }
 #viewer-img.loaded { opacity: 1; }
 #viewer-img.zoomed { transform: scale(3); cursor: zoom-out; }
 
+.viewer-footer { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; gap: 12px; padding: 24px 20px max(20px, env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); }
+.viewer-action-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(10px); color: #fff; padding: 12px 8px; border-radius: 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; }
+.viewer-action-btn .viewer-action-icon { font-size: 19px; }
+.viewer-action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.16); }
+.viewer-action-btn.danger { color: var(--red); border-color: rgba(248,113,113,0.28); }
+.viewer-action-btn.danger:active { background: rgba(248,113,113,0.15); }
+
 /* SHAKE UNTUK PIN SALAH */
 @keyframes shakeError { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
 .shake { animation: shakeError 0.5s var(--ease-smooth); }
-
-/* BOTTOM SHEET (MENU TITIK TIGA) */
-.swal2-bottom-sheet { margin: 0 !important; width: 100% !important; max-width: 600px !important; border-radius: 24px 24px 0 0 !important; padding: 0 !important; overflow: hidden; animation: sheetSlideUp 0.3s var(--ease-smooth) forwards !important; }
-@keyframes sheetSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -255,7 +263,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <div id="page-galeri" class="page active">
         <div class="page-main-title">
           <span>Semua Foto</span>
-          <span class="photo-count-badge" id="photo-count-badge" style="display:none;">0 foto</span>
+          <div class="page-title-actions">
+            <button class="download-all-btn" id="btn-download-all" style="display:none;" title="Unduh semua foto" onclick="konfirmasiAksi('Unduh semua foto sebagai file ZIP?', downloadAllPhotos)">⬇️</button>
+            <span class="photo-count-badge" id="photo-count-badge" style="display:none;">0 foto</span>
+          </div>
         </div>
         <div class="album-grid" id="main-gallery-grid"></div>
       </div>
@@ -299,10 +310,20 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
   <div id="photo-viewer">
     <div class="viewer-header">
       <button class="viewer-icon-btn" onclick="tutupViewer()">←</button>
-      <button class="viewer-icon-btn" onclick="bukaMenuTitikTiga(event)">⋮</button>
+      <div class="viewer-title" id="viewer-title-text"></div>
     </div>
     <div class="viewer-content">
       <img id="viewer-img" src="" onclick="toggleZoom(event)" onload="this.classList.add('loaded')">
+    </div>
+    <div class="viewer-footer">
+      <button class="viewer-action-btn" onclick="aksiUnduh()">
+        <span class="viewer-action-icon">⬇️</span>
+        <span>Unduh</span>
+      </button>
+      <button class="viewer-action-btn danger" onclick="aksiHapus()">
+        <span class="viewer-action-icon">🗑️</span>
+        <span>Hapus</span>
+      </button>
     </div>
   </div>
 
@@ -727,9 +748,11 @@ window.tambahFotoBaru = async function() {
 function renderGallery() {
   const container = document.getElementById('main-gallery-grid');
   const badge = document.getElementById('photo-count-badge');
+  const downloadAllBtn = document.getElementById('btn-download-all');
 
   if (photos.length === 0) {
     badge.style.display = 'none';
+    downloadAllBtn.style.display = 'none';
     container.innerHTML = `
       <div class="empty-state">
         <span class="emoji">🖼️</span>
@@ -740,6 +763,7 @@ function renderGallery() {
   }
 
   badge.style.display = 'inline-block';
+  downloadAllBtn.style.display = 'flex';
   badge.textContent = `${photos.length} foto`;
   container.innerHTML = photos.map(p => `
     <div class="album-card" onclick="bukaViewer('${p.id}')">
@@ -771,7 +795,7 @@ window.changePinInApp = async function() {
 };
 
 /* ==========================================================================
-   FUNGSI VIEWER (BUKA FOTO, ZOOM, MENU TITIK TIGA, PANGKAS)
+   FUNGSI VIEWER (BUKA FOTO, ZOOM, UNDUH, HAPUS)
    ========================================================================== */
 window.bukaViewer = function(id) {
   const foto = photos.find(p => p.id === id);
@@ -781,6 +805,7 @@ window.bukaViewer = function(id) {
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
 
+  document.getElementById('viewer-title-text').textContent = foto.title || '';
   img.classList.remove('loaded', 'zoomed');
   img.src = foto.url;
   viewer.classList.add('show');
@@ -808,27 +833,7 @@ window.toggleZoom = function(e) {
   }
 };
 
-window.bukaMenuTitikTiga = function(e) {
-  e.stopPropagation();
-  customSwal.fire({
-    position: 'bottom',
-    showConfirmButton: false,
-    background: 'transparent',
-    backdrop: 'rgba(0,0,0,0.7)',
-    html: `
-      <div style="background:var(--card); padding:20px 20px 30px; border-radius:24px 24px 0 0; border-top: 1px solid var(--border);">
-        <div style="width:40px; height:4px; background:var(--text2); border-radius:4px; margin:0 auto 20px;"></div>
-        <button class="menu-btn" onclick="aksiUnduh()">⬇️ Unduh Foto (Original)</button>
-        <button class="menu-btn" onclick="aksiPangkas()">✂️ Pangkas Persegi (1:1)</button>
-        <button class="menu-btn danger" onclick="aksiHapus()">🗑️ Hapus Foto</button>
-      </div>
-    `,
-    customClass: { popup: 'swal2-bottom-sheet' }
-  });
-};
-
 window.aksiUnduh = function() {
-  customSwal.close();
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
   const link = document.createElement('a');
@@ -836,32 +841,7 @@ window.aksiUnduh = function() {
   document.body.appendChild(link); link.click(); link.remove();
 };
 
-window.aksiPangkas = function() {
-  customSwal.close();
-  const img = document.getElementById('viewer-img');
-  img.classList.remove('zoomed'); // pastikan crop diambil dari posisi normal, bukan saat di-zoom
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  const size = Math.min(img.naturalWidth, img.naturalHeight);
-  canvas.width = size; canvas.height = size;
-
-  const startX = (img.naturalWidth - size) / 2;
-  const startY = (img.naturalHeight - size) / 2;
-
-  ctx.drawImage(img, startX, startY, size, size, 0, 0, size, size);
-
-  const croppedUrl = canvas.toDataURL('image/jpeg', 0.9);
-  const link = document.createElement('a');
-  link.href = croppedUrl; link.download = 'RHN_Potongan.jpg';
-  document.body.appendChild(link); link.click(); link.remove();
-
-  customSwal.fire({ icon: 'success', title: 'Berhasil', text: 'Foto persegi terunduh.', background: 'var(--card)', color: 'var(--text)', timer: 2000, showConfirmButton: false });
-};
-
 window.aksiHapus = function() {
-  customSwal.close();
   konfirmasiAksi('Yakin hapus foto ini permanen?', async () => {
     try {
       await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', currentViewPhotoId));
@@ -871,6 +851,58 @@ window.aksiHapus = function() {
       customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
     }
   });
+};
+
+/* ==========================================================================
+   UNDUH SEMUA FOTO SEKALIGUS (ZIP)
+   ========================================================================== */
+window.downloadAllPhotos = async function() {
+  if (!photos.length) return;
+
+  customSwal.fire({
+    title: `Menyiapkan ZIP 0/${photos.length}...`,
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    const zip = new JSZip();
+    const usedNames = new Set();
+
+    photos.forEach((p, i) => {
+      customSwal.update({ title: `Menyiapkan ZIP ${i + 1}/${photos.length}...` });
+
+      const base64 = p.url.split(',')[1];
+      const ext = p.url.startsWith('data:image/png') ? 'png' : 'jpg';
+      let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
+
+      // Hindari nama file bentrok kalau ada judul yang sama
+      let finalName = `${safeName}.${ext}`;
+      let counter = 2;
+      while (usedNames.has(finalName)) {
+        finalName = `${safeName} (${counter}).${ext}`;
+        counter++;
+      }
+      usedNames.add(finalName);
+
+      zip.file(finalName, base64, { base64: true });
+    });
+
+    customSwal.update({ title: 'Mengompres ZIP...' });
+    const blob = await zip.generateAsync({ type: 'blob' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    const tanggal = new Date().toISOString().slice(0, 10);
+    link.download = `RHN_Gallery_${tanggal}.zip`;
+    document.body.appendChild(link); link.click(); link.remove();
+
+    customSwal.fire({ icon: 'success', title: 'ZIP Siap Diunduh', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Gagal Membuat ZIP', text: 'Coba lagi ya.', background: 'var(--card)', color: 'var(--text)' });
+  }
 };
 </script>
 </body>
