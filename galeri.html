@@ -185,7 +185,20 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .preview-remove:active { transform: scale(0.85); }
 .preview-remove:hover { background: var(--red); }
 
-#photo-viewer { position: absolute; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+#photo-viewer {
+  position: fixed;
+  top: 0; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
 #photo-viewer.show { opacity: 1; pointer-events: auto; }
 .viewer-header { display: flex; align-items: center; gap: 12px; padding: max(15px, env(safe-area-inset-top)) 20px 45px; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 55%, transparent 100%); position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
 .viewer-icon-btn { flex-shrink: 0; background: rgba(255,255,255,0.1); width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); box-shadow: 0 4px 14px rgba(0,0,0,0.35); transition: transform 0.15s ease, background 0.2s ease; }
@@ -1427,11 +1440,13 @@ window.bukaViewer = function(id) {
   img.classList.remove('loaded', 'zoomed');
   img.src = foto.fullURL || foto.thumbURL || foto.url;
   viewer.classList.add('show');
+  document.body.style.overflow = 'hidden';
   updateViewerNavButtons();
 };
 
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
+  document.body.style.overflow = '';
   setTimeout(() => {
     document.getElementById('viewer-img').src = '';
     document.getElementById('viewer-img').classList.remove('loaded');
