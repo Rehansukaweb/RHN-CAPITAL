@@ -328,6 +328,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="page-main-title">Setelan</div>
         <div class="card-form">
           <button class="menu-btn" style="margin-bottom:10px;" onclick="enterSelectMode()">☑️ Pilih Beberapa Foto</button>
+          <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (lebih ringan & cepat)? Proses berjalan di latar belakang, foto tetap bisa dipakai selama proses berlangsung.', migrateLegacyPhotos)">🔄 Migrasikan Foto Lama</button>
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">🔐 Ganti PIN</button>
           <button class="menu-btn danger" style="margin-bottom:10px;" onclick="mintaHapusSemuaFoto()">🧹 Hapus Semua Foto</button>
           <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)">🚪 Keluar Akun</button>
@@ -386,7 +387,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
@@ -840,6 +841,90 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
   });
 }
 
+/* ==========================================================================
+   MIGRASI FOTO LAMA (base64 di Firestore) -> Firebase Storage
+   Dipakai untuk foto-foto yang diupload sebelum versi ini ada, yang cuma
+   punya field `url` (base64) tanpa `thumbURL`/`fullURL`. Field `url` yang
+   berat dihapus dari Firestore setelah berhasil dipindah ke Storage,
+   supaya dokumen jadi ringan dan galeri makin cepat.
+   ========================================================================== */
+async function migrateLegacyPhoto(p) {
+  const resp = await fetch(p.url);
+  const originalBlob = await resp.blob();
+  const asFile = new File([originalBlob], 'legacy.jpg', { type: originalBlob.type || 'image/jpeg' });
+
+  const [thumbBlob, fullBlob] = await Promise.all([
+    compressToBlob(asFile, 320, 0.7),
+    compressToBlob(asFile, 1600, 0.82)
+  ]);
+
+  const thumbPath = `users/${currentUser.uid}/thumbs/${p.id}.jpg`;
+  const fullPath = `users/${currentUser.uid}/photos/${p.id}.jpg`;
+  const thumbRef = ref(storage, thumbPath);
+  const fullRef = ref(storage, fullPath);
+
+  await Promise.all([
+    uploadBytes(thumbRef, thumbBlob, { contentType: 'image/jpeg' }),
+    uploadBytes(fullRef, fullBlob, { contentType: 'image/jpeg' })
+  ]);
+
+  const [thumbURL, fullURL] = await Promise.all([
+    getDownloadURL(thumbRef),
+    getDownloadURL(fullRef)
+  ]);
+
+  await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), {
+    thumbURL, fullURL, thumbPath, fullPath, size: fullBlob.size, url: deleteField()
+  }, { merge: true });
+}
+
+window.migrateLegacyPhotos = async function() {
+  if (isBusy) return;
+  const legacy = photos.filter(p => !p.thumbURL && p.url);
+
+  if (!legacy.length) {
+    return customSwal.fire({ icon: 'info', title: 'Tidak Ada Foto Lama', text: 'Semua foto sudah pakai penyimpanan baru.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
+
+  isBusy = true;
+  const total = legacy.length;
+  let done = 0;
+  let failed = 0;
+
+  customSwal.fire({
+    title: `Migrasi 0/${total}...`,
+    text: 'Mohon jangan tutup halaman ini dulu. Foto tetap bisa dibuka selama proses berjalan.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    await runWithConcurrency(legacy, 3, async (p) => {
+      try {
+        await migrateLegacyPhoto(p);
+      } catch (e) {
+        console.error('Gagal migrasi foto', p.id, e);
+        failed++;
+      } finally {
+        done++;
+        customSwal.update({ title: `Migrasi ${done}/${total}...` });
+      }
+    });
+
+    if (failed > 0) {
+      customSwal.fire({ icon: 'warning', title: 'Migrasi Selesai Dengan Peringatan', text: `${total - failed} foto berhasil dipindah, ${failed} gagal. Coba jalankan migrasi lagi untuk yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
+    } else {
+      customSwal.fire({ icon: 'success', title: 'Migrasi Selesai', text: `${total} foto lama berhasil dipindah ke penyimpanan baru.`, background: 'var(--card)', color: 'var(--text)', timer: 2200, showConfirmButton: false });
+    }
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Migrasi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    isBusy = false;
+  }
+};
+
 window.tambahFotoBaru = async function() {
   if (isBusy) return;
   const customTitle = document.getElementById('f-img-title').value.trim();
@@ -1017,7 +1102,9 @@ function createCardNode(p) {
   img.className = 'album-cover';
   img.loading = 'lazy';
   img.decoding = 'async';
-  img.src = p.thumbURL;
+  // Kompatibel dengan foto lama (sebelum migrasi ke Storage) yang cuma
+  // punya field `url` (base64), sekaligus foto baru yang punya `thumbURL`.
+  img.src = p.thumbURL || p.url;
   img.addEventListener('load', () => img.classList.add('loaded'));
 
   const check = document.createElement('div');
@@ -1246,7 +1333,7 @@ async function siapkanBlobUnduhan(list, onProgress) {
   let done = 0;
   await runWithConcurrency(list, 4, async (p, i) => {
     try {
-      const resp = await fetch(p.fullURL);
+      const resp = await fetch(p.fullURL || p.thumbURL || p.url);
       hasil[i] = await resp.blob();
     } catch (e) {
       console.error('Gagal mengambil foto:', e);
@@ -1334,7 +1421,7 @@ window.bukaViewer = function(id) {
   const posisi = photos.length > 1 ? `  ·  ${idx + 1}/${photos.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
   img.classList.remove('loaded', 'zoomed');
-  img.src = foto.fullURL || foto.thumbURL;
+  img.src = foto.fullURL || foto.thumbURL || foto.url;
   viewer.classList.add('show');
   updateViewerNavButtons();
 };
@@ -1407,7 +1494,7 @@ window.aksiUnduh = async function() {
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
   try {
-    const resp = await fetch(foto.fullURL);
+    const resp = await fetch(foto.fullURL || foto.thumbURL || foto.url);
     const blob = await resp.blob();
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
