@@ -11,6 +11,8 @@
 <style>
 /* ==========================================================================
    TEMA UI RESPONSIVE (HP & LAPTOP) - FULL GALLERY MODE
+   VERSI OPTIMASI: rendering diffing + content-visibility supaya scroll,
+   upload, dan hapus massal tetap mulus walau ribuan foto.
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Outfit', sans-serif; user-select: none; }
 input, textarea { user-select: text; }
@@ -40,14 +42,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ANTI NGEDET/GESER SWEETALERT */
 body.swal2-shown { padding-right: 0 !important; }
 body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: visible !important; }
 .swal2-container { z-index: 100000 !important; }
 .swal2-popup { border-radius: 20px !important; background: var(--card) !important; color: var(--text) !important; border: 1px solid var(--border); }
 .swal2-timer-progress-bar { background: var(--gold) !important; }
 
-/* WRAPPER UTAMA BIAR RAPIH DI LAPTOP */
 .app-wrapper {
   max-width: 600px;
   margin: 0 auto;
@@ -61,11 +61,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
   overflow-x: hidden;
 }
 
-/* ---------------------------------------------------
-   ANIMASI SPLASH SCREEN & TRANSISI HALUS
-   Catatan: hanya SATU sumber animasi per elemen di satu waktu,
-   supaya tidak ada tabrakan class fade-in/fade-out yang bikin "ngedet".
-   --------------------------------------------------- */
 .fade-in { animation: fadeInSmooth 0.45s var(--ease-smooth) forwards; }
 .fade-out { animation: fadeOutSmooth 0.35s var(--ease-smooth) forwards; pointer-events: none; }
 @keyframes fadeInSmooth { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -83,9 +78,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 @keyframes fadeUpItem { to { opacity: 1; transform: translateY(0); } }
 @keyframes expandLine { 0% { width: 0%; opacity: 0; } 10% { opacity: 1; } 100% { width: 150px; opacity: 0; } }
 
-/* ---------------------------------------------------
-   AUTH SCREEN & PIN
-   --------------------------------------------------- */
 .screen-layer { position: absolute; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; }
 .auth-box { background: var(--card); border-radius: 24px; padding: 40px 24px; width: 90%; max-width: 400px; border: 1px solid var(--border); text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 .auth-box img { width: 70px; height: 70px; border-radius: 18px; margin-bottom: 16px; border: 1px solid var(--border); object-fit: cover; }
@@ -110,7 +102,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .submit-btn:active { transform: scale(0.97); }
 .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-/* MAIN UI STYLING */
 .mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
 .header-left { grid-column: 1; display: flex; align-items: center; }
 .header-center { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 9px; }
@@ -125,7 +116,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .download-all-btn:hover { border-color: var(--gold); }
 .download-all-btn:active { transform: scale(0.9); }
 
-/* HEADER MODE SELEKSI (bulk delete/download) */
 #selection-header { display: none; }
 .sel-cancel-btn { background: none; border: none; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; padding: 8px 4px; letter-spacing: 0.3px; transition: color 0.2s ease, transform 0.15s ease; }
 .sel-cancel-btn:active { transform: scale(0.94); color: var(--gold); }
@@ -135,16 +125,23 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .sel-icon-btn.danger { color: var(--red); }
 .sel-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* GRID FOTO RESPONSIVE */
+/* GRID FOTO — dioptimasi dengan content-visibility supaya kartu yang belum
+   terlihat di layar TIDAK dirender/dilayout/dilukis oleh browser. Ini kunci
+   utama biar scroll tetap mulus walau ada ribuan foto sekaligus. */
 .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 4px 20px; }
 @media (min-width: 480px) { .album-grid { grid-template-columns: repeat(4, 1fr); } }
-.album-card { position: relative; cursor: pointer; aspect-ratio: 1/1; overflow: hidden; background: var(--card); border-radius: 4px; touch-action: pan-y; }
+.album-card {
+  position: relative; cursor: pointer; aspect-ratio: 1/1; overflow: hidden;
+  background: var(--card); border-radius: 4px; touch-action: pan-y;
+  content-visibility: auto;
+  contain-intrinsic-size: 160px 160px;
+  contain: layout style paint;
+}
 .album-cover { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s var(--ease-smooth), opacity 0.3s ease; opacity: 0; }
 .album-cover.loaded { opacity: 1; }
 .album-card:hover .album-cover { transform: scale(1.08); }
 .album-card:active .album-cover { transform: scale(0.96); }
 
-/* Kotak centang untuk mode seleksi multi-foto */
 .select-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.85); background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--ease-smooth); z-index: 2; }
 .select-mode-active .select-check { display: flex; }
 .select-check.checked { background: var(--gold); border-color: var(--gold); transform: scale(1.08); }
@@ -162,7 +159,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .empty-state .title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .empty-state .sub { font-size: 12px; }
 
-/* BOTTOM NAVIGATION */
 .bottom-nav { position: absolute; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px 0; border-top: 1px solid var(--border); z-index: 50; }
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text2); font-size: 11px; cursor: pointer; background: none; border: none; font-weight: 600; transition: color 0.25s ease, transform 0.15s ease; }
 .nav-item:active { transform: scale(0.9); }
@@ -182,7 +178,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
 .upload-hint { font-size: 11px; color: var(--text2); margin: -6px 0 15px 2px; line-height: 1.6; }
 
-/* PREVIEW THUMBNAIL SEBELUM UPLOAD */
 #file-preview-list { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
 .preview-thumb { position: relative; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); animation: fadeInSmooth 0.3s var(--ease-smooth) forwards; }
 .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -190,7 +185,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .preview-remove:active { transform: scale(0.85); }
 .preview-remove:hover { background: var(--red); }
 
-/* PHOTO VIEWER FULL SCREEN */
 #photo-viewer { position: absolute; inset: 0; background: #000; z-index: 99999; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
 #photo-viewer.show { opacity: 1; pointer-events: auto; }
 .viewer-header { display: flex; align-items: center; gap: 12px; padding: max(15px, env(safe-area-inset-top)) 20px 45px; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 55%, transparent 100%); position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
@@ -218,11 +212,9 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .viewer-action-btn.danger { color: var(--red); border-color: rgba(248,113,113,0.28); }
 .viewer-action-btn.danger:active { background: rgba(248,113,113,0.15); }
 
-/* TOAST INFO KECIL (mis. saat masuk mode pilih via tahan-lama) */
 .mini-toast { position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%) translateY(10px); background: rgba(20,20,24,0.95); border: 1px solid var(--border); color: var(--text); font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 30px; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; max-width: 85%; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 .mini-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* SHAKE UNTUK PIN SALAH */
 @keyframes shakeError { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
 .shake { animation: shakeError 0.5s var(--ease-smooth); }
 </style>
@@ -325,7 +317,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="page-main-title">Upload Foto</div>
         <div class="card-form">
           <input type="file" id="f-img-file" class="f-input-dark" accept="image/*" multiple style="padding: 12px; background: rgba(255,255,255,0.05) !important;">
-          <div class="upload-hint">Bisa pilih lebih dari satu foto sekaligus. Foto otomatis dikompres biar hemat kuota &amp; tetap tajam.</div>
+          <div class="upload-hint">Bisa pilih ratusan foto sekaligus. Upload berjalan paralel & foto otomatis dikompres biar cepat, hemat kuota, dan tetap tajam.</div>
           <div id="file-preview-list"></div>
           <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
           <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan foto-foto ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
@@ -394,7 +386,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, addDoc, deleteDoc, writeBatch, onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
@@ -405,8 +398,6 @@ const firebaseConfig = {
   appId: "1:74905216682:web:4687a5b0bd7bcac09292d3"
 };
 
-// Logo cadangan berupa SVG inline, jadi tidak bergantung pada koneksi internet
-// kalau file "RHN LOGO.jpg" belum ada / gagal dimuat.
 window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
   "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>" +
   "<rect width='100%' height='100%' rx='24' fill='#121215'/>" +
@@ -416,9 +407,8 @@ window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-// Kalau persistent cache gagal diinisialisasi (misalnya karena banyak tab
-// terbuka sekaligus), fallback ke memory cache biar app tetap jalan.
 let db;
 try {
   db = initializeFirestore(app, { localCache: persistentLocalCache() });
@@ -427,19 +417,55 @@ try {
   db = initializeFirestore(app, {});
 }
 
+/* ==========================================================================
+   ARSITEKTUR PENYIMPANAN (PENTING)
+   ------------------------------------------------------------------------
+   Versi ini TIDAK lagi menyimpan gambar sebagai base64 raksasa di Firestore.
+   File gambar (thumbnail kecil untuk grid + versi penuh untuk viewer)
+   disimpan di FIREBASE STORAGE, sedangkan Firestore hanya menyimpan
+   metadata ringan (judul, URL, ukuran, waktu). Ini yang membuat:
+     - Listener galeri jadi ringan (bukan menarik ratusan MB base64)
+     - Scroll mulus (gambar dimuat via <img src="url"> dg cache browser)
+     - Upload & hapus bisa diproses PARALEL, bukan satu-satu berurutan
+   Pastikan Firebase Storage sudah diaktifkan di project & rules-nya
+   mengizinkan user membaca/menulis folder users/{uid}/... miliknya sendiri.
+   ========================================================================== */
+
 let currentUser = null;
-let photos = [];
+let photos = [];                 // metadata foto (dari Firestore), urut createdAt desc
+let photoNodes = new Map();      // id -> elemen DOM kartu (dipakai untuk diffing render)
 let currentViewPhotoId = null;
 let authMode = 'login';
 let selectedFiles = [];
-let isBusy = false; // guard biar tombol tidak bisa dipencet berkali-kali saat proses jalan
+let isBusy = false;
 
-// --- STATE MODE SELEKSI (pilih beberapa foto sekaligus) ---
 let selectMode = false;
 let selectedIds = new Set();
 let pressTimer = null;
 let longPressFired = false;
 let toastTimer = null;
+
+/* --------------------------------------------------------------------
+   UTIL: jalankan banyak tugas async dengan batas paralelisme tertentu.
+   Ini kunci kecepatan upload/hapus massal tanpa membanjiri koneksi.
+   -------------------------------------------------------------------- */
+async function runWithConcurrency(items, limit, worker) {
+  let idx = 0;
+  const results = new Array(items.length);
+  async function runner() {
+    while (idx < items.length) {
+      const current = idx++;
+      try {
+        results[current] = await worker(items[current], current);
+      } catch (e) {
+        results[current] = { error: e };
+      }
+    }
+  }
+  const runners = Array.from({ length: Math.min(limit, items.length) }, runner);
+  await Promise.all(runners);
+  return results;
+}
 
 // ANIMASI SPLASH SCREEN
 window.addEventListener('DOMContentLoaded', function() {
@@ -452,13 +478,11 @@ window.addEventListener('DOMContentLoaded', function() {
   }, 2200);
 });
 
-// NONAKTIFKAN SCROLLBAR SWEETALERT BIAR GAK NGEDET
 const customSwal = Swal.mixin({
   scrollbarPadding: false,
   heightAuto: false
 });
 
-// GLOBAL KONFIRMASI
 window.konfirmasiAksi = function(pesan, callback) {
   customSwal.fire({
     title: 'Konfirmasi',
@@ -475,7 +499,6 @@ window.konfirmasiAksi = function(pesan, callback) {
   });
 };
 
-// TOAST KECIL (mis. konfirmasi masuk mode pilih)
 window.showMiniToast = function(msg, duration = 1600) {
   const toast = document.getElementById('mini-toast');
   clearTimeout(toastTimer);
@@ -503,7 +526,6 @@ window.switchTab = function(mode) {
   document.getElementById('tab-register').classList.toggle('active', mode === 'register');
   document.getElementById('wrap-pass2').style.display = mode === 'register' ? 'block' : 'none';
   document.getElementById('btn-auth-submit').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR';
-  // Bersihkan input & pesan error setiap ganti tab biar tidak membingungkan
   document.getElementById('auth-pass').value = '';
   document.getElementById('auth-pass2').value = '';
   setAuthHint('');
@@ -571,7 +593,6 @@ window.doAuth = async function() {
   }
 };
 
-// Tekan Enter di kolom email/sandi langsung submit, biar tidak harus tap tombol
 ['auth-email', 'auth-pass', 'auth-pass2'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); doAuth(); }
@@ -580,9 +601,6 @@ window.doAuth = async function() {
 
 window.doLogout = async function() {
   if (selectMode) exitSelectMode();
-  // Fade-out layar yang sedang aktif dulu, baru signOut, supaya tidak ada
-  // dua animasi (fade-out manual + fade-in dari onAuthStateChanged) yang
-  // tabrakan dan terasa "ngedet"/patah-patah.
   const appScrn = document.getElementById('app-screen');
   const pinScrn = document.getElementById('pin-screen');
   const activeScrn = appScrn.style.display !== 'none' ? appScrn : pinScrn;
@@ -640,10 +658,9 @@ onAuthStateChanged(auth, async user => {
   } else {
     currentUser = null;
     photos = [];
+    photoNodes.clear();
     selectMode = false;
     selectedIds.clear();
-    // Kedua layar ini sudah disembunyikan lebih dulu di doLogout(), jadi baris
-    // berikut aman sebagai jaga-jaga (misalnya saat sesi habis sendiri).
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'none';
 
@@ -663,8 +680,6 @@ onAuthStateChanged(auth, async user => {
 });
 
 document.getElementById('app-pin').addEventListener('input', async function() {
-  // Pastikan hanya angka yang masuk (jaga-jaga di perangkat yang tidak
-  // memunculkan keyboard numerik meski inputmode="numeric").
   this.value = this.value.replace(/[^0-9]/g, '');
 
   if (this.value.length === 6) {
@@ -689,7 +704,6 @@ document.getElementById('app-pin').addEventListener('input', async function() {
   }
 });
 
-// Transisi Smooth dari PIN ke App
 function unlockApp() {
   const pinScrn = document.getElementById('pin-screen');
   const appScrn = document.getElementById('app-screen');
@@ -720,8 +734,6 @@ function listenPhotos() {
   onSnapshot(q, (snap) => {
     photos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Kalau sedang mode seleksi, buang id yang sudah tidak ada lagi
-    // (misalnya terhapus dari sesi/perangkat lain).
     if (selectMode) {
       let changed = false;
       selectedIds.forEach(id => {
@@ -766,10 +778,9 @@ window.removeSelectedFile = function(i) {
   renderFilePreview();
 };
 
-// Kompres foto di sisi browser sebelum disimpan sebagai base64 di Firestore.
-// Ini penting karena satu dokumen Firestore dibatasi ~1MB — tanpa kompresi,
-// foto resolusi tinggi dari kamera HP bisa gagal tersimpan.
-function compressImage(file, maxDim = 1600, quality = 0.75) {
+/* Kompres foto ke Blob JPEG (bukan base64 lagi) supaya siap diupload
+   langsung ke Firebase Storage. maxDim membatasi sisi terpanjang gambar. */
+function compressToBlob(file, maxDim, quality) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -784,13 +795,48 @@ function compressImage(file, maxDim = 1600, quality = 0.75) {
         canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Gagal mengompres gambar')), 'image/jpeg', quality);
       };
       img.onerror = () => reject(new Error('Gagal membaca gambar'));
       img.src = e.target.result;
     };
     reader.onerror = () => reject(new Error('Gagal membaca berkas'));
     reader.readAsDataURL(file);
+  });
+}
+
+function uid4() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+async function uploadSinglePhoto(file, customTitle, index, total) {
+  const id = uid4();
+  const [thumbBlob, fullBlob] = await Promise.all([
+    compressToBlob(file, 320, 0.7),
+    compressToBlob(file, 1600, 0.82)
+  ]);
+
+  const thumbPath = `users/${currentUser.uid}/thumbs/${id}.jpg`;
+  const fullPath = `users/${currentUser.uid}/photos/${id}.jpg`;
+  const thumbRef = ref(storage, thumbPath);
+  const fullRef = ref(storage, fullPath);
+
+  await Promise.all([
+    uploadBytes(thumbRef, thumbBlob, { contentType: 'image/jpeg' }),
+    uploadBytes(fullRef, fullBlob, { contentType: 'image/jpeg' })
+  ]);
+
+  const [thumbURL, fullURL] = await Promise.all([
+    getDownloadURL(thumbRef),
+    getDownloadURL(fullRef)
+  ]);
+
+  const title = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
+
+  await setDoc(doc(db, 'users', currentUser.uid, 'photos', id), {
+    title, thumbURL, fullURL, thumbPath, fullPath,
+    size: fullBlob.size, createdAt: serverTimestamp()
   });
 }
 
@@ -803,37 +849,45 @@ window.tambahFotoBaru = async function() {
   const uploadBtn = document.getElementById('btn-upload');
   uploadBtn.disabled = true;
 
+  const filesSnapshot = selectedFiles.slice();
+  const total = filesSnapshot.length;
+  let completed = 0;
+  let failed = 0;
+
   customSwal.fire({
-    title: `Mengupload 0/${selectedFiles.length}...`,
+    title: `Mengupload 0/${total}...`,
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
     didOpen: () => customSwal.showLoading()
   });
 
   try {
-    for (let i = 0; i < selectedFiles.length; i++) {
-      customSwal.update({ title: `Mengupload ${i + 1}/${selectedFiles.length}...` });
-
-      let dataUrl = await compressImage(selectedFiles[i]);
-      // Kalau masih terlalu besar (foto sangat detail), kompres ulang lebih agresif
-      if (dataUrl.length > 900000) {
-        dataUrl = await compressImage(selectedFiles[i], 1200, 0.55);
+    // Upload paralel (maksimal 5 sekaligus) — jauh lebih cepat dari satu-satu.
+    await runWithConcurrency(filesSnapshot, 5, async (file, i) => {
+      try {
+        await uploadSinglePhoto(file, customTitle, i, total);
+      } catch (e) {
+        console.error('Gagal upload salah satu foto:', e);
+        failed++;
+      } finally {
+        completed++;
+        customSwal.update({ title: `Mengupload ${completed}/${total}...` });
       }
+    });
 
-      const finalTitle = customTitle ? (selectedFiles.length > 1 ? `${customTitle} - ${i + 1}` : customTitle) : selectedFiles[i].name;
-
-      await addDoc(collection(db, 'users', currentUser.uid, 'photos'), {
-        title: finalTitle, url: dataUrl, createdAt: serverTimestamp()
-      });
+    if (failed > 0) {
+      customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} foto berhasil, ${failed} foto gagal diupload. Coba upload ulang foto yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
+    } else {
+      customSwal.fire({ icon: 'success', title: 'Upload Sukses', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     }
 
-    customSwal.fire({ icon: 'success', title: 'Upload Sukses', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     document.getElementById('f-img-file').value = '';
     document.getElementById('f-img-title').value = '';
     selectedFiles = [];
     renderFilePreview();
     switchPage('galeri');
   } catch (e) {
+    console.error(e);
     customSwal.fire({ icon: 'error', title: 'Upload Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
     isBusy = false;
@@ -842,16 +896,14 @@ window.tambahFotoBaru = async function() {
 };
 
 function hitungTotalUkuranMB() {
-  // Estimasi ukuran asli dari panjang string base64 (base64 ~33% lebih besar dari data aslinya)
-  const totalBytes = photos.reduce((sum, p) => sum + (p.url ? p.url.length * 0.75 : 0), 0);
+  const totalBytes = photos.reduce((sum, p) => sum + (p.size || 0), 0);
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
 /* ==========================================================================
    MODE SELEKSI (PILIH BEBERAPA FOTO SEKALIGUS)
-   Cara masuk: tekan ikon ☑️ di header/setelan, atau tahan-lama (long-press)
-   salah satu foto di grid. Setelah masuk mode ini, tap foto tinggal
-   centang/lepas centang, lalu unduh atau hapus semuanya sekaligus.
+   Masuk/keluar mode ini TIDAK lagi membangun ulang seluruh grid — hanya
+   toggle class di container, jadi instan walau ada ribuan foto.
    ========================================================================== */
 window.startPress = function(id) {
   longPressFired = false;
@@ -869,10 +921,7 @@ window.cancelPress = function() {
 };
 
 window.handleCardClick = function(id) {
-  // Kalau klik ini adalah hasil dari long-press yang baru saja memicu mode
-  // seleksi, abaikan supaya viewer tidak ikut kebuka / foto tidak tercentang dobel.
   if (longPressFired) { longPressFired = false; return; }
-
   if (selectMode) {
     toggleSelect(id);
   } else {
@@ -883,8 +932,6 @@ window.handleCardClick = function(id) {
 window.enterSelectMode = function(initialId) {
   if (!photos.length) return;
   selectMode = true;
-  if (!selectedIds.size) selectedIds.clear();
-  if (initialId) selectedIds.add(initialId);
 
   document.getElementById('normal-header').style.display = 'none';
   const bar = document.getElementById('selection-header');
@@ -899,34 +946,47 @@ window.enterSelectMode = function(initialId) {
     document.querySelectorAll('.nav-btn')[0].classList.add('active');
   }
 
-  renderGallery();
+  document.getElementById('main-gallery-grid').classList.add('select-mode-active');
+  if (initialId) toggleSelect(initialId);
   updateSelectionUI();
 };
 
 window.exitSelectMode = function() {
   selectMode = false;
+  selectedIds.forEach(id => setCardSelected(id, false));
   selectedIds.clear();
   document.getElementById('selection-header').style.display = 'none';
   document.getElementById('normal-header').style.display = 'grid';
+  document.getElementById('main-gallery-grid').classList.remove('select-mode-active');
   document.getElementById('header-gallery-stats').classList.toggle('show', photos.length > 0);
-  renderGallery();
 };
 
+function setCardSelected(id, selected) {
+  const node = photoNodes.get(id);
+  if (!node) return;
+  node.classList.toggle('selected', selected);
+  const check = node.querySelector('.select-check');
+  if (check) check.classList.toggle('checked', selected);
+}
+
 function toggleSelect(id) {
-  if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+  if (selectedIds.has(id)) { selectedIds.delete(id); setCardSelected(id, false); }
+  else { selectedIds.add(id); setCardSelected(id, true); }
+
   if (selectedIds.size === 0) { exitSelectMode(); return; }
-  renderGallery();
   updateSelectionUI();
 }
 
 window.toggleSelectAll = function() {
   if (selectedIds.size === photos.length) {
+    selectedIds.forEach(id => setCardSelected(id, false));
     selectedIds.clear();
-    if (selectedIds.size === 0) { exitSelectMode(); return; }
-  } else {
-    photos.forEach(p => selectedIds.add(p.id));
+    exitSelectMode();
+    return;
   }
-  renderGallery();
+  photos.forEach(p => {
+    if (!selectedIds.has(p.id)) { selectedIds.add(p.id); setCardSelected(p.id, true); }
+  });
   updateSelectionUI();
 };
 
@@ -941,6 +1001,40 @@ function updateSelectionUI() {
   document.getElementById('btn-sel-delete').disabled = count === 0;
 }
 
+/* --------------------------------------------------------------------
+   RENDER GALERI DENGAN DIFFING (bukan innerHTML penuh setiap kali)
+   Hanya kartu yang baru ditambah yang dibuat elemennya; kartu yang
+   sudah ada cukup dipindah posisi kalau urutannya berubah. Ini yang
+   menghilangkan efek "ngedet"/patah saat scroll & saat listener
+   Firestore memicu ulang render (mis. setelah hapus/upload).
+   -------------------------------------------------------------------- */
+function createCardNode(p) {
+  const card = document.createElement('div');
+  card.className = 'album-card';
+  card.dataset.id = p.id;
+
+  const img = document.createElement('img');
+  img.className = 'album-cover';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.src = p.thumbURL;
+  img.addEventListener('load', () => img.classList.add('loaded'));
+
+  const check = document.createElement('div');
+  check.className = 'select-check';
+
+  card.appendChild(img);
+  card.appendChild(check);
+
+  card.addEventListener('pointerdown', () => startPress(p.id));
+  card.addEventListener('pointerup', cancelPress);
+  card.addEventListener('pointerleave', cancelPress);
+  card.addEventListener('pointercancel', cancelPress);
+  card.addEventListener('click', () => handleCardClick(p.id));
+
+  return card;
+}
+
 function renderGallery() {
   const container = document.getElementById('main-gallery-grid');
   const badge = document.getElementById('photo-count-badge');
@@ -949,6 +1043,7 @@ function renderGallery() {
 
   if (photos.length === 0) {
     headerStats.classList.remove('show');
+    photoNodes.clear();
     container.classList.remove('select-mode-active');
     container.innerHTML = `
       <div class="empty-state">
@@ -960,25 +1055,39 @@ function renderGallery() {
     return;
   }
 
+  if (container.querySelector('.empty-state') || container.querySelector('.skeleton-box')) {
+    container.innerHTML = '';
+  }
+
   headerStats.classList.toggle('show', isGaleriActive && !selectMode);
   badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
-  container.classList.toggle('select-mode-active', selectMode);
 
-  container.innerHTML = photos.map(p => {
-    const isSel = selectedIds.has(p.id);
-    return `
-    <div class="album-card ${isSel ? 'selected' : ''}"
-         onclick="handleCardClick('${p.id}')"
-         onpointerdown="startPress('${p.id}')"
-         onpointerup="cancelPress()"
-         onpointerleave="cancelPress()"
-         onpointercancel="cancelPress()">
-      <img src="${p.url}" class="album-cover" loading="lazy" onload="this.classList.add('loaded')">
-      <div class="select-check ${isSel ? 'checked' : ''}"></div>
-    </div>`;
-  }).join('');
+  // Hapus node untuk foto yang sudah tidak ada lagi
+  const currentIds = new Set(photos.map(p => p.id));
+  for (const [id, node] of photoNodes) {
+    if (!currentIds.has(id)) { node.remove(); photoNodes.delete(id); }
+  }
 
-  if (selectMode) updateSelectionUI();
+  // Tambah node baru & pastikan urutan sesuai `photos` (createdAt desc)
+  let prevNode = null;
+  photos.forEach(p => {
+    let node = photoNodes.get(p.id);
+    if (!node) {
+      node = createCardNode(p);
+      photoNodes.set(p.id, node);
+      if (selectedIds.has(p.id)) setCardSelected(p.id, true);
+    }
+    const expectedNext = prevNode ? prevNode.nextSibling : container.firstChild;
+    if (expectedNext !== node) {
+      container.insertBefore(node, expectedNext || null);
+    }
+    prevNode = node;
+  });
+
+  if (selectMode) {
+    container.classList.add('select-mode-active');
+    updateSelectionUI();
+  }
 }
 
 window.changePinInApp = async function() {
@@ -1004,20 +1113,43 @@ window.changePinInApp = async function() {
 };
 
 /* ==========================================================================
-   HAPUS FOTO — SATU SEKALIGUS (batch) SUPAYA BISA DIPAKAI UNTUK:
-   1) Hapus Semua Foto (dari Setelan)
-   2) Hapus Foto Terpilih (dari Mode Seleksi)
-   Keduanya WAJIB verifikasi PIN dulu karena aksinya permanen.
+   HAPUS FOTO — PARALEL & OPTIMISTIK
+   UI langsung menghilangkan foto dari grid SEBELUM proses hapus di server
+   selesai, jadi terasa instan walau jumlahnya ratusan/ribuan. Storage +
+   Firestore dihapus paralel (maks 8 sekaligus). Kalau ada yang gagal,
+   listener Firestore otomatis menyinkronkan ulang saat snapshot berikutnya.
    ========================================================================== */
-async function eksekusiHapusBatch(ids) {
-  // Firestore membatasi maksimal 500 operasi per batch, jadi id dipecah
-  // per kelompok 500 biar tetap aman walau galerinya sangat besar.
-  const CHUNK = 500;
-  for (let i = 0; i < ids.length; i += CHUNK) {
-    const batch = writeBatch(db);
-    ids.slice(i, i + CHUNK).forEach(id => batch.delete(doc(db, 'users', currentUser.uid, 'photos', id)));
-    await batch.commit();
-  }
+function removePhotoFromLocalUI(id) {
+  const idx = photos.findIndex(p => p.id === id);
+  if (idx !== -1) photos.splice(idx, 1);
+  const node = photoNodes.get(id);
+  if (node) { node.remove(); photoNodes.delete(id); }
+  selectedIds.delete(id);
+}
+
+async function eksekusiHapusBatch(ids, onProgress) {
+  const idSet = new Set(ids);
+  const targets = photos.filter(p => idSet.has(p.id));
+
+  // Hapus dari UI dulu (optimistik) supaya terasa instan
+  targets.forEach(p => removePhotoFromLocalUI(p.id));
+  const badge = document.getElementById('photo-count-badge');
+  if (photos.length > 0) badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
+  if (photos.length === 0) renderGallery();
+
+  let done = 0;
+  await runWithConcurrency(targets, 8, async (p) => {
+    try {
+      await Promise.all([
+        p.thumbPath ? deleteObject(ref(storage, p.thumbPath)).catch(() => {}) : Promise.resolve(),
+        p.fullPath ? deleteObject(ref(storage, p.fullPath)).catch(() => {}) : Promise.resolve(),
+        deleteDoc(doc(db, 'users', currentUser.uid, 'photos', p.id))
+      ]);
+    } finally {
+      done++;
+      if (onProgress) onProgress(done, targets.length);
+    }
+  });
 }
 
 async function mintaPinLaluHapus(ids, judulProses) {
@@ -1036,28 +1168,31 @@ async function mintaPinLaluHapus(ids, judulProses) {
     }
   });
 
-  if (!pin) return; // dibatalkan
+  if (!pin) return;
 
   if (pin !== window.userCloudPin) {
     customSwal.fire({ icon: 'error', title: 'PIN Salah', text: 'Foto tidak jadi dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     return;
   }
 
+  const total = ids.length;
   customSwal.fire({
-    title: judulProses,
-    text: 'Mohon jangan tutup halaman ini dulu.',
+    title: `${judulProses} 0/${total}`,
+    text: 'Foto langsung hilang dari galeri, proses di server berjalan di belakang layar.',
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
     didOpen: () => customSwal.showLoading()
   });
 
   try {
-    await eksekusiHapusBatch(ids);
-    customSwal.fire({ icon: 'success', title: `${ids.length} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    await eksekusiHapusBatch(ids, (done, totalCount) => {
+      customSwal.update({ title: `${judulProses} ${done}/${totalCount}` });
+    });
+    customSwal.fire({ icon: 'success', title: `${total} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     if (selectMode) exitSelectMode();
   } catch (e) {
     console.error(e);
-    customSwal.fire({ icon: 'error', title: 'Gagal Menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+    customSwal.fire({ icon: 'error', title: 'Sebagian Gagal Dihapus', text: 'Periksa koneksi internet — galeri akan menyesuaikan otomatis.', background: 'var(--card)', color: 'var(--text)' });
   }
 }
 
@@ -1100,17 +1235,35 @@ window.handleBulkDelete = function() {
 };
 
 /* ==========================================================================
-   UNDUH FOTO — SATU FUNGSI DIPAKAI UNTUK "UNDUH SEMUA" & "UNDUH TERPILIH"
-   Catatan: sengaja TIDAK di-zip. File .zip masuk ke folder Download biasa
-   dan tidak dikenali sebagai foto, jadi tidak muncul di aplikasi Galeri HP.
-   Dengan menyimpan tiap foto sebagai file gambar terpisah (.jpg/.png),
-   HP akan langsung mengenalinya sebagai foto dan otomatis muncul di Galeri.
+   UNDUH FOTO — file diunduh lewat blob supaya HP mengenalinya sebagai foto
+   asli (bukan link) dan otomatis masuk ke aplikasi Galeri. Pengambilan
+   blob dari Storage dijalankan PARALEL (maks 4) baru diklik satu-satu
+   dengan jeda singkat (dibutuhkan browser agar tidak memblokir unduhan
+   beruntun) — jauh lebih cepat dibanding menunggu tiap file bergantian.
    ========================================================================== */
+async function siapkanBlobUnduhan(list, onProgress) {
+  const hasil = new Array(list.length);
+  let done = 0;
+  await runWithConcurrency(list, 4, async (p, i) => {
+    try {
+      const resp = await fetch(p.fullURL);
+      hasil[i] = await resp.blob();
+    } catch (e) {
+      console.error('Gagal mengambil foto:', e);
+      hasil[i] = null;
+    } finally {
+      done++;
+      if (onProgress) onProgress(done, list.length);
+    }
+  });
+  return hasil;
+}
+
 async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
   if (!list.length) return;
 
   customSwal.fire({
-    title: `Menyimpan foto 0/${list.length}...`,
+    title: `Menyiapkan foto 0/${list.length}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
@@ -1118,32 +1271,35 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
   });
 
   try {
-    const usedNames = new Set();
+    const blobs = await siapkanBlobUnduhan(list, (done, total) => {
+      customSwal.update({ title: `Menyiapkan foto ${done}/${total}...` });
+    });
 
+    const usedNames = new Set();
     for (let i = 0; i < list.length; i++) {
+      if (!blobs[i]) continue;
       customSwal.update({ title: `Menyimpan foto ${i + 1}/${list.length}...` });
 
       const p = list[i];
-      const ext = p.url.startsWith('data:image/png') ? 'png' : 'jpg';
       let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
-
-      let finalName = `${safeName}.${ext}`;
+      let finalName = `${safeName}.jpg`;
       let counter = 2;
       while (usedNames.has(finalName)) {
-        finalName = `${safeName} (${counter}).${ext}`;
+        finalName = `${safeName} (${counter}).jpg`;
         counter++;
       }
       usedNames.add(finalName);
 
+      const blobUrl = URL.createObjectURL(blobs[i]);
       const link = document.createElement('a');
-      link.href = p.url;
+      link.href = blobUrl;
       link.download = finalName;
       document.body.appendChild(link);
       link.click();
       link.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
 
-      // Jeda singkat antar unduhan supaya browser tidak memblokir unduhan beruntun
-      await new Promise(r => setTimeout(r, 350));
+      await new Promise(r => setTimeout(r, 180));
     }
 
     customSwal.fire({ icon: 'success', title: 'Foto Tersimpan', text: 'Cek aplikasi Galeri / folder Download di HP kamu.', background: 'var(--card)', color: 'var(--text)', timer: 2200, showConfirmButton: false });
@@ -1178,7 +1334,7 @@ window.bukaViewer = function(id) {
   const posisi = photos.length > 1 ? `  ·  ${idx + 1}/${photos.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
   img.classList.remove('loaded', 'zoomed');
-  img.src = foto.url;
+  img.src = foto.fullURL || foto.thumbURL;
   viewer.classList.add('show');
   updateViewerNavButtons();
 };
@@ -1208,7 +1364,6 @@ function updateViewerNavButtons() {
   document.getElementById('viewer-btn-next').classList.toggle('hidden-nav', !show);
 }
 
-// Navigasi geser (swipe) di HP untuk pindah foto berikutnya/sebelumnya
 (function setupViewerSwipe() {
   const content = document.getElementById('viewer-content');
   let startX = 0, startY = 0;
@@ -1218,7 +1373,7 @@ function updateViewerNavButtons() {
   }, { passive: true });
   content.addEventListener('touchend', (e) => {
     const img = document.getElementById('viewer-img');
-    if (img.classList.contains('zoomed')) return; // jangan pindah foto saat lagi di-zoom
+    if (img.classList.contains('zoomed')) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
@@ -1227,7 +1382,6 @@ function updateViewerNavButtons() {
   }, { passive: true });
 })();
 
-// Navigasi keyboard (panah kiri/kanan, Esc) untuk pengguna laptop
 document.addEventListener('keydown', (e) => {
   const viewer = document.getElementById('photo-viewer');
   if (!viewer.classList.contains('show')) return;
@@ -1249,19 +1403,35 @@ window.toggleZoom = function(e) {
   }
 };
 
-window.aksiUnduh = function() {
+window.aksiUnduh = async function() {
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
-  const link = document.createElement('a');
-  link.href = foto.url; link.download = (foto.title || 'RHN_Foto') + '.jpg';
-  document.body.appendChild(link); link.click(); link.remove();
+  try {
+    const resp = await fetch(foto.fullURL);
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl; link.download = (foto.title || 'RHN_Foto') + '.jpg';
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+  } catch (e) {
+    customSwal.fire({ icon: 'error', title: 'Gagal Mengunduh', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  }
 };
 
 window.aksiHapus = function() {
   konfirmasiAksi('Yakin hapus foto ini permanen?', async () => {
+    const foto = photos.find(p => p.id === currentViewPhotoId);
+    if (!foto) return;
+    tutupViewer();
+    removePhotoFromLocalUI(foto.id);
+    renderGallery();
     try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', currentViewPhotoId));
-      tutupViewer();
+      await Promise.all([
+        foto.thumbPath ? deleteObject(ref(storage, foto.thumbPath)).catch(() => {}) : Promise.resolve(),
+        foto.fullPath ? deleteObject(ref(storage, foto.fullPath)).catch(() => {}) : Promise.resolve(),
+        deleteDoc(doc(db, 'users', currentUser.uid, 'photos', foto.id))
+      ]);
       customSwal.fire({ icon: 'success', title: 'Terhapus', background: 'var(--card)', color: 'var(--text)', showConfirmButton: false, timer: 1500 });
     } catch (e) {
       customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
