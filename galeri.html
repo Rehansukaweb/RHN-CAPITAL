@@ -981,7 +981,11 @@ window.tambahFotoBaru = async function() {
 };
 
 function hitungTotalUkuranMB() {
-  const totalBytes = photos.reduce((sum, p) => sum + (p.size || 0), 0);
+  const totalBytes = photos.reduce((sum, p) => {
+    if (p.size) return sum + p.size;               // foto baru (Storage): ukuran asli
+    if (p.url) return sum + (p.url.length * 0.75);  // foto lama (base64): estimasi ukuran
+    return sum;
+  }, 0);
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
