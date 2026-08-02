@@ -12,7 +12,8 @@
 /* ==========================================================================
    TEMA UI RESPONSIVE (HP & LAPTOP) - FULL GALLERY MODE
    ========================================================================== */
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Outfit', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Outfit', sans-serif; user-select: none; }
+input, textarea { user-select: text; }
 
 :root {
   --bg: #000000;
@@ -111,7 +112,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
 /* MAIN UI STYLING */
 .mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
-.header-left { grid-column: 1; }
+.header-left { grid-column: 1; display: flex; align-items: center; }
 .header-center { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 9px; }
 .header-right { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; }
 .header-right.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
@@ -124,14 +125,34 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .download-all-btn:hover { border-color: var(--gold); }
 .download-all-btn:active { transform: scale(0.9); }
 
+/* HEADER MODE SELEKSI (bulk delete/download) */
+#selection-header { display: none; }
+.sel-cancel-btn { background: none; border: none; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; padding: 8px 4px; letter-spacing: 0.3px; transition: color 0.2s ease, transform 0.15s ease; }
+.sel-cancel-btn:active { transform: scale(0.94); color: var(--gold); }
+.sel-count-text { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; }
+.sel-icon-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); color: var(--gold); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease, opacity 0.2s ease; flex-shrink: 0; }
+.sel-icon-btn:active { transform: scale(0.9); }
+.sel-icon-btn.danger { color: var(--red); }
+.sel-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
 /* GRID FOTO RESPONSIVE */
 .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 4px 20px; }
 @media (min-width: 480px) { .album-grid { grid-template-columns: repeat(4, 1fr); } }
-.album-card { position: relative; cursor: pointer; aspect-ratio: 1/1; overflow: hidden; background: var(--card); border-radius: 4px; }
+.album-card { position: relative; cursor: pointer; aspect-ratio: 1/1; overflow: hidden; background: var(--card); border-radius: 4px; touch-action: pan-y; }
 .album-cover { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s var(--ease-smooth), opacity 0.3s ease; opacity: 0; }
 .album-cover.loaded { opacity: 1; }
 .album-card:hover .album-cover { transform: scale(1.08); }
 .album-card:active .album-cover { transform: scale(0.96); }
+
+/* Kotak centang untuk mode seleksi multi-foto */
+.select-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.85); background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--ease-smooth); z-index: 2; }
+.select-mode-active .select-check { display: flex; }
+.select-check.checked { background: var(--gold); border-color: var(--gold); transform: scale(1.08); }
+.select-check.checked::after { content: ''; width: 6px; height: 10px; border-right: 2px solid #000; border-bottom: 2px solid #000; transform: rotate(45deg) translate(-1px, -1px); }
+.album-card.selected { outline: 2.5px solid var(--gold); outline-offset: -2.5px; }
+.album-card.selected .album-cover { opacity: 0.7; }
+.select-mode-active .album-card::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.15); z-index: 1; opacity: 0; transition: opacity 0.18s ease; }
+.select-mode-active .album-card.selected::before { opacity: 1; background: rgba(251,191,36,0.12); }
 
 .skeleton-box { background: linear-gradient(100deg, var(--card) 30%, var(--bg-input) 50%, var(--card) 70%); background-size: 250% 100%; animation: skeletonPulse 1.3s ease infinite; }
 @keyframes skeletonPulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -182,12 +203,24 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 #viewer-img.loaded { opacity: 1; }
 #viewer-img.zoomed { transform: scale(3); cursor: zoom-out; }
 
+.viewer-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(10px); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease; }
+.viewer-nav-btn:active { transform: translateY(-50%) scale(0.88); background: rgba(255,255,255,0.18); }
+.viewer-nav-btn svg { width: 18px; height: 18px; }
+.viewer-nav-prev { left: 12px; }
+.viewer-nav-next { right: 12px; }
+.viewer-nav-btn.hidden-nav { opacity: 0; pointer-events: none; }
+@media (hover: none) { .viewer-nav-btn { display: none; } }
+
 .viewer-footer { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; gap: 12px; padding: 24px 20px max(20px, env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); }
 .viewer-action-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(10px); color: #fff; padding: 12px 8px; border-radius: 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; }
 .viewer-action-btn .viewer-action-icon { font-size: 19px; }
 .viewer-action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.16); }
 .viewer-action-btn.danger { color: var(--red); border-color: rgba(248,113,113,0.28); }
 .viewer-action-btn.danger:active { background: rgba(248,113,113,0.15); }
+
+/* TOAST INFO KECIL (mis. saat masuk mode pilih via tahan-lama) */
+.mini-toast { position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%) translateY(10px); background: rgba(20,20,24,0.95); border: 1px solid var(--border); color: var(--text); font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 30px; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; max-width: 85%; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.mini-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* SHAKE UNTUK PIN SALAH */
 @keyframes shakeError { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
@@ -255,15 +288,30 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
   <div id="app-screen" style="display:none; width: 100%; height: 100%;">
 
-    <div class="mobile-header">
+    <div class="mobile-header" id="normal-header">
       <div class="header-left"></div>
       <div class="header-center">
         <img src="RHN LOGO.jpg" class="header-logo" onerror="this.onerror=null;this.src=window.RHN_FALLBACK_LOGO;">
         <div class="header-title">RHN GALLERY</div>
       </div>
       <div class="header-right" id="header-gallery-stats">
+        <button class="download-all-btn" id="btn-select-mode" title="Pilih beberapa foto" onclick="enterSelectMode()">☑️</button>
         <button class="download-all-btn" id="btn-download-all" title="Unduh semua foto ke galeri HP" onclick="konfirmasiAksi('Unduh semua foto langsung ke galeri HP kamu?', downloadAllPhotos)">⬇️</button>
         <span class="photo-count-badge" id="photo-count-badge">0 foto</span>
+      </div>
+    </div>
+
+    <div class="mobile-header" id="selection-header">
+      <div class="header-left">
+        <button class="sel-cancel-btn" onclick="exitSelectMode()">Batal</button>
+      </div>
+      <div class="header-center">
+        <span class="sel-count-text" id="sel-count-text">0 dipilih</span>
+      </div>
+      <div class="header-right show">
+        <button class="sel-icon-btn" id="btn-select-all" title="Pilih semua" onclick="toggleSelectAll()">☑️</button>
+        <button class="sel-icon-btn" id="btn-sel-download" title="Unduh terpilih" onclick="handleBulkDownload()">⬇️</button>
+        <button class="sel-icon-btn danger" id="btn-sel-delete" title="Hapus terpilih" onclick="handleBulkDelete()">🗑️</button>
       </div>
     </div>
 
@@ -287,6 +335,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <div id="page-pengaturan" class="page">
         <div class="page-main-title">Setelan</div>
         <div class="card-form">
+          <button class="menu-btn" style="margin-bottom:10px;" onclick="enterSelectMode()">☑️ Pilih Beberapa Foto</button>
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">🔐 Ganti PIN</button>
           <button class="menu-btn danger" style="margin-bottom:10px;" onclick="mintaHapusSemuaFoto()">🧹 Hapus Semua Foto</button>
           <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)">🚪 Keluar Akun</button>
@@ -317,8 +366,14 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       </button>
       <div class="viewer-title" id="viewer-title-text"></div>
     </div>
-    <div class="viewer-content">
+    <div class="viewer-content" id="viewer-content">
+      <button class="viewer-nav-btn viewer-nav-prev" id="viewer-btn-prev" onclick="viewerNavigate(-1)" aria-label="Foto sebelumnya">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
       <img id="viewer-img" src="" onclick="toggleZoom(event)" onload="this.classList.add('loaded')">
+      <button class="viewer-nav-btn viewer-nav-next" id="viewer-btn-next" onclick="viewerNavigate(1)" aria-label="Foto berikutnya">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
     <div class="viewer-footer">
       <button class="viewer-action-btn" onclick="aksiUnduh()">
@@ -331,6 +386,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       </button>
     </div>
   </div>
+
+  <div class="mini-toast" id="mini-toast"></div>
 
 </div>
 
@@ -377,6 +434,13 @@ let authMode = 'login';
 let selectedFiles = [];
 let isBusy = false; // guard biar tombol tidak bisa dipencet berkali-kali saat proses jalan
 
+// --- STATE MODE SELEKSI (pilih beberapa foto sekaligus) ---
+let selectMode = false;
+let selectedIds = new Set();
+let pressTimer = null;
+let longPressFired = false;
+let toastTimer = null;
+
 // ANIMASI SPLASH SCREEN
 window.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
@@ -411,7 +475,17 @@ window.konfirmasiAksi = function(pesan, callback) {
   });
 };
 
+// TOAST KECIL (mis. konfirmasi masuk mode pilih)
+window.showMiniToast = function(msg, duration = 1600) {
+  const toast = document.getElementById('mini-toast');
+  clearTimeout(toastTimer);
+  toast.textContent = msg;
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+};
+
 window.switchPage = function(p) {
+  if (selectMode) exitSelectMode();
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('page-' + p).classList.add('active');
@@ -505,6 +579,7 @@ window.doAuth = async function() {
 });
 
 window.doLogout = async function() {
+  if (selectMode) exitSelectMode();
   // Fade-out layar yang sedang aktif dulu, baru signOut, supaya tidak ada
   // dua animasi (fade-out manual + fade-in dari onAuthStateChanged) yang
   // tabrakan dan terasa "ngedet"/patah-patah.
@@ -565,6 +640,8 @@ onAuthStateChanged(auth, async user => {
   } else {
     currentUser = null;
     photos = [];
+    selectMode = false;
+    selectedIds.clear();
     // Kedua layar ini sudah disembunyikan lebih dulu di doLogout(), jadi baris
     // berikut aman sebagai jaga-jaga (misalnya saat sesi habis sendiri).
     document.getElementById('app-screen').style.display = 'none';
@@ -642,6 +719,18 @@ function listenPhotos() {
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
     photos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Kalau sedang mode seleksi, buang id yang sudah tidak ada lagi
+    // (misalnya terhapus dari sesi/perangkat lain).
+    if (selectMode) {
+      let changed = false;
+      selectedIds.forEach(id => {
+        if (!photos.find(p => p.id === id)) { selectedIds.delete(id); changed = true; }
+      });
+      if (selectedIds.size === 0) { exitSelectMode(); return; }
+      if (changed) updateSelectionUI();
+    }
+
     renderGallery();
   }, (err) => {
     console.error(err);
@@ -758,6 +847,100 @@ function hitungTotalUkuranMB() {
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
+/* ==========================================================================
+   MODE SELEKSI (PILIH BEBERAPA FOTO SEKALIGUS)
+   Cara masuk: tekan ikon ☑️ di header/setelan, atau tahan-lama (long-press)
+   salah satu foto di grid. Setelah masuk mode ini, tap foto tinggal
+   centang/lepas centang, lalu unduh atau hapus semuanya sekaligus.
+   ========================================================================== */
+window.startPress = function(id) {
+  longPressFired = false;
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => {
+    longPressFired = true;
+    if (navigator.vibrate) navigator.vibrate(18);
+    if (!selectMode) showMiniToast('Mode pilih aktif — tap foto lain untuk menambah');
+    enterSelectMode(id);
+  }, 450);
+};
+
+window.cancelPress = function() {
+  clearTimeout(pressTimer);
+};
+
+window.handleCardClick = function(id) {
+  // Kalau klik ini adalah hasil dari long-press yang baru saja memicu mode
+  // seleksi, abaikan supaya viewer tidak ikut kebuka / foto tidak tercentang dobel.
+  if (longPressFired) { longPressFired = false; return; }
+
+  if (selectMode) {
+    toggleSelect(id);
+  } else {
+    bukaViewer(id);
+  }
+};
+
+window.enterSelectMode = function(initialId) {
+  if (!photos.length) return;
+  selectMode = true;
+  if (!selectedIds.size) selectedIds.clear();
+  if (initialId) selectedIds.add(initialId);
+
+  document.getElementById('normal-header').style.display = 'none';
+  const bar = document.getElementById('selection-header');
+  bar.style.display = 'grid';
+  bar.classList.add('fade-in');
+  setTimeout(() => bar.classList.remove('fade-in'), 350);
+
+  if (!document.getElementById('page-galeri').classList.contains('active')) {
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('page-galeri').classList.add('active');
+    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  }
+
+  renderGallery();
+  updateSelectionUI();
+};
+
+window.exitSelectMode = function() {
+  selectMode = false;
+  selectedIds.clear();
+  document.getElementById('selection-header').style.display = 'none';
+  document.getElementById('normal-header').style.display = 'grid';
+  document.getElementById('header-gallery-stats').classList.toggle('show', photos.length > 0);
+  renderGallery();
+};
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+  if (selectedIds.size === 0) { exitSelectMode(); return; }
+  renderGallery();
+  updateSelectionUI();
+}
+
+window.toggleSelectAll = function() {
+  if (selectedIds.size === photos.length) {
+    selectedIds.clear();
+    if (selectedIds.size === 0) { exitSelectMode(); return; }
+  } else {
+    photos.forEach(p => selectedIds.add(p.id));
+  }
+  renderGallery();
+  updateSelectionUI();
+};
+
+function updateSelectionUI() {
+  const count = selectedIds.size;
+  document.getElementById('sel-count-text').textContent = `${count} dipilih`;
+  const allSelected = photos.length > 0 && count === photos.length;
+  const selAllBtn = document.getElementById('btn-select-all');
+  selAllBtn.textContent = allSelected ? '⬜' : '☑️';
+  selAllBtn.title = allSelected ? 'Batalkan semua' : 'Pilih semua';
+  document.getElementById('btn-sel-download').disabled = count === 0;
+  document.getElementById('btn-sel-delete').disabled = count === 0;
+}
+
 function renderGallery() {
   const container = document.getElementById('main-gallery-grid');
   const badge = document.getElementById('photo-count-badge');
@@ -766,22 +949,36 @@ function renderGallery() {
 
   if (photos.length === 0) {
     headerStats.classList.remove('show');
+    container.classList.remove('select-mode-active');
     container.innerHTML = `
       <div class="empty-state">
         <span class="emoji">🖼️</span>
         <div class="title">Belum ada foto</div>
         <div class="sub">Tap tombol Upload di bawah untuk menambahkan foto pertamamu.</div>
       </div>`;
+    if (selectMode) exitSelectMode();
     return;
   }
 
-  headerStats.classList.toggle('show', isGaleriActive);
+  headerStats.classList.toggle('show', isGaleriActive && !selectMode);
   badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
-  container.innerHTML = photos.map(p => `
-    <div class="album-card" onclick="bukaViewer('${p.id}')">
+  container.classList.toggle('select-mode-active', selectMode);
+
+  container.innerHTML = photos.map(p => {
+    const isSel = selectedIds.has(p.id);
+    return `
+    <div class="album-card ${isSel ? 'selected' : ''}"
+         onclick="handleCardClick('${p.id}')"
+         onpointerdown="startPress('${p.id}')"
+         onpointerup="cancelPress()"
+         onpointerleave="cancelPress()"
+         onpointercancel="cancelPress()">
       <img src="${p.url}" class="album-cover" loading="lazy" onload="this.classList.add('loaded')">
-    </div>
-  `).join('');
+      <div class="select-check ${isSel ? 'checked' : ''}"></div>
+    </div>`;
+  }).join('');
+
+  if (selectMode) updateSelectionUI();
 }
 
 window.changePinInApp = async function() {
@@ -807,32 +1004,23 @@ window.changePinInApp = async function() {
 };
 
 /* ==========================================================================
-   HAPUS SEMUA FOTO SEKALIGUS
-   Alur: konfirmasi dulu -> lalu wajib masukkan PIN yang benar -> baru foto
-   benar-benar dihapus. Ini sengaja dipisah 2 langkah biar tidak kepencet
-   tidak sengaja, mengingat aksinya permanen dan tidak bisa dibatalkan.
+   HAPUS FOTO — SATU SEKALIGUS (batch) SUPAYA BISA DIPAKAI UNTUK:
+   1) Hapus Semua Foto (dari Setelan)
+   2) Hapus Foto Terpilih (dari Mode Seleksi)
+   Keduanya WAJIB verifikasi PIN dulu karena aksinya permanen.
    ========================================================================== */
-window.mintaHapusSemuaFoto = function() {
-  if (!photos.length) {
-    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada foto untuk dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1600, showConfirmButton: false });
+async function eksekusiHapusBatch(ids) {
+  // Firestore membatasi maksimal 500 operasi per batch, jadi id dipecah
+  // per kelompok 500 biar tetap aman walau galerinya sangat besar.
+  const CHUNK = 500;
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const batch = writeBatch(db);
+    ids.slice(i, i + CHUNK).forEach(id => batch.delete(doc(db, 'users', currentUser.uid, 'photos', id)));
+    await batch.commit();
   }
+}
 
-  customSwal.fire({
-    title: 'Hapus Semua Foto?',
-    text: `Tindakan ini akan menghapus ${photos.length} foto secara PERMANEN dan tidak bisa dibatalkan.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#F87171',
-    cancelButtonColor: '#222228',
-    confirmButtonText: '<span style="color:#000; font-weight:800;">Ya, Lanjutkan</span>',
-    cancelButtonText: 'Batal',
-    background: 'var(--card)', color: 'var(--text)'
-  }).then((result) => {
-    if (result.isConfirmed) mintaPinHapusSemua();
-  });
-};
-
-async function mintaPinHapusSemua() {
+async function mintaPinLaluHapus(ids, judulProses) {
   const { value: pin } = await customSwal.fire({
     title: 'Masukkan PIN Untuk Konfirmasi',
     text: 'Demi keamanan, masukkan PIN 6 digit kamu untuk melanjutkan penghapusan.',
@@ -855,12 +1043,8 @@ async function mintaPinHapusSemua() {
     return;
   }
 
-  await eksekusiHapusSemuaFoto();
-}
-
-async function eksekusiHapusSemuaFoto() {
   customSwal.fire({
-    title: 'Menghapus semua foto...',
+    title: judulProses,
     text: 'Mohon jangan tutup halaman ini dulu.',
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
@@ -868,38 +1052,135 @@ async function eksekusiHapusSemuaFoto() {
   });
 
   try {
-    // Firestore membatasi maksimal 500 operasi per batch, jadi foto dipecah
-    // per kelompok 500 biar tetap aman walau galerinya sangat besar.
-    const CHUNK = 500;
-    for (let i = 0; i < photos.length; i += CHUNK) {
-      const batch = writeBatch(db);
-      const bagian = photos.slice(i, i + CHUNK);
-      bagian.forEach(p => batch.delete(doc(db, 'users', currentUser.uid, 'photos', p.id)));
-      await batch.commit();
-    }
-
-    customSwal.fire({ icon: 'success', title: 'Semua Foto Terhapus', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    await eksekusiHapusBatch(ids);
+    customSwal.fire({ icon: 'success', title: `${ids.length} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    if (selectMode) exitSelectMode();
   } catch (e) {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'Gagal Menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   }
 }
 
+window.mintaHapusSemuaFoto = function() {
+  if (!photos.length) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada foto untuk dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1600, showConfirmButton: false });
+  }
+
+  customSwal.fire({
+    title: 'Hapus Semua Foto?',
+    text: `Tindakan ini akan menghapus ${photos.length} foto secara PERMANEN dan tidak bisa dibatalkan.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#F87171',
+    cancelButtonColor: '#222228',
+    confirmButtonText: '<span style="color:#000; font-weight:800;">Ya, Lanjutkan</span>',
+    cancelButtonText: 'Batal',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then((result) => {
+    if (result.isConfirmed) mintaPinLaluHapus(photos.map(p => p.id), 'Menghapus semua foto...');
+  });
+};
+
+window.handleBulkDelete = function() {
+  if (!selectedIds.size) return;
+  const jumlah = selectedIds.size;
+  customSwal.fire({
+    title: `Hapus ${jumlah} Foto?`,
+    text: 'Tindakan ini permanen dan tidak bisa dibatalkan.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#F87171',
+    cancelButtonColor: '#222228',
+    confirmButtonText: '<span style="color:#000; font-weight:800;">Ya, Lanjutkan</span>',
+    cancelButtonText: 'Batal',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then((result) => {
+    if (result.isConfirmed) mintaPinLaluHapus(Array.from(selectedIds), `Menghapus ${jumlah} foto...`);
+  });
+};
+
 /* ==========================================================================
-   FUNGSI VIEWER (BUKA FOTO, ZOOM, UNDUH, HAPUS)
+   UNDUH FOTO — SATU FUNGSI DIPAKAI UNTUK "UNDUH SEMUA" & "UNDUH TERPILIH"
+   Catatan: sengaja TIDAK di-zip. File .zip masuk ke folder Download biasa
+   dan tidak dikenali sebagai foto, jadi tidak muncul di aplikasi Galeri HP.
+   Dengan menyimpan tiap foto sebagai file gambar terpisah (.jpg/.png),
+   HP akan langsung mengenalinya sebagai foto dan otomatis muncul di Galeri.
+   ========================================================================== */
+async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
+  if (!list.length) return;
+
+  customSwal.fire({
+    title: `Menyimpan foto 0/${list.length}...`,
+    text: 'Mohon jangan tutup halaman ini dulu.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    const usedNames = new Set();
+
+    for (let i = 0; i < list.length; i++) {
+      customSwal.update({ title: `Menyimpan foto ${i + 1}/${list.length}...` });
+
+      const p = list[i];
+      const ext = p.url.startsWith('data:image/png') ? 'png' : 'jpg';
+      let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
+
+      let finalName = `${safeName}.${ext}`;
+      let counter = 2;
+      while (usedNames.has(finalName)) {
+        finalName = `${safeName} (${counter}).${ext}`;
+        counter++;
+      }
+      usedNames.add(finalName);
+
+      const link = document.createElement('a');
+      link.href = p.url;
+      link.download = finalName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      // Jeda singkat antar unduhan supaya browser tidak memblokir unduhan beruntun
+      await new Promise(r => setTimeout(r, 350));
+    }
+
+    customSwal.fire({ icon: 'success', title: 'Foto Tersimpan', text: 'Cek aplikasi Galeri / folder Download di HP kamu.', background: 'var(--card)', color: 'var(--text)', timer: 2200, showConfirmButton: false });
+    if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: 'Coba lagi ya.', background: 'var(--card)', color: 'var(--text)' });
+  }
+}
+
+window.downloadAllPhotos = function() {
+  unduhDaftarFoto(photos, false);
+};
+
+window.handleBulkDownload = function() {
+  if (!selectedIds.size) return;
+  unduhDaftarFoto(photos.filter(p => selectedIds.has(p.id)), true);
+};
+
+/* ==========================================================================
+   FUNGSI VIEWER (BUKA FOTO, GESER ANTAR FOTO, ZOOM, UNDUH, HAPUS)
    ========================================================================== */
 window.bukaViewer = function(id) {
-  const foto = photos.find(p => p.id === id);
-  if (!foto) return;
+  const idx = photos.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  const foto = photos[idx];
 
   currentViewPhotoId = id;
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
 
-  document.getElementById('viewer-title-text').textContent = foto.title || '';
+  const posisi = photos.length > 1 ? `  ·  ${idx + 1}/${photos.length}` : '';
+  document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
   img.classList.remove('loaded', 'zoomed');
   img.src = foto.url;
   viewer.classList.add('show');
+  updateViewerNavButtons();
 };
 
 window.tutupViewer = function() {
@@ -910,6 +1191,50 @@ window.tutupViewer = function() {
     currentViewPhotoId = null;
   }, 300);
 };
+
+window.viewerNavigate = function(dir) {
+  if (photos.length < 2) return;
+  const idx = photos.findIndex(p => p.id === currentViewPhotoId);
+  if (idx === -1) return;
+  let newIdx = idx + dir;
+  if (newIdx < 0) newIdx = photos.length - 1;
+  if (newIdx >= photos.length) newIdx = 0;
+  bukaViewer(photos[newIdx].id);
+};
+
+function updateViewerNavButtons() {
+  const show = photos.length > 1;
+  document.getElementById('viewer-btn-prev').classList.toggle('hidden-nav', !show);
+  document.getElementById('viewer-btn-next').classList.toggle('hidden-nav', !show);
+}
+
+// Navigasi geser (swipe) di HP untuk pindah foto berikutnya/sebelumnya
+(function setupViewerSwipe() {
+  const content = document.getElementById('viewer-content');
+  let startX = 0, startY = 0;
+  content.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  content.addEventListener('touchend', (e) => {
+    const img = document.getElementById('viewer-img');
+    if (img.classList.contains('zoomed')) return; // jangan pindah foto saat lagi di-zoom
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+      viewerNavigate(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+})();
+
+// Navigasi keyboard (panah kiri/kanan, Esc) untuk pengguna laptop
+document.addEventListener('keydown', (e) => {
+  const viewer = document.getElementById('photo-viewer');
+  if (!viewer.classList.contains('show')) return;
+  if (e.key === 'ArrowRight') viewerNavigate(1);
+  else if (e.key === 'ArrowLeft') viewerNavigate(-1);
+  else if (e.key === 'Escape') tutupViewer();
+});
 
 window.toggleZoom = function(e) {
   const img = document.getElementById('viewer-img');
@@ -942,60 +1267,6 @@ window.aksiHapus = function() {
       customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
     }
   });
-};
-
-/* ==========================================================================
-   UNDUH SEMUA FOTO LANGSUNG SATU-SATU
-   Catatan: sengaja TIDAK di-zip. File .zip masuk ke folder Download biasa
-   dan tidak dikenali sebagai foto, jadi tidak muncul di aplikasi Galeri HP.
-   Dengan menyimpan tiap foto sebagai file gambar terpisah (.jpg/.png),
-   HP akan langsung mengenalinya sebagai foto dan otomatis muncul di Galeri.
-   ========================================================================== */
-window.downloadAllPhotos = async function() {
-  if (!photos.length) return;
-
-  customSwal.fire({
-    title: `Menyimpan foto 0/${photos.length}...`,
-    text: 'Mohon jangan tutup halaman ini dulu.',
-    allowOutsideClick: false, allowEscapeKey: false,
-    background: 'var(--card)', color: 'var(--text)',
-    didOpen: () => customSwal.showLoading()
-  });
-
-  try {
-    const usedNames = new Set();
-
-    for (let i = 0; i < photos.length; i++) {
-      customSwal.update({ title: `Menyimpan foto ${i + 1}/${photos.length}...` });
-
-      const p = photos[i];
-      const ext = p.url.startsWith('data:image/png') ? 'png' : 'jpg';
-      let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
-
-      let finalName = `${safeName}.${ext}`;
-      let counter = 2;
-      while (usedNames.has(finalName)) {
-        finalName = `${safeName} (${counter}).${ext}`;
-        counter++;
-      }
-      usedNames.add(finalName);
-
-      const link = document.createElement('a');
-      link.href = p.url;
-      link.download = finalName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      // Jeda singkat antar unduhan supaya browser tidak memblokir unduhan beruntun
-      await new Promise(r => setTimeout(r, 350));
-    }
-
-    customSwal.fire({ icon: 'success', title: 'Semua Foto Tersimpan', text: 'Cek aplikasi Galeri / folder Download di HP kamu.', background: 'var(--card)', color: 'var(--text)', timer: 2200, showConfirmButton: false });
-  } catch (e) {
-    console.error(e);
-    customSwal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: 'Coba lagi ya.', background: 'var(--card)', color: 'var(--text)' });
-  }
 };
 </script>
 </body>
