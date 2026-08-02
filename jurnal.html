@@ -283,7 +283,21 @@
       </div>
     </div>
     <div id="proHint" style="display:none; margin-top:14px; font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:1px dashed #fb923c; padding:10px 12px; border-radius:10px;">
-      ⚡ Akun Professional aktif: kolom Komisi per transaksi &amp; kartu "Total Komisi Dibayar" akan tampil di ringkasan performa. Scanner OCR juga otomatis mencoba membaca kolom Komisi dari screenshot MT5.
+      ⚡ Akun Professional aktif: Komisi setiap transaksi <strong>dihitung otomatis</strong> berdasarkan jenis instrumen &amp; lot — tidak perlu terbaca dari screenshot lagi. Atur tarif komisi per lot di bawah supaya sesuai broker kamu.
+    </div>
+    <div id="proComRates" style="display:none; margin-top:14px; border-top:1px dashed var(--line); padding-top:16px;">
+      <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:10px;">Tarif Komisi Otomatis (USD per 1.00 Lot, Round Turn)</div>
+      <div class="grid-5">
+        <div class="field"><label>Forex</label><input id="pComForex" type="number" step="0.01" value="7" onblur="window.saveProfile()"></div>
+        <div class="field"><label>Emas (XAU)</label><input id="pComGold" type="number" step="0.01" value="6" onblur="window.saveProfile()"></div>
+        <div class="field"><label>Perak (XAG)</label><input id="pComSilver" type="number" step="0.01" value="6" onblur="window.saveProfile()"></div>
+        <div class="field"><label>Kripto</label><input id="pComCrypto" type="number" step="0.01" value="0" onblur="window.saveProfile()"></div>
+        <div class="field"><label>Index/Lainnya</label><input id="pComIndex" type="number" step="0.01" value="0" onblur="window.saveProfile()"></div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:center;">
+        <button class="btn" style="background:var(--ink); color:#fff;" onclick="window.recalcAllCommission()">🔄 HITUNG ULANG KOMISI SEMUA TRANSAKSI</button>
+        <span style="font-size:11px; color:var(--muted); font-weight:600;">Pakai ini kalau kamu baru mengubah tarif atau komisi transaksi lama masih 0.</span>
+      </div>
     </div>
   </div>
 
@@ -293,9 +307,9 @@
 
     <!-- FITUR OCR SUPER AKURAT -->
     <div class="ocr-box">
-        <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat + Auto Simpan + Baca Komisi)</label>
+        <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat + Auto Simpan + Komisi Otomatis)</label>
         <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
-        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem mendenoise &amp; mempertajam gambar dengan resolusi lebih tinggi, membaca 2 tahap (teks lengkap + verifikasi khusus digit), mengecek presisi titik desimal per instrumen, lalu ikut membaca kolom Komisi &amp; Swap bila tersedia di screenshot. Baris disimpan PERSIS sesuai urutannya di foto (dari atas ke bawah). Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem mendenoise &amp; mempertajam gambar dengan resolusi lebih tinggi, membaca 2 tahap (teks lengkap + verifikasi khusus digit) + retry otomatis kalau gagal terbaca, dan mengecek presisi titik desimal &amp; kewajaran lot per instrumen. Untuk Akun Professional, Komisi tiap baris <strong>selalu dihitung otomatis</strong> dari pair &amp; lot yang terbaca — sama sekali tidak bergantung pada kolom Komisi di screenshot, jadi tetap benar walau baris di foto tidak menampilkan kolom Komisi sama sekali. Baris disimpan PERSIS sesuai urutannya di foto (dari atas ke bawah). Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
     </div>
 
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
@@ -306,7 +320,7 @@
       </div>
       <div class="field">
         <label>Pair / Instrumen</label>
-        <input id="tPair" type="text" placeholder="Cth: XAUUSD" />
+        <input id="tPair" type="text" placeholder="Cth: XAUUSD" oninput="window.previewAutoCommission()" />
       </div>
       <div class="field">
         <label>Arah</label>
@@ -326,7 +340,7 @@
       </div>
       <div class="field">
         <label>Lot Trade</label>
-        <input id="tLot" type="number" step="0.01" placeholder="0.10" />
+        <input id="tLot" type="number" step="0.01" placeholder="0.10" oninput="window.previewAutoCommission()" />
       </div>
       <div class="field">
         <label id="lblPnl">Profit / Loss (USC)</label>
@@ -334,7 +348,7 @@
       </div>
       <div class="field">
         <label id="lblKomisi">Komisi (Opsional)</label>
-        <input id="tCommission" type="number" step="0.01" placeholder="Cth: -1.5" />
+        <input id="tCommission" type="number" step="0.01" placeholder="Cth: -1.5" oninput="window.markCommissionManual()" />
       </div>
       <div class="field" style="grid-column:1/-1">
         <label>Catatan (Opsional)</label>
@@ -354,7 +368,7 @@
   <!-- PERLU DICEK MANUAL (hasil OCR yang datanya belum lengkap) -->
   <div class="card hide-on-view" id="pendingCard" style="display:none; border-color: var(--red);">
     <h2 style="color:var(--red);">🔶 Perlu Dicek Manual (Hasil Scan OCR)</h2>
-    <p style="font-size:12px;color:var(--muted);margin:-10px 0 16px;">Baris ini terdeteksi dari screenshot tapi ada data yang kurang yakin terbaca. Lengkapi lalu klik "Simpan ke Jurnal" — tidak akan hilang sampai kamu proses (tersimpan otomatis di database, aman walau reload/tutup browser).</p>
+    <p style="font-size:12px;color:var(--muted);margin:-10px 0 16px;">Baris ini terdeteksi dari screenshot tapi ada data yang kurang yakin terbaca. Lengkapi lalu klik "Simpan ke Jurnal" — tidak akan hilang sampai kamu proses (tersimpan otomatis di database, aman walau reload/tutup browser). Kolom Komisi sudah diisi otomatis kalau Akun Professional aktif dan Pair/Lot-nya terbaca.</p>
     <div id="pendingList"></div>
   </div>
 
@@ -457,20 +471,26 @@
     const lbl = unitLabel();
     document.getElementById('lblModal').textContent = `Modal Awal (${lbl})`;
     document.getElementById('lblPnl').textContent = `Profit / Loss (${lbl})`;
-    document.getElementById('lblKomisi').textContent = `Komisi (${lbl}, Opsional)`;
+    document.getElementById('lblKomisi').textContent = isProfessional() ? `Komisi (${lbl}, Otomatis)` : `Komisi (${lbl}, Opsional)`;
     document.getElementById('lblKomisiCol').innerHTML = `Komisi (${lbl})`;
     document.getElementById('lblPairPnl').innerHTML = `P&amp;L (${lbl})`;
     const modalInput = document.getElementById('pModal');
     const pnlInput = document.getElementById('tPnl');
     const proHint = document.getElementById('proHint');
+    const proComRates = document.getElementById('proComRates');
     proHint.style.display = isProfessional() ? 'block' : 'none';
+    proComRates.style.display = isProfessional() ? 'block' : 'none';
+    const commissionInputEl = document.getElementById('tCommission');
     if(accountType === 'cent'){
       modalInput.placeholder = 'Cth: 10000';
       pnlInput.placeholder = 'Cth: 500 atau -120';
+      commissionInputEl.placeholder = isProfessional() ? 'Otomatis (kosongkan)' : 'Cth: -150';
     } else {
       modalInput.placeholder = 'Cth: 100';
       pnlInput.placeholder = 'Cth: 5 atau -1.2';
+      commissionInputEl.placeholder = isProfessional() ? 'Otomatis (kosongkan)' : 'Cth: -1.5';
     }
+    window.previewAutoCommission();
   }
 
   async function fetchLiveRate() {
@@ -495,6 +515,106 @@
       return `<div class="dual-val"><span class="val-usd ${isNeg ? 'neg' : 'pos'}">${strUsd}</span><span class="val-idr">(${strIdr})</span></div>`;
   }
   function fmtPct(n){ return (n>=0?'+':'') + n.toFixed(2) + '%'; }
+
+  // =========================================================================
+  // ===================  MODUL KOMISI OTOMATIS (PROFESSIONAL)  ============
+  // =========================================================================
+
+  function getCommissionRates(){
+      return {
+          forex: parseFloat(document.getElementById('pComForex').value) || 0,
+          gold: parseFloat(document.getElementById('pComGold').value) || 0,
+          silver: parseFloat(document.getElementById('pComSilver').value) || 0,
+          crypto: parseFloat(document.getElementById('pComCrypto').value) || 0,
+          index: parseFloat(document.getElementById('pComIndex').value) || 0
+      };
+  }
+
+  // -- Cocokkan nama pair/instrumen ke kategori komisinya. Dicek dari yang paling spesifik dulu
+  //    (logam, kripto, index) baru jatuh ke forex sebagai default, supaya "XAUUSD" tidak kebaca
+  //    forex biasa, "BTCUSD" tidak kebaca forex biasa, dst. --
+  function classifyInstrumentCategory(pair){
+      const p = String(pair || '').toUpperCase();
+      if (p.includes('XAU') || p.includes('GOLD')) return 'gold';
+      if (p.includes('XAG') || p.includes('SILVER')) return 'silver';
+      if (p.includes('BTC') || p.includes('ETH') || p.includes('XBT') || p.includes('LTC') || p.includes('XRP') || p.includes('SOL') || p.includes('DOGE')) return 'crypto';
+      if (/US30|US100|US500|NAS100|SPX500|SP500|DE30|DE40|GER30|GER40|UK100|JP225|NIKKEI|AUS200|FRA40|HK50/.test(p)) return 'index';
+      return 'forex';
+  }
+
+  // -- Hitung komisi OTOMATIS berdasarkan jenis instrumen & besar lot yang sudah tercatat, TANPA
+  //    perlu terbaca dari screenshot sama sekali. Tarif per 1.00 lot (USD, round turn) diambil dari
+  //    Pengaturan Profil, dicocokkan ke kategori instrumen pair-nya, dikalikan langsung dengan lot
+  //    transaksi tsb (jadi otomatis menyesuaikan besar-kecilnya lot), lalu dikonversi ke satuan
+  //    mentah akun (dikali 100 untuk akun Cent) supaya konsisten dengan cara P&L disimpan. Hasilnya
+  //    selalu negatif (biaya) atau 0 kalau lot/tarifnya 0. Hanya berlaku untuk akun Professional. --
+  function calcAutoCommission(pair, lot){
+      if (!isProfessional()) return 0;
+      const lotNum = parseFloat(lot) || 0;
+      if (lotNum <= 0) return 0;
+      const rates = getCommissionRates();
+      const cat = classifyInstrumentCategory(pair);
+      const rateUsd = rates[cat] !== undefined ? rates[cat] : 0;
+      if (rateUsd <= 0) return 0;
+      const raw = rateUsd * lotNum * unitDivisor();
+      return -Math.abs(raw);
+  }
+
+  // -- Cek kewajaran lot: lot MT5 lazim antara 0.01 - 100 dengan maksimal 2 digit desimal.
+  //    Ini krusial karena Komisi Akun Professional dihitung LANGSUNG dari lot yang terbaca, jadi
+  //    lot yang salah baca akan langsung membuat komisi otomatis ikut salah -> baris dengan lot
+  //    mencurigakan WAJIB ditandai supaya kamu sempat mengecek manual, bukan diam-diam terpakai. --
+  function isLotReasonable(lot){
+      const n = parseFloat(lot);
+      if (isNaN(n)) return false;
+      if (n <= 0 || n > 100) return false;
+      return true;
+  }
+
+  // -- Hitung ulang komisi SEMUA transaksi yang sudah tersimpan, memakai tarif komisi saat ini &
+  //    lot + pair masing-masing transaksi (dicocokkan otomatis). Berguna kalau tarif baru diubah,
+  //    atau ada transaksi lama yang komisinya masih 0/kurang tepat karena dulu mengandalkan
+  //    pembacaan gambar. --
+  window.recalcAllCommission = async function(){
+      if (!currentUser || activeViewUid !== currentUser.uid) return;
+      if (!isProfessional()) return Swal.fire('Info', 'Fitur ini hanya untuk Akun Professional.', 'info');
+      if (trades.length === 0) return Swal.fire('Kosong', 'Belum ada transaksi untuk dihitung.', 'info');
+      const res = await Swal.fire({ title: `Hitung Ulang Komisi ${trades.length} Transaksi?`, text: 'Nilai Komisi tiap transaksi akan ditimpa sesuai tarif & lot saat ini.', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Hitung Ulang' });
+      if (!res.isConfirmed) return;
+      Swal.fire({title:'Menghitung ulang...', didOpen:()=>Swal.showLoading()});
+      try {
+          const batch = writeBatch(db);
+          trades.forEach(t => {
+              const commission = calcAutoCommission(t.pair, t.lot);
+              batch.set(doc(db, 'users', currentUser.uid, 'jurnal_trading', t.id), { commission }, { merge: true });
+          });
+          await batch.commit();
+          Swal.fire({icon:'success', title:'Selesai!', text:'Komisi semua transaksi sudah diperbarui.', timer:1400, showConfirmButton:false});
+      } catch(e) { Swal.fire('Error', e.message, 'error'); }
+  };
+
+  // -- Preview komisi otomatis di form input manual: berjalan tiap kali Pair/Lot diketik, HANYA
+  //    kalau Akun Professional aktif dan user BELUM mengisi Komisi secara manual (lihat
+  //    markCommissionManual). Ini membuat kolom Komisi "sudah tahu duluan" nilainya tanpa perlu
+  //    dibaca dari screenshot maupun diketik manual. --
+  window.previewAutoCommission = function(){
+      const commEl = document.getElementById('tCommission');
+      if (!commEl) return;
+      if (!isProfessional()) return;
+      if (commEl.dataset.manualOverride === '1') return;
+      const pair = document.getElementById('tPair').value.trim();
+      const lot = parseFloat(document.getElementById('tLot').value) || 0;
+      if (!pair || lot <= 0) { commEl.value = ''; return; }
+      const auto = calcAutoCommission(pair, lot);
+      commEl.value = auto ? auto.toFixed(2) : '';
+  };
+
+  // -- Dipanggil saat user mengetik langsung ke kolom Komisi: tandai sebagai override manual supaya
+  //    tidak ditimpa ulang oleh previewAutoCommission ketika Pair/Lot masih diubah-ubah setelahnya. --
+  window.markCommissionManual = function(){
+      const commEl = document.getElementById('tCommission');
+      if (commEl) commEl.dataset.manualOverride = '1';
+  };
 
   // =========================================================================
   // ============  MODUL OCR SUPER AKURAT (MULTI-LAYER CHECK)  =============
@@ -677,7 +797,7 @@
 
       // Perbesar gambar (target resolusi dinaikkan lebih tinggi dari versi sebelumnya) supaya teks
       // kecil, termasuk titik desimal dan kolom Komisi/Swap, terbaca jauh lebih jelas oleh OCR
-      const scale = Math.min(6, Math.max(2, 3200 / img.width));
+      const scale = Math.min(8, Math.max(3, 3600 / img.width));
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
@@ -690,6 +810,7 @@
       // sebelum grayscale, supaya tepi karakter lebih tegas dan tidak mudah "hilang" saat threshold
       // hitam-putih diterapkan, tanpa ikut menajamkan noise-nya
       denoiseCanvas(ctx, canvas.width, canvas.height);
+      sharpenCanvas(ctx, canvas.width, canvas.height);
       sharpenCanvas(ctx, canvas.width, canvas.height);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -787,10 +908,11 @@
   // -- LAPISAN 3: PARSING TERSTRUKTUR (pasangkan baris header + baris harga). Setiap trade yang
   //    berhasil dipasangkan disimpan berurutan mengikuti urutan baris di foto (lihat groupRowsFromOcr),
   //    dan juga menyimpan STRING mentah harga (entryStr/exitStr) — bukan cuma angkanya — supaya
-  //    presisi titik desimal aslinya bisa divalidasi di lapisan berikutnya. Kolom sisi kanan
-  //    (Komisi/Swap/Profit di baris MT5 pada umumnya) SEKARANG dibaca SEMUA angkanya, bukan cuma
-  //    angka pertama: angka TERAKHIR selalu dianggap Profit (P&L), dua sebelum itu (bila ada)
-  //    dianggap Komisi & Swap sesuai urutan kolom standar laporan MT5. --
+  //    presisi titik desimal aslinya bisa divalidasi di lapisan berikutnya. Kolom kanan cukup dibaca
+  //    untuk angka Profit (P&L) saja — Komisi TIDAK PERNAH bergantung pembacaan gambar (kolom Komisi
+  //    di screenshot sering terlalu kecil/posisinya tidak konsisten antar broker sehingga sering gagal
+  //    terbaca), melainkan SELALU dihitung otomatis di modul terpisah berdasarkan pair & lot yang sudah
+  //    terbaca dengan andal — baik kolom Komisi ada di foto ATAUPUN TIDAK ADA sama sekali. --
   function parseMt5Rows(ocrData){
       const grouped = groupRowsFromOcr(ocrData);
       const rows = grouped.map(r => ({ y: r.y, ...splitColumns(r.words) }));
@@ -816,35 +938,18 @@
           if (pending) {
               const rawMatches = left.match(priceRe) || [];
               const nums = rawMatches.map(s => parseFloat(s.replace(/\s/g, '')));
-              const rightRawMatches = right.match(priceRe) || [];
-              const rightNums = rightRawMatches.map(s => parseFloat(s.replace(/\s/g, '')));
-
-              if (nums.length >= 2 && rightNums.length >= 1) {
+              const pnlMatch = right.match(/-?\d[\d\s]*\.\d+/);
+              if (nums.length >= 2 && pnlMatch) {
                   pending.entry = nums[0]; pending.entryStr = rawMatches[0].replace(/\s/g, '');
                   pending.exit = nums[1]; pending.exitStr = rawMatches[1].replace(/\s/g, '');
-                  pending.pnl = rightNums[rightNums.length - 1];
-                  if (rightNums.length >= 3) {
-                      // Urutan standar laporan MT5: ... Komisi | Swap | Profit
-                      pending.commission = rightNums[rightNums.length - 3];
-                      pending.swap = rightNums[rightNums.length - 2];
-                  } else if (rightNums.length === 2) {
-                      // Hanya 2 angka: paling umum Swap + Profit (Komisi kosong/0 tidak selalu tercetak)
-                      pending.swap = rightNums[0];
-                  }
+                  pending.pnl = parseFloat(pnlMatch[0].replace(/\s/g, ''));
                   pending.priceRowY = rows[i].y;
                   trades.push(pending);
                   pending = null;
               } else if (nums.length >= 3) {
                   pending.entry = nums[0]; pending.entryStr = rawMatches[0].replace(/\s/g, '');
                   pending.exit = nums[1]; pending.exitStr = rawMatches[1].replace(/\s/g, '');
-                  const restNums = nums.slice(2);
-                  pending.pnl = restNums[restNums.length - 1];
-                  if (restNums.length >= 3) {
-                      pending.commission = restNums[restNums.length - 3];
-                      pending.swap = restNums[restNums.length - 2];
-                  } else if (restNums.length === 2) {
-                      pending.swap = restNums[0];
-                  }
+                  pending.pnl = nums[nums.length - 1];
                   pending.priceRowY = rows[i].y;
                   trades.push(pending);
                   pending = null;
@@ -905,16 +1010,6 @@
               t.exit = dExit; t.exitStr = dExitStr;
               t.refinedByDigitPass = true;
           }
-
-          // Verifikasi tambahan khusus Komisi: kalau versi digit-only di baris yang sama menemukan
-          // lebih banyak angka desimal dibanding versi teks-lengkap (mis. Komisi kecil seperti "-0.50"
-          // terlewat karena mirip huruf), pakai jumlah angka dari versi digit-only untuk melengkapi
-          // Komisi/Swap yang mungkin belum terbaca di pass pertama.
-          if (nums.length >= 3 && (t.commission === undefined)) {
-              const rest = nums.slice(2);
-              t.commission = rest[rest.length - (rest.length >= 3 ? 3 : 2)];
-              if (rest.length >= 2) t.swap = rest[rest.length - 2];
-          }
       });
       return rawTrades;
   }
@@ -923,11 +1018,13 @@
   //    Alur: scan (2 tahap: teks lengkap + verifikasi digit-only, di atas gambar yang sudah
   //    di-denoise + upscale resolusi lebih tinggi) -> setiap baris DIPASTIKAN berakhir di salah
   //    satu dari 2 tempat, TIDAK ADA yang hilang/dibuang diam-diam:
-  //      1) Data intinya lengkap (pair, arah, tanggal, P&L angka valid) -> LANGSUNG masuk jurnal,
-  //         termasuk Komisi/Swap kalau terbaca. Kalau ada bagian yang kurang yakin (lot tidak
-  //         kebaca / pip aneh / presisi desimal aneh), tetap disimpan tapi ditandai label "⚠ CEK".
+  //      1) Data intinya lengkap (pair, arah, tanggal, P&L angka valid) -> LANGSUNG masuk jurnal.
+  //         Komisi SELALU dihitung otomatis dari pair+lot (Akun Professional), bukan dari gambar.
+  //         Kalau ada bagian yang kurang yakin (lot tidak kebaca/mencurigakan / pip aneh / presisi
+  //         desimal aneh), tetap disimpan tapi ditandai label "⚠ CEK".
   //      2) Data intinya belum lengkap -> masuk kartu "Perlu Dicek Manual" (tersimpan di database,
-  //         tidak hilang walau reload), tinggal dilengkapi & klik simpan (termasuk kolom Komisi).
+  //         tidak hilang walau reload), tinggal dilengkapi & klik simpan (Komisi sudah diisi
+  //         otomatis kalau Pair/Lot-nya sendiri sudah terbaca).
   //    URUTAN PENYIMPANAN: baris disimpan mengikuti urutan PERSIS seperti tersusun di screenshot
   //    (dari atas ke bawah), lihat catatan di bagian batch commit di bawah.
   //    Duplikat: HANYA ditandai duplikat kalau harga entry/exit tersedia di kedua sisi DAN cocok
@@ -957,7 +1054,7 @@
           await worker.terminate();
           worker = null;
 
-          statusLabel.innerText = '🔢 Tahap 3/5: Membaca ulang khusus digit untuk verifikasi presisi titik desimal & Komisi (lebih lambat, tapi lebih akurat)...';
+          statusLabel.innerText = '🔢 Tahap 3/5: Membaca ulang khusus digit untuk verifikasi presisi titik desimal & lot (lebih lambat, tapi lebih akurat)...';
           digitWorker = await Tesseract.createWorker('eng');
           await digitWorker.setParameters({
               tessedit_pageseg_mode: '6',
@@ -969,8 +1066,27 @@
           digitWorker = null;
 
           statusLabel.innerText = '🔎 Tahap 4/5: Menyusun transaksi sesuai urutan baris di foto & mencocokkan hasil verifikasi digit...';
-          const rawTrades = parseMt5Rows(result.data);
+          let rawTrades = parseMt5Rows(result.data);
           refinePricesWithDigitPass(rawTrades, digitResult.data);
+
+          // -- Retry otomatis (lapisan akurasi tambahan): kalau tidak ada satu baris pun terdeteksi,
+          //    kemungkinan mode segmentasi halaman '6' (blok teks seragam) kurang cocok untuk layout
+          //    screenshot ini. Coba ulang sekali dengan mode '4' (kolom teks bervariasi) sebelum
+          //    benar-benar menyerah -- banyak layout MT5 (terutama versi mobile/tablet/report web)
+          //    lebih cocok dibaca dengan mode ini. --
+          if (rawTrades.length === 0) {
+              statusLabel.innerText = '🔁 Tahap 4/5: Belum terbaca, mencoba ulang dengan mode segmentasi berbeda...';
+              const retryWorker = await Tesseract.createWorker('eng');
+              await retryWorker.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1' });
+              const retryResult = await retryWorker.recognize(processedImageURL);
+              await retryWorker.terminate();
+              const retryDigitWorker = await Tesseract.createWorker('eng');
+              await retryDigitWorker.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1', tessedit_char_whitelist: '0123456789.,-' });
+              const retryDigitResult = await retryDigitWorker.recognize(processedImageURL);
+              await retryDigitWorker.terminate();
+              rawTrades = parseMt5Rows(retryResult.data);
+              refinePricesWithDigitPass(rawTrades, retryDigitResult.data);
+          }
 
           rawTrades.forEach(t => {
               if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
@@ -984,7 +1100,7 @@
               return;
           }
 
-          statusLabel.innerText = '✅ Tahap 5/5: Validasi ketat & menyimpan sesuai urutan foto...';
+          statusLabel.innerText = '✅ Tahap 5/5: Validasi ketat, menghitung komisi otomatis & menyimpan sesuai urutan foto...';
 
           const toSaveDirect = [];
           const toPending = [];
@@ -999,7 +1115,6 @@
           // dan toPending akan terisi persis mengikuti urutan kemunculan baris di screenshot.
           rawTrades.forEach(t => {
               if (t.refinedByDigitPass) refinedCount++;
-              if (t.commission !== undefined && !isNaN(t.commission)) komisiFoundCount++;
 
               const pipInfo = (t.entry !== undefined && t.exit !== undefined)
                   ? getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr)
@@ -1058,7 +1173,7 @@
                       session: t.session || autoSession(),
                       lot: t.lot || '',
                       pnl: (t.pnl === undefined || isNaN(t.pnl)) ? '' : t.pnl,
-                      commission: (t.commission !== undefined && !isNaN(t.commission)) ? t.commission : '',
+                      commission: (isProfessional() && t.pair && isLotReasonable(t.lot)) ? calcAutoCommission(t.pair, t.lot) : '',
                       note: (t.entry !== undefined && t.exit !== undefined) ? `${t.entry} -> ${t.exit}`.trim() : '',
                       reason: missingCritical.join(', ')
                   });
@@ -1066,16 +1181,23 @@
               }
 
               const flags = [];
-              if (!t.lot || t.lot <= 0) flags.push('Lot tidak terbaca, cek manual');
+              if (!isLotReasonable(t.lot)) flags.push('Lot tidak terbaca/mencurigakan (cek nilai Komisi otomatisnya juga), cek manual');
               if (pipInfo.valid === false && pipInfo.reason) flags.push(pipInfo.reason);
 
               const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.valid)
                   ? `${t.entry} -> ${t.exit} ${pipInfo.text}`.trim()
                   : (t.entry !== undefined && t.exit !== undefined ? `${t.entry} -> ${t.exit}` : (t.note || ''));
 
+              // -- Komisi TIDAK PERNAH diambil dari hasil baca gambar. Untuk Akun Professional, komisi
+              //    SELALU dihitung otomatis dari tarif per kategori instrumen (Profil) x lot transaksi
+              //    ini — berlaku persis sama walau baris di screenshot TIDAK menampilkan kolom Komisi
+              //    sama sekali. Untuk Cent/Standard, default 0 (isi manual lewat tombol Edit jika perlu). --
+              const autoCommission = isProfessional() ? calcAutoCommission(t.pair, t.lot || 0) : 0;
+              if (autoCommission < 0) komisiFoundCount++;
+
               toSaveDirect.push({
                   date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl,
-                  commission: (t.commission !== undefined && !isNaN(t.commission)) ? t.commission : 0,
+                  commission: autoCommission,
                   note, flag: flags.join(', ')
               });
           });
@@ -1115,7 +1237,7 @@
           if (dupCount > 0) summary += `, ${dupCount} duplikat dilewati`;
           if (correctedDupCount > 0) summary += `, ${correctedDupCount} duplikat mirip dikoreksi otomatis`;
           if (refinedCount > 0) summary += `, ${refinedCount} harga dikoreksi lewat verifikasi digit-only`;
-          if (komisiFoundCount > 0) summary += `, ${komisiFoundCount} kolom Komisi terbaca`;
+          if (komisiFoundCount > 0) summary += `, ${komisiFoundCount} komisi dihitung otomatis`;
           summary += '.';
 
           statusLabel.innerText = summary;
@@ -1133,7 +1255,7 @@
                            ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
                            ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — dicek konsistensi digitnya, dan catatan transaksi lama <strong>langsung dikoreksi</strong> ke harga hasil pembacaan ulang (tidak ditambahkan sebagai baris baru).</div>` : ''}
                            ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit + cek presisi titik desimal (lebih presisi).</div>` : ''}
-                           ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} baris berhasil terbaca kolom Komisinya dari screenshot.</div>` : ''}
+                           ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} baris komisinya dihitung OTOMATIS dari tarif per instrumen x lot (Akun Professional) — tidak bergantung sama sekali pada kolom Komisi di screenshot.</div>` : ''}
                          </div>`
               });
           }
@@ -1167,7 +1289,10 @@
       const dir = dirEl.value;
       const lot = parseFloat(lotEl.value) || 0;
       const pnl = parseFloat(pnlEl.value);
-      const commission = parseFloat(komisiEl.value) || 0;
+      // Kalau kolom Komisi dikosongkan dan Akun Professional aktif, hitung otomatis dari pair & lot
+      // yang sudah dilengkapi di form ini -- bukan cuma dari hasil scan gambar.
+      let commission = parseFloat(komisiEl.value);
+      if (isNaN(commission)) commission = isProfessional() ? calcAutoCommission(pair, lot) : 0;
       const note = noteEl.value.trim();
 
       if (!date || !pair || isNaN(pnl)) {
@@ -1206,13 +1331,13 @@
           <div style="font-size:11px; font-weight:800; color:var(--red); margin-bottom:10px;">⚠ ${escapeHtml(p.reason || 'Data tidak lengkap')}</div>
           <div class="grid-5">
             <div class="field"><label>Tanggal</label><input type="date" id="pend_${p.id}_date" value="${p.date||''}"></div>
-            <div class="field"><label>Pair</label><input type="text" id="pend_${p.id}_pair" value="${escapeHtml(p.pair||'')}" style="text-transform:uppercase"></div>
+            <div class="field"><label>Pair</label><input type="text" id="pend_${p.id}_pair" value="${escapeHtml(p.pair||'')}" style="text-transform:uppercase" oninput="window.previewPendingCommission('${p.id}')"></div>
             <div class="field"><label>Arah</label><select id="pend_${p.id}_dir"><option value="Buy" ${p.dir==='Buy'?'selected':''}>Buy</option><option value="Sell" ${p.dir==='Sell'?'selected':''}>Sell</option></select></div>
-            <div class="field"><label>Lot</label><input type="number" step="0.01" id="pend_${p.id}_lot" value="${p.lot||''}"></div>
+            <div class="field"><label>Lot</label><input type="number" step="0.01" id="pend_${p.id}_lot" value="${p.lot||''}" oninput="window.previewPendingCommission('${p.id}')"></div>
             <div class="field"><label>P&amp;L</label><input type="number" step="1" id="pend_${p.id}_pnl" value="${p.pnl||''}"></div>
           </div>
           <div class="grid-2" style="margin-top:10px;">
-            <div class="field"><label>Komisi (Opsional)</label><input type="number" step="0.01" id="pend_${p.id}_komisi" value="${p.commission!==undefined && p.commission!=='' ? p.commission : ''}"></div>
+            <div class="field"><label>Komisi (Opsional, Otomatis kalau Professional)</label><input type="number" step="0.01" id="pend_${p.id}_komisi" value="${p.commission!==undefined && p.commission!=='' ? p.commission : ''}"></div>
             <div class="field"><label>Catatan</label><input type="text" id="pend_${p.id}_note" value="${escapeHtml(p.note||'')}"></div>
           </div>
           <div style="display:flex; gap:10px; margin-top:12px;">
@@ -1222,6 +1347,21 @@
         </div>
       `).join('');
   }
+
+  // -- Preview komisi otomatis khusus untuk baris di kartu "Perlu Dicek Manual", dipanggil tiap
+  //    Pair/Lot di baris tsb diketik ulang, supaya nilainya langsung menyesuaikan sebelum disimpan. --
+  window.previewPendingCommission = function(id){
+      if (!isProfessional()) return;
+      const pairEl = document.getElementById(`pend_${id}_pair`);
+      const lotEl = document.getElementById(`pend_${id}_lot`);
+      const komisiEl = document.getElementById(`pend_${id}_komisi`);
+      if (!pairEl || !lotEl || !komisiEl) return;
+      const pair = pairEl.value.trim();
+      const lot = parseFloat(lotEl.value) || 0;
+      if (!pair || lot <= 0) return;
+      const auto = calcAutoCommission(pair, lot);
+      komisiEl.value = auto ? auto.toFixed(2) : '';
+  };
   // =========================================================================
   // ========================  AKHIR MODUL OCR  =============================
   // =========================================================================
@@ -1377,7 +1517,11 @@
     const session = document.getElementById('tSession').value;
     const lot = parseFloat(document.getElementById('tLot').value) || 0;
     const pnl = parseFloat(document.getElementById('tPnl').value);
-    const commission = parseFloat(document.getElementById('tCommission').value) || 0;
+    // Kalau kolom Komisi dikosongkan dan Akun Professional aktif, hitung otomatis dari pair & lot
+    // yang sudah diisi -- Claude/sistem "sudah tahu" tarifnya dari Profil, tanpa perlu dibaca dari
+    // screenshot maupun diketik manual.
+    let commission = parseFloat(document.getElementById('tCommission').value);
+    if (isNaN(commission)) commission = isProfessional() ? calcAutoCommission(pair, lot) : 0;
     const note = document.getElementById('tNote').value.trim();
 
     if(!date || !pair || isNaN(pnl)){
@@ -1397,6 +1541,7 @@
             await addDoc(collection(db, 'users', currentUser.uid, 'jurnal_trading'), { date, pair, dir, session, lot, pnl, commission, note, createdAt: serverTimestamp() });
             document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
             document.getElementById('tPnl').value=''; document.getElementById('tCommission').value=''; document.getElementById('tNote').value='';
+            document.getElementById('tCommission').dataset.manualOverride = '';
             Swal.fire({icon:'success', title:'Tersimpan!', timer: 800, showConfirmButton:false});
         }
     } catch(err) { Swal.fire({icon:'error', title:'Error', text: err.message});
@@ -1414,7 +1559,9 @@
     document.getElementById('tSession').value = t.session;
     document.getElementById('tLot').value = t.lot || '';
     document.getElementById('tPnl').value = t.pnl;
-    document.getElementById('tCommission').value = t.commission || '';
+    const commEl = document.getElementById('tCommission');
+    commEl.value = t.commission || '';
+    commEl.dataset.manualOverride = '1'; // jangan ditimpa auto-preview selagi mengedit nilai tersimpan
     document.getElementById('tNote').value = t.note || '';
 
     document.getElementById('editModeBanner').classList.add('active');
@@ -1428,6 +1575,7 @@
     document.getElementById('tDate').valueAsDate = new Date();
     document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
     document.getElementById('tPnl').value=''; document.getElementById('tCommission').value=''; document.getElementById('tNote').value='';
+    document.getElementById('tCommission').dataset.manualOverride = '';
     document.getElementById('tDir').value = 'Buy';
     document.getElementById('tSession').value = 'Asia';
 
