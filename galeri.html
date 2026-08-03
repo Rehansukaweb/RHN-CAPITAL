@@ -11,8 +11,6 @@
 <style>
 /* ==========================================================================
    TEMA UI RESPONSIVE (HP & LAPTOP) - FULL GALLERY MODE
-   VERSI OPTIMASI: rendering diffing + content-visibility supaya scroll,
-   upload, dan hapus massal tetap mulus walau ribuan foto.
    ========================================================================== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Outfit', sans-serif; user-select: none; }
 input, textarea { user-select: text; }
@@ -125,9 +123,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .sel-icon-btn.danger { color: var(--red); }
 .sel-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* GRID FOTO — dioptimasi dengan content-visibility supaya kartu yang belum
-   terlihat di layar TIDAK dirender/dilayout/dilukis oleh browser. Ini kunci
-   utama biar scroll tetap mulus walau ada ribuan foto sekaligus. */
 .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 4px 20px; }
 @media (min-width: 480px) { .album-grid { grid-template-columns: repeat(4, 1fr); } }
 .album-card {
@@ -361,7 +356,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="page-main-title">Upload Media</div>
         <div class="card-form">
           <input type="file" id="f-img-file" class="f-input-dark" accept="image/*,video/*" multiple style="padding: 12px; background: rgba(255,255,255,0.05) !important;">
-          <div class="upload-hint">Bisa pilih ratusan foto & video sekaligus. Upload berjalan paralel, dan Cloudinary otomatis mengoptimalkan ukuran file (format & kualitas otomatis) tanpa mengurangi kualitas tampilan.</div>
+          <div class="upload-hint">Upload otomatis mengkompres setiap gambar secara cerdas hingga ukuran ≤ 200KB sebelum dikirim ke server. Foto tetap tajam.</div>
           <div id="file-preview-list"></div>
           <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
           <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan media ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
@@ -372,7 +367,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="page-main-title">Setelan</div>
         <div class="card-form">
           <button class="menu-btn" style="margin-bottom:10px;" onclick="enterSelectMode()">☑️ Pilih Beberapa Media</button>
-          <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (Cloudinary, lebih hemat & cepat)? Proses berjalan di latar belakang, foto tetap bisa dipakai selama proses berlangsung.', migrateLegacyPhotos)">🔄 Migrasikan Foto Lama</button>
+          <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (Cloudinary, lebih hemat & cepat)?', migrateLegacyPhotos)">🔄 Migrasikan Foto Lama</button>
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">🔐 Ganti PIN</button>
           <button class="menu-btn danger" style="margin-bottom:10px;" onclick="mintaHapusSemuaFoto()">🧹 Hapus Semua Media</button>
           <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)">🚪 Keluar Akun</button>
@@ -447,22 +442,8 @@ const firebaseConfig = {
   appId: "1:74905216682:web:4687a5b0bd7bcac09292d3"
 };
 
-/* ==========================================================================
-   KONFIGURASI CLOUDINARY (menggantikan Firebase Storage)
-   ------------------------------------------------------------------------
-   PENTING - KEAMANAN:
-   API Secret Cloudinary TIDAK boleh ditaruh di sini (kode ini jalan di
-   browser & bisa dibaca siapa saja lewat "View Page Source"). Karena itu
-   upload memakai "Unsigned Upload Preset" yang cuma butuh cloud_name +
-   nama preset, tanpa API Key/Secret sama sekali.
-
-   Cara bikin presetnya (sekali saja, di console.cloudinary.com):
-   Settings -> Upload -> Upload presets -> Add upload preset
-   -> Signing Mode: Unsigned -> beri nama, misal "rhn_unsigned" -> Save
-   Lalu isi nama preset itu di CLOUDINARY_UPLOAD_PRESET di bawah ini.
-   ========================================================================== */
 const CLOUDINARY_CLOUD_NAME = "cishyrxo";
-const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned"; // <-- ganti sesuai nama preset unsigned kamu
+const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned"; 
 
 function cldThumbUrl(p) {
   if (p.resourceType === 'video') {
@@ -498,24 +479,9 @@ try {
   db = initializeFirestore(app, {});
 }
 
-/* ==========================================================================
-   ARSITEKTUR PENYIMPANAN (PENTING)
-   ------------------------------------------------------------------------
-   Auth & metadata (judul, ukuran, waktu, PIN) tetap di Firebase Auth +
-   Firestore seperti sebelumnya. Yang berubah cuma file foto/video: dulu
-   disimpan di Firebase Storage sebagai 2 file per foto (thumbnail + full),
-   sekarang disimpan di CLOUDINARY sebagai 1 file ASLI per foto/video.
-
-   Versi thumbnail & versi tampil-penuh dibuat OTOMATIS oleh Cloudinary
-   lewat URL transformasi (q_auto = kualitas dioptimalkan otomatis tanpa
-   terlihat turun, f_auto = format terbaik untuk browser pengguna seperti
-   WebP/AVIF). Hasilnya: cuma 1 file tersimpan, ukuran terkirim ke layar HP
-   jauh lebih kecil, tapi kualitas visual tetap terjaga.
-   ========================================================================== */
-
 let currentUser = null;
-let photos = [];                 // metadata foto (dari Firestore), urut createdAt desc
-let photoNodes = new Map();      // id -> elemen DOM kartu (dipakai untuk diffing render)
+let photos = [];
+let photoNodes = new Map();
 let currentViewPhotoId = null;
 let authMode = 'login';
 let selectedFiles = [];
@@ -527,10 +493,6 @@ let pressTimer = null;
 let longPressFired = false;
 let toastTimer = null;
 
-/* --------------------------------------------------------------------
-   UTIL: jalankan banyak tugas async dengan batas paralelisme tertentu.
-   Ini kunci kecepatan upload/hapus massal tanpa membanjiri koneksi.
-   -------------------------------------------------------------------- */
 async function runWithConcurrency(items, limit, worker) {
   let idx = 0;
   const results = new Array(items.length);
@@ -549,13 +511,6 @@ async function runWithConcurrency(items, limit, worker) {
   return results;
 }
 
-/* --------------------------------------------------------------------
-   UTIL: tulis/hapus banyak dokumen Firestore sekaligus lewat writeBatch,
-   bukan satu-satu. 1 batch bisa memuat sampai ~450-500 operasi dalam
-   SATU kali kirim ke server — ini kunci kecepatan saat upload atau hapus
-   ratusan/ribuan foto sekaligus terasa instan, karena jumlah round-trip
-   ke server jadi jauh lebih sedikit dibanding kirim satu request per foto.
-   -------------------------------------------------------------------- */
 const BATCH_CHUNK_SIZE = 450;
 
 async function commitSetBatches(items, onProgress) {
@@ -582,7 +537,6 @@ async function commitDeleteBatches(refs, onProgress) {
   }
 }
 
-// ANIMASI SPLASH SCREEN
 window.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     const splash = document.getElementById('splash-screen');
@@ -865,9 +819,6 @@ function listenPhotos() {
   });
 }
 
-/* ==========================================================================
-   PILIH & PRATINJAU FOTO/VIDEO SEBELUM UPLOAD
-   ========================================================================== */
 document.getElementById('f-img-file').addEventListener('change', function() {
   selectedFiles = Array.from(this.files);
   renderFilePreview();
@@ -897,26 +848,63 @@ window.removeSelectedFile = function(i) {
   renderFilePreview();
 };
 
-/* Kompres foto ke Blob JPEG sebelum diupload — tujuannya cuma memangkas
-   ukuran foto raksasa dari kamera HP (mis. 12MP+) supaya upload lebih
-   cepat & hemat kuota. Optimasi ukuran-vs-kualitas yang sesungguhnya
-   dilakukan Cloudinary sendiri lewat q_auto/f_auto saat foto ditampilkan. */
-function compressToBlob(file, maxDim, quality) {
+/* ==========================================================================
+   ALGORITMA KOMPRESI ITERATIF (STRICT <= 200KB)
+   Script ini akan mencoba menurunkan kualitas dan resolusi secara otomatis
+   sampai file hasil akhir benar-benar berada di bawah 200KB (204.800 byte)
+   tanpa harus mengorbankan kualitas secara buta dari awal.
+   ========================================================================== */
+function compressToBlob(file, initialMaxDim) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        let { width, height } = img;
+        let maxDim = initialMaxDim;
+        let quality = 0.85; // Mulai dari kualitas optimal
+        let width = img.width;
+        let height = img.height;
+
+        // Penyesuaian resolusi awal jika melebihi maxDim
         if (width > maxDim || height > maxDim) {
           if (width > height) { height = Math.round(height * (maxDim / width)); width = maxDim; }
           else { width = Math.round(width * (maxDim / height)); height = maxDim; }
         }
+
         const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Gagal mengompres gambar')), 'image/jpeg', quality);
+        const TARGET_SIZE_BYTES = 200 * 1024; // 200KB maksimum
+        
+        // Fungsi kompresi berulang (recursive/iterative compression)
+        const attemptCompression = (currentWidth, currentHeight, currentQuality) => {
+          canvas.width = currentWidth;
+          canvas.height = currentHeight;
+          ctx.drawImage(img, 0, 0, currentWidth, currentHeight);
+          
+          canvas.toBlob(blob => {
+            if (!blob) return reject(new Error('Gagal mengompres gambar'));
+            
+            // Cek apakah blob melebihi 200KB
+            if (blob.size > TARGET_SIZE_BYTES) {
+              if (currentQuality > 0.4) {
+                // Step 1: Jika kualitas masih di atas 40%, turunkan kualitasnya 10%
+                attemptCompression(currentWidth, currentHeight, currentQuality - 0.1);
+              } else {
+                // Step 2: Jika kualitas sudah rendah tapi masih > 200KB,
+                // saatnya menurunkan resolusi/dimensi 20% dan kembalikan kualitas ke 60%
+                const newW = Math.round(currentWidth * 0.8);
+                const newH = Math.round(currentHeight * 0.8);
+                attemptCompression(newW, newH, 0.6);
+              }
+            } else {
+              // Jika berhasil mencapai <= 200KB, kirim file ini
+              resolve(blob);
+            }
+          }, 'image/jpeg', currentQuality);
+        };
+
+        // Mulai percobaan pertama
+        attemptCompression(width, height, quality);
       };
       img.onerror = () => reject(new Error('Gagal membaca gambar'));
       img.src = e.target.result;
@@ -931,13 +919,6 @@ function uid4() {
   return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
 }
 
-/* --------------------------------------------------------------------
-   UPLOAD KE CLOUDINARY (unsigned) — dipakai untuk upload baru & migrasi.
-   Hanya 1 file yang dikirim & disimpan per foto/video; thumbnail dan
-   versi tampil-penuh dibuat lewat URL transformasi (lihat cldThumbUrl /
-   cldFullUrl di atas), bukan file terpisah. Ini yang membuat penyimpanan
-   jauh lebih hemat dibanding upload 2 file per foto seperti sebelumnya.
-   -------------------------------------------------------------------- */
 async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   const form = new FormData();
   form.append('file', fileOrBlob, filenameHint);
@@ -957,13 +938,10 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   return { publicId: data.public_id, resourceType, format: data.format, size: data.bytes };
 }
 
-/* Upload 1 file ke Cloudinary & kembalikan metadata-nya saja (TIDAK
-   langsung setDoc satu-satu). Penyimpanan ke Firestore digabung lewat
-   commitSetBatches() supaya ratusan foto bisa tersimpan dalam beberapa
-   kali kirim saja, bukan ratusan kali kirim satu-satu. */
 async function uploadSinglePhoto(file, customTitle, index, total) {
   const isVideo = file.type.startsWith('video/');
-  const toUpload = isVideo ? file : await compressToBlob(file, 2400, 0.92);
+  // Proses ini sekarang dijamin mengembalikan blob maksimal 200KB
+  const toUpload = isVideo ? file : await compressToBlob(file, 1600);
 
   const meta = await uploadToCloudinary(toUpload, file.name, isVideo);
   const title = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
@@ -975,18 +953,12 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
   };
 }
 
-/* ==========================================================================
-   MIGRASI FOTO LAMA (base64 Firestore ATAU Firebase Storage) -> Cloudinary
-   Dipakai untuk foto-foto yang diupload sebelum berpindah ke Cloudinary,
-   yang belum punya field `publicId`. File lama diambil dari URL-nya,
-   diupload ulang ke Cloudinary, lalu field lama dibersihkan dari Firestore.
-   ========================================================================== */
 async function migrateLegacyPhoto(p) {
   const sourceUrl = p.fullURL || p.thumbURL || p.url;
   const resp = await fetch(sourceUrl);
   const originalBlob = await resp.blob();
   const asFile = new File([originalBlob], 'legacy.jpg', { type: originalBlob.type || 'image/jpeg' });
-  const compressed = await compressToBlob(asFile, 2400, 0.92);
+  const compressed = await compressToBlob(asFile, 1600);
 
   const meta = await uploadToCloudinary(compressed, 'legacy.jpg', false);
 
@@ -1066,9 +1038,6 @@ window.tambahFotoBaru = async function() {
   });
 
   try {
-    // Upload ke Cloudinary paralel (maksimal 100 sekaligus). Metadata TIDAK
-    // langsung ditulis satu-satu ke Firestore di sini — dikumpulkan dulu
-    // lalu dikirim sekaligus lewat batch setelah semua upload selesai.
     await runWithConcurrency(filesSnapshot, 100, async (file, i) => {
       try {
         const result = await uploadSinglePhoto(file, customTitle, i, total);
@@ -1111,18 +1080,13 @@ window.tambahFotoBaru = async function() {
 
 function hitungTotalUkuranMB() {
   const totalBytes = photos.reduce((sum, p) => {
-    if (p.size) return sum + p.size;               // foto baru (Cloudinary): ukuran asli
-    if (p.url) return sum + (p.url.length * 0.75);  // foto lama (base64): estimasi ukuran
+    if (p.size) return sum + p.size;               
+    if (p.url) return sum + (p.url.length * 0.75);  
     return sum;
   }, 0);
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
-/* ==========================================================================
-   MODE SELEKSI (PILIH BEBERAPA FOTO SEKALIGUS)
-   Masuk/keluar mode ini TIDAK lagi membangun ulang seluruh grid — hanya
-   toggle class di container, jadi instan walau ada ribuan foto.
-   ========================================================================== */
 window.startPress = function(id) {
   longPressFired = false;
   clearTimeout(pressTimer);
@@ -1221,13 +1185,6 @@ function updateSelectionUI() {
   document.getElementById('btn-sel-delete').disabled = count === 0;
 }
 
-/* --------------------------------------------------------------------
-   RENDER GALERI DENGAN DIFFING (bukan innerHTML penuh setiap kali)
-   Hanya kartu yang baru ditambah yang dibuat elemennya; kartu yang
-   sudah ada cukup dipindah posisi kalau urutannya berubah. Ini yang
-   menghilangkan efek "ngedet"/patah saat scroll & saat listener
-   Firestore memicu ulang render (mis. setelah hapus/upload).
-   -------------------------------------------------------------------- */
 function createCardNode(p) {
   const card = document.createElement('div');
   card.className = 'album-card';
@@ -1289,21 +1246,11 @@ function renderGallery() {
   headerStats.classList.toggle('show', isGaleriActive && !selectMode);
   badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
 
-  // Hapus node untuk foto yang sudah tidak ada lagi
   const currentIds = new Set(photos.map(p => p.id));
   for (const [id, node] of photoNodes) {
     if (!currentIds.has(id)) { node.remove(); photoNodes.delete(id); }
   }
 
-  // Tambah node baru & pastikan urutan sesuai `photos` (createdAt desc)
-  //
-  // FAST PATH: foto yang baru diupload SELALU nempel di paling depan array
-  // ini (createdAt desc). Daripada insertBefore satu-satu (tiap insert =
-  // 1x reflow terpisah, jadi berat kalau upload ratusan foto sekaligus
-  // lalu langsung pindah ke halaman Galeri), semua kartu baru yang
-  // berurutan di depan dikumpulkan dulu ke DocumentFragment lalu di-
-  // prepend SEKALI SAJA ke grid. Ini yang menghilangkan jeda/patah saat
-  // pindah dari Upload ke Galeri.
   let newLeadingCount = 0;
   while (newLeadingCount < photos.length && !photoNodes.has(photos[newLeadingCount].id)) {
     newLeadingCount++;
@@ -1321,8 +1268,6 @@ function renderGallery() {
     container.prepend(fragment);
   }
 
-  // SLOW PATH (jarang terjadi, mis. urutan berubah bukan karena upload
-  // baru): sisanya tetap pakai diffing satu-satu seperti sebelumnya.
   let prevNode = newLeadingCount > 0 ? photoNodes.get(photos[newLeadingCount - 1].id) : null;
   for (let i = newLeadingCount; i < photos.length; i++) {
     const p = photos[i];
@@ -1367,20 +1312,6 @@ window.changePinInApp = async function() {
   }
 };
 
-/* ==========================================================================
-   HAPUS FOTO — OPTIMISTIK
-   UI langsung menghilangkan foto dari grid SEBELUM proses hapus metadata
-   di server selesai, jadi terasa instan walau jumlahnya ratusan/ribuan.
-
-   CATATAN PENTING: karena upload Cloudinary di sini bersifat "unsigned"
-   (tanpa API Secret di browser demi keamanan), penghapusan file ASLI di
-   server Cloudinary butuh permintaan yang ditandatangani pakai API Secret
-   — itu HARUS dilakukan lewat backend, bukan langsung dari browser. Yang
-   dihapus di sini adalah metadata di Firestore (foto langsung hilang dari
-   galeri kamu). File-nya sendiri akan tetap ada di akun Cloudinary sampai
-   dibersihkan manual lewat Media Library, atau lewat endpoint backend kecil
-   kalau nanti kamu mau saya buatkan.
-   ========================================================================== */
 function removePhotoFromLocalUI(id) {
   const idx = photos.findIndex(p => p.id === id);
   if (idx !== -1) photos.splice(idx, 1);
@@ -1393,14 +1324,11 @@ async function eksekusiHapusBatch(ids, onProgress) {
   const idSet = new Set(ids);
   const targets = photos.filter(p => idSet.has(p.id));
 
-  // Hapus dari UI dulu (optimistik) supaya terasa instan
   targets.forEach(p => removePhotoFromLocalUI(p.id));
   const badge = document.getElementById('photo-count-badge');
   if (photos.length > 0) badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
   if (photos.length === 0) renderGallery();
 
-  // Hapus di server lewat batch (bukan satu-satu) — ratusan foto terhapus
-  // dalam beberapa kali kirim saja, jauh lebih cepat.
   const refs = targets.map(p => doc(db, 'users', currentUser.uid, 'photos', p.id));
   await commitDeleteBatches(refs, onProgress);
 }
@@ -1487,11 +1415,6 @@ window.handleBulkDelete = function() {
   });
 };
 
-/* ==========================================================================
-   UNDUH FOTO/VIDEO — file diunduh lewat blob supaya HP mengenalinya sebagai
-   file asli (bukan link) dan otomatis masuk ke aplikasi Galeri. Pengambilan
-   blob dijalankan PARALEL (maks 4) baru diklik satu-satu dengan jeda singkat.
-   ========================================================================== */
 async function siapkanBlobUnduhan(list, onProgress) {
   const hasil = new Array(list.length);
   let done = 0;
@@ -1571,9 +1494,6 @@ window.handleBulkDownload = function() {
   unduhDaftarFoto(photos.filter(p => selectedIds.has(p.id)), true);
 };
 
-/* ==========================================================================
-   FUNGSI VIEWER (BUKA FOTO/VIDEO, GESER ANTAR MEDIA, ZOOM, UNDUH, HAPUS)
-   ========================================================================== */
 window.bukaViewer = function(id) {
   const idx = photos.findIndex(p => p.id === id);
   if (idx === -1) return;
