@@ -105,7 +105,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
 .header-left { grid-column: 1; display: flex; align-items: center; }
 .header-center { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 9px; }
-.header-right { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; }
+.header-right { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.12s ease, transform 0.12s ease; }
 .header-right.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .header-logo { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; border: 1px solid var(--gold); flex-shrink: 0; }
 .header-title { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 1px; white-space: nowrap; }
@@ -196,7 +196,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .nav-item.active .icon { filter: grayscale(0); opacity: 1; transform: translateY(-2px); }
 
 .page { display: none; }
-.page.active { display: block; animation: fadeInSmooth 0.15s var(--ease-smooth) forwards; }
+.page.active { display: block; }
 
 .card-form { background: var(--card); border-radius: 20px; padding: 20px; margin: 0 20px 20px; border: 1px solid var(--border); }
 .menu-btn { width: 100%; padding: 16px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; text-align: left; display: flex; gap: 15px; align-items: center; transition: background 0.2s ease, transform 0.15s ease; touch-action: manipulation; }
@@ -721,7 +721,7 @@ window.doLogout = async function() {
   const activeScrn = appScrn.style.display !== 'none' ? appScrn : pinScrn;
 
   activeScrn.classList.add('fade-out');
-  await new Promise(r => setTimeout(r, 350));
+  await new Promise(r => setTimeout(r, 180));
   activeScrn.style.display = 'none';
   activeScrn.classList.remove('fade-out');
 
@@ -738,7 +738,7 @@ onAuthStateChanged(auth, async user => {
     const authScrn = document.getElementById('auth-screen');
     if (authScrn.style.display !== 'none') {
       authScrn.classList.add('fade-out');
-      await new Promise(r => setTimeout(r, 350));
+      await new Promise(r => setTimeout(r, 180));
       authScrn.style.display = 'none';
       authScrn.classList.remove('fade-out');
     }
@@ -789,7 +789,7 @@ onAuthStateChanged(auth, async user => {
     if (authScrn.style.display === 'none' || !authScrn.style.display) {
       authScrn.style.display = 'flex';
       authScrn.classList.add('fade-in');
-      setTimeout(() => authScrn.classList.remove('fade-in'), 450);
+      setTimeout(() => authScrn.classList.remove('fade-in'), 200);
     }
   }
 });
@@ -835,7 +835,7 @@ function unlockApp() {
     renderSkeleton();
     listenPhotos();
 
-    setTimeout(() => appScrn.classList.remove('fade-in'), 450);
+    setTimeout(() => appScrn.classList.remove('fade-in'), 200);
   }, 350);
 }
 
@@ -1155,7 +1155,7 @@ window.enterSelectMode = function(initialId) {
   const bar = document.getElementById('selection-header');
   bar.style.display = 'grid';
   bar.classList.add('fade-in');
-  setTimeout(() => bar.classList.remove('fade-in'), 350);
+  setTimeout(() => bar.classList.remove('fade-in'), 200);
 
   if (!document.getElementById('page-galeri').classList.contains('active')) {
     document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
@@ -1296,8 +1296,36 @@ function renderGallery() {
   }
 
   // Tambah node baru & pastikan urutan sesuai `photos` (createdAt desc)
-  let prevNode = null;
-  photos.forEach(p => {
+  //
+  // FAST PATH: foto yang baru diupload SELALU nempel di paling depan array
+  // ini (createdAt desc). Daripada insertBefore satu-satu (tiap insert =
+  // 1x reflow terpisah, jadi berat kalau upload ratusan foto sekaligus
+  // lalu langsung pindah ke halaman Galeri), semua kartu baru yang
+  // berurutan di depan dikumpulkan dulu ke DocumentFragment lalu di-
+  // prepend SEKALI SAJA ke grid. Ini yang menghilangkan jeda/patah saat
+  // pindah dari Upload ke Galeri.
+  let newLeadingCount = 0;
+  while (newLeadingCount < photos.length && !photoNodes.has(photos[newLeadingCount].id)) {
+    newLeadingCount++;
+  }
+
+  if (newLeadingCount > 0) {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < newLeadingCount; i++) {
+      const p = photos[i];
+      const node = createCardNode(p);
+      photoNodes.set(p.id, node);
+      if (selectedIds.has(p.id)) setCardSelected(p.id, true);
+      fragment.appendChild(node);
+    }
+    container.prepend(fragment);
+  }
+
+  // SLOW PATH (jarang terjadi, mis. urutan berubah bukan karena upload
+  // baru): sisanya tetap pakai diffing satu-satu seperti sebelumnya.
+  let prevNode = newLeadingCount > 0 ? photoNodes.get(photos[newLeadingCount - 1].id) : null;
+  for (let i = newLeadingCount; i < photos.length; i++) {
+    const p = photos[i];
     let node = photoNodes.get(p.id);
     if (!node) {
       node = createCardNode(p);
@@ -1309,7 +1337,7 @@ function renderGallery() {
       container.insertBefore(node, expectedNext || null);
     }
     prevNode = node;
-  });
+  }
 
   if (selectMode) {
     container.classList.add('select-mode-active');
