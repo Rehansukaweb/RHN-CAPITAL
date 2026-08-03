@@ -2307,6 +2307,44 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
+
+    // [PERBAIKAN]: Matikan paksa interval fokus agar tidak merebut keyboard saat pop-up Swal muncul
+    if (window.pinFocusInterval) {
+        clearInterval(window.pinFocusInterval);
+        window.pinFocusInterval = null;
+    }
+
+    const { value: newPin } = await Swal.fire({ 
+        title: 'Reset PIN', 
+        text: 'Masukkan 6 angka PIN baru kamu', 
+        input: 'password', 
+        inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, 
+        background: 'var(--card)', color: 'var(--text)', 
+        confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', 
+        showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' 
+    }); 
+
+    if (newPin && newPin.length === 6) { 
+        try { 
+            await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            window.userCloudPin = newPin; 
+            localStorage.setItem('local_pin_rhn', newPin);
+            Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
+            document.getElementById('app-pin').value = ''; 
+        } catch(e) { 
+            Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); 
+        } 
+    } else if (newPin) { 
+        Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); 
+    } 
+
+    // [PERBAIKAN]: Nyalakan kembali pengunci fokus ke layar PIN utama setelah pop-up tertutup
+    if (!window.appUnlocked) {
+        window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    }
+};
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
+    if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
     const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         try { 
