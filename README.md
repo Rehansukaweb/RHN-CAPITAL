@@ -1229,6 +1229,12 @@ body.global-privacy #xau-idr-gr {
       const splash = document.getElementById('splash-screen');
       if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
 
+      // FIX BARU: Jangan curi fokus kalau ada popup SweetAlert2 yang sedang terbuka
+      // (misalnya saat lagi ngetik PIN baru di form "Reset PIN" / "Ganti PIN").
+      // Tanpa pengecekan ini, interval di bawah akan maksa fokus balik ke
+      // input PIN lama tiap 200ms sehingga ketikan di popup jadi berantakan/error.
+      if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
+
       const pinEl = document.getElementById('app-pin');
       if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
           pinEl.focus();
