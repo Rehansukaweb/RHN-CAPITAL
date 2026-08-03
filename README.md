@@ -555,7 +555,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="tel" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" placeholder="••••••" autofocus>
+       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -1231,8 +1231,8 @@ body.global-privacy #xau-idr-gr {
 
       const pinEl = document.getElementById('app-pin');
       if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
-          if (document.activeElement === pinEl) return; // FIX: jangan ganggu saat user lagi ngetik
           pinEl.focus();
+          try { pinEl.click(); } catch(e){}
       }
   };
 
@@ -1935,7 +1935,7 @@ window.doAuth = async function() {
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'text', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'one-time-code', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)', didOpen: () => { const inp = Swal.getInput(); if (inp) { inp.addEventListener('input', () => { inp.value = inp.value.replace(/[^0-9]/g, '').slice(0, 6); }); } } }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -2070,7 +2070,7 @@ window.saveExtraPrefs = async function() {
 
 window.changePinInApp = async function() { 
     if (!currentUser) return; 
-    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'text', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'one-time-code', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)', didOpen: () => { const inp = Swal.getInput(); if (inp) { inp.addEventListener('input', () => { inp.value = inp.value.replace(/[^0-9]/g, '').slice(0, 6); }); } } }); 
+    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
@@ -2307,7 +2307,7 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
-    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'text', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'one-time-code', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)', didOpen: () => { const inp = Swal.getInput(); if (inp) { inp.addEventListener('input', () => { inp.value = inp.value.replace(/[^0-9]/g, '').slice(0, 6); }); } } }); 
+    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         try { 
             await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
@@ -2319,7 +2319,7 @@ window.resetPinFromLogin = async function() {
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
-document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6); if (this.value.length === 6) { window.verifyPin(); } });
+document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
 
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
