@@ -160,7 +160,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .empty-state .title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .empty-state .sub { font-size: 12px; }
 
-.bottom-nav { position: absolute; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px 0; border-top: 1px solid var(--border); z-index: 50; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 15px 0; border-top: 1px solid var(--border); z-index: 50; }
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text2); font-size: 11px; cursor: pointer; background: none; border: none; font-weight: 600; transition: color 0.25s ease, transform 0.15s ease; }
 .nav-item:active { transform: scale(0.9); }
 .nav-item .icon { font-size: 22px; filter: grayscale(1); opacity: 0.6; transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s var(--ease-smooth); }
@@ -289,6 +289,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing:15px; font-size:24px; font-weight:800;" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••••">
       <div style="display:flex; justify-content:space-between; margin-top:20px;">
         <button style="background:none; border:none; color:var(--text2); font-weight: 700; font-size:11px; text-transform:uppercase; cursor:pointer;" onclick="konfirmasiAksi('Keluar akun?', doLogout)">Ganti Akun</button>
+        <button style="background:none; border:none; color:var(--gold); font-weight: 700; font-size:11px; text-transform:uppercase; cursor:pointer;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">Ganti PIN</button>
       </div>
     </div>
   </div>
