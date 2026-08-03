@@ -403,7 +403,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
@@ -514,6 +514,39 @@ async function runWithConcurrency(items, limit, worker) {
   const runners = Array.from({ length: Math.min(limit, items.length) }, runner);
   await Promise.all(runners);
   return results;
+}
+
+/* --------------------------------------------------------------------
+   UTIL: tulis/hapus banyak dokumen Firestore sekaligus lewat writeBatch,
+   bukan satu-satu. 1 batch bisa memuat sampai ~450-500 operasi dalam
+   SATU kali kirim ke server — ini kunci kecepatan saat upload atau hapus
+   ratusan/ribuan foto sekaligus terasa instan, karena jumlah round-trip
+   ke server jadi jauh lebih sedikit dibanding kirim satu request per foto.
+   -------------------------------------------------------------------- */
+const BATCH_CHUNK_SIZE = 450;
+
+async function commitSetBatches(items, onProgress) {
+  let done = 0;
+  for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
+    const chunk = items.slice(i, i + BATCH_CHUNK_SIZE);
+    const batch = writeBatch(db);
+    chunk.forEach(({ ref, data }) => batch.set(ref, data, { merge: true }));
+    await batch.commit();
+    done += chunk.length;
+    if (onProgress) onProgress(done, items.length);
+  }
+}
+
+async function commitDeleteBatches(refs, onProgress) {
+  let done = 0;
+  for (let i = 0; i < refs.length; i += BATCH_CHUNK_SIZE) {
+    const chunk = refs.slice(i, i + BATCH_CHUNK_SIZE);
+    const batch = writeBatch(db);
+    chunk.forEach(ref => batch.delete(ref));
+    await batch.commit();
+    done += chunk.length;
+    if (onProgress) onProgress(done, refs.length);
+  }
 }
 
 // ANIMASI SPLASH SCREEN
@@ -891,6 +924,10 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   return { publicId: data.public_id, resourceType, format: data.format, size: data.bytes };
 }
 
+/* Upload 1 file ke Cloudinary & kembalikan metadata-nya saja (TIDAK
+   langsung setDoc satu-satu). Penyimpanan ke Firestore digabung lewat
+   commitSetBatches() supaya ratusan foto bisa tersimpan dalam beberapa
+   kali kirim saja, bukan ratusan kali kirim satu-satu. */
 async function uploadSinglePhoto(file, customTitle, index, total) {
   const isVideo = file.type.startsWith('video/');
   const toUpload = isVideo ? file : await compressToBlob(file, 2400, 0.92);
@@ -899,9 +936,10 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
   const title = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
   const id = uid4();
 
-  await setDoc(doc(db, 'users', currentUser.uid, 'photos', id), {
-    title, ...meta, createdAt: serverTimestamp()
-  });
+  return {
+    ref: doc(db, 'users', currentUser.uid, 'photos', id),
+    data: { title, ...meta, createdAt: serverTimestamp() }
+  };
 }
 
 /* ==========================================================================
@@ -985,6 +1023,7 @@ window.tambahFotoBaru = async function() {
   const total = filesSnapshot.length;
   let completed = 0;
   let failed = 0;
+  const pendingDocs = [];
 
   customSwal.fire({
     title: `Mengupload 0/${total}...`,
@@ -994,10 +1033,13 @@ window.tambahFotoBaru = async function() {
   });
 
   try {
-    // Upload paralel (maksimal 5 sekaligus) — jauh lebih cepat dari satu-satu.
-    await runWithConcurrency(filesSnapshot, 5, async (file, i) => {
+    // Upload ke Cloudinary paralel (maksimal 8 sekaligus). Metadata TIDAK
+    // langsung ditulis satu-satu ke Firestore di sini — dikumpulkan dulu
+    // lalu dikirim sekaligus lewat batch setelah semua upload selesai.
+    await runWithConcurrency(filesSnapshot, 8, async (file, i) => {
       try {
-        await uploadSinglePhoto(file, customTitle, i, total);
+        const result = await uploadSinglePhoto(file, customTitle, i, total);
+        pendingDocs.push(result);
       } catch (e) {
         console.error('Gagal upload salah satu foto:', e);
         failed++;
@@ -1006,6 +1048,13 @@ window.tambahFotoBaru = async function() {
         customSwal.update({ title: `Mengupload ${completed}/${total}...` });
       }
     });
+
+    if (pendingDocs.length) {
+      customSwal.update({ title: `Menyimpan ${pendingDocs.length} foto ke galeri...` });
+      await commitSetBatches(pendingDocs, (done, totalDocs) => {
+        customSwal.update({ title: `Menyimpan ${done}/${totalDocs} foto ke galeri...` });
+      });
+    }
 
     if (failed > 0) {
       customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload. Coba upload ulang yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
@@ -1287,15 +1336,10 @@ async function eksekusiHapusBatch(ids, onProgress) {
   if (photos.length > 0) badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
   if (photos.length === 0) renderGallery();
 
-  let done = 0;
-  await runWithConcurrency(targets, 8, async (p) => {
-    try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', p.id));
-    } finally {
-      done++;
-      if (onProgress) onProgress(done, targets.length);
-    }
-  });
+  // Hapus di server lewat batch (bukan satu-satu) — ratusan foto terhapus
+  // dalam beberapa kali kirim saja, jauh lebih cepat.
+  const refs = targets.map(p => doc(db, 'users', currentUser.uid, 'photos', p.id));
+  await commitDeleteBatches(refs, onProgress);
 }
 
 async function mintaPinLaluHapus(ids, judulProses) {
