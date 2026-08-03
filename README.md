@@ -2070,7 +2070,19 @@ window.saveExtraPrefs = async function() {
 
 window.changePinInApp = async function() { 
     if (!currentUser) return; 
-    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ 
+        title: 'Ganti PIN Keamanan', 
+        text: 'Masukkan 6 angka PIN baru kamu', 
+        html: '<input id="swal-newpin-set" type="tel" inputmode="numeric" maxlength="6" autofocus class="swal2-input" style="text-align:center; letter-spacing:10px; font-size:24px; -webkit-text-security:disc; text-security:disc;" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);">',
+        background: 'var(--card)', color: 'var(--text)', 
+        confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', 
+        showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const val = document.getElementById('swal-newpin-set').value;
+            if (!val || val.length !== 6) { Swal.showValidationMessage('PIN harus 6 digit angka!'); return false; }
+            return val;
+        }
+    }); 
     if (newPin && newPin.length === 6) { 
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
@@ -2307,7 +2319,19 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
-    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ 
+        title: 'Reset PIN', 
+        text: 'Masukkan 6 angka PIN baru kamu', 
+        html: '<input id="swal-newpin-reset" type="tel" inputmode="numeric" maxlength="6" autofocus class="swal2-input" style="text-align:center; letter-spacing:10px; font-size:24px; -webkit-text-security:disc; text-security:disc;" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,6);">',
+        background: 'var(--card)', color: 'var(--text)', 
+        confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', 
+        showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const val = document.getElementById('swal-newpin-reset').value;
+            if (!val || val.length !== 6) { Swal.showValidationMessage('PIN harus 6 digit angka!'); return false; }
+            return val;
+        }
+    }); 
     if (newPin && newPin.length === 6) { 
         try { 
             await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
