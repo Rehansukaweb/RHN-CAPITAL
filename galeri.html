@@ -1033,10 +1033,10 @@ window.tambahFotoBaru = async function() {
   });
 
   try {
-    // Upload ke Cloudinary paralel (maksimal 8 sekaligus). Metadata TIDAK
+    // Upload ke Cloudinary paralel (maksimal 100 sekaligus). Metadata TIDAK
     // langsung ditulis satu-satu ke Firestore di sini — dikumpulkan dulu
     // lalu dikirim sekaligus lewat batch setelah semua upload selesai.
-    await runWithConcurrency(filesSnapshot, 8, async (file, i) => {
+    await runWithConcurrency(filesSnapshot, 100, async (file, i) => {
       try {
         const result = await uploadSinglePhoto(file, customTitle, i, total);
         pendingDocs.push(result);
