@@ -100,6 +100,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .submit-btn:active { transform: scale(0.97); }
 .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
+/* TOMBOL GOOGLE PUTIH */
+.google-btn { background: #FFFFFF; color: #111; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border); transition: all 0.2s ease; }
+.google-btn:hover { background: #F3F4F6; color: #000; }
+
 .mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
 .header-left { grid-column: 1; display: flex; align-items: center; }
 .header-center { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 9px; }
@@ -301,6 +305,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <div class="field-hint" id="auth-hint"></div>
 
       <button class="submit-btn" id="btn-auth-submit" onclick="doAuth()">MASUK</button>
+      <button class="submit-btn google-btn" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        LOGIN DENGAN GOOGLE
+      </button>
     </div>
   </div>
 
@@ -408,7 +416,12 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
+    
     <div class="viewer-footer">
+      <button class="viewer-action-btn" onclick="aksiKirimWA()">
+        <span class="viewer-action-icon">💬</span>
+        <span>WA</span>
+      </button>
       <button class="viewer-action-btn" onclick="aksiUnduh()">
         <span class="viewer-action-icon">⬇️</span>
         <span>Unduh</span>
@@ -430,7 +443,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -662,6 +675,20 @@ window.doAuth = async function() {
   }
 };
 
+/* --- LOGIN DENGAN GOOGLE --- */
+window.doGoogleLogin = async function() {
+  if (isBusy) return;
+  isBusy = true;
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    setAuthHint('Gagal masuk dengan Google: ' + e.message);
+  } finally {
+    isBusy = false;
+  }
+};
+
 ['auth-email', 'auth-pass', 'auth-pass2'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); doAuth(); }
@@ -848,12 +875,6 @@ window.removeSelectedFile = function(i) {
   renderFilePreview();
 };
 
-/* ==========================================================================
-   ALGORITMA KOMPRESI ITERATIF (STRICT <= 200KB)
-   Script ini akan mencoba menurunkan kualitas dan resolusi secara otomatis
-   sampai file hasil akhir benar-benar berada di bawah 200KB (204.800 byte)
-   tanpa harus mengorbankan kualitas secara buta dari awal.
-   ========================================================================== */
 function compressToBlob(file, initialMaxDim) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -861,11 +882,10 @@ function compressToBlob(file, initialMaxDim) {
       const img = new Image();
       img.onload = () => {
         let maxDim = initialMaxDim;
-        let quality = 0.85; // Mulai dari kualitas optimal
+        let quality = 0.85; 
         let width = img.width;
         let height = img.height;
 
-        // Penyesuaian resolusi awal jika melebihi maxDim
         if (width > maxDim || height > maxDim) {
           if (width > height) { height = Math.round(height * (maxDim / width)); width = maxDim; }
           else { width = Math.round(width * (maxDim / height)); height = maxDim; }
@@ -873,9 +893,8 @@ function compressToBlob(file, initialMaxDim) {
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const TARGET_SIZE_BYTES = 200 * 1024; // 200KB maksimum
+        const TARGET_SIZE_BYTES = 200 * 1024; 
         
-        // Fungsi kompresi berulang (recursive/iterative compression)
         const attemptCompression = (currentWidth, currentHeight, currentQuality) => {
           canvas.width = currentWidth;
           canvas.height = currentHeight;
@@ -884,26 +903,20 @@ function compressToBlob(file, initialMaxDim) {
           canvas.toBlob(blob => {
             if (!blob) return reject(new Error('Gagal mengompres gambar'));
             
-            // Cek apakah blob melebihi 200KB
             if (blob.size > TARGET_SIZE_BYTES) {
               if (currentQuality > 0.4) {
-                // Step 1: Jika kualitas masih di atas 40%, turunkan kualitasnya 10%
                 attemptCompression(currentWidth, currentHeight, currentQuality - 0.1);
               } else {
-                // Step 2: Jika kualitas sudah rendah tapi masih > 200KB,
-                // saatnya menurunkan resolusi/dimensi 20% dan kembalikan kualitas ke 60%
                 const newW = Math.round(currentWidth * 0.8);
                 const newH = Math.round(currentHeight * 0.8);
                 attemptCompression(newW, newH, 0.6);
               }
             } else {
-              // Jika berhasil mencapai <= 200KB, kirim file ini
               resolve(blob);
             }
           }, 'image/jpeg', currentQuality);
         };
 
-        // Mulai percobaan pertama
         attemptCompression(width, height, quality);
       };
       img.onerror = () => reject(new Error('Gagal membaca gambar'));
@@ -940,7 +953,6 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
 
 async function uploadSinglePhoto(file, customTitle, index, total) {
   const isVideo = file.type.startsWith('video/');
-  // Proses ini sekarang dijamin mengembalikan blob maksimal 200KB
   const toUpload = isVideo ? file : await compressToBlob(file, 1600);
 
   const meta = await uploadToCloudinary(toUpload, file.name, isVideo);
@@ -1507,18 +1519,20 @@ window.bukaViewer = function(id) {
   const posisi = photos.length > 1 ? `  ·  ${idx + 1}/${photos.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
+  // Hapus source lama agar tidak terjadi 'flash' atau tumpang tindih
+  img.src = ''; 
+  img.classList.remove('loaded', 'zoomed');
+  video.pause();
+  video.src = '';
+
   if (isVideoItem(foto)) {
     img.style.display = 'none';
-    img.src = '';
     video.style.display = 'block';
     video.src = getFullSrc(foto);
     video.load();
   } else {
     video.style.display = 'none';
-    video.pause();
-    video.src = '';
     img.style.display = 'block';
-    img.classList.remove('loaded', 'zoomed');
     img.src = getFullSrc(foto);
   }
 
@@ -1530,15 +1544,16 @@ window.bukaViewer = function(id) {
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
   document.body.style.overflow = '';
+  
   setTimeout(() => {
     const img = document.getElementById('viewer-img');
     const video = document.getElementById('viewer-video');
     img.src = '';
-    img.classList.remove('loaded');
+    img.classList.remove('loaded', 'zoomed');
     video.pause();
     video.src = '';
     currentViewPhotoId = null;
-  }, 300);
+  }, 250); // Waktu animasi sebelum dibersihkan
 };
 
 window.viewerNavigate = function(dir) {
@@ -1597,35 +1612,86 @@ window.toggleZoom = function(e) {
   }
 };
 
-window.aksiUnduh = async function() {
+/* --- FUNGSI KIRIM FOTO KE WA SEBAGAI FILE ASLI TANPA DELAY --- */
+window.aksiKirimWA = async function() {
+  if (isBusy) return;
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
+  
+  isBusy = true;
+  showMiniToast('Menyiapkan media...');
+  
+  try {
+    const resp = await fetch(getFullSrc(foto));
+    const blob = await resp.blob();
+    const ext = isVideoItem(foto) ? (foto.format || 'mp4') : 'jpg';
+    const filename = (foto.title || 'Koleksi_RHN') + '.' + ext;
+    const file = new File([blob], filename, { type: blob.type });
+
+    // API Share khusus device terbaru yang mendukung attachment File
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: foto.title || 'Media',
+        text: 'Media dari RHN Gallery',
+        files: [file]
+      });
+    } else {
+      // Fallback jika peramban/HP lama
+      const text = 'Lihat media ini: ' + getFullSrc(foto);
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      showMiniToast('Gagal membagikan');
+    }
+  } finally {
+    isBusy = false;
+  }
+};
+
+window.aksiUnduh = async function() {
+  if (isBusy) return;
+  const foto = photos.find(p => p.id === currentViewPhotoId);
+  if (!foto) return;
+  
+  isBusy = true;
+  showMiniToast('Menyimpan ke galeri HP...');
+  
   try {
     const resp = await fetch(getFullSrc(foto));
     const blob = await resp.blob();
     const ext = isVideoItem(foto) ? (foto.format || 'mp4') : 'jpg';
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = blobUrl; link.download = (foto.title || 'RHN_Foto') + '.' + ext;
-    document.body.appendChild(link); link.click(); link.remove();
+    link.href = blobUrl; 
+    link.download = (foto.title || 'RHN_Media') + '.' + ext;
+    document.body.appendChild(link); 
+    link.click(); 
+    link.remove();
     setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+    showMiniToast('Berhasil disimpan!');
   } catch (e) {
-    customSwal.fire({ icon: 'error', title: 'Gagal Mengunduh', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+    customSwal.fire({ icon: 'error', title: 'Gagal Mengunduh', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    isBusy = false;
   }
 };
 
 window.aksiHapus = function() {
-  konfirmasiAksi('Yakin hapus foto ini permanen?', async () => {
+  konfirmasiAksi('Yakin hapus media ini permanen?', async () => {
     const foto = photos.find(p => p.id === currentViewPhotoId);
     if (!foto) return;
-    tutupViewer();
-    removePhotoFromLocalUI(foto.id);
+    
+    tutupViewer(); // Tutup viewer duluan agar transisi visual terasa cepat
+    removePhotoFromLocalUI(foto.id); // Langsung hapus dari grid
     renderGallery();
+    
     try {
       await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', foto.id));
-      customSwal.fire({ icon: 'success', title: 'Terhapus', background: 'var(--card)', color: 'var(--text)', showConfirmButton: false, timer: 1500 });
+      showMiniToast('Berhasil dihapus');
     } catch (e) {
-      customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+      customSwal.fire({ icon: 'error', title: 'Gagal', text: 'Periksa internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
     }
   });
 };
