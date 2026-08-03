@@ -104,7 +104,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .google-btn { background: #FFFFFF; color: #111; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border); transition: all 0.2s ease; }
 .google-btn:hover { background: #F3F4F6; color: #000; }
 
-.mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+/* PERBAIKAN: HEADER DIBUAT FIXED AGAR SELALU DIAM DI ATAS */
+.mobile-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 16px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; z-index: 100; border-bottom: 1px solid var(--border); }
+.main-content { padding-top: 70px; width: 100%; }
+
 .header-left { grid-column: 1; display: flex; align-items: center; }
 .header-center { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 9px; }
 .header-right { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 8px; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity 0.12s ease, transform 0.12s ease; }
