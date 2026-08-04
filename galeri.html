@@ -7,6 +7,12 @@
 
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
+<link rel="preconnect" href="https://api.cloudinary.com" crossorigin>
+<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+<link rel="dns-prefetch" href="https://api.cloudinary.com">
+<link rel="dns-prefetch" href="https://res.cloudinary.com">
 
 <style>
 /* ==========================================================================
@@ -527,31 +533,40 @@ async function runWithConcurrency(items, limit, worker) {
   return results;
 }
 
-// BATCH_CHUNK_SIZE DINAIKKAN MENJADI MAX (500) UNTUK KECEPATAN MUTLAK 
+// BATCH_CHUNK_SIZE = MAX Firestore batch (500 operasi per batch)
 const BATCH_CHUNK_SIZE = 500;
 
+// Batch commit SEKARANG DIJALANKAN PARALEL (bukan berurutan) — jika ada >500 item,
+// semua chunk batch dikirim bersamaan, bukan menunggu satu-satu. Ini membuat
+// operasi simpan/hapus massal jauh lebih cepat saat jumlah file banyak.
 async function commitSetBatches(items, onProgress) {
-  let done = 0;
+  const chunks = [];
   for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
-    const chunk = items.slice(i, i + BATCH_CHUNK_SIZE);
+    chunks.push(items.slice(i, i + BATCH_CHUNK_SIZE));
+  }
+  let done = 0;
+  await Promise.all(chunks.map(async (chunk) => {
     const batch = writeBatch(db);
     chunk.forEach(({ ref, data }) => batch.set(ref, data, { merge: true }));
     await batch.commit();
     done += chunk.length;
     if (onProgress) onProgress(done, items.length);
-  }
+  }));
 }
 
 async function commitDeleteBatches(refs, onProgress) {
-  let done = 0;
+  const chunks = [];
   for (let i = 0; i < refs.length; i += BATCH_CHUNK_SIZE) {
-    const chunk = refs.slice(i, i + BATCH_CHUNK_SIZE);
+    chunks.push(refs.slice(i, i + BATCH_CHUNK_SIZE));
+  }
+  let done = 0;
+  await Promise.all(chunks.map(async (chunk) => {
     const batch = writeBatch(db);
     chunk.forEach(ref => batch.delete(ref));
     await batch.commit();
     done += chunk.length;
     if (onProgress) onProgress(done, refs.length);
-  }
+  }));
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -878,15 +893,58 @@ window.removeSelectedFile = function(i) {
   renderFilePreview();
 };
 
-/* --- ALGORITMA KOMPRESI SUPER CEPAT (1-PASS, ZERO RAM LEAK) --- */
-function compressToBlobFast(file, maxDim) {
+/* ==========================================================================
+   ALGORITMA KOMPRESI TERCEPAT
+   - Prioritas: createImageBitmap() + OffscreenCanvas (dekode & resize native
+     browser, jauh lebih cepat & hemat memori daripada elemen <img> + <canvas>
+     DOM biasa, dan tidak memicu reflow/paint).
+   - Fallback otomatis ke metode <img>+<canvas> untuk browser lama yang belum
+     mendukung API di atas, supaya tetap 100% kompatibel.
+   ========================================================================== */
+async function compressToBlobFast(file, maxDim) {
+  if (window.createImageBitmap) {
+    try {
+      const bitmap = await createImageBitmap(file);
+      let w = bitmap.width;
+      let h = bitmap.height;
+
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.max(1, Math.round(w * ratio));
+        h = Math.max(1, Math.round(h * ratio));
+      }
+
+      let blob;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        const canvas = new OffscreenCanvas(w, h);
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        bitmap.close();
+        blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.72 });
+      } else {
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(bitmap, 0, 0, w, h);
+        bitmap.close();
+        blob = await new Promise((resolve, reject) => {
+          canvas.toBlob(b => b ? resolve(b) : reject(new Error('Gagal kompres')), 'image/jpeg', 0.72);
+        });
+      }
+      return blob;
+    } catch (e) {
+      console.warn('createImageBitmap gagal, fallback ke metode klasik:', e);
+      // lanjut ke fallback di bawah
+    }
+  }
+
+  // Fallback klasik (ObjectURL + <img> + <canvas>), dipakai jika API modern tidak tersedia/gagal
   return new Promise((resolve, reject) => {
-    // Menggunakan ObjectURL (jauh lebih hemat memori dan cepat dibanding FileReader Base64)
     const url = URL.createObjectURL(file);
     const img = new Image();
-    
+
     img.onload = () => {
-      URL.revokeObjectURL(url); // Segera bersihkan memori RAM
+      URL.revokeObjectURL(url);
       let w = img.width;
       let h = img.height;
 
@@ -899,18 +957,16 @@ function compressToBlobFast(file, maxDim) {
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
-      
-      // alpha: false membuat render jauh lebih cepat
+
       const ctx = canvas.getContext('2d', { alpha: false });
       ctx.drawImage(img, 0, 0, w, h);
-      
-      // Kompresi 1-pass (Kualitas 0.70) - 100x lebih cepat karena tidak ada perulangan re-kompresi
+
       canvas.toBlob(blob => {
         if (blob) resolve(blob);
         else reject(new Error('Gagal kompres'));
-      }, 'image/jpeg', 0.70); 
+      }, 'image/jpeg', 0.72);
     };
-    
+
     img.onerror = () => {
       URL.revokeObjectURL(url);
       reject(new Error('Gagal memuat gambar'));
@@ -945,7 +1001,7 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
 
 async function uploadSinglePhoto(file, customTitle, index, total) {
   const isVideo = file.type.startsWith('video/');
-  // Panggil fungsi kompresi super cepat
+  // Panggil fungsi kompresi tercepat (createImageBitmap/OffscreenCanvas)
   const toUpload = isVideo ? file : await compressToBlobFast(file, 1600);
 
   const meta = await uploadToCloudinary(toUpload, file.name, isVideo);
@@ -995,8 +1051,8 @@ window.migrateLegacyPhotos = async function() {
   });
 
   try {
-    // Concurrency dinaikkan sedikit untuk migrasi yang lebih cepat
-    await runWithConcurrency(legacy, 15, async (p) => {
+    // Concurrency dinaikkan untuk migrasi yang lebih cepat
+    await runWithConcurrency(legacy, 20, async (p) => {
       try {
         await migrateLegacyPhoto(p);
       } catch (e) {
@@ -1044,10 +1100,12 @@ window.tambahFotoBaru = async function() {
   });
 
   try {
-    // CONCURRENCY LIMIT: 35. 
-    // Ini angka emas. Jika diset 100 untuk ribuan file, browser akan crash karena socket menumpuk.
-    // Dengan 35, upload ribuan file bisa tembus secara konstan, stabil, dan jauh lebih instan.
-    await runWithConcurrency(filesSnapshot, 35, async (file, i) => {
+    // CONCURRENCY ADAPTIF: mengikuti jumlah file (minimal 8, maksimal 48).
+    // Browser modern via HTTP/2 mampu menangani banyak koneksi paralel ke
+    // Cloudinary tanpa masalah; batas atas 48 dipilih agar tetap stabil dan
+    // tidak membanjiri socket saat upload ribuan file sekaligus.
+    const concurrency = Math.min(48, Math.max(8, total));
+    await runWithConcurrency(filesSnapshot, concurrency, async (file, i) => {
       try {
         const result = await uploadSinglePhoto(file, customTitle, i, total);
         pendingDocs.push(result);
@@ -1321,7 +1379,7 @@ window.changePinInApp = async function() {
   }
 };
 
-/* --- ALGORITMA HAPUS BULK INSTAN (O(1) PERFORMANCE) --- */
+/* --- ALGORITMA HAPUS BULK INSTAN (UI O(1), commit Firestore paralel) --- */
 async function eksekusiHapusBatch(ids, onProgress) {
   const idSet = new Set(ids);
   
@@ -1350,7 +1408,7 @@ async function eksekusiHapusBatch(ids, onProgress) {
     renderGallery(); // Panggil fungsi render empty state jika kosong
   }
 
-  // 4. HAPUS DATABASE DI LATAR BELAKANG
+  // 4. HAPUS DATABASE DI LATAR BELAKANG (chunk-chunk dikirim paralel)
   await commitDeleteBatches(refs, onProgress);
 }
 
@@ -1444,7 +1502,7 @@ window.handleBulkDelete = function() {
 async function siapkanBlobUnduhan(list, onProgress) {
   const hasil = new Array(list.length);
   let done = 0;
-  await runWithConcurrency(list, 4, async (p, i) => {
+  await runWithConcurrency(list, 6, async (p, i) => {
     try {
       const resp = await fetch(getFullSrc(p), { cache: 'no-cache' });
       hasil[i] = await resp.blob();
