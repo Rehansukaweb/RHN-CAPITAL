@@ -222,6 +222,11 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .preview-remove:active { transform: scale(0.85); }
 .preview-remove:hover { background: var(--red); }
 
+.retry-bar { display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: 14px; padding: 12px 14px; margin-bottom: 15px; }
+.retry-bar.show { display: flex; }
+.retry-bar-text { font-size: 12px; color: var(--red); font-weight: 600; line-height: 1.4; }
+.retry-bar-btn { background: var(--red); color: #000; border: none; padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; white-space: nowrap; touch-action: manipulation; }
+
 #photo-viewer {
   position: fixed;
   top: 0; bottom: 0; left: 50%;
@@ -372,8 +377,12 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <div id="page-tambah" class="page">
         <div class="page-main-title">Upload Media</div>
         <div class="card-form">
+          <div class="retry-bar" id="retry-bar">
+            <span class="retry-bar-text" id="retry-bar-text">Beberapa file gagal diupload.</span>
+            <button class="retry-bar-btn" onclick="retryFailedUploads()">Coba Lagi</button>
+          </div>
           <input type="file" id="f-img-file" class="f-input-dark" accept="image/*,video/*" multiple style="padding: 12px; background: rgba(255,255,255,0.05) !important;">
-          <div class="upload-hint">Upload otomatis mengkompres setiap gambar secara cerdas hingga ukuran ≤ 200KB sebelum dikirim ke server. Foto tetap tajam.</div>
+          <div class="upload-hint">Upload otomatis mengkompres setiap gambar secara cerdas hingga ukuran ≤ 200KB sebelum dikirim ke server. Foto tetap tajam. Maks. 100MB per file.</div>
           <div id="file-preview-list"></div>
           <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
           <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan media ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
@@ -419,7 +428,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       <button class="viewer-nav-btn viewer-nav-prev" id="viewer-btn-prev" onclick="viewerNavigate(-1)" aria-label="Foto sebelumnya">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <img id="viewer-img" src="" onclick="toggleZoom(event)" onload="this.classList.add('loaded')">
+      <img id="viewer-img" src="" alt="" onclick="toggleZoom(event)" onload="this.classList.add('loaded')">
       <video id="viewer-video" controls playsinline></video>
       <button class="viewer-nav-btn viewer-nav-next" id="viewer-btn-next" onclick="viewerNavigate(1)" aria-label="Foto berikutnya">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -467,6 +476,11 @@ const firebaseConfig = {
 const CLOUDINARY_CLOUD_NAME = "cishyrxo";
 const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned"; 
 
+// Batas ukuran & tipe file yang boleh diupload, mencegah orang upload file
+// aneh yang cuma di-rename jadi .jpg/.mp4
+const MAX_FILE_SIZE_MB = 100;
+const ALLOWED_TYPE_PREFIX = ['image/', 'video/'];
+
 function cldThumbUrl(p) {
   if (p.resourceType === 'video') {
     return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload/so_0,w_320,h_320,c_fill,q_auto/${p.publicId}.jpg`;
@@ -482,6 +496,14 @@ function cldFullUrl(p) {
 function getThumbSrc(p) { return p.publicId ? cldThumbUrl(p) : (p.thumbURL || p.url); }
 function getFullSrc(p) { return p.publicId ? cldFullUrl(p) : (p.fullURL || p.thumbURL || p.url); }
 function isVideoItem(p) { return p.resourceType === 'video'; }
+
+// Hash PIN dengan SHA-256 sebelum disimpan/dibandingkan, supaya PIN mentah
+// tidak pernah tersimpan sebagai plaintext di Firestore.
+async function hashPin(pin) {
+  const enc = new TextEncoder().encode(pin);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
   "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>" +
@@ -507,6 +529,8 @@ let photoNodes = new Map();
 let currentViewPhotoId = null;
 let authMode = 'login';
 let selectedFiles = [];
+let failedFiles = []; // menyimpan file yang gagal upload, untuk fitur "Coba Lagi"
+let lastUploadTitle = '';
 let isBusy = false;
 
 let selectMode = false;
@@ -535,6 +559,14 @@ async function runWithConcurrency(items, limit, worker) {
 
 // BATCH_CHUNK_SIZE = MAX Firestore batch (500 operasi per batch)
 const BATCH_CHUNK_SIZE = 500;
+
+// Batas concurrency upload paralel ke Cloudinary. Dinaikkan ke 200 sesuai
+// permintaan — cocok untuk koneksi kencang (WiFi) & file yang sudah
+// dikompres kecil. Di koneksi lambat, sisa antrean otomatis menunggu giliran
+// karena browser & server tetap membatasi berapa banyak yang benar-benar
+// jalan bersamaan; kalau banyak gagal karena rate-limit, tombol "Coba Lagi"
+// di halaman Upload bisa dipakai untuk mengulang file yang gagal saja.
+const UPLOAD_CONCURRENCY_CAP = 200;
 
 // Batch commit SEKARANG DIJALANKAN PARALEL (bukan berurutan) — jika ada >500 item,
 // semua chunk batch dikirim bersamaan, bukan menunggu satu-satu. Ini membuat
@@ -754,11 +786,15 @@ onAuthStateChanged(auth, async user => {
     pinScrn.style.display = 'flex';
     pinScrn.classList.add('fade-in');
 
-    if (!secSnap.exists() || !secSnap.data().pin) {
+    const secData = secSnap.exists() ? secSnap.data() : null;
+    if (!secData || (!secData.pinHash && !secData.pin)) {
       document.getElementById('pin-title').textContent = 'Buat PIN Baru';
       window.pinMode = 'setup';
     } else {
-      window.userCloudPin = secSnap.data().pin;
+      // Kompatibel dengan data lama yang masih plaintext (pin), sekaligus
+      // menyimpan versi hash-nya (pinHash) untuk data baru/ubahan berikutnya.
+      window.userCloudPinHash = secData.pinHash || null;
+      window.userCloudPinLegacy = secData.pin || null;
       document.getElementById('pin-title').textContent = 'Masukkan PIN';
       window.pinMode = 'verify';
     }
@@ -799,14 +835,29 @@ document.getElementById('app-pin').addEventListener('input', async function() {
   if (this.value.length === 6) {
     if (window.pinMode === 'setup') {
       try {
-        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: this.value }, { merge: true });
-        window.userCloudPin = this.value; unlockApp();
+        const hash = await hashPin(this.value);
+        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
+        window.userCloudPinHash = hash;
+        window.userCloudPinLegacy = null;
+        unlockApp();
       } catch (e) {
         customSwal.fire({ icon: 'error', title: 'Gagal menyimpan PIN', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
         this.value = '';
       }
     } else {
-      if (this.value === window.userCloudPin) {
+      const hash = await hashPin(this.value);
+      const cocok = window.userCloudPinHash
+        ? hash === window.userCloudPinHash
+        : this.value === window.userCloudPinLegacy; // fallback data lama yang belum di-hash
+
+      if (cocok) {
+        // Kalau user masih punya PIN lama (plaintext), migrasikan diam-diam ke hash
+        if (!window.userCloudPinHash && window.userCloudPinLegacy) {
+          try {
+            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
+            window.userCloudPinHash = hash;
+          } catch (e) { /* diam-diam gagal, tidak masalah, akan dicoba lagi lain kali */ }
+        }
         unlockApp();
       } else {
         customSwal.fire({ icon: 'error', title: 'PIN Salah', background: 'var(--card)', color: 'var(--text)', showConfirmButton: false, timer: 1200 });
@@ -865,8 +916,31 @@ function listenPhotos() {
 }
 
 document.getElementById('f-img-file').addEventListener('change', function() {
-  selectedFiles = Array.from(this.files);
+  const dipilih = Array.from(this.files);
+  const validFiles = [];
+  const ditolak = [];
+
+  dipilih.forEach(f => {
+    const tipeOk = ALLOWED_TYPE_PREFIX.some(prefix => f.type.startsWith(prefix));
+    const ukuranOk = f.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
+    if (tipeOk && ukuranOk) validFiles.push(f);
+    else ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : `lebih dari ${MAX_FILE_SIZE_MB}MB` });
+  });
+
+  selectedFiles = validFiles;
+  hideRetryBar();
   renderFilePreview();
+
+  if (ditolak.length) {
+    const daftar = ditolak.slice(0, 5).map(d => `• ${d.name} (${d.alasan})`).join('<br>');
+    const lebih = ditolak.length > 5 ? `<br>+${ditolak.length - 5} file lainnya` : '';
+    customSwal.fire({
+      icon: 'warning',
+      title: `${ditolak.length} File Dilewati`,
+      html: daftar + lebih,
+      background: 'var(--card)', color: 'var(--text)'
+    });
+  }
 });
 
 function renderFilePreview() {
@@ -876,7 +950,7 @@ function renderFilePreview() {
   wrap.innerHTML = selectedFiles.map((f, i) => {
     const isVid = f.type.startsWith('video/');
     const url = URL.createObjectURL(f);
-    const media = isVid ? `<video src="${url}" muted></video>` : `<img src="${url}">`;
+    const media = isVid ? `<video src="${url}" muted></video>` : `<img src="${url}" alt="pratinjau ${i + 1}">`;
     return `
     <div class="preview-thumb">
       ${media}
@@ -892,6 +966,16 @@ window.removeSelectedFile = function(i) {
   document.getElementById('f-img-file').files = dt.files;
   renderFilePreview();
 };
+
+function showRetryBar(jumlahGagal) {
+  const bar = document.getElementById('retry-bar');
+  document.getElementById('retry-bar-text').textContent = `${jumlahGagal} file gagal diupload (koneksi/server). Coba lagi tanpa perlu pilih ulang.`;
+  bar.classList.add('show');
+}
+function hideRetryBar() {
+  document.getElementById('retry-bar').classList.remove('show');
+  failedFiles = [];
+}
 
 /* ==========================================================================
    ALGORITMA KOMPRESI TERCEPAT
@@ -1005,7 +1089,10 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
   const toUpload = isVideo ? file : await compressToBlobFast(file, 1600);
 
   const meta = await uploadToCloudinary(toUpload, file.name, isVideo);
-  const title = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
+  // Sertakan timestamp+index di judul biar tidak bentrok walau upload beda
+  // sesi pakai judul custom yang sama persis.
+  const baseTitle = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
+  const title = baseTitle;
   const id = uid4();
 
   return {
@@ -1051,7 +1138,6 @@ window.migrateLegacyPhotos = async function() {
   });
 
   try {
-    // Concurrency dinaikkan untuk migrasi yang lebih cepat
     await runWithConcurrency(legacy, 20, async (p) => {
       try {
         await migrateLegacyPhoto(p);
@@ -1077,20 +1163,12 @@ window.migrateLegacyPhotos = async function() {
   }
 };
 
-window.tambahFotoBaru = async function() {
-  if (isBusy) return;
-  const customTitle = document.getElementById('f-img-title').value.trim();
-  if (!selectedFiles.length) return customSwal.fire({ icon: 'warning', title: 'Kosong', text: 'Pilih foto/video dulu!', background: 'var(--card)', color: 'var(--text)' });
-
-  isBusy = true;
-  const uploadBtn = document.getElementById('btn-upload');
-  uploadBtn.disabled = true;
-
-  const filesSnapshot = selectedFiles.slice();
-  const total = filesSnapshot.length;
+async function jalankanUpload(filesToUpload, customTitle) {
+  const total = filesToUpload.length;
   let completed = 0;
   let failed = 0;
   const pendingDocs = [];
+  const gagalKaliIni = [];
 
   customSwal.fire({
     title: `Mengupload 0/${total}...`,
@@ -1099,46 +1177,91 @@ window.tambahFotoBaru = async function() {
     didOpen: () => customSwal.showLoading()
   });
 
-  try {
-    // CONCURRENCY ADAPTIF: mengikuti jumlah file (minimal 8, maksimal 48).
-    // Browser modern via HTTP/2 mampu menangani banyak koneksi paralel ke
-    // Cloudinary tanpa masalah; batas atas 48 dipilih agar tetap stabil dan
-    // tidak membanjiri socket saat upload ribuan file sekaligus.
-    const concurrency = Math.min(48, Math.max(8, total));
-    await runWithConcurrency(filesSnapshot, concurrency, async (file, i) => {
-      try {
-        const result = await uploadSinglePhoto(file, customTitle, i, total);
-        pendingDocs.push(result);
-      } catch (e) {
-        console.error('Gagal upload salah satu foto:', e);
-        failed++;
-      } finally {
-        completed++;
-        customSwal.update({ title: `Mengupload ${completed}/${total}...` });
-      }
+  // CONCURRENCY: mengikuti jumlah file, dibatasi hingga 200 sekaligus.
+  // Browser modern via HTTP/2 mampu menangani banyak koneksi paralel ke
+  // Cloudinary; batas atas 200 dipakai sesuai kebutuhan upload cepat dalam
+  // jumlah besar. Kalau koneksi lemah/rate limit server tercapai, file yang
+  // gagal otomatis masuk daftar retry, tidak perlu pilih ulang dari galeri HP.
+  const concurrency = Math.min(UPLOAD_CONCURRENCY_CAP, Math.max(8, total));
+  await runWithConcurrency(filesToUpload, concurrency, async (file, i) => {
+    try {
+      const result = await uploadSinglePhoto(file, customTitle, i, total);
+      pendingDocs.push(result);
+    } catch (e) {
+      console.error('Gagal upload salah satu foto:', e);
+      failed++;
+      gagalKaliIni.push(file);
+    } finally {
+      completed++;
+      customSwal.update({ title: `Mengupload ${completed}/${total}...` });
+    }
+  });
+
+  if (pendingDocs.length) {
+    customSwal.update({ title: `Menyimpan ke Galeri...` });
+    await commitSetBatches(pendingDocs, (done, totalDocs) => {
+      customSwal.update({ title: `Menyimpan ${done}/${totalDocs} ke Galeri...` });
     });
+  }
 
-    if (pendingDocs.length) {
-      customSwal.update({ title: `Menyimpan ke Galeri...` });
-      await commitSetBatches(pendingDocs, (done, totalDocs) => {
-        customSwal.update({ title: `Menyimpan ${done}/${totalDocs} ke Galeri...` });
-      });
-    }
+  failedFiles = gagalKaliIni;
+  if (failed > 0) {
+    showRetryBar(failed);
+    customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload. Tekan "Coba Lagi" untuk mengulang yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
+  } else {
+    hideRetryBar();
+    customSwal.fire({ icon: 'success', title: 'Upload Sukses', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
 
-    if (failed > 0) {
-      customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload.`, background: 'var(--card)', color: 'var(--text)' });
-    } else {
-      customSwal.fire({ icon: 'success', title: 'Upload Sukses', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
-    }
+  return { failed };
+}
+
+window.tambahFotoBaru = async function() {
+  if (isBusy) return;
+  const customTitle = document.getElementById('f-img-title').value.trim();
+  if (!selectedFiles.length) return customSwal.fire({ icon: 'warning', title: 'Kosong', text: 'Pilih foto/video dulu!', background: 'var(--card)', color: 'var(--text)' });
+
+  isBusy = true;
+  const uploadBtn = document.getElementById('btn-upload');
+  uploadBtn.disabled = true;
+  lastUploadTitle = customTitle;
+
+  const filesSnapshot = selectedFiles.slice();
+
+  try {
+    await jalankanUpload(filesSnapshot, customTitle);
 
     document.getElementById('f-img-file').value = '';
     document.getElementById('f-img-title').value = '';
     selectedFiles = [];
     renderFilePreview();
-    switchPage('galeri');
+    if (!failedFiles.length) switchPage('galeri');
   } catch (e) {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'Upload Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    isBusy = false;
+    uploadBtn.disabled = false;
+  }
+};
+
+window.retryFailedUploads = async function() {
+  if (isBusy || !failedFiles.length) return;
+  isBusy = true;
+  const uploadBtn = document.getElementById('btn-upload');
+  uploadBtn.disabled = true;
+  const filesToRetry = failedFiles.slice();
+
+  try {
+    await jalankanUpload(filesToRetry, lastUploadTitle);
+    if (!failedFiles.length) {
+      selectedFiles = [];
+      renderFilePreview();
+      switchPage('galeri');
+    }
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Coba Lagi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
     isBusy = false;
     uploadBtn.disabled = false;
@@ -1261,6 +1384,7 @@ function createCardNode(p) {
   img.className = 'album-cover';
   img.loading = 'lazy';
   img.decoding = 'async';
+  img.alt = p.title || (isVideoItem(p) ? 'video' : 'foto');
   img.src = getThumbSrc(p);
   img.addEventListener('load', () => img.classList.add('loaded'));
 
@@ -1370,8 +1494,10 @@ window.changePinInApp = async function() {
   });
   if (newPin) {
     try {
-      await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true });
-      window.userCloudPin = newPin;
+      const hash = await hashPin(newPin);
+      await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
+      window.userCloudPinHash = hash;
+      window.userCloudPinLegacy = null;
       customSwal.fire({ icon: 'success', title: 'PIN diubah', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
     } catch (e) {
       customSwal.fire({ icon: 'error', title: 'Gagal mengubah PIN', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
@@ -1430,7 +1556,10 @@ async function mintaPinLaluHapus(ids, judulProses) {
 
   if (!pin) return;
 
-  if (pin !== window.userCloudPin) {
+  const hash = await hashPin(pin);
+  const cocok = window.userCloudPinHash ? hash === window.userCloudPinHash : pin === window.userCloudPinLegacy;
+
+  if (!cocok) {
     customSwal.fire({ icon: 'error', title: 'PIN Salah', text: 'Foto tidak jadi dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     return;
   }
@@ -1595,6 +1724,7 @@ window.bukaViewer = function(id) {
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
   img.src = ''; 
+  img.alt = foto.title || 'foto';
   img.classList.remove('loaded', 'zoomed');
   video.pause();
   video.src = '';
