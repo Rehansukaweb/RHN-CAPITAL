@@ -215,9 +215,13 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
 .upload-hint { font-size: 11px; color: var(--text2); margin: -6px 0 15px 2px; line-height: 1.6; }
 
-#file-preview-list { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+/* ======= PERBAIKAN #1: area preview dibatasi tinggi & bisa discroll sendiri,
+   supaya tidak membuat seluruh halaman jadi sangat panjang saat file banyak ======= */
+#file-preview-list { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; max-height: 260px; overflow-y: auto; padding-right: 2px; }
 .preview-thumb { position: relative; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); animation: fadeInSmooth 0.3s var(--ease-smooth) forwards; }
 .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
+/* ======= PERBAIKAN #2: ikon pengganti untuk preview video (bukan elemen <video> asli) ======= */
+.preview-video-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--bg-input); }
 .preview-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, transform 0.15s ease; touch-action: manipulation; }
 .preview-remove:active { transform: scale(0.85); }
 .preview-remove:hover { background: var(--red); }
@@ -226,6 +230,26 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .retry-bar.show { display: flex; }
 .retry-bar-text { font-size: 12px; color: var(--red); font-weight: 600; line-height: 1.4; }
 .retry-bar-btn { background: var(--red); color: #000; border: none; padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; white-space: nowrap; touch-action: manipulation; }
+
+/* ======= PERBAIKAN UTAMA (diminta user): tombol "SIMPAN KE GALERI" sekarang
+   FIXED menempel tepat di atas bottom-nav (Galeri/Upload/Setelan), sehingga
+   SELALU terlihat & bisa dipencet walau daftar preview file sangat panjang.
+   Ditambahkan juga padding-bottom pada form supaya konten terakhir (input
+   judul) tidak ketutupan tombol ini saat discroll ke paling bawah. ======= */
+#page-tambah .card-form {
+  padding-bottom: 88px; /* ruang ekstra supaya tidak ketutupan tombol fixed */
+}
+#btn-upload {
+  position: fixed;
+  left: 50%;
+  bottom: calc(72px + max(15px, env(safe-area-inset-bottom)));
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 560px;
+  z-index: 60;
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.55), 0 10px 24px rgba(0,0,0,0.45);
+}
+#btn-upload:disabled { box-shadow: none; }
 
 #photo-viewer {
   position: fixed;
@@ -385,7 +409,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
           <div class="upload-hint">Upload otomatis mengkompres setiap gambar secara cerdas hingga ukuran ≤ 200KB sebelum dikirim ke server. Foto tetap tajam. Maks. 100MB per file.</div>
           <div id="file-preview-list"></div>
           <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
-          <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan media ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
         </div>
       </div>
 
@@ -400,6 +423,12 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         </div>
       </div>
     </div>
+
+    <!-- ======= PERBAIKAN UTAMA: tombol SIMPAN KE GALERI dipindah ke luar
+         .card-form, menjadi elemen fixed tersendiri, supaya SELALU tampil
+         di atas bottom-nav (Galeri/Upload/Setelan) dan tidak pernah
+         ketutupan walau daftar preview foto sangat panjang. ======= -->
+    <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan media ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
 
     <div class="bottom-nav">
       <button class="nav-btn nav-item active" onclick="switchPage('galeri')">
@@ -651,6 +680,9 @@ window.switchPage = function(p) {
   if (p === 'pengaturan') document.querySelectorAll('.nav-btn')[2].classList.add('active');
 
   document.getElementById('header-gallery-stats').classList.toggle('show', p === 'galeri' && photos.length > 0);
+
+  // Tombol SIMPAN KE GALERI (fixed) hanya tampil saat halaman Upload aktif
+  document.getElementById('btn-upload').style.display = (p === 'tambah') ? 'block' : 'none';
 };
 
 window.switchTab = function(mode) {
@@ -943,17 +975,27 @@ document.getElementById('f-img-file').addEventListener('change', function() {
   }
 });
 
+// ======= PERBAIKAN #2: preview video TIDAK LAGI pakai elemen <video> asli
+// (browser HP tidak sanggup decode banyak video sekaligus -> muncul ikon
+// "play" patah). Sekarang video cukup ditandai ikon 🎬, gambar tetap
+// pratinjau seperti biasa. Proses upload sebenarnya tidak berubah. =======
 function renderFilePreview() {
   const wrap = document.getElementById('file-preview-list');
   if (!selectedFiles.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
   wrap.style.display = 'grid';
   wrap.innerHTML = selectedFiles.map((f, i) => {
     const isVid = f.type.startsWith('video/');
+    if (isVid) {
+      return `
+      <div class="preview-thumb">
+        <div class="preview-video-icon">🎬</div>
+        <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
+      </div>`;
+    }
     const url = URL.createObjectURL(f);
-    const media = isVid ? `<video src="${url}" muted></video>` : `<img src="${url}" alt="pratinjau ${i + 1}">`;
     return `
     <div class="preview-thumb">
-      ${media}
+      <img src="${url}" alt="pratinjau ${i + 1}" loading="lazy">
       <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
     </div>`;
   }).join('');
@@ -1316,6 +1358,7 @@ window.enterSelectMode = function(initialId) {
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('page-galeri').classList.add('active');
     document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    document.getElementById('btn-upload').style.display = 'none';
   }
 
   document.getElementById('main-gallery-grid').classList.add('select-mode-active');
