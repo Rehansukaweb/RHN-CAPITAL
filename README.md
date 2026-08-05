@@ -1933,16 +1933,17 @@ window.doAuth = async function() {
         setLoading(false);
     } catch(e) {
         let errorMsg = "Terjadi kesalahan. Silakan coba lagi.";
+        let isTooManyRequests = false; // Penanda khusus untuk error berkali-kali
         
         switch (e.code) {
             case 'auth/invalid-credential':
-                errorMsg = "Email atau Kata Sandi salah."; // Error gabungan jika Firebase mode perlindungan ketat aktif
+                errorMsg = "Email atau Kata Sandi salah."; 
                 break;
             case 'auth/wrong-password':
-                errorMsg = "Kata sandi Anda salah."; // Error spesifik sandi salah
+                errorMsg = "Kata sandi Anda salah."; 
                 break;
             case 'auth/user-not-found':
-                errorMsg = "Email belum terdaftar."; // Error spesifik email belum terdaftar
+                errorMsg = "Email belum terdaftar."; 
                 break;
             case 'auth/invalid-email':
                 errorMsg = "Format penulisan email tidak valid.";
@@ -1954,7 +1955,8 @@ window.doAuth = async function() {
                 errorMsg = "Kata sandi terlalu lemah (minimal 6 karakter).";
                 break;
             case 'auth/too-many-requests':
-                errorMsg = "Terlalu banyak percobaan gagal. Coba lagi nanti atau klik Lupa Sandi.";
+                errorMsg = "Terlalu banyak percobaan gagal. Coba lagi dalam 30 detik.";
+                isTooManyRequests = true; // Aktifkan penanda hitung mundur
                 break;
             case 'auth/network-request-failed':
                 errorMsg = "Gagal menyambung ke server. Periksa koneksi internet kamu.";
@@ -1966,8 +1968,30 @@ window.doAuth = async function() {
                     errorMsg = "Error sistem: " + (e.code || e.message);
                 }
         }
+        
         showErr(errorMsg);
-        setLoading(false);
+
+        // Logika Hitung Mundur Khusus
+        if (isTooManyRequests) {
+            const btn = document.getElementById('auth-submit-btn');
+            btn.disabled = true; // Matikan tombol agar tidak bisa diklik
+            let timeLeft = 30; // Mulai dari 30 detik
+            
+            const timerId = setInterval(() => {
+                timeLeft--;
+                btn.textContent = `TUNGGU ${timeLeft} DETIK`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId); // Hentikan timer
+                    btn.disabled = false; // Nyalakan lagi tombolnya
+                    btn.textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR';
+                    hideErr(); // Hapus pesan error merah setelah waktunya habis
+                }
+            }, 1000); // 1000 ms = 1 detik
+        } else {
+            // Jika error biasa (bukan too many requests), kembalikan tombol seperti semula
+            setLoading(false); 
+        }
     }
 };
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
