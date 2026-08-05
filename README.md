@@ -1918,23 +1918,55 @@ window.doAuth = async function() {
     const email = document.getElementById('auth-email').value.trim(); 
     const pass = document.getElementById('auth-pass').value; 
     hideErr(); 
-    if (!email || !pass) return showErr('Kredensial kosong.'); 
+    if (!email || !pass) return showErr('Email dan Sandi tidak boleh kosong.'); 
     setLoading(true); 
     try { 
         if (authMode === 'login') {
-            await withTimeout(signInWithEmailAndPassword(auth, email, pass), 3000, 'Proses login terlalu lama / macet. Cek koneksi lalu coba lagi.');
+            await withTimeout(signInWithEmailAndPassword(auth, email, pass), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
         } else { 
             if (pass !== document.getElementById('auth-pass2').value) {
                 setLoading(false);
-                return showErr('Sandi beda.');
+                return showErr('Konfirmasi Sandi tidak sama.');
             }
-            await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama / macet. Cek koneksi lalu coba lagi.');
+            await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
         }
-        // Sukses -> onAuthStateChanged yang lanjut nyembunyiin layar auth.
-        // Tapi kita tetap reset tombol untuk jaga-jaga kalau transisi lambat.
         setLoading(false);
     } catch(e) {
-        showErr(e.message);
+        let errorMsg = "Terjadi kesalahan. Silakan coba lagi.";
+        
+        switch (e.code) {
+            case 'auth/invalid-credential':
+                errorMsg = "Email atau Kata Sandi salah."; // Error gabungan jika Firebase mode perlindungan ketat aktif
+                break;
+            case 'auth/wrong-password':
+                errorMsg = "Kata sandi Anda salah."; // Error spesifik sandi salah
+                break;
+            case 'auth/user-not-found':
+                errorMsg = "Email belum terdaftar."; // Error spesifik email belum terdaftar
+                break;
+            case 'auth/invalid-email':
+                errorMsg = "Format penulisan email tidak valid.";
+                break;
+            case 'auth/email-already-in-use':
+                errorMsg = "Email ini sudah terdaftar. Silakan langsung masuk.";
+                break;
+            case 'auth/weak-password':
+                errorMsg = "Kata sandi terlalu lemah (minimal 6 karakter).";
+                break;
+            case 'auth/too-many-requests':
+                errorMsg = "Terlalu banyak percobaan gagal. Coba lagi nanti atau klik Lupa Sandi.";
+                break;
+            case 'auth/network-request-failed':
+                errorMsg = "Gagal menyambung ke server. Periksa koneksi internet kamu.";
+                break;
+            default:
+                if(e.message && !e.code) {
+                    errorMsg = e.message;
+                } else {
+                    errorMsg = "Error sistem: " + (e.code || e.message);
+                }
+        }
+        showErr(errorMsg);
         setLoading(false);
     }
 };
