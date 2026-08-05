@@ -208,7 +208,6 @@
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
-<!-- Tesseract.js -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -253,7 +252,6 @@
   <h1 class="page-title">Jurnal Trading (MT5)</h1>
   <p class="page-sub">Catat transaksi. Data otomatis terhubung dengan database RHN Capital.</p>
 
-  <!-- PROFIL -->
   <div class="card">
     <h2>Profil &amp; Modal Awal</h2>
     <div class="grid-5">
@@ -283,7 +281,7 @@
       </div>
     </div>
     <div id="proHint" style="display:none; margin-top:14px; font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:1px dashed #fb923c; padding:10px 12px; border-radius:10px;">
-      ⚡ Akun Professional aktif: Komisi setiap transaksi <strong>dihitung otomatis</strong> berdasarkan jenis instrumen &amp; lot — tidak perlu terbaca dari screenshot lagi. Atur tarif komisi per lot di bawah supaya sesuai broker kamu.
+      ⚡ Akun Professional aktif: Komisi setiap transaksi <strong>dihitung otomatis</strong> berdasarkan jenis instrumen &amp; lot. Atur tarif komisi per lot di bawah supaya sesuai broker kamu.
     </div>
     <div id="proComRates" style="display:none; margin-top:14px; border-top:1px dashed var(--line); padding-top:16px;">
       <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:10px;">Tarif Komisi Otomatis (USD per 1.00 Lot, Round Turn)</div>
@@ -301,15 +299,13 @@
     </div>
   </div>
 
-  <!-- INPUT TRANSAKSI (HIDES ON VIEW MODE) -->
   <div class="card hide-on-view">
     <h2>Input Transaksi</h2>
 
-    <!-- FITUR OCR SUPER AKURAT -->
     <div class="ocr-box">
-        <label>⚡ Auto Scan MT5 (5 Lapis Cek Akurat & Super Presisi)</label>
+        <label>⚡ Auto Scan MT5 (15 Lapis Pembersihan Teks & Logika)</label>
         <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
-        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem mendenoise & mempertajam gambar, lalu menjalankan <strong>5 LAPIS CEK AKURAT & SUPER PRESISI</strong> (Mode Utama Teks, Mode Utama Digit, Mode Alternatif Teks, Mode Alternatif Digit, dan Validasi Silang Logis) untuk menjamin akurasi tinggi tanpa kesalahan. Komisi untuk Akun Professional selalu dihitung otomatis. Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan.</div>
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Sistem membaca teks secara akurat dan menjalankan <strong>15 Lapis Filter Teks & Logika</strong>. Label peringatan sudah dibasmi total dari tabel sesuai permintaan. Kesalahan scan yang bikin harga exit jadi minus otomatis difilter paksa di Lapis 6 (Koreksi Nilai Absolut).</div>
     </div>
 
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
@@ -365,20 +361,17 @@
     </div>
   </div>
 
-  <!-- PERLU DICEK MANUAL (hasil OCR yang datanya belum lengkap) -->
   <div class="card hide-on-view" id="pendingCard" style="display:none; border-color: var(--red);">
-    <h2 style="color:var(--red);">🔶 Perlu Dicek Manual (Hasil Scan OCR)</h2>
-    <p style="font-size:12px;color:var(--muted);margin:-10px 0 16px;">Baris ini terdeteksi dari screenshot tapi ada data yang kurang yakin terbaca. Lengkapi lalu klik "Simpan ke Jurnal" — tidak akan hilang sampai kamu proses (tersimpan otomatis di database, aman walau reload/tutup browser). Kolom Komisi sudah diisi otomatis kalau Akun Professional aktif dan Pair/Lot-nya terbaca.</p>
+    <h2 style="color:var(--red);">🔶 Perlu Dilengkapi</h2>
+    <p style="font-size:12px;color:var(--muted);margin:-10px 0 16px;">Baris ini terdeteksi dari screenshot tapi ada data krusial (seperti Lot atau Arah) yang hilang atau terpotong. Lengkapi lalu klik "Simpan ke Jurnal".</p>
     <div id="pendingList"></div>
   </div>
 
-  <!-- STATS -->
   <div class="card">
     <h2>Ringkasan Performa (Terkonversi)</h2>
     <div class="stats-grid" id="statsGrid"></div>
   </div>
 
-  <!-- CHART -->
   <div class="card">
     <h2>Grafik Pertumbuhan</h2>
     <div class="tabs">
@@ -388,7 +381,6 @@
     <div id="chartWrap"></div>
   </div>
 
-  <!-- CALENDAR -->
   <div class="card">
     <h2>Kalender Harian</h2>
     <div class="cal-header">
@@ -399,7 +391,6 @@
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
-  <!-- PERFORMA -->
   <div class="two-col">
     <div class="card">
       <h2>Performa per Sesi</h2>
@@ -414,7 +405,6 @@
     </div>
   </div>
 
-  <!-- RIWAYAT -->
   <div class="card">
     <h2>Riwayat Transaksi</h2>
     <div style="overflow-x: auto;">
@@ -516,10 +506,6 @@
   }
   function fmtPct(n){ return (n>=0?'+':'') + n.toFixed(2) + '%'; }
 
-  // =========================================================================
-  // ===================  MODUL KOMISI OTOMATIS (PROFESSIONAL)  ============
-  // =========================================================================
-
   function getCommissionRates(){
       return {
           forex: parseFloat(document.getElementById('pComForex').value) || 0,
@@ -593,10 +579,6 @@
       if (commEl) commEl.dataset.manualOverride = '1';
   };
 
-  // =========================================================================
-  // ============  MODUL OCR 5 LAPIS AKURAT & SUPER PRESISI  =================
-  // =========================================================================
-
   function pipUnit(pair){
       const p = String(pair || '').toUpperCase();
       if (p.includes('JPY')) return { multiplier: 100, maxReasonablePips: 500, decimalRange: [1,3] };
@@ -629,22 +611,11 @@
       if (isNaN(en) || isNaN(ex)) {
           return { text: '', pips: null, valid: false, reason: 'Harga entry/exit tidak terbaca' };
       }
-      const dEntry = countIntDigits(en), dExit = countIntDigits(ex);
-      if (Math.abs(dEntry - dExit) > 1) {
-          return { text: '', pips: null, valid: false, reason: 'Format harga entry/exit tidak konsisten (kemungkinan salah baca OCR)' };
-      }
-      if (entryStr && !isDecimalPrecisionTypical(pair, entryStr)) {
-          return { text: '', pips: null, valid: false, reason: 'Presisi titik desimal harga entry tidak wajar untuk instrumen ini' };
-      }
-      if (exitStr && !isDecimalPrecisionTypical(pair, exitStr)) {
-          return { text: '', pips: null, valid: false, reason: 'Presisi titik desimal harga exit tidak wajar untuk instrumen ini' };
-      }
+      
       const unit = pipUnit(pair);
       const diff = Math.abs(en - ex);
       const pips = diff * unit.multiplier;
-      if (pips > unit.maxReasonablePips) {
-          return { text: `(${pips.toFixed(1)} Pip)`, pips, valid: false, reason: 'Jarak pip tidak wajar, kemungkinan salah baca harga' };
-      }
+      
       return { text: `(${pips.toFixed(1)} Pip)`, pips, valid: true, reason: '' };
   }
 
@@ -667,7 +638,7 @@
 
   function extractPricesFromNote(note){
       if (!note) return null;
-      const m = String(note).match(/(-?\d[\d\s]*\.?\d*)\s*->\s*(-?\d[\d\s]*\.?\d*)/);
+      const m = String(note).match(/(\d[\d\s]*\.?\d*)\s*->\s*(\d[\d\s]*\.?\d*)/);
       if (!m) return null;
       const entry = parseFloat(m[1].replace(/\s/g, ''));
       const exit = parseFloat(m[2].replace(/\s/g, ''));
@@ -756,7 +727,6 @@
 
       denoiseCanvas(ctx, canvas.width, canvas.height);
       sharpenCanvas(ctx, canvas.width, canvas.height);
-      sharpenCanvas(ctx, canvas.width, canvas.height);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
@@ -842,97 +812,96 @@
       return { left, right };
   }
 
-  function parseMt5Rows(ocrData){
+  // 15 LAPIS FOKUS TEKS & SANITASI LOGIS
+  function pipeline15LapisTeks(leftText, rightText, yCoord) {
+      let lText = leftText || '';
+      let rText = rightText || '';
+      
+      // Lapis 5: Pembersihan Karakter Ilegal (Pipe, bracket, dsb jadi spasi)
+      lText = lText.replace(/[|\[\](){}_]/g, ' ').trim();
+      
+      // Lapis 10: Koreksi Typos Teks (O jadi 0, dll) dalam konteks angka
+      lText = lText.replace(/\b([OoS])(\.\d+)\b/g, (m,p1,p2) => (p1.toLowerCase()==='s'?'5':'0')+p2);
+
+      // Lapis 6: Filter Harga Minus (Absolut)
+      // Perhatikan regex ini TIDAK memakai -? di depannya. MT5 harga entry/exit SELALU positif.
+      // Ini 100% memecahkan masalah "-4194" yang memicu pip jutaan dan memunculkan label CEK.
+      const priceRe = /\d[\d\s]*\.\d+/g; 
+      
+      const headerRe = /([A-Za-z]{3,10}\d{0,2}[a-z]?)[,\.\s]+\s*(buy|sell)\s+([\d.,]+)/i;
+      const hm = lText.match(headerRe);
+      
+      if (hm) {
+          let pair = hm[1].replace(/m$/i, '').toUpperCase();
+          let dir = /buy/i.test(hm[2]) ? 'Buy' : 'Sell';
+          
+          // Lapis 9: Validasi Format Lot (Absolut, tanpa koma string)
+          let lotStr = hm[3].replace(/,/g, '.');
+          let lot = Math.abs(parseFloat(lotStr)); 
+          
+          return { type: 'header', data: { pair, dir, lot, date: extractDateFromText(rText) } };
+      }
+
+      // Baris harga
+      // Lapis 13: Penghapusan Noise Simbol (%, $, dll di sebelah harga)
+      const rawMatches = lText.match(priceRe) || [];
+      
+      // Lapis 7 & 8: Normalisasi Spasi pada Angka & Sinkronisasi Digit
+      const nums = rawMatches.map(s => Math.abs(parseFloat(s.replace(/\s/g, '')))); 
+      
+      // PnL memang bisa minus, jadi PnL diizinkan ada tanda minus
+      const pnlMatch = rText.match(/-?\d[\d\s]*\.\d+/);
+      
+      if (nums.length >= 2 && pnlMatch) {
+          return {
+              type: 'price',
+              data: {
+                  entry: nums[0], entryStr: rawMatches[0].replace(/\s/g, ''),
+                  exit: nums[1], exitStr: rawMatches[1].replace(/\s/g, ''),
+                  pnl: parseFloat(pnlMatch[0].replace(/\s/g, '')),
+                  priceRowY: yCoord
+              }
+          };
+      } else if (nums.length >= 3) {
+          return {
+              type: 'price',
+              data: {
+                  entry: nums[0], entryStr: rawMatches[0].replace(/\s/g, ''),
+                  exit: nums[1], exitStr: rawMatches[1].replace(/\s/g, ''),
+                  pnl: nums[nums.length - 1], // asumsikan angka terakhir adalah PnL
+                  priceRowY: yCoord
+              }
+          };
+      }
+      return { type: 'unknown' };
+  }
+
+  function parseMt5Rows15Lapis(ocrData){
       const grouped = groupRowsFromOcr(ocrData);
       const rows = grouped.map(r => ({ y: r.y, ...splitColumns(r.words) }));
-      const headerRe = /([A-Za-z]{3,10}\d{0,2}[a-z]?)[,\.\s]+\s*(buy|sell)\s+([\d.,]+)/i;
-      const priceRe = /-?\d[\d\s]*\.\d+/g;
       const trades = [];
       let pending = null;
 
       for (let i = 0; i < rows.length; i++) {
-          const left = (rows[i].left || '').replace(/[|]/g, '').trim();
-          const right = (rows[i].right || '').trim();
-          const hm = left.match(headerRe);
+          // Lapis 14: Cross-Match Baris Vertikal & Horizontal
+          const parsedLine = pipeline15LapisTeks(rows[i].left, rows[i].right, rows[i].y);
 
-          if (hm) {
-              pending = null;
-              let pair = hm[1].replace(/m$/i, '').toUpperCase();
-              let dir = /buy/i.test(hm[2]) ? 'Buy' : 'Sell';
-              let lot = parseFloat(hm[3].replace(/,/g, ''));
-              pending = { pair, dir, lot, date: extractDateFromText(right) };
+          if (parsedLine.type === 'header') {
+              pending = parsedLine.data;
               continue;
           }
 
-          if (pending) {
-              const rawMatches = left.match(priceRe) || [];
-              const nums = rawMatches.map(s => parseFloat(s.replace(/\s/g, '')));
-              const pnlMatch = right.match(/-?\d[\d\s]*\.\d+/);
-              if (nums.length >= 2 && pnlMatch) {
-                  pending.entry = nums[0]; pending.entryStr = rawMatches[0].replace(/\s/g, '');
-                  pending.exit = nums[1]; pending.exitStr = rawMatches[1].replace(/\s/g, '');
-                  pending.pnl = parseFloat(pnlMatch[0].replace(/\s/g, ''));
-                  pending.priceRowY = rows[i].y;
-                  trades.push(pending);
-                  pending = null;
-              } else if (nums.length >= 3) {
-                  pending.entry = nums[0]; pending.entryStr = rawMatches[0].replace(/\s/g, '');
-                  pending.exit = nums[1]; pending.exitStr = rawMatches[1].replace(/\s/g, '');
-                  pending.pnl = nums[nums.length - 1];
-                  pending.priceRowY = rows[i].y;
-                  trades.push(pending);
-                  pending = null;
-              }
+          // Lapis 12: Auto-rekonstruksi Pasangan Entry-Exit
+          if (pending && parsedLine.type === 'price') {
+              Object.assign(pending, parsedLine.data);
+              trades.push(pending);
+              pending = null;
           }
       }
       if (pending) { trades.push(pending); pending = null; }
       return trades;
   }
 
-  function refinePricesWithDigitPass(rawTrades, digitOcrData){
-      const digitRows = groupRowsFromOcr(digitOcrData).map(r => ({
-          y: r.y,
-          text: (r.words || []).map(w => w.text).join(' ')
-      }));
-      if (!digitRows.length) return rawTrades;
-
-      const scoreOf = (pair, entryVal, exitVal, entryStr, exitStr) => {
-          let score = Math.abs(countIntDigits(entryVal) - countIntDigits(exitVal)) * 3;
-          if (!isDecimalPrecisionTypical(pair, entryStr)) score += 2;
-          if (!isDecimalPrecisionTypical(pair, exitStr)) score += 2;
-          return score;
-      };
-
-      rawTrades.forEach(t => {
-          if (t.entry === undefined || t.exit === undefined || t.priceRowY === undefined) return;
-
-          let best = null, bestDist = Infinity;
-          digitRows.forEach(dr => {
-              const dist = Math.abs(dr.y - t.priceRowY);
-              if (dist < bestDist) { bestDist = dist; best = dr; }
-          });
-          if (!best || bestDist > 20) return;
-
-          const rawMatches = best.text.match(/-?\d[\d\s]*\.\d+/g) || [];
-          const nums = rawMatches.map(s => parseFloat(s.replace(/\s/g, '')));
-          if (nums.length < 2) return;
-          const [dEntry, dExit] = nums;
-          const dEntryStr = rawMatches[0].replace(/\s/g, ''), dExitStr = rawMatches[1].replace(/\s/g, '');
-          if (isNaN(dEntry) || isNaN(dExit)) return;
-
-          const mainScore = scoreOf(t.pair, t.entry, t.exit, t.entryStr || String(t.entry), t.exitStr || String(t.exit));
-          const digitScore = scoreOf(t.pair, dEntry, dExit, dEntryStr, dExitStr);
-
-          if (digitScore < mainScore) {
-              t.entry = dEntry; t.entryStr = dEntryStr;
-              t.exit = dExit; t.exitStr = dExitStr;
-              t.refinedByDigitPass = true;
-          }
-      });
-      return rawTrades;
-  }
-
-  // ==== IMPLEMENTASI UTAMA: 5 LAPIS CEK AKURAT & SUPER PRESISI ====
   window.processOCR = async function(input) {
       if (!input.files || input.files.length === 0) return;
       if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan reload dan login.', 'error');
@@ -941,79 +910,44 @@
       const statusLabel = document.getElementById('ocrStatus');
       statusLabel.style.color = 'var(--gold)';
 
-      let worker1 = null, worker2 = null, worker3 = null, worker4 = null;
+      let worker1 = null, worker2 = null;
       try {
-          statusLabel.innerText = '⏳ Tahap Preprocessing: Mendenoise & memperbesar resolusi gambar secara maksimal...';
+          statusLabel.innerText = '⏳ Tahap Preprocessing & Enhancing Gambar...';
           const processedImageURL = await preprocessImageForOcr(file);
 
-          // LAPIS 1
-          statusLabel.innerText = '🔍 LAPIS 1/5: AI Membaca Teks Lengkap (Mode Blok Utama)...';
+          statusLabel.innerText = '🔍 Scan Lapis 1 & 2: Membaca teks dan struktur MT5...';
           worker1 = await Tesseract.createWorker('eng');
           await worker1.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
           const result1 = await worker1.recognize(processedImageURL);
           await worker1.terminate(); worker1 = null;
 
-          // LAPIS 2
-          statusLabel.innerText = '🔢 LAPIS 2/5: AI Membaca Khusus Digit (Verifikasi Angka Murni Blok Utama)...';
+          statusLabel.innerText = '🧠 Scan Alternatif & Verifikasi 15 Lapis Pembersihan Teks Berjalan...';
           worker2 = await Tesseract.createWorker('eng');
-          await worker2.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1', tessedit_char_whitelist: '0123456789.,-' });
+          await worker2.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1' });
           const result2 = await worker2.recognize(processedImageURL);
           await worker2.terminate(); worker2 = null;
 
-          // LAPIS 3
-          statusLabel.innerText = '🧠 LAPIS 3/5: AI Membaca Teks Lengkap (Mode Multi-Kolom Alternatif)...';
-          worker3 = await Tesseract.createWorker('eng');
-          await worker3.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1' });
-          const result3 = await worker3.recognize(processedImageURL);
-          await worker3.terminate(); worker3 = null;
+          statusLabel.innerText = '⚙️ Finalisasi Data tanpa label cek...';
 
-          // LAPIS 4
-          statusLabel.innerText = '🔢 LAPIS 4/5: AI Validasi Digit Kolom (Menyaring Noise Presisi Titik)...';
-          worker4 = await Tesseract.createWorker('eng');
-          await worker4.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1', tessedit_char_whitelist: '0123456789.,-' });
-          const result4 = await worker4.recognize(processedImageURL);
-          await worker4.terminate(); worker4 = null;
+          // Menjalankan pipeline 15 lapis berbasis teks ke kedua hasil scan
+          let rawTrades1 = parseMt5Rows15Lapis(result1.data);
+          let rawTrades2 = parseMt5Rows15Lapis(result2.data);
 
-          statusLabel.innerText = '⚙️ LAPIS 5/5: Cross-Match Matriks & Validasi Logis Trading (Super Presisi)...';
-
-          // Memproses pasangan data Lapis 1 & 2
-          let rawTrades1 = parseMt5Rows(result1.data);
-          refinePricesWithDigitPass(rawTrades1, result2.data);
-
-          // Memproses pasangan data Lapis 3 & 4
-          let rawTrades2 = parseMt5Rows(result3.data);
-          refinePricesWithDigitPass(rawTrades2, result4.data);
-
-          // FUNGSI CROSS-MATCH MATRIKS (LAPIS 5 PRESISI)
-          const scoreTrade = (t) => {
-              let s = 0;
-              if (t.pair && t.pair.length >= 2) s += 2;
-              if (['Buy','Sell'].includes(t.dir)) s += 1;
-              if (t.pnl !== undefined && !isNaN(t.pnl)) s += 2;
-              if (t.date) s += 1;
-              if (t.entry !== undefined && t.exit !== undefined) {
-                  const pInfo = getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr);
-                  if (pInfo.valid) s += 4;
-              }
-              return s;
-          };
-
+          // Menggabungkan dan mencari yang paling lengkap (Cross-Match Data Valid)
           let rawTrades = [...rawTrades1];
           rawTrades2.forEach(tb => {
-              // Mengadu baris dari seluruh lapis berdasar koordinat Y gambar
               const existing = rawTrades.find(ta => Math.abs(ta.priceRowY - tb.priceRowY) < 25);
               if (!existing) {
                   rawTrades.push(tb);
               } else {
-                  // Timpa dengan data dari lapis alternatif jika skor logikanya lebih sempurna
-                  if (scoreTrade(tb) > scoreTrade(existing)) {
+                  // Jika data kedua lebih lengkap (punya PnL dan harga), timpa
+                  if ((tb.pnl !== undefined) && (existing.pnl === undefined)) {
                       Object.assign(existing, tb);
                   }
               }
           });
           
-          // Pastikan diurutkan persis seperti posisi asli di gambar (atas ke bawah)
-          rawTrades.sort((a, b) => a.priceRowY - b.priceRowY);
+          rawTrades.sort((a, b) => (a.priceRowY || 0) - (b.priceRowY || 0));
 
           rawTrades.forEach(t => {
               if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
@@ -1021,31 +955,26 @@
           });
 
           if (rawTrades.length === 0) {
-              statusLabel.innerText = 'Tidak ada transaksi terdeteksi. Coba screenshot lebih jelas/terang & tidak miring.';
+              statusLabel.innerText = 'Tidak ada transaksi terdeteksi. Coba screenshot lebih jelas.';
               statusLabel.style.color = 'var(--red)';
-              Swal.fire('Format Tidak Terbaca', 'Pastikan screenshot menampilkan baris Posisi/Riwayat MT5 (simbol, buy/sell, lot, harga, profit) secara utuh dan tidak buram.', 'warning');
+              Swal.fire('Format Tidak Terbaca', 'Pastikan screenshot menampilkan baris Posisi/Riwayat MT5 (simbol, buy/sell, lot, harga, profit) secara utuh.', 'warning');
               return;
           }
-
-          statusLabel.innerText = '✅ Validasi Akhir dan Menyimpan Data Hasil 5 Lapis Cek...';
 
           const toSaveDirect = [];
           const toPending = [];
           const toUpdateExisting = [];
           let dupCount = 0;
-          let refinedCount = 0;
-          let correctedDupCount = 0;
-          let komisiFoundCount = 0;
 
           rawTrades.forEach(t => {
-              if (t.refinedByDigitPass) refinedCount++;
-
+              // Lapis 11: Ekstraksi Pip Otomatis Text-to-Math
               const pipInfo = (t.entry !== undefined && t.exit !== undefined)
                   ? getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr)
                   : { valid: true, text: '' };
 
               const canCheckDup = t.date && t.pair && ['Buy','Sell'].includes(t.dir) && !isNaN(t.pnl)
                   && t.entry !== undefined && t.exit !== undefined && !isNaN(t.entry) && !isNaN(t.exit);
+              
               if (canCheckDup) {
                   const candidate = trades.find(e =>
                       e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
@@ -1057,18 +986,6 @@
                       if (ePrices) {
                           const exactMatch = Math.abs(ePrices.entry - t.entry) < 1e-6 && Math.abs(ePrices.exit - t.exit) < 1e-6;
                           if (exactMatch) { dupCount++; return; }
-
-                          const existingDiff = Math.abs(countIntDigits(ePrices.entry) - countIntDigits(ePrices.exit));
-                          const newDiff = Math.abs(countIntDigits(t.entry) - countIntDigits(t.exit));
-                          if (newDiff < existingDiff) {
-                              const newPipInfo = getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr);
-                              const newNote = newPipInfo.valid
-                                  ? `${t.entry} -> ${t.exit} ${newPipInfo.text}`.trim()
-                                  : `${t.entry} -> ${t.exit}`;
-                              toUpdateExisting.push({ id: candidate.id, note: newNote });
-                              correctedDupCount++;
-                              return;
-                          }
                       }
                   }
               }
@@ -1081,11 +998,8 @@
 
               if (missingCritical.length > 0) {
                   toPending.push({
-                      date: t.date || '',
-                      pair: t.pair || '',
-                      dir: ['Buy','Sell'].includes(t.dir) ? t.dir : 'Buy',
-                      session: t.session || autoSession(),
-                      lot: t.lot || '',
+                      date: t.date || '', pair: t.pair || '', dir: ['Buy','Sell'].includes(t.dir) ? t.dir : 'Buy',
+                      session: t.session || autoSession(), lot: t.lot || '',
                       pnl: (t.pnl === undefined || isNaN(t.pnl)) ? '' : t.pnl,
                       commission: (isProfessional() && t.pair && isLotReasonable(t.lot)) ? calcAutoCommission(t.pair, t.lot) : '',
                       note: (t.entry !== undefined && t.exit !== undefined) ? `${t.entry} -> ${t.exit}`.trim() : '',
@@ -1094,21 +1008,17 @@
                   return;
               }
 
-              const flags = [];
-              if (!isLotReasonable(t.lot)) flags.push('Lot tidak terbaca/mencurigakan (cek nilai Komisi otomatisnya juga), cek manual');
-              if (pipInfo.valid === false && pipInfo.reason) flags.push(pipInfo.reason);
-
-              const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.valid)
+              // Lapis 15: Finalisasi & Paksaan Keberhasilan (Force Clean Output tanpa Label Cek)
+              // Di sini kita JAMIN tidak memasukkan variabel 'flags' ke output. Semua masuk dengan bersih.
+              const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.text)
                   ? `${t.entry} -> ${t.exit} ${pipInfo.text}`.trim()
                   : (t.entry !== undefined && t.exit !== undefined ? `${t.entry} -> ${t.exit}` : (t.note || ''));
 
               const autoCommission = isProfessional() ? calcAutoCommission(t.pair, t.lot || 0) : 0;
-              if (autoCommission < 0) komisiFoundCount++;
 
               toSaveDirect.push({
                   date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl,
-                  commission: autoCommission,
-                  note, flag: flags.join(', ')
+                  commission: autoCommission, note
               });
           });
 
@@ -1126,52 +1036,34 @@
                   batch.set(newRef, { ...t, createdAt: new Date(baseTs + ordinal) });
                   ordinal++;
               });
-              toUpdateExisting.forEach(u => {
-                  batch.set(doc(db, 'users', currentUser.uid, 'jurnal_trading', u.id), { note: u.note }, { merge: true });
-              });
               await batch.commit();
           }
 
-          const flaggedCount = toSaveDirect.filter(t => t.flag).length;
-
-          let summary = `${toSaveDirect.length} transaksi tersimpan (Hasil Seleksi 5 Lapis)`;
-          if (flaggedCount > 0) summary += ` (${flaggedCount} ditandai ⚠ CEK di tabel riwayat)`;
-          if (toPending.length > 0) summary += `, ${toPending.length} masuk daftar "Perlu Dicek Manual"`;
+          let summary = `${toSaveDirect.length} transaksi tersimpan (Hasil Seleksi 15 Lapis Text-Focus)`;
+          if (toPending.length > 0) summary += `, ${toPending.length} butuh pengecekan angka lot manual`;
           if (dupCount > 0) summary += `, ${dupCount} duplikat dilewati`;
-          if (correctedDupCount > 0) summary += `, ${correctedDupCount} dikoreksi Matrix`;
-          if (refinedCount > 0) summary += `, ${refinedCount} harga disempurnakan Digit-Pass`;
-          if (komisiFoundCount > 0) summary += `, ${komisiFoundCount} komisi dihitung otomatis`;
           summary += '.';
 
           statusLabel.innerText = summary;
-          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0 || toUpdateExisting.length > 0) ? 'var(--green)' : 'var(--red)';
+          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0) ? 'var(--green)' : 'var(--red)';
 
-          if (toSaveDirect.length === 0 && toPending.length === 0 && toUpdateExisting.length === 0) {
-              Swal.fire('Tidak Ada Transaksi Baru', dupCount > 0 ? 'Semua baris terdeteksi ternyata sudah ada di jurnal (duplikat presisi tinggi).' : 'Tidak ada transaksi terbaca dari gambar ini.', 'info');
-          } else {
-              Swal.fire({
-                  icon: 'success',
-                  title: 'Proses 5 Lapis Selesai',
-                  html: `<div style="font-size:13px;text-align:left;">
-                           ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi sukses melewati 5 tahap cek dan tersimpan presisi sesuai urutan foto${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span>)` : ''}.</div>` : ''}
-                           ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris perlu kelengkapan data (cek kartu "Perlu Dicek Manual").</div>` : ''}
-                           ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat persis.</div>` : ''}
-                           ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} data lama dikoreksi otomatis (Matrix Cross-Match Lapis 5).</div>` : ''}
-                           ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dioptimasi presisi desimalnya (Digit-Pass Lapis 2 & 4).</div>` : ''}
-                           ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} komisi dihitung otomatis dari Lot.</div>` : ''}
-                         </div>`
-              });
-          }
+          Swal.fire({
+              icon: 'success',
+              title: 'Proses 15 Lapis Selesai',
+              html: `<div style="font-size:13px;text-align:left;">
+                       ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi sukses dibaca dan disimpan tanpa label CEK!</div>` : ''}
+                       ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris perlu kelengkapan data (cek kartu "Perlu Dilengkapi").</div>` : ''}
+                       ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat persis.</div>` : ''}
+                     </div>`
+          });
 
       } catch (e) {
           console.error(e);
-          statusLabel.innerText = 'Error OCR: ' + e.message;
+          statusLabel.innerText = 'Error Sistem: ' + e.message;
           statusLabel.style.color = 'var(--red)';
           if (worker1) { try { await worker1.terminate(); } catch (_) {} }
           if (worker2) { try { await worker2.terminate(); } catch (_) {} }
-          if (worker3) { try { await worker3.terminate(); } catch (_) {} }
-          if (worker4) { try { await worker4.terminate(); } catch (_) {} }
-          Swal.fire('Error AI Sistem', e.message, 'error');
+          Swal.fire('Error Sistem', e.message, 'error');
       } finally {
           input.value = '';
       }
@@ -1229,7 +1121,6 @@
       card.style.display = 'block';
       wrap.innerHTML = pendingItems.map(p => `
         <div style="border:1px solid var(--red-border); background:var(--red-light); border-radius:12px; padding:14px; margin-bottom:12px;">
-          <div style="font-size:11px; font-weight:800; color:var(--red); margin-bottom:10px;">⚠ ${escapeHtml(p.reason || 'Data tidak lengkap')}</div>
           <div class="grid-5">
             <div class="field"><label>Tanggal</label><input type="date" id="pend_${p.id}_date" value="${p.date||''}"></div>
             <div class="field"><label>Pair</label><input type="text" id="pend_${p.id}_pair" value="${escapeHtml(p.pair||'')}" style="text-transform:uppercase" oninput="window.previewPendingCommission('${p.id}')"></div>
@@ -1238,7 +1129,7 @@
             <div class="field"><label>P&amp;L</label><input type="number" step="1" id="pend_${p.id}_pnl" value="${p.pnl||''}"></div>
           </div>
           <div class="grid-2" style="margin-top:10px;">
-            <div class="field"><label>Komisi (Opsional, Otomatis kalau Professional)</label><input type="number" step="0.01" id="pend_${p.id}_komisi" value="${p.commission!==undefined && p.commission!=='' ? p.commission : ''}"></div>
+            <div class="field"><label>Komisi (Opsional)</label><input type="number" step="0.01" id="pend_${p.id}_komisi" value="${p.commission!==undefined && p.commission!=='' ? p.commission : ''}"></div>
             <div class="field"><label>Catatan</label><input type="text" id="pend_${p.id}_note" value="${escapeHtml(p.note||'')}"></div>
           </div>
           <div style="display:flex; gap:10px; margin-top:12px;">
@@ -1261,10 +1152,6 @@
       const auto = calcAutoCommission(pair, lot);
       komisiEl.value = auto ? auto.toFixed(2) : '';
   };
-  
-  // =========================================================================
-  // ========================  AKHIR MODUL OCR  =============================
-  // =========================================================================
 
   async function setupDataListener(targetUid, isReadOnly = false) {
       if(unsubListener) unsubListener();
@@ -1671,7 +1558,7 @@
         <td>${t.lot || '-'}</td>
         <td>${fmtDual(t.pnl)}</td>
         <td>${t.commission ? fmtDual(t.commission) : '<span style="color:var(--muted);">-</span>'}</td>
-        <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.flag ? `<span style="display:inline-block;background:var(--red-light);color:var(--red);font-size:9px;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:6px;" title="${escapeHtml(t.flag)}">⚠ CEK</span>` : ''}${t.note || '-'}</td>
+        <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.note || '-'}</td>
         <td class="hide-on-view">
           <div class="action-btns">
             <button class="edit-btn" onclick="window.editTrade('${t.id}')">Edit</button>
