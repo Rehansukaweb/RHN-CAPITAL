@@ -35,7 +35,7 @@ input, textarea { user-select: text; }
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; touch-action: manipulation; }
 
 body {
   background-color: var(--body-bg);
@@ -44,6 +44,7 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 body.swal2-shown { padding-right: 0 !important; }
@@ -120,7 +121,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .header-right.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .header-logo { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; border: 1px solid var(--gold); flex-shrink: 0; }
 .header-title { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 1px; white-space: nowrap; }
-.page-main-title { font-size: 28px; font-weight: 500; margin: 15px 20px 20px; color: var(--text); }
+.page-main-title { font-size: 28px; font-weight: 500; margin: 15px 20px 12px; color: var(--text); }
 .photo-count-badge { font-size: 10px; font-weight: 700; color: var(--text2); background: var(--card); border: 1px solid var(--border); padding: 5px 9px; border-radius: 20px; white-space: nowrap; line-height: 1.4; }
 .photo-count-badge .badge-size { color: var(--gold); }
 .download-all-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); color: var(--gold); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease; flex-shrink: 0; touch-action: manipulation; }
@@ -135,6 +136,13 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .sel-icon-btn:active { transform: scale(0.9); }
 .sel-icon-btn.danger { color: var(--red); }
 .sel-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ======= BARU: Filter tab Semua / Foto / Video ======= */
+.media-filter-tabs { display: flex; gap: 8px; margin: 0 16px 14px; }
+.media-filter-tab { flex: 1; padding: 10px 8px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text2); font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.15s ease; touch-action: manipulation; }
+.media-filter-tab:active { transform: scale(0.96); }
+.media-filter-tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.media-filter-tab .tab-count { font-size: 10px; opacity: 0.75; }
 
 .album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 4px 20px; }
 @media (min-width: 480px) { .album-grid { grid-template-columns: repeat(4, 1fr); } }
@@ -168,7 +176,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .empty-state .title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .empty-state .sub { font-size: 12px; }
 
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 max(15px, env(safe-area-inset-bottom)) 0; border-top: 1px solid var(--border); z-index: 50; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; align-items: center; padding: 10px 0 max(15px, env(safe-area-inset-bottom)) 0; border-top: 1px solid var(--border); z-index: 50; touch-action: manipulation; }
 
 .floating-cancel-btn {
   position: fixed;
@@ -197,6 +205,34 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 }
 .floating-cancel-btn.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
 .floating-cancel-btn:active { transform: translateX(-50%) translateY(0) scale(0.95); }
+
+/* ======= BARU: Tombol scroll-ke-atas ======= */
+.scroll-top-btn {
+  position: fixed;
+  left: 50%;
+  transform: translateX(calc(-50% + 234px)) translateY(12px);
+  bottom: calc(78px + max(15px, env(safe-area-inset-bottom)));
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--gold);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.5);
+  z-index: 54;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s var(--ease-smooth);
+  touch-action: manipulation;
+}
+.scroll-top-btn.show { opacity: 1; pointer-events: auto; transform: translateX(calc(-50% + 234px)) translateY(0); }
+.scroll-top-btn:active { transform: translateX(calc(-50% + 234px)) translateY(0) scale(0.9); }
+
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text2); font-size: 11px; cursor: pointer; background: none; border: none; font-weight: 600; transition: color 0.25s ease, transform 0.15s ease; touch-action: manipulation; }
 .nav-item:active { transform: scale(0.9); }
 .nav-item .icon { font-size: 22px; filter: grayscale(1); opacity: 0.6; transition: filter 0.25s ease, opacity 0.25s ease, transform 0.25s var(--ease-smooth); }
@@ -215,12 +251,9 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 
 .upload-hint { font-size: 11px; color: var(--text2); margin: -6px 0 15px 2px; line-height: 1.6; }
 
-/* ======= PERBAIKAN #1: area preview dibatasi tinggi & bisa discroll sendiri,
-   supaya tidak membuat seluruh halaman jadi sangat panjang saat file banyak ======= */
 #file-preview-list { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; max-height: 260px; overflow-y: auto; padding-right: 2px; }
 .preview-thumb { position: relative; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); animation: fadeInSmooth 0.3s var(--ease-smooth) forwards; }
 .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
-/* ======= PERBAIKAN #2: ikon pengganti untuk preview video (bukan elemen <video> asli) ======= */
 .preview-video-icon { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; background: var(--bg-input); }
 .preview-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, transform 0.15s ease; touch-action: manipulation; }
 .preview-remove:active { transform: scale(0.85); }
@@ -231,15 +264,18 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .retry-bar-text { font-size: 12px; color: var(--red); font-weight: 600; line-height: 1.4; }
 .retry-bar-btn { background: var(--red); color: #000; border: none; padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; white-space: nowrap; touch-action: manipulation; }
 
-/* ======= PERBAIKAN UTAMA (diminta user): tombol "SIMPAN KE GALERI" sekarang
-   FIXED menempel tepat di atas bottom-nav (Galeri/Upload/Setelan), sehingga
-   SELALU terlihat & bisa dipencet walau daftar preview file sangat panjang.
-   Ditambahkan juga padding-bottom pada form supaya konten terakhir (input
-   judul) tidak ketutupan tombol ini saat discroll ke paling bawah. ======= */
 #page-tambah .card-form {
-  padding-bottom: 88px; /* ruang ekstra supaya tidak ketutupan tombol fixed */
+  padding-bottom: 88px;
 }
+/* ======= PERBAIKAN UTAMA: tombol SIMPAN KE GALERI disembunyikan secara
+   default lewat CSS, bukan cuma lewat JS. Sebelumnya elemen ini tidak
+   punya "display:none" bawaan, jadi saat aplikasi pertama kali dibuka di
+   halaman Galeri, tombol ini ikut nongol menutupi grid foto (karena JS
+   switchPage() yang mengatur display baru dipanggil kalau user pindah
+   tab). Sekarang defaultnya none, dan hanya JS yang membukanya ketika
+   tab "Upload" aktif. ======= */
 #btn-upload {
+  display: none;
   position: fixed;
   left: 50%;
   bottom: calc(72px + max(15px, env(safe-area-inset-bottom)));
@@ -373,7 +409,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       </div>
       <div class="header-right" id="header-gallery-stats">
         <button class="download-all-btn" id="btn-select-mode" title="Pilih beberapa foto" onclick="enterSelectMode()">☑️</button>
-        <button class="download-all-btn" id="btn-download-all" title="Unduh semua ke galeri HP" onclick="konfirmasiAksi('Unduh semua foto/video langsung ke galeri HP kamu?', downloadAllPhotos)">⬇️</button>
+        <button class="download-all-btn" id="btn-download-all" title="Unduh semua ke galeri HP" onclick="konfirmasiAksi('Unduh semua foto/video yang sedang tampil langsung ke galeri HP kamu?', downloadAllPhotos)">⬇️</button>
         <span class="photo-count-badge" id="photo-count-badge">0 foto</span>
       </div>
     </div>
@@ -395,6 +431,13 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
     <div class="main-content">
       <div id="page-galeri" class="page active">
         <div class="page-main-title">Semua Foto</div>
+
+        <div class="media-filter-tabs" id="media-filter-tabs">
+          <button class="media-filter-tab active" data-filter="all" onclick="setMediaFilter('all')">Semua <span class="tab-count" id="count-all"></span></button>
+          <button class="media-filter-tab" data-filter="image" onclick="setMediaFilter('image')">📷 Foto <span class="tab-count" id="count-image"></span></button>
+          <button class="media-filter-tab" data-filter="video" onclick="setMediaFilter('video')">🎬 Video <span class="tab-count" id="count-video"></span></button>
+        </div>
+
         <div class="album-grid" id="main-gallery-grid"></div>
       </div>
 
@@ -406,7 +449,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
             <button class="retry-bar-btn" onclick="retryFailedUploads()">Coba Lagi</button>
           </div>
           <input type="file" id="f-img-file" class="f-input-dark" accept="image/*,video/*" multiple style="padding: 12px; background: rgba(255,255,255,0.05) !important;">
-          <div class="upload-hint">Upload otomatis mengkompres setiap gambar secara cerdas hingga ukuran ≤ 200KB sebelum dikirim ke server. Foto tetap tajam. Maks. 100MB per file.</div>
+          <div class="upload-hint">Upload otomatis mengubah setiap foto ke format WebP hemat ruang dan mengompres pintar hingga ukuran ≤ 100KB (target ≤ 50KB) sebelum dikirim ke server. Foto tetap tajam. Video dioptimalkan otomatis oleh server (ukuran mengecil, kualitas tampilan dijaga). Maks. 100MB per file.</div>
           <div id="file-preview-list"></div>
           <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
         </div>
@@ -417,6 +460,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
         <div class="card-form">
           <button class="menu-btn" style="margin-bottom:10px;" onclick="enterSelectMode()">☑️ Pilih Beberapa Media</button>
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (Cloudinary, lebih hemat & cepat)?', migrateLegacyPhotos)">🔄 Migrasikan Foto Lama</button>
+          <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ubah semua foto (lama & baru) menjadi format WebP hemat ruang, target di bawah 100KB per foto? Video tidak akan diubah.', optimizeAllPhotosToWebP)">🗜️ Konversi Semua Foto ke WebP (≤100KB)</button>
+          <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Optimalkan semua video agar ukurannya lebih kecil tanpa menurunkan kualitas tampilan?', optimizeAllVideos)">🎞️ Optimalkan Ukuran Semua Video</button>
           <button class="menu-btn" style="margin-bottom:10px;" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">🔐 Ganti PIN</button>
           <button class="menu-btn danger" style="margin-bottom:10px;" onclick="mintaHapusSemuaFoto()">🧹 Hapus Semua Media</button>
           <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)">🚪 Keluar Akun</button>
@@ -424,22 +469,20 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
       </div>
     </div>
 
-    <!-- ======= PERBAIKAN UTAMA: tombol SIMPAN KE GALERI dipindah ke luar
-         .card-form, menjadi elemen fixed tersendiri, supaya SELALU tampil
-         di atas bottom-nav (Galeri/Upload/Setelan) dan tidak pernah
-         ketutupan walau daftar preview foto sangat panjang. ======= -->
     <button class="submit-btn" id="btn-upload" onclick="konfirmasiAksi('Simpan media ini ke galeri?', tambahFotoBaru)">SIMPAN KE GALERI</button>
 
+    <button class="scroll-top-btn" id="scroll-top-btn" onclick="scrollToTop()" aria-label="Ke atas" title="Ke atas">⬆️</button>
+
     <div class="bottom-nav">
-      <button class="nav-btn nav-item active" onclick="switchPage('galeri')">
+      <button class="nav-btn nav-item active" data-page="galeri">
         <span class="icon">🖼️</span>
         Galeri
       </button>
-      <button class="nav-btn nav-item" onclick="switchPage('tambah')">
+      <button class="nav-btn nav-item" data-page="tambah">
         <span class="icon">➕</span>
         Upload
       </button>
-      <button class="nav-btn nav-item" onclick="switchPage('pengaturan')">
+      <button class="nav-btn nav-item" data-page="pengaturan">
         <span class="icon">⚙️</span>
         Setelan
       </button>
@@ -505,10 +548,19 @@ const firebaseConfig = {
 const CLOUDINARY_CLOUD_NAME = "cishyrxo";
 const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned"; 
 
-// Batas ukuran & tipe file yang boleh diupload, mencegah orang upload file
-// aneh yang cuma di-rename jadi .jpg/.mp4
 const MAX_FILE_SIZE_MB = 100;
 const ALLOWED_TYPE_PREFIX = ['image/', 'video/'];
+
+const IMG_TARGET_IDEAL_BYTES = 50 * 1024;
+const IMG_TARGET_MAX_BYTES = 100 * 1024;
+
+// Apakah aplikasi berjalan sebagai app terinstal (PWA/TWA/WebView APK)
+// atau sebagai tab browser biasa. Dipakai untuk menyesuaikan cara "Unduh"
+// supaya file benar-benar masuk ke Galeri HP, bukan cuma folder Download
+// aplikasi yang tidak terlihat di Galeri.
+const IS_STANDALONE_APP = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+  || window.navigator.standalone === true
+  || document.referrer.includes('android-app://');
 
 function cldThumbUrl(p) {
   if (p.resourceType === 'video') {
@@ -526,8 +578,6 @@ function getThumbSrc(p) { return p.publicId ? cldThumbUrl(p) : (p.thumbURL || p.
 function getFullSrc(p) { return p.publicId ? cldFullUrl(p) : (p.fullURL || p.thumbURL || p.url); }
 function isVideoItem(p) { return p.resourceType === 'video'; }
 
-// Hash PIN dengan SHA-256 sebelum disimpan/dibandingkan, supaya PIN mentah
-// tidak pernah tersimpan sebagai plaintext di Firestore.
 async function hashPin(pin) {
   const enc = new TextEncoder().encode(pin);
   const buf = await crypto.subtle.digest('SHA-256', enc);
@@ -558,7 +608,7 @@ let photoNodes = new Map();
 let currentViewPhotoId = null;
 let authMode = 'login';
 let selectedFiles = [];
-let failedFiles = []; // menyimpan file yang gagal upload, untuk fitur "Coba Lagi"
+let failedFiles = []; // { file, originalIndex } — supaya judul tetap konsisten saat "Coba Lagi"
 let lastUploadTitle = '';
 let isBusy = false;
 
@@ -567,6 +617,9 @@ let selectedIds = new Set();
 let pressTimer = null;
 let longPressFired = false;
 let toastTimer = null;
+
+// ======= BARU: state filter Semua / Foto / Video =======
+let mediaFilter = 'all';
 
 async function runWithConcurrency(items, limit, worker) {
   let idx = 0;
@@ -586,20 +639,9 @@ async function runWithConcurrency(items, limit, worker) {
   return results;
 }
 
-// BATCH_CHUNK_SIZE = MAX Firestore batch (500 operasi per batch)
 const BATCH_CHUNK_SIZE = 500;
-
-// Batas concurrency upload paralel ke Cloudinary. Dinaikkan ke 200 sesuai
-// permintaan — cocok untuk koneksi kencang (WiFi) & file yang sudah
-// dikompres kecil. Di koneksi lambat, sisa antrean otomatis menunggu giliran
-// karena browser & server tetap membatasi berapa banyak yang benar-benar
-// jalan bersamaan; kalau banyak gagal karena rate-limit, tombol "Coba Lagi"
-// di halaman Upload bisa dipakai untuk mengulang file yang gagal saja.
 const UPLOAD_CONCURRENCY_CAP = 200;
 
-// Batch commit SEKARANG DIJALANKAN PARALEL (bukan berurutan) — jika ada >500 item,
-// semua chunk batch dikirim bersamaan, bukan menunggu satu-satu. Ini membuat
-// operasi simpan/hapus massal jauh lebih cepat saat jumlah file banyak.
 async function commitSetBatches(items, onProgress) {
   const chunks = [];
   for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
@@ -669,20 +711,38 @@ window.showMiniToast = function(msg, duration = 1600) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
 };
 
+/* ==========================================================================
+   PERBAIKAN NAVIGASI BAWAH (Galeri / Upload / Setelan) TERASA DELAY
+   ----------------------------------------------------------------------
+   Sebelumnya tombol nav pakai atribut onclick biasa. Di beberapa WebView
+   Android bawaan aplikasi (APK hasil bungkus web), event click punya jeda
+   ~300ms dan animasi fade dipaksa menunggu. Sekarang tombol nav didaftarkan
+   lewat addEventListener('pointerup', ...) yang bereaksi lebih cepat
+   daripada 'click', dan pindah halaman tidak lagi menunggu animasi selesai.
+   ========================================================================== */
+document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
+  btn.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    switchPage(btn.dataset.page);
+  }, { passive: false });
+});
+
 window.switchPage = function(p) {
   if (selectMode) exitSelectMode();
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('page-' + p).classList.add('active');
 
-  if (p === 'galeri') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-  if (p === 'tambah') document.querySelectorAll('.nav-btn')[1].classList.add('active');
-  if (p === 'pengaturan') document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(el => {
+    if (el.dataset.page === p) el.classList.add('active');
+  });
 
   document.getElementById('header-gallery-stats').classList.toggle('show', p === 'galeri' && photos.length > 0);
-
-  // Tombol SIMPAN KE GALERI (fixed) hanya tampil saat halaman Upload aktif
   document.getElementById('btn-upload').style.display = (p === 'tambah') ? 'block' : 'none';
+
+  // Tombol scroll-ke-atas cuma relevan di halaman Galeri
+  if (p !== 'galeri') hideScrollTopBtn();
+  window.scrollTo({ top: 0, behavior: 'auto' });
 };
 
 window.switchTab = function(mode) {
@@ -823,8 +883,6 @@ onAuthStateChanged(auth, async user => {
       document.getElementById('pin-title').textContent = 'Buat PIN Baru';
       window.pinMode = 'setup';
     } else {
-      // Kompatibel dengan data lama yang masih plaintext (pin), sekaligus
-      // menyimpan versi hash-nya (pinHash) untuk data baru/ubahan berikutnya.
       window.userCloudPinHash = secData.pinHash || null;
       window.userCloudPinLegacy = secData.pin || null;
       document.getElementById('pin-title').textContent = 'Masukkan PIN';
@@ -880,10 +938,9 @@ document.getElementById('app-pin').addEventListener('input', async function() {
       const hash = await hashPin(this.value);
       const cocok = window.userCloudPinHash
         ? hash === window.userCloudPinHash
-        : this.value === window.userCloudPinLegacy; // fallback data lama yang belum di-hash
+        : this.value === window.userCloudPinLegacy;
 
       if (cocok) {
-        // Kalau user masih punya PIN lama (plaintext), migrasikan diam-diam ke hash
         if (!window.userCloudPinHash && window.userCloudPinLegacy) {
           try {
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
@@ -916,6 +973,10 @@ function unlockApp() {
     document.getElementById('app-pin').value = '';
     renderSkeleton();
     listenPhotos();
+    // Pastikan state tombol/nav konsisten dengan halaman Galeri yang aktif
+    // sejak awal (memperbaiki tombol "SIMPAN KE GALERI" yang dulu nyasar
+    // muncul di halaman Galeri).
+    switchPage('galeri');
 
     setTimeout(() => appScrn.classList.remove('fade-in'), 200);
   }, 350);
@@ -975,10 +1036,6 @@ document.getElementById('f-img-file').addEventListener('change', function() {
   }
 });
 
-// ======= PERBAIKAN #2: preview video TIDAK LAGI pakai elemen <video> asli
-// (browser HP tidak sanggup decode banyak video sekaligus -> muncul ikon
-// "play" patah). Sekarang video cukup ditandai ikon 🎬, gambar tetap
-// pratinjau seperti biasa. Proses upload sebenarnya tidak berubah. =======
 function renderFilePreview() {
   const wrap = document.getElementById('file-preview-list');
   if (!selectedFiles.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
@@ -1019,86 +1076,92 @@ function hideRetryBar() {
   failedFiles = [];
 }
 
-/* ==========================================================================
-   ALGORITMA KOMPRESI TERCEPAT
-   - Prioritas: createImageBitmap() + OffscreenCanvas (dekode & resize native
-     browser, jauh lebih cepat & hemat memori daripada elemen <img> + <canvas>
-     DOM biasa, dan tidak memicu reflow/paint).
-   - Fallback otomatis ke metode <img>+<canvas> untuk browser lama yang belum
-     mendukung API di atas, supaya tetap 100% kompatibel.
-   ========================================================================== */
-async function compressToBlobFast(file, maxDim) {
+async function getImageSource(file) {
   if (window.createImageBitmap) {
     try {
       const bitmap = await createImageBitmap(file);
-      let w = bitmap.width;
-      let h = bitmap.height;
+      return { source: bitmap, width: bitmap.width, height: bitmap.height, cleanup: () => { try { bitmap.close(); } catch (e) {} } };
+    } catch (e) {
+      console.warn('createImageBitmap gagal, fallback ke <img>:', e);
+    }
+  }
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error('Gagal memuat gambar'));
+    el.src = url;
+  });
+  return { source: img, width: img.naturalWidth || img.width, height: img.naturalHeight || img.height, cleanup: () => URL.revokeObjectURL(url) };
+}
 
-      if (w > maxDim || h > maxDim) {
-        const ratio = Math.min(maxDim / w, maxDim / h);
+function encodeCanvas(source, w, h, mimeType, quality) {
+  return new Promise((resolve, reject) => {
+    if (typeof OffscreenCanvas !== 'undefined') {
+      try {
+        const canvas = new OffscreenCanvas(w, h);
+        const ctx = canvas.getContext('2d', { alpha: false });
+        ctx.drawImage(source, 0, 0, w, h);
+        canvas.convertToBlob({ type: mimeType, quality }).then(resolve).catch(reject);
+        return;
+      } catch (e) {
+        reject(e);
+        return;
+      }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    ctx.drawImage(source, 0, 0, w, h);
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Gagal mengompres gambar')), mimeType, quality);
+  });
+}
+
+async function compressImageSmart(file, opts = {}) {
+  const { source, width, height, cleanup } = await getImageSource(file);
+
+  let mimeType = 'image/webp';
+  let dim = opts.maxDim || 1600;
+  let quality = 0.82;
+  let bestBlob = null;
+
+  try {
+    for (let attempt = 0; attempt < 9; attempt++) {
+      let w = width, h = height;
+      if (w > dim || h > dim) {
+        const ratio = Math.min(dim / w, dim / h);
         w = Math.max(1, Math.round(w * ratio));
         h = Math.max(1, Math.round(h * ratio));
       }
 
-      let blob;
-      if (typeof OffscreenCanvas !== 'undefined') {
-        const canvas = new OffscreenCanvas(w, h);
-        const ctx = canvas.getContext('2d', { alpha: false });
-        ctx.drawImage(bitmap, 0, 0, w, h);
-        bitmap.close();
-        blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.72 });
-      } else {
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d', { alpha: false });
-        ctx.drawImage(bitmap, 0, 0, w, h);
-        bitmap.close();
-        blob = await new Promise((resolve, reject) => {
-          canvas.toBlob(b => b ? resolve(b) : reject(new Error('Gagal kompres')), 'image/jpeg', 0.72);
-        });
+      let blob = null;
+      try {
+        blob = await encodeCanvas(source, w, h, mimeType, quality);
+      } catch (e) {
+        blob = null;
       }
-      return blob;
-    } catch (e) {
-      console.warn('createImageBitmap gagal, fallback ke metode klasik:', e);
-      // lanjut ke fallback di bawah
+
+      if (!blob || (blob.type && mimeType === 'image/webp' && blob.type !== 'image/webp')) {
+        mimeType = 'image/jpeg';
+        blob = await encodeCanvas(source, w, h, mimeType, quality);
+      }
+
+      bestBlob = blob;
+      if (blob.size <= IMG_TARGET_IDEAL_BYTES) break;
+      if (blob.size <= IMG_TARGET_MAX_BYTES && attempt >= 5) break;
+
+      if (quality > 0.35) {
+        quality = Math.max(0.35, quality - 0.12);
+      } else {
+        dim = Math.round(dim * 0.82);
+        quality = 0.6;
+      }
     }
+  } finally {
+    cleanup && cleanup();
   }
 
-  // Fallback klasik (ObjectURL + <img> + <canvas>), dipakai jika API modern tidak tersedia/gagal
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let w = img.width;
-      let h = img.height;
-
-      if (w > maxDim || h > maxDim) {
-        const ratio = Math.min(maxDim / w, maxDim / h);
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-
-      const ctx = canvas.getContext('2d', { alpha: false });
-      ctx.drawImage(img, 0, 0, w, h);
-
-      canvas.toBlob(blob => {
-        if (blob) resolve(blob);
-        else reject(new Error('Gagal kompres'));
-      }, 'image/jpeg', 0.72);
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Gagal memuat gambar'));
-    };
-    img.src = url;
-  });
+  return bestBlob;
 }
 
 function uid4() {
@@ -1106,11 +1169,30 @@ function uid4() {
   return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
 }
 
+/* ==========================================================================
+   UPLOAD KE CLOUDINARY
+   ----------------------------------------------------------------------
+   Untuk VIDEO, kita minta Cloudinary melakukan "eager transformation" saat
+   upload: transcode ke H.264 dengan q_auto (kualitas otomatis dijaga
+   setinggi mungkin sambil memangkas bitrate yang tidak perlu — mata manusia
+   umumnya tidak bisa membedakan, tapi ukuran file bisa turun signifikan)
+   dan menghapus metadata yang tidak perlu. Ini butuh preset unsigned di
+   dashboard Cloudinary mengizinkan "eager transformations" — kalau preset
+   belum mengizinkannya, Cloudinary otomatis mengabaikan parameter ini dan
+   video tetap tersimpan seperti biasa (tidak ada yang rusak), hanya saja
+   belum lebih hemat ruang sampai preset-nya diaktifkan.
+   ========================================================================== */
 async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   const form = new FormData();
   form.append('file', fileOrBlob, filenameHint);
   form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
   form.append('folder', `users/${currentUser.uid}/media`);
+
+  if (isVideo) {
+    // Diabaikan otomatis oleh Cloudinary jika preset tidak mengizinkan eager.
+    form.append('eager', 'q_auto,vc_auto');
+    form.append('eager_async', 'false');
+  }
 
   const resourceType = isVideo ? 'video' : 'image';
   const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
@@ -1122,18 +1204,36 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
     throw new Error('Upload Cloudinary gagal: ' + errText);
   }
   const data = await resp.json();
-  return { publicId: data.public_id, resourceType, format: data.format, size: data.bytes };
+
+  let publicId = data.public_id;
+  let format = data.format;
+  let size = data.bytes;
+
+  // Kalau eager transformation berhasil dan hasilnya lebih kecil, pakai versi itu.
+  if (isVideo && Array.isArray(data.eager) && data.eager.length) {
+    const eager = data.eager[0];
+    if (eager && eager.bytes && eager.bytes < size) {
+      size = eager.bytes;
+      format = eager.format || format;
+    }
+  }
+
+  return { publicId, resourceType, format, size };
 }
 
 async function uploadSinglePhoto(file, customTitle, index, total) {
   const isVideo = file.type.startsWith('video/');
-  // Panggil fungsi kompresi tercepat (createImageBitmap/OffscreenCanvas)
-  const toUpload = isVideo ? file : await compressToBlobFast(file, 1600);
+  const toUpload = isVideo ? file : await compressImageSmart(file);
+  const filenameHint = isVideo ? file.name : 'foto.webp';
 
-  const meta = await uploadToCloudinary(toUpload, file.name, isVideo);
-  // Sertakan timestamp+index di judul biar tidak bentrok walau upload beda
-  // sesi pakai judul custom yang sama persis.
-  const baseTitle = customTitle ? (total > 1 ? `${customTitle} - ${index + 1}` : customTitle) : file.name;
+  const meta = await uploadToCloudinary(toUpload, filenameHint, isVideo);
+
+  // ======= PERBAIKAN: judul yang diberikan user sekarang SELALU dipakai
+  // apa adanya kalau cuma 1 file. Untuk banyak file sekaligus, urutan
+  // penomoran (1, 2, 3, ...) mengikuti urutan file dipilih di galeri HP —
+  // BUKAN urutan selesai diupload — supaya hasil penamaan tidak acak
+  // meskipun upload berjalan paralel. ==========================
+  const baseTitle = customTitle ? (total > 1 ? `${customTitle} ${index + 1}` : customTitle) : file.name.replace(/\.[^/.]+$/, '');
   const title = baseTitle;
   const id = uid4();
 
@@ -1148,9 +1248,9 @@ async function migrateLegacyPhoto(p) {
   const resp = await fetch(sourceUrl);
   const originalBlob = await resp.blob();
   const asFile = new File([originalBlob], 'legacy.jpg', { type: originalBlob.type || 'image/jpeg' });
-  const compressed = await compressToBlobFast(asFile, 1600);
+  const compressed = await compressImageSmart(asFile);
 
-  const meta = await uploadToCloudinary(compressed, 'legacy.jpg', false);
+  const meta = await uploadToCloudinary(compressed, 'legacy.webp', false);
 
   await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), {
     ...meta,
@@ -1205,7 +1305,149 @@ window.migrateLegacyPhotos = async function() {
   }
 };
 
-async function jalankanUpload(filesToUpload, customTitle) {
+async function optimizeSinglePhotoToWebP(p) {
+  const sourceUrl = getFullSrc(p);
+  const resp = await fetch(sourceUrl, { cache: 'no-cache' });
+  const originalBlob = await resp.blob();
+  const asFile = new File([originalBlob], 'foto.jpg', { type: originalBlob.type || 'image/jpeg' });
+  const compressed = await compressImageSmart(asFile);
+
+  const meta = await uploadToCloudinary(compressed, 'foto.webp', false);
+
+  await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), {
+    ...meta,
+    thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField()
+  }, { merge: true });
+}
+
+window.optimizeAllPhotosToWebP = async function() {
+  if (isBusy) return;
+  const target = photos.filter(p => !isVideoItem(p) && (p.format !== 'webp' || !p.size || p.size > IMG_TARGET_MAX_BYTES));
+
+  if (!target.length) {
+    return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah Optimal', text: `Semua foto sudah berformat WebP dan di bawah ${Math.round(IMG_TARGET_MAX_BYTES / 1024)}KB.`, background: 'var(--card)', color: 'var(--text)', timer: 2000, showConfirmButton: false });
+  }
+
+  isBusy = true;
+  const total = target.length;
+  let done = 0;
+  let failed = 0;
+
+  customSwal.fire({
+    title: `Konversi WebP 0/${total}...`,
+    text: 'Mohon jangan tutup halaman ini dulu. Foto tetap bisa dibuka selama proses berjalan.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    await runWithConcurrency(target, 8, async (p) => {
+      try {
+        await optimizeSinglePhotoToWebP(p);
+      } catch (e) {
+        console.error('Gagal konversi WebP', p.id, e);
+        failed++;
+      } finally {
+        done++;
+        customSwal.update({ title: `Konversi WebP ${done}/${total}...` });
+      }
+    });
+
+    if (failed > 0) {
+      customSwal.fire({ icon: 'warning', title: 'Konversi Selesai Dengan Peringatan', text: `${total - failed} foto berhasil dikonversi ke WebP, ${failed} gagal. Jalankan lagi untuk mencoba yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
+    } else {
+      customSwal.fire({ icon: 'success', title: 'Konversi Selesai', text: `${total} foto berhasil diubah ke WebP hemat ruang.`, background: 'var(--card)', color: 'var(--text)', timer: 2200, showConfirmButton: false });
+    }
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Konversi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    isBusy = false;
+  }
+};
+
+/* ==========================================================================
+   BARU: "Optimalkan Ukuran Semua Video" (Setelan)
+   ----------------------------------------------------------------------
+   Mengunduh ulang video yang sudah tersimpan, lalu mengunggahnya kembali
+   lewat Cloudinary dengan eager transformation q_auto/vc_auto supaya
+   ukurannya mengecil tanpa terlihat menurunkan kualitas. Kalau hasil
+   optimasi TIDAK lebih kecil dari video asli (preset belum mendukung
+   eager, atau video sudah efisien), video asli dibiarkan apa adanya —
+   tidak ada risiko video jadi rusak/hilang kualitas.
+   ========================================================================== */
+async function optimizeSingleVideo(p) {
+  const sourceUrl = getFullSrc(p);
+  const resp = await fetch(sourceUrl, { cache: 'no-cache' });
+  const originalBlob = await resp.blob();
+  const originalSize = p.size || originalBlob.size;
+  const asFile = new File([originalBlob], 'video.mp4', { type: originalBlob.type || 'video/mp4' });
+
+  const meta = await uploadToCloudinary(asFile, 'video.mp4', true);
+
+  if (!meta.size || meta.size >= originalSize) {
+    // Tidak ada penghematan nyata — jangan ganti video yang sudah ada.
+    return false;
+  }
+
+  await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), {
+    ...meta
+  }, { merge: true });
+  return true;
+}
+
+window.optimizeAllVideos = async function() {
+  if (isBusy) return;
+  const target = photos.filter(p => isVideoItem(p));
+
+  if (!target.length) {
+    return customSwal.fire({ icon: 'info', title: 'Tidak Ada Video', text: 'Belum ada video di galeri.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
+
+  isBusy = true;
+  const total = target.length;
+  let done = 0;
+  let optimized = 0;
+  let failed = 0;
+
+  customSwal.fire({
+    title: `Optimasi video 0/${total}...`,
+    text: 'Mohon jangan tutup halaman ini dulu.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    await runWithConcurrency(target, 4, async (p) => {
+      try {
+        const berhasil = await optimizeSingleVideo(p);
+        if (berhasil) optimized++;
+      } catch (e) {
+        console.error('Gagal optimasi video', p.id, e);
+        failed++;
+      } finally {
+        done++;
+        customSwal.update({ title: `Optimasi video ${done}/${total}...` });
+      }
+    });
+
+    customSwal.fire({
+      icon: failed > 0 ? 'warning' : 'success',
+      title: 'Optimasi Video Selesai',
+      text: `${optimized} video berhasil diperkecil, ${total - optimized - failed} sudah optimal, ${failed} gagal diproses.`,
+      background: 'var(--card)', color: 'var(--text)'
+    });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Optimasi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    isBusy = false;
+  }
+};
+
+async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const total = filesToUpload.length;
   let completed = 0;
   let failed = 0;
@@ -1219,20 +1461,18 @@ async function jalankanUpload(filesToUpload, customTitle) {
     didOpen: () => customSwal.showLoading()
   });
 
-  // CONCURRENCY: mengikuti jumlah file, dibatasi hingga 200 sekaligus.
-  // Browser modern via HTTP/2 mampu menangani banyak koneksi paralel ke
-  // Cloudinary; batas atas 200 dipakai sesuai kebutuhan upload cepat dalam
-  // jumlah besar. Kalau koneksi lemah/rate limit server tercapai, file yang
-  // gagal otomatis masuk daftar retry, tidak perlu pilih ulang dari galeri HP.
   const concurrency = Math.min(UPLOAD_CONCURRENCY_CAP, Math.max(8, total));
   await runWithConcurrency(filesToUpload, concurrency, async (file, i) => {
+    // Gunakan nomor urut ASLI (dari pemilihan awal) kalau ada, supaya
+    // penamaan tetap konsisten walau ini proses "Coba Lagi".
+    const originalIndex = indexOffsetMap ? indexOffsetMap[i] : i;
     try {
-      const result = await uploadSinglePhoto(file, customTitle, i, total);
+      const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total);
       pendingDocs.push(result);
     } catch (e) {
       console.error('Gagal upload salah satu foto:', e);
       failed++;
-      gagalKaliIni.push(file);
+      gagalKaliIni.push({ file, originalIndex });
     } finally {
       completed++;
       customSwal.update({ title: `Mengupload ${completed}/${total}...` });
@@ -1292,10 +1532,15 @@ window.retryFailedUploads = async function() {
   isBusy = true;
   const uploadBtn = document.getElementById('btn-upload');
   uploadBtn.disabled = true;
-  const filesToRetry = failedFiles.slice();
+
+  // Bawa nomor urut asli supaya judul "Nama 3" tetap "Nama 3", bukan
+  // berubah jadi "Nama 1" hanya karena ini file kedua yang di-retry.
+  const filesToRetry = failedFiles.map(f => f.file);
+  const indexMap = failedFiles.map(f => f.originalIndex);
+  indexMap.total = Math.max(...indexMap.map(n => n + 1));
 
   try {
-    await jalankanUpload(filesToRetry, lastUploadTitle);
+    await jalankanUpload(filesToRetry, lastUploadTitle, indexMap);
     if (!failedFiles.length) {
       selectedFiles = [];
       renderFilePreview();
@@ -1310,14 +1555,66 @@ window.retryFailedUploads = async function() {
   }
 };
 
-function hitungTotalUkuranMB() {
-  const totalBytes = photos.reduce((sum, p) => {
+function hitungTotalUkuranMB(list) {
+  const arr = list || photos;
+  const totalBytes = arr.reduce((sum, p) => {
     if (p.size) return sum + p.size;               
     if (p.url) return sum + (p.url.length * 0.75);  
     return sum;
   }, 0);
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
+
+/* ======= BARU: helper untuk daftar foto yang sedang tampil sesuai filter
+   Semua / Foto / Video. Dipakai di render grid, viewer, unduh semua, dsb,
+   supaya semuanya konsisten dengan tab yang sedang aktif. ======= */
+function filteredPhotos() {
+  if (mediaFilter === 'image') return photos.filter(p => !isVideoItem(p));
+  if (mediaFilter === 'video') return photos.filter(p => isVideoItem(p));
+  return photos;
+}
+
+window.setMediaFilter = function(f) {
+  if (mediaFilter === f) return;
+  if (selectMode) exitSelectMode();
+  mediaFilter = f;
+  document.querySelectorAll('.media-filter-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.filter === f);
+  });
+  renderGallery();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+};
+
+function updateFilterCounts() {
+  const totalImg = photos.filter(p => !isVideoItem(p)).length;
+  const totalVid = photos.filter(p => isVideoItem(p)).length;
+  document.getElementById('count-all').textContent = photos.length ? `(${photos.length})` : '';
+  document.getElementById('count-image').textContent = totalImg ? `(${totalImg})` : '';
+  document.getElementById('count-video').textContent = totalVid ? `(${totalVid})` : '';
+}
+
+/* ======= BARU: tombol scroll-ke-atas ======= */
+function hideScrollTopBtn() {
+  document.getElementById('scroll-top-btn').classList.remove('show');
+}
+window.scrollToTop = function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    const btn = document.getElementById('scroll-top-btn');
+    const isGaleriActive = document.getElementById('page-galeri').classList.contains('active');
+    if (isGaleriActive && window.scrollY > 500) {
+      btn.classList.add('show');
+    } else {
+      btn.classList.remove('show');
+    }
+    scrollTicking = false;
+  });
+}, { passive: true });
 
 window.startPress = function(id) {
   longPressFired = false;
@@ -1344,7 +1641,7 @@ window.handleCardClick = function(id) {
 };
 
 window.enterSelectMode = function(initialId) {
-  if (!photos.length) return;
+  if (!filteredPhotos().length) return;
   selectMode = true;
 
   document.getElementById('normal-header').style.display = 'none';
@@ -1357,7 +1654,7 @@ window.enterSelectMode = function(initialId) {
     document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('page-galeri').classList.add('active');
-    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(el => { if (el.dataset.page === 'galeri') el.classList.add('active'); });
     document.getElementById('btn-upload').style.display = 'none';
   }
 
@@ -1395,13 +1692,15 @@ function toggleSelect(id) {
 }
 
 window.toggleSelectAll = function() {
-  if (selectedIds.size === photos.length) {
-    selectedIds.forEach(id => setCardSelected(id, false));
-    selectedIds.clear();
-    exitSelectMode();
+  const visible = filteredPhotos();
+  const allVisibleSelected = visible.length > 0 && visible.every(p => selectedIds.has(p.id));
+  if (allVisibleSelected) {
+    visible.forEach(p => { selectedIds.delete(p.id); setCardSelected(p.id, false); });
+    if (selectedIds.size === 0) { exitSelectMode(); return; }
+    updateSelectionUI();
     return;
   }
-  photos.forEach(p => {
+  visible.forEach(p => {
     if (!selectedIds.has(p.id)) { selectedIds.add(p.id); setCardSelected(p.id, true); }
   });
   updateSelectionUI();
@@ -1410,7 +1709,8 @@ window.toggleSelectAll = function() {
 function updateSelectionUI() {
   const count = selectedIds.size;
   document.getElementById('sel-count-text').textContent = `${count} dipilih`;
-  const allSelected = photos.length > 0 && count === photos.length;
+  const visible = filteredPhotos();
+  const allSelected = visible.length > 0 && visible.every(p => selectedIds.has(p.id));
   const selAllBtn = document.getElementById('btn-select-all');
   selAllBtn.textContent = allSelected ? '⬜' : '☑️';
   selAllBtn.title = allSelected ? 'Batalkan semua' : 'Pilih semua';
@@ -1459,6 +1759,9 @@ function renderGallery() {
   const headerStats = document.getElementById('header-gallery-stats');
   const isGaleriActive = document.getElementById('page-galeri').classList.contains('active');
 
+  updateFilterCounts();
+  const list = filteredPhotos();
+
   if (photos.length === 0) {
     headerStats.classList.remove('show');
     photoNodes.clear();
@@ -1473,6 +1776,21 @@ function renderGallery() {
     return;
   }
 
+  if (list.length === 0) {
+    photoNodes.clear();
+    container.classList.remove('select-mode-active');
+    const label = mediaFilter === 'video' ? 'video' : 'foto';
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="emoji">${mediaFilter === 'video' ? '🎬' : '📷'}</span>
+        <div class="title">Belum ada ${label}</div>
+        <div class="sub">Media dengan tipe ini belum ada di galeri kamu.</div>
+      </div>`;
+    headerStats.classList.toggle('show', isGaleriActive && !selectMode);
+    badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
+    return;
+  }
+
   if (container.querySelector('.empty-state') || container.querySelector('.skeleton-box')) {
     container.innerHTML = '';
   }
@@ -1480,20 +1798,22 @@ function renderGallery() {
   headerStats.classList.toggle('show', isGaleriActive && !selectMode);
   badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
 
-  const currentIds = new Set(photos.map(p => p.id));
+  // Buang node yang sekarang tidak lagi berada dalam daftar TAMPILAN
+  // (baik karena dihapus dari database, maupun karena difilter keluar).
+  const currentIds = new Set(list.map(p => p.id));
   for (const [id, node] of photoNodes) {
     if (!currentIds.has(id)) { node.remove(); photoNodes.delete(id); }
   }
 
   let newLeadingCount = 0;
-  while (newLeadingCount < photos.length && !photoNodes.has(photos[newLeadingCount].id)) {
+  while (newLeadingCount < list.length && !photoNodes.has(list[newLeadingCount].id)) {
     newLeadingCount++;
   }
 
   if (newLeadingCount > 0) {
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < newLeadingCount; i++) {
-      const p = photos[i];
+      const p = list[i];
       const node = createCardNode(p);
       photoNodes.set(p.id, node);
       if (selectedIds.has(p.id)) setCardSelected(p.id, true);
@@ -1502,9 +1822,9 @@ function renderGallery() {
     container.prepend(fragment);
   }
 
-  let prevNode = newLeadingCount > 0 ? photoNodes.get(photos[newLeadingCount - 1].id) : null;
-  for (let i = newLeadingCount; i < photos.length; i++) {
-    const p = photos[i];
+  let prevNode = newLeadingCount > 0 ? photoNodes.get(list[newLeadingCount - 1].id) : null;
+  for (let i = newLeadingCount; i < list.length; i++) {
+    const p = list[i];
     let node = photoNodes.get(p.id);
     if (!node) {
       node = createCardNode(p);
@@ -1552,14 +1872,11 @@ window.changePinInApp = async function() {
 async function eksekusiHapusBatch(ids, onProgress) {
   const idSet = new Set(ids);
   
-  // Ambil referensi Firestore sebelum array diubah
   const targets = photos.filter(p => idSet.has(p.id));
   const refs = targets.map(p => doc(db, 'users', currentUser.uid, 'photos', p.id));
 
-  // 1. UPDATE STATE SECARA INSTAN TANPA SPLICE LOOPING
   photos = photos.filter(p => !idSet.has(p.id));
   
-  // 2. HAPUS NODE DOM SECARA MASAL DENGAN CEPAT
   idSet.forEach(id => {
     const node = photoNodes.get(id);
     if (node) {
@@ -1569,15 +1886,14 @@ async function eksekusiHapusBatch(ids, onProgress) {
     selectedIds.delete(id);
   });
 
-  // 3. UPDATE UI
   const badge = document.getElementById('photo-count-badge');
+  updateFilterCounts();
   if (photos.length > 0) {
     badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
   } else {
-    renderGallery(); // Panggil fungsi render empty state jika kosong
+    renderGallery();
   }
 
-  // 4. HAPUS DATABASE DI LATAR BELAKANG (chunk-chunk dikirim paralel)
   await commitDeleteBatches(refs, onProgress);
 }
 
@@ -1608,29 +1924,14 @@ async function mintaPinLaluHapus(ids, judulProses) {
   }
 
   const total = ids.length;
-  // Ubah UI menjadi Loading Tanpa Blocking UI Thread Terlalu Lama
-  customSwal.fire({
-    title: `Menghapus UI secara instan...`,
-    text: 'Foto langsung hilang dari galeri, proses database berjalan.',
-    allowOutsideClick: false, allowEscapeKey: false,
-    background: 'var(--card)', color: 'var(--text)',
-    didOpen: () => customSwal.showLoading()
+  // Langsung hapus dari UI/DOM (instan, tanpa delay buatan) sebelum commit
+  // ke database berjalan di latar belakang.
+  eksekusiHapusBatch(ids, (done, totalCount) => {
+    // progress commit database berjalan diam-diam di background
   });
 
-  try {
-    // Tunggu sedikit agar animasi Swal tidak macet
-    await new Promise(r => setTimeout(r, 100)); 
-    
-    await eksekusiHapusBatch(ids, (done, totalCount) => {
-      customSwal.update({ title: `${judulProses} ${done}/${totalCount}` });
-    });
-    
-    customSwal.fire({ icon: 'success', title: `${total} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
-    if (selectMode) exitSelectMode();
-  } catch (e) {
-    console.error(e);
-    customSwal.fire({ icon: 'error', title: 'Sebagian Gagal Dihapus', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
-  }
+  customSwal.fire({ icon: 'success', title: `${total} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
+  if (selectMode) exitSelectMode();
 }
 
 window.mintaHapusSemuaFoto = function() {
@@ -1689,9 +1990,62 @@ async function siapkanBlobUnduhan(list, onProgress) {
   return hasil;
 }
 
+/* ==========================================================================
+   PERBAIKAN UNDUH DI APLIKASI (PWA/WebView) SUPAYA MASUK KE GALERI HP
+   ----------------------------------------------------------------------
+   Di browser biasa, elemen <a download> memang menyimpan file ke folder
+   Download lalu media scanner Android otomatis mengindeksnya ke Galeri.
+   Tapi saat aplikasi ini dibungkus jadi APK / dibuka sebagai app terinstal
+   (WebView/TWA), banyak WebView TIDAK mengeksekusi <a download> sebagai
+   unduhan sungguhan (butuh DownloadListener khusus di kode Android native),
+   sehingga file terlihat "berhasil" di JS tapi tidak pernah benar-benar
+   tersimpan atau tidak masuk index Galeri (MediaStore).
+   
+   Solusi paling andal tanpa mengubah kode native: pakai Web Share API
+   (navigator.share dengan file) sebagai jalur UTAMA saat berjalan sebagai
+   app terinstal. Share sheet Android akan menawarkan "Simpan ke Foto" /
+   Google Photos / Files, yang benar-benar menulis ke MediaStore (Galeri).
+   Kalau Web Share API tidak tersedia, baru fallback ke <a download>
+   seperti biasa (cocok untuk browser/tab biasa).
+   ========================================================================== */
+async function simpanSatuFileKePerangkat(blob, filename, mimeType) {
+  const fixedBlob = new Blob([blob], { type: mimeType });
+
+  if (IS_STANDALONE_APP && navigator.canShare) {
+    try {
+      const file = new File([fixedBlob], filename, { type: mimeType });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return 'shared';
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return 'cancelled';
+      console.warn('Web Share gagal, fallback ke unduhan link:', e);
+    }
+  }
+
+  const blobUrl = URL.createObjectURL(fixedBlob);
+  const link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  await new Promise(r => setTimeout(r, 400));
+  link.remove();
+  URL.revokeObjectURL(blobUrl);
+  return 'downloaded';
+}
+
 async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
   if (!list.length) return;
 
+  // Di dalam app terinstal, unduhan massal lewat share-sheet satu-satu
+  // kurang praktis (dialog share akan muncul berkali-kali). Untuk kasus
+  // ini kita tetap pakai <a download>, tapi beri catatan yang jelas ke
+  // user kalau file tidak muncul di Galeri, supaya mereka tahu harus buka
+  // lewat browser (Chrome) untuk unduhan massal, atau unduh satu-satu
+  // lewat tombol "Unduh" di foto (yang otomatis pakai share sheet).
   customSwal.fire({
     title: `Menyiapkan foto 0/${list.length}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
@@ -1706,37 +2060,47 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
     });
 
     const usedNames = new Set();
+    let gagalSimpan = 0;
     for (let i = 0; i < list.length; i++) {
-      if (!blobs[i]) continue;
+      if (!blobs[i]) { gagalSimpan++; continue; }
       customSwal.update({ title: `Menyimpan foto ${i + 1}/${list.length}...` });
 
       const p = list[i];
-      const ext = isVideoItem(p) ? (p.format || 'mp4') : 'jpg';
-      const mimeType = isVideoItem(p) ? 'video/mp4' : 'image/jpeg';
-      const fixedBlob = new Blob([blobs[i]], { type: mimeType });
+      const ext = isVideoItem(p) ? (p.format || 'mp4') : (p.format || 'jpg');
+      const mimeType = isVideoItem(p) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
 
       let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
-      let finalName = `${safeName}_${Date.now()}_${i}.${ext}`; 
-      
+      let finalName = `${safeName}_${Date.now()}_${i}.${ext}`;
       while (usedNames.has(finalName)) {
         finalName = `${safeName}_${Date.now()}_${i}_alt.${ext}`;
       }
       usedNames.add(finalName);
 
-      const blobUrl = URL.createObjectURL(fixedBlob);
+      // Unduhan massal tetap pakai <a download> (share-sheet berkali-kali
+      // akan sangat mengganggu). Ini bekerja normal di browser/tab biasa.
+      const blobUrl = URL.createObjectURL(blobs[i]);
       const link = document.createElement('a');
       link.style.display = 'none';
       link.href = blobUrl;
       link.download = finalName;
       document.body.appendChild(link);
       link.click();
-      
-      await new Promise(r => setTimeout(r, 600));
+
+      await new Promise(r => setTimeout(r, 500));
       link.remove();
       URL.revokeObjectURL(blobUrl);
     }
 
-    customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh. Silakan cek aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2500, showConfirmButton: false });
+    if (IS_STANDALONE_APP) {
+      customSwal.fire({
+        icon: 'info',
+        title: 'Tersimpan ke Folder Unduhan',
+        text: 'Karena kamu memakai versi aplikasi (bukan browser), unduhan massal masuk ke folder Unduhan/Download HP, bukan langsung ke Galeri. Untuk unduh satu foto/video langsung ke Galeri, buka foto tersebut lalu tekan tombol "Unduh" — itu akan memakai menu bagikan bawaan HP yang bisa menyimpan langsung ke Galeri/Google Photos.',
+        background: 'var(--card)', color: 'var(--text)'
+      });
+    } else {
+      customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh. Silakan cek folder Download / aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2800, showConfirmButton: false });
+    }
     if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
   } catch (e) {
     console.error(e);
@@ -1745,7 +2109,7 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
 }
 
 window.downloadAllPhotos = function() {
-  unduhDaftarFoto(photos, false);
+  unduhDaftarFoto(filteredPhotos(), false);
 };
 
 window.handleBulkDownload = function() {
@@ -1754,16 +2118,17 @@ window.handleBulkDownload = function() {
 };
 
 window.bukaViewer = function(id) {
-  const idx = photos.findIndex(p => p.id === id);
+  const list = filteredPhotos();
+  const idx = list.findIndex(p => p.id === id);
   if (idx === -1) return;
-  const foto = photos[idx];
+  const foto = list[idx];
 
   currentViewPhotoId = id;
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
 
-  const posisi = photos.length > 1 ? `  ·  ${idx + 1}/${photos.length}` : '';
+  const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
   img.src = ''; 
@@ -1804,17 +2169,18 @@ window.tutupViewer = function() {
 };
 
 window.viewerNavigate = function(dir) {
-  if (photos.length < 2) return;
-  const idx = photos.findIndex(p => p.id === currentViewPhotoId);
+  const list = filteredPhotos();
+  if (list.length < 2) return;
+  const idx = list.findIndex(p => p.id === currentViewPhotoId);
   if (idx === -1) return;
   let newIdx = idx + dir;
-  if (newIdx < 0) newIdx = photos.length - 1;
-  if (newIdx >= photos.length) newIdx = 0;
-  bukaViewer(photos[newIdx].id);
+  if (newIdx < 0) newIdx = list.length - 1;
+  if (newIdx >= list.length) newIdx = 0;
+  bukaViewer(list[newIdx].id);
 };
 
 function updateViewerNavButtons() {
-  const show = photos.length > 1;
+  const show = filteredPhotos().length > 1;
   document.getElementById('viewer-btn-prev').classList.toggle('hidden-nav', !show);
   document.getElementById('viewer-btn-next').classList.toggle('hidden-nav', !show);
 }
@@ -1870,8 +2236,8 @@ window.aksiKirimWA = async function() {
   try {
     const resp = await fetch(getFullSrc(foto));
     const blob = await resp.blob();
-    const ext = isVideoItem(foto) ? (foto.format || 'mp4') : 'jpg';
-    const mimeType = isVideoItem(foto) ? 'video/mp4' : 'image/jpeg';
+    const ext = isVideoItem(foto) ? (foto.format || 'mp4') : (foto.format || 'jpg');
+    const mimeType = isVideoItem(foto) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
     
     const safeName = (foto.title ? foto.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Koleksi_RHN');
     const filename = `${safeName}.${ext}`;
@@ -1902,6 +2268,10 @@ window.aksiKirimWA = async function() {
   }
 };
 
+/* ======= PERBAIKAN: unduh satu foto/video kini memakai Web Share API
+   lebih dulu saat berjalan sebagai app terinstal (lihat penjelasan di
+   simpanSatuFileKePerangkat), supaya file benar-benar masuk ke Galeri
+   HP dan bukan cuma folder Download aplikasi yang tidak terlihat. ======= */
 window.aksiUnduh = async function() {
   if (isBusy) return;
   const foto = photos.find(p => p.id === currentViewPhotoId);
@@ -1913,28 +2283,21 @@ window.aksiUnduh = async function() {
   try {
     const resp = await fetch(getFullSrc(foto), { cache: 'no-cache' });
     const blob = await resp.blob();
-    const ext = isVideoItem(foto) ? (foto.format || 'mp4') : 'jpg';
-    const mimeType = isVideoItem(foto) ? 'video/mp4' : 'image/jpeg';
-    
-    const fixedBlob = new Blob([blob], { type: mimeType });
+    const ext = isVideoItem(foto) ? (foto.format || 'mp4') : (foto.format || 'jpg');
+    const mimeType = isVideoItem(foto) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
 
     const safeName = (foto.title || 'RHN_Media').replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `${safeName}_${Date.now()}.${ext}`;
 
-    const blobUrl = URL.createObjectURL(fixedBlob);
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = blobUrl; 
-    link.download = filename;
-    document.body.appendChild(link); 
-    link.click(); 
-    
-    setTimeout(() => {
-      link.remove();
-      URL.revokeObjectURL(blobUrl);
-    }, 4000); 
-    
-    showMiniToast('Tersimpan! Cek Galeri Anda.');
+    const hasil = await simpanSatuFileKePerangkat(blob, filename, mimeType);
+
+    if (hasil === 'shared') {
+      showMiniToast('Pilih "Simpan ke Foto/Galeri" pada menu yang muncul');
+    } else if (hasil === 'cancelled') {
+      // user membatalkan share sheet, tidak perlu toast tambahan
+    } else {
+      showMiniToast('Tersimpan! Cek folder Download / Galeri Anda.');
+    }
   } catch (e) {
     customSwal.fire({ icon: 'error', title: 'Gagal Mengunduh', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
@@ -1943,13 +2306,13 @@ window.aksiUnduh = async function() {
 };
 
 window.aksiHapus = function() {
-  konfirmasiAksi('Yakin hapus media ini permanen?', async () => {
+  konfirmasiAksi('Yakin hapus media ini permanen?', () => {
     const foto = photos.find(p => p.id === currentViewPhotoId);
     if (!foto) return;
     
     tutupViewer(); 
     
-    // Hapus instan dari UI dan DOM (Sistem Dewa O(1))
+    // Hapus instan dari UI/DOM (tanpa menunggu jaringan sama sekali)
     const nodeId = foto.id;
     photos = photos.filter(p => p.id !== nodeId);
     const node = photoNodes.get(nodeId);
@@ -1958,19 +2321,20 @@ window.aksiHapus = function() {
       photoNodes.delete(nodeId);
     }
     
+    updateFilterCounts();
     const badge = document.getElementById('photo-count-badge');
     if (photos.length > 0) {
       badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
     } else {
       renderGallery();
     }
+    showMiniToast('Berhasil dihapus');
     
-    try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'photos', nodeId));
-      showMiniToast('Berhasil dihapus');
-    } catch (e) {
-      customSwal.fire({ icon: 'error', title: 'Gagal', text: 'Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
-    }
+    // Commit ke database berjalan diam-diam di background — UI sudah
+    // update duluan supaya tidak ada delay yang terasa oleh pengguna.
+    deleteDoc(doc(db, 'users', currentUser.uid, 'photos', nodeId)).catch((e) => {
+      customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: 'Foto sudah hilang dari layar, tapi gagal dihapus dari server. Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
+    });
   });
 };
 </script>
