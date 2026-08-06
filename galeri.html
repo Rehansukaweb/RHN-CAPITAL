@@ -158,6 +158,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .album-card:hover .album-cover { transform: scale(1.08); }
 .album-card:active .album-cover { transform: scale(0.96); }
 .video-badge { position: absolute; bottom: 6px; left: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2; color: #fff; font-size: 10px; pointer-events: none; }
+.fav-badge { position: absolute; bottom: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2; color: var(--gold); font-size: 11px; pointer-events: none; }
 
 .select-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.85); background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--ease-smooth); z-index: 2; }
 .select-mode-active .select-check { display: flex; }
@@ -326,7 +327,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .viewer-nav-prev { left: 12px; }
 .viewer-nav-next { right: 12px; }
 .viewer-nav-btn.hidden-nav { opacity: 0; pointer-events: none; }
-@media (hover: none) { .viewer-nav-btn { display: none; } }
 
 .viewer-footer { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; gap: 12px; padding: 24px 20px max(20px, env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); }
 .viewer-action-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(10px); color: #fff; padding: 12px 8px; border-radius: 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer; transition: background 0.2s ease, transform 0.15s ease; touch-action: manipulation; }
@@ -334,6 +334,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .viewer-action-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.16); }
 .viewer-action-btn.danger { color: var(--red); border-color: rgba(248,113,113,0.28); }
 .viewer-action-btn.danger:active { background: rgba(248,113,113,0.15); }
+.viewer-action-btn.fav-active { color: var(--gold); border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.12); }
 
 .mini-toast { position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%) translateY(10px); background: rgba(20,20,24,0.95); border: 1px solid var(--border); color: var(--text); font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 30px; z-index: 100000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; max-width: 85%; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 .mini-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -443,6 +444,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
           <button class="media-filter-tab active" data-filter="all" onclick="setMediaFilter('all')">Semua <span class="tab-count" id="count-all"></span></button>
           <button class="media-filter-tab" data-filter="image" onclick="setMediaFilter('image')">📷 Foto <span class="tab-count" id="count-image"></span></button>
           <button class="media-filter-tab" data-filter="video" onclick="setMediaFilter('video')">🎬 Video <span class="tab-count" id="count-video"></span></button>
+          <button class="media-filter-tab" data-filter="favorite" onclick="setMediaFilter('favorite')">❤️ Favorit <span class="tab-count" id="count-favorite"></span></button>
         </div>
 
         <div class="album-grid" id="main-gallery-grid"></div>
@@ -515,6 +517,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
     </div>
     
     <div class="viewer-footer">
+      <button class="viewer-action-btn" id="viewer-fav-btn" onclick="aksiFavorit()">
+        <span class="viewer-action-icon" id="viewer-fav-icon">🤍</span>
+        <span>Favorit</span>
+      </button>
       <button class="viewer-action-btn" onclick="aksiKirimWA()">
         <span class="viewer-action-icon">💬</span>
         <span>WA</span>
@@ -561,10 +567,6 @@ const ALLOWED_TYPE_PREFIX = ['image/', 'video/'];
 const IMG_TARGET_IDEAL_BYTES = 50 * 1024;
 const IMG_TARGET_MAX_BYTES = 100 * 1024;
 
-// Apakah aplikasi berjalan sebagai app terinstal (PWA/TWA/WebView APK)
-// atau sebagai tab browser biasa. Dipakai untuk menyesuaikan cara "Unduh"
-// supaya file benar-benar masuk ke Galeri HP, bukan cuma folder Download
-// aplikasi yang tidak terlihat di Galeri.
 const IS_STANDALONE_APP = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
   || window.navigator.standalone === true
   || document.referrer.includes('android-app://');
@@ -615,7 +617,7 @@ let photoNodes = new Map();
 let currentViewPhotoId = null;
 let authMode = 'login';
 let selectedFiles = [];
-let failedFiles = []; // { file, originalIndex } — supaya judul tetap konsisten saat "Coba Lagi"
+let failedFiles = [];
 let lastUploadTitle = '';
 let isBusy = false;
 
@@ -625,7 +627,6 @@ let pressTimer = null;
 let longPressFired = false;
 let toastTimer = null;
 
-// ======= BARU: state filter Semua / Foto / Video =======
 let mediaFilter = 'all';
 
 async function runWithConcurrency(items, limit, worker) {
@@ -718,15 +719,6 @@ window.showMiniToast = function(msg, duration = 1600) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
 };
 
-/* ==========================================================================
-   PERBAIKAN NAVIGASI BAWAH (Galeri / Upload / Setelan) TERASA DELAY
-   ----------------------------------------------------------------------
-   Sebelumnya tombol nav pakai atribut onclick biasa. Di beberapa WebView
-   Android bawaan aplikasi (APK hasil bungkus web), event click punya jeda
-   ~300ms dan animasi fade dipaksa menunggu. Sekarang tombol nav didaftarkan
-   lewat addEventListener('pointerup', ...) yang bereaksi lebih cepat
-   daripada 'click', dan pindah halaman tidak lagi menunggu animasi selesai.
-   ========================================================================== */
 document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
   btn.addEventListener('pointerup', (e) => {
     e.preventDefault();
@@ -747,7 +739,6 @@ window.switchPage = function(p) {
   document.getElementById('header-gallery-stats').classList.toggle('show', p === 'galeri' && photos.length > 0);
   document.getElementById('btn-upload').style.display = (p === 'tambah') ? 'block' : 'none';
 
-  // Tombol scroll-ke-atas cuma relevan di halaman Galeri
   if (p !== 'galeri') hideScrollTopBtn();
   window.scrollTo({ top: 0, behavior: 'auto' });
 };
@@ -980,9 +971,6 @@ function unlockApp() {
     document.getElementById('app-pin').value = '';
     renderSkeleton();
     listenPhotos();
-    // Pastikan state tombol/nav konsisten dengan halaman Galeri yang aktif
-    // sejak awal (memperbaiki tombol "SIMPAN KE GALERI" yang dulu nyasar
-    // muncul di halaman Galeri).
     switchPage('galeri');
 
     setTimeout(() => appScrn.classList.remove('fade-in'), 200);
@@ -1171,13 +1159,6 @@ async function compressImageSmart(file, opts = {}) {
   return bestBlob;
 }
 
-/* ======= BARU: nama file unduhan sekarang selalu mengikuti judul ASLI
-   media itu sendiri (cuma karakter yang benar-benar tidak boleh ada di
-   nama file yang dibuang: \ / : * ? " < > |). Sebelumnya nama file selalu
-   ditempeli angka acak dari Date.now(), jadi hasil unduhan jadi terlihat
-   "digabung"/acak dan tidak sesuai nama aslinya. Sekarang angka pembeda
-   HANYA ditambahkan kalau memang ada dua file dengan judul yang sama
-   persis dalam satu proses unduhan (supaya tidak saling menimpa). ======= */
 function namaFileBersih(title, fallback) {
   let name = (title || '').toString().trim();
   if (!name) name = fallback || 'RHN_Media';
@@ -1555,6 +1536,7 @@ function hitungTotalUkuranMB(list) {
 function filteredPhotos() {
   if (mediaFilter === 'image') return photos.filter(p => !isVideoItem(p));
   if (mediaFilter === 'video') return photos.filter(p => isVideoItem(p));
+  if (mediaFilter === 'favorite') return photos.filter(p => !!p.favorite);
   return photos;
 }
 
@@ -1572,9 +1554,11 @@ window.setMediaFilter = function(f) {
 function updateFilterCounts() {
   const totalImg = photos.filter(p => !isVideoItem(p)).length;
   const totalVid = photos.filter(p => isVideoItem(p)).length;
+  const totalFav = photos.filter(p => !!p.favorite).length;
   document.getElementById('count-all').textContent = photos.length ? `(${photos.length})` : '';
   document.getElementById('count-image').textContent = totalImg ? `(${totalImg})` : '';
   document.getElementById('count-video').textContent = totalVid ? `(${totalVid})` : '';
+  document.getElementById('count-favorite').textContent = totalFav ? `(${totalFav})` : '';
 }
 
 function hideScrollTopBtn() {
@@ -1723,6 +1707,13 @@ function createCardNode(p) {
     card.appendChild(badge);
   }
 
+  if (p.favorite) {
+    const fav = document.createElement('div');
+    fav.className = 'fav-badge';
+    fav.textContent = '❤️';
+    card.appendChild(fav);
+  }
+
   const check = document.createElement('div');
   check.className = 'select-check';
   card.appendChild(check);
@@ -1762,12 +1753,12 @@ function renderGallery() {
   if (list.length === 0) {
     photoNodes.clear();
     container.classList.remove('select-mode-active');
-    const label = mediaFilter === 'video' ? 'video' : 'foto';
+    const label = mediaFilter === 'video' ? 'video' : (mediaFilter === 'favorite' ? 'favorit' : 'foto');
     container.innerHTML = `
       <div class="empty-state">
-        <span class="emoji">${mediaFilter === 'video' ? '🎬' : '📷'}</span>
+        <span class="emoji">${mediaFilter === 'video' ? '🎬' : (mediaFilter === 'favorite' ? '❤️' : '📷')}</span>
         <div class="title">Belum ada ${label}</div>
-        <div class="sub">Media dengan tipe ini belum ada di galeri kamu.</div>
+        <div class="sub">${mediaFilter === 'favorite' ? 'Tap ikon ❤️ Favorit saat melihat foto/video untuk menambahkannya ke sini.' : 'Media dengan tipe ini belum ada di galeri kamu.'}</div>
       </div>`;
     headerStats.classList.toggle('show', isGaleriActive && !selectMode);
     badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
@@ -1968,22 +1959,15 @@ async function siapkanBlobUnduhan(list, onProgress) {
   return hasil;
 }
 
+/* ======= PERBAIKAN: Tombol "Unduh" sekarang SELALU menyimpan file
+   langsung lewat unduhan browser (<a download>), TIDAK lagi membuka
+   menu bagikan (share sheet) seperti tombol "WA". Sebelumnya keduanya
+   memakai navigator.share() sehingga terasa sama-sama seperti membuka
+   "kirim ke aplikasi lain", padahal tombol Unduh seharusnya langsung
+   menyimpan filenya. Tombol WA tetap memakai share sheet karena memang
+   fungsinya untuk memilih aplikasi tujuan (WhatsApp). ======= */
 async function simpanSatuFileKePerangkat(blob, filename, mimeType) {
   const fixedBlob = new Blob([blob], { type: mimeType });
-
-  if (navigator.canShare) {
-    try {
-      const file = new File([fixedBlob], filename, { type: mimeType });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        return 'shared';
-      }
-    } catch (e) {
-      if (e && e.name === 'AbortError') return 'cancelled';
-      console.warn('Web Share gagal, fallback ke unduhan link:', e);
-    }
-  }
-
   const blobUrl = URL.createObjectURL(fixedBlob);
   const link = document.createElement('a');
   link.style.display = 'none';
@@ -2013,8 +1997,6 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
       customSwal.update({ title: `Menyiapkan foto ${done}/${total}...` });
     });
 
-    // Susun File dengan nama masing-masing SESUAI judul aslinya. Angka
-    // pembeda cuma ditambahkan kalau ada judul yang benar-benar sama.
     const usedNames = new Set();
     const files = [];
     let gagalSiapkan = 0;
@@ -2035,29 +2017,10 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
       files.push(new File([blobs[i]], finalName, { type: mimeType }));
     }
 
-    // JALUR UTAMA: satu kali share-sheet berisi SEMUA file sekaligus.
-    // Ini jalur PALING ANDAL supaya file benar-benar masuk ke Galeri HP
-    // (lewat "Simpan ke Foto"/Google Photos di menu bagikan), baik saat
-    // dibuka di browser biasa maupun sebagai app terinstal.
-    if (navigator.canShare && files.length && navigator.canShare({ files })) {
-      customSwal.close();
-      try {
-        await navigator.share({ files });
-        showMiniToast('Pilih "Simpan ke Foto/Galeri" pada menu yang muncul');
-        if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
-        return;
-      } catch (e) {
-        if (e && e.name === 'AbortError') {
-          if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
-          return;
-        }
-        console.warn('Share massal gagal, fallback ke unduhan link:', e);
-      }
-    }
-
-    // FALLBACK: kalau share tidak didukung/gagal, unduh satu-satu lewat
-    // <a download> (masuk ke folder Unduhan/Download, bukan Galeri
-    // langsung — ini keterbatasan browser/WebView, bukan bug aplikasi).
+    /* ======= PERBAIKAN: Unduh massal (semua/terpilih) juga langsung
+       memakai unduhan file satu-satu, TANPA membuka menu bagikan lebih
+       dulu, supaya konsisten dengan tombol Unduh di viewer dan tidak
+       terasa seperti tombol WA. ======= */
     customSwal.fire({
       title: `Menyimpan 0/${files.length}...`,
       text: 'Mohon jangan tutup halaman ini dulu.',
@@ -2081,16 +2044,7 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
       URL.revokeObjectURL(blobUrl);
     }
 
-    if (IS_STANDALONE_APP) {
-      customSwal.fire({
-        icon: 'info',
-        title: 'Tersimpan ke Folder Unduhan',
-        text: 'Karena perangkat/browser ini tidak mendukung menu bagikan file, unduhan massal masuk ke folder Unduhan/Download HP, bukan langsung ke Galeri. Untuk unduh satu foto/video langsung ke Galeri, buka foto tersebut lalu tekan tombol "Unduh".',
-        background: 'var(--card)', color: 'var(--text)'
-      });
-    } else {
-      customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh dengan nama aslinya masing-masing. Silakan cek folder Download / aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2800, showConfirmButton: false });
-    }
+    customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh dengan nama aslinya masing-masing. Silakan cek folder Download / aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2800, showConfirmButton: false });
     if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
   } catch (e) {
     console.error(e);
@@ -2105,6 +2059,48 @@ window.downloadAllPhotos = function() {
 window.handleBulkDownload = function() {
   if (!selectedIds.size) return;
   unduhDaftarFoto(photos.filter(p => selectedIds.has(p.id)), true);
+};
+
+function updateFavButtonUI(foto) {
+  const btn = document.getElementById('viewer-fav-btn');
+  const icon = document.getElementById('viewer-fav-icon');
+  if (!btn || !icon || !foto) return;
+  const isFav = !!foto.favorite;
+  icon.textContent = isFav ? '❤️' : '🤍';
+  btn.classList.toggle('fav-active', isFav);
+}
+
+window.aksiFavorit = async function() {
+  const foto = photos.find(p => p.id === currentViewPhotoId);
+  if (!foto) return;
+  const newVal = !foto.favorite;
+  foto.favorite = newVal;
+  updateFavButtonUI(foto);
+
+  const node = photoNodes.get(foto.id);
+  if (node) {
+    const existingBadge = node.querySelector('.fav-badge');
+    if (newVal && !existingBadge) {
+      const fav = document.createElement('div');
+      fav.className = 'fav-badge';
+      fav.textContent = '❤️';
+      node.appendChild(fav);
+    } else if (!newVal && existingBadge) {
+      existingBadge.remove();
+    }
+  }
+
+  if (mediaFilter === 'favorite') renderGallery();
+  else updateFilterCounts();
+
+  showMiniToast(newVal ? 'Ditambahkan ke Favorit' : 'Dihapus dari Favorit');
+
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid, 'photos', foto.id), { favorite: newVal }, { merge: true });
+  } catch (e) {
+    console.error('Gagal menyimpan status favorit', e);
+    customSwal.fire({ icon: 'error', title: 'Gagal Sinkron', text: 'Status favorit belum tersimpan ke server. Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
+  }
 };
 
 window.bukaViewer = function(id) {
@@ -2137,6 +2133,8 @@ window.bukaViewer = function(id) {
     img.style.display = 'block';
     img.src = getFullSrc(foto);
   }
+
+  updateFavButtonUI(foto);
 
   viewer.classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -2264,7 +2262,7 @@ window.aksiUnduh = async function() {
   if (!foto) return;
   
   isBusy = true;
-  showMiniToast('Menyimpan ke Galeri HP...');
+  showMiniToast('Menyimpan unduhan...');
   
   try {
     const resp = await fetch(getFullSrc(foto), { cache: 'no-cache' });
@@ -2275,15 +2273,8 @@ window.aksiUnduh = async function() {
     const safeName = namaFileBersih(foto.title, 'RHN_Media');
     const filename = `${safeName}.${ext}`;
 
-    const hasil = await simpanSatuFileKePerangkat(blob, filename, mimeType);
-
-    if (hasil === 'shared') {
-      showMiniToast('Pilih "Simpan ke Foto/Galeri" pada menu yang muncul');
-    } else if (hasil === 'cancelled') {
-      // user membatalkan share sheet, tidak perlu toast tambahan
-    } else {
-      showMiniToast('Tersimpan! Cek folder Download / Galeri Anda.');
-    }
+    await simpanSatuFileKePerangkat(blob, filename, mimeType);
+    showMiniToast('Tersimpan! Cek folder Download / Galeri Anda.');
   } catch (e) {
     customSwal.fire({ icon: 'error', title: 'Gagal Mengunduh', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
@@ -2291,20 +2282,12 @@ window.aksiUnduh = async function() {
   }
 };
 
-/* ======= PERBAIKAN: hapus dari dalam viewer sekarang TIDAK menutup
-   viewer. Foto yang dihapus langsung lenyap dan viewer otomatis geser ke
-   foto berikutnya dalam daftar (atau ke foto sebelumnya kalau yang
-   dihapus adalah foto terakhir). User tidak perlu keluar dari viewer
-   atau tap ulang foto lain. Viewer baru ditutup kalau semua foto yang
-   sedang tampil (sesuai filter aktif) sudah habis. ======= */
 window.aksiHapus = function() {
   konfirmasiAksi('Yakin hapus media ini permanen?', () => {
     const nodeId = currentViewPhotoId;
     const foto = photos.find(p => p.id === nodeId);
     if (!foto) return;
 
-    // Catat posisi & daftar SEBELUM foto dihapus, supaya tahu foto mana
-    // yang harus ditampilkan berikutnya di viewer.
     const listBefore = filteredPhotos();
     const idxBefore = listBefore.findIndex(p => p.id === nodeId);
 
@@ -2329,8 +2312,6 @@ window.aksiHapus = function() {
       customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: 'Foto sudah hilang dari layar, tapi gagal dihapus dari server. Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
     });
 
-    // Pindah otomatis ke foto berikutnya (tanpa menutup viewer). Kalau
-    // sudah tidak ada foto tersisa sama sekali, baru viewer ditutup.
     const listAfter = filteredPhotos();
     if (listAfter.length === 0) {
       tutupViewer();
