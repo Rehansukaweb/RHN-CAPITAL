@@ -206,11 +206,18 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
 .floating-cancel-btn.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
 .floating-cancel-btn:active { transform: translateX(-50%) translateY(0) scale(0.95); }
 
-/* ======= BARU: Tombol scroll-ke-atas ======= */
+/* ======= BARU: Tombol scroll-ke-atas =======
+   PERBAIKAN: sebelumnya tombol ini diposisikan pakai "left:50%" lalu
+   digeser +234px ke kanan. Itu dihitung relatif ke lebar VIEWPORT, bukan
+   lebar app-wrapper. Di HP biasa (viewport < 600px) hasil hitungannya
+   jatuh di LUAR layar (misal di HP 375px lebar, posisinya jadi ~421px —
+   tidak kelihatan sama sekali). Sekarang dipakai "right" dengan calc/max
+   supaya selalu nempel 20px dari tepi kanan wrapper, baik di HP maupun
+   di layar lebar (desktop, wrapper 600px di tengah). ======= */
 .scroll-top-btn {
   position: fixed;
-  left: 50%;
-  transform: translateX(calc(-50% + 234px)) translateY(12px);
+  right: max(20px, calc((100vw - 600px) / 2 + 20px));
+  transform: translateY(12px);
   bottom: calc(78px + max(15px, env(safe-area-inset-bottom)));
   width: 44px;
   height: 44px;
@@ -230,8 +237,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) { overflow: vis
   transition: opacity 0.18s ease, transform 0.18s var(--ease-smooth);
   touch-action: manipulation;
 }
-.scroll-top-btn.show { opacity: 1; pointer-events: auto; transform: translateX(calc(-50% + 234px)) translateY(0); }
-.scroll-top-btn:active { transform: translateX(calc(-50% + 234px)) translateY(0) scale(0.9); }
+.scroll-top-btn.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.scroll-top-btn:active { transform: translateY(0) scale(0.9); }
 
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text2); font-size: 11px; cursor: pointer; background: none; border: none; font-weight: 600; transition: color 0.25s ease, transform 0.15s ease; touch-action: manipulation; }
 .nav-item:active { transform: scale(0.9); }
@@ -1164,24 +1171,26 @@ async function compressImageSmart(file, opts = {}) {
   return bestBlob;
 }
 
+/* ======= BARU: nama file unduhan sekarang selalu mengikuti judul ASLI
+   media itu sendiri (cuma karakter yang benar-benar tidak boleh ada di
+   nama file yang dibuang: \ / : * ? " < > |). Sebelumnya nama file selalu
+   ditempeli angka acak dari Date.now(), jadi hasil unduhan jadi terlihat
+   "digabung"/acak dan tidak sesuai nama aslinya. Sekarang angka pembeda
+   HANYA ditambahkan kalau memang ada dua file dengan judul yang sama
+   persis dalam satu proses unduhan (supaya tidak saling menimpa). ======= */
+function namaFileBersih(title, fallback) {
+  let name = (title || '').toString().trim();
+  if (!name) name = fallback || 'RHN_Media';
+  name = name.replace(/[\\/:*?"<>|]/g, '').trim();
+  if (!name) name = fallback || 'RHN_Media';
+  return name;
+}
+
 function uid4() {
   if (crypto.randomUUID) return crypto.randomUUID();
   return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
 }
 
-/* ==========================================================================
-   UPLOAD KE CLOUDINARY
-   ----------------------------------------------------------------------
-   Untuk VIDEO, kita minta Cloudinary melakukan "eager transformation" saat
-   upload: transcode ke H.264 dengan q_auto (kualitas otomatis dijaga
-   setinggi mungkin sambil memangkas bitrate yang tidak perlu — mata manusia
-   umumnya tidak bisa membedakan, tapi ukuran file bisa turun signifikan)
-   dan menghapus metadata yang tidak perlu. Ini butuh preset unsigned di
-   dashboard Cloudinary mengizinkan "eager transformations" — kalau preset
-   belum mengizinkannya, Cloudinary otomatis mengabaikan parameter ini dan
-   video tetap tersimpan seperti biasa (tidak ada yang rusak), hanya saja
-   belum lebih hemat ruang sampai preset-nya diaktifkan.
-   ========================================================================== */
 async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   const form = new FormData();
   form.append('file', fileOrBlob, filenameHint);
@@ -1189,7 +1198,6 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   form.append('folder', `users/${currentUser.uid}/media`);
 
   if (isVideo) {
-    // Diabaikan otomatis oleh Cloudinary jika preset tidak mengizinkan eager.
     form.append('eager', 'q_auto,vc_auto');
     form.append('eager_async', 'false');
   }
@@ -1209,7 +1217,6 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   let format = data.format;
   let size = data.bytes;
 
-  // Kalau eager transformation berhasil dan hasilnya lebih kecil, pakai versi itu.
   if (isVideo && Array.isArray(data.eager) && data.eager.length) {
     const eager = data.eager[0];
     if (eager && eager.bytes && eager.bytes < size) {
@@ -1228,11 +1235,6 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
 
   const meta = await uploadToCloudinary(toUpload, filenameHint, isVideo);
 
-  // ======= PERBAIKAN: judul yang diberikan user sekarang SELALU dipakai
-  // apa adanya kalau cuma 1 file. Untuk banyak file sekaligus, urutan
-  // penomoran (1, 2, 3, ...) mengikuti urutan file dipilih di galeri HP —
-  // BUKAN urutan selesai diupload — supaya hasil penamaan tidak acak
-  // meskipun upload berjalan paralel. ==========================
   const baseTitle = customTitle ? (total > 1 ? `${customTitle} ${index + 1}` : customTitle) : file.name.replace(/\.[^/.]+$/, '');
   const title = baseTitle;
   const id = uid4();
@@ -1367,16 +1369,6 @@ window.optimizeAllPhotosToWebP = async function() {
   }
 };
 
-/* ==========================================================================
-   BARU: "Optimalkan Ukuran Semua Video" (Setelan)
-   ----------------------------------------------------------------------
-   Mengunduh ulang video yang sudah tersimpan, lalu mengunggahnya kembali
-   lewat Cloudinary dengan eager transformation q_auto/vc_auto supaya
-   ukurannya mengecil tanpa terlihat menurunkan kualitas. Kalau hasil
-   optimasi TIDAK lebih kecil dari video asli (preset belum mendukung
-   eager, atau video sudah efisien), video asli dibiarkan apa adanya —
-   tidak ada risiko video jadi rusak/hilang kualitas.
-   ========================================================================== */
 async function optimizeSingleVideo(p) {
   const sourceUrl = getFullSrc(p);
   const resp = await fetch(sourceUrl, { cache: 'no-cache' });
@@ -1387,7 +1379,6 @@ async function optimizeSingleVideo(p) {
   const meta = await uploadToCloudinary(asFile, 'video.mp4', true);
 
   if (!meta.size || meta.size >= originalSize) {
-    // Tidak ada penghematan nyata — jangan ganti video yang sudah ada.
     return false;
   }
 
@@ -1463,8 +1454,6 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
 
   const concurrency = Math.min(UPLOAD_CONCURRENCY_CAP, Math.max(8, total));
   await runWithConcurrency(filesToUpload, concurrency, async (file, i) => {
-    // Gunakan nomor urut ASLI (dari pemilihan awal) kalau ada, supaya
-    // penamaan tetap konsisten walau ini proses "Coba Lagi".
     const originalIndex = indexOffsetMap ? indexOffsetMap[i] : i;
     try {
       const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total);
@@ -1533,8 +1522,6 @@ window.retryFailedUploads = async function() {
   const uploadBtn = document.getElementById('btn-upload');
   uploadBtn.disabled = true;
 
-  // Bawa nomor urut asli supaya judul "Nama 3" tetap "Nama 3", bukan
-  // berubah jadi "Nama 1" hanya karena ini file kedua yang di-retry.
   const filesToRetry = failedFiles.map(f => f.file);
   const indexMap = failedFiles.map(f => f.originalIndex);
   indexMap.total = Math.max(...indexMap.map(n => n + 1));
@@ -1565,9 +1552,6 @@ function hitungTotalUkuranMB(list) {
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
-/* ======= BARU: helper untuk daftar foto yang sedang tampil sesuai filter
-   Semua / Foto / Video. Dipakai di render grid, viewer, unduh semua, dsb,
-   supaya semuanya konsisten dengan tab yang sedang aktif. ======= */
 function filteredPhotos() {
   if (mediaFilter === 'image') return photos.filter(p => !isVideoItem(p));
   if (mediaFilter === 'video') return photos.filter(p => isVideoItem(p));
@@ -1593,7 +1577,6 @@ function updateFilterCounts() {
   document.getElementById('count-video').textContent = totalVid ? `(${totalVid})` : '';
 }
 
-/* ======= BARU: tombol scroll-ke-atas ======= */
 function hideScrollTopBtn() {
   document.getElementById('scroll-top-btn').classList.remove('show');
 }
@@ -1798,8 +1781,6 @@ function renderGallery() {
   headerStats.classList.toggle('show', isGaleriActive && !selectMode);
   badge.innerHTML = `${photos.length} foto <span class="badge-size">• ${hitungTotalUkuranMB()} MB</span>`;
 
-  // Buang node yang sekarang tidak lagi berada dalam daftar TAMPILAN
-  // (baik karena dihapus dari database, maupun karena difilter keluar).
   const currentIds = new Set(list.map(p => p.id));
   for (const [id, node] of photoNodes) {
     if (!currentIds.has(id)) { node.remove(); photoNodes.delete(id); }
@@ -1868,7 +1849,6 @@ window.changePinInApp = async function() {
   }
 };
 
-/* --- ALGORITMA HAPUS BULK INSTAN (UI O(1), commit Firestore paralel) --- */
 async function eksekusiHapusBatch(ids, onProgress) {
   const idSet = new Set(ids);
   
@@ -1924,8 +1904,6 @@ async function mintaPinLaluHapus(ids, judulProses) {
   }
 
   const total = ids.length;
-  // Langsung hapus dari UI/DOM (instan, tanpa delay buatan) sebelum commit
-  // ke database berjalan di latar belakang.
   eksekusiHapusBatch(ids, (done, totalCount) => {
     // progress commit database berjalan diam-diam di background
   });
@@ -1990,28 +1968,10 @@ async function siapkanBlobUnduhan(list, onProgress) {
   return hasil;
 }
 
-/* ==========================================================================
-   PERBAIKAN UNDUH DI APLIKASI (PWA/WebView) SUPAYA MASUK KE GALERI HP
-   ----------------------------------------------------------------------
-   Di browser biasa, elemen <a download> memang menyimpan file ke folder
-   Download lalu media scanner Android otomatis mengindeksnya ke Galeri.
-   Tapi saat aplikasi ini dibungkus jadi APK / dibuka sebagai app terinstal
-   (WebView/TWA), banyak WebView TIDAK mengeksekusi <a download> sebagai
-   unduhan sungguhan (butuh DownloadListener khusus di kode Android native),
-   sehingga file terlihat "berhasil" di JS tapi tidak pernah benar-benar
-   tersimpan atau tidak masuk index Galeri (MediaStore).
-   
-   Solusi paling andal tanpa mengubah kode native: pakai Web Share API
-   (navigator.share dengan file) sebagai jalur UTAMA saat berjalan sebagai
-   app terinstal. Share sheet Android akan menawarkan "Simpan ke Foto" /
-   Google Photos / Files, yang benar-benar menulis ke MediaStore (Galeri).
-   Kalau Web Share API tidak tersedia, baru fallback ke <a download>
-   seperti biasa (cocok untuk browser/tab biasa).
-   ========================================================================== */
 async function simpanSatuFileKePerangkat(blob, filename, mimeType) {
   const fixedBlob = new Blob([blob], { type: mimeType });
 
-  if (IS_STANDALONE_APP && navigator.canShare) {
+  if (navigator.canShare) {
     try {
       const file = new File([fixedBlob], filename, { type: mimeType });
       if (navigator.canShare({ files: [file] })) {
@@ -2040,12 +2000,6 @@ async function simpanSatuFileKePerangkat(blob, filename, mimeType) {
 async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
   if (!list.length) return;
 
-  // Di dalam app terinstal, unduhan massal lewat share-sheet satu-satu
-  // kurang praktis (dialog share akan muncul berkali-kali). Untuk kasus
-  // ini kita tetap pakai <a download>, tapi beri catatan yang jelas ke
-  // user kalau file tidak muncul di Galeri, supaya mereka tahu harus buka
-  // lewat browser (Chrome) untuk unduhan massal, atau unduh satu-satu
-  // lewat tombol "Unduh" di foto (yang otomatis pakai share sheet).
   customSwal.fire({
     title: `Menyiapkan foto 0/${list.length}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
@@ -2059,30 +2013,66 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
       customSwal.update({ title: `Menyiapkan foto ${done}/${total}...` });
     });
 
+    // Susun File dengan nama masing-masing SESUAI judul aslinya. Angka
+    // pembeda cuma ditambahkan kalau ada judul yang benar-benar sama.
     const usedNames = new Set();
-    let gagalSimpan = 0;
+    const files = [];
+    let gagalSiapkan = 0;
     for (let i = 0; i < list.length; i++) {
-      if (!blobs[i]) { gagalSimpan++; continue; }
-      customSwal.update({ title: `Menyimpan foto ${i + 1}/${list.length}...` });
-
+      if (!blobs[i]) { gagalSiapkan++; continue; }
       const p = list[i];
       const ext = isVideoItem(p) ? (p.format || 'mp4') : (p.format || 'jpg');
       const mimeType = isVideoItem(p) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
 
-      let safeName = (p.title || `Foto_${i + 1}`).replace(/[^a-zA-Z0-9_\-\. ]/g, '').trim() || `Foto_${i + 1}`;
-      let finalName = `${safeName}_${Date.now()}_${i}.${ext}`;
+      const baseName = namaFileBersih(p.title, `Foto_${i + 1}`);
+      let finalName = `${baseName}.${ext}`;
+      let dupCount = 1;
       while (usedNames.has(finalName)) {
-        finalName = `${safeName}_${Date.now()}_${i}_alt.${ext}`;
+        dupCount++;
+        finalName = `${baseName} (${dupCount}).${ext}`;
       }
       usedNames.add(finalName);
+      files.push(new File([blobs[i]], finalName, { type: mimeType }));
+    }
 
-      // Unduhan massal tetap pakai <a download> (share-sheet berkali-kali
-      // akan sangat mengganggu). Ini bekerja normal di browser/tab biasa.
-      const blobUrl = URL.createObjectURL(blobs[i]);
+    // JALUR UTAMA: satu kali share-sheet berisi SEMUA file sekaligus.
+    // Ini jalur PALING ANDAL supaya file benar-benar masuk ke Galeri HP
+    // (lewat "Simpan ke Foto"/Google Photos di menu bagikan), baik saat
+    // dibuka di browser biasa maupun sebagai app terinstal.
+    if (navigator.canShare && files.length && navigator.canShare({ files })) {
+      customSwal.close();
+      try {
+        await navigator.share({ files });
+        showMiniToast('Pilih "Simpan ke Foto/Galeri" pada menu yang muncul');
+        if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
+          return;
+        }
+        console.warn('Share massal gagal, fallback ke unduhan link:', e);
+      }
+    }
+
+    // FALLBACK: kalau share tidak didukung/gagal, unduh satu-satu lewat
+    // <a download> (masuk ke folder Unduhan/Download, bukan Galeri
+    // langsung — ini keterbatasan browser/WebView, bukan bug aplikasi).
+    customSwal.fire({
+      title: `Menyimpan 0/${files.length}...`,
+      text: 'Mohon jangan tutup halaman ini dulu.',
+      allowOutsideClick: false, allowEscapeKey: false,
+      background: 'var(--card)', color: 'var(--text)',
+      didOpen: () => customSwal.showLoading()
+    });
+
+    for (let i = 0; i < files.length; i++) {
+      customSwal.update({ title: `Menyimpan ${i + 1}/${files.length}...` });
+      const blobUrl = URL.createObjectURL(files[i]);
       const link = document.createElement('a');
       link.style.display = 'none';
       link.href = blobUrl;
-      link.download = finalName;
+      link.download = files[i].name;
       document.body.appendChild(link);
       link.click();
 
@@ -2095,11 +2085,11 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
       customSwal.fire({
         icon: 'info',
         title: 'Tersimpan ke Folder Unduhan',
-        text: 'Karena kamu memakai versi aplikasi (bukan browser), unduhan massal masuk ke folder Unduhan/Download HP, bukan langsung ke Galeri. Untuk unduh satu foto/video langsung ke Galeri, buka foto tersebut lalu tekan tombol "Unduh" — itu akan memakai menu bagikan bawaan HP yang bisa menyimpan langsung ke Galeri/Google Photos.',
+        text: 'Karena perangkat/browser ini tidak mendukung menu bagikan file, unduhan massal masuk ke folder Unduhan/Download HP, bukan langsung ke Galeri. Untuk unduh satu foto/video langsung ke Galeri, buka foto tersebut lalu tekan tombol "Unduh".',
         background: 'var(--card)', color: 'var(--text)'
       });
     } else {
-      customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh. Silakan cek folder Download / aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2800, showConfirmButton: false });
+      customSwal.fire({ icon: 'success', title: 'Tersimpan!', text: 'File telah berhasil diunduh dengan nama aslinya masing-masing. Silakan cek folder Download / aplikasi Galeri.', background: 'var(--card)', color: 'var(--text)', timer: 2800, showConfirmButton: false });
     }
     if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
   } catch (e) {
@@ -2239,7 +2229,7 @@ window.aksiKirimWA = async function() {
     const ext = isVideoItem(foto) ? (foto.format || 'mp4') : (foto.format || 'jpg');
     const mimeType = isVideoItem(foto) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
     
-    const safeName = (foto.title ? foto.title.replace(/[^a-zA-Z0-9]/g, '_') : 'Koleksi_RHN');
+    const safeName = namaFileBersih(foto.title, 'Koleksi_RHN');
     const filename = `${safeName}.${ext}`;
     
     const file = new File([blob], filename, { type: mimeType });
@@ -2268,10 +2258,6 @@ window.aksiKirimWA = async function() {
   }
 };
 
-/* ======= PERBAIKAN: unduh satu foto/video kini memakai Web Share API
-   lebih dulu saat berjalan sebagai app terinstal (lihat penjelasan di
-   simpanSatuFileKePerangkat), supaya file benar-benar masuk ke Galeri
-   HP dan bukan cuma folder Download aplikasi yang tidak terlihat. ======= */
 window.aksiUnduh = async function() {
   if (isBusy) return;
   const foto = photos.find(p => p.id === currentViewPhotoId);
@@ -2286,8 +2272,8 @@ window.aksiUnduh = async function() {
     const ext = isVideoItem(foto) ? (foto.format || 'mp4') : (foto.format || 'jpg');
     const mimeType = isVideoItem(foto) ? 'video/mp4' : (ext === 'webp' ? 'image/webp' : 'image/jpeg');
 
-    const safeName = (foto.title || 'RHN_Media').replace(/[^a-zA-Z0-9]/g, '_');
-    const filename = `${safeName}_${Date.now()}.${ext}`;
+    const safeName = namaFileBersih(foto.title, 'RHN_Media');
+    const filename = `${safeName}.${ext}`;
 
     const hasil = await simpanSatuFileKePerangkat(blob, filename, mimeType);
 
@@ -2305,22 +2291,31 @@ window.aksiUnduh = async function() {
   }
 };
 
+/* ======= PERBAIKAN: hapus dari dalam viewer sekarang TIDAK menutup
+   viewer. Foto yang dihapus langsung lenyap dan viewer otomatis geser ke
+   foto berikutnya dalam daftar (atau ke foto sebelumnya kalau yang
+   dihapus adalah foto terakhir). User tidak perlu keluar dari viewer
+   atau tap ulang foto lain. Viewer baru ditutup kalau semua foto yang
+   sedang tampil (sesuai filter aktif) sudah habis. ======= */
 window.aksiHapus = function() {
   konfirmasiAksi('Yakin hapus media ini permanen?', () => {
-    const foto = photos.find(p => p.id === currentViewPhotoId);
+    const nodeId = currentViewPhotoId;
+    const foto = photos.find(p => p.id === nodeId);
     if (!foto) return;
-    
-    tutupViewer(); 
-    
-    // Hapus instan dari UI/DOM (tanpa menunggu jaringan sama sekali)
-    const nodeId = foto.id;
+
+    // Catat posisi & daftar SEBELUM foto dihapus, supaya tahu foto mana
+    // yang harus ditampilkan berikutnya di viewer.
+    const listBefore = filteredPhotos();
+    const idxBefore = listBefore.findIndex(p => p.id === nodeId);
+
     photos = photos.filter(p => p.id !== nodeId);
     const node = photoNodes.get(nodeId);
-    if(node) {
+    if (node) {
       node.remove();
       photoNodes.delete(nodeId);
     }
-    
+    if (selectedIds.has(nodeId)) selectedIds.delete(nodeId);
+
     updateFilterCounts();
     const badge = document.getElementById('photo-count-badge');
     if (photos.length > 0) {
@@ -2329,12 +2324,22 @@ window.aksiHapus = function() {
       renderGallery();
     }
     showMiniToast('Berhasil dihapus');
-    
-    // Commit ke database berjalan diam-diam di background — UI sudah
-    // update duluan supaya tidak ada delay yang terasa oleh pengguna.
+
     deleteDoc(doc(db, 'users', currentUser.uid, 'photos', nodeId)).catch((e) => {
       customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: 'Foto sudah hilang dari layar, tapi gagal dihapus dari server. Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
     });
+
+    // Pindah otomatis ke foto berikutnya (tanpa menutup viewer). Kalau
+    // sudah tidak ada foto tersisa sama sekali, baru viewer ditutup.
+    const listAfter = filteredPhotos();
+    if (listAfter.length === 0) {
+      tutupViewer();
+      return;
+    }
+    let nextIdx = idxBefore;
+    if (nextIdx < 0) nextIdx = 0;
+    if (nextIdx >= listAfter.length) nextIdx = listAfter.length - 1;
+    bukaViewer(listAfter[nextIdx].id);
   });
 };
 </script>
