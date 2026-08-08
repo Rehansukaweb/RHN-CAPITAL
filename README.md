@@ -496,6 +496,18 @@ body.global-privacy #xau-idr-gr {
   10% { opacity: 1; }
   100% { width: 150px; opacity: 0; }
 }
+
+/* ==========================================================================
+   FIX TAMBAHAN: CENTER TOMBOL GALERI - JURNAL FOREX - JURNAL ASET - DATA PRIBADI
+   (KHUSUS TAMPILAN HP) - TIDAK MENGUBAH KODE ASLI, HANYA MENAMBAHKAN ATURAN BARU
+   ========================================================================== */
+@media (max-width: 768px) {
+  .top-ext-links {
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
