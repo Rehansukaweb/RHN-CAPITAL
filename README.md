@@ -81,15 +81,36 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 
 /* EXTERNAL LINKS */
 .top-ext-links {
-  display: flex; gap: 16px; padding: 0 0 24px 0;
-  flex-wrap: wrap; align-items: center; justify-content: center;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  padding: 0 16px 24px 16px;
 }
 .nav-ext-btn {
-  background: transparent; border: none; color: var(--gold);
-  font-weight: 700; font-size: 11px; font-family: 'Outfit', sans-serif;
-  cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(145deg, var(--bg2), var(--bg3));
+  border: 1px solid var(--border2); border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--gold); font-weight: 700; font-size: 10.5px;
+  font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 0.4px;
+  cursor: pointer; transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
 }
-.nav-ext-btn:hover { color: var(--text); }
+.nav-ext-btn:hover {
+  border-color: var(--gold); background: var(--bg3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(251,191,36,0.18);
+}
+.nav-ext-btn:active { transform: translateY(0); }
+.ext-icon {
+  width: 30px; height: 30px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(251, 191, 36, 0.12); border-radius: 9px; font-size: 14px;
+}
+.ext-label { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ext-arrow { color: var(--text3); font-size: 10px; flex-shrink: 0; }
+
+@media (min-width: 769px) {
+  .top-ext-links { grid-template-columns: repeat(4, 1fr); max-width: 900px; margin: 0 auto; padding: 0 0 24px 0; }
+}
 
 .status-row { display: flex; gap: 12px; margin-bottom: 20px; }
 .status-pill {
@@ -322,7 +343,6 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
    MOBILE RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
-  .top-ext-links { justify-content: center; padding: 0 0 16px 0; }
   .header-area { padding: 16px; }
   .status-row { flex-direction: row; }
   .status-pill { flex: 1; }
@@ -578,11 +598,18 @@ body.global-privacy #xau-idr-gr {
   </div>
 
   <div class="top-ext-links">
-    <button class="nav-ext-btn" onclick="window.location.href='galeri.html'">📈 GALERI ONLINE↗</button>
-    <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
-     
-    <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 JURNAL ASET ↗</button>
-    <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='galeri.html'">
+      <span class="ext-icon">🖼️</span><span class="ext-label">Galeri Online</span><span class="ext-arrow">↗</span>
+    </button>
+    <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">
+      <span class="ext-icon">📈</span><span class="ext-label">Jurnal Forex</span><span class="ext-arrow">↗</span>
+    </button>
+    <button class="nav-ext-btn" onclick="window.location.href='aset.html'">
+      <span class="ext-icon">💼</span><span class="ext-label">Jurnal Aset</span><span class="ext-arrow">↗</span>
+    </button>
+    <button class="nav-ext-btn" onclick="window.location.href='data.html'">
+      <span class="ext-icon">🪪</span><span class="ext-label">Data Pribadi</span><span class="ext-arrow">↗</span>
+    </button>
   </div>
   
   <div class="status-row">
