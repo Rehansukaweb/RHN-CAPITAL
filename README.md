@@ -580,6 +580,7 @@ body.global-privacy #xau-idr-gr {
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='galeri.html'">📈 GALERI ONLINE↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
+     
     <button class="nav-ext-btn" onclick="window.location.href='aset.html'">📈 JURNAL ASET ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
