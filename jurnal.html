@@ -167,7 +167,6 @@
   body.view-only-mode .hide-on-view { display: none !important; }
   body.view-only-mode input#pTraderName,
   body.view-only-mode input#pModal,
-  body.view-only-mode select#pModalCurrency,
   body.view-only-mode input#pDesc,
   body.view-only-mode input#pUsername,
   body.view-only-mode select#pAccountType {
@@ -271,15 +270,8 @@
         </select>
       </div>
       <div class="field">
-        <label id="lblModal">Modal Awal</label>
-        <div style="display:flex; gap:8px;">
-          <select id="pModalCurrency" onchange="window.saveProfile()" style="width: 90px;">
-            <option value="USD">USD</option>
-            <option value="USC">USC</option>
-            <option value="IDR">Rupiah</option>
-          </select>
-          <input id="pModal" type="number" placeholder="Cth: 10000" step="0.01" onblur="window.saveProfile()" style="flex:1;"/>
-        </div>
+        <label id="lblModal">Modal Awal (USC)</label>
+        <input id="pModal" type="number" placeholder="Cth: 10000" step="1" onblur="window.saveProfile()"/>
       </div>
       <div class="field">
         <label>Deskripsi Strategi</label>
@@ -477,23 +469,12 @@
 
   function updateUnitLabels(){
     const lbl = unitLabel();
-    document.getElementById('lblModal').textContent = `Modal Awal`;
+    document.getElementById('lblModal').textContent = `Modal Awal (${lbl})`;
     document.getElementById('lblPnl').textContent = `Profit / Loss (${lbl})`;
     document.getElementById('lblKomisi').textContent = isProfessional() ? `Komisi (${lbl}, Otomatis)` : `Komisi (${lbl}, Opsional)`;
     document.getElementById('lblKomisiCol').innerHTML = `Komisi (${lbl})`;
     document.getElementById('lblPairPnl').innerHTML = `P&amp;L (${lbl})`;
-    
     const modalInput = document.getElementById('pModal');
-    const modalCurr = document.getElementById('pModalCurrency').value;
-    
-    if(modalCurr === 'IDR') {
-        modalInput.placeholder = 'Cth: 15000000';
-    } else if(modalCurr === 'USD') {
-        modalInput.placeholder = 'Cth: 100';
-    } else if(modalCurr === 'USC') {
-        modalInput.placeholder = 'Cth: 10000';
-    }
-
     const pnlInput = document.getElementById('tPnl');
     const proHint = document.getElementById('proHint');
     const proComRates = document.getElementById('proComRates');
@@ -501,9 +482,11 @@
     proComRates.style.display = isProfessional() ? 'block' : 'none';
     const commissionInputEl = document.getElementById('tCommission');
     if(accountType === 'cent'){
+      modalInput.placeholder = 'Cth: 10000';
       pnlInput.placeholder = 'Cth: 500 atau -120';
       commissionInputEl.placeholder = isProfessional() ? 'Otomatis (kosongkan)' : 'Cth: -150';
     } else {
+      modalInput.placeholder = 'Cth: 100';
       pnlInput.placeholder = 'Cth: 5 atau -1.2';
       commissionInputEl.placeholder = isProfessional() ? 'Otomatis (kosongkan)' : 'Cth: -1.5';
     }
@@ -1267,13 +1250,13 @@
                   icon: 'success',
                   title: 'Selesai Diproses',
                   html: `<div style="font-size:13px;text-align:left;">
-                            ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal, urutannya PERSIS sesuai urutan barisnya di foto${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span> — tandanya ⚠ CEK di kolom Catatan tabel Riwayat Transaksi)` : ''}.</div>` : ''}
-                            ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris datanya kurang lengkap, sekarang muncul di kartu <strong>"Perlu Dicek Manual"</strong> di atas form input — lengkapi lalu klik Simpan.</div>` : ''}
-                            ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
-                            ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — dicek konsistensi digitnya, dan catatan transaksi lama <strong>langlang dikoreksi</strong> ke harga hasil pembacaan ulang (tidak ditambahkan sebagai baris baru).</div>` : ''}
-                            ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit + cek presisi titik desimal (lebih presisi).</div>` : ''}
-                            ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} baris komisinya dihitung OTOMATIS dari tarif per instrumen x lot (Akun Professional) — tidak bergantung sama sekali pada kolom Komisi di screenshot.</div>` : ''}
-                          </div>`
+                           ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal, urutannya PERSIS sesuai urutan barisnya di foto${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span> — tandanya ⚠ CEK di kolom Catatan tabel Riwayat Transaksi)` : ''}.</div>` : ''}
+                           ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris datanya kurang lengkap, sekarang muncul di kartu <strong>"Perlu Dicek Manual"</strong> di atas form input — lengkapi lalu klik Simpan.</div>` : ''}
+                           ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
+                           ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — dicek konsistensi digitnya, dan catatan transaksi lama <strong>langsung dikoreksi</strong> ke harga hasil pembacaan ulang (tidak ditambahkan sebagai baris baru).</div>` : ''}
+                           ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit + cek presisi titik desimal (lebih presisi).</div>` : ''}
+                           ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} baris komisinya dihitung OTOMATIS dari tarif per instrumen x lot (Akun Professional) — tidak bergantung sama sekali pada kolom Komisi di screenshot.</div>` : ''}
+                         </div>`
               });
           }
 
@@ -1403,7 +1386,6 @@
           const d = pSnap.data();
           document.getElementById('pTraderName').value = d.name || '';
           document.getElementById('pModal').value = d.modal || '';
-          document.getElementById('pModalCurrency').value = d.modalCurrency || 'USD';
           document.getElementById('pDesc').value = d.desc || '';
           document.getElementById('pUsername').value = d.username || '';
           accountType = (d.accountType === 'standard' || d.accountType === 'professional') ? d.accountType : 'cent';
@@ -1416,7 +1398,6 @@
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
           accountType = 'cent';
           document.getElementById('pAccountType').value = 'cent';
-          document.getElementById('pModalCurrency').value = 'USD';
       }
       updateUnitLabels();
 
@@ -1489,7 +1470,6 @@
           document.getElementById('authOverlay').style.display = 'flex';
           trades = []; pendingItems = []; renderAll(); renderPending();
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
-          document.getElementById('pModalCurrency').value = 'USD';
       }
   };
 
@@ -1517,14 +1497,13 @@
       if (!currentUser || activeViewUid !== currentUser.uid) return;
       const name = document.getElementById('pTraderName').value;
       const modal = parseFloat(document.getElementById('pModal').value) || 0;
-      const modalCurrency = document.getElementById('pModalCurrency').value;
       const desc = document.getElementById('pDesc').value;
       const username = document.getElementById('pUsername').value.trim().toLowerCase();
       const rawType = document.getElementById('pAccountType').value;
       const accType = (rawType === 'standard' || rawType === 'professional') ? rawType : 'cent';
       accountType = accType; updateUnitLabels();
       try {
-          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, modalCurrency, desc, username, accountType: accType }, { merge: true });
+          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType }, { merge: true });
           if(username) await setDoc(doc(db, 'public_usernames', username), { uid: currentUser.uid });
           renderAll();
       } catch(e) { console.error("Gagal simpan profil", e); }
@@ -1635,19 +1614,7 @@
   };
 
   function calcStats(){
-    const rawModal = parseFloat(document.getElementById('pModal').value) || 0;
-    const modalCurr = document.getElementById('pModalCurrency').value;
-    let modal = rawModal;
-    
-    if (modalCurr === 'IDR') {
-        const usd = rawModal / currentUSDRate;
-        modal = accountType === 'cent' ? (usd * 100) : usd;
-    } else if (modalCurr === 'USD') {
-        modal = accountType === 'cent' ? (rawModal * 100) : rawModal;
-    } else if (modalCurr === 'USC') {
-        modal = accountType === 'cent' ? rawModal : (rawModal / 100);
-    }
-
+    const modal = parseFloat(document.getElementById('pModal').value) || 0;
     const totalPnl = trades.reduce((s,t)=>s+t.pnl,0);
     const totalCommission = trades.reduce((s,t)=>s+(parseFloat(t.commission)||0),0);
     const balance = modal + totalPnl;
@@ -1700,20 +1667,7 @@
   function renderChart(){
     const wrap = document.getElementById('chartWrap');
     if(trades.length === 0){ wrap.innerHTML = '<div class="empty-state">Belum ada data.</div>'; return; }
-    
-    const rawModal = parseFloat(document.getElementById('pModal').value) || 0;
-    const modalCurr = document.getElementById('pModalCurrency').value;
-    let modal = rawModal;
-    
-    if (modalCurr === 'IDR') {
-        const usd = rawModal / currentUSDRate;
-        modal = accountType === 'cent' ? (usd * 100) : usd;
-    } else if (modalCurr === 'USD') {
-        modal = accountType === 'cent' ? (rawModal * 100) : rawModal;
-    } else if (modalCurr === 'USC') {
-        modal = accountType === 'cent' ? rawModal : (rawModal / 100);
-    }
-    
+    const modal = parseFloat(document.getElementById('pModal').value) || 0;
     const div = unitDivisor();
     let points = []; let running = modal;
 
