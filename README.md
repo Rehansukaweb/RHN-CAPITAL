@@ -875,6 +875,7 @@ body.global-privacy #xau-idr-gr {
       </div>
       <div id="admin-detail-chart-wrap" style="display:none;">
         <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
+        <div class="period-bar" id="admin-riwayat-year-sel" style="display:none;"></div>
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
@@ -2735,6 +2736,61 @@ window.renderAdminWeeklyChart = function(arr) {
     mkChart('admin-user-chart', days, incD, expD);
 };
 
+window.renderAdminRiwayatChart = function(arr) {
+    const ysel = document.getElementById('admin-riwayat-year-sel');
+    const legendEl = document.getElementById('admin-detail-chart-legend');
+    if (!ysel) return;
+
+    const yrs = [...new Set(arr.map(t => (t.date || '').slice(0,4)))].filter(Boolean).sort().reverse();
+
+    if (!yrs.length) {
+        ysel.innerHTML = '';
+        ysel.style.display = 'none';
+        if (legendEl) legendEl.innerHTML = '';
+        if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+        return;
+    }
+
+    ysel.style.display = 'flex';
+    if (!ysel.dataset.active || !yrs.includes(ysel.dataset.active)) ysel.dataset.active = yrs[0];
+    ysel.innerHTML = yrs.map(y => `<button class="p-btn ${y === ysel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-riwayat-year-sel').dataset.active='${y}'; renderAdminRiwayatChart(window.__adminRiwayatArr || []);">Tahun ${y}</button>`).join('');
+
+    const activeYr = ysel.dataset.active;
+    const yearData = arr.filter(t => (t.date || '').slice(0,4) === activeYr);
+
+    const walletList = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+    const incWallet = {}; const expWallet = {};
+    walletList.forEach(w => { incWallet[w] = 0; expWallet[w] = 0; });
+
+    yearData.forEach(t => {
+        const w = t.wallet; const wTo = t.walletTo;
+        if (t.type === 'income') {
+            if (incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
+        } else if (t.type === 'expense') {
+            if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+        } else if (t.type === 'transfer') {
+            if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+            if (incWallet.hasOwnProperty(wTo)) incWallet[wTo] += t.amount;
+        } else if (t.type === 'debt') {
+            if (incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
+            if (t.isPaid && expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+        } else if (t.type === 'recv') {
+            if (expWallet.hasOwnProperty(w)) expWallet[w] += t.amount;
+            if (t.isPaid && incWallet.hasOwnProperty(w)) incWallet[w] += t.amount;
+        }
+    });
+
+    const labels = walletList;
+    const incData = walletList.map(w => incWallet[w]);
+    const expData = walletList.map(w => expWallet[w]);
+
+    if (legendEl) {
+        legendEl.innerHTML = '<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Dompet ('+activeYr+')</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Dompet</div>';
+    }
+
+    mkChart('admin-user-chart', labels, incData, expData);
+};
+
 window.showAdminDetail = function(uid, mode) {
     const arr = (adminGrouped[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
@@ -2755,6 +2811,8 @@ window.showAdminDetail = function(uid, mode) {
         sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'none';
+        const ysel = document.getElementById('admin-riwayat-year-sel');
+        if (ysel) { ysel.style.display = 'none'; ysel.innerHTML = ''; }
         if (mode === 'weekly') {
             window.__adminWeeklyArr = arr;
             const wsel = document.getElementById('admin-week-sel');
@@ -2768,8 +2826,14 @@ window.showAdminDetail = function(uid, mode) {
     } else if (mode === 'riwayat') {
         title.innerHTML = '🕒 Riwayat — ' + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi ditemukan, riwayat lengkap dari yang terbaru.';
-        chartWrap.style.display = 'none';
+        chartWrap.style.display = 'block';
         listWrap.style.display = 'block';
+        const wsel = document.getElementById('admin-week-sel');
+        if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+        const ysel = document.getElementById('admin-riwayat-year-sel');
+        if (ysel) ysel.dataset.active = '';
+        window.__adminRiwayatArr = arr;
+        renderAdminRiwayatChart(arr);
         listWrap.innerHTML = arr.length
             ? arr.map(t => adminTxCard(t)).join('')
             : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
@@ -2894,7 +2958,7 @@ window.confirmDeleteUser = async function(uid) {
                 </ul>
                 Data <b>tidak bisa dikembalikan</b>. Ketik <b>HAPUS</b> di bawah untuk konfirmasi.
             </div>
-            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; font-weight:800; letter-spacing:normal;">
+            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; font-weight:800; letter-spacing:normal; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">
         `,
         icon: 'warning',
         background: 'var(--card)',
@@ -2903,6 +2967,7 @@ window.confirmDeleteUser = async function(uid) {
         confirmButtonText: 'HAPUS PERMANEN',
         confirmButtonColor: 'var(--red2)',
         cancelButtonText: 'BATAL',
+        heightAuto: false,
         focusConfirm: false,
         preConfirm: () => {
             const val = document.getElementById('del-confirm-input').value.trim().toUpperCase();
