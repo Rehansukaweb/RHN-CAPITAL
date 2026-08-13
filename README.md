@@ -301,6 +301,22 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
+
+/* ==========================================================================
+   ADMIN: DETAIL TRANSAKSI PER AKUN & GRAFIK BULANAN (Tambahan Baru)
+   ========================================================================== */
+.admin-user-card { transition: 0.3s; }
+.admin-user-actions { display: flex; gap: 8px; margin-top: 12px; }
+.admin-detail-btn {
+  flex: 1; padding: 9px 6px; font-size: 9px; font-weight: 800; border-radius: 8px;
+  cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;
+  transition: 0.3s; font-family: 'Outfit', sans-serif;
+  background: rgba(251,191,36,0.1); border: 1px solid var(--gold); color: var(--gold);
+}
+.admin-detail-btn:hover { background: var(--gold); color: #000; }
+.admin-detail-btn.chart { background: rgba(59,130,246,0.1); border: 1px solid var(--blue); color: var(--blue); }
+.admin-detail-btn.chart:hover { background: var(--blue); color: #fff; }
+#admin-detail-section { padding: 20px; }
 .filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
 .filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
 .filter-bar input.f-input-dark { flex: 1; }
@@ -836,6 +852,23 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <button class="export-btn" onclick="loadAllUsersData()" style="background:var(--gold); color:#000;">🔄 MUAT DATA SEMUA USER</button>
     </div>
+    <div id="admin-summary" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:24px;"></div>
+
+    <div id="admin-detail-section" class="card" style="display:none; margin-bottom:24px; border-color: var(--gold); background: var(--bg2);">
+      <div class="card-head" style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div class="card-title" id="admin-detail-title" style="color: var(--gold);">Detail Transaksi</div>
+          <div class="card-sub" id="admin-detail-sub">-</div>
+        </div>
+        <button class="edit-btn-recent" onclick="closeAdminDetail()" style="border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
+      </div>
+      <div id="admin-detail-chart-wrap" style="display:none;">
+        <div class="chart-legend" id="admin-detail-chart-legend"></div>
+        <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
+      </div>
+      <div class="list-wrap" id="admin-detail-list"></div>
+    </div>
+
     <div class="list-wrap" id="admin-all-body">
       <div style="padding:40px;text-align:center;color:#888;font-size:12px;">Klik tombol muat data untuk memanggil database.</div>
     </div>
@@ -1486,6 +1519,7 @@ window.userCats = JSON.parse(JSON.stringify(window.defaultCATS));
 window.savingsGoals = [];
 
 let txs = [], deletedTxs = [], curType = 'income', activePage = 'dashboard', charts = {};
+let adminGrouped = {}, adminUserLabels = {};
 let currentUSDRate = 16000, currentUser = null, unsubListener = null, authMode = 'login';
 let editId = null;
 let batchMode = false;
@@ -2387,6 +2421,7 @@ document.getElementById('app-pin').addEventListener('input', function(e) { this.
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
   const adminContainer = document.getElementById('admin-all-body');
+  const adminSummaryContainer = document.getElementById('admin-summary');
   
   Swal.fire({
       title: 'Memuat Database...',
@@ -2403,6 +2438,7 @@ window.loadAllUsersData = async function() {
     const snap = await getDocs(txQuery);
     
     if (snap.empty) {
+      if (adminSummaryContainer) adminSummaryContainer.innerHTML = '';
       adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
       Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data ditemukan.', background: 'var(--card)', color: 'var(--text)'});
       return;
@@ -2439,6 +2475,73 @@ window.loadAllUsersData = async function() {
             } catch(err) {}
         }
     }
+
+    // ======================================================================
+    // Hitung Total Pemasukan, Pengeluaran & Saldo Bersih per User (Admin)
+    // ======================================================================
+    let userStats = {};
+    allUsersTxs.forEach(t => {
+        if (t.isDeleted) return;
+        if (!userStats[t.ownerUid]) userStats[t.ownerUid] = { inc: 0, exp: 0, count: 0 };
+        const s = userStats[t.ownerUid];
+        s.count++;
+        if (t.type === 'income') { s.inc += t.amount; }
+        else if (t.type === 'expense') { s.exp += t.amount; }
+        else if (t.type === 'debt') { if (!t.isPaid) { s.inc += t.amount; } else { s.inc += t.amount; s.exp += t.amount; } }
+        else if (t.type === 'recv') { if (!t.isPaid) { s.exp += t.amount; } else { s.exp += t.amount; s.inc += t.amount; } }
+    });
+
+    // ======================================================================
+    // Kelompokkan transaksi per akun (untuk fitur Detail Transaksi & Grafik Bulanan)
+    // ======================================================================
+    adminGrouped = {};
+    adminUserLabels = {};
+    allUsersTxs.forEach(t => {
+        if (t.isDeleted) return;
+        if (!adminGrouped[t.ownerUid]) adminGrouped[t.ownerUid] = [];
+        adminGrouped[t.ownerUid].push(t);
+    });
+
+    if (adminSummaryContainer) {
+        let summaryHtml = Object.keys(userStats).map(uid => {
+            const s = userStats[uid];
+            const bal = s.inc - s.exp;
+            const fallbackInfo = userInfos[uid] || {};
+            const finalEmail = fallbackInfo.email;
+            let ownerLabel = finalEmail ? `${fallbackInfo.nama || finalEmail.split('@')[0]} (${finalEmail})` : `User-${uid.substring(0,6)} (Perlu Login Ulang)`;
+            adminUserLabels[uid] = ownerLabel;
+            return `
+            <div class="m-card admin-user-card" style="border-color: var(--gold);">
+                <div class="m-label" style="color:var(--gold);">👤 ${escapeHTML(ownerLabel)}</div>
+                <div class="m-sub" style="margin-bottom:8px;">${s.count} transaksi</div>
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px;">
+                        <span style="color:var(--text3);">Pemasukan</span>
+                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--green2);">${fmtFull(s.inc)}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px;">
+                        <span style="color:var(--text3);">Pengeluaran</span>
+                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--red2);">${fmtFull(s.exp)}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:4px; padding-top:4px; border-top:1px dashed var(--border2);">
+                        <span style="color:var(--text2); font-weight:700;">Saldo Bersih</span>
+                        <span style="font-family:'JetBrains Mono', monospace; font-weight:800; color:${bal >= 0 ? 'var(--text)' : 'var(--red2)'};">${fmtFull(bal)}</span>
+                    </div>
+                </div>
+                <div class="admin-user-actions">
+                    <button class="admin-detail-btn" onclick="showAdminDetail('${uid}','list')">📋 Detail Transaksi</button>
+                    <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Grafik Bulanan</button>
+                </div>
+            </div>`;
+        }).join('');
+        adminSummaryContainer.innerHTML = summaryHtml;
+    }
+    // ======================================================================
+    // Akhir Perhitungan Total Pemasukan, Pengeluaran & Saldo Bersih per User
+    // ======================================================================
+
+    // Tutup panel detail jika sedang terbuka saat data dimuat ulang
+    closeAdminDetail();
 
     adminContainer.innerHTML = allUsersTxs.map(t => {
       let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
@@ -2487,6 +2590,100 @@ window.loadAllUsersData = async function() {
     adminContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`;
     Swal.fire({icon: 'error', title: 'Gagal', text: error.message, background: 'var(--card)', color: 'var(--text)'});
   }
+};
+
+// ==========================================================================
+// ADMIN: Detail Transaksi per Akun & Grafik Bulanan per Akun (Tambahan Baru)
+// ==========================================================================
+function adminTxCard(t) {
+    let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
+    let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
+    if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
+    let walletBadge = t.wallet ? `<span class="wallet-badge">${escapeHTML(t.wallet)}</span>` : '';
+    if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${escapeHTML(t.wallet || '-')} ➔ ${escapeHTML(t.walletTo || '-')}</span>`;
+    let debtWarn = (t.type === 'debt' || t.type === 'recv') && !t.isPaid ? ` <span style="font-size:8px; font-weight:800; color:var(--red2);">· BELUM LUNAS</span>` : '';
+
+    return `
+    <div class="recent-item">
+        <div class="ri-left">
+            <div class="ri-icon ${t.type}">${icon}</div>
+            <div>
+                <div class="ri-note">${escapeHTML(t.note || '-')} <span class="cat-badge">${escapeHTML(t.category || '-')}</span>${walletBadge}</div>
+                <div class="ri-meta">📅 ${fmtDate(t.date)} · ⏱️ ${fmtTime(t.date)}${debtWarn}</div>
+            </div>
+        </div>
+        <div class="ri-right-wrap">
+            <div class="ri-amounts-col">
+                <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div>
+                <div class="ri-usd">${getUSD(t.amount)}</div>
+            </div>
+        </div>
+    </div>`;
+}
+
+function renderAdminMonthlyChart(arr) {
+    const monthMap = {};
+    arr.forEach(t => {
+        const key = (t.date || '').slice(0, 7);
+        if (!key) return;
+        if (!monthMap[key]) monthMap[key] = { inc: 0, exp: 0 };
+        if (t.type === 'income') { monthMap[key].inc += t.amount; }
+        else if (t.type === 'expense') { monthMap[key].exp += t.amount; }
+        else if (t.type === 'debt') { if (!t.isPaid) { monthMap[key].inc += t.amount; } else { monthMap[key].inc += t.amount; monthMap[key].exp += t.amount; } }
+        else if (t.type === 'recv') { if (!t.isPaid) { monthMap[key].exp += t.amount; } else { monthMap[key].exp += t.amount; monthMap[key].inc += t.amount; } }
+    });
+
+    const months = Object.keys(monthMap).sort();
+    const labels = months.map(m => new Date(m + '-01').toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }));
+    const incData = months.map(m => monthMap[m].inc);
+    const expData = months.map(m => monthMap[m].exp);
+
+    const legendEl = document.getElementById('admin-detail-chart-legend');
+    if (legendEl) {
+        legendEl.innerHTML = months.length
+            ? '<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Bulan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Bulan</div>'
+            : '';
+    }
+
+    mkChart('admin-user-chart', labels, incData, expData);
+}
+
+window.showAdminDetail = function(uid, mode) {
+    const arr = (adminGrouped[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
+
+    const section = document.getElementById('admin-detail-section');
+    const title = document.getElementById('admin-detail-title');
+    const sub = document.getElementById('admin-detail-sub');
+    const chartWrap = document.getElementById('admin-detail-chart-wrap');
+    const listWrap = document.getElementById('admin-detail-list');
+    if (!section || !title || !sub || !chartWrap || !listWrap) return;
+
+    section.style.display = 'block';
+
+    if (mode === 'chart') {
+        title.innerHTML = '📊 Grafik Bulanan — ' + escapeHTML(label);
+        sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
+        chartWrap.style.display = 'block';
+        listWrap.style.display = 'none';
+        renderAdminMonthlyChart(arr);
+    } else {
+        title.innerHTML = '📋 Detail Transaksi — ' + escapeHTML(label);
+        sub.textContent = arr.length + ' transaksi ditemukan, diurutkan dari yang terbaru.';
+        chartWrap.style.display = 'none';
+        listWrap.style.display = 'block';
+        listWrap.innerHTML = arr.length
+            ? arr.map(t => adminTxCard(t)).join('')
+            : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
+    }
+
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.closeAdminDetail = function() {
+    const section = document.getElementById('admin-detail-section');
+    if (section) section.style.display = 'none';
+    if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
 };
 
 function listenTransactions(uid) { 
