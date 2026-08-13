@@ -306,9 +306,9 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
    ADMIN: DETAIL TRANSAKSI PER AKUN & GRAFIK BULANAN (Tambahan Baru)
    ========================================================================== */
 .admin-user-card { transition: 0.3s; }
-.admin-user-actions { display: flex; gap: 8px; margin-top: 12px; }
+.admin-user-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .admin-detail-btn {
-  flex: 1; padding: 9px 6px; font-size: 9px; font-weight: 800; border-radius: 8px;
+  flex: 1 1 calc(50% - 8px); min-width: 100px; padding: 9px 6px; font-size: 9px; font-weight: 800; border-radius: 8px;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;
   transition: 0.3s; font-family: 'Outfit', sans-serif;
   background: rgba(251,191,36,0.1); border: 1px solid var(--gold); color: var(--gold);
@@ -316,6 +316,12 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .admin-detail-btn:hover { background: var(--gold); color: #000; }
 .admin-detail-btn.chart { background: rgba(59,130,246,0.1); border: 1px solid var(--blue); color: var(--blue); }
 .admin-detail-btn.chart:hover { background: var(--blue); color: #fff; }
+.admin-detail-btn.weekly { background: rgba(16,185,129,0.1); border: 1px solid var(--green2); color: var(--green2); }
+.admin-detail-btn.weekly:hover { background: var(--green2); color: #000; }
+.admin-detail-btn.yearly { background: rgba(245,158,11,0.1); border: 1px solid var(--gold2); color: var(--gold2); }
+.admin-detail-btn.yearly:hover { background: var(--gold2); color: #000; }
+.admin-detail-btn.riwayat { background: rgba(255,255,255,0.06); border: 1px solid var(--text3); color: var(--text2); }
+.admin-detail-btn.riwayat:hover { background: var(--text3); color: #000; }
 .admin-detail-btn.fix { background: rgba(16,185,129,0.1); border: 1px solid var(--green2); color: var(--green2); }
 .admin-detail-btn.fix:hover { background: var(--green2); color: #000; }
 .admin-detail-btn.danger { background: rgba(248,113,113,0.12); border: 1px solid var(--red2); color: var(--red2); }
@@ -851,8 +857,8 @@ body.global-privacy #xau-idr-gr {
 <div id="page-admin" class="page">
   <div class="card">
     <div class="card-head">
-      <div class="card-title" style="color: var(--gold);">👑 Aktivitas Seluruh User (Admin Only)</div>
-      <div class="card-sub">Memantau transaksi dari semua pengguna di database.</div>
+      <div class="card-title" style="color: var(--gold);">👑 Informasi Seluruh User (Admin Only)</div>
+      <div class="card-sub">Memantau data setiap pengguna di database secara terpisah per akun.</div>
     </div>
     <div class="filter-bar">
       <button class="export-btn" onclick="loadAllUsersData()" style="background:var(--gold); color:#000;">🔄 MUAT DATA SEMUA USER</button>
@@ -872,10 +878,6 @@ body.global-privacy #xau-idr-gr {
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
       <div class="list-wrap" id="admin-detail-list"></div>
-    </div>
-
-    <div class="list-wrap" id="admin-all-body">
-      <div style="padding:40px;text-align:center;color:#888;font-size:12px;">Klik tombol muat data untuk memanggil database.</div>
     </div>
   </div>
 </div>
@@ -2431,7 +2433,6 @@ document.getElementById('app-pin').addEventListener('input', function(e) { this.
 
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
-  const adminContainer = document.getElementById('admin-all-body');
   const adminSummaryContainer = document.getElementById('admin-summary');
   
   Swal.fire({
@@ -2449,8 +2450,7 @@ window.loadAllUsersData = async function() {
     const snap = await getDocs(txQuery);
     
     if (snap.empty) {
-      if (adminSummaryContainer) adminSummaryContainer.innerHTML = '';
-      adminContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
+      if (adminSummaryContainer) adminSummaryContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
       Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data ditemukan.', background: 'var(--card)', color: 'var(--text)'});
       return;
     }
@@ -2579,7 +2579,10 @@ window.loadAllUsersData = async function() {
                 </div>
                 <div class="admin-user-actions">
                     <button class="admin-detail-btn" onclick="showAdminDetail('${uid}','list')">📋 Detail Transaksi</button>
-                    <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Grafik Bulanan</button>
+                    <button class="admin-detail-btn weekly" onclick="showAdminDetail('${uid}','weekly')">📅 Mingguan</button>
+                    <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Bulanan</button>
+                    <button class="admin-detail-btn yearly" onclick="showAdminDetail('${uid}','yearly')">📈 Tahunan</button>
+                    <button class="admin-detail-btn riwayat" onclick="showAdminDetail('${uid}','riwayat')">🕒 Riwayat</button>
                 </div>
                 ${!finalEmail ? `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn fix" onclick="promptFixUserInfo('${uid}')" style="flex:1;">✏️ Lengkapi Nama &amp; Email User Ini</button></div>` : ''}
                 ${isSelf
@@ -2597,40 +2600,6 @@ window.loadAllUsersData = async function() {
     // Tutup panel detail jika sedang terbuka saat data dimuat ulang
     closeAdminDetail();
 
-    adminContainer.innerHTML = allUsersTxs.map(t => {
-      let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
-      let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
-      if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
-      
-      let fallbackInfo = userInfos[t.ownerUid] || {};
-      let finalEmail = t.ownerEmail || fallbackInfo.email || emailByUid[t.ownerUid];
-      let ownerLabel = "";
-      
-      if (finalEmail) {
-          let finalNama = fallbackInfo.nama || finalEmail.split('@')[0];
-          ownerLabel = `${finalNama} (${finalEmail})`;
-      } else {
-          ownerLabel = `User-${t.ownerUid.substring(0,6)} (Perlu Login Ulang)`;
-      }
-
-      return `
-      <div class="recent-item" style="border-left: 4px solid var(--gold);"> 
-          <div class="ri-left"> 
-              <div class="ri-icon ${t.type}">${icon}</div> 
-              <div> 
-                  <div class="ri-note">${escapeHTML(t.note)} <span class="cat-badge">${t.category}</span></div> 
-                  <div class="ri-meta" style="color: var(--gold); margin-bottom: 2px;">👤 ${ownerLabel}</div> 
-                  <div class="ri-meta">📅 ${fmtDate(t.date)} · ⏱️ ${fmtTime(t.date)}</div> 
-              </div> 
-          </div> 
-          <div class="ri-right-wrap"> 
-              <div class="ri-amounts-col"> 
-                  <div class="ri-amount ${t.type}">${sign}${fmtFull(t.amount)}</div> 
-              </div> 
-          </div> 
-      </div>`;
-    }).join('');
-
     Swal.fire({
         icon: 'success', 
         title: 'Data Ditemukan', 
@@ -2641,7 +2610,7 @@ window.loadAllUsersData = async function() {
     });
 
   } catch (error) {
-    adminContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`;
+    if (adminSummaryContainer) adminSummaryContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`;
     Swal.fire({icon: 'error', title: 'Gagal', text: error.message, background: 'var(--card)', color: 'var(--text)'});
   }
 };
@@ -2675,27 +2644,48 @@ function adminTxCard(t) {
     </div>`;
 }
 
-function renderAdminMonthlyChart(arr) {
-    const monthMap = {};
+function renderAdminPeriodChart(arr, granularity) {
+    const map = {};
     arr.forEach(t => {
-        const key = (t.date || '').slice(0, 7);
+        if (!t.date) return;
+        const d = new Date(t.date);
+        if (isNaN(d.getTime())) return;
+        let key, label;
+        if (granularity === 'week') {
+            const day = d.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1) - day;
+            const monday = new Date(d);
+            monday.setHours(0,0,0,0);
+            monday.setDate(monday.getDate() + diffToMonday);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            key = monday.getFullYear() + '-' + String(monday.getMonth()+1).padStart(2,'0') + '-' + String(monday.getDate()).padStart(2,'0');
+            label = monday.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' - ' + sunday.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        } else if (granularity === 'year') {
+            key = String(d.getFullYear());
+            label = key;
+        } else {
+            key = (t.date || '').slice(0, 7);
+            label = new Date(key + '-01').toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+        }
         if (!key) return;
-        if (!monthMap[key]) monthMap[key] = { inc: 0, exp: 0 };
-        if (t.type === 'income') { monthMap[key].inc += t.amount; }
-        else if (t.type === 'expense') { monthMap[key].exp += t.amount; }
-        else if (t.type === 'debt') { if (!t.isPaid) { monthMap[key].inc += t.amount; } else { monthMap[key].inc += t.amount; monthMap[key].exp += t.amount; } }
-        else if (t.type === 'recv') { if (!t.isPaid) { monthMap[key].exp += t.amount; } else { monthMap[key].exp += t.amount; monthMap[key].inc += t.amount; } }
+        if (!map[key]) map[key] = { inc: 0, exp: 0, label: label };
+        if (t.type === 'income') { map[key].inc += t.amount; }
+        else if (t.type === 'expense') { map[key].exp += t.amount; }
+        else if (t.type === 'debt') { if (!t.isPaid) { map[key].inc += t.amount; } else { map[key].inc += t.amount; map[key].exp += t.amount; } }
+        else if (t.type === 'recv') { if (!t.isPaid) { map[key].exp += t.amount; } else { map[key].exp += t.amount; map[key].inc += t.amount; } }
     });
 
-    const months = Object.keys(monthMap).sort();
-    const labels = months.map(m => new Date(m + '-01').toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }));
-    const incData = months.map(m => monthMap[m].inc);
-    const expData = months.map(m => monthMap[m].exp);
+    const keys = Object.keys(map).sort();
+    const labels = keys.map(k => map[k].label);
+    const incData = keys.map(k => map[k].inc);
+    const expData = keys.map(k => map[k].exp);
+    const periodText = granularity === 'week' ? 'per Minggu' : granularity === 'year' ? 'per Tahun' : 'per Bulan';
 
     const legendEl = document.getElementById('admin-detail-chart-legend');
     if (legendEl) {
-        legendEl.innerHTML = months.length
-            ? '<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Bulan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Bulan</div>'
+        legendEl.innerHTML = keys.length
+            ? `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan ${periodText}</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran ${periodText}</div>`
             : '';
     }
 
@@ -2715,12 +2705,22 @@ window.showAdminDetail = function(uid, mode) {
 
     section.style.display = 'block';
 
-    if (mode === 'chart') {
-        title.innerHTML = '📊 Grafik Bulanan — ' + escapeHTML(label);
+    if (mode === 'chart' || mode === 'weekly' || mode === 'yearly') {
+        const titleMap = { chart: '📊 Grafik Bulanan — ', weekly: '📅 Grafik Mingguan — ', yearly: '📈 Grafik Tahunan — ' };
+        const granMap = { chart: 'month', weekly: 'week', yearly: 'year' };
+        title.innerHTML = titleMap[mode] + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'none';
-        renderAdminMonthlyChart(arr);
+        renderAdminPeriodChart(arr, granMap[mode]);
+    } else if (mode === 'riwayat') {
+        title.innerHTML = '🕒 Riwayat — ' + escapeHTML(label);
+        sub.textContent = arr.length + ' transaksi ditemukan, riwayat lengkap dari yang terbaru.';
+        chartWrap.style.display = 'none';
+        listWrap.style.display = 'block';
+        listWrap.innerHTML = arr.length
+            ? arr.map(t => adminTxCard(t)).join('')
+            : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
     } else {
         title.innerHTML = '📋 Detail Transaksi — ' + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi ditemukan, diurutkan dari yang terbaru.';
@@ -2842,7 +2842,7 @@ window.confirmDeleteUser = async function(uid) {
                 </ul>
                 Data <b>tidak bisa dikembalikan</b>. Ketik <b>HAPUS</b> di bawah untuk konfirmasi.
             </div>
-            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800; text-indent:1px;">
+            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="display:flex; align-items:center; justify-content:center; text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800;">
         `,
         icon: 'warning',
         background: 'var(--card)',
