@@ -316,6 +316,10 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .admin-detail-btn:hover { background: var(--gold); color: #000; }
 .admin-detail-btn.chart { background: rgba(59,130,246,0.1); border: 1px solid var(--blue); color: var(--blue); }
 .admin-detail-btn.chart:hover { background: var(--blue); color: #fff; }
+.admin-detail-btn.fix { background: rgba(16,185,129,0.1); border: 1px solid var(--green2); color: var(--green2); }
+.admin-detail-btn.fix:hover { background: var(--green2); color: #000; }
+.admin-detail-btn.danger { background: rgba(248,113,113,0.12); border: 1px solid var(--red2); color: var(--red2); }
+.admin-detail-btn.danger:hover { background: var(--red2); color: #fff; }
 #admin-detail-section { padding: 20px; }
 .filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
 .filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
@@ -2451,6 +2455,15 @@ window.loadAllUsersData = async function() {
       return { id: d.id, ownerUid: ownerUid, ...data };
     });
 
+    // ======================================================================
+    // Paksa deteksi nama & email pemilik akun dari data transaksi itu sendiri
+    // (fallback wajib jika dokumen profil users/{uid} tidak terbaca/tidak ada)
+    // ======================================================================
+    let emailByUid = {};
+    allUsersTxs.forEach(t => {
+        if (t.ownerEmail && !emailByUid[t.ownerUid]) emailByUid[t.ownerUid] = t.ownerEmail;
+    });
+
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
     let userInfos = {};
     
@@ -2473,8 +2486,35 @@ window.loadAllUsersData = async function() {
                     }
                 }
             } catch(err) {}
+
+            // Paksa fallback: jika profil users/{uid} tidak terbaca (mis. tertahan rules),
+            // tetap paksa ambil email dari salah satu transaksi milik uid tersebut.
+            if (!userInfos[uid] && emailByUid[uid]) {
+                userInfos[uid] = {
+                    email: emailByUid[uid],
+                    nama: emailByUid[uid].split('@')[0]
+                };
+            }
         }
     }
+
+    // ======================================================================
+    // Ambil SEMUA profil user terdaftar di koleksi 'users' (termasuk yang
+    // belum pernah membuat transaksi sama sekali), agar semua akun kelihatan
+    // ======================================================================
+    let allUserDocs = {};
+    try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        usersSnap.forEach(d => { allUserDocs[d.id] = d.data(); });
+    } catch (err) {}
+
+    Object.keys(allUserDocs).forEach(uid => {
+        if (!userInfos[uid] && allUserDocs[uid].email) {
+            userInfos[uid] = { email: allUserDocs[uid].email, nama: allUserDocs[uid].nama || allUserDocs[uid].email.split('@')[0] };
+        }
+    });
+
+    let allKnownUids = [...new Set([...uniqueUids, ...Object.keys(allUserDocs)])];
 
     // ======================================================================
     // Hitung Total Pemasukan, Pengeluaran & Saldo Bersih per User (Admin)
@@ -2503,13 +2543,15 @@ window.loadAllUsersData = async function() {
     });
 
     if (adminSummaryContainer) {
-        let summaryHtml = Object.keys(userStats).map(uid => {
-            const s = userStats[uid];
+        let summaryHtml = allKnownUids.map(uid => {
+            const s = userStats[uid] || { inc: 0, exp: 0, count: 0 };
             const bal = s.inc - s.exp;
             const fallbackInfo = userInfos[uid] || {};
-            const finalEmail = fallbackInfo.email;
-            let ownerLabel = finalEmail ? `${fallbackInfo.nama || finalEmail.split('@')[0]} (${finalEmail})` : `User-${uid.substring(0,6)} (Perlu Login Ulang)`;
+            const finalEmail = fallbackInfo.email || emailByUid[uid];
+            const finalNama = fallbackInfo.nama || (finalEmail ? finalEmail.split('@')[0] : null);
+            let ownerLabel = finalEmail ? `${finalNama} (${finalEmail})` : `User-${uid.substring(0,6)} (Perlu Login Ulang)`;
             adminUserLabels[uid] = ownerLabel;
+            const isSelf = uid === currentUser.uid;
             return `
             <div class="m-card admin-user-card" style="border-color: var(--gold);">
                 <div class="m-label" style="color:var(--gold);">👤 ${escapeHTML(ownerLabel)}</div>
@@ -2532,6 +2574,11 @@ window.loadAllUsersData = async function() {
                     <button class="admin-detail-btn" onclick="showAdminDetail('${uid}','list')">📋 Detail Transaksi</button>
                     <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Grafik Bulanan</button>
                 </div>
+                ${!finalEmail ? `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn fix" onclick="promptFixUserInfo('${uid}')" style="flex:1;">✏️ Lengkapi Nama &amp; Email User Ini</button></div>` : ''}
+                ${isSelf
+                    ? `<div style="margin-top:8px; font-size:9px; color:var(--text3); text-align:center; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">🔒 Akun Admin (Anda)</div>`
+                    : `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn danger" onclick="confirmDeleteUser('${uid}')" style="flex:1;">🗑️ Hapus Akun Ini</button></div>`
+                }
             </div>`;
         }).join('');
         adminSummaryContainer.innerHTML = summaryHtml;
@@ -2549,7 +2596,7 @@ window.loadAllUsersData = async function() {
       if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
       
       let fallbackInfo = userInfos[t.ownerUid] || {};
-      let finalEmail = t.ownerEmail || fallbackInfo.email;
+      let finalEmail = t.ownerEmail || fallbackInfo.email || emailByUid[t.ownerUid];
       let ownerLabel = "";
       
       if (finalEmail) {
@@ -2684,6 +2731,160 @@ window.closeAdminDetail = function() {
     const section = document.getElementById('admin-detail-section');
     if (section) section.style.display = 'none';
     if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+};
+
+window.promptFixUserInfo = async function(uid) {
+    const { value: formValues } = await Swal.fire({
+        title: 'Lengkapi Info User',
+        html: `
+            <div style="text-align:left; font-size:11px; color:var(--text3); margin-bottom:12px;">
+                Akun ini belum punya data email tersimpan di database (belum pernah login ulang sejak fitur sinkronisasi aktif).
+                Isi manual nama &amp; email pemilik UID <b>${escapeHTML(uid)}</b> di bawah ini.
+            </div>
+            <input id="fix-nama" class="swal2-input" placeholder="Nama Pengguna" style="margin-bottom:8px;">
+            <input id="fix-email" class="swal2-input" type="email" placeholder="Email Pengguna (gmail dsb)">
+        `,
+        background: 'var(--card)',
+        color: 'var(--text)',
+        showCancelButton: true,
+        confirmButtonText: 'SIMPAN',
+        confirmButtonColor: 'var(--green2)',
+        cancelButtonText: 'BATAL',
+        focusConfirm: false,
+        preConfirm: () => {
+            const nama = document.getElementById('fix-nama').value.trim();
+            const email = document.getElementById('fix-email').value.trim();
+            if (!email || !email.includes('@')) {
+                Swal.showValidationMessage('Email tidak valid.');
+                return false;
+            }
+            return { nama: nama || email.split('@')[0], email };
+        }
+    });
+
+    if (!formValues) return;
+
+    Swal.fire({
+        title: 'Menyimpan...',
+        background: 'var(--card)', color: 'var(--text)',
+        heightAuto: false, allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading() }
+    });
+
+    try {
+        // Simpan profil user secara permanen ke koleksi 'users'
+        await setDoc(doc(db, 'users', uid), { email: formValues.email, nama: formValues.nama }, { merge: true });
+
+        // Backfill juga ke seluruh transaksi milik uid ini supaya konsisten di daftar gabungan
+        const txSnap = await getDocs(collection(db, 'users', uid, 'transactions'));
+        const batch = writeBatch(db);
+        let count = 0;
+        txSnap.forEach(d => {
+            if (d.data().ownerEmail !== formValues.email) {
+                batch.update(d.ref, { ownerEmail: formValues.email });
+                count++;
+            }
+        });
+        if (count > 0) await batch.commit();
+
+        Swal.fire({ icon: 'success', title: 'Berhasil Disimpan!', text: 'Data user telah diperbarui.', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
+
+        await loadAllUsersData();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+// ==========================================================================
+// ADMIN: Hapus Akun User Langsung dari Panel (Tanpa Buka Firebase Console)
+// ==========================================================================
+async function deleteCollectionInChunks(colRef) {
+    const snap = await getDocs(colRef);
+    const docs = snap.docs;
+    const CHUNK_SIZE = 400;
+    for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
+        const chunk = docs.slice(i, i + CHUNK_SIZE);
+        const batch = writeBatch(db);
+        chunk.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+    }
+    return docs.length;
+}
+
+window.confirmDeleteUser = async function(uid) {
+    if (!currentUser) return;
+    if (uid === currentUser.uid) {
+        return Swal.fire({ icon: 'warning', title: 'Tidak Bisa', text: 'Akun admin (Anda) tidak bisa dihapus dari sini.', background: 'var(--card)', color: 'var(--text)' });
+    }
+
+    const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
+    const s = (adminGrouped[uid] || []).length;
+
+    const { value: typedConfirm } = await Swal.fire({
+        title: '⚠️ Hapus Akun Ini?',
+        html: `
+            <div style="text-align:left; font-size:12px; color:var(--text2); line-height:1.6;">
+                Akun: <b style="color:var(--gold);">${escapeHTML(label)}</b><br>
+                Jumlah transaksi: <b>${s}</b><br><br>
+                Tindakan ini akan <b style="color:var(--red2);">menghapus permanen</b>:
+                <ul style="margin:8px 0 8px 18px; padding:0;">
+                    <li>Seluruh transaksi akun ini</li>
+                    <li>Seluruh transaksi rutin (recurring)</li>
+                    <li>Pengaturan (preferensi, keamanan, transfer)</li>
+                    <li>Profil akun (nama &amp; email tersimpan)</li>
+                </ul>
+                Data <b>tidak bisa dikembalikan</b>. Ketik <b>HAPUS</b> di bawah untuk konfirmasi.
+            </div>
+            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800;">
+        `,
+        icon: 'warning',
+        background: 'var(--card)',
+        color: 'var(--text)',
+        showCancelButton: true,
+        confirmButtonText: 'HAPUS PERMANEN',
+        confirmButtonColor: 'var(--red2)',
+        cancelButtonText: 'BATAL',
+        focusConfirm: false,
+        preConfirm: () => {
+            const val = document.getElementById('del-confirm-input').value.trim().toUpperCase();
+            if (val !== 'HAPUS') {
+                Swal.showValidationMessage('Ketik HAPUS (huruf besar) untuk konfirmasi.');
+                return false;
+            }
+            return true;
+        }
+    });
+
+    if (!typedConfirm) return;
+
+    Swal.fire({
+        title: 'Menghapus Akun...',
+        html: 'Sedang menghapus seluruh data akun ini.<br>Jangan tutup halaman ini.',
+        background: 'var(--card)', color: 'var(--text)',
+        heightAuto: false, allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading() }
+    });
+
+    try {
+        await deleteCollectionInChunks(collection(db, 'users', uid, 'transactions'));
+        await deleteCollectionInChunks(collection(db, 'users', uid, 'recurring_txs'));
+
+        try { await deleteDoc(doc(db, 'users', uid, 'settings', 'preferences')); } catch (e) {}
+        try { await deleteDoc(doc(db, 'users', uid, 'settings', 'security')); } catch (e) {}
+        try { await deleteDoc(doc(db, 'users', uid, 'settings', 'transfer')); } catch (e) {}
+
+        await deleteDoc(doc(db, 'users', uid));
+
+        delete adminGrouped[uid];
+        delete adminUserLabels[uid];
+
+        Swal.fire({ icon: 'success', title: 'Akun Terhapus!', text: 'Seluruh data akun berhasil dihapus permanen.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+
+        closeAdminDetail();
+        await loadAllUsersData();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
 };
 
 function listenTransactions(uid) { 
