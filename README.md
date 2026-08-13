@@ -552,6 +552,7 @@ body.global-privacy #xau-idr-gr {
     </div>
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     
+    <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
@@ -1345,7 +1346,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
-  GoogleAuthProvider, signInWithPopup 
+  GoogleAuthProvider, signInWithPopup, updateProfile 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { 
@@ -1928,7 +1929,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
@@ -1956,8 +1957,10 @@ window.doGoogleAuth = async function() {
 window.doAuth = async function() { 
     const email = document.getElementById('auth-email').value.trim(); 
     const pass = document.getElementById('auth-pass').value; 
+    const nama = document.getElementById('auth-nama').value.trim(); 
     hideErr(); 
     if (!email || !pass) return showErr('Email dan Sandi tidak boleh kosong.'); 
+    if (authMode === 'register' && !nama) return showErr('Nama tidak boleh kosong.'); 
     setLoading(true); 
     try { 
         if (authMode === 'login') {
@@ -1967,7 +1970,11 @@ window.doAuth = async function() {
                 setLoading(false);
                 return showErr('Konfirmasi Sandi tidak sama.');
             }
-            await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
+            const cred = await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
+            try {
+                await updateProfile(cred.user, { displayName: nama });
+                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama }, { merge: true });
+            } catch(eProfil) { console.error('Gagal menyimpan nama akun', eProfil); }
         }
         setLoading(false);
     } catch(e) {
@@ -2835,7 +2842,7 @@ window.confirmDeleteUser = async function(uid) {
                 </ul>
                 Data <b>tidak bisa dikembalikan</b>. Ketik <b>HAPUS</b> di bawah untuk konfirmasi.
             </div>
-            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800;">
+            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800; text-indent:2px;">
         `,
         icon: 'warning',
         background: 'var(--card)',
