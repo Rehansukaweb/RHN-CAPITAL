@@ -874,6 +874,7 @@ body.global-privacy #xau-idr-gr {
         <button class="edit-btn-recent" onclick="closeAdminDetail()" style="border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
       </div>
       <div id="admin-detail-chart-wrap" style="display:none;">
+        <div class="period-bar" id="admin-month-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-riwayat-year-sel" style="display:none;"></div>
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
@@ -2694,6 +2695,49 @@ function renderAdminPeriodChart(arr, granularity) {
     mkChart('admin-user-chart', labels, incData, expData);
 }
 
+window.renderAdminMonthlyChart = function(arr) {
+    const sel = document.getElementById('admin-month-sel');
+    const legendEl = document.getElementById('admin-detail-chart-legend');
+    if (!sel) return;
+
+    const mths = [...new Set(arr.map(t => (t.date || '').slice(0,7)))].filter(Boolean).sort().reverse();
+
+    if (!mths.length) {
+        sel.innerHTML = '';
+        sel.style.display = 'none';
+        if (legendEl) legendEl.innerHTML = '';
+        if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+        return;
+    }
+
+    sel.style.display = 'flex';
+    if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
+
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-month-sel').dataset.active='${m}'; renderAdminMonthlyChart(window.__adminMonthlyArr || []);">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+
+    const activeM = sel.dataset.active;
+    const filtered = arr.filter(t => (t.date || '').slice(0,7) === activeM);
+
+    let daysInM = new Date(activeM.slice(0,4), activeM.slice(5,7), 0).getDate();
+    let labels = Array.from({length: daysInM}, (_, i) => i + 1);
+    let incD = Array(daysInM).fill(0), expD = Array(daysInM).fill(0);
+    filtered.forEach(t => {
+        if (!t.date) return;
+        let d = parseInt(t.date.slice(8,10)) - 1;
+        if (d < 0 || d >= daysInM) return;
+        if (t.type === 'income') { incD[d] += t.amount; }
+        else if (t.type === 'expense') { expD[d] += t.amount; }
+        else if (t.type === 'debt') { if (!t.isPaid) { incD[d] += t.amount; } else { incD[d] += t.amount; expD[d] += t.amount; } }
+        else if (t.type === 'recv') { if (!t.isPaid) { expD[d] += t.amount; } else { expD[d] += t.amount; incD[d] += t.amount; } }
+    });
+
+    if (legendEl) {
+        legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Bulan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Bulan</div>`;
+    }
+
+    mkChart('admin-user-chart', labels, incD, expD);
+};
+
 window.renderAdminWeeklyChart = function(arr) {
     const sel = document.getElementById('admin-week-sel');
     const legendEl = document.getElementById('admin-detail-chart-legend');
@@ -2814,13 +2858,24 @@ window.showAdminDetail = function(uid, mode) {
         const ysel = document.getElementById('admin-riwayat-year-sel');
         if (ysel) { ysel.style.display = 'none'; ysel.innerHTML = ''; }
         if (mode === 'weekly') {
+            const msel = document.getElementById('admin-month-sel');
+            if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
             window.__adminWeeklyArr = arr;
             const wsel = document.getElementById('admin-week-sel');
             if (wsel) wsel.dataset.active = '';
             renderAdminWeeklyChart(arr);
+        } else if (mode === 'chart') {
+            const wsel = document.getElementById('admin-week-sel');
+            if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+            window.__adminMonthlyArr = arr;
+            const msel = document.getElementById('admin-month-sel');
+            if (msel) msel.dataset.active = '';
+            renderAdminMonthlyChart(arr);
         } else {
             const wsel = document.getElementById('admin-week-sel');
             if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+            const msel = document.getElementById('admin-month-sel');
+            if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
             renderAdminPeriodChart(arr, granMap[mode]);
         }
     } else if (mode === 'riwayat') {
@@ -2828,6 +2883,8 @@ window.showAdminDetail = function(uid, mode) {
         sub.textContent = arr.length + ' transaksi ditemukan, riwayat lengkap dari yang terbaru.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'block';
+        const msel = document.getElementById('admin-month-sel');
+        if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
         const wsel = document.getElementById('admin-week-sel');
         if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
         const ysel = document.getElementById('admin-riwayat-year-sel');
