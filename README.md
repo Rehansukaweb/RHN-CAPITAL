@@ -70,6 +70,24 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 .swal2-container { z-index: 100000 !important; }
 .centered-modal { border-radius: 24px !important; overflow: hidden; box-shadow: var(--shadow-float) !important; }
 
+/* Animasi lebih smooth di seluruh aplikasi (popup, transisi halaman, dll) */
+*, *::before, *::after { transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important; }
+
+@keyframes swal2-show {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes swal2-hide {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.96); opacity: 0; }
+}
+.swal2-popup.swal2-show { animation: swal2-show 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important; }
+.swal2-popup.swal2-hide { animation: swal2-hide 0.28s cubic-bezier(0.4, 0, 1, 1) !important; }
+@keyframes swal2-backdrop-show { from { background: rgba(0,0,0,0); } to { background: var(--swal2-backdrop, rgba(0,0,0,.4)); } }
+@keyframes swal2-backdrop-hide { from { background: var(--swal2-backdrop, rgba(0,0,0,.4)); } to { background: rgba(0,0,0,0); } }
+.swal2-backdrop-show { animation: swal2-backdrop-show 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important; }
+.swal2-backdrop-hide { animation: swal2-backdrop-hide 0.28s cubic-bezier(0.4, 0, 1, 1) !important; }
+
 /* HEADER */
 .header-area { padding: 20px 24px; }
 .logo-row { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-top: 10px; }
@@ -141,8 +159,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 
 /* MAIN CONTENT */
 .main { padding: 0 24px 80px; max-width: 1400px; margin: 0 auto; }
-.page { display: none; animation: fadeIn 0.4s ease; } .page.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.page { display: none; animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1); } .page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* METRICS */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -874,6 +892,7 @@ body.global-privacy #xau-idr-gr {
         <button class="edit-btn-recent" onclick="closeAdminDetail()" style="border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
       </div>
       <div id="admin-detail-chart-wrap" style="display:none;">
+        <div class="period-bar" id="admin-year-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-month-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-riwayat-year-sel" style="display:none;"></div>
@@ -2695,6 +2714,45 @@ function renderAdminPeriodChart(arr, granularity) {
     mkChart('admin-user-chart', labels, incData, expData);
 }
 
+window.renderAdminYearlyChart = function(arr) {
+    const sel = document.getElementById('admin-year-sel');
+    const legendEl = document.getElementById('admin-detail-chart-legend');
+    if (!sel) return;
+
+    const yrs = [...new Set(arr.map(t => (t.date || '').slice(0,4)))].filter(Boolean).sort().reverse();
+
+    if (!yrs.length) {
+        sel.innerHTML = '';
+        sel.style.display = 'none';
+        if (legendEl) legendEl.innerHTML = '';
+        if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+        return;
+    }
+
+    sel.style.display = 'flex';
+    if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
+
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-year-sel').dataset.active='${y}'; renderAdminYearlyChart(window.__adminYearlyArr || []);">Tahun ${y}</button>`).join('');
+
+    const activeY = sel.dataset.active;
+    const filtered = arr.filter(t => (t.date || '').slice(0,4) === activeY);
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    let incD = Array(12).fill(0), expD = Array(12).fill(0);
+    filtered.forEach(t => {
+        let m = parseInt(t.date.slice(5,7)) - 1;
+        if (m < 0 || m > 11) return;
+        if (t.type === 'income') incD[m] += t.amount;
+        if (t.type === 'expense') expD[m] += t.amount;
+    });
+
+    if (legendEl) {
+        legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Tahun</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Tahun</div>`;
+    }
+
+    mkChart('admin-user-chart', months, incD, expD);
+};
+
 window.renderAdminMonthlyChart = function(arr) {
     const sel = document.getElementById('admin-month-sel');
     const legendEl = document.getElementById('admin-detail-chart-legend');
@@ -2860,6 +2918,8 @@ window.showAdminDetail = function(uid, mode) {
         if (mode === 'weekly') {
             const msel = document.getElementById('admin-month-sel');
             if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
+            const ysel2 = document.getElementById('admin-year-sel');
+            if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
             window.__adminWeeklyArr = arr;
             const wsel = document.getElementById('admin-week-sel');
             if (wsel) wsel.dataset.active = '';
@@ -2867,10 +2927,21 @@ window.showAdminDetail = function(uid, mode) {
         } else if (mode === 'chart') {
             const wsel = document.getElementById('admin-week-sel');
             if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+            const ysel2 = document.getElementById('admin-year-sel');
+            if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
             window.__adminMonthlyArr = arr;
             const msel = document.getElementById('admin-month-sel');
             if (msel) msel.dataset.active = '';
             renderAdminMonthlyChart(arr);
+        } else if (mode === 'yearly') {
+            const wsel = document.getElementById('admin-week-sel');
+            if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+            const msel = document.getElementById('admin-month-sel');
+            if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
+            window.__adminYearlyArr = arr;
+            const ysel2 = document.getElementById('admin-year-sel');
+            if (ysel2) ysel2.dataset.active = '';
+            renderAdminYearlyChart(arr);
         } else {
             const wsel = document.getElementById('admin-week-sel');
             if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
@@ -2887,6 +2958,8 @@ window.showAdminDetail = function(uid, mode) {
         if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
         const wsel = document.getElementById('admin-week-sel');
         if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+        const ysel2 = document.getElementById('admin-year-sel');
+        if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
         const ysel = document.getElementById('admin-riwayat-year-sel');
         if (ysel) ysel.dataset.active = '';
         window.__adminRiwayatArr = arr;
