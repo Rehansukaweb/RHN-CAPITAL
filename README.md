@@ -73,6 +73,45 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 /* Animasi lebih smooth di seluruh aplikasi (popup, transisi halaman, dll) */
 *, *::before, *::after { transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important; }
 
+/* ==========================================================================
+   POLISH INTERAKSI: semua tombol/aksi terasa smooth & responsif seperti app
+   ========================================================================== */
+button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
+.submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
+.recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item {
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.25s ease, border-color 0.25s ease,
+              box-shadow 0.25s ease, opacity 0.25s ease, color 0.2s ease !important;
+  will-change: transform;
+}
+button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
+.setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
+.edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active {
+  transform: scale(0.94);
+}
+.w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active { transform: scale(0.97); }
+
+.nav-btn, .t-btn, .p-btn { position: relative; }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes activePulse { 0% { transform: scale(0.9); } 60% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+.recent-item, .m-card, .w-card { animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Transisi antar halaman lebih hidup */
+.page.active { animation: pageIn 0.42s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes pageIn { from { opacity: 0; transform: translateY(14px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
+.flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes flashHighlight {
+  0% { box-shadow: 0 0 0 0 rgba(251,191,36,0.55); border-color: var(--gold); }
+  60% { box-shadow: 0 0 0 10px rgba(251,191,36,0); border-color: var(--gold); }
+  100% { box-shadow: none; }
+}
+
+html { scroll-behavior: smooth; }
+
 @keyframes swal2-show {
   0% { transform: scale(0.92); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
@@ -159,7 +198,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 
 /* MAIN CONTENT */
 .main { padding: 0 24px 80px; max-width: 1400px; margin: 0 auto; }
-.page { display: none; animation: fadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1); } .page.active { display: block; }
+.page { display: none; } .page.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* METRICS */
@@ -527,6 +566,8 @@ body.global-privacy #xau-idr-gr {
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <script>
   // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
@@ -857,7 +898,7 @@ body.global-privacy #xau-idr-gr {
         <option value="expense">Pengeluaran Saja</option>
       </select>
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
-      <button class="export-btn" onclick="exportCSV()">UNDUH CSV 📥</button>
+      <button class="export-btn" onclick="exportPDF()">UNDUH PDF 📄</button>
       <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
       
       <button class="export-btn" id="btn-batch-del" onclick="execBatchDelete()" style="display:none; background:var(--red2); color:#fff; margin-left:8px;">🗑️ HAPUS TERPILIH</button>
@@ -884,12 +925,12 @@ body.global-privacy #xau-idr-gr {
     <div id="admin-summary" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:24px;"></div>
 
     <div id="admin-detail-section" class="card" style="display:none; margin-bottom:24px; border-color: var(--gold); background: var(--bg2);">
-      <div class="card-head" style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div>
-          <div class="card-title" id="admin-detail-title" style="color: var(--gold);">Detail Transaksi</div>
-          <div class="card-sub" id="admin-detail-sub">-</div>
+      <div class="card-head" style="position:relative; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; text-align:center; padding-right:90px;">
+        <div style="width:100%;">
+          <div class="card-title" id="admin-detail-title" style="color: var(--gold); text-align:center;">Detail Transaksi</div>
+          <div class="card-sub" id="admin-detail-sub" style="text-align:center;">-</div>
         </div>
-        <button class="edit-btn-recent" onclick="closeAdminDetail()" style="border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
+        <button class="edit-btn-recent" onclick="closeAdminDetail()" style="position:absolute; top:0; right:0; border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
       </div>
       <div id="admin-detail-chart-wrap" style="display:none;">
         <div class="period-bar" id="admin-year-sel" style="display:none;"></div>
@@ -899,6 +940,7 @@ body.global-privacy #xau-idr-gr {
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
+      <div class="card-title" style="font-size:12px; margin:16px 0 4px; color:var(--text3);">🧾 Riwayat Transaksi Periode Ini</div>
       <div class="list-wrap" id="admin-detail-list"></div>
     </div>
   </div>
@@ -2666,6 +2708,15 @@ function adminTxCard(t) {
     </div>`;
 }
 
+function renderAdminPeriodList(filtered) {
+    const listWrap = document.getElementById('admin-detail-list');
+    if (!listWrap) return;
+    const sorted = filtered.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    listWrap.innerHTML = sorted.length
+        ? sorted.map(t => adminTxCard(t)).join('')
+        : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada periode ini</div>';
+}
+
 function renderAdminPeriodChart(arr, granularity) {
     const map = {};
     arr.forEach(t => {
@@ -2751,6 +2802,7 @@ window.renderAdminYearlyChart = function(arr) {
     }
 
     mkChart('admin-user-chart', months, incD, expD);
+    renderAdminPeriodList(filtered);
 };
 
 window.renderAdminMonthlyChart = function(arr) {
@@ -2794,6 +2846,7 @@ window.renderAdminMonthlyChart = function(arr) {
     }
 
     mkChart('admin-user-chart', labels, incD, expD);
+    renderAdminPeriodList(filtered);
 };
 
 window.renderAdminWeeklyChart = function(arr) {
@@ -2836,6 +2889,7 @@ window.renderAdminWeeklyChart = function(arr) {
     }
 
     mkChart('admin-user-chart', days, incD, expD);
+    renderAdminPeriodList(filtered);
 };
 
 window.renderAdminRiwayatChart = function(arr) {
@@ -2912,7 +2966,7 @@ window.showAdminDetail = function(uid, mode) {
         title.innerHTML = titleMap[mode] + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
         chartWrap.style.display = 'block';
-        listWrap.style.display = 'none';
+        listWrap.style.display = 'block';
         const ysel = document.getElementById('admin-riwayat-year-sel');
         if (ysel) { ysel.style.display = 'none'; ysel.innerHTML = ''; }
         if (mode === 'weekly') {
@@ -3532,6 +3586,13 @@ window.editTx = function(id) {
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
     document.getElementById('f-note').value = t.note === '-' ? '' : t.note; document.getElementById('f-date').value = t.date; document.getElementById('save-btn').textContent = 'UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display = 'block'; 
     switchPage('dashboard'); 
+    setTimeout(() => { 
+        const formCard = document.getElementById('f-amount') ? document.getElementById('f-amount').closest('.card') : null; 
+        if (formCard) { 
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+            formCard.classList.remove('flash-highlight'); void formCard.offsetWidth; formCard.classList.add('flash-highlight'); 
+        } 
+    }, 120); 
 };
 
 window.cancelEdit = function() { 
@@ -3957,6 +4018,90 @@ window.renderAll = function() {
             legendEl.style.display = 'none';
         }
     }
+};
+
+window.exportPDF = function() {
+    if (txs.length === 0) return Swal.fire({ icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)' });
+    if (!window.jspdf || !window.jspdf.jsPDF) return Swal.fire({ icon: 'error', title: 'Gagal Membuat PDF', text: 'Library PDF belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+
+    const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
+    const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.trim().toLowerCase() : '';
+    let filtered = txs.slice();
+    if (typeFlt) filtered = filtered.filter(t => t.type === typeFlt);
+    if (searchFlt) filtered = filtered.filter(t => (t.note && t.note.toLowerCase().includes(searchFlt)) || (t.category && t.category.toLowerCase().includes(searchFlt)));
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const typeLabel = { income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer', debt: 'Hutang', recv: 'Piutang' };
+    const s = calcSum(filtered);
+
+    const { jsPDF } = window.jspdf;
+    const docPdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const pageWidth = docPdf.internal.pageSize.getWidth();
+
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(16);
+    docPdf.setTextColor(20, 20, 20);
+    docPdf.text('RHN CAPITAL — LAPORAN ARUS KEUANGAN', pageWidth / 2, 40, { align: 'center' });
+
+    docPdf.setFont('helvetica', 'normal');
+    docPdf.setFontSize(9);
+    docPdf.setTextColor(100, 100, 100);
+    const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
+    const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
+    docPdf.text(genInfo, pageWidth / 2, 58, { align: 'center' });
+
+    docPdf.setDrawColor(220, 220, 220);
+    docPdf.line(30, 68, pageWidth - 30, 68);
+
+    docPdf.setFontSize(9);
+    docPdf.setTextColor(16, 185, 129);
+    docPdf.text('Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), 30, 84);
+    docPdf.setTextColor(248, 113, 113);
+    docPdf.text('Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), 250, 84);
+    docPdf.setTextColor(20, 20, 20);
+    docPdf.text('Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(s.bal), 470, 84);
+
+    const rows = filtered.map((t, i) => [
+        String(i + 1),
+        fmtDate(t.date),
+        fmtTime(t.date),
+        typeLabel[t.type] || t.type,
+        t.category || '-',
+        t.wallet || '-',
+        t.walletTo || '-',
+        (t.note && t.note !== '-') ? t.note : '-',
+        (t.type === 'income' || t.type === 'recv' ? '+ ' : t.type === 'transfer' ? '' : '- ') + 'Rp ' + new Intl.NumberFormat('id-ID').format(t.amount)
+    ]);
+
+    docPdf.autoTable({
+        startY: 96,
+        head: [['No', 'Tanggal', 'Waktu', 'Tipe', 'Kategori', 'Dompet Asal', 'Dompet Tujuan', 'Keterangan', 'Nominal']],
+        body: rows,
+        theme: 'grid',
+        styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, valign: 'middle', overflow: 'linebreak', textColor: [30, 30, 30], lineColor: [225, 225, 225], lineWidth: 0.5 },
+        headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center' },
+        alternateRowStyles: { fillColor: [246, 247, 249] },
+        columnStyles: {
+            0: { cellWidth: 26, halign: 'center' },
+            1: { cellWidth: 62, halign: 'center' },
+            2: { cellWidth: 48, halign: 'center' },
+            3: { cellWidth: 60, halign: 'center' },
+            4: { cellWidth: 70 },
+            5: { cellWidth: 62 },
+            6: { cellWidth: 62 },
+            7: { cellWidth: 'auto' },
+            8: { cellWidth: 100, halign: 'right', fontStyle: 'bold' }
+        },
+        margin: { left: 30, right: 30 },
+        didDrawPage: function (data) {
+            const pageCount = docPdf.internal.getNumberOfPages();
+            docPdf.setFontSize(8);
+            docPdf.setTextColor(150, 150, 150);
+            docPdf.text('RHN CAPITAL · Halaman ' + docPdf.internal.getCurrentPageInfo().pageNumber + ' / ' + pageCount, pageWidth / 2, docPdf.internal.pageSize.getHeight() - 16, { align: 'center' });
+        }
+    });
+
+    docPdf.save('RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
 };
 
 window.exportCSV = function() {
