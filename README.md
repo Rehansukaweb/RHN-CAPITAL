@@ -2842,7 +2842,7 @@ window.confirmDeleteUser = async function(uid) {
                 </ul>
                 Data <b>tidak bisa dikembalikan</b>. Ketik <b>HAPUS</b> di bawah untuk konfirmasi.
             </div>
-            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="display:flex; align-items:center; justify-content:center; text-align:center; text-transform:uppercase; letter-spacing:2px; font-weight:800;">
+            <input id="del-confirm-input" class="swal2-input" placeholder="Ketik HAPUS" style="text-align:center; text-transform:uppercase; font-weight:800; letter-spacing:normal;">
         `,
         icon: 'warning',
         background: 'var(--card)',
