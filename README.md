@@ -874,6 +874,7 @@ body.global-privacy #xau-idr-gr {
         <button class="edit-btn-recent" onclick="closeAdminDetail()" style="border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
       </div>
       <div id="admin-detail-chart-wrap" style="display:none;">
+        <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
@@ -2692,6 +2693,48 @@ function renderAdminPeriodChart(arr, granularity) {
     mkChart('admin-user-chart', labels, incData, expData);
 }
 
+window.renderAdminWeeklyChart = function(arr) {
+    const sel = document.getElementById('admin-week-sel');
+    const legendEl = document.getElementById('admin-detail-chart-legend');
+    if (!sel) return;
+
+    const weeks = [...new Set(arr.map(t => wkKey(t.date)))].sort().reverse();
+
+    if (!weeks.length) {
+        sel.innerHTML = '';
+        sel.style.display = 'none';
+        if (legendEl) legendEl.innerHTML = '';
+        if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+        return;
+    }
+
+    sel.style.display = 'flex';
+    if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
+
+    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; renderAdminWeeklyChart(window.__adminWeeklyArr || []);">Minggu ${fmtDate(w)}</button>`).join('');
+
+    const targetWk = sel.dataset.active;
+    const filtered = arr.filter(t => wkKey(t.date) === targetWk);
+
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    let incD = [0,0,0,0,0,0,0], expD = [0,0,0,0,0,0,0];
+    filtered.forEach(t => {
+        if (!t.date) return;
+        let d = new Date(t.date).getDay() - 1;
+        if (d < 0) d = 6;
+        if (t.type === 'income') { incD[d] += t.amount; }
+        else if (t.type === 'expense') { expD[d] += t.amount; }
+        else if (t.type === 'debt') { if (!t.isPaid) { incD[d] += t.amount; } else { incD[d] += t.amount; expD[d] += t.amount; } }
+        else if (t.type === 'recv') { if (!t.isPaid) { expD[d] += t.amount; } else { expD[d] += t.amount; incD[d] += t.amount; } }
+    });
+
+    if (legendEl) {
+        legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Minggu</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Minggu</div>`;
+    }
+
+    mkChart('admin-user-chart', days, incD, expD);
+};
+
 window.showAdminDetail = function(uid, mode) {
     const arr = (adminGrouped[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
@@ -2712,7 +2755,16 @@ window.showAdminDetail = function(uid, mode) {
         sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'none';
-        renderAdminPeriodChart(arr, granMap[mode]);
+        if (mode === 'weekly') {
+            window.__adminWeeklyArr = arr;
+            const wsel = document.getElementById('admin-week-sel');
+            if (wsel) wsel.dataset.active = '';
+            renderAdminWeeklyChart(arr);
+        } else {
+            const wsel = document.getElementById('admin-week-sel');
+            if (wsel) { wsel.style.display = 'none'; wsel.innerHTML = ''; }
+            renderAdminPeriodChart(arr, granMap[mode]);
+        }
     } else if (mode === 'riwayat') {
         title.innerHTML = '🕒 Riwayat — ' + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi ditemukan, riwayat lengkap dari yang terbaru.';
