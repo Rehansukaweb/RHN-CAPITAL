@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -82,8 +83,12 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
   transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
               background-color 0.15s ease, border-color 0.15s ease,
               box-shadow 0.15s ease, opacity 0.15s ease, color 0.12s ease !important;
-  will-change: transform;
 }
+button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
+.setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
+.edit-btn-recent:active, .del-btn-recent:active, .w-card:active,
+.recent-item:active, .m-card:active, .nav-ext-btn:active, .status-pill:active,
+.calc-curr-item:active { will-change: transform; }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
 .edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active {
@@ -95,7 +100,7 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.95); } 100% { transform: scale(1); } }
 
-.recent-item, .m-card, .w-card { animation: cardIn 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
+.m-card, .w-card { animation: cardIn 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes cardIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
@@ -302,6 +307,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   background: var(--bg2); border: 1px solid var(--border); 
   display: flex; align-items: center; justify-content: space-between;
   min-height: 96px;
+  content-visibility: auto; contain-intrinsic-size: 0 108px; contain: layout style paint;
 }
 .ri-icon {
   width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
@@ -3665,7 +3671,9 @@ window.switchPage = function(p) {
   const idx = pages.indexOf(p); 
   if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } 
   activePage = p; 
-  refreshAll(); 
+  // Biarkan transisi halaman (fade) sempat digambar browser dulu sebelum render berat (list/chart) dieksekusi,
+  // supaya perpindahan halaman terasa mulus tanpa patah-patah (ngedet).
+  requestAnimationFrame(() => requestAnimationFrame(refreshAll)); 
 };
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
@@ -3822,6 +3830,9 @@ function mkChart(id, labels, incData, expData) {
         options: { 
             responsive: true, 
             maintainAspectRatio: false, 
+            resizeDelay: 100,
+            animation: { duration: 220, easing: 'easeOutQuart' },
+            animations: { colors: false, x: { duration: 0 } },
             plugins: {
                 legend: {display: false},
                 tooltip: {
@@ -4031,6 +4042,9 @@ window.renderAll = function() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    resizeDelay: 100,
+                    animation: { duration: 220, easing: 'easeOutQuart' },
+                    animations: { colors: false, x: { duration: 0 } },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
