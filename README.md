@@ -4029,6 +4029,18 @@ window.renderAll = function() {
     }
 };
 
+function drawCenteredSummaryRow(docPdf, parts, y, centerX) {
+    const gap = 22;
+    let totalWidth = 0;
+    parts.forEach((p, i) => { totalWidth += docPdf.getTextWidth(p.text); if (i < parts.length - 1) totalWidth += gap; });
+    let x = centerX - totalWidth / 2;
+    parts.forEach(p => {
+        docPdf.setTextColor(p.color[0], p.color[1], p.color[2]);
+        docPdf.text(p.text, x, y);
+        x += docPdf.getTextWidth(p.text) + gap;
+    });
+}
+
 window.exportPDF = function() {
     if (txs.length === 0) return Swal.fire({ icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)' });
     if (!window.jspdf || !window.jspdf.jsPDF) return Swal.fire({ icon: 'error', title: 'Gagal Membuat PDF', text: 'Library PDF belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
@@ -4038,6 +4050,16 @@ window.exportPDF = function() {
     let filtered = txs.slice();
     if (typeFlt) filtered = filtered.filter(t => t.type === typeFlt);
     if (searchFlt) filtered = filtered.filter(t => (t.note && t.note.toLowerCase().includes(searchFlt)) || (t.category && t.category.toLowerCase().includes(searchFlt)));
+    // Jika sedang di halaman Mingguan/Bulanan, PDF hanya berisi periode yang sedang dipilih (bukan semua riwayat)
+    if (activePage === 'mingguan') {
+        const wsel = document.getElementById('week-sel');
+        const activeWeek = wsel && wsel.dataset.active;
+        if (activeWeek) filtered = filtered.filter(t => wkKey(t.date) === activeWeek);
+    } else if (activePage === 'bulanan') {
+        const msel = document.getElementById('month-sel');
+        const activeMonth = msel && msel.dataset.active;
+        if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
+    }
     // Urutkan kronologis (lama ke baru) supaya rapi per bulan lalu per minggu
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -4197,12 +4219,11 @@ window.exportPDF = function() {
         const ms = calcSum(monthArr);
         docPdf.setFont('helvetica', 'bold');
         docPdf.setFontSize(8.5);
-        docPdf.setTextColor(16, 185, 129);
-        docPdf.text('Pemasukan ' + monthLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ms.inc), marginL, currentY);
-        docPdf.setTextColor(248, 113, 113);
-        docPdf.text('Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ms.exp), marginL + 260, currentY);
-        docPdf.setTextColor(20, 20, 20);
-        docPdf.text('Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ms.bal), marginL + 480, currentY);
+        drawCenteredSummaryRow(docPdf, [
+            { text: 'Pemasukan ' + monthLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ms.inc), color: [16, 185, 129] },
+            { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ms.exp), color: [248, 113, 113] },
+            { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ms.bal), color: [20, 20, 20] }
+        ], currentY, pageWidth / 2);
 
         currentY += 24;
     });
@@ -4226,12 +4247,11 @@ window.exportPDF = function() {
     currentY += 20;
 
     docPdf.setFontSize(10);
-    docPdf.setTextColor(16, 185, 129);
-    docPdf.text('Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), marginL, currentY);
-    docPdf.setTextColor(248, 113, 113);
-    docPdf.text('Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), marginL + 260, currentY);
-    docPdf.setTextColor(20, 20, 20);
-    docPdf.text('Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(s.bal), marginL + 480, currentY);
+    drawCenteredSummaryRow(docPdf, [
+        { text: 'Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), color: [16, 185, 129] },
+        { text: 'Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), color: [248, 113, 113] },
+        { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(s.bal), color: [20, 20, 20] }
+    ], currentY, pageWidth / 2);
 
     // Nomor halaman di seluruh halaman dokumen
     const totalPages = docPdf.internal.getNumberOfPages();
