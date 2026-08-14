@@ -112,6 +112,27 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 
 html { scroll-behavior: smooth; }
 
+/* ==========================================================================
+   POLISH TAMBAHAN: hilangkan lag tap 300ms & bikin scroll bermomentum
+   seperti aplikasi native (iOS/Android) agar terasa sekelas app besar.
+   ========================================================================== */
+html, body { -webkit-text-size-adjust: 100%; }
+* { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+body, button, a, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
+.submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
+.recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
+.nav-bottom, .nav-bottom * {
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
+.submit-btn, .export-btn, .w-card, .recent-item, .m-card, .nav-ext-btn,
+.status-pill, .calc-curr-item {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 @keyframes swal2-show {
   0% { transform: scale(0.92); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
@@ -844,9 +865,7 @@ body.global-privacy #xau-idr-gr {
     <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
     <div class="filter-bar">
       <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-      <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff; margin-left:8px;">UNDUH PDF BULANAN 📑</button>
       <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff; margin-left:8px;">UNDUH EXCEL MINGGUAN 📊</button>
-      <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000; margin-left:8px;">UNDUH EXCEL BULANAN 🗂️</button>
     </div>
     <div class="chart-wrap">
       <div class="chart-legend">
@@ -4072,6 +4091,14 @@ window.exportPDF = function() {
         const msel = document.getElementById('month-sel');
         const activeMonth = msel && msel.dataset.active;
         if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
+    } else if (activePage === 'tahunan') {
+        const ysel = document.getElementById('year-sel');
+        const activeYear = ysel && ysel.dataset.active;
+        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
+    } else if (activePage === 'riwayat') {
+        const rysel = document.getElementById('riwayat-year-sel');
+        const activeRYear = rysel && rysel.dataset.active;
+        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
     }
     // Urutkan kronologis (lama ke baru) supaya rapi per minggu
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -4087,19 +4114,19 @@ window.exportPDF = function() {
     const marginL = 30, marginR = 30;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(16);
+    docPdf.setFontSize(5.5);
     docPdf.setTextColor(20, 20, 20);
-    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 40, { align: 'center' });
+    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 22, { align: 'center' });
 
     docPdf.setFont('helvetica', 'normal');
-    docPdf.setFontSize(9);
+    docPdf.setFontSize(3.5);
     docPdf.setTextColor(100, 100, 100);
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    docPdf.text(genInfo, pageWidth / 2, 58, { align: 'center' });
+    docPdf.text(genInfo, pageWidth / 2, 33, { align: 'center' });
 
     docPdf.setDrawColor(220, 220, 220);
-    docPdf.line(marginL, 68, pageWidth - marginR, 68);
+    docPdf.line(marginL, 40, pageWidth - marginR, 40);
 
     // Kelompokkan per minggu (urut kronologis) — satu halaman = satu minggu (±52 halaman per tahun)
     const weekMap = {};
@@ -4110,14 +4137,14 @@ window.exportPDF = function() {
         weekMap[wKey].push(t);
     });
 
-    let currentY = 84;
+    let currentY = 46;
     let rowCounter = 0;
 
     weekOrder.forEach((wKey, wIdx) => {
         // Satu halaman = satu minggu: setiap minggu baru selalu mulai di halaman baru
         if (wIdx > 0) {
             docPdf.addPage();
-            currentY = 40;
+            currentY = 22;
         }
 
         const weekArr = weekMap[wKey];
@@ -4126,12 +4153,12 @@ window.exportPDF = function() {
         const weekLabel = 'MINGGU ' + (wIdx + 1) + ' (' + fmtDate(wStart.toISOString()) + ' - ' + fmtDate(wEnd.toISOString()) + ')';
 
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(10.5);
+        docPdf.setFontSize(5.25);
         docPdf.setTextColor(20, 20, 20);
         docPdf.text(weekLabel, marginL, currentY);
         docPdf.setDrawColor(230, 230, 230);
         docPdf.line(marginL, currentY + 4, pageWidth - marginR, currentY + 4);
-        currentY += 13;
+        currentY += 9;
 
         // Susun baris per transaksi (Senin s/d Minggu) dalam minggu ini
         const bodyRows = [];
@@ -4160,21 +4187,24 @@ window.exportPDF = function() {
         // Paksa 1 minggu selalu muat dalam 1 halaman: hitung otomatis ukuran font & padding
         // berdasarkan jumlah baris supaya tabel selalu pas, seberapa pun banyaknya transaksi.
         const totalRowsForCalc = bodyRows.length + 1; // +1 untuk baris header
-        const reservedBelowTable = 30; // ruang untuk rekap pemasukan/pengeluaran/saldo minggu ini
-        const reservedFooterSpace = 22; // ruang untuk nomor halaman di bawah
-        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace);
+        const reservedBelowTable = 16; // ruang untuk rekap pemasukan/pengeluaran/saldo minggu ini
+        const reservedFooterSpace = 11; // ruang untuk nomor halaman di bawah
+        const reservedFinalTotal = (wIdx === weekOrder.length - 1) ? 66 : 0; // ruang untuk blok TOTAL SELURUH RIWAYAT di grup terakhir
+        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal) / 1.4;
 
         let cellPad = 1.6;
         let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15;
         if (bodyFontSize < 5.2) { cellPad = 0.9; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
         if (bodyFontSize < 3.6) { cellPad = 0.5; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
         // Beri sedikit margin aman supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
-        bodyFontSize *= 0.92;
-        cellPad *= 0.92;
+        bodyFontSize *= 0.97;
+        cellPad *= 0.97;
         // Digedein semaksimal mungkin (tapi tetap 1 bulan = 1 halaman, tidak boleh luber)
-        bodyFontSize = Math.max(3, Math.min(9, bodyFontSize));
-        cellPad = Math.max(0.3, Math.min(3.2, cellPad));
-        const headFontSize = Math.min(bodyFontSize + 0.5, 9.6);
+        bodyFontSize = Math.max(3, Math.min(24, bodyFontSize));
+        cellPad = Math.max(0.3, Math.min(9, cellPad));
+        let headFontSize = Math.min(bodyFontSize + 0.5, 25);
+        bodyFontSize *= 1.4;
+        headFontSize *= 1.4;
 
         docPdf.autoTable({
             startY: currentY,
@@ -4182,20 +4212,20 @@ window.exportPDF = function() {
             body: bodyRows,
             theme: 'grid',
             rowPageBreak: 'avoid',
-            styles: { font: 'helvetica', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [30, 30, 30], lineColor: [225, 225, 225], lineWidth: 0.4 },
+            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 18, halign: 'center' },
-                1: { cellWidth: 38, halign: 'center' },
-                2: { cellWidth: 46, halign: 'center' },
-                3: { cellWidth: 30, halign: 'center' },
-                4: { cellWidth: 58, halign: 'center', overflow: 'visible' },
-                5: { cellWidth: 54 },
-                6: { cellWidth: 80 },
-                7: { cellWidth: 88 },
+                0: { cellWidth: 16, halign: 'center' },
+                1: { cellWidth: 32, halign: 'center' },
+                2: { cellWidth: 42, halign: 'center' },
+                3: { cellWidth: 26, halign: 'center' },
+                4: { cellWidth: 56, halign: 'center', overflow: 'linebreak' },
+                5: { cellWidth: 58, overflow: 'linebreak' },
+                6: { cellWidth: 90, overflow: 'linebreak' },
+                7: { cellWidth: 98, overflow: 'linebreak' },
                 8: { cellWidth: 'auto' },
-                9: { cellWidth: 84, halign: 'right', fontStyle: 'bold' }
+                9: { cellWidth: 80, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
@@ -4205,7 +4235,7 @@ window.exportPDF = function() {
         // Rekap pemasukan, pengeluaran, saldo bersih untuk minggu ini
         const ws = calcSum(weekArr);
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(8.5);
+        docPdf.setFontSize(5.5);
         drawCenteredSummaryRow(docPdf, [
             { text: 'Pemasukan ' + weekLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ws.inc), color: [16, 185, 129] },
             { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ws.exp), color: [248, 113, 113] },
@@ -4228,12 +4258,12 @@ window.exportPDF = function() {
     currentY += 22;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(11);
+    docPdf.setFontSize(7);
     docPdf.setTextColor(20, 20, 20);
     docPdf.text('TOTAL SELURUH RIWAYAT', marginL, currentY);
     currentY += 20;
 
-    docPdf.setFontSize(10);
+    docPdf.setFontSize(6.5);
     drawCenteredSummaryRow(docPdf, [
         { text: 'Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), color: [16, 185, 129] },
         { text: 'Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), color: [248, 113, 113] },
@@ -4245,7 +4275,7 @@ window.exportPDF = function() {
     for (let p = 1; p <= totalPages; p++) {
         docPdf.setPage(p);
         docPdf.setFont('helvetica', 'normal');
-        docPdf.setFontSize(8);
+        docPdf.setFontSize(4);
         docPdf.setTextColor(150, 150, 150);
         docPdf.text('RHN CAPITAL · Halaman ' + p + ' / ' + totalPages, pageWidth / 2, pageHeight - 16, { align: 'center' });
     }
@@ -4273,6 +4303,14 @@ window.exportPDFBulanan = function() {
         const msel = document.getElementById('month-sel');
         const activeMonth = msel && msel.dataset.active;
         if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
+    } else if (activePage === 'tahunan') {
+        const ysel = document.getElementById('year-sel');
+        const activeYear = ysel && ysel.dataset.active;
+        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
+    } else if (activePage === 'riwayat') {
+        const rysel = document.getElementById('riwayat-year-sel');
+        const activeRYear = rysel && rysel.dataset.active;
+        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
     }
     // Urutkan kronologis (lama ke baru) supaya rapi per bulan lalu per minggu
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -4288,19 +4326,19 @@ window.exportPDFBulanan = function() {
     const marginL = 30, marginR = 30;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(16);
+    docPdf.setFontSize(5.5);
     docPdf.setTextColor(20, 20, 20);
-    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 40, { align: 'center' });
+    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 22, { align: 'center' });
 
     docPdf.setFont('helvetica', 'normal');
-    docPdf.setFontSize(9);
+    docPdf.setFontSize(3.5);
     docPdf.setTextColor(100, 100, 100);
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    docPdf.text(genInfo, pageWidth / 2, 58, { align: 'center' });
+    docPdf.text(genInfo, pageWidth / 2, 33, { align: 'center' });
 
     docPdf.setDrawColor(220, 220, 220);
-    docPdf.line(marginL, 68, pageWidth - marginR, 68);
+    docPdf.line(marginL, 40, pageWidth - marginR, 40);
 
     // Kelompokkan per bulan (urut kronologis), lalu di dalam tiap bulan dikelompokkan per minggu
     const monthMap = {};
@@ -4311,14 +4349,14 @@ window.exportPDFBulanan = function() {
         monthMap[mKey].push(t);
     });
 
-    let currentY = 84;
+    let currentY = 46;
     let rowCounter = 0;
 
     monthOrder.forEach((mKey, mIdx) => {
         // Satu halaman = satu bulan: setiap bulan baru selalu mulai di halaman baru
         if (mIdx > 0) {
             docPdf.addPage();
-            currentY = 40;
+            currentY = 22;
         }
 
         const monthArr = monthMap[mKey];
@@ -4327,12 +4365,12 @@ window.exportPDFBulanan = function() {
         const monthEndDate = new Date(parseInt(mKey.slice(0, 4)), parseInt(mKey.slice(5, 7)), 0);
 
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(10.5);
+        docPdf.setFontSize(5.25);
         docPdf.setTextColor(20, 20, 20);
         docPdf.text(monthLabel, marginL, currentY);
         docPdf.setDrawColor(230, 230, 230);
         docPdf.line(marginL, currentY + 4, pageWidth - marginR, currentY + 4);
-        currentY += 13;
+        currentY += 9;
 
         // Susun baris per minggu (Senin s/d Minggu), sisipkan 1 baris kosong (jeda) antar minggu
         const weekMap = {};
@@ -4387,21 +4425,24 @@ window.exportPDFBulanan = function() {
         // Paksa 1 bulan selalu muat dalam 1 halaman: hitung otomatis ukuran font & padding
         // berdasarkan jumlah baris supaya tabel selalu pas, seberapa pun banyaknya transaksi.
         const totalRowsForCalc = bodyRows.length + 1; // +1 untuk baris header
-        const reservedBelowTable = 30; // ruang untuk rekap pemasukan/pengeluaran/saldo bulan ini
-        const reservedFooterSpace = 22; // ruang untuk nomor halaman di bawah
-        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace);
+        const reservedBelowTable = 16; // ruang untuk rekap pemasukan/pengeluaran/saldo bulan ini
+        const reservedFooterSpace = 11; // ruang untuk nomor halaman di bawah
+        const reservedFinalTotal = (mIdx === monthOrder.length - 1) ? 66 : 0; // ruang untuk blok TOTAL SELURUH RIWAYAT di grup terakhir
+        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal) / 1.4;
 
         let cellPad = 1.6;
         let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15;
         if (bodyFontSize < 5.2) { cellPad = 0.9; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
         if (bodyFontSize < 3.6) { cellPad = 0.5; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
         // Beri sedikit margin aman supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
-        bodyFontSize *= 0.92;
-        cellPad *= 0.92;
+        bodyFontSize *= 0.97;
+        cellPad *= 0.97;
         // Digedein semaksimal mungkin (tapi tetap 1 bulan = 1 halaman, tidak boleh luber)
-        bodyFontSize = Math.max(3, Math.min(9, bodyFontSize));
-        cellPad = Math.max(0.3, Math.min(3.2, cellPad));
-        const headFontSize = Math.min(bodyFontSize + 0.5, 9.6);
+        bodyFontSize = Math.max(3, Math.min(24, bodyFontSize));
+        cellPad = Math.max(0.3, Math.min(9, cellPad));
+        let headFontSize = Math.min(bodyFontSize + 0.5, 25);
+        bodyFontSize *= 1.4;
+        headFontSize *= 1.4;
 
         docPdf.autoTable({
             startY: currentY,
@@ -4409,20 +4450,20 @@ window.exportPDFBulanan = function() {
             body: bodyRows,
             theme: 'grid',
             rowPageBreak: 'avoid',
-            styles: { font: 'helvetica', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [30, 30, 30], lineColor: [225, 225, 225], lineWidth: 0.4 },
+            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 18, halign: 'center' },
-                1: { cellWidth: 38, halign: 'center' },
-                2: { cellWidth: 46, halign: 'center' },
-                3: { cellWidth: 30, halign: 'center' },
-                4: { cellWidth: 58, halign: 'center', overflow: 'visible' },
-                5: { cellWidth: 54 },
-                6: { cellWidth: 80 },
-                7: { cellWidth: 88 },
+                0: { cellWidth: 16, halign: 'center' },
+                1: { cellWidth: 32, halign: 'center' },
+                2: { cellWidth: 42, halign: 'center' },
+                3: { cellWidth: 26, halign: 'center' },
+                4: { cellWidth: 56, halign: 'center', overflow: 'linebreak' },
+                5: { cellWidth: 58, overflow: 'linebreak' },
+                6: { cellWidth: 90, overflow: 'linebreak' },
+                7: { cellWidth: 98, overflow: 'linebreak' },
                 8: { cellWidth: 'auto' },
-                9: { cellWidth: 84, halign: 'right', fontStyle: 'bold' }
+                9: { cellWidth: 80, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
@@ -4432,7 +4473,7 @@ window.exportPDFBulanan = function() {
         // Rekap pemasukan, pengeluaran, saldo bersih untuk bulan ini
         const ms = calcSum(monthArr);
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(8.5);
+        docPdf.setFontSize(5.5);
         drawCenteredSummaryRow(docPdf, [
             { text: 'Pemasukan ' + monthLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ms.inc), color: [16, 185, 129] },
             { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ms.exp), color: [248, 113, 113] },
@@ -4455,12 +4496,12 @@ window.exportPDFBulanan = function() {
     currentY += 22;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(11);
+    docPdf.setFontSize(7);
     docPdf.setTextColor(20, 20, 20);
     docPdf.text('TOTAL SELURUH RIWAYAT', marginL, currentY);
     currentY += 20;
 
-    docPdf.setFontSize(10);
+    docPdf.setFontSize(6.5);
     drawCenteredSummaryRow(docPdf, [
         { text: 'Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), color: [16, 185, 129] },
         { text: 'Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), color: [248, 113, 113] },
@@ -4472,7 +4513,7 @@ window.exportPDFBulanan = function() {
     for (let p = 1; p <= totalPagesM; p++) {
         docPdf.setPage(p);
         docPdf.setFont('helvetica', 'normal');
-        docPdf.setFontSize(8);
+        docPdf.setFontSize(4);
         docPdf.setTextColor(150, 150, 150);
         docPdf.text('RHN CAPITAL · Halaman ' + p + ' / ' + totalPagesM, pageWidth / 2, pageHeight - 16, { align: 'center' });
     }
@@ -4500,6 +4541,14 @@ window.exportExcel = async function() {
         const msel = document.getElementById('month-sel');
         const activeMonth = msel && msel.dataset.active;
         if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
+    } else if (activePage === 'tahunan') {
+        const ysel = document.getElementById('year-sel');
+        const activeYear = ysel && ysel.dataset.active;
+        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
+    } else if (activePage === 'riwayat') {
+        const rysel = document.getElementById('riwayat-year-sel');
+        const activeRYear = rysel && rysel.dataset.active;
+        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
     }
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -4679,6 +4728,14 @@ window.exportExcelBulanan = async function() {
         const msel = document.getElementById('month-sel');
         const activeMonth = msel && msel.dataset.active;
         if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
+    } else if (activePage === 'tahunan') {
+        const ysel = document.getElementById('year-sel');
+        const activeYear = ysel && ysel.dataset.active;
+        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
+    } else if (activePage === 'riwayat') {
+        const rysel = document.getElementById('riwayat-year-sel');
+        const activeRYear = rysel && rysel.dataset.active;
+        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
     }
     filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
