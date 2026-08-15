@@ -125,7 +125,8 @@ html, body { -webkit-text-size-adjust: 100%; }
    terpisah untuk tiap elemen (tombol, kartu, item riwayat, dst) sekaligus — inilah
    penyebab perpindahan dashboard->riwayat "ngedet" dan scroll riwayat kadang macet/patah.
    Dibatasi hanya ke container yang benar-benar discroll. */
-html, body, .list-wrap, #recent-list { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+html, body { -webkit-overflow-scrolling: touch; }
+.list-wrap, #recent-list { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 body, button, a, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
@@ -4188,7 +4189,6 @@ window.exportPDF = function() {
             const hariCell = isSameDay ? '' : dayNames[new Date(t.date).getDay()];
             lastDateStr = curDateStr;
             bodyRows.push([
-                String(rowCounter),
                 hariCell,
                 fmtDate(t.date),
                 fmtTime(t.date),
@@ -4203,31 +4203,31 @@ window.exportPDF = function() {
 
         // Paksa 1 minggu selalu muat dalam 1 halaman: hitung otomatis ukuran font & padding
         // berdasarkan jumlah baris supaya tabel selalu pas, seberapa pun banyaknya transaksi.
+        // DIMAKSIMALKAN: font & padding dihitung sebesar mungkin dari sisa ruang halaman yang tersedia
+        // (bukan dipaksa kecil terus-menerus) supaya tulisan tetap besar & jelas dibaca, tapi tetap dijamin
+        // 1 minggu selalu pas dalam 1 halaman saja (tidak boleh luber ke halaman 2).
+        // Batas atas font DITURUNKAN ke 10 (dari 13) supaya lebar kolom (Hari/Tanggal/Waktu/Tipe/dst) tetap
+        // cukup menampung tulisan tanpa ada yang terpotong ("...") walau font sedang besar-besarnya.
         const totalRowsForCalc = bodyRows.length + 1; // +1 untuk baris header
         const reservedBelowTable = 16; // ruang untuk rekap pemasukan/pengeluaran/saldo minggu ini
         const reservedFooterSpace = 11; // ruang untuk nomor halaman di bawah
         const reservedFinalTotal = (wIdx === weekOrder.length - 1) ? 66 : 0; // ruang untuk blok TOTAL SELURUH RIWAYAT di grup terakhir
-        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal) / 1.4;
+        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal);
 
-        let cellPad = 1.3;
-        let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15;
-        if (bodyFontSize < 4.6) { cellPad = 0.7; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
-        if (bodyFontSize < 3.2) { cellPad = 0.4; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
-        if (bodyFontSize < 2.4) { cellPad = 0.2; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
-        // Beri margin aman lebih besar supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
-        bodyFontSize *= 0.9;
-        cellPad *= 0.9;
-        // FIX: font tabel mingguan diperkecil lagi (batas atas & pengali akhir diturunkan) supaya
-        // 1 minggu dijamin selalu muat dalam 1 halaman, tidak luber ke halaman berikutnya.
-        bodyFontSize = Math.max(2, Math.min(5, bodyFontSize));
-        cellPad = Math.max(0.2, Math.min(2, cellPad));
-        let headFontSize = Math.min(bodyFontSize + 0.4, 5.5);
-        bodyFontSize *= 1.15;
-        headFontSize *= 1.15;
+        let cellPad = 4;
+        let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25;
+        if (bodyFontSize < 7) { cellPad = 2.5; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
+        if (bodyFontSize < 5) { cellPad = 1.4; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
+        if (bodyFontSize < 3.5) { cellPad = 0.7; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
+        // Margin aman kecil supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
+        bodyFontSize *= 0.93;
+        bodyFontSize = Math.max(4, Math.min(10, bodyFontSize));
+        cellPad = Math.max(0.7, Math.min(5, cellPad));
+        let headFontSize = Math.min(bodyFontSize + 0.6, 10.6);
 
         docPdf.autoTable({
             startY: currentY,
-            head: [['No', 'Hari', 'Tanggal', 'Waktu', 'Tipe', 'Kategori', 'Dompet Asal', 'Dompet Tujuan', 'Keterangan', 'Nominal']],
+            head: [['Hari', 'Tanggal', 'Waktu', 'Tipe', 'Kategori', 'Dompet Asal', 'Dompet Tujuan', 'Keterangan', 'Nominal']],
             body: bodyRows,
             theme: 'grid',
             rowPageBreak: 'avoid',
@@ -4235,16 +4235,15 @@ window.exportPDF = function() {
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 16, halign: 'center' },
-                1: { cellWidth: 32, halign: 'center' },
-                2: { cellWidth: 42, halign: 'center' },
-                3: { cellWidth: 26, halign: 'center' },
-                4: { cellWidth: 56, halign: 'center', overflow: 'linebreak' },
-                5: { cellWidth: 58, overflow: 'linebreak' },
-                6: { cellWidth: 90, overflow: 'linebreak' },
-                7: { cellWidth: 98, overflow: 'linebreak' },
-                8: { cellWidth: 'auto' },
-                9: { cellWidth: 80, halign: 'right', fontStyle: 'bold' }
+                0: { cellWidth: 52, halign: 'center' },
+                1: { cellWidth: 60, halign: 'center' },
+                2: { cellWidth: 48, halign: 'center' },
+                3: { cellWidth: 82, halign: 'center', overflow: 'ellipsize' },
+                4: { cellWidth: 96, overflow: 'ellipsize' },
+                5: { cellWidth: 102, overflow: 'ellipsize' },
+                6: { cellWidth: 102, overflow: 'ellipsize' },
+                7: { cellWidth: 'auto', overflow: 'ellipsize' },
+                8: { cellWidth: 96, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
@@ -4441,29 +4440,13 @@ window.exportPDFBulanan = function() {
             }
         });
 
-        // Paksa 1 bulan selalu muat dalam 1 halaman: hitung otomatis ukuran font & padding
-        // berdasarkan jumlah baris supaya tabel selalu pas, seberapa pun banyaknya transaksi.
-        const totalRowsForCalc = bodyRows.length + 1; // +1 untuk baris header
-        const reservedBelowTable = 16; // ruang untuk rekap pemasukan/pengeluaran/saldo bulan ini
-        const reservedFooterSpace = 11; // ruang untuk nomor halaman di bawah
-        const reservedFinalTotal = (mIdx === monthOrder.length - 1) ? 66 : 0; // ruang untuk blok TOTAL SELURUH RIWAYAT di grup terakhir
-        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal) / 1.4;
-
-        let cellPad = 1.6;
-        let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15;
-        if (bodyFontSize < 5.2) { cellPad = 0.9; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
-        if (bodyFontSize < 3.6) { cellPad = 0.5; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.15; }
-        // Beri sedikit margin aman supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
-        bodyFontSize *= 0.97;
-        cellPad *= 0.97;
-        // FIX: dulu batas atasnya 24 (jadi 24*1.4=33.6pt) — saat transaksi bulan itu sedikit,
-        // font dipaksa membesar sampai raksasa dan tumpah dari kolom (huruf jadi terpotong per-baris).
-        // Dibatasi wajar (maksimal ~7pt sebelum dikali 1.4 = ~9.8pt) supaya tetap pas di lebar kolom.
-        bodyFontSize = Math.max(3, Math.min(7, bodyFontSize));
-        cellPad = Math.max(0.3, Math.min(3, cellPad));
-        let headFontSize = Math.min(bodyFontSize + 0.5, 7.5);
-        bodyFontSize *= 1.4;
-        headFontSize *= 1.4;
+        // Menu Bulanan: font & tabel DIBESARKAN, disamakan dengan ukuran mingguan (dimaksimalkan),
+        // dan TIDAK dipaksa muat 1 halaman lagi — kalau 1 bulan datanya banyak, boleh sampai
+        // beberapa halaman (autoTable otomatis lanjut ke halaman berikutnya).
+        // Lebar tiap kolom (termasuk No) DIPERLEBAR supaya tidak ada judul/isi kolom yang terpotong "...".
+        let cellPad = 4;
+        let bodyFontSize = 11;
+        let headFontSize = 11.8;
 
         docPdf.autoTable({
             startY: currentY,
@@ -4475,16 +4458,16 @@ window.exportPDFBulanan = function() {
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 16, halign: 'center' },
-                1: { cellWidth: 32, halign: 'center' },
-                2: { cellWidth: 42, halign: 'center' },
-                3: { cellWidth: 26, halign: 'center' },
-                4: { cellWidth: 56, halign: 'center', overflow: 'linebreak' },
-                5: { cellWidth: 58, overflow: 'linebreak' },
-                6: { cellWidth: 90, overflow: 'linebreak' },
-                7: { cellWidth: 98, overflow: 'linebreak' },
-                8: { cellWidth: 'auto' },
-                9: { cellWidth: 80, halign: 'right', fontStyle: 'bold' }
+                0: { cellWidth: 40, halign: 'center' },
+                1: { cellWidth: 56, halign: 'center' },
+                2: { cellWidth: 64, halign: 'center' },
+                3: { cellWidth: 50, halign: 'center' },
+                4: { cellWidth: 86, halign: 'center', overflow: 'ellipsize' },
+                5: { cellWidth: 100, overflow: 'ellipsize' },
+                6: { cellWidth: 104, overflow: 'ellipsize' },
+                7: { cellWidth: 104, overflow: 'ellipsize' },
+                8: { cellWidth: 'auto', overflow: 'ellipsize' },
+                9: { cellWidth: 100, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
@@ -4599,14 +4582,14 @@ window.exportExcel = async function() {
     sheet.mergeCells(1, 1, 1, 10);
     const titleCell = sheet.getCell(1, 1);
     titleCell.value = 'RHN CAPITAL ARUS KEUANGAN';
-    titleCell.font = { name: 'Calibri', size: 16, bold: true, color: { argb: C_TEXT } };
+    titleCell.font = { name: 'Calibri', size: 18, bold: true, color: { argb: C_TEXT } };
     titleCell.alignment = { horizontal: 'center' };
 
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     sheet.mergeCells(2, 1, 2, 10);
     const infoCell = sheet.getCell(2, 1);
     infoCell.value = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    infoCell.font = { name: 'Calibri', size: 10, color: { argb: C_GREY } };
+    infoCell.font = { name: 'Calibri', size: 11, color: { argb: C_GREY } };
     infoCell.alignment = { horizontal: 'center' };
 
     // Kelompokkan per minggu (urut kronologis) — sama seperti PDF
@@ -4631,14 +4614,14 @@ window.exportExcel = async function() {
         sheet.mergeCells(rowIdx, 1, rowIdx, 10);
         const wLabelCell = sheet.getCell(rowIdx, 1);
         wLabelCell.value = weekLabel;
-        wLabelCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_TEXT } };
+        wLabelCell.font = { name: 'Calibri', size: 13, bold: true, color: { argb: C_TEXT } };
         rowIdx++;
 
         const headRow = sheet.getRow(rowIdx);
         headerLabels.forEach((h, i) => {
             const c = headRow.getCell(i + 1);
             c.value = h;
-            c.font = { name: 'Calibri', size: 10, bold: true, color: { argb: C_GOLD } };
+            c.font = { name: 'Calibri', size: 12, bold: true, color: { argb: C_GOLD } };
             c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_DARK } };
             c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
             c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
@@ -4662,7 +4645,7 @@ window.exportExcel = async function() {
             rowVals.forEach((v, i) => {
                 const c = row.getCell(i + 1);
                 c.value = v;
-                c.font = { name: 'Calibri', size: 9.5, bold: i === 9, color: { argb: i === 9 ? ((t.type === 'income' || t.type === 'recv') ? C_GREEN : (t.type === 'transfer' ? C_TEXT : C_RED)) : C_TEXT } };
+                c.font = { name: 'Calibri', size: 11, bold: i === 9, color: { argb: i === 9 ? ((t.type === 'income' || t.type === 'recv') ? C_GREEN : (t.type === 'transfer' ? C_TEXT : C_RED)) : C_TEXT } };
                 c.alignment = { horizontal: i === 8 ? 'left' : (i === 9 ? 'right' : 'center'), vertical: 'middle', wrapText: i === 8 };
                 c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
                 if (tIdx % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_ALT } };
@@ -4677,15 +4660,15 @@ window.exportExcel = async function() {
         const sumRow = sheet.getRow(rowIdx);
         sheet.mergeCells(rowIdx, 1, rowIdx, 4);
         sumRow.getCell(1).value = 'Pemasukan ' + weekLabel + ': ' + fmtRp(ws.inc);
-        sumRow.getCell(1).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_GREEN } };
+        sumRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_GREEN } };
 
         sheet.mergeCells(rowIdx, 5, rowIdx, 7);
         sumRow.getCell(5).value = 'Pengeluaran: ' + fmtRp(ws.exp);
-        sumRow.getCell(5).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_RED } };
+        sumRow.getCell(5).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_RED } };
 
         sheet.mergeCells(rowIdx, 8, rowIdx, 10);
         sumRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(ws.bal);
-        sumRow.getCell(8).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_TEXT } };
+        sumRow.getCell(8).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_TEXT } };
         sumRow.getCell(1).alignment = { horizontal: 'center' };
         sumRow.getCell(5).alignment = { horizontal: 'center' };
         sumRow.getCell(8).alignment = { horizontal: 'center' };
@@ -4698,24 +4681,24 @@ window.exportExcel = async function() {
     sheet.mergeCells(rowIdx, 1, rowIdx, 10);
     const totTitle = sheet.getCell(rowIdx, 1);
     totTitle.value = 'TOTAL SELURUH RIWAYAT';
-    totTitle.font = { name: 'Calibri', size: 12, bold: true, color: { argb: C_TEXT } };
+    totTitle.font = { name: 'Calibri', size: 14, bold: true, color: { argb: C_TEXT } };
     totTitle.alignment = { horizontal: 'left' };
     rowIdx++;
 
     const totRow = sheet.getRow(rowIdx);
     sheet.mergeCells(rowIdx, 1, rowIdx, 4);
     totRow.getCell(1).value = 'Total Pemasukan: ' + fmtRp(s.inc);
-    totRow.getCell(1).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_GREEN } };
+    totRow.getCell(1).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_GREEN } };
     totRow.getCell(1).alignment = { horizontal: 'center' };
 
     sheet.mergeCells(rowIdx, 5, rowIdx, 7);
     totRow.getCell(5).value = 'Total Pengeluaran: ' + fmtRp(s.exp);
-    totRow.getCell(5).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_RED } };
+    totRow.getCell(5).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_RED } };
     totRow.getCell(5).alignment = { horizontal: 'center' };
 
     sheet.mergeCells(rowIdx, 8, rowIdx, 10);
     totRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(s.bal);
-    totRow.getCell(8).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_TEXT } };
+    totRow.getCell(8).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_TEXT } };
     totRow.getCell(8).alignment = { horizontal: 'center' };
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -4788,14 +4771,14 @@ window.exportExcelBulanan = async function() {
     sheet.mergeCells(1, 1, 1, 10);
     const titleCell = sheet.getCell(1, 1);
     titleCell.value = 'RHN CAPITAL ARUS KEUANGAN';
-    titleCell.font = { name: 'Calibri', size: 16, bold: true, color: { argb: C_TEXT } };
+    titleCell.font = { name: 'Calibri', size: 18, bold: true, color: { argb: C_TEXT } };
     titleCell.alignment = { horizontal: 'center' };
 
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     sheet.mergeCells(2, 1, 2, 10);
     const infoCell = sheet.getCell(2, 1);
     infoCell.value = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    infoCell.font = { name: 'Calibri', size: 10, color: { argb: C_GREY } };
+    infoCell.font = { name: 'Calibri', size: 11, color: { argb: C_GREY } };
     infoCell.alignment = { horizontal: 'center' };
 
     // Kelompokkan per bulan, lalu di dalam tiap bulan dikelompokkan per minggu
@@ -4820,14 +4803,14 @@ window.exportExcelBulanan = async function() {
         sheet.mergeCells(rowIdx, 1, rowIdx, 10);
         const mLabelCell = sheet.getCell(rowIdx, 1);
         mLabelCell.value = monthLabel;
-        mLabelCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_TEXT } };
+        mLabelCell.font = { name: 'Calibri', size: 13, bold: true, color: { argb: C_TEXT } };
         rowIdx++;
 
         const headRow = sheet.getRow(rowIdx);
         headerLabels.forEach((h, i) => {
             const c = headRow.getCell(i + 1);
             c.value = h;
-            c.font = { name: 'Calibri', size: 10, bold: true, color: { argb: C_GOLD } };
+            c.font = { name: 'Calibri', size: 12, bold: true, color: { argb: C_GOLD } };
             c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_DARK } };
             c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
             c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
@@ -4861,7 +4844,7 @@ window.exportExcelBulanan = async function() {
                 rowVals.forEach((v, i) => {
                     const c = row.getCell(i + 1);
                     c.value = v;
-                    c.font = { name: 'Calibri', size: 9.5, bold: i === 9, color: { argb: i === 9 ? ((t.type === 'income' || t.type === 'recv') ? C_GREEN : (t.type === 'transfer' ? C_TEXT : C_RED)) : C_TEXT } };
+                    c.font = { name: 'Calibri', size: 11, bold: i === 9, color: { argb: i === 9 ? ((t.type === 'income' || t.type === 'recv') ? C_GREEN : (t.type === 'transfer' ? C_TEXT : C_RED)) : C_TEXT } };
                     c.alignment = { horizontal: i === 8 ? 'left' : (i === 9 ? 'right' : 'center'), vertical: 'middle', wrapText: i === 8 };
                     c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
                     if (tIdx % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_ALT } };
@@ -4880,22 +4863,22 @@ window.exportExcelBulanan = async function() {
                 const jedaRow = sheet.getRow(rowIdx);
                 sheet.mergeCells(rowIdx, 1, rowIdx, 4);
                 jedaRow.getCell(1).value = wLabel;
-                jedaRow.getCell(1).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF785A0A' } };
+                jedaRow.getCell(1).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: 'FF785A0A' } };
                 jedaRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
 
                 sheet.mergeCells(rowIdx, 5, rowIdx, 6);
                 jedaRow.getCell(5).value = 'Masuk: ' + fmtRp(ws.inc);
-                jedaRow.getCell(5).font = { name: 'Calibri', size: 9, bold: true, color: { argb: C_WEEKGREEN } };
+                jedaRow.getCell(5).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_WEEKGREEN } };
                 jedaRow.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
 
                 sheet.mergeCells(rowIdx, 7, rowIdx, 8);
                 jedaRow.getCell(7).value = 'Keluar: ' + fmtRp(ws.exp);
-                jedaRow.getCell(7).font = { name: 'Calibri', size: 9, bold: true, color: { argb: C_WEEKRED } };
+                jedaRow.getCell(7).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_WEEKRED } };
                 jedaRow.getCell(7).alignment = { horizontal: 'right', vertical: 'middle' };
 
                 sheet.mergeCells(rowIdx, 9, rowIdx, 10);
                 jedaRow.getCell(9).value = 'Saldo Bersih: ' + fmtRp(ws.bal);
-                jedaRow.getCell(9).font = { name: 'Calibri', size: 9, bold: true, color: { argb: C_TEXT } };
+                jedaRow.getCell(9).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_TEXT } };
                 jedaRow.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
 
                 for (let ci = 1; ci <= 10; ci++) {
@@ -4913,17 +4896,17 @@ window.exportExcelBulanan = async function() {
         const sumRow = sheet.getRow(rowIdx);
         sheet.mergeCells(rowIdx, 1, rowIdx, 4);
         sumRow.getCell(1).value = 'Pemasukan ' + monthLabel + ': ' + fmtRp(ms.inc);
-        sumRow.getCell(1).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_GREEN } };
+        sumRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_GREEN } };
         sumRow.getCell(1).alignment = { horizontal: 'center' };
 
         sheet.mergeCells(rowIdx, 5, rowIdx, 7);
         sumRow.getCell(5).value = 'Pengeluaran: ' + fmtRp(ms.exp);
-        sumRow.getCell(5).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_RED } };
+        sumRow.getCell(5).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_RED } };
         sumRow.getCell(5).alignment = { horizontal: 'center' };
 
         sheet.mergeCells(rowIdx, 8, rowIdx, 10);
         sumRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(ms.bal);
-        sumRow.getCell(8).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: C_TEXT } };
+        sumRow.getCell(8).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_TEXT } };
         sumRow.getCell(8).alignment = { horizontal: 'center' };
 
         rowIdx += 2;
@@ -4934,24 +4917,24 @@ window.exportExcelBulanan = async function() {
     sheet.mergeCells(rowIdx, 1, rowIdx, 10);
     const totTitle = sheet.getCell(rowIdx, 1);
     totTitle.value = 'TOTAL SELURUH RIWAYAT';
-    totTitle.font = { name: 'Calibri', size: 12, bold: true, color: { argb: C_TEXT } };
+    totTitle.font = { name: 'Calibri', size: 14, bold: true, color: { argb: C_TEXT } };
     totTitle.alignment = { horizontal: 'left' };
     rowIdx++;
 
     const totRow = sheet.getRow(rowIdx);
     sheet.mergeCells(rowIdx, 1, rowIdx, 4);
     totRow.getCell(1).value = 'Total Pemasukan: ' + fmtRp(s.inc);
-    totRow.getCell(1).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_GREEN } };
+    totRow.getCell(1).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_GREEN } };
     totRow.getCell(1).alignment = { horizontal: 'center' };
 
     sheet.mergeCells(rowIdx, 5, rowIdx, 7);
     totRow.getCell(5).value = 'Total Pengeluaran: ' + fmtRp(s.exp);
-    totRow.getCell(5).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_RED } };
+    totRow.getCell(5).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_RED } };
     totRow.getCell(5).alignment = { horizontal: 'center' };
 
     sheet.mergeCells(rowIdx, 8, rowIdx, 10);
     totRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(s.bal);
-    totRow.getCell(8).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_TEXT } };
+    totRow.getCell(8).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_TEXT } };
     totRow.getCell(8).alignment = { horizontal: 'center' };
 
     const bufferM = await workbook.xlsx.writeBuffer();
