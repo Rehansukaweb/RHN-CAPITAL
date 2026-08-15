@@ -335,6 +335,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .del-btn-recent:hover { background: var(--red2); color: #fff; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4); }
 
 .export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
+.export-row { display: flex; gap: 8px; align-items: center; }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; flex-wrap: wrap;}
 
 /* KALKULATOR MATA UANG */
@@ -461,6 +462,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   
   .filter-bar { flex-direction: column; } 
   .export-btn { width: 100%; text-align: center; border-radius: 16px; padding: 18px 16px; margin-left: 0 !important; margin-top: 8px;}
+  .export-row { width: 100%; margin-top: 8px; gap: 8px; }
+  .export-row .export-btn { width: 50%; flex: 1 1 0; margin-top: 0 !important; padding-left: 4px !important; padding-right: 4px !important; font-size: 10.5px !important; }
   
   .type-toggle, .submit-btn { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; }
   .filter-bar select.f-input-dark, .filter-bar input.f-input-dark { width: 100%; border-radius: 16px; }
@@ -874,8 +877,10 @@ body.global-privacy #xau-idr-gr {
   <div class="card">
     <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
     <div class="filter-bar">
-      <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-      <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff; margin-left:8px;">UNDUH EXCEL MINGGUAN 📊</button>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+      </div>
     </div>
     <div class="chart-wrap">
       <div class="chart-legend">
@@ -894,10 +899,14 @@ body.global-privacy #xau-idr-gr {
   <div class="card" style="padding-bottom:16px;">
     <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
     <div class="filter-bar">
-      <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-      <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff; margin-left:8px;">UNDUH PDF BULANAN 📑</button>
-      <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff; margin-left:8px;">UNDUH EXCEL MINGGUAN 📊</button>
-      <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000; margin-left:8px;">UNDUH EXCEL BULANAN 🗂️</button>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
+        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
+      </div>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
+      </div>
     </div>
     <div class="chart-wrap">
       <div class="chart-legend">
@@ -919,10 +928,14 @@ body.global-privacy #xau-idr-gr {
   <div class="card">
     <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
     <div class="filter-bar">
-      <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-      <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff; margin-left:8px;">UNDUH PDF BULANAN 📑</button>
-      <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff; margin-left:8px;">UNDUH EXCEL MINGGUAN 📊</button>
-      <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000; margin-left:8px;">UNDUH EXCEL BULANAN 🗂️</button>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
+        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
+      </div>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
+      </div>
     </div>
     <div class="chart-wrap">
       <div class="chart-legend">
@@ -946,10 +959,14 @@ body.global-privacy #xau-idr-gr {
         <option value="expense">Pengeluaran Saja</option>
       </select>
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
-      <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-      <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff; margin-left:8px;">UNDUH PDF BULANAN 📑</button>
-      <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff; margin-left:8px;">UNDUH EXCEL MINGGUAN 📊</button>
-      <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000; margin-left:8px;">UNDUH EXCEL BULANAN 🗂️</button>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
+        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
+      </div>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
+      </div>
       <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
       
       <button class="export-btn" id="btn-batch-del" onclick="execBatchDelete()" style="display:none; background:var(--red2); color:#fff; margin-left:8px;">🗑️ HAPUS TERPILIH</button>
@@ -988,6 +1005,7 @@ body.global-privacy #xau-idr-gr {
         <div class="period-bar" id="admin-month-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-riwayat-year-sel" style="display:none;"></div>
+        <div class="sum-grid" id="admin-detail-sum" style="display:none; grid-template-columns:repeat(3,1fr); margin-bottom:16px;"></div>
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
@@ -2768,6 +2786,18 @@ function renderAdminPeriodList(filtered) {
         : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada periode ini</div>';
 }
 
+function renderAdminSumGrid(arr) {
+    const wrap = document.getElementById('admin-detail-sum');
+    if (!wrap) return;
+    const s = calcSum(arr || []);
+    wrap.style.display = 'grid';
+    wrap.innerHTML = `
+    <div class="m-card inc"> <div class="m-label">PEMASUKAN</div> <div class="m-val">${fmt(s.inc)}</div> <div class="usd-pill">${getUSD(s.inc)}</div> </div>
+    <div class="m-card exp"> <div class="m-label">PENGELUARAN</div> <div class="m-val">${fmt(s.exp)}</div> <div class="usd-pill">${getUSD(s.exp)}</div> </div>
+    <div class="m-card bal"> <div class="m-label">SALDO BERSIH</div> <div class="m-val">${fmt(s.bal)}</div> <div class="usd-pill">${getUSD(s.bal)}</div> </div>`;
+}
+window.renderAdminSumGrid = renderAdminSumGrid;
+
 function renderAdminPeriodChart(arr, granularity) {
     const map = {};
     arr.forEach(t => {
@@ -2814,6 +2844,7 @@ function renderAdminPeriodChart(arr, granularity) {
     }
 
     mkChart('admin-user-chart', labels, incData, expData);
+    renderAdminSumGrid(arr);
 }
 
 window.renderAdminYearlyChart = function(arr) {
@@ -2854,6 +2885,7 @@ window.renderAdminYearlyChart = function(arr) {
 
     mkChart('admin-user-chart', months, incD, expD);
     renderAdminPeriodList(filtered);
+    renderAdminSumGrid(filtered);
 };
 
 window.renderAdminMonthlyChart = function(arr) {
@@ -2898,6 +2930,7 @@ window.renderAdminMonthlyChart = function(arr) {
 
     mkChart('admin-user-chart', labels, incD, expD);
     renderAdminPeriodList(filtered);
+    renderAdminSumGrid(filtered);
 };
 
 window.renderAdminWeeklyChart = function(arr) {
@@ -2941,6 +2974,7 @@ window.renderAdminWeeklyChart = function(arr) {
 
     mkChart('admin-user-chart', days, incD, expD);
     renderAdminPeriodList(filtered);
+    renderAdminSumGrid(filtered);
 };
 
 window.renderAdminRiwayatChart = function(arr) {
@@ -2996,6 +3030,7 @@ window.renderAdminRiwayatChart = function(arr) {
     }
 
     mkChart('admin-user-chart', labels, incData, expData);
+    renderAdminSumGrid(yearData);
 };
 
 window.showAdminDetail = function(uid, mode) {
