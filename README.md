@@ -232,17 +232,17 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* METRICS */
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-.m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+.m-card { background: var(--card); border-radius: var(--radius); padding: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+.m-label { font-size: 8px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; letter-spacing: 0.5px; }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; margin-bottom: 3px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
-  font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
-  padding: 2px 8px; border-radius: 6px; align-self: flex-start; margin-bottom: 8px;
+  font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  padding: 1px 6px; border-radius: 6px; align-self: flex-start; margin-bottom: 5px;
 }
-.m-sub { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 12px; flex-grow: 1; }
+.m-sub { font-size: 9px; font-weight: 500; color: var(--text3); margin-bottom: 8px; flex-grow: 1; }
 .m-bar { height: 4px; background: var(--bg3); border-radius: 2px; width: 100%; overflow: hidden; }
 .m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 .inc .m-bar-fill { background: var(--green2); } .exp .m-bar-fill { background: var(--red2); }
@@ -253,7 +253,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
