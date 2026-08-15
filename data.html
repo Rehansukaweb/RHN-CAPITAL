@@ -350,6 +350,10 @@ const idleInterval = setInterval(timerIncrement, 60000); // Cek tiap 1 menit
 document.addEventListener('mousemove', () => idleTime = 0);
 document.addEventListener('keypress', () => idleTime = 0);
 document.addEventListener('touchstart', () => idleTime = 0);
+document.addEventListener('input', () => idleTime = 0);
+document.addEventListener('paste', () => idleTime = 0);
+document.addEventListener('click', () => idleTime = 0);
+document.addEventListener('scroll', () => idleTime = 0);
 
 function timerIncrement() {
   idleTime++;
@@ -440,7 +444,7 @@ function listenData(uid) {
 }
 
 window.saveData = async function() {
-  if(!currentUser) return;
+  if(!currentUser) { showToast('Sesi berakhir, silakan login ulang'); doLogout(true); return; }
   const title = document.getElementById('v-title').value.trim();
   const cat = document.getElementById('v-cat').value;
   const content = document.getElementById('v-content').value.trim();
@@ -460,7 +464,10 @@ window.saveData = async function() {
     document.getElementById('v-content').value = '';
     closeModal();
     showToast('Data Berhasil Dienkripsi');
-  } catch(e) { showToast('Gagal: ' + e.message); }
+  } catch(e) {
+    console.error(e);
+    showToast('Gagal Menyimpan: ' + (e.code || e.message || 'Error tidak diketahui'));
+  }
   
   btn.innerHTML = '<i class="ph-bold ph-lock-key"></i> Simpan & Kunci'; btn.disabled = false;
 }
