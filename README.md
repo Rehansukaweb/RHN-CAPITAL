@@ -446,6 +446,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   
   .main { padding: 0 0 80px 0 !important; width: 100%; overflow-x: hidden; }
   
+  #recent-list { overflow: visible !important; max-height: none !important; overscroll-behavior: auto !important; -webkit-overflow-scrolling: auto !important; touch-action: pan-y !important; }
+  
   .metrics { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 !important; margin: 0 !important; background: transparent; border: none; }
   .metrics .m-card { border-radius: 24px !important; border-left: none; border-right: none; }
   
@@ -2865,7 +2867,7 @@ window.renderAdminYearlyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
 
-    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-year-sel').dataset.active='${y}'; renderAdminYearlyChart(window.__adminYearlyArr || []);">Tahun ${y}</button>`).join('');
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-year-sel').dataset.active='${y}'; requestAnimationFrame(() => renderAdminYearlyChart(window.__adminYearlyArr || []));">Tahun ${y}</button>`).join('');
 
     const activeY = sel.dataset.active;
     const filtered = arr.filter(t => (t.date || '').slice(0,4) === activeY);
@@ -2906,7 +2908,7 @@ window.renderAdminMonthlyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
 
-    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-month-sel').dataset.active='${m}'; renderAdminMonthlyChart(window.__adminMonthlyArr || []);">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-month-sel').dataset.active='${m}'; requestAnimationFrame(() => renderAdminMonthlyChart(window.__adminMonthlyArr || []));">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
 
     const activeM = sel.dataset.active;
     const filtered = arr.filter(t => (t.date || '').slice(0,7) === activeM);
@@ -2951,7 +2953,7 @@ window.renderAdminWeeklyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
 
-    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; renderAdminWeeklyChart(window.__adminWeeklyArr || []);">Minggu ${fmtDate(w)}</button>`).join('');
+    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; requestAnimationFrame(() => renderAdminWeeklyChart(window.__adminWeeklyArr || []));">Minggu ${fmtDate(w)}</button>`).join('');
 
     const targetWk = sel.dataset.active;
     const filtered = arr.filter(t => wkKey(t.date) === targetWk);
@@ -2994,7 +2996,7 @@ window.renderAdminRiwayatChart = function(arr) {
 
     ysel.style.display = 'flex';
     if (!ysel.dataset.active || !yrs.includes(ysel.dataset.active)) ysel.dataset.active = yrs[0];
-    ysel.innerHTML = yrs.map(y => `<button class="p-btn ${y === ysel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-riwayat-year-sel').dataset.active='${y}'; renderAdminRiwayatChart(window.__adminRiwayatArr || []);">Tahun ${y}</button>`).join('');
+    ysel.innerHTML = yrs.map(y => `<button class="p-btn ${y === ysel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-riwayat-year-sel').dataset.active='${y}'; requestAnimationFrame(() => renderAdminRiwayatChart(window.__adminRiwayatArr || []));">Tahun ${y}</button>`).join('');
 
     const activeYr = ysel.dataset.active;
     const yearData = arr.filter(t => (t.date || '').slice(0,4) === activeYr);
@@ -3855,8 +3857,17 @@ function renderWalletBalances() {
 }
 
 function mkChart(id, labels, incData, expData) { 
-    if (charts[id]) charts[id].destroy(); const c = document.getElementById(id); if (!c) return; 
+    const c = document.getElementById(id); if (!c) return; 
     const isLight = document.body.classList.contains('light-mode'); const isMobile = window.innerWidth <= 768; 
+    if (charts[id] && charts[id]._isLightTheme === isLight) { 
+        const ch = charts[id]; 
+        ch.data.labels = labels; 
+        ch.data.datasets[0].data = incData; 
+        ch.data.datasets[1].data = expData; 
+        ch.update(); 
+        return; 
+    } 
+    if (charts[id]) charts[id].destroy(); 
     charts[id] = new Chart(c, { 
         type: 'bar', 
         data: { 
@@ -3870,7 +3881,7 @@ function mkChart(id, labels, incData, expData) {
             responsive: true, 
             maintainAspectRatio: false, 
             resizeDelay: 100,
-            animation: { duration: 220, easing: 'easeOutQuart' },
+            animation: { duration: 300, easing: 'easeOutQuart' },
             animations: { colors: false, x: { duration: 0 } },
             plugins: {
                 legend: {display: false},
@@ -3900,6 +3911,7 @@ function mkChart(id, labels, incData, expData) {
             } 
         } 
     }); 
+    charts[id]._isLightTheme = isLight; 
 }
 
 window.renderDaily = function() { const pick = document.getElementById('pick-daily').value; const target = pick ? new Date(pick).toDateString() : new Date().toDateString(); const arr = txs.filter(t => new Date(t.date).toDateString() === target).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'), arr); renderList(document.getElementById('daily-body'), arr); };
@@ -3920,7 +3932,7 @@ window.renderWeekly = function() {
   if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
   
   sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active
-='${w}'; renderWeekly();">Minggu ${fmtDate(w)}</button>`).join('');
+='${w}'; requestAnimationFrame(renderWeekly);">Minggu ${fmtDate(w)}</button>`).join('');
   const targetWk = sel.dataset.active;
   const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
   renderSumGrid(document.getElementById('week-sum'), arr);
@@ -3949,7 +3961,7 @@ window.renderMonthly = function() {
         return; 
     }
     if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
-    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; renderMonthly();">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; requestAnimationFrame(renderMonthly);">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -3980,7 +3992,7 @@ window.renderYearly = function() {
     }
     if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
     
-    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; renderYearly();">Tahun ${y}</button>`).join('');
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; requestAnimationFrame(renderYearly);">Tahun ${y}</button>`).join('');
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -4021,7 +4033,7 @@ window.renderAll = function() {
 
     if (sel) {
         if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
-        sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; renderAll();">Tahun ${y}</button>`).join('');
+        sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; requestAnimationFrame(renderAll);">Tahun ${y}</button>`).join('');
         
         const activeYr = sel.dataset.active;
         const yearData = filtered.filter(t => t.date.slice(0,4) === activeYr);
