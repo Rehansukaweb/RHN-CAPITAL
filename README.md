@@ -259,9 +259,9 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
-.sum-grid .m-card { padding: 10px; }
-.sum-grid .m-label { font-size: 8px; margin-bottom: 5px; }
-.sum-grid .m-val { font-size: 11px; margin-bottom: 3px; }
+.sum-grid .m-card { padding: 16px; }
+.sum-grid .m-label { font-size: 9px; margin-bottom: 8px; }
+.sum-grid .m-val { font-size: 15px; margin-bottom: 4px; }
 .sum-grid .usd-pill { font-size: 9px; padding: 1px 6px; margin-bottom: 5px; }
 
 /* FORMS */
