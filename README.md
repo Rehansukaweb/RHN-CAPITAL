@@ -393,6 +393,15 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
 .period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
+.chart-filter-badge { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; font-size: 11px; font-weight: 700; color: var(--gold); }
+.chart-filter-badge span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-filter-badge .chart-filter-clear { background: var(--bg2); border: 1px solid var(--border2); color: var(--text2); border-radius: 100px; padding: 6px 12px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.chart-filter-badge .chart-filter-clear:active { opacity: 0.7; }
+.cat-chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.cat-chip { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: 100px; font-size: 10px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text2); white-space: nowrap; transition: 0.2s; }
+.cat-chip:hover { border-color: var(--gold); }
+.cat-chip.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.12); color: var(--gold); }
+.cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.85; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
 
 /* ==========================================================================
@@ -982,6 +991,7 @@ body.global-privacy #xau-idr-gr {
     <div class="chart-wrap" style="margin-top: 16px;">
       <div class="chart-legend" id="riwayat-legend" style="flex-wrap: wrap;"></div>
       <div style="height:250px"><canvas id="chartRiwayat"></canvas></div>
+      <div class="cat-chip-wrap" id="riwayat-cat-chips"></div>
     </div>
     <div class="list-wrap" id="all-body"></div>
   </div>
@@ -1754,6 +1764,148 @@ window.promptTransfer = async function(txId) {
     if (targetCode) {
         if (targetCode.length !== 3) return Swal.fire({icon:'error', title:'Harus 3 Angka!', background:'var(--card)', color:'var(--text)'});
         await window.confirmAndTransfer([t], targetCode, true);
+    }
+};
+
+// ======================================================================
+// Pisah 1 transaksi jadi 2 transaksi terpisah (misal 1 nota gabungan
+// "Cukur rambut dan parkir" dipecah jadi 2 catatan sendiri-sendiri)
+// ======================================================================
+window.splitTx = async function(txId) {
+    if (!currentUser) return;
+    const t = txs.find(x => x.id === txId);
+    if (!t) return;
+
+    const catList = (window.userCats && window.userCats[t.type] && window.userCats[t.type].length) ? window.userCats[t.type] : (window.defaultCATS[t.type] || []);
+    const catOptions = catList.map(c => `<option value="${c}" ${c === t.category ? 'selected' : ''}>${c}</option>`).join('');
+
+    const { value: formVals } = await Swal.fire({
+        title: '✂️ Pisah Jadi 2 Transaksi',
+        html: `
+          <style>
+            .sp-wrap{ text-align:left; }
+            .sp-info{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:12px 16px; margin-bottom:16px; }
+            .sp-info-label{ font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; }
+            .sp-info-sub{ font-size:11px; color:var(--text3); margin-top:2px; }
+            .sp-info-amt{ font-size:17px; font-weight:800; color:var(--gold); font-family:'JetBrains Mono', monospace; white-space:nowrap; }
+            .sp-section{ background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:14px 16px 16px; margin-bottom:12px; position:relative; }
+            .sp-badge{ display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:800; color:#000; text-transform:uppercase; letter-spacing:.5px; background:var(--gold); border-radius:20px; padding:3px 10px; margin-bottom:10px; }
+            .sp-section.p2 .sp-badge{ background:var(--blue); color:#fff; }
+            .sp-field{ margin-bottom:8px; }
+            .sp-field:last-child{ margin-bottom:0; }
+            .sp-field label{ display:block; font-size:9.5px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+            .sp-wrap .swal2-input, .sp-wrap select.swal2-input{ margin:0 !important; width:100% !important; background:var(--card) !important; border:1px solid var(--border) !important; color:var(--text) !important; border-radius:10px !important; font-size:13.5px !important; height:42px !important; box-shadow:none !important; transition:border-color .15s, box-shadow .15s; }
+            .sp-wrap .swal2-input:focus, .sp-wrap select.swal2-input:focus{ border-color:var(--gold) !important; box-shadow:0 0 0 3px rgba(251,191,36,0.15) !important; }
+            .sp-amt-row{ position:relative; }
+            .sp-amt-row .sp-prefix{ position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:12px; font-weight:800; color:var(--text3); pointer-events:none; z-index:2; }
+            .sp-amt-row input{ padding-left:34px !important; font-weight:700 !important; }
+            .sp-sum-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--bg3); border:1px dashed var(--border); border-radius:12px; padding:10px 14px; font-size:11px; font-weight:700; color:var(--text3); }
+            #sp-sum-val{ font-family:'JetBrains Mono', monospace; font-weight:800; font-size:13px; }
+          </style>
+          <div class="sp-wrap">
+            <div class="sp-info">
+              <div>
+                <div class="sp-info-label">Total Transaksi</div>
+                <div class="sp-info-sub">Jumlah bagian 1 + bagian 2 harus pas sama</div>
+              </div>
+              <div class="sp-info-amt">${fmtFull(t.amount)}</div>
+            </div>
+
+            <div class="sp-section p1">
+              <div class="sp-badge">① Bagian 1</div>
+              <div class="sp-field">
+                <label>Keterangan</label>
+                <input id="sp-note1" class="swal2-input" placeholder="Keterangan 1" value="${escapeHTML(t.note)}">
+              </div>
+              <div class="sp-field">
+                <label>Kategori</label>
+                <select id="sp-cat1" class="swal2-input">${catOptions}</select>
+              </div>
+              <div class="sp-field">
+                <label>Jumlah</label>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="number" placeholder="Jumlah 1" value="${t.amount}"></div>
+              </div>
+            </div>
+
+            <div class="sp-section p2">
+              <div class="sp-badge">② Bagian 2</div>
+              <div class="sp-field">
+                <label>Keterangan</label>
+                <input id="sp-note2" class="swal2-input" placeholder="Keterangan 2" value="${escapeHTML(t.note)}">
+              </div>
+              <div class="sp-field">
+                <label>Kategori</label>
+                <select id="sp-cat2" class="swal2-input">${catOptions}</select>
+              </div>
+              <div class="sp-field">
+                <label>Jumlah</label>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="number" placeholder="Jumlah 2" value="0"></div>
+              </div>
+            </div>
+
+            <div class="sp-sum-bar">
+              <span>Total Bagian 1 + 2</span>
+              <span id="sp-sum-val">Rp 0</span>
+            </div>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'PISAHKAN ✂️',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+        didOpen: () => {
+            const a1 = document.getElementById('sp-amt1');
+            const a2 = document.getElementById('sp-amt2');
+            const sumEl = document.getElementById('sp-sum-val');
+            const updateSum = () => {
+                const v1 = parseFloat(a1.value) || 0;
+                const v2 = parseFloat(a2.value) || 0;
+                const total = v1 + v2;
+                sumEl.textContent = fmtFull(total);
+                sumEl.style.color = Math.round(total) === Math.round(t.amount) ? 'var(--green2)' : 'var(--red2)';
+            };
+            a1.addEventListener('input', updateSum);
+            a2.addEventListener('input', updateSum);
+            updateSum();
+        },
+        preConfirm: () => {
+            const note1 = document.getElementById('sp-note1').value.trim();
+            const cat1 = document.getElementById('sp-cat1').value;
+            const amt1 = parseFloat(document.getElementById('sp-amt1').value) || 0;
+            const note2 = document.getElementById('sp-note2').value.trim();
+            const cat2 = document.getElementById('sp-cat2').value;
+            const amt2 = parseFloat(document.getElementById('sp-amt2').value) || 0;
+            if (!note1 || !note2) { Swal.showValidationMessage('Keterangan bagian 1 & 2 wajib diisi!'); return false; }
+            if (!cat1 || !cat2) { Swal.showValidationMessage('Kategori bagian 1 & 2 wajib dipilih!'); return false; }
+            if (amt1 <= 0 || amt2 <= 0) { Swal.showValidationMessage('Jumlah bagian 1 & 2 harus lebih dari 0!'); return false; }
+            if (Math.round(amt1 + amt2) !== Math.round(t.amount)) { Swal.showValidationMessage('Jumlah bagian 1 + bagian 2 harus pas = ' + fmtFull(t.amount) + '!'); return false; }
+            return { note1, cat1, amt1, note2, cat2, amt2 };
+        }
+    });
+
+    if (!formVals) return;
+
+    Swal.fire({title: 'Memisahkan Transaksi...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const base = { ...t };
+        delete base.id;
+        // createdAt TIDAK dihapus & TIDAK diganti serverTimestamp() baru,
+        // supaya hasil pisahan tetap di tanggal & jam yang sama persis
+        // dengan transaksi asli (t.date juga sudah ikut ke-copy via base).
+
+        const batch = writeBatch(db);
+        const ref1 = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+        batch.set(ref1, { ...base, note: formVals.note1, category: formVals.cat1, amount: formVals.amt1 });
+        const ref2 = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+        batch.set(ref2, { ...base, note: formVals.note2, category: formVals.cat2, amount: formVals.amt2 });
+        batch.delete(doc(db, 'users', currentUser.uid, 'transactions', txId));
+        await batch.commit();
+
+        Swal.fire({icon:'success', title:'Berhasil Dipisah! ✂️', text:'1 transaksi sekarang jadi 2 catatan terpisah.', background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Memisah', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
 };
 
@@ -2889,9 +3041,22 @@ window.renderAdminYearlyChart = function(arr) {
         legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Tahun</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Tahun</div>`;
     }
 
-    mkChart('admin-user-chart', months, incD, expD);
-    renderAdminPeriodList(filtered);
-    renderAdminSumGrid(filtered);
+    mkChart('admin-user-chart', months, incD, expD, function(idx) {
+        const key = 'month-' + idx;
+        const cur = window.__chartFilters['adminYearly'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['adminYearly'] = null;
+        } else {
+            window.__chartFilters['adminYearly'] = {
+                key: key,
+                label: months[idx] + ' ' + activeY,
+                predicate: function(t) { return t.date && (parseInt(t.date.slice(5,7)) - 1) === idx; }
+            };
+        }
+        window.renderAdminYearlyChart(window.__adminYearlyArr || []);
+    });
+    applyAdminChartFilterList('adminYearly', filtered, function() { renderAdminYearlyChart(window.__adminYearlyArr || []); });
+    applyAdminChartFilterSum('adminYearly', filtered);
 };
 
 window.renderAdminMonthlyChart = function(arr) {
@@ -2934,9 +3099,23 @@ window.renderAdminMonthlyChart = function(arr) {
         legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Bulan</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Bulan</div>`;
     }
 
-    mkChart('admin-user-chart', labels, incD, expD);
-    renderAdminPeriodList(filtered);
-    renderAdminSumGrid(filtered);
+    mkChart('admin-user-chart', labels, incD, expD, function(idx) {
+        const dayNum = idx + 1;
+        const key = 'day-' + dayNum;
+        const cur = window.__chartFilters['adminMonthly'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['adminMonthly'] = null;
+        } else {
+            window.__chartFilters['adminMonthly'] = {
+                key: key,
+                label: 'Tanggal ' + dayNum + ' ' + new Date(activeM + '-01').toLocaleDateString('id-ID', {month: 'long', year: 'numeric'}),
+                predicate: function(t) { return t.date && parseInt(t.date.slice(8,10)) === dayNum; }
+            };
+        }
+        window.renderAdminMonthlyChart(window.__adminMonthlyArr || []);
+    });
+    applyAdminChartFilterList('adminMonthly', filtered, function() { renderAdminMonthlyChart(window.__adminMonthlyArr || []); });
+    applyAdminChartFilterSum('adminMonthly', filtered);
 };
 
 window.renderAdminWeeklyChart = function(arr) {
@@ -2978,9 +3157,22 @@ window.renderAdminWeeklyChart = function(arr) {
         legendEl.innerHTML = `<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Minggu</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Minggu</div>`;
     }
 
-    mkChart('admin-user-chart', days, incD, expD);
-    renderAdminPeriodList(filtered);
-    renderAdminSumGrid(filtered);
+    mkChart('admin-user-chart', days, incD, expD, function(idx) {
+        const key = 'day-' + idx;
+        const cur = window.__chartFilters['adminWeekly'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['adminWeekly'] = null;
+        } else {
+            window.__chartFilters['adminWeekly'] = {
+                key: key,
+                label: days[idx] + ', Minggu ' + fmtDate(targetWk),
+                predicate: function(t) { let d = new Date(t.date).getDay() - 1; if (d < 0) d = 6; return d === idx; }
+            };
+        }
+        window.renderAdminWeeklyChart(window.__adminWeeklyArr || []);
+    });
+    applyAdminChartFilterList('adminWeekly', filtered, function() { renderAdminWeeklyChart(window.__adminWeeklyArr || []); });
+    applyAdminChartFilterSum('adminWeekly', filtered);
 };
 
 window.renderAdminRiwayatChart = function(arr) {
@@ -3035,11 +3227,43 @@ window.renderAdminRiwayatChart = function(arr) {
         legendEl.innerHTML = '<div class="leg-item"><div class="leg-dot" style="background:var(--green2)"></div>Pemasukan per Dompet ('+activeYr+')</div><div class="leg-item"><div class="leg-dot" style="background:var(--red2)"></div>Pengeluaran per Dompet</div>';
     }
 
-    mkChart('admin-user-chart', labels, incData, expData);
-    renderAdminSumGrid(yearData);
+    mkChart('admin-user-chart', labels, incData, expData, function(idx, label, dsIdx) {
+        const wallet = walletList[idx];
+        const key = 'wallet-' + dsIdx + '-' + wallet;
+        const cur = window.__chartFilters['adminRiwayat'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['adminRiwayat'] = null;
+        } else {
+            window.__chartFilters['adminRiwayat'] = {
+                key: key,
+                label: (dsIdx === 0 ? 'Pemasukan' : 'Pengeluaran') + ' — ' + wallet + ' (' + activeYr + ')',
+                predicate: function(t) {
+                    if (dsIdx === 0) {
+                        if (t.type === 'income' && t.wallet === wallet) return true;
+                        if (t.type === 'transfer' && t.walletTo === wallet) return true;
+                        if (t.type === 'debt' && t.wallet === wallet) return true;
+                        return false;
+                    } else {
+                        if (t.type === 'expense' && t.wallet === wallet) return true;
+                        if (t.type === 'transfer' && t.wallet === wallet) return true;
+                        if (t.type === 'recv' && t.wallet === wallet) return true;
+                        if (t.type === 'debt' && t.isPaid && t.wallet === wallet) return true;
+                        return false;
+                    }
+                }
+            };
+        }
+        window.renderAdminRiwayatChart(window.__adminRiwayatArr || []);
+    });
+    applyAdminChartFilterList('adminRiwayat', yearData, function() { renderAdminRiwayatChart(window.__adminRiwayatArr || []); });
+    applyAdminChartFilterSum('adminRiwayat', yearData);
 };
 
 window.showAdminDetail = function(uid, mode) {
+    window.__chartFilters['adminWeekly'] = null;
+    window.__chartFilters['adminMonthly'] = null;
+    window.__chartFilters['adminYearly'] = null;
+    window.__chartFilters['adminRiwayat'] = null;
     const arr = (adminGrouped[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
 
@@ -3110,9 +3334,6 @@ window.showAdminDetail = function(uid, mode) {
         if (ysel) ysel.dataset.active = '';
         window.__adminRiwayatArr = arr;
         renderAdminRiwayatChart(arr);
-        listWrap.innerHTML = arr.length
-            ? arr.map(t => adminTxCard(t)).join('')
-            : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
     } else {
         title.innerHTML = '📋 Detail Transaksi — ' + escapeHTML(label);
         sub.textContent = arr.length + ' transaksi ditemukan, diurutkan dari yang terbaru.';
@@ -3752,6 +3973,7 @@ const createTxCard = (t) => {
     if (t.type === 'debt' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`; } else if (t.type === 'debt' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } else if (t.type === 'recv' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--blue); border: 1px solid var(--blue); background: rgba(59, 130, 246, 0.1);" onclick="payRecv('${t.id}')">SUDAH BAYAR</button>`; } else if (t.type === 'recv' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } 
     
     let cbHtml = batchMode ? `<input type="checkbox" class="batch-cb" value="${t.id}" style="margin-right:12px; width:20px; height:20px; flex-shrink:0;">` : '';
+    let splitBtn = (t.type === 'income' || t.type === 'expense') ? `<button class="edit-btn-recent" onclick="splitTx('${t.id}')" style="color:var(--gold); border:1px solid var(--gold); background:rgba(251, 191, 36, 0.1);">PISAH</button>` : '';
     return `
     <div class="recent-item" data-id="${t.id}"> 
         <div class="ri-left"> 
@@ -3770,6 +3992,7 @@ const createTxCard = (t) => {
             <div class="action-btns"> 
                 <button class="edit-btn-recent" onclick="editTx('${t.id}')">EDIT</button> 
                 <button class="edit-btn-recent" onclick="promptTransfer('${t.id}')" style="color:var(--text); border:1px solid var(--border2); background:var(--bg3);">TF</button>
+                ${splitBtn}
                 <button class="del-btn-recent" onclick="delTx('${t.id}')">HAPUS</button> 
                 ${actionBtn} 
             </div> 
@@ -3860,14 +4083,67 @@ function renderWalletBalances() {
     container.innerHTML = html; 
 }
 
-function mkChart(id, labels, incData, expData) { 
+window.__chartFilters = {};
+
+window.clearChartFilter = function(scopeId, rerenderFn) {
+    window.__chartFilters[scopeId] = null;
+    if (typeof rerenderFn === 'function') rerenderFn();
+};
+
+function applyChartFilterSum(el, arr, scopeId, isDash) {
+    if (!el) return;
+    const f = window.__chartFilters[scopeId];
+    renderSumGrid(el, f ? arr.filter(f.predicate) : arr, isDash);
+}
+
+function applyChartFilterList(container, arr, scopeId, rerenderFn) {
+    if (!container) return;
+    const f = window.__chartFilters[scopeId];
+    const list = f ? arr.filter(f.predicate) : arr;
+    const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
+    container.innerHTML = badge + (list.length ? list.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>');
+    if (f) {
+        const btn = container.querySelector('.chart-filter-clear');
+        if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); };
+    }
+}
+
+function applyAdminChartFilterSum(scopeId, arr) {
+    const f = window.__chartFilters[scopeId];
+    renderAdminSumGrid(f ? arr.filter(f.predicate) : arr);
+}
+
+function applyAdminChartFilterList(scopeId, arr, rerenderFn) {
+    const listWrap = document.getElementById('admin-detail-list');
+    if (!listWrap) return;
+    const f = window.__chartFilters[scopeId];
+    const sorted = (f ? arr.filter(f.predicate) : arr).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
+    listWrap.innerHTML = badge + (sorted.length ? sorted.map(t => adminTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>');
+    if (f) {
+        const btn = listWrap.querySelector('.chart-filter-clear');
+        if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); };
+    }
+}
+
+function mkChart(id, labels, incData, expData, onBarClick) { 
     const c = document.getElementById(id); if (!c) return; 
     const isLight = document.body.classList.contains('light-mode'); const isMobile = window.innerWidth <= 768; 
+    const clickHandler = function(evt, elements) {
+        if (!elements || !elements.length) return;
+        const el = elements[0];
+        if (typeof onBarClick === 'function') onBarClick(el.index, labels[el.index], el.datasetIndex);
+    };
+    const hoverHandler = function(evt, elements) {
+        if (evt && evt.native && evt.native.target) evt.native.target.style.cursor = (elements && elements.length) ? 'pointer' : 'default';
+    };
     if (charts[id] && charts[id]._isLightTheme === isLight) { 
         const ch = charts[id]; 
         ch.data.labels = labels; 
         ch.data.datasets[0].data = incData; 
         ch.data.datasets[1].data = expData; 
+        ch.options.onClick = clickHandler;
+        ch.options.onHover = hoverHandler;
         ch.update(); 
         return; 
     } 
@@ -3887,6 +4163,8 @@ function mkChart(id, labels, incData, expData) {
             resizeDelay: 100,
             animation: { duration: 300, easing: 'easeOutQuart' },
             animations: { colors: false, x: { duration: 0 } },
+            onClick: clickHandler,
+            onHover: hoverHandler,
             plugins: {
                 legend: {display: false},
                 tooltip: {
@@ -3939,8 +4217,8 @@ window.renderWeekly = function() {
 ='${w}'; requestAnimationFrame(renderWeekly);">Minggu ${fmtDate(w)}</button>`).join('');
   const targetWk = sel.dataset.active;
   const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
-  renderSumGrid(document.getElementById('week-sum'), arr);
-  renderList(document.getElementById('week-body'), arr);
+  applyChartFilterSum(document.getElementById('week-sum'), arr, 'week');
+  applyChartFilterList(document.getElementById('week-body'), arr, 'week', window.renderWeekly);
   
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   let incD = [0,0,0,0,0,0,0], expD = [0,0,0,0,0,0,0];
@@ -3950,7 +4228,20 @@ window.renderWeekly = function() {
       if(t.type === 'income') incD[d] += t.amount; 
       if(t.type === 'expense') expD[d] += t.amount; 
   });
-  mkChart('chartWeek', days, incD, expD);
+  mkChart('chartWeek', days, incD, expD, function(idx) {
+      const key = 'day-' + idx;
+      const cur = window.__chartFilters['week'];
+      if (cur && cur.key === key) {
+          window.__chartFilters['week'] = null;
+      } else {
+          window.__chartFilters['week'] = {
+              key: key,
+              label: days[idx] + ', Minggu ' + fmtDate(targetWk),
+              predicate: function(t) { let d = new Date(t.date).getDay() - 1; if (d < 0) d = 6; return d === idx; }
+          };
+      }
+      window.renderWeekly();
+  });
 };
 
 window.renderMonthly = function() {
@@ -3969,8 +4260,8 @@ window.renderMonthly = function() {
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
-    renderSumGrid(document.getElementById('month-sum'), arr);
-    renderList(document.getElementById('month-body'), arr);
+    applyChartFilterSum(document.getElementById('month-sum'), arr, 'month');
+    applyChartFilterList(document.getElementById('month-body'), arr, 'month', window.renderMonthly);
     
     let daysInM = new Date(active.slice(0,4), active.slice(5,7), 0).getDate();
     let labels = Array.from({length: daysInM}, (_, i) => i + 1);
@@ -3980,7 +4271,21 @@ window.renderMonthly = function() {
         if(t.type === 'income') incD[d] += t.amount; 
         if(t.type === 'expense') expD[d] += t.amount; 
     });
-    mkChart('chartMonth', labels, incD, expD);
+    mkChart('chartMonth', labels, incD, expD, function(idx) {
+        const dayNum = idx + 1;
+        const key = 'day-' + dayNum;
+        const cur = window.__chartFilters['month'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['month'] = null;
+        } else {
+            window.__chartFilters['month'] = {
+                key: key,
+                label: 'Tanggal ' + dayNum + ' ' + new Date(active + '-01').toLocaleDateString('id-ID', {month: 'long', year: 'numeric'}),
+                predicate: function(t) { return t.date && parseInt(t.date.slice(8,10)) === dayNum; }
+            };
+        }
+        window.renderMonthly();
+    });
     renderBudgets(active);
 };
 
@@ -4000,8 +4305,8 @@ window.renderYearly = function() {
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
-    renderSumGrid(document.getElementById('year-sum'), arr);
-    renderList(document.getElementById('year-body'), arr);
+    applyChartFilterSum(document.getElementById('year-sum'), arr, 'year');
+    applyChartFilterList(document.getElementById('year-body'), arr, 'year', window.renderYearly);
     
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     let incD = Array(12).fill(0), expD = Array(12).fill(0);
@@ -4010,7 +4315,20 @@ window.renderYearly = function() {
         if(t.type === 'income') incD[m] += t.amount; 
         if(t.type === 'expense') expD[m] += t.amount; 
     });
-    mkChart('chartYear', months, incD, expD);
+    mkChart('chartYear', months, incD, expD, function(idx) {
+        const key = 'month-' + idx;
+        const cur = window.__chartFilters['year'];
+        if (cur && cur.key === key) {
+            window.__chartFilters['year'] = null;
+        } else {
+            window.__chartFilters['year'] = {
+                key: key,
+                label: months[idx] + ' ' + active,
+                predicate: function(t) { return t.date && (parseInt(t.date.slice(5,7)) - 1) === idx; }
+            };
+        }
+        window.renderYearly();
+    });
 };
 
 window.renderAll = function() {
@@ -4041,8 +4359,8 @@ window.renderAll = function() {
         
         const activeYr = sel.dataset.active;
         const yearData = filtered.filter(t => t.date.slice(0,4) === activeYr);
-        renderSumGrid(document.getElementById('all-sum'), yearData);
-        renderList(document.getElementById('all-body'), yearData);
+        applyChartFilterSum(document.getElementById('all-sum'), yearData, 'riwayat');
+        applyChartFilterList(document.getElementById('all-body'), yearData, 'riwayat', window.renderAll);
 
         // Chart Pemasukan & Pengeluaran per Dompet (Kas Tunai s/d Bank), termasuk transfer antar dompet
         const walletList = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
@@ -4100,6 +4418,40 @@ window.renderAll = function() {
                     resizeDelay: 100,
                     animation: { duration: 220, easing: 'easeOutQuart' },
                     animations: { colors: false, x: { duration: 0 } },
+                    onClick: function(evt, elements) {
+                        if (!elements || !elements.length) return;
+                        const idx = elements[0].index;
+                        const dsIdx = elements[0].datasetIndex;
+                        const wallet = walletList[idx];
+                        const key = 'wallet-' + dsIdx + '-' + wallet;
+                        const cur = window.__chartFilters['riwayat'];
+                        if (cur && cur.key === key) {
+                            window.__chartFilters['riwayat'] = null;
+                        } else {
+                            window.__chartFilters['riwayat'] = {
+                                key: key,
+                                label: (dsIdx === 0 ? 'Pemasukan' : 'Pengeluaran') + ' — ' + wallet + ' (' + activeYr + ')',
+                                predicate: function(t) {
+                                    if (dsIdx === 0) {
+                                        if (t.type === 'income' && t.wallet === wallet) return true;
+                                        if (t.type === 'transfer' && t.walletTo === wallet) return true;
+                                        if (t.type === 'debt' && t.wallet === wallet) return true;
+                                        return false;
+                                    } else {
+                                        if (t.type === 'expense' && t.wallet === wallet) return true;
+                                        if (t.type === 'transfer' && t.wallet === wallet) return true;
+                                        if (t.type === 'recv' && t.wallet === wallet) return true;
+                                        if (t.type === 'debt' && t.isPaid && t.wallet === wallet) return true;
+                                        return false;
+                                    }
+                                }
+                            };
+                        }
+                        window.renderAll();
+                    },
+                    onHover: function(evt, elements) {
+                        if (evt && evt.native && evt.native.target) evt.native.target.style.cursor = (elements && elements.length) ? 'pointer' : 'default';
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -4127,8 +4479,65 @@ window.renderAll = function() {
         } else {
             legendEl.style.display = 'none';
         }
+
+        renderRiwayatCategoryChips(yearData, activeYr);
     }
 };
+
+// ======================================================================
+// Chip daftar SEMUA kategori di bawah grafik Riwayat. Klik salah satu
+// kategori -> langsung tampil semua transaksi kategori itu + total dihitung
+// di sum-grid atas (pakai mekanisme filter chart yang sama, scope 'riwayat').
+// ======================================================================
+function renderRiwayatCategoryChips(yearData, activeYr) {
+    const wrap = document.getElementById('riwayat-cat-chips');
+    if (!wrap) return;
+
+    const catMap = {};
+    yearData.forEach(t => {
+        if (!t.category) return;
+        if (t.type !== 'income' && t.type !== 'expense' && t.type !== 'debt' && t.type !== 'recv') return;
+        const key = t.type + '|' + t.category;
+        if (!catMap[key]) catMap[key] = { type: t.type, category: t.category, total: 0, count: 0 };
+        catMap[key].total += t.amount;
+        catMap[key].count += 1;
+    });
+
+    const cats = Object.values(catMap).sort((a, b) => b.total - a.total);
+
+    if (!cats.length) { wrap.innerHTML = ''; return; }
+
+    const cur = window.__chartFilters['riwayat'];
+    wrap.innerHTML = cats.map((c, i) => {
+        const key = 'cat-' + c.type + '-' + c.category;
+        const isActive = cur && cur.key === key;
+        const isIncome = c.type === 'income' || c.type === 'recv';
+        return `<div class="cat-chip ${isActive ? 'active' : ''}" data-idx="${i}">
+            <span>${escapeHTML(c.category)}</span>
+            <span class="cat-chip-amt" style="color:${isIncome ? 'var(--green2)' : 'var(--red2)'};">${isIncome ? '+' : '-'}${fmtFull(c.total)}</span>
+        </div>`;
+    }).join('');
+
+    wrap.querySelectorAll('.cat-chip').forEach(el => {
+        el.onclick = function() {
+            const c = cats[parseInt(el.dataset.idx, 10)];
+            if (!c) return;
+            const key = 'cat-' + c.type + '-' + c.category;
+            const curF = window.__chartFilters['riwayat'];
+            if (curF && curF.key === key) {
+                window.__chartFilters['riwayat'] = null;
+            } else {
+                const label = (c.type === 'income' ? 'Pemasukan' : c.type === 'expense' ? 'Pengeluaran' : c.type === 'debt' ? 'Hutang' : 'Piutang') + ' — ' + c.category + ' (' + activeYr + ')';
+                window.__chartFilters['riwayat'] = {
+                    key: key,
+                    label: label,
+                    predicate: function(t) { return t.type === c.type && t.category === c.category; }
+                };
+            }
+            window.renderAll();
+        };
+    });
+}
 
 function drawCenteredSummaryRow(docPdf, parts, y, centerX) {
     const gap = 22;
