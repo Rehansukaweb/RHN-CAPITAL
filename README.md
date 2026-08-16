@@ -79,21 +79,31 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
 button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item {
-  transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.15s ease, border-color 0.15s ease,
-              box-shadow 0.15s ease, opacity 0.15s ease, color 0.12s ease !important;
+  transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.12s ease, border-color 0.12s ease,
+              box-shadow 0.12s ease, opacity 0.12s ease, color 0.1s ease !important;
+  will-change: transform;
 }
-button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
-.setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
-.edit-btn-recent:active, .del-btn-recent:active, .w-card:active,
-.recent-item:active, .m-card:active, .nav-ext-btn:active, .status-pill:active,
-.calc-curr-item:active { will-change: transform; }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
 .edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active {
   transform: scale(0.94);
+  transition-duration: 0.05s !important;
 }
-.w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active { transform: scale(0.97); }
+.w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
+  transform: scale(0.97);
+  transition-duration: 0.05s !important;
+}
+/* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
+@media (hover: hover) and (pointer: fine) {
+  button:hover, .nav-btn:hover, .t-btn:hover, .p-btn:hover, .theme-btn:hover,
+  .setting-btn:hover, .logout-btn:hover, .submit-btn:hover, .export-btn:hover,
+  .edit-btn-recent:hover, .del-btn-recent:hover, .nav-ext-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+  }
+  .w-card:hover, .recent-item:hover, .m-card:hover { transform: translateY(-1px); }
+}
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
 .nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -103,7 +113,7 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 @keyframes cardIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
-.page.active { animation: pageIn 0.12s cubic-bezier(0.22, 1, 0.36, 1); }
+.page.active { animation: pageIn 0.12s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
 @keyframes pageIn { from { opacity: 0.4; } to { opacity: 1; } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
@@ -917,12 +927,8 @@ body.global-privacy #xau-idr-gr {
     <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
     <div class="filter-bar">
       <div class="export-row">
-        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
-      </div>
-      <div class="export-row">
-        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
-        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF BULANAN 📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL BULANAN 📊</button>
       </div>
     </div>
     <div class="chart-wrap">
@@ -947,11 +953,7 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <div class="export-row">
         <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
-      </div>
-      <div class="export-row">
         <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
-        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
       </div>
     </div>
     <div class="chart-wrap">
@@ -975,14 +977,10 @@ body.global-privacy #xau-idr-gr {
         <option value="income">Pemasukan Saja</option>
         <option value="expense">Pengeluaran Saja</option>
       </select>
-      <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="renderAll()">
+      <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="debouncedRenderAll()">
       <div class="export-row">
         <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportPDFBulanan()" style="background:var(--blue); color:#fff;">UNDUH PDF BULANAN 📑</button>
-      </div>
-      <div class="export-row">
         <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
-        <button class="export-btn" onclick="exportExcelBulanan()" style="background:var(--gold); color:#000;">UNDUH EXCEL BULANAN 🗂️</button>
       </div>
       <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
       
@@ -1680,6 +1678,15 @@ let txs = [], deletedTxs = [], curType = 'income', activePage = 'dashboard', cha
 let adminGrouped = {}, adminUserLabels = {};
 let currentUSDRate = 16000, currentUser = null, unsubListener = null, authMode = 'login';
 let editId = null;
+
+// Debounce untuk input pencarian Riwayat: renderAll() cukup berat (rebuild chart + list),
+// kalau dipanggil di SETIAP ketikan bisa bikin terasa "berat" saat mengetik cepat.
+// Dengan debounce, render baru jalan sesaat setelah user berhenti mengetik → ketikan terasa instan/mulus.
+let __searchDebounceTimer = null;
+window.debouncedRenderAll = function() {
+    if (__searchDebounceTimer) clearTimeout(__searchDebounceTimer);
+    __searchDebounceTimer = setTimeout(() => { window.renderAll(); }, 200);
+};
 let batchMode = false;
 window.userBudgets = {};
 
@@ -3947,16 +3954,30 @@ window.selType = function(t) {
 };
 
 window.switchPage = function(p) { 
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active')); 
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); 
-  document.getElementById('page-' + p).classList.add('active'); 
+  // Kalau tombol yang ditekan adalah halaman yang sedang aktif, tidak perlu render ulang
+  // (render ulang yang tidak perlu inilah salah satu sumber "ngedet" saat tombol dipencet berkali-kali).
+  if (p === activePage) return;
   const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin']; 
+  const navBtns = document.querySelectorAll('.nav-btn');
+  // Hanya sentuh elemen yang benar-benar berubah (halaman lama & baru, tombol lama & baru)
+  // alih-alih looping semua .page & semua .nav-btn tiap kali pindah, supaya browser tidak
+  // perlu menghitung ulang style utk elemen yang sebenarnya tidak berubah sama sekali.
+  const oldPageEl = document.getElementById('page-' + activePage);
+  if (oldPageEl) oldPageEl.classList.remove('active');
+  const oldIdx = pages.indexOf(activePage);
+  if (oldIdx !== -1 && navBtns[oldIdx]) navBtns[oldIdx].classList.remove('active');
+  document.getElementById('page-' + p).classList.add('active'); 
   const idx = pages.indexOf(p); 
-  if (idx !== -1) { document.querySelectorAll('.nav-btn')[idx].classList.add('active'); } 
+  if (idx !== -1 && navBtns[idx]) { navBtns[idx].classList.add('active'); } 
   activePage = p; 
-  // Biarkan transisi halaman (fade) sempat digambar browser dulu sebelum render berat (list/chart) dieksekusi,
-  // supaya perpindahan halaman terasa mulus tanpa patah-patah (ngedet).
-  requestAnimationFrame(() => requestAnimationFrame(refreshAll)); 
+  // PENTING: pakai DOUBLE requestAnimationFrame, bukan 1x. Kenapa: 1x rAF TIDAK menjamin
+  // browser sudah sempat menggambar (paint) perubahan class (tombol aktif, halaman baru
+  // muncul) sebelum callback jalan — kalau refreshAll() berat (rebuild chart, dst), semuanya
+  // masih numpuk di frame yang sama sehingga tap tombol terasa "telat respon". Dengan
+  // rAF(rAF(...)), frame pertama dipakai browser untuk benar-benar paint dulu (tombol
+  // langsung kelihatan aktif & halaman langsung kelihatan), baru di frame berikutnya
+  // data/chart di-render. Hasilnya: sentuhan tombol terasa instan, isi datanya menyusul.
+  requestAnimationFrame(() => { requestAnimationFrame(refreshAll); });
 };
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
@@ -4113,16 +4134,66 @@ function applyChartFilterSum(el, arr, scopeId, isDash) {
     renderSumGrid(el, f ? arr.filter(f.predicate) : arr, isDash);
 }
 
+// ==========================================================================
+// RENDER BERTAHAP (virtual-scroll ringan) untuk daftar transaksi yang bisa
+// berisi ratusan/ribuan item (Mingguan/Bulanan/Tahunan/Riwayat). Alih-alih
+// bikin elemen DOM utk SEMUA transaksi sekaligus (bikin render awal terasa
+// berat/nyendat kalau datanya banyak), di sini cuma batch pertama yang
+// langsung dirender; batch berikutnya baru dirender otomatis saat user
+// scroll mendekati akhir daftar (pakai IntersectionObserver, ringan &
+// tidak butuh tahu elemen mana yang scroll — jalan baik di layout mobile
+// (halaman yang scroll) maupun desktop (panel yang scroll).
+const __VS_BATCH = 40;
 function applyChartFilterList(container, arr, scopeId, rerenderFn) {
     if (!container) return;
+    // Hentikan observer batch lama (kalau ada) supaya tidak numpuk/leak saat re-render
+    if (container.__vsObserver) { container.__vsObserver.disconnect(); container.__vsObserver = null; }
+
     const f = window.__chartFilters[scopeId];
     const list = f ? arr.filter(f.predicate) : arr;
     const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
-    container.innerHTML = badge + (list.length ? list.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>');
-    if (f) {
-        const btn = container.querySelector('.chart-filter-clear');
-        if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); };
+
+    if (!list.length) {
+        container.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>';
+        if (f) { const btn = container.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+        return;
     }
+
+    // Kalau jumlahnya sedikit, langsung render semua sekaligus (tidak perlu batching)
+    if (list.length <= __VS_BATCH) {
+        container.innerHTML = badge + list.map(t => createTxCard(t)).join('');
+        if (f) { const btn = container.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+        return;
+    }
+
+    let renderedCount = 0;
+    const sentinel = document.createElement('div');
+    sentinel.className = 'vs-sentinel';
+    sentinel.style.cssText = 'height:1px;';
+
+    function renderNextBatch() {
+        const next = list.slice(renderedCount, renderedCount + __VS_BATCH);
+        if (!next.length) return;
+        const html = next.map(t => createTxCard(t)).join('');
+        sentinel.insertAdjacentHTML('beforebegin', html);
+        renderedCount += next.length;
+        if (renderedCount >= list.length && container.__vsObserver) {
+            container.__vsObserver.disconnect();
+            container.__vsObserver = null;
+            sentinel.remove();
+        }
+    }
+
+    container.innerHTML = badge;
+    if (f) { const btn = container.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+    container.appendChild(sentinel);
+    renderNextBatch();
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) renderNextBatch();
+    }, { root: null, rootMargin: '600px' });
+    observer.observe(sentinel);
+    container.__vsObserver = observer;
 }
 
 function applyAdminChartFilterSum(scopeId, arr) {
@@ -4133,14 +4204,51 @@ function applyAdminChartFilterSum(scopeId, arr) {
 function applyAdminChartFilterList(scopeId, arr, rerenderFn) {
     const listWrap = document.getElementById('admin-detail-list');
     if (!listWrap) return;
+    if (listWrap.__vsObserver) { listWrap.__vsObserver.disconnect(); listWrap.__vsObserver = null; }
+
     const f = window.__chartFilters[scopeId];
     const sorted = (f ? arr.filter(f.predicate) : arr).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
-    listWrap.innerHTML = badge + (sorted.length ? sorted.map(t => adminTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>');
-    if (f) {
-        const btn = listWrap.querySelector('.chart-filter-clear');
-        if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); };
+
+    if (!sorted.length) {
+        listWrap.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>';
+        if (f) { const btn = listWrap.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+        return;
     }
+
+    if (sorted.length <= __VS_BATCH) {
+        listWrap.innerHTML = badge + sorted.map(t => adminTxCard(t)).join('');
+        if (f) { const btn = listWrap.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+        return;
+    }
+
+    let renderedCount = 0;
+    const sentinel = document.createElement('div');
+    sentinel.className = 'vs-sentinel';
+    sentinel.style.cssText = 'height:1px;';
+
+    function renderNextBatch() {
+        const next = sorted.slice(renderedCount, renderedCount + __VS_BATCH);
+        if (!next.length) return;
+        sentinel.insertAdjacentHTML('beforebegin', next.map(t => adminTxCard(t)).join(''));
+        renderedCount += next.length;
+        if (renderedCount >= sorted.length && listWrap.__vsObserver) {
+            listWrap.__vsObserver.disconnect();
+            listWrap.__vsObserver = null;
+            sentinel.remove();
+        }
+    }
+
+    listWrap.innerHTML = badge;
+    if (f) { const btn = listWrap.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
+    listWrap.appendChild(sentinel);
+    renderNextBatch();
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) renderNextBatch();
+    }, { root: null, rootMargin: '600px' });
+    observer.observe(sentinel);
+    listWrap.__vsObserver = observer;
 }
 
 function mkChart(id, labels, incData, expData, onBarClick) { 
@@ -4161,7 +4269,7 @@ function mkChart(id, labels, incData, expData, onBarClick) {
         ch.data.datasets[1].data = expData; 
         ch.options.onClick = clickHandler;
         ch.options.onHover = hoverHandler;
-        ch.update(); 
+        ch.update('none'); 
         return; 
     } 
     if (charts[id]) charts[id].destroy(); 
@@ -4178,7 +4286,7 @@ function mkChart(id, labels, incData, expData, onBarClick) {
             responsive: true, 
             maintainAspectRatio: false, 
             resizeDelay: 100,
-            animation: { duration: 300, easing: 'easeOutQuart' },
+            animation: { duration: 0 },
             animations: { colors: false, x: { duration: 0 } },
             onClick: clickHandler,
             onHover: hoverHandler,
@@ -4433,7 +4541,7 @@ window.renderAll = function() {
                     responsive: true,
                     maintainAspectRatio: false,
                     resizeDelay: 100,
-                    animation: { duration: 220, easing: 'easeOutQuart' },
+                    animation: { duration: 0 },
                     animations: { colors: false, x: { duration: 0 } },
                     onClick: function(evt, elements) {
                         if (!elements || !elements.length) return;
@@ -4609,19 +4717,19 @@ window.exportPDF = function() {
     const marginL = 30, marginR = 30;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(5.5);
+    docPdf.setFontSize(10);
     docPdf.setTextColor(20, 20, 20);
-    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 22, { align: 'center' });
+    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 24, { align: 'center' });
 
     docPdf.setFont('helvetica', 'normal');
-    docPdf.setFontSize(3.5);
+    docPdf.setFontSize(6.5);
     docPdf.setTextColor(100, 100, 100);
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    docPdf.text(genInfo, pageWidth / 2, 33, { align: 'center' });
+    docPdf.text(genInfo, pageWidth / 2, 36, { align: 'center' });
 
     docPdf.setDrawColor(220, 220, 220);
-    docPdf.line(marginL, 40, pageWidth - marginR, 40);
+    docPdf.line(marginL, 43, pageWidth - marginR, 43);
 
     // Kelompokkan per minggu (urut kronologis) — satu halaman = satu minggu (±52 halaman per tahun)
     const weekMap = {};
@@ -4632,14 +4740,14 @@ window.exportPDF = function() {
         weekMap[wKey].push(t);
     });
 
-    let currentY = 46;
+    let currentY = 50;
     let rowCounter = 0;
 
     weekOrder.forEach((wKey, wIdx) => {
         // Satu halaman = satu minggu: setiap minggu baru selalu mulai di halaman baru
         if (wIdx > 0) {
             docPdf.addPage();
-            currentY = 22;
+            currentY = 24;
         }
 
         const weekArr = weekMap[wKey];
@@ -4648,12 +4756,12 @@ window.exportPDF = function() {
         const weekLabel = 'MINGGU ' + (wIdx + 1) + ' (' + fmtDate(wStart.toISOString()) + ' - ' + fmtDate(wEnd.toISOString()) + ')';
 
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(5.25);
+        docPdf.setFontSize(8.5);
         docPdf.setTextColor(20, 20, 20);
         docPdf.text(weekLabel, marginL, currentY);
         docPdf.setDrawColor(230, 230, 230);
         docPdf.line(marginL, currentY + 4, pageWidth - marginR, currentY + 4);
-        currentY += 9;
+        currentY += 10;
 
         // Susun baris per transaksi (Senin s/d Minggu) dalam minggu ini
         const bodyRows = [];
@@ -4666,6 +4774,7 @@ window.exportPDF = function() {
             const hariCell = isSameDay ? '' : dayNames[new Date(t.date).getDay()];
             lastDateStr = curDateStr;
             bodyRows.push([
+                String(rowCounter),
                 hariCell,
                 fmtDate(t.date),
                 fmtTime(t.date),
@@ -4678,249 +4787,9 @@ window.exportPDF = function() {
             ]);
         });
 
-        // Paksa 1 minggu selalu muat dalam 1 halaman: hitung otomatis ukuran font & padding
-        // berdasarkan jumlah baris supaya tabel selalu pas, seberapa pun banyaknya transaksi.
-        // DIMAKSIMALKAN: font & padding dihitung sebesar mungkin dari sisa ruang halaman yang tersedia
-        // (bukan dipaksa kecil terus-menerus) supaya tulisan tetap besar & jelas dibaca, tapi tetap dijamin
-        // 1 minggu selalu pas dalam 1 halaman saja (tidak boleh luber ke halaman 2).
-        // Batas atas font DITURUNKAN ke 10 (dari 13) supaya lebar kolom (Hari/Tanggal/Waktu/Tipe/dst) tetap
-        // cukup menampung tulisan tanpa ada yang terpotong ("...") walau font sedang besar-besarnya.
-        const totalRowsForCalc = bodyRows.length + 1; // +1 untuk baris header
-        const reservedBelowTable = 16; // ruang untuk rekap pemasukan/pengeluaran/saldo minggu ini
-        const reservedFooterSpace = 11; // ruang untuk nomor halaman di bawah
-        const reservedFinalTotal = (wIdx === weekOrder.length - 1) ? 66 : 0; // ruang untuk blok TOTAL SELURUH RIWAYAT di grup terakhir
-        const availableTableHeight = Math.max(60, pageHeight - currentY - reservedBelowTable - reservedFooterSpace - reservedFinalTotal);
-
-        let cellPad = 4;
-        let bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25;
-        if (bodyFontSize < 7) { cellPad = 2.5; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
-        if (bodyFontSize < 5) { cellPad = 1.4; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
-        if (bodyFontSize < 3.5) { cellPad = 0.7; bodyFontSize = (availableTableHeight / totalRowsForCalc - cellPad * 2) / 1.25; }
-        // Margin aman kecil supaya perhitungan tinggi baris jsPDF tidak meleset dan bikin luber ke halaman lain
-        bodyFontSize *= 0.93;
-        bodyFontSize = Math.max(4, Math.min(10, bodyFontSize));
-        cellPad = Math.max(0.7, Math.min(5, cellPad));
-        let headFontSize = Math.min(bodyFontSize + 0.6, 10.6);
-
-        docPdf.autoTable({
-            startY: currentY,
-            head: [['Hari', 'Tanggal', 'Waktu', 'Tipe', 'Kategori', 'Dompet Asal', 'Dompet Tujuan', 'Keterangan', 'Nominal']],
-            body: bodyRows,
-            theme: 'grid',
-            rowPageBreak: 'avoid',
-            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
-            headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
-            alternateRowStyles: { fillColor: [246, 247, 249] },
-            columnStyles: {
-                0: { cellWidth: 52, halign: 'center' },
-                1: { cellWidth: 60, halign: 'center' },
-                2: { cellWidth: 48, halign: 'center' },
-                3: { cellWidth: 82, halign: 'center', overflow: 'ellipsize' },
-                4: { cellWidth: 96, overflow: 'ellipsize' },
-                5: { cellWidth: 102, overflow: 'ellipsize' },
-                6: { cellWidth: 102, overflow: 'ellipsize' },
-                7: { cellWidth: 'auto', overflow: 'ellipsize' },
-                8: { cellWidth: 96, halign: 'right', fontStyle: 'bold' }
-            },
-            margin: { left: marginL, right: marginR }
-        });
-
-        currentY = docPdf.lastAutoTable.finalY + 15;
-
-        // Rekap pemasukan, pengeluaran, saldo bersih untuk minggu ini
-        const ws = calcSum(weekArr);
-        docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(5.5);
-        drawCenteredSummaryRow(docPdf, [
-            { text: 'Pemasukan ' + weekLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ws.inc), color: [16, 185, 129] },
-            { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ws.exp), color: [248, 113, 113] },
-            { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ws.bal), color: [20, 20, 20] }
-        ], currentY, pageWidth / 2);
-
-        currentY += 24;
-    });
-
-    // Total keseluruhan semua riwayat, ditulis paling bawah setelah semua tabel minggu
-    if (currentY > pageHeight - 90) {
-        docPdf.addPage();
-        currentY = 50;
-    } else {
-        currentY += 6;
-    }
-    docPdf.setDrawColor(20, 20, 20);
-    docPdf.setLineWidth(1);
-    docPdf.line(marginL, currentY, pageWidth - marginR, currentY);
-    currentY += 22;
-
-    docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(7);
-    docPdf.setTextColor(20, 20, 20);
-    docPdf.text('TOTAL SELURUH RIWAYAT', marginL, currentY);
-    currentY += 20;
-
-    docPdf.setFontSize(6.5);
-    drawCenteredSummaryRow(docPdf, [
-        { text: 'Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), color: [16, 185, 129] },
-        { text: 'Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), color: [248, 113, 113] },
-        { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(s.bal), color: [20, 20, 20] }
-    ], currentY, pageWidth / 2);
-
-    // Nomor halaman di seluruh halaman dokumen
-    const totalPages = docPdf.internal.getNumberOfPages();
-    for (let p = 1; p <= totalPages; p++) {
-        docPdf.setPage(p);
-        docPdf.setFont('helvetica', 'normal');
-        docPdf.setFontSize(4);
-        docPdf.setTextColor(150, 150, 150);
-        docPdf.text('RHN CAPITAL · Halaman ' + p + ' / ' + totalPages, pageWidth / 2, pageHeight - 16, { align: 'center' });
-    }
-
-    docPdf.save('RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
-};
-
-// Export PDF versi BULANAN — satu halaman = satu bulan, di dalam tiap bulan tetap dikelompokkan per minggu
-// (dipisah dengan baris jeda berwarna berisi rekap mingguan), lalu total keseluruhan riwayat di halaman terakhir.
-window.exportPDFBulanan = function() {
-    if (txs.length === 0) return Swal.fire({ icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)' });
-    if (!window.jspdf || !window.jspdf.jsPDF) return Swal.fire({ icon: 'error', title: 'Gagal Membuat PDF', text: 'Library PDF belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
-
-    const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
-    const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.trim().toLowerCase() : '';
-    let filtered = txs.slice();
-    if (typeFlt) filtered = filtered.filter(t => t.type === typeFlt);
-    if (searchFlt) filtered = filtered.filter(t => (t.note && t.note.toLowerCase().includes(searchFlt)) || (t.category && t.category.toLowerCase().includes(searchFlt)));
-    // Jika sedang di halaman Mingguan/Bulanan, PDF hanya berisi periode yang sedang dipilih (bukan semua riwayat)
-    if (activePage === 'mingguan') {
-        const wsel = document.getElementById('week-sel');
-        const activeWeek = wsel && wsel.dataset.active;
-        if (activeWeek) filtered = filtered.filter(t => wkKey(t.date) === activeWeek);
-    } else if (activePage === 'bulanan') {
-        const msel = document.getElementById('month-sel');
-        const activeMonth = msel && msel.dataset.active;
-        if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
-    } else if (activePage === 'tahunan') {
-        const ysel = document.getElementById('year-sel');
-        const activeYear = ysel && ysel.dataset.active;
-        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
-    } else if (activePage === 'riwayat') {
-        const rysel = document.getElementById('riwayat-year-sel');
-        const activeRYear = rysel && rysel.dataset.active;
-        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
-    }
-    // Urutkan kronologis (lama ke baru) supaya rapi per bulan lalu per minggu
-    filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const typeLabel = { income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer', debt: 'Hutang', recv: 'Piutang' };
-    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const s = calcSum(filtered);
-
-    const { jsPDF } = window.jspdf;
-    const docPdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
-    const pageWidth = docPdf.internal.pageSize.getWidth();
-    const pageHeight = docPdf.internal.pageSize.getHeight();
-    const marginL = 30, marginR = 30;
-
-    docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(5.5);
-    docPdf.setTextColor(20, 20, 20);
-    docPdf.text('RHN CAPITAL ARUS KEUANGAN', pageWidth / 2, 22, { align: 'center' });
-
-    docPdf.setFont('helvetica', 'normal');
-    docPdf.setFontSize(3.5);
-    docPdf.setTextColor(100, 100, 100);
-    const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
-    const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    docPdf.text(genInfo, pageWidth / 2, 33, { align: 'center' });
-
-    docPdf.setDrawColor(220, 220, 220);
-    docPdf.line(marginL, 40, pageWidth - marginR, 40);
-
-    // Kelompokkan per bulan (urut kronologis), lalu di dalam tiap bulan dikelompokkan per minggu
-    const monthMap = {};
-    const monthOrder = [];
-    filtered.forEach(t => {
-        const mKey = t.date.slice(0, 7);
-        if (!monthMap[mKey]) { monthMap[mKey] = []; monthOrder.push(mKey); }
-        monthMap[mKey].push(t);
-    });
-
-    let currentY = 46;
-    let rowCounter = 0;
-
-    monthOrder.forEach((mKey, mIdx) => {
-        // Satu halaman = satu bulan: setiap bulan baru selalu mulai di halaman baru
-        if (mIdx > 0) {
-            docPdf.addPage();
-            currentY = 22;
-        }
-
-        const monthArr = monthMap[mKey];
-        const monthLabel = new Date(mKey + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).toUpperCase();
-        const monthStartDate = new Date(mKey + '-01');
-        const monthEndDate = new Date(parseInt(mKey.slice(0, 4)), parseInt(mKey.slice(5, 7)), 0);
-
-        docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(5.25);
-        docPdf.setTextColor(20, 20, 20);
-        docPdf.text(monthLabel, marginL, currentY);
-        docPdf.setDrawColor(230, 230, 230);
-        docPdf.line(marginL, currentY + 4, pageWidth - marginR, currentY + 4);
-        currentY += 9;
-
-        // Susun baris per minggu (Senin s/d Minggu), sisipkan 1 baris kosong (jeda) antar minggu
-        const weekMap = {};
-        const weekOrder = [];
-        monthArr.forEach(t => {
-            const wKey = wkKey(t.date);
-            if (!weekMap[wKey]) { weekMap[wKey] = []; weekOrder.push(wKey); }
-            weekMap[wKey].push(t);
-        });
-
-        const bodyRows = [];
-        weekOrder.forEach((wKey, wIdx) => {
-            let lastDateStr = null;
-            weekMap[wKey].forEach(t => {
-                rowCounter++;
-                const curDateStr = new Date(t.date).toDateString();
-                const isSameDay = curDateStr === lastDateStr;
-                // Nama hari cukup ditulis sekali di baris pertama tiap hari, baris berikutnya dikosongkan (efek "cabang")
-                const hariCell = isSameDay ? '' : dayNames[new Date(t.date).getDay()];
-                lastDateStr = curDateStr;
-                bodyRows.push([
-                    String(rowCounter),
-                    hariCell,
-                    fmtDate(t.date),
-                    fmtTime(t.date),
-                    typeLabel[t.type] || t.type,
-                    t.category || '-',
-                    t.wallet || '-',
-                    t.walletTo || '-',
-                    (t.note && t.note !== '-') ? t.note : '-',
-                    (t.type === 'income' || t.type === 'recv' ? '+ ' : t.type === 'transfer' ? '' : '- ') + 'Rp ' + new Intl.NumberFormat('id-ID').format(t.amount)
-                ]);
-            });
-            // Jeda antar minggu, sekaligus jadi ruang untuk total pemasukan/pengeluaran/saldo bersih minggu itu
-            if (wIdx !== weekOrder.length - 1) {
-                let wStart = new Date(wKey);
-                let wEnd = new Date(wKey); wEnd.setDate(wEnd.getDate() + 6);
-                // Batasi rentang tanggal minggu supaya tidak menampilkan tanggal dari bulan lain (kalau minggu itu memotong batas bulan)
-                if (wStart < monthStartDate) wStart = monthStartDate;
-                if (wEnd > monthEndDate) wEnd = monthEndDate;
-                const wLabel = 'MINGGU ' + (wIdx + 1) + ' (' + fmtDate(wStart.toISOString()) + ' - ' + fmtDate(wEnd.toISOString()) + ')';
-                const ws = calcSum(weekMap[wKey]);
-                bodyRows.push([
-                    { content: wLabel, colSpan: 4, styles: { halign: 'left', fontStyle: 'bold', fillColor: [255, 248, 227], textColor: [120, 90, 10] } },
-                    { content: 'Masuk: Rp ' + new Intl.NumberFormat('id-ID').format(ws.inc), colSpan: 2, styles: { halign: 'right', fontStyle: 'bold', fillColor: [255, 248, 227], textColor: [16, 150, 105] } },
-                    { content: 'Keluar: Rp ' + new Intl.NumberFormat('id-ID').format(ws.exp), colSpan: 2, styles: { halign: 'right', fontStyle: 'bold', fillColor: [255, 248, 227], textColor: [220, 90, 90] } },
-                    { content: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ws.bal), colSpan: 2, styles: { halign: 'right', fontStyle: 'bold', fillColor: [255, 248, 227], textColor: [20, 20, 20] } }
-                ]);
-            }
-        });
-
-        // Menu Bulanan: font & tabel DIBESARKAN, disamakan dengan ukuran mingguan (dimaksimalkan),
-        // dan TIDAK dipaksa muat 1 halaman lagi — kalau 1 bulan datanya banyak, boleh sampai
-        // beberapa halaman (autoTable otomatis lanjut ke halaman berikutnya).
-        // Lebar tiap kolom (termasuk No) DIPERLEBAR supaya tidak ada judul/isi kolom yang terpotong "...".
+        // Ukuran font & tabel DIBESARKAN (disamakan dengan ukuran laporan Bulanan yang asli) supaya
+        // tulisan tetap besar & jelas dibaca. TIDAK dipaksa muat 1 halaman lagi — kalau 1 minggu
+        // datanya banyak, boleh sampai beberapa halaman (autoTable otomatis lanjut ke halaman berikutnya).
         let cellPad = 4;
         let bodyFontSize = 11;
         let headFontSize = 11.8;
@@ -4949,40 +4818,40 @@ window.exportPDFBulanan = function() {
             margin: { left: marginL, right: marginR }
         });
 
-        currentY = docPdf.lastAutoTable.finalY + 15;
+        currentY = docPdf.lastAutoTable.finalY + 16;
 
-        // Rekap pemasukan, pengeluaran, saldo bersih untuk bulan ini
-        const ms = calcSum(monthArr);
+        // Rekap pemasukan, pengeluaran, saldo bersih untuk minggu ini
+        const ws = calcSum(weekArr);
         docPdf.setFont('helvetica', 'bold');
-        docPdf.setFontSize(5.5);
+        docPdf.setFontSize(9);
         drawCenteredSummaryRow(docPdf, [
-            { text: 'Pemasukan ' + monthLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ms.inc), color: [16, 185, 129] },
-            { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ms.exp), color: [248, 113, 113] },
-            { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ms.bal), color: [20, 20, 20] }
+            { text: 'Pemasukan ' + weekLabel + ': Rp ' + new Intl.NumberFormat('id-ID').format(ws.inc), color: [16, 185, 129] },
+            { text: 'Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(ws.exp), color: [248, 113, 113] },
+            { text: 'Saldo Bersih: Rp ' + new Intl.NumberFormat('id-ID').format(ws.bal), color: [20, 20, 20] }
         ], currentY, pageWidth / 2);
 
-        currentY += 24;
+        currentY += 26;
     });
 
-    // Total keseluruhan semua riwayat, ditulis paling bawah setelah semua tabel bulan
-    if (currentY > pageHeight - 90) {
+    // Total keseluruhan semua riwayat, ditulis paling bawah setelah semua tabel minggu
+    if (currentY > pageHeight - 100) {
         docPdf.addPage();
-        currentY = 50;
+        currentY = 54;
     } else {
-        currentY += 6;
+        currentY += 8;
     }
     docPdf.setDrawColor(20, 20, 20);
     docPdf.setLineWidth(1);
     docPdf.line(marginL, currentY, pageWidth - marginR, currentY);
-    currentY += 22;
+    currentY += 24;
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setFontSize(7);
+    docPdf.setFontSize(11);
     docPdf.setTextColor(20, 20, 20);
     docPdf.text('TOTAL SELURUH RIWAYAT', marginL, currentY);
-    currentY += 20;
+    currentY += 22;
 
-    docPdf.setFontSize(6.5);
+    docPdf.setFontSize(9.5);
     drawCenteredSummaryRow(docPdf, [
         { text: 'Total Pemasukan: Rp ' + new Intl.NumberFormat('id-ID').format(s.inc), color: [16, 185, 129] },
         { text: 'Total Pengeluaran: Rp ' + new Intl.NumberFormat('id-ID').format(s.exp), color: [248, 113, 113] },
@@ -4990,17 +4859,18 @@ window.exportPDFBulanan = function() {
     ], currentY, pageWidth / 2);
 
     // Nomor halaman di seluruh halaman dokumen
-    const totalPagesM = docPdf.internal.getNumberOfPages();
-    for (let p = 1; p <= totalPagesM; p++) {
+    const totalPages = docPdf.internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
         docPdf.setPage(p);
         docPdf.setFont('helvetica', 'normal');
-        docPdf.setFontSize(4);
+        docPdf.setFontSize(5.5);
         docPdf.setTextColor(150, 150, 150);
-        docPdf.text('RHN CAPITAL · Halaman ' + p + ' / ' + totalPagesM, pageWidth / 2, pageHeight - 16, { align: 'center' });
+        docPdf.text('RHN CAPITAL · Halaman ' + p + ' / ' + totalPages, pageWidth / 2, pageHeight - 16, { align: 'center' });
     }
 
-    docPdf.save('RHN_Capital_Laporan_Keuangan_Bulanan_' + new Date().toISOString().slice(0, 10) + '.pdf');
+    docPdf.save('RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
 };
+
 
 // Export Excel (.xlsx) — struktur & warna tulisan mengikuti PDF: dikelompokkan per minggu,
 // tiap minggu ada tabel transaksi + rekap Pemasukan/Pengeluaran/Saldo Bersih, lalu total keseluruhan di baris paling akhir.
@@ -5190,241 +5060,6 @@ window.exportExcel = async function() {
     URL.revokeObjectURL(url);
 };
 
-// Export Excel versi BULANAN — dikelompokkan per bulan, di dalam tiap bulan tetap dipecah per minggu
-// (baris jeda kuning berisi rekap mingguan), lalu rekap bulan di bawah tabel, dan total keseluruhan di baris paling akhir.
-window.exportExcelBulanan = async function() {
-    if (txs.length === 0) return Swal.fire({ icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)' });
-    if (!window.ExcelJS) return Swal.fire({ icon: 'error', title: 'Gagal Membuat Excel', text: 'Library Excel belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
-
-    const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
-    const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.trim().toLowerCase() : '';
-    let filtered = txs.slice();
-    if (typeFlt) filtered = filtered.filter(t => t.type === typeFlt);
-    if (searchFlt) filtered = filtered.filter(t => (t.note && t.note.toLowerCase().includes(searchFlt)) || (t.category && t.category.toLowerCase().includes(searchFlt)));
-    if (activePage === 'mingguan') {
-        const wsel = document.getElementById('week-sel');
-        const activeWeek = wsel && wsel.dataset.active;
-        if (activeWeek) filtered = filtered.filter(t => wkKey(t.date) === activeWeek);
-    } else if (activePage === 'bulanan') {
-        const msel = document.getElementById('month-sel');
-        const activeMonth = msel && msel.dataset.active;
-        if (activeMonth) filtered = filtered.filter(t => t.date.slice(0, 7) === activeMonth);
-    } else if (activePage === 'tahunan') {
-        const ysel = document.getElementById('year-sel');
-        const activeYear = ysel && ysel.dataset.active;
-        if (activeYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeYear);
-    } else if (activePage === 'riwayat') {
-        const rysel = document.getElementById('riwayat-year-sel');
-        const activeRYear = rysel && rysel.dataset.active;
-        if (activeRYear) filtered = filtered.filter(t => t.date.slice(0, 4) === activeRYear);
-    }
-    filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const typeLabel = { income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer', debt: 'Hutang', recv: 'Piutang' };
-    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const s = calcSum(filtered);
-    const fmtRp = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(n);
-
-    const C_DARK = 'FF111114';
-    const C_GOLD = 'FFFBBF24';
-    const C_ALT = 'FFF6F7F9';
-    const C_GREEN = 'FF10B981';
-    const C_RED = 'FFF87171';
-    const C_TEXT = 'FF141414';
-    const C_GREY = 'FF646464';
-    const C_WEEKFILL = 'FFFFF8E3';
-    const C_WEEKGREEN = 'FF109669';
-    const C_WEEKRED = 'FFDC5A5A';
-    const C_BORDER = { style: 'thin', color: { argb: 'FFE1E1E1' } };
-
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'RHN CAPITAL';
-    const sheet = workbook.addWorksheet('Laporan Bulanan', { pageSetup: { orientation: 'landscape', fitToWidth: 1, fitToHeight: 0 } });
-    sheet.columns = [
-        { width: 6 }, { width: 10 }, { width: 12 }, { width: 9 }, { width: 14 },
-        { width: 18 }, { width: 16 }, { width: 16 }, { width: 36 }, { width: 18 }
-    ];
-
-    sheet.mergeCells(1, 1, 1, 10);
-    const titleCell = sheet.getCell(1, 1);
-    titleCell.value = 'RHN CAPITAL ARUS KEUANGAN';
-    titleCell.font = { name: 'Calibri', size: 18, bold: true, color: { argb: C_TEXT } };
-    titleCell.alignment = { horizontal: 'center' };
-
-    const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
-    sheet.mergeCells(2, 1, 2, 10);
-    const infoCell = sheet.getCell(2, 1);
-    infoCell.value = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
-    infoCell.font = { name: 'Calibri', size: 11, color: { argb: C_GREY } };
-    infoCell.alignment = { horizontal: 'center' };
-
-    // Kelompokkan per bulan, lalu di dalam tiap bulan dikelompokkan per minggu
-    const monthMap = {};
-    const monthOrder = [];
-    filtered.forEach(t => {
-        const mKey = t.date.slice(0, 7);
-        if (!monthMap[mKey]) { monthMap[mKey] = []; monthOrder.push(mKey); }
-        monthMap[mKey].push(t);
-    });
-
-    const headerLabels = ['No', 'Hari', 'Tanggal', 'Waktu', 'Tipe', 'Kategori', 'Dompet Asal', 'Dompet Tujuan', 'Keterangan', 'Nominal'];
-    let rowIdx = 4;
-    let rowCounter = 0;
-
-    monthOrder.forEach((mKey) => {
-        const monthArr = monthMap[mKey];
-        const monthLabel = new Date(mKey + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }).toUpperCase();
-        const monthStartDate = new Date(mKey + '-01');
-        const monthEndDate = new Date(parseInt(mKey.slice(0, 4)), parseInt(mKey.slice(5, 7)), 0);
-
-        sheet.mergeCells(rowIdx, 1, rowIdx, 10);
-        const mLabelCell = sheet.getCell(rowIdx, 1);
-        mLabelCell.value = monthLabel;
-        mLabelCell.font = { name: 'Calibri', size: 13, bold: true, color: { argb: C_TEXT } };
-        rowIdx++;
-
-        const headRow = sheet.getRow(rowIdx);
-        headerLabels.forEach((h, i) => {
-            const c = headRow.getCell(i + 1);
-            c.value = h;
-            c.font = { name: 'Calibri', size: 12, bold: true, color: { argb: C_GOLD } };
-            c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_DARK } };
-            c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-            c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
-        });
-        rowIdx++;
-
-        // Kelompokkan minggu di dalam bulan ini, sisipkan baris jeda kuning berisi rekap mingguan
-        const weekMap = {};
-        const weekOrder = [];
-        monthArr.forEach(t => {
-            const wKey = wkKey(t.date);
-            if (!weekMap[wKey]) { weekMap[wKey] = []; weekOrder.push(wKey); }
-            weekMap[wKey].push(t);
-        });
-
-        weekOrder.forEach((wKey, wIdx) => {
-            let lastDateStr = null;
-            weekMap[wKey].forEach((t, tIdx) => {
-                rowCounter++;
-                const curDateStr = new Date(t.date).toDateString();
-                const isSameDay = curDateStr === lastDateStr;
-                const hariCell = isSameDay ? '' : dayNames[new Date(t.date).getDay()];
-                lastDateStr = curDateStr;
-                const nominalPrefix = (t.type === 'income' || t.type === 'recv') ? '+ ' : (t.type === 'transfer' ? '' : '- ');
-                const rowVals = [
-                    rowCounter, hariCell, fmtDate(t.date), fmtTime(t.date), typeLabel[t.type] || t.type,
-                    t.category || '-', t.wallet || '-', t.walletTo || '-', (t.note && t.note !== '-') ? t.note : '-',
-                    nominalPrefix + fmtRp(t.amount)
-                ];
-                const row = sheet.getRow(rowIdx);
-                rowVals.forEach((v, i) => {
-                    const c = row.getCell(i + 1);
-                    c.value = v;
-                    c.font = { name: 'Calibri', size: 11, bold: i === 9, color: { argb: i === 9 ? ((t.type === 'income' || t.type === 'recv') ? C_GREEN : (t.type === 'transfer' ? C_TEXT : C_RED)) : C_TEXT } };
-                    c.alignment = { horizontal: i === 8 ? 'left' : (i === 9 ? 'right' : 'center'), vertical: 'middle', wrapText: i === 8 };
-                    c.border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
-                    if (tIdx % 2 === 1) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_ALT } };
-                });
-                rowIdx++;
-            });
-
-            // Baris jeda kuning: rekap pemasukan/pengeluaran/saldo bersih minggu itu
-            if (wIdx !== weekOrder.length - 1) {
-                let wStart = new Date(wKey);
-                let wEnd = new Date(wKey); wEnd.setDate(wEnd.getDate() + 6);
-                if (wStart < monthStartDate) wStart = monthStartDate;
-                if (wEnd > monthEndDate) wEnd = monthEndDate;
-                const wLabel = 'MINGGU ' + (wIdx + 1) + ' (' + fmtDate(wStart.toISOString()) + ' - ' + fmtDate(wEnd.toISOString()) + ')';
-                const ws = calcSum(weekMap[wKey]);
-                const jedaRow = sheet.getRow(rowIdx);
-                sheet.mergeCells(rowIdx, 1, rowIdx, 4);
-                jedaRow.getCell(1).value = wLabel;
-                jedaRow.getCell(1).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: 'FF785A0A' } };
-                jedaRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
-
-                sheet.mergeCells(rowIdx, 5, rowIdx, 6);
-                jedaRow.getCell(5).value = 'Masuk: ' + fmtRp(ws.inc);
-                jedaRow.getCell(5).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_WEEKGREEN } };
-                jedaRow.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
-
-                sheet.mergeCells(rowIdx, 7, rowIdx, 8);
-                jedaRow.getCell(7).value = 'Keluar: ' + fmtRp(ws.exp);
-                jedaRow.getCell(7).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_WEEKRED } };
-                jedaRow.getCell(7).alignment = { horizontal: 'right', vertical: 'middle' };
-
-                sheet.mergeCells(rowIdx, 9, rowIdx, 10);
-                jedaRow.getCell(9).value = 'Saldo Bersih: ' + fmtRp(ws.bal);
-                jedaRow.getCell(9).font = { name: 'Calibri', size: 10.5, bold: true, color: { argb: C_TEXT } };
-                jedaRow.getCell(9).alignment = { horizontal: 'right', vertical: 'middle' };
-
-                for (let ci = 1; ci <= 10; ci++) {
-                    jedaRow.getCell(ci).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_WEEKFILL } };
-                    jedaRow.getCell(ci).border = { top: C_BORDER, left: C_BORDER, right: C_BORDER, bottom: C_BORDER };
-                }
-                rowIdx++;
-            }
-        });
-
-        rowIdx++;
-
-        // Rekap pemasukan, pengeluaran, saldo bersih untuk bulan ini
-        const ms = calcSum(monthArr);
-        const sumRow = sheet.getRow(rowIdx);
-        sheet.mergeCells(rowIdx, 1, rowIdx, 4);
-        sumRow.getCell(1).value = 'Pemasukan ' + monthLabel + ': ' + fmtRp(ms.inc);
-        sumRow.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_GREEN } };
-        sumRow.getCell(1).alignment = { horizontal: 'center' };
-
-        sheet.mergeCells(rowIdx, 5, rowIdx, 7);
-        sumRow.getCell(5).value = 'Pengeluaran: ' + fmtRp(ms.exp);
-        sumRow.getCell(5).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_RED } };
-        sumRow.getCell(5).alignment = { horizontal: 'center' };
-
-        sheet.mergeCells(rowIdx, 8, rowIdx, 10);
-        sumRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(ms.bal);
-        sumRow.getCell(8).font = { name: 'Calibri', size: 11, bold: true, color: { argb: C_TEXT } };
-        sumRow.getCell(8).alignment = { horizontal: 'center' };
-
-        rowIdx += 2;
-    });
-
-    // Total keseluruhan semua riwayat, ditulis di baris paling akhir
-    rowIdx++;
-    sheet.mergeCells(rowIdx, 1, rowIdx, 10);
-    const totTitle = sheet.getCell(rowIdx, 1);
-    totTitle.value = 'TOTAL SELURUH RIWAYAT';
-    totTitle.font = { name: 'Calibri', size: 14, bold: true, color: { argb: C_TEXT } };
-    totTitle.alignment = { horizontal: 'left' };
-    rowIdx++;
-
-    const totRow = sheet.getRow(rowIdx);
-    sheet.mergeCells(rowIdx, 1, rowIdx, 4);
-    totRow.getCell(1).value = 'Total Pemasukan: ' + fmtRp(s.inc);
-    totRow.getCell(1).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_GREEN } };
-    totRow.getCell(1).alignment = { horizontal: 'center' };
-
-    sheet.mergeCells(rowIdx, 5, rowIdx, 7);
-    totRow.getCell(5).value = 'Total Pengeluaran: ' + fmtRp(s.exp);
-    totRow.getCell(5).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_RED } };
-    totRow.getCell(5).alignment = { horizontal: 'center' };
-
-    sheet.mergeCells(rowIdx, 8, rowIdx, 10);
-    totRow.getCell(8).value = 'Saldo Bersih: ' + fmtRp(s.bal);
-    totRow.getCell(8).font = { name: 'Calibri', size: 12.5, bold: true, color: { argb: C_TEXT } };
-    totRow.getCell(8).alignment = { horizontal: 'center' };
-
-    const bufferM = await workbook.xlsx.writeBuffer();
-    const blobM = new Blob([bufferM], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const urlM = URL.createObjectURL(blobM);
-    const linkM = document.createElement('a');
-    linkM.href = urlM;
-    linkM.download = 'RHN_Capital_Laporan_Keuangan_Bulanan_' + new Date().toISOString().slice(0, 10) + '.xlsx';
-    document.body.appendChild(linkM);
-    linkM.click();
-    document.body.removeChild(linkM);
-    URL.revokeObjectURL(urlM);
-};
 
 window.exportCSV = function() {
     if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
