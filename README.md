@@ -397,11 +397,13 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .chart-filter-badge span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chart-filter-badge .chart-filter-clear { background: var(--bg2); border: 1px solid var(--border2); color: var(--text2); border-radius: 100px; padding: 6px 12px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .chart-filter-badge .chart-filter-clear:active { opacity: 0.7; }
-.cat-chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
-.cat-chip { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: 100px; font-size: 10px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text2); white-space: nowrap; transition: 0.2s; }
+.cat-chip-wrap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.cat-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 10px 12px; border: 1px solid var(--border2); border-radius: 14px; font-size: 10px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text2); transition: 0.2s; overflow: hidden; min-width: 0; }
 .cat-chip:hover { border-color: var(--gold); }
 .cat-chip.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.12); color: var(--gold); }
-.cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', monospace; font-size: 9px; opacity: 0.85; }
+.cat-chip > span:first-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text); }
+.cat-chip.active > span:first-child { color: var(--gold); }
+.cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.9; white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
 
 /* ==========================================================================
@@ -3891,13 +3893,28 @@ window.editGoal = async function(idx) {
     });
 };
 
+// Normalisasi berbagai kemungkinan format tanggal (ISO dengan detik/Z, epoch, dll)
+// jadi format "YYYY-MM-DDTHH:mm" (waktu lokal) yang dikenali input datetime-local,
+// supaya tanggal & jam asli transaksi selalu berhasil tampil saat mode edit dibuka.
+function toDatetimeLocalValue(raw) {
+    if (!raw) return nowISO();
+    // Kalau sudah persis format "YYYY-MM-DDTHH:mm", langsung pakai apa adanya.
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) return raw;
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return nowISO();
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d - tzOffset).toISOString().slice(0, 16);
+}
+
 window.editTx = function(id) { 
     const t = txs.find(x => x.id === id); if (!t) return; 
     editId = id; selType(t.type); document.getElementById('f-amount').value = t.amount; 
     setTimeout(() => { if (document.getElementById('f-cat')) { document.getElementById('f-cat').value = t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } }, 10); 
     if (document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } 
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
-    document.getElementById('f-note').value = t.note === '-' ? '' : t.note; document.getElementById('f-date').value = t.date; document.getElementById('save-btn').textContent = 'UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display = 'block'; 
+    // Tanggal & jam SELALU diisi persis sama seperti transaksi aslinya (t.date).
+    // Kalau memang mau diubah, silakan diubah manual lewat field ini atau tombol "SEKARANG".
+    document.getElementById('f-note').value = t.note === '-' ? '' : t.note; document.getElementById('f-date').value = toDatetimeLocalValue(t.date); document.getElementById('save-btn').textContent = 'UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display = 'block'; 
     switchPage('dashboard'); 
     setTimeout(() => { 
         const formCard = document.getElementById('f-amount') ? document.getElementById('f-amount').closest('.card') : null; 
@@ -4513,7 +4530,7 @@ function renderRiwayatCategoryChips(yearData, activeYr) {
         const isActive = cur && cur.key === key;
         const isIncome = c.type === 'income' || c.type === 'recv';
         return `<div class="cat-chip ${isActive ? 'active' : ''}" data-idx="${i}">
-            <span>${escapeHTML(c.category)}</span>
+            <span title="${escapeHTML(c.category)}">${escapeHTML(c.category)}</span>
             <span class="cat-chip-amt" style="color:${isIncome ? 'var(--green2)' : 'var(--red2)'};">${isIncome ? '+' : '-'}${fmtFull(c.total)}</span>
         </div>`;
     }).join('');
