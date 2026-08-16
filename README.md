@@ -5114,6 +5114,41 @@ document.addEventListener('gesturestart', function (e) {
     e.preventDefault();
 });
 
+// Perbaikan bug: grafik jadi rusak/berantakan setelah tab sempat disembunyikan
+// (misalnya saat unduh/buka PDF atau Excel lalu kembali lagi ke halaman web).
+// Saat tab hidden, ukuran canvas bisa berubah jadi 0 sehingga Chart.js kehilangan
+// dimensi aslinya. Saat tab terlihat kembali, semua instance chart yang aktif
+// dipaksa resize + redraw agar tampilannya normal lagi.
+function resizeAllCharts() {
+    Object.keys(charts).forEach(function (id) {
+        const ch = charts[id];
+        if (ch && typeof ch.resize === 'function') {
+            try {
+                ch.resize();
+                ch.update('none');
+            } catch (e) {}
+        }
+    });
+}
+
+document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) {
+        requestAnimationFrame(function () {
+            requestAnimationFrame(resizeAllCharts);
+        });
+    }
+});
+
+window.addEventListener('pageshow', function () {
+    requestAnimationFrame(function () {
+        requestAnimationFrame(resizeAllCharts);
+    });
+});
+
+window.addEventListener('focus', function () {
+    requestAnimationFrame(resizeAllCharts);
+});
+
 </script>
 </body>
 </html>
