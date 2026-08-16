@@ -1108,7 +1108,12 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
 
       const response = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+              "Content-Type": "application/json",
+              "x-api-key": "GANTI_DENGAN_API_KEY_ANTHROPIC_ANDA",
+              "anthropic-version": "2023-06-01",
+              "anthropic-dangerous-direct-browser-access": "true"
+          },
           body: JSON.stringify({
               model: "claude-sonnet-4-6",
               max_tokens: 4096,
