@@ -2560,6 +2560,44 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+    document.getElementById('app-pin').style.display = 'block';
+    if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    const secRef = doc(db, 'users', user.uid, 'settings', 'security');
+    try {
+        const secSnap = await getDoc(secRef); 
+        document.getElementById('app-pin').style.display = 'block';
+        if (!secSnap.exists() || !secSnap.data().pin) { 
+            if (!window.appUnlocked) {
+                document.getElementById('app-screen').style.display = 'none'; 
+                document.getElementById('pin-screen').style.display = 'flex'; 
+                document.getElementById('pin-title').textContent = 'Buat PIN Baru'; 
+                document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk akses cepat'; 
+                document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
+                window.pinMode = 'setup'; 
+                window.userCloudPin = null; 
+                setLoading(false); 
+                if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+            }
+        } else { 
+            window.userCloudPin = secSnap.data().pin; 
+            localStorage.setItem('local_pin_rhn', window.userCloudPin);
+            if (!window.appUnlocked) {
+                document.getElementById('app-screen').style.display = 'none'; 
+                document.getElementById('pin-screen').style.display = 'flex'; 
+                document.getElementById('pin-title').textContent = 'Masukkan PIN'; 
+                document.getElementById('pin-sub').textContent = 'Keamanan aktif'; 
+                document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; 
+                window.pinMode = 'verify'; 
+                setLoading(false); 
+                if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+            } else {
+                unlockApp();
+            }
+        }
+    } catch(err) { console.error(err); setLoading(false); }
+    if(window.resetIdle) window.resetIdle();
     
     try {
         await setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
@@ -2628,40 +2666,7 @@ onAuthStateChanged(auth, async user => {
     setTimeout(() => { window.updatePrefCategories(false); if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); } }, 10);
     setTimeout(() => { window.isAppLoading = false; }, 300); 
     
-    const secRef = doc(db, 'users', user.uid, 'settings', 'security');
-    try {
-        const secSnap = await getDoc(secRef); 
-        document.getElementById('app-pin').style.display = 'block';
-        if (!secSnap.exists() || !secSnap.data().pin) { 
-            if (!window.appUnlocked) {
-                document.getElementById('app-screen').style.display = 'none'; 
-                document.getElementById('pin-screen').style.display = 'flex'; 
-                document.getElementById('pin-title').textContent = 'Buat PIN Baru'; 
-                document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk akses cepat'; 
-                document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
-                window.pinMode = 'setup'; 
-                window.userCloudPin = null; 
-                setLoading(false); 
-                if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
-            }
-        } else { 
-            window.userCloudPin = secSnap.data().pin; 
-            localStorage.setItem('local_pin_rhn', window.userCloudPin);
-            if (!window.appUnlocked) {
-                document.getElementById('app-screen').style.display = 'none'; 
-                document.getElementById('pin-screen').style.display = 'flex'; 
-                document.getElementById('pin-title').textContent = 'Masukkan PIN'; 
-                document.getElementById('pin-sub').textContent = 'Keamanan aktif'; 
-                document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; 
-                window.pinMode = 'verify'; 
-                setLoading(false); 
-                if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
-            } else {
-                unlockApp();
-            }
-        }
-    } catch(err) { console.error(err); setLoading(false); }
-    if(window.resetIdle) window.resetIdle();
+    
   } else {
     currentUser = null; 
     localStorage.removeItem('last_uid_rhn'); 
