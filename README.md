@@ -1365,6 +1365,42 @@ body.global-privacy #xau-idr-gr {
   </div>
   
   <div class="set-group">
+    <div class="set-title">🛡️ BACKUP & PEMULIHAN DATA</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Backup Otomatis Harian</div>
+        <div class="set-sub">Data disimpan otomatis ke cloud setiap hari sekali</div>
+      </div>
+      <select id="ext_autobackup" class="set-select" onchange="saveExtraPrefs()">
+        <option value="on">Aktif</option>
+        <option value="off">Tidak Aktif</option>
+      </select>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Status Backup</div>
+        <div class="set-sub" id="last-backup-info">Belum Ada Backup</div>
+      </div>
+      <button class="set-action" style="background:var(--green2); color:#000; border:none;" onclick="performCloudBackup(false)">BACKUP SEKARANG</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Unduh File Backup (.json)</div>
+        <div class="set-sub">Simpan salinan seluruh data ke perangkat, instan</div>
+      </div>
+      <button class="set-action" onclick="downloadBackupFile()">UNDUH FILE</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Pulihkan dari File Backup</div>
+        <div class="set-sub">Impor kembali data dari file .json backup</div>
+      </div>
+      <input type="file" id="restore-file-input" accept="application/json,.json" style="display:none;" onchange="restoreBackupFile(event)">
+      <button class="set-action" style="background:var(--blue); color:#fff; border:none;" onclick="triggerRestoreFile()">PULIHKAN</button>
+    </div>
+  </div>
+
+  <div class="set-group">
     <div class="set-title">💾 MANAJEMEN DATA</div>
     <div class="set-item">
       <div>
@@ -1693,7 +1729,8 @@ window.userBudgets = {};
 let appPrefs = { type: 'income', category: '', wallet: 'Kas Tunai' };
 let extraPrefs = { 
     ext_autolock: 'off', ext_warnbalance: 'off', ext_shortnum: 'off', ext_budget: 'off', 
-    ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off'
+    ext_hidezero: 'off', ext_walletpct: 'off', ext_debtbadge: 'off', ext_antiintip: 'off',
+    ext_autobackup: 'on'
 };
 
 window.initTransferAccount = async function() {
@@ -2345,7 +2382,7 @@ window.doAuth = async function() {
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { for (let t of txs) { await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', t.id)); } Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -2471,7 +2508,7 @@ window.savePreferences = async function() {
 
 window.saveExtraPrefs = async function() { 
     if (!currentUser || window.isAppLoading) return; 
-    extraPrefs = { ext_autolock: document.getElementById('ext_autolock').value, ext_warnbalance: document.getElementById('ext_warnbalance').value, ext_shortnum: document.getElementById('ext_shortnum').value, ext_budget: document.getElementById('ext_budget').value, ext_hidezero: document.getElementById('ext_hidezero').value, ext_walletpct: document.getElementById('ext_walletpct').value, ext_debtbadge: document.getElementById('ext_debtbadge').value, ext_antiintip: document.getElementById('ext_antiintip').value }; 
+    extraPrefs = { ext_autolock: document.getElementById('ext_autolock').value, ext_warnbalance: document.getElementById('ext_warnbalance').value, ext_shortnum: document.getElementById('ext_shortnum').value, ext_budget: document.getElementById('ext_budget').value, ext_hidezero: document.getElementById('ext_hidezero').value, ext_walletpct: document.getElementById('ext_walletpct').value, ext_debtbadge: document.getElementById('ext_debtbadge').value, ext_antiintip: document.getElementById('ext_antiintip').value, ext_autobackup: document.getElementById('ext_autobackup') ? document.getElementById('ext_autobackup').value : 'on' }; 
     localStorage.setItem('rhn_extra_prefs_v2_' + currentUser.uid, JSON.stringify(extraPrefs)); 
     try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { extraPrefs: extraPrefs }, { merge: true }); } catch(e) { console.error("Gagal nyimpan 7 fitur pengaturan ke cloud", e); } 
     if (extraPrefs.ext_antiintip === 'on') { document.body.classList.add('global-privacy'); } else { document.body.classList.remove('global-privacy'); } 
@@ -2584,7 +2621,9 @@ onAuthStateChanged(auth, async user => {
     } catch(err) { console.error("Gagal memproses transaksi rutin", err); }
 
     window.isAppLoading = true;
-    ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip'].forEach(id => { if (document.getElementById(id) && extraPrefs[id]) { document.getElementById(id).value = extraPrefs[id]; document.getElementById(id).dispatchEvent(new Event('change')); } });
+    ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip', 'ext_autobackup'].forEach(id => { if (document.getElementById(id) && extraPrefs[id]) { document.getElementById(id).value = extraPrefs[id]; document.getElementById(id).dispatchEvent(new Event('change')); } });
+    window.updateBackupInfoLabel();
+    setTimeout(() => { window.checkAutoBackup(); }, 1500);
     if (extraPrefs.ext_antiintip === 'on') { document.body.classList.add('global-privacy'); } else { document.body.classList.remove('global-privacy'); }
     setTimeout(() => { window.updatePrefCategories(false); if (window.selType && appPrefs && appPrefs.type) { selType(appPrefs.type); } else { selType('income'); } }, 10);
     setTimeout(() => { window.isAppLoading = false; }, 300); 
@@ -2705,6 +2744,7 @@ function unlockApp() {
 
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         listenTransactions(currentUser.uid); 
+        setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
         document.getElementById('user-name').textContent = 'Memuat...';
     }
@@ -5060,6 +5100,111 @@ window.exportExcel = async function() {
     URL.revokeObjectURL(url);
 };
 
+
+// ==========================================================================
+// BACKUP & PEMULIHAN DATA (Cloud otomatis harian + File .json instan)
+// ==========================================================================
+window.performCloudBackup = async function(silent) {
+    if (!currentUser) return;
+    try {
+        if (!silent) Swal.fire({ title: 'Membuat Backup...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
+        const payload = {
+            transactions: txs.concat(deletedTxs),
+            appPrefs: appPrefs, extraPrefs: extraPrefs,
+            budgets: window.userBudgets || {}, categories: window.userCats || [],
+            savingsGoals: window.savingsGoals || [], userQrisBase: window.userQrisBase || '',
+            backupAt: serverTimestamp(), count: txs.length
+        };
+        const todayId = nowISO().slice(0, 10);
+        await setDoc(doc(db, 'users', currentUser.uid, 'backups', todayId), payload);
+        localStorage.setItem('rhn_last_backup_' + currentUser.uid, todayId);
+        window.updateBackupInfoLabel();
+        if (!silent) Swal.fire({ position: 'center', icon: 'success', title: 'Backup Tersimpan!', text: 'Data aman tersimpan di cloud (' + todayId + ').', showConfirmButton: false, timer: 1200, background: 'var(--card)', color: 'var(--text)' });
+    } catch (e) {
+        console.error('Backup gagal', e);
+        if (!silent) Swal.fire({ icon: 'error', title: 'Backup Gagal', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+window.checkAutoBackup = function() {
+    if (!currentUser) return;
+    if (extraPrefs.ext_autobackup === 'off') return;
+    const lastB = localStorage.getItem('rhn_last_backup_' + currentUser.uid);
+    const todayId = nowISO().slice(0, 10);
+    if (lastB !== todayId) { window.performCloudBackup(true); }
+};
+
+window.updateBackupInfoLabel = function() {
+    const el = document.getElementById('last-backup-info');
+    if (!el || !currentUser) return;
+    const lastB = localStorage.getItem('rhn_last_backup_' + currentUser.uid);
+    el.textContent = lastB ? ('Backup Terakhir: ' + lastB + ' (Otomatis Tersimpan)') : 'Belum Ada Backup — akan dibuat otomatis hari ini';
+};
+
+window.downloadBackupFile = function() {
+    if (!currentUser) return;
+    const payload = {
+        exportedAt: new Date().toISOString(), account: currentUser.email,
+        transactions: txs.concat(deletedTxs), appPrefs: appPrefs, extraPrefs: extraPrefs,
+        budgets: window.userBudgets || {}, categories: window.userCats || [],
+        savingsGoals: window.savingsGoals || [], userQrisBase: window.userQrisBase || ''
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = 'rhn_capital_backup_' + nowISO().slice(0, 10) + '.json';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    Swal.fire({ position: 'center', icon: 'success', title: 'File Backup Diunduh!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)' });
+};
+
+window.triggerRestoreFile = function() {
+    const inp = document.getElementById('restore-file-input');
+    if (inp) inp.click();
+};
+
+window.restoreBackupFile = function(evt) {
+    if (!currentUser) return;
+    const file = evt.target.files && evt.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        let data;
+        try { data = JSON.parse(e.target.result); } catch (err) {
+            evt.target.value = '';
+            return Swal.fire({ icon: 'error', title: 'File Tidak Valid', text: 'Format file backup rusak atau bukan JSON.', background: 'var(--card)', color: 'var(--text)' });
+        }
+        const jumlah = Array.isArray(data.transactions) ? data.transactions.length : 0;
+        const res = await Swal.fire({
+            title: 'Pulihkan Backup?',
+            html: `File berisi <b>${jumlah}</b> transaksi.<br>Data akan <b>ditambahkan</b> ke akun aktif tanpa menghapus data yang sudah ada.`,
+            icon: 'warning', showCancelButton: true, confirmButtonText: 'PULIHKAN', cancelButtonText: 'Batal',
+            confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', background: 'var(--card)', color: 'var(--text)'
+        });
+        evt.target.value = '';
+        if (!res.isConfirmed) return;
+        Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
+        try {
+            const existingIds = new Set(txs.concat(deletedTxs).map(t => t.id));
+            const items = (data.transactions || []).filter(t => !t.id || !existingIds.has(t.id));
+            let batch = writeBatch(db); let opCount = 0; let total = 0;
+            for (const t of items) {
+                const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
+                cleanTx.createdAt = serverTimestamp();
+                const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+                batch.set(ref, cleanTx);
+                opCount++; total++;
+                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+            }
+            if (opCount > 0) await batch.commit();
+            if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
+            Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil dipulihkan.', background: 'var(--card)', color: 'var(--text)' });
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Pemulihan Gagal', text: err.message, background: 'var(--card)', color: 'var(--text)' });
+        }
+    };
+    reader.readAsText(file);
+};
 
 window.exportCSV = function() {
     if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
