@@ -59,7 +59,7 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
 /* Kunci lay out saat popup muncul agar tidak lompat */
@@ -78,21 +78,25 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
    ========================================================================== */
 button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
-.recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item {
-  transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.12s ease, border-color 0.12s ease,
-              box-shadow 0.12s ease, opacity 0.12s ease, color 0.1s ease !important;
+.recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
+.cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
+.admin-detail-btn {
+  transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.08s ease, border-color 0.08s ease,
+              box-shadow 0.08s ease, opacity 0.08s ease, color 0.06s ease !important;
   will-change: transform;
 }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
-.edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active {
+.edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active,
+.cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
+.admin-detail-btn:active {
   transform: scale(0.94);
-  transition-duration: 0.05s !important;
+  transition-duration: 0.03s !important;
 }
 .w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
   transform: scale(0.97);
-  transition-duration: 0.05s !important;
+  transition-duration: 0.03s !important;
 }
 /* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
 @media (hover: hover) and (pointer: fine) {
@@ -106,15 +110,15 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
-.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes activePulse { 0% { transform: scale(0.95); } 100% { transform: scale(1); } }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.15s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
-.page.active { animation: pageIn 0.12s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
-@keyframes pageIn { from { opacity: 0.4; } to { opacity: 1; } }
+.page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
+@keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -160,12 +164,12 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(0.96); opacity: 0; }
 }
-.swal2-popup.swal2-show { animation: swal2-show 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important; }
-.swal2-popup.swal2-hide { animation: swal2-hide 0.28s cubic-bezier(0.4, 0, 1, 1) !important; }
+.swal2-popup.swal2-show { animation: swal2-show 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important; }
+.swal2-popup.swal2-hide { animation: swal2-hide 0.14s cubic-bezier(0.4, 0, 1, 1) !important; }
 @keyframes swal2-backdrop-show { from { background: rgba(0,0,0,0); } to { background: var(--swal2-backdrop, rgba(0,0,0,.4)); } }
 @keyframes swal2-backdrop-hide { from { background: var(--swal2-backdrop, rgba(0,0,0,.4)); } to { background: rgba(0,0,0,0); } }
-.swal2-backdrop-show { animation: swal2-backdrop-show 0.35s cubic-bezier(0.22, 1, 0.36, 1) !important; }
-.swal2-backdrop-hide { animation: swal2-backdrop-hide 0.28s cubic-bezier(0.4, 0, 1, 1) !important; }
+.swal2-backdrop-show { animation: swal2-backdrop-show 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important; }
+.swal2-backdrop-hide { animation: swal2-backdrop-hide 0.14s cubic-bezier(0.4, 0, 1, 1) !important; }
 
 /* HEADER */
 .header-area { padding: 20px 24px; }
@@ -254,7 +258,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 }
 .m-sub { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 12px; flex-grow: 1; }
 .m-bar { height: 4px; background: var(--bg3); border-radius: 2px; width: 100%; overflow: hidden; }
-.m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.m-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 .inc .m-bar-fill { background: var(--green2); } .exp .m-bar-fill { background: var(--red2); }
 .bal .m-bar-fill { background: var(--border2); } .cnt .m-bar-fill { background: var(--blue); }
 
@@ -1721,7 +1725,7 @@ let editId = null;
 let __searchDebounceTimer = null;
 window.debouncedRenderAll = function() {
     if (__searchDebounceTimer) clearTimeout(__searchDebounceTimer);
-    __searchDebounceTimer = setTimeout(() => { window.renderAll(); }, 200);
+    __searchDebounceTimer = setTimeout(() => { window.renderAll(); }, 120);
 };
 let batchMode = false;
 window.userBudgets = {};
