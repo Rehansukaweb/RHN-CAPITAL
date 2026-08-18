@@ -4524,40 +4524,48 @@ window.approveBalanceRequest = async function(reqId) {
         return Swal.fire({icon:'warning', title:'Saldo Tidak Cukup', text:`Saldo ${srcWallet} kamu cuma ${fmtFull(freshWallets[srcWallet] || 0)}.`, background:'var(--card)', color:'var(--text)'});
     }
 
-    Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-    try {
-        const nowD = new Date().toISOString();
-        const batch = writeBatch(db);
-        const outRef = doc(collection(db, 'users', currentUser.uid, 'transactions'));
-        batch.set(outRef, {
-            type: 'expense', amount: r.amount, category: 'Transfer Saldo Keluar', wallet: srcWallet,
-            note: 'Setujui Permintaan Saldo dari ' + r.fromName, date: nowD, ownerEmail: currentUser.email,
-            createdAt: serverTimestamp(), isDeleted: false
-        });
-        const inRef = doc(collection(db, 'users', r.fromUid, 'transactions'));
-        batch.set(inRef, {
-            type: 'income', amount: r.amount, category: 'Transfer Saldo Masuk', wallet: r.myWallet || 'Kas Tunai',
-            note: 'Permintaan Saldo Disetujui oleh ' + (currentUser.displayName || currentUser.email.split('@')[0]), date: nowD,
-            ownerEmail: r.fromEmail, createdAt: serverTimestamp(), isDeleted: false
-        });
-        batch.update(doc(db, 'balance_requests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
-        await batch.commit();
-        Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(r.amount) + ' berhasil dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)'});
-        renderWalletTransferCard();
-    } catch(e) {
-        Swal.fire({icon:'error', title:'Gagal Memproses', text: e.message, background:'var(--card)', color:'var(--text)'});
-    }
+    // Respon instan: langsung tampilkan hasil ke approver tanpa nunggu round-trip
+    // server, lalu proses batch commit di background. Kalau ternyata gagal,
+    // baru munculkan error menyusul.
+    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(r.amount) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+    (async () => {
+        try {
+            const nowD = new Date().toISOString();
+            const batch = writeBatch(db);
+            const outRef = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+            batch.set(outRef, {
+                type: 'expense', amount: r.amount, category: 'Transfer Saldo Keluar', wallet: srcWallet,
+                note: 'Setujui Permintaan Saldo dari ' + r.fromName, date: nowD, ownerEmail: currentUser.email,
+                createdAt: serverTimestamp(), isDeleted: false
+            });
+            const inRef = doc(collection(db, 'users', r.fromUid, 'transactions'));
+            batch.set(inRef, {
+                type: 'income', amount: r.amount, category: 'Transfer Saldo Masuk', wallet: r.myWallet || 'Kas Tunai',
+                note: 'Permintaan Saldo Disetujui oleh ' + (currentUser.displayName || currentUser.email.split('@')[0]), date: nowD,
+                ownerEmail: r.fromEmail, createdAt: serverTimestamp(), isDeleted: false
+            });
+            batch.update(doc(db, 'balance_requests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
+            await batch.commit();
+            renderWalletTransferCard();
+        } catch(e) {
+            Swal.fire({icon:'error', title:'Gagal Memproses', text: e.message, background:'var(--card)', color:'var(--text)'});
+        }
+    })();
 };
 
 window.rejectBalanceRequest = async function(reqId) {
     const res = await Swal.fire({ title: 'Tolak Permintaan Ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Tolak', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
     if (!res.isConfirmed) return;
-    try {
-        await updateDoc(doc(db, 'balance_requests', reqId), { status: 'rejected', rejectedAt: serverTimestamp() });
-        Swal.fire({icon:'success', title:'Permintaan Ditolak', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
-    } catch(e) {
-        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
-    }
+    // Respon instan: tampilkan konfirmasi ditolak langsung, proses update Firestore
+    // di background supaya nggak kerasa lag di sisi yang menolak.
+    Swal.fire({icon:'success', title:'Permintaan Ditolak', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+    (async () => {
+        try {
+            await updateDoc(doc(db, 'balance_requests', reqId), { status: 'rejected', rejectedAt: serverTimestamp() });
+        } catch(e) {
+            Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+        }
+    })();
 };
 
 // ==========================================================================
