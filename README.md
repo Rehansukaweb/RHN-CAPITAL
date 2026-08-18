@@ -1491,10 +1491,10 @@ body.global-privacy #xau-idr-gr {
     }
   };
 
-  window.setupBiometric = async function() {
+  window.setupBiometric = async function(silent) {
     try {
       const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
-      if (!uid) { Swal.fire({icon:'error', title:'Belum Login', background:'var(--card)', color:'var(--text)'}); return; }
+      if (!uid) { if (!silent) Swal.fire({icon:'error', title:'Belum Login', background:'var(--card)', color:'var(--text)'}); return; }
       const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
       const userId = new TextEncoder().encode(uid);
       const cred = await navigator.credentials.create({
@@ -1512,11 +1512,24 @@ body.global-privacy #xau-idr-gr {
         localStorage.setItem('biometric_uid_rhn', uid);
         window.updateBiometricUI();
         Swal.fire({icon:'success', title:'Sidik Jari Aktif!', text:'Sekarang kamu bisa buka aplikasi pakai sidik jari.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+        return true;
       }
     } catch(e) {
-      Swal.fire({icon:'error', title:'Gagal Mengaktifkan', text: e.message || 'Perangkat tidak mendukung sidik jari.', background:'var(--card)', color:'var(--text)'});
+      if (!silent) Swal.fire({icon:'error', title:'Gagal Mengaktifkan', text: e.message || 'Perangkat tidak mendukung sidik jari.', background:'var(--card)', color:'var(--text)'});
     }
+    return false;
   };
+
+  window.maybeAutoEnableBiometric = async function() {
+    try {
+      if (!window.isBiometricSupported()) return;
+      if (localStorage.getItem('biometric_cred_rhn')) return;
+      if (localStorage.getItem('biometric_setup_attempted_rhn')) return;
+      localStorage.setItem('biometric_setup_attempted_rhn', '1');
+      await window.setupBiometric(true);
+    } catch(e) {}
+  };
+
 
   window.toggleBiometric = function() {
     if (localStorage.getItem('biometric_cred_rhn')) {
@@ -2814,6 +2827,7 @@ window.verifyPin = async function() {
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
             window.appUnlocked = true;
             unlockApp(); 
+            setTimeout(() => window.maybeAutoEnableBiometric(), 1200);
         } catch(e) { 
             errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
             document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
@@ -2827,6 +2841,7 @@ window.verifyPin = async function() {
         if (pinInput === localPin || pinInput === window.userCloudPin) { 
             window.appUnlocked = true;
             unlockApp(); 
+            setTimeout(() => window.maybeAutoEnableBiometric(), 800);
         } else { 
             errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block'; 
             document.getElementById('app-pin').value = ''; 
