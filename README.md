@@ -4270,9 +4270,16 @@ window.promptRequestSaldo = async function() {
 // yang akan mengirim saldo cukup SCAN barcode ini lewat kamera, tanpa perlu
 // mengetik kode transfer manual.
 // ==========================================================================
+window.__unsubBarcodeReq = null;
 window.showBarcodeRequest = function(rid, amount, note) {
     const screen = document.getElementById('barcode-req-screen');
     if (!screen) return;
+    const qrView = document.getElementById('barcode-req-qr-view');
+    const successView = document.getElementById('barcode-req-success-view');
+    if (qrView) qrView.style.display = 'flex';
+    if (successView) successView.style.display = 'none';
+    const headSub = document.getElementById('barcode-req-headsub');
+    if (headSub) headSub.textContent = 'Minta orang lain scan barcode ini untuk mengirim saldo';
     const box = document.getElementById('barcode-req-qrcode');
     if (box) {
         box.innerHTML = '';
@@ -4289,11 +4296,40 @@ window.showBarcodeRequest = function(rid, amount, note) {
     const noteEl = document.getElementById('barcode-req-note');
     if (noteEl) noteEl.textContent = note ? ('📝 ' + note) : '';
     screen.style.display = 'flex';
+
+    // Real-time: begitu pihak pengirim scan & permintaan disetujui, layar peminta
+    // otomatis berubah jadi respon "Transaksi Berhasil" tanpa perlu refresh apa pun.
+    if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
+    try {
+        window.__unsubBarcodeReq = onSnapshot(doc(db, 'balance_requests', rid), snap => {
+            if (!snap.exists()) return;
+            const data = snap.data();
+            if (data.status === 'approved') {
+                if (qrView) qrView.style.display = 'none';
+                if (successView) successView.style.display = 'flex';
+                const successText = document.getElementById('barcode-req-success-text');
+                if (successText) successText.textContent = `${fmtFull(amount || data.amount || 0)} berhasil diterima dari ${data.toName || 'pengirim'}.`;
+                if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
+                if (typeof renderWalletTransferCard === 'function') renderWalletTransferCard();
+            } else if (data.status === 'rejected') {
+                if (qrView) qrView.style.display = 'none';
+                if (successView) successView.style.display = 'flex';
+                const successText = document.getElementById('barcode-req-success-text');
+                const successBox = successView ? successView.querySelector('div') : null;
+                if (successBox) { successBox.textContent = '❌'; successBox.style.background = 'rgba(248,113,113,0.15)'; }
+                const titleEl = successView ? successView.children[1] : null;
+                if (titleEl) { titleEl.textContent = 'Permintaan Ditolak'; titleEl.style.color = 'var(--red2)'; }
+                if (successText) successText.textContent = `${data.toName || 'Pengirim'} menolak permintaan saldo ini.`;
+                if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
+            }
+        });
+    } catch(e) {}
 };
 
 window.closeBarcodeRequest = function() {
     const screen = document.getElementById('barcode-req-screen');
     if (screen) screen.style.display = 'none';
+    if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
 };
 
 // ==========================================================================
@@ -6650,10 +6686,10 @@ window.addEventListener('focus', function () {
     <div class="cs-back" onclick="window.closeBarcodeRequest()">←</div>
     <div style="flex:1;">
       <div class="cs-title">Barcode Permintaan Saldo</div>
-      <div class="cs-sub">Minta orang lain scan barcode ini untuk mengirim saldo</div>
+      <div class="cs-sub" id="barcode-req-headsub">Minta orang lain scan barcode ini untuk mengirim saldo</div>
     </div>
   </div>
-  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; overflow-y:auto;">
+  <div id="barcode-req-qr-view" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; overflow-y:auto;">
     <div style="background:#fff; padding:20px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.25);">
       <div id="barcode-req-qrcode"></div>
     </div>
@@ -6663,6 +6699,12 @@ window.addEventListener('focus', function () {
       <div id="barcode-req-note" style="font-size:11px; color:var(--text3); margin-top:8px;">-</div>
     </div>
     <div style="font-size:10px; color:var(--text3); margin-top:20px; text-align:center; max-width:280px;">Barcode ini unik untuk permintaan ini saja dan otomatis berubah setiap kamu membuat permintaan baru.</div>
+  </div>
+  <div id="barcode-req-success-view" style="display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+    <div style="width:88px; height:88px; border-radius:50%; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; font-size:44px; margin-bottom:20px; box-shadow:0 0 0 8px rgba(16,185,129,0.08);">✅</div>
+    <div style="font-size:18px; font-weight:800; color:var(--green2); margin-bottom:8px;">Transaksi Berhasil!</div>
+    <div id="barcode-req-success-text" style="font-size:12px; color:var(--text2); max-width:280px; line-height:1.5;">Saldo sudah diterima.</div>
+    <button class="set-action" style="margin-top:24px; background:var(--green2); color:#000; border:none; padding:12px 28px; border-radius:12px;" onclick="window.closeBarcodeRequest()">SELESAI</button>
   </div>
 </div>
 
