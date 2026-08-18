@@ -315,6 +315,10 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .cs-bubble.me { align-self:flex-end; background:var(--gold); color:#000; border-bottom-right-radius:4px; }
 .cs-bubble.them { align-self:flex-start; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-bottom-left-radius:4px; }
 .cs-bubble .cs-time { display:block; font-size:8px; opacity:0.6; margin-top:4px; text-align:right; }
+.cs-bubble { position:relative; }
+.cs-msg-del { position:absolute; top:-8px; right:-8px; width:18px; height:18px; border-radius:50%; background:var(--red2); color:#fff; font-size:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s ease, transform .15s ease; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
+.cs-bubble:hover .cs-msg-del, .cs-bubble:active .cs-msg-del { opacity:1; }
+@media (hover:none) { .cs-msg-del { opacity:0.85; } }
 .cs-chat-input-wrap { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); background:var(--card); }
 .cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Outfit', sans-serif; outline:none; }
 .cs-chat-input-wrap button { background:var(--gold); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
@@ -328,6 +332,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
 
 #wallet-hist-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:99999; flex-direction:column; }
+#barcode-req-screen, #scan-send-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:99999; flex-direction:column; }
 .wallet-hist-head { display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid var(--border); background:var(--card); }
 .wallet-hist-head .cs-back { background:var(--bg3); border:1px solid var(--border2); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; flex-shrink:0; }
 .wallet-hist-head .cs-title { font-size:13px; font-weight:800; color:var(--text); }
@@ -717,6 +722,7 @@ body.global-privacy #xau-idr-gr {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -3257,7 +3263,7 @@ window.renderAdminYearlyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
 
-    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-year-sel').dataset.active='${y}'; requestAnimationFrame(() => renderAdminYearlyChart(window.__adminYearlyArr || []));">Tahun ${y}</button>`).join('');
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-year-sel').dataset.active='${y}'; window.__rafRun('admYear', () => renderAdminYearlyChart(window.__adminYearlyArr || []));">Tahun ${y}</button>`).join('');
 
     const activeY = sel.dataset.active;
     const filtered = arr.filter(t => (t.date || '').slice(0,4) === activeY);
@@ -3311,7 +3317,7 @@ window.renderAdminMonthlyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
 
-    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-month-sel').dataset.active='${m}'; requestAnimationFrame(() => renderAdminMonthlyChart(window.__adminMonthlyArr || []));">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-month-sel').dataset.active='${m}'; window.__rafRun('admMonth', () => renderAdminMonthlyChart(window.__adminMonthlyArr || []));">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
 
     const activeM = sel.dataset.active;
     const filtered = arr.filter(t => (t.date || '').slice(0,7) === activeM);
@@ -3370,7 +3376,7 @@ window.renderAdminWeeklyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
 
-    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; requestAnimationFrame(() => renderAdminWeeklyChart(window.__adminWeeklyArr || []));">Minggu ${fmtDate(w)}</button>`).join('');
+    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; window.__rafRun('admWeek', () => renderAdminWeeklyChart(window.__adminWeeklyArr || []));">Minggu ${fmtDate(w)}</button>`).join('');
 
     const targetWk = sel.dataset.active;
     const filtered = arr.filter(t => wkKey(t.date) === targetWk);
@@ -3426,7 +3432,7 @@ window.renderAdminRiwayatChart = function(arr) {
 
     ysel.style.display = 'flex';
     if (!ysel.dataset.active || !yrs.includes(ysel.dataset.active)) ysel.dataset.active = yrs[0];
-    ysel.innerHTML = yrs.map(y => `<button class="p-btn ${y === ysel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-riwayat-year-sel').dataset.active='${y}'; requestAnimationFrame(() => renderAdminRiwayatChart(window.__adminRiwayatArr || []));">Tahun ${y}</button>`).join('');
+    ysel.innerHTML = yrs.map(y => `<button class="p-btn ${y === ysel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-riwayat-year-sel').dataset.active='${y}'; window.__rafRun('admRiwayat', () => renderAdminRiwayatChart(window.__adminRiwayatArr || []));">Tahun ${y}</button>`).join('');
 
     const activeYr = ysel.dataset.active;
     const yearData = arr.filter(t => (t.date || '').slice(0,4) === activeYr);
@@ -4067,6 +4073,11 @@ window.toggleSaldoVisibility = function() {
     renderWalletTransferCard();
 };
 
+window.__closeSendModalAndScan = function() {
+    Swal.close();
+    setTimeout(() => window.openScanSend(), 250);
+};
+
 window.promptSendSaldo = async function() {
     if (!currentUser) return;
     const { wallets } = computeWalletsFromArr(txs);
@@ -4076,6 +4087,8 @@ window.promptSendSaldo = async function() {
         title: '🚀 Kirim Saldo',
         html: `
           <div style="text-align:left;">
+            <button type="button" onclick="window.__closeSendModalAndScan()" style="width:100%; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; font-family:'Outfit',sans-serif; cursor:pointer; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 SCAN BARCODE PERMINTAAN SALDO</button>
+            <div style="text-align:center; font-size:9px; color:var(--text3); font-weight:800; text-transform:uppercase; margin:-8px 0 14px;">— atau isi manual —</div>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
             <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Tujuan (3 Angka)</label>
@@ -4230,7 +4243,7 @@ window.promptRequestSaldo = async function() {
     }
 
     try {
-        await addDoc(collection(db, 'balance_requests'), {
+        const reqRef = await addDoc(collection(db, 'balance_requests'), {
             fromUid: currentUser.uid,
             fromName: currentUser.displayName || currentUser.email.split('@')[0],
             fromEmail: currentUser.email,
@@ -4244,9 +4257,127 @@ window.promptRequestSaldo = async function() {
             createdAt: serverTimestamp(),
             createdAtLocal: new Date().toISOString()
         });
-        Swal.fire({icon:'success', title:'Permintaan Terkirim! 📥', text:`Permintaan saldo ${fmtFull(formVals.nominal)} sudah dikirim ke ${target.nama}. Menunggu persetujuan.`, background:'var(--card)', color:'var(--text)'});
+        Swal.fire({icon:'success', title:'Permintaan Terkirim! 📥', text:`Permintaan saldo ${fmtFull(formVals.nominal)} sudah dikirim ke ${target.nama}. Menunggu persetujuan.`, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+        setTimeout(() => { window.showBarcodeRequest(reqRef.id, formVals.nominal, formVals.note); }, 1450);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal Mengirim Permintaan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// BARCODE PERMINTAAN SALDO — tiap permintaan saldo punya QR unik (berisi ID
+// permintaan) yang berubah setiap kali user membuat permintaan baru. Orang
+// yang akan mengirim saldo cukup SCAN barcode ini lewat kamera, tanpa perlu
+// mengetik kode transfer manual.
+// ==========================================================================
+window.showBarcodeRequest = function(rid, amount, note) {
+    const screen = document.getElementById('barcode-req-screen');
+    if (!screen) return;
+    const box = document.getElementById('barcode-req-qrcode');
+    if (box) {
+        box.innerHTML = '';
+        try {
+            new QRCode(box, {
+                text: JSON.stringify({ t: 'saldo_req', rid: rid }),
+                width: 220, height: 220,
+                colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M
+            });
+        } catch(e) {}
+    }
+    const amtEl = document.getElementById('barcode-req-amt');
+    if (amtEl) amtEl.textContent = fmtFull(amount || 0);
+    const noteEl = document.getElementById('barcode-req-note');
+    if (noteEl) noteEl.textContent = note ? ('📝 ' + note) : '';
+    screen.style.display = 'flex';
+};
+
+window.closeBarcodeRequest = function() {
+    const screen = document.getElementById('barcode-req-screen');
+    if (screen) screen.style.display = 'none';
+};
+
+// ==========================================================================
+// SCAN BARCODE UNTUK KIRIM SALDO — pihak yang membayar cukup scan barcode
+// yang ditunjukkan peminta, sistem otomatis mencocokkan ke permintaan yang
+// benar lalu melanjutkan ke alur persetujuan (approveBalanceRequest) yang
+// sudah ada, jadi saldo langsung pindah seperti dompet digital biasa.
+// ==========================================================================
+window.__scanSendInstance = null;
+
+window.openScanSend = function() {
+    if (!currentUser) return;
+    if (typeof Html5Qrcode === 'undefined') {
+        return Swal.fire({icon:'error', title:'Kamera Tidak Tersedia', text:'Library scanner gagal dimuat, cek koneksi internet.', background:'var(--card)', color:'var(--text)'});
+    }
+    const screen = document.getElementById('scan-send-screen');
+    const statusEl = document.getElementById('scan-send-status');
+    if (screen) screen.style.display = 'flex';
+    if (statusEl) statusEl.textContent = 'Menyiapkan kamera...';
+    try {
+        window.__scanSendInstance = new Html5Qrcode('scan-send-reader');
+        window.__scanSendInstance.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 240, height: 240 } },
+            async (decodedText) => {
+                await window.__handleScanSendResult(decodedText);
+            },
+            () => {}
+        ).then(() => { if (statusEl) statusEl.textContent = 'Arahkan kamera ke barcode permintaan saldo.'; })
+         .catch(() => { if (statusEl) statusEl.textContent = 'Gagal mengakses kamera. Pastikan izin kamera diaktifkan.'; });
+    } catch(e) {
+        if (statusEl) statusEl.textContent = 'Gagal mengakses kamera.';
+    }
+};
+
+window.__handleScanSendResult = async function(decodedText) {
+    if (window.__scanSendBusy) return;
+    window.__scanSendBusy = true;
+    try {
+        let payload;
+        try { payload = JSON.parse(decodedText); } catch(e) { payload = null; }
+        if (!payload || payload.t !== 'saldo_req' || !payload.rid) {
+            const statusEl = document.getElementById('scan-send-status');
+            if (statusEl) statusEl.textContent = 'Barcode tidak dikenali. Coba scan ulang.';
+            window.__scanSendBusy = false;
+            return;
+        }
+        window.closeScanSend();
+        Swal.fire({title: 'Memeriksa Permintaan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+        const snap = await getDoc(doc(db, 'balance_requests', payload.rid));
+        if (!snap.exists()) {
+            window.__scanSendBusy = false;
+            return Swal.fire({icon:'error', title:'Permintaan Tidak Ditemukan', text:'Barcode ini sudah tidak berlaku.', background:'var(--card)', color:'var(--text)'});
+        }
+        const r = { id: snap.id, ...snap.data() };
+        if (r.toUid !== currentUser.uid) {
+            window.__scanSendBusy = false;
+            return Swal.fire({icon:'warning', title:'Bukan Untukmu', text:'Barcode ini bukan permintaan saldo untuk akunmu.', background:'var(--card)', color:'var(--text)'});
+        }
+        if (r.status !== 'pending') {
+            window.__scanSendBusy = false;
+            return Swal.fire({icon:'info', title:'Permintaan Sudah Diproses', text:'Status: ' + r.status, background:'var(--card)', color:'var(--text)'});
+        }
+        window.__incomingReqs = window.__incomingReqs || [];
+        if (!window.__incomingReqs.find(x => x.id === r.id)) window.__incomingReqs.push(r);
+        Swal.close();
+        window.__scanSendBusy = false;
+        await window.approveBalanceRequest(r.id);
+    } catch(e) {
+        window.__scanSendBusy = false;
+        Swal.fire({icon:'error', title:'Gagal Memproses Barcode', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.closeScanSend = function() {
+    const screen = document.getElementById('scan-send-screen');
+    if (screen) screen.style.display = 'none';
+    if (window.__scanSendInstance) {
+        try {
+            window.__scanSendInstance.stop().then(() => {
+                try { window.__scanSendInstance.clear(); } catch(e) {}
+                window.__scanSendInstance = null;
+            }).catch(() => { window.__scanSendInstance = null; });
+        } catch(e) { window.__scanSendInstance = null; }
     }
 };
 
@@ -4321,6 +4452,7 @@ window.renderSentRequests = function() {
             </div>
             <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
             <span class="req-badge ${r.status}">${r.status === 'pending' ? 'MENUNGGU' : (r.status === 'approved' ? 'DISETUJUI' : 'DITOLAK')}</span>
+            ${r.status === 'pending' ? `<button class="req-btn ok" style="margin-top:8px; width:100%;" onclick="window.showBarcodeRequest('${r.id}', ${Number(r.amount)||0}, ${JSON.stringify(r.note||'').replace(/"/g,'&quot;')})">🎫 LIHAT BARCODE</button>` : ''}
         </div>
     `).join('');
 };
@@ -4450,7 +4582,7 @@ window.subscribeCSMessages = function(uid) {
     try {
         window.__unsubCSMessages = onSnapshot(
             query(collection(db, 'support_chats', uid, 'messages'), orderBy('createdAtLocal', 'asc')),
-            snap => { window.renderCSMessages(snap.docs.map(d => d.data())); },
+            snap => { window.renderCSMessages(snap.docs.map(d => ({ id: d.id, ...d.data() }))); },
             () => { if (body) body.innerHTML = '<div style="text-align:center; color:var(--red2); font-size:11px; padding:20px;">Gagal memuat chat.</div>'; }
         );
     } catch(e) { if (body) body.innerHTML = '<div style="text-align:center; color:var(--red2); font-size:11px; padding:20px;">Gagal memuat chat.</div>'; }
@@ -4464,9 +4596,45 @@ window.renderCSMessages = function(msgs) {
     body.innerHTML = msgs.map(m => {
         const mine = isAdminView ? (m.sender === 'admin') : (m.sender === 'user');
         const timeStr = m.createdAtLocal ? fmtTime(m.createdAtLocal) : '';
-        return `<div class="cs-bubble ${mine ? 'me' : 'them'}">${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
+        const canDelete = isAdminView || mine;
+        const delBtn = canDelete && m.id ? `<span class="cs-msg-del" onclick="event.stopPropagation(); window.deleteCSMessage('${m.id}')" title="Hapus pesan">✕</span>` : '';
+        return `<div class="cs-bubble ${mine ? 'me' : 'them'}">${delBtn}${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
     }).join('');
     body.scrollTop = body.scrollHeight;
+};
+
+window.deleteCSMessage = async function(msgId) {
+    if (!window.__csActiveUid || !msgId) return;
+    const res = await Swal.fire({ title: 'Hapus Pesan Ini?', text: 'Pesan akan dihapus permanen.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    try {
+        await deleteDoc(doc(db, 'support_chats', window.__csActiveUid, 'messages', msgId));
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Menghapus Pesan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.deleteCSConversation = async function() {
+    if (!window.__csActiveUid) return;
+    const res = await Swal.fire({ title: 'Hapus Seluruh Percakapan?', text: 'Semua pesan di chat ini akan dihapus permanen dan tidak bisa dikembalikan.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus Semua', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    try {
+        Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, background:'var(--card)', color:'var(--text)', didOpen: () => Swal.showLoading() });
+        const uid = window.__csActiveUid;
+        const msgSnap = await getDocs(collection(db, 'support_chats', uid, 'messages'));
+        const ids = msgSnap.docs.map(d => d.id);
+        for (let i = 0; i < ids.length; i += 400) {
+            const batch = writeBatch(db);
+            ids.slice(i, i + 400).forEach(id => batch.delete(doc(db, 'support_chats', uid, 'messages', id)));
+            await batch.commit();
+        }
+        await setDoc(doc(db, 'support_chats', uid), { lastMessage: '', unreadForAdmin: false, unreadForUser: false }, { merge: true });
+        Swal.close();
+        Swal.fire({icon:'success', title:'Percakapan Dihapus', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+        if (window.__csIsAdminView && typeof window.loadAdminCSList === 'function') window.loadAdminCSList();
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Menghapus Percakapan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
 };
 
 window.sendCSMessage = async function() {
@@ -5115,6 +5283,26 @@ window.selType = function(t) {
     if (t === 'transfer') { if (catRow) catRow.style.display = 'none'; if (walletToRow) walletToRow.style.display = 'block'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)'; } else { if (catRow) catRow.style.display = 'block'; if (walletToRow) walletToRow.style.display = 'none'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET'; } 
 };
 
+// ==========================================================================
+// PENCEGAH "NGEDET"/NYANGKUT SAAT KLIK CEPAT BOLAK-BALIK: kalau user pencet
+// tombol (pindah halaman / ganti minggu-bulan-tahun) berkali-kali secara
+// beruntun sebelum frame sebelumnya sempat selesai render, versi lama akan
+// MENUMPUK banyak render berat (rebuild Chart.js dkk) di antrian rAF -> UI
+// kelihatan macet/telat. Helper ini membatalkan render yang masih tertunda
+// milik "key" yang sama sebelum menjadwalkan yang baru, jadi cuma render
+// TERAKHIR yang benar-benar jalan, persis seperti debounce native browser.
+// ==========================================================================
+window.__rafTokens = {};
+window.__rafRun = function(key, fn) {
+    const t = window.__rafTokens[key] || {};
+    if (t.r1) cancelAnimationFrame(t.r1);
+    if (t.r2) cancelAnimationFrame(t.r2);
+    t.r1 = requestAnimationFrame(() => { t.r2 = requestAnimationFrame(fn); });
+    window.__rafTokens[key] = t;
+};
+
+window.__spRaf1 = null;
+window.__spRaf2 = null;
 window.switchPage = function(p) { 
   // Kalau tombol yang ditekan adalah halaman yang sedang aktif, tidak perlu render ulang
   // (render ulang yang tidak perlu inilah salah satu sumber "ngedet" saat tombol dipencet berkali-kali).
@@ -5139,7 +5327,9 @@ window.switchPage = function(p) {
   // rAF(rAF(...)), frame pertama dipakai browser untuk benar-benar paint dulu (tombol
   // langsung kelihatan aktif & halaman langsung kelihatan), baru di frame berikutnya
   // data/chart di-render. Hasilnya: sentuhan tombol terasa instan, isi datanya menyusul.
-  requestAnimationFrame(() => { requestAnimationFrame(refreshAll); });
+  if (window.__spRaf1) cancelAnimationFrame(window.__spRaf1);
+  if (window.__spRaf2) cancelAnimationFrame(window.__spRaf2);
+  window.__spRaf1 = requestAnimationFrame(() => { window.__spRaf2 = requestAnimationFrame(refreshAll); });
 };
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
@@ -5501,7 +5691,7 @@ window.renderWeekly = function() {
   if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
   
   sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active
-='${w}'; requestAnimationFrame(renderWeekly);">Minggu ${fmtDate(w)}</button>`).join('');
+='${w}'; window.__rafRun('weekly', renderWeekly);">Minggu ${fmtDate(w)}</button>`).join('');
   const targetWk = sel.dataset.active;
   const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
   applyChartFilterSum(document.getElementById('week-sum'), arr, 'week');
@@ -5543,7 +5733,7 @@ window.renderMonthly = function() {
         return; 
     }
     if (!sel.dataset.active || !mths.includes(sel.dataset.active)) sel.dataset.active = mths[0];
-    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; requestAnimationFrame(renderMonthly);">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
+    sel.innerHTML = mths.map(m => `<button class="p-btn ${m === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('month-sel').dataset.active='${m}'; window.__rafRun('monthly', renderMonthly);">${new Date(m+'-01').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</button>`).join('');
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -5588,7 +5778,7 @@ window.renderYearly = function() {
     }
     if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
     
-    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; requestAnimationFrame(renderYearly);">Tahun ${y}</button>`).join('');
+    sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('year-sel').dataset.active='${y}'; window.__rafRun('yearly', renderYearly);">Tahun ${y}</button>`).join('');
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -5642,7 +5832,7 @@ window.renderAll = function() {
 
     if (sel) {
         if (!sel.dataset.active || !yrs.includes(sel.dataset.active)) sel.dataset.active = yrs[0];
-        sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; requestAnimationFrame(renderAll);">Tahun ${y}</button>`).join('');
+        sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; window.__rafRun('riwayatAll', renderAll);">Tahun ${y}</button>`).join('');
         
         const activeYr = sel.dataset.active;
         const yearData = filtered.filter(t => t.date.slice(0,4) === activeYr);
@@ -6430,6 +6620,7 @@ window.addEventListener('focus', function () {
       <div class="cs-title" id="cs-chat-title">Customer Service</div>
       <div class="cs-sub" id="cs-chat-sub">Admin biasanya balas cepat</div>
     </div>
+    <div class="cs-back" style="color:var(--red2);" onclick="window.deleteCSConversation()" title="Hapus Percakapan">🗑️</div>
   </div>
   <div class="cs-chat-body" id="cs-chat-body"></div>
   <div class="cs-chat-input-wrap">
@@ -6452,6 +6643,41 @@ window.addEventListener('focus', function () {
     </select>
   </div>
   <div class="wallet-hist-body" id="wallet-hist-body"></div>
+</div>
+
+<div id="barcode-req-screen">
+  <div class="wallet-hist-head">
+    <div class="cs-back" onclick="window.closeBarcodeRequest()">←</div>
+    <div style="flex:1;">
+      <div class="cs-title">Barcode Permintaan Saldo</div>
+      <div class="cs-sub">Minta orang lain scan barcode ini untuk mengirim saldo</div>
+    </div>
+  </div>
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; overflow-y:auto;">
+    <div style="background:#fff; padding:20px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.25);">
+      <div id="barcode-req-qrcode"></div>
+    </div>
+    <div style="margin-top:20px; text-align:center;">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; font-weight:800;">Jumlah Diminta</div>
+      <div id="barcode-req-amt" style="font-size:22px; font-weight:800; color:var(--gold); margin-top:4px;">Rp 0</div>
+      <div id="barcode-req-note" style="font-size:11px; color:var(--text3); margin-top:8px;">-</div>
+    </div>
+    <div style="font-size:10px; color:var(--text3); margin-top:20px; text-align:center; max-width:280px;">Barcode ini unik untuk permintaan ini saja dan otomatis berubah setiap kamu membuat permintaan baru.</div>
+  </div>
+</div>
+
+<div id="scan-send-screen">
+  <div class="wallet-hist-head">
+    <div class="cs-back" onclick="window.closeScanSend()">←</div>
+    <div style="flex:1;">
+      <div class="cs-title">Scan Barcode Kirim Saldo</div>
+      <div class="cs-sub">Arahkan kamera ke barcode permintaan saldo</div>
+    </div>
+  </div>
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px;">
+    <div id="scan-send-reader" style="width:100%; max-width:340px; border-radius:20px; overflow:hidden; border:2px solid var(--border2);"></div>
+    <div id="scan-send-status" style="font-size:11px; color:var(--text3); margin-top:16px; text-align:center;">Menyiapkan kamera...</div>
+  </div>
 </div>
 
 </body>
