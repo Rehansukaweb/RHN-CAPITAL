@@ -270,7 +270,70 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
+
+/* ==========================================================================
+   DOMPET SALDO — Kartu transfer saldo antar user (gaya dompet digital / Bitget)
+   ========================================================================== */
+.saldo-wallet-card { position:relative; border-radius:20px; padding:22px 20px; overflow:hidden; background:linear-gradient(135deg, #1a1a2e 0%, #16161d 55%, #0d0d12 100%); border:1px solid var(--border2); box-shadow:0 12px 28px rgba(0,0,0,0.45); }
+.saldo-wallet-card::before { content:''; position:absolute; top:-40%; right:-20%; width:220px; height:220px; background:radial-gradient(circle, rgba(251,191,36,0.18) 0%, rgba(251,191,36,0) 70%); pointer-events:none; }
+.saldo-wallet-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; position:relative; z-index:1; }
+.saldo-wallet-tag { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--gold); text-transform:uppercase; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.35); padding:4px 10px; border-radius:20px; }
+.saldo-wallet-eye { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:var(--text2); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; }
+.saldo-wallet-label { font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; position:relative; z-index:1; }
+.saldo-wallet-amt { font-family:'JetBrains Mono', monospace; font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; word-break:break-all; position:relative; z-index:1; }
+.saldo-wallet-code { margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:rgba(255,255,255,0.05); border:1px dashed var(--border2); border-radius:12px; padding:10px 14px; position:relative; z-index:1; }
+.saldo-wallet-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; position:relative; z-index:1; }
+.saldo-wallet-actions .saldo-wallet-btn { font-size:9.5px; }
+.saldo-wallet-btn { border:none; border-radius:14px; padding:12px 8px; font-size:11px; font-weight:800; letter-spacing:0.3px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.saldo-wallet-btn.send { background:var(--gold); color:#000; }
+.saldo-wallet-btn.receive { background:rgba(255,255,255,0.08); color:var(--text); border:1px solid var(--border2); }
+.saldo-wallet-btn.request { background:rgba(59,130,246,0.15); color:var(--blue); border:1px solid var(--blue); }
+.saldo-wallet-btn.topup { background:rgba(16,185,129,0.15); color:var(--green2); border:1px solid var(--green2); }
+
+/* ===== REQUEST SALDO (Minta Saldo) & CS CHAT ===== */
+.req-item { background:var(--bg3); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px; }
+.req-item .req-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
+.req-item .req-name { font-size:12px; font-weight:800; color:var(--text); }
+.req-item .req-amt { font-family:'JetBrains Mono', monospace; font-size:14px; font-weight:800; color:var(--gold); }
+.req-item .req-note { font-size:10px; color:var(--text3); margin-bottom:10px; }
+.req-badge { font-size:8px; font-weight:800; text-transform:uppercase; padding:3px 8px; border-radius:20px; letter-spacing:0.5px; }
+.req-badge.pending { background:rgba(251,191,36,0.15); color:var(--gold); }
+.req-badge.approved { background:rgba(16,185,129,0.15); color:var(--green2); }
+.req-badge.rejected { background:rgba(248,113,113,0.15); color:var(--red2); }
+.req-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.req-btn { border:none; border-radius:10px; padding:10px; font-size:10px; font-weight:800; cursor:pointer; text-transform:uppercase; }
+.req-btn.ok { background:var(--green2); color:#000; }
+.req-btn.no { background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); }
+
+#cs-chat-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:99999; flex-direction:column; }
+.cs-chat-head { display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid var(--border); background:var(--card); }
+.cs-chat-head .cs-back { background:var(--bg3); border:1px solid var(--border2); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; flex-shrink:0; }
+.cs-chat-head .cs-title { font-size:13px; font-weight:800; color:var(--text); }
+.cs-chat-head .cs-sub { font-size:10px; color:var(--text3); }
+.cs-chat-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:8px; }
+.cs-bubble { max-width:78%; padding:10px 14px; border-radius:16px; font-size:12px; line-height:1.4; word-break:break-word; }
+.cs-bubble.me { align-self:flex-end; background:var(--gold); color:#000; border-bottom-right-radius:4px; }
+.cs-bubble.them { align-self:flex-start; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.cs-bubble .cs-time { display:block; font-size:8px; opacity:0.6; margin-top:4px; text-align:right; }
+.cs-chat-input-wrap { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); background:var(--card); }
+.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Outfit', sans-serif; outline:none; }
+.cs-chat-input-wrap button { background:var(--gold); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
+.cs-list-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg3); cursor:pointer; transition:0.2s; }
+.cs-list-item:hover { border-color:var(--gold); }
+.cs-list-avatar { width:38px; height:38px; border-radius:50%; background:var(--gold); color:#000; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; flex-shrink:0; }
+.cs-list-info { flex:1; min-width:0; }
+.cs-list-info .cs-list-name { font-size:12px; font-weight:800; color:var(--text); }
+.cs-list-info .cs-list-last { font-size:10px; color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cs-unread-dot { width:9px; height:9px; border-radius:50%; background:var(--red2); flex-shrink:0; }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
+
+#wallet-hist-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:99999; flex-direction:column; }
+.wallet-hist-head { display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid var(--border); background:var(--card); }
+.wallet-hist-head .cs-back { background:var(--bg3); border:1px solid var(--border2); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; flex-shrink:0; }
+.wallet-hist-head .cs-title { font-size:13px; font-weight:800; color:var(--text); }
+.wallet-hist-head .cs-sub { font-size:10px; color:var(--text3); }
+.wallet-hist-filter { padding:12px 16px; border-bottom:1px solid var(--border); background:var(--card); }
+.wallet-hist-body { flex:1; overflow-y:auto; padding:16px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
 
 .sum-grid { display: grid; gap: 16px; margin-bottom: 24px; }
 .sum-grid .m-card { padding: 16px; }
@@ -303,6 +366,30 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
+
+/* INPUT TEXT/NUMBER DI DALAM POPUP (SweetAlert) — radius diperbesar biar nggak kotak banget, senada sama f-input-dark */
+input.swal2-input, textarea.swal2-textarea {
+  border-radius: 16px !important;
+  background-color: var(--bg2) !important; color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+input.swal2-input:focus, textarea.swal2-textarea:focus {
+  border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15) !important;
+}
+
+/* SELECT DI DALAM POPUP (SweetAlert) — biar seragam gelap, bukan kotak putih default browser */
+select.swal2-input {
+  -webkit-appearance: none; appearance: none;
+  background-color: var(--bg2) !important; color: var(--text) !important;
+  border: 1px solid var(--border) !important; border-radius: 16px;
+  padding: 16px 40px 16px 16px !important; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
+  cursor: pointer;
+}
+select.swal2-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); outline: none; }
+select.swal2-input option { background-color: var(--bg2); color: var(--text); }
 
 select.f-input-dark {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
@@ -1009,6 +1096,8 @@ body.global-privacy #xau-idr-gr {
     </div>
     <div class="filter-bar">
       <button class="export-btn" onclick="loadAllUsersData()" style="background:var(--gold); color:#000;">🔄 MUAT DATA SEMUA USER</button>
+      <button class="export-btn" onclick="showGlobalTrash()" style="background:var(--red2); color:#fff; margin-left:8px;">🗑️ SAMPAH SEMUA USER</button>
+      <button class="export-btn" onclick="showAdminArchive()" style="background:var(--blue); color:#fff; margin-left:8px;">🗄️ ARSIP TERHAPUS</button>
     </div>
     <div id="admin-summary" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:24px;"></div>
 
@@ -1033,13 +1122,35 @@ body.global-privacy #xau-idr-gr {
       <div class="list-wrap" id="admin-detail-list"></div>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">💬 Customer Service — Chat Masuk</div>
+      <div class="card-sub">Percakapan bantuan dari seluruh user terdaftar.</div>
+    </div>
+    <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar chat...</div></div>
+  </div>
 </div>
 
-<div id="page-pengaturan" class="page">
-  
+<div id="page-wallet" class="page">
+  <div id="saldo-wallet-card-wrap"></div>
+  <div style="font-size: 11px; color: var(--text3); margin: -8px 0 20px;">Kirim saldo langsung dari salah satu dompetmu ke dompet user lain memakai Kode Transfer 3 Angka. Saldo otomatis berkurang di akunmu dan langsung bertambah di akun tujuan, seperti dompet digital pada umumnya.</div>
+
+  <button class="export-btn" onclick="window.openWalletHistoryScreen()" style="width:100%; background:var(--blue); color:#fff; margin-bottom:20px; padding:14px; font-size:12px;">📜 RIWAYAT TRANSAKSI WALLET</button>
+
+  <div class="set-group">
+    <div class="set-title">↓ PERMINTAAN SALDO MASUK (UNTUK DISETUJUI)</div>
+    <div id="wallet-pending-requests"><div style="padding:16px; text-align:center; color:var(--text3); font-size:11px;">Tidak ada permintaan saldo masuk.</div></div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">↑ PERMINTAAN SALDO YANG KAMU KIRIM</div>
+    <div id="wallet-sent-requests"><div style="padding:16px; text-align:center; color:var(--text3); font-size:11px;">Belum ada permintaan saldo yang kamu buat.</div></div>
+  </div>
+
   <div class="set-group" style="padding: 0; overflow: hidden; border-color: var(--border2);">
     <div class="set-title" style="padding: 16px 16px 8px 16px; margin: 0; border-bottom: none; font-size: 13px;">
-      ⬅️ Kalkulator Mata Uang Online <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
+      ⬅️ Kalkulator Mata Uang Online (Konversi Dolar) <span style="margin-left: 6px; font-size: 9px; background: var(--green2); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 800;">LIVE REALTIME Ticker</span>
     </div>
     <div id="calc-display" style="display: flex; flex-direction: column; padding: 0 8px;"></div>
     <div style="font-size: 9px; color: var(--text3); text-align: center; padding: 4px 0 8px 0;">
@@ -1069,10 +1180,10 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
-    <div class="set-title" onclick="window.promptInputQris()" style="cursor: default;" title="Ketuk untuk mengatur Data QRIS (Rahasia)">💳 GENERATOR QRIS PENGGUNA</div>
+  <div class="set-group" id="qris-generator-group">
+    <div class="set-title" onclick="window.promptInputQris()" style="cursor: default;" title="Ketuk untuk mengatur Data QRIS (Rahasia)">💳 GENERATOR QRIS — ISI SALDO DOMPET</div>
 
-    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Masukkan nominal tagihan untuk membuat QR Code pembayaran.</div>
+    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Masukkan nominal untuk membuat QR Code pembayaran / isi saldo dompet.</div>
     
     <div class="form-row">
       <label class="form-label">Nominal Tagihan (Rp)</label>
@@ -1120,16 +1231,9 @@ body.global-privacy #xau-idr-gr {
       <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 20px; padding: 0 4px; z-index: 3;">
         <div style="display: flex; align-items: flex-start; gap: 4px;">
           <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 24px;">
-          <div style="height: 18px; width: 4px; border-left: 2px solid #0f172a; border-bottom: 2px solid #0f172a; margin-top: 2px;"></div>
-          <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 2px;">
-            <span style="font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 800; color: #0f172a; line-height: 1.1;">QR Code Standar</span>
-            <span style="font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 800; color: #0f172a; line-height: 1.1;">Pembayaran Nasional</span>
-          </div>
-        </div>
-        <div>
-          <svg width="45" height="35" viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22 2 L42 2 L35 11 Z" fill="#d91b29"/>
-            <path d="M25 6 L45 7 L37 16 Z" fill="#d91b29"/>
+          <svg width="52" height="24" viewBox="0 0 52 32" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="16" r="14" fill="#f9a51a"/>
+            <circle cx="26" cy="16" r="14" fill="#e6222a" opacity="0.85"/>
             <path d="M28 11 L48 12 L40 21 Z" fill="#d91b29"/>
             <text x="2" y="30" font-family="'Outfit', sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
           </svg>
@@ -1193,6 +1297,29 @@ body.global-privacy #xau-idr-gr {
   </div>
 
   <div class="set-group">
+    <div class="set-title">💬 BANTUAN & CUSTOMER SERVICE</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Chat Langsung ke Admin</div>
+        <div class="set-sub">Ada masalah saldo/transfer/QRIS? Chat langsung ke admin di sini</div>
+      </div>
+      <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="window.openCSChat()">💬 CHAT ADMIN</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-pengaturan" class="page">
+  <div class="set-group">
+    <div class="set-title">💳 DOMPET SAYA</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Buka Dompet Digital</div>
+        <div class="set-sub">Kirim/minta saldo, isi saldo via QRIS, konversi dolar, dan chat customer service</div>
+      </div>
+      <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('wallet')">💳 BUKA DOMPET</button>
+    </div>
+  </div>
+  <div class="set-group">
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
     <div class="set-item">
       <div>
@@ -1236,6 +1363,31 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
+  <div class="set-group" id="admin-settings-group" style="display:none; border-color: var(--gold);">
+    <div class="set-title" style="color: var(--gold);">👑 KONTROL ADMIN — SEMUA AKUN</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Lihat Semua Akun &amp; Isi Dompet</div>
+        <div class="set-sub">Pantau akun, transaksi, dan saldo dompet setiap user terdaftar</div>
+      </div>
+      <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('admin')">BUKA PANEL</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Sampah Semua User</div>
+        <div class="set-sub">Lihat, pulihkan, atau hapus permanen sampah milik seluruh user</div>
+      </div>
+      <button class="set-action" style="background:var(--red2); color:#fff; border:none;" onclick="showGlobalTrash()">BUKA SAMPAH</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Arsip Terhapus Permanen</div>
+        <div class="set-sub">Data yang sudah dimusnahkan dari sampah tetap tersimpan di sini &amp; masih bisa dipulihkan ke user</div>
+      </div>
+      <button class="set-action" style="background:var(--blue); color:#fff; border:none;" onclick="showAdminArchive()">BUKA ARSIP</button>
+    </div>
+  </div>
+
   <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
@@ -1542,7 +1694,7 @@ import {
 
 import { 
   initializeFirestore, persistentLocalCache, collection, doc, 
-  addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, 
+  addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
   serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1715,7 +1867,7 @@ window.userCats = JSON.parse(JSON.stringify(window.defaultCATS));
 window.savingsGoals = [];
 
 let txs = [], deletedTxs = [], curType = 'income', activePage = 'dashboard', charts = {};
-let adminGrouped = {}, adminUserLabels = {};
+let adminGrouped = {}, adminUserLabels = {}, adminGroupedTrash = {};
 let currentUSDRate = 16000, currentUser = null, unsubListener = null, authMode = 'login';
 let editId = null;
 
@@ -1761,6 +1913,8 @@ window.initTransferAccount = async function() {
                 infoEl.style.display = 'inline-block';
             }
         }
+        window.__myTransferCode = tCode;
+        if (typeof renderWalletTransferCard === 'function' && activePage === 'wallet') renderWalletTransferCard();
     } catch (err) {
         if (infoEl) {
             infoEl.textContent = `⚠️ GAGAL MEMUAT KODE`;
@@ -2563,6 +2717,7 @@ window.doLogout = function() {
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
+    window.__isAdmin = (user.email === "rehantop245@gmail.com");
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'flex';
@@ -2613,7 +2768,11 @@ onAuthStateChanged(auth, async user => {
     } catch(e) { console.error("Gagal sinkron email lama", e); }
     
     const adminEmail = "rehantop245@gmail.com"; 
-    if (user.email === adminEmail) { document.getElementById('nav-admin').style.display = 'inline-block'; } else { document.getElementById('nav-admin').style.display = 'none'; }
+    const isAdminUser = (user.email === adminEmail);
+    window.__isAdmin = isAdminUser;
+    if (isAdminUser) { document.getElementById('nav-admin').style.display = 'inline-block'; } else { document.getElementById('nav-admin').style.display = 'none'; }
+    const adminSettingsGroupEl = document.getElementById('admin-settings-group');
+    if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = isAdminUser ? 'block' : 'none';
 
     try {
         const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await getDoc(prefRef);
@@ -2752,6 +2911,8 @@ function unlockApp() {
         }
 
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
+        if (typeof window.initBalanceRequests === 'function') { window.initBalanceRequests(); }
+        if (window.__isAdmin && typeof window.loadAdminCSList === 'function') { window.loadAdminCSList(); }
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
@@ -2898,6 +3059,17 @@ window.loadAllUsersData = async function() {
         adminGrouped[t.ownerUid].push(t);
     });
 
+    // ======================================================================
+    // Kelompokkan transaksi yang ADA DI SAMPAH (isDeleted:true) per akun,
+    // supaya admin bisa memantau & mengendalikan sampah milik semua user
+    // ======================================================================
+    adminGroupedTrash = {};
+    allUsersTxs.forEach(t => {
+        if (!t.isDeleted) return;
+        if (!adminGroupedTrash[t.ownerUid]) adminGroupedTrash[t.ownerUid] = [];
+        adminGroupedTrash[t.ownerUid].push(t);
+    });
+
     if (adminSummaryContainer) {
         let summaryHtml = allKnownUids.map(uid => {
             const s = userStats[uid] || { inc: 0, exp: 0, count: 0 };
@@ -2907,6 +3079,8 @@ window.loadAllUsersData = async function() {
             const finalNama = fallbackInfo.nama || (finalEmail ? finalEmail.split('@')[0] : null);
             let ownerLabel = finalEmail ? `${finalNama} (${finalEmail})` : `User-${uid.substring(0,6)} (Perlu Login Ulang)`;
             adminUserLabels[uid] = ownerLabel;
+            if (!window.adminUserEmails) window.adminUserEmails = {};
+            window.adminUserEmails[uid] = finalEmail || '';
             const isSelf = uid === currentUser.uid;
             return `
             <div class="m-card admin-user-card" style="border-color: var(--gold);">
@@ -2932,6 +3106,8 @@ window.loadAllUsersData = async function() {
                     <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Bulanan</button>
                     <button class="admin-detail-btn yearly" onclick="showAdminDetail('${uid}','yearly')">📈 Tahunan</button>
                     <button class="admin-detail-btn riwayat" onclick="showAdminDetail('${uid}','riwayat')">🕒 Riwayat</button>
+                    <button class="admin-detail-btn" style="background:rgba(16,185,129,0.08); border:1px solid var(--green2); color:var(--green2);" onclick="showAdminWallet('${uid}')">💰 Isi Dompet</button>
+                    <button class="admin-detail-btn danger" onclick="showAdminTrash('${uid}')">🗑️ Sampah (${(adminGroupedTrash[uid]||[]).length})</button>
                 </div>
                 ${!finalEmail ? `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn fix" onclick="promptFixUserInfo('${uid}')" style="flex:1;">✏️ Lengkapi Nama &amp; Email User Ini</button></div>` : ''}
                 ${isSelf
@@ -3409,6 +3585,943 @@ window.closeAdminDetail = function() {
     const section = document.getElementById('admin-detail-section');
     if (section) section.style.display = 'none';
     if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
+};
+
+// ==========================================================================
+// Hitung saldo per dompet dari sekumpulan transaksi (dipakai dashboard user
+// sendiri maupun panel Admin untuk melihat "isi dompet" milik user lain)
+// ==========================================================================
+function computeWalletsFromArr(arr) {
+    const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 };
+    let hutangBal = 0, piutangBal = 0, totalAset = 0;
+    (arr || []).forEach(t => {
+        if (t.isDeleted) return;
+        let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo;
+        if (w !== 'Hutang' && w !== 'Piutang' && !wallets.hasOwnProperty(w)) wallets[w] = 0;
+        if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang' && !wallets.hasOwnProperty(wTo)) wallets[wTo] = 0;
+        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; }
+        else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; }
+        else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= t.amount; else if (w === 'Piutang') piutangBal += t.amount; else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (wTo === 'Hutang') hutangBal += t.amount; else if (wTo === 'Piutang') piutangBal -= t.amount; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += t.amount; }
+        else if (t.type === 'debt') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; if (!t.isPaid) { hutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } }
+        else if (t.type === 'recv') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (!t.isPaid) { piutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } }
+    });
+    for (let key in wallets) { if (wallets[key] > 0) totalAset += wallets[key]; }
+    return { wallets, hutangBal, piutangBal, totalAset };
+}
+window.computeWalletsFromArr = computeWalletsFromArr;
+
+// ==========================================================================
+// ADMIN: Lihat rincian isi dompet milik user lain
+// ==========================================================================
+window.showAdminWallet = function(uid) {
+    const arr = adminGrouped[uid] || [];
+    const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
+    const { wallets, hutangBal, piutangBal, totalAset } = computeWalletsFromArr(arr);
+
+    const section = document.getElementById('admin-detail-section');
+    const title = document.getElementById('admin-detail-title');
+    const sub = document.getElementById('admin-detail-sub');
+    const chartWrap = document.getElementById('admin-detail-chart-wrap');
+    const listWrap = document.getElementById('admin-detail-list');
+    if (!section || !title || !sub || !chartWrap || !listWrap) return;
+
+    section.style.display = 'block';
+    title.innerHTML = '💰 Isi Dompet — ' + escapeHTML(label);
+    sub.textContent = 'Rincian saldo tiap dompet milik akun ini.';
+    chartWrap.style.display = 'none';
+
+    let html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px;">';
+    Object.entries(wallets).forEach(([name, bal]) => {
+        html += `<div class="w-card"><div class="w-label">${escapeHTML(name)}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div></div>`;
+    });
+    html += `<div class="w-card" style="border-color:rgba(251,191,36,0.5); background:rgba(251,191,36,0.05);"><div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div><div class="w-val min">${fmtFull(hutangBal)}</div></div>`;
+    html += `<div class="w-card" style="border-color:rgba(59,130,246,0.5); background:rgba(59,130,246,0.05);"><div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div><div class="w-val min">${fmtFull(piutangBal)}</div></div>`;
+    html += `<div class="w-card" style="border-color:rgba(16,185,129,0.5); background:rgba(16,185,129,0.05); grid-column:1 / -1;"><div class="w-label" style="color:var(--green2);">TOTAL ASET (SALDO POSITIF)</div><div class="w-val">${fmtFull(totalAset)}</div></div>`;
+    html += '</div>';
+    html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+        <button onclick="window.adminAdjustBalance('${uid}','add')" style="background:rgba(16,185,129,0.15); color:var(--green2); border:1px solid var(--green2); padding:12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">➕ TAMBAH SALDO USER</button>
+        <button onclick="window.adminAdjustBalance('${uid}','subtract')" style="background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); padding:12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">➖ KURANGI SALDO USER</button>
+    </div>`;
+    listWrap.innerHTML = html;
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+// ==========================================================================
+// ADMIN: Tambah / kurangi saldo dompet milik user lain secara langsung
+// (dicatat sebagai transaksi Penyesuaian Admin di akun user tersebut)
+// ==========================================================================
+window.adminAdjustBalance = async function(uid, mode) {
+    const arr = adminGrouped[uid] || [];
+    const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
+    const { wallets } = computeWalletsFromArr(arr);
+    let walletNames = Object.keys(wallets);
+    if (!walletNames.length) walletNames = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+    const walletOpts = walletNames.map(w => `<option value="${w}">${w} (${fmtFull(wallets[w] || 0)})</option>`).join('');
+    const isAdd = mode === 'add';
+
+    const { value: formVals } = await Swal.fire({
+        title: (isAdd ? '➕ Tambah Saldo — ' : '➖ Kurangi Saldo — ') + label,
+        html: `
+          <div style="text-align:left;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Dompet Tujuan</label>
+            <select id="admin-adj-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal</label>
+            <input id="admin-adj-nominal" class="swal2-input" placeholder="Contoh: 100000" type="text" inputmode="numeric" style="margin:4px 0 12px; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Catatan</label>
+            <input id="admin-adj-note" class="swal2-input" placeholder="Contoh: Kompensasi / Koreksi Admin" style="margin:4px 0; width:100%;">
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: isAdd ? 'TAMBAH SEKARANG' : 'KURANGI SEKARANG',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: isAdd ? 'var(--green2)' : 'var(--red2)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const wallet = document.getElementById('admin-adj-wallet').value;
+            const nominal = parseFloat(document.getElementById('admin-adj-nominal').value) || 0;
+            const note = document.getElementById('admin-adj-note').value.trim();
+            if (nominal <= 0) { Swal.showValidationMessage('Nominal harus lebih dari 0!'); return false; }
+            return { wallet, nominal, note };
+        }
+    });
+
+    if (!formVals) return;
+
+    Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const ownerEmail = (window.adminUserEmails && window.adminUserEmails[uid]) || '';
+        await addDoc(collection(db, 'users', uid, 'transactions'), {
+            type: isAdd ? 'income' : 'expense',
+            amount: formVals.nominal,
+            category: isAdd ? 'Penyesuaian Admin (Tambah)' : 'Penyesuaian Admin (Kurang)',
+            wallet: formVals.wallet,
+            note: formVals.note || (isAdd ? 'Tambah saldo oleh admin' : 'Kurangi saldo oleh admin'),
+            date: new Date().toISOString(),
+            ownerEmail: ownerEmail,
+            createdAt: serverTimestamp(),
+            isDeleted: false,
+            adminAdjust: true,
+            adjustedBy: currentUser.email
+        });
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title: isAdd ? 'Saldo Ditambahkan! ✅' : 'Saldo Dikurangi! ✅', text: fmtFull(formVals.nominal) + ' pada dompet ' + formVals.wallet + ' milik ' + label, background:'var(--card)', color:'var(--text)'});
+        window.showAdminWallet(uid);
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Memproses', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// ADMIN: Lihat & kendalikan sampah (Recycle Bin) milik satu user tertentu.
+// Admin bisa memulihkan langsung ke akun user yang tidak sengaja menghapus,
+// atau menghapus permanen (dipindah dulu ke Arsip Admin agar tetap aman).
+// ==========================================================================
+window.showAdminTrash = function(uid) {
+    const arr = (adminGroupedTrash[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
+
+    const section = document.getElementById('admin-detail-section');
+    const title = document.getElementById('admin-detail-title');
+    const sub = document.getElementById('admin-detail-sub');
+    const chartWrap = document.getElementById('admin-detail-chart-wrap');
+    const listWrap = document.getElementById('admin-detail-list');
+    if (!section || !title || !sub || !chartWrap || !listWrap) return;
+
+    section.style.display = 'block';
+    title.innerHTML = '🗑️ Sampah — ' + escapeHTML(label);
+    sub.textContent = arr.length + ' transaksi ada di tempat sampah user ini.';
+    chartWrap.style.display = 'none';
+
+    if (!arr.length) {
+        listWrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Sampah user ini kosong.</div>';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+
+    let html = `<div style="margin-bottom:12px;"><button onclick="adminEmptyTrash('${uid}')" style="width:100%; background:rgba(248,113,113,0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🗑️ KOSONGKAN SEMUA SAMPAH USER INI</button></div>`;
+    arr.forEach(t => {
+        html += `
+        <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg);">
+            <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(t.note || '-')} (${escapeHTML(t.category || '-')})</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">${fmtFull(t.amount)} | ${fmtDate(t.date)}</div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="adminRestoreTx('${uid}','${t.id}')" style="background:rgba(16,185,129,0.2); color:var(--green2); border:1px solid var(--green2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">PULIHKAN KE USER</button>
+                <button onclick="adminHardDeleteTx('${uid}','${t.id}')" style="background:rgba(248,113,113,0.2); color:var(--red2); border:1px solid var(--red2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">HAPUS PERMANEN</button>
+            </div>
+        </div>`;
+    });
+    listWrap.innerHTML = html;
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.adminRestoreTx = async function(uid, id, reopenMode) {
+    Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        await updateDoc(doc(db, 'users', uid, 'transactions', id), { isDeleted: false });
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.adminHardDeleteTx = async function(uid, id, reopenMode) {
+    const res = await Swal.fire({ title: 'Hapus Permanen?', text: "Data akan dipindah ke Arsip Admin (masih bisa dipulihkan lewat menu Arsip Terhapus Permanen).", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', confirmButtonText: 'Ya, Hapus', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const arr = adminGroupedTrash[uid] || [];
+        const t = arr.find(x => x.id === id);
+        const payload = t ? { ...t } : {};
+        delete payload.id;
+        payload.__ownerUid = uid;
+        payload.__originalId = id;
+        payload.__archivedAt = serverTimestamp();
+        payload.__archivedBy = currentUser.email;
+        await setDoc(doc(db, 'archived_deleted', uid + '_' + id), payload);
+        await deleteDoc(doc(db, 'users', uid, 'transactions', id));
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Dipindah ke Arsip', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.adminEmptyTrash = async function(uid) {
+    const arr = adminGroupedTrash[uid] || [];
+    if (!arr.length) return;
+    const res = await Swal.fire({ title: 'Kosongkan Semua?', text: "Semua data sampah user ini akan dipindah ke Arsip Admin.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Kosongkan', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const CHUNK_SIZE = 150;
+        for (let i = 0; i < arr.length; i += CHUNK_SIZE) {
+            const chunk = arr.slice(i, i + CHUNK_SIZE);
+            const batch = writeBatch(db);
+            chunk.forEach(t => {
+                const payload = { ...t };
+                delete payload.id;
+                payload.__ownerUid = uid;
+                payload.__originalId = t.id;
+                payload.__archivedAt = serverTimestamp();
+                payload.__archivedBy = currentUser.email;
+                batch.set(doc(db, 'archived_deleted', uid + '_' + t.id), payload);
+                batch.delete(doc(db, 'users', uid, 'transactions', t.id));
+            });
+            await batch.commit();
+        }
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        window.closeAdminDetail();
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// ADMIN: Lihat & kendalikan sampah SEMUA USER sekaligus dalam satu daftar
+// (bisa dibuka dari halaman Admin ataupun langsung dari menu Pengaturan)
+// ==========================================================================
+window.showGlobalTrash = async function() {
+    if (Object.keys(adminGrouped).length === 0 && Object.keys(adminGroupedTrash).length === 0) {
+        await window.loadAllUsersData();
+    }
+    const uids = Object.keys(adminGroupedTrash);
+    let allTrash = [];
+    uids.forEach(uid => { (adminGroupedTrash[uid] || []).forEach(t => allTrash.push({ ...t, __ownerUid: uid })); });
+    allTrash.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (!allTrash.length) return Swal.fire({icon:'info', title:'Sampah Kosong', text:'Tidak ada data terhapus dari user manapun.', background:'var(--card)', color:'var(--text)'});
+
+    let html = `<div style="margin-bottom:12px;"><button onclick="adminEmptyAllTrash()" style="width:100%; background:rgba(248,113,113,0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🗑️ KOSONGKAN SAMPAH SEMUA USER</button></div>`;
+    html += '<div style="max-height:55vh; overflow-y:auto; text-align:left;">';
+    allTrash.forEach(t => {
+        const label = adminUserLabels[t.__ownerUid] || `User-${t.__ownerUid.substring(0,6)}`;
+        html += `
+        <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
+            <div style="font-size:9px; font-weight:800; color:var(--gold); text-transform:uppercase; margin-bottom:4px;">👤 ${escapeHTML(label)}</div>
+            <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(t.note || '-')} (${escapeHTML(t.category || '-')})</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">${fmtFull(t.amount)} | ${fmtDate(t.date)}</div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="adminRestoreTx('${t.__ownerUid}','${t.id}','global')" style="background:rgba(16,185,129,0.2); color:var(--green2); border:1px solid var(--green2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">PULIHKAN</button>
+                <button onclick="adminHardDeleteTx('${t.__ownerUid}','${t.id}','global')" style="background:rgba(248,113,113,0.2); color:var(--red2); border:1px solid var(--red2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">HAPUS PERMANEN</button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    Swal.fire({title: `🗑️ Sampah Semua User (${allTrash.length})`, html: html, showConfirmButton: false, background:'var(--card)', color:'var(--text)', width: 480});
+};
+
+window.adminEmptyAllTrash = async function() {
+    const uids = Object.keys(adminGroupedTrash);
+    let allTrash = [];
+    uids.forEach(uid => { (adminGroupedTrash[uid] || []).forEach(t => allTrash.push({ ...t, __ownerUid: uid })); });
+    if (!allTrash.length) return Swal.fire({icon:'info', title:'Sampah Kosong', background:'var(--card)', color:'var(--text)'});
+    const res = await Swal.fire({ title: 'Kosongkan Sampah Semua User?', text: `${allTrash.length} data akan dipindah ke Arsip Admin.`, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Kosongkan Semua', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const CHUNK_SIZE = 150;
+        for (let i = 0; i < allTrash.length; i += CHUNK_SIZE) {
+            const chunk = allTrash.slice(i, i + CHUNK_SIZE);
+            const batch = writeBatch(db);
+            chunk.forEach(t => {
+                const payload = { ...t };
+                delete payload.id;
+                const ownerUid = payload.__ownerUid;
+                delete payload.__ownerUid;
+                payload.__ownerUid = ownerUid;
+                payload.__originalId = t.id;
+                payload.__archivedAt = serverTimestamp();
+                payload.__archivedBy = currentUser.email;
+                batch.set(doc(db, 'archived_deleted', ownerUid + '_' + t.id), payload);
+                batch.delete(doc(db, 'users', ownerUid, 'transactions', t.id));
+            });
+            await batch.commit();
+        }
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// ADMIN: Arsip data yang sudah dihapus permanen dari sampah. Data DI SINI
+// masih tersimpan aman & bisa dipulihkan kembali ke akun pemiliknya, atau
+// dimusnahkan selamanya (baru benar-benar hilang setelah langkah ini).
+// ==========================================================================
+window.showAdminArchive = async function() {
+    Swal.fire({title: 'Memuat Arsip...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const snap = await getDocs(collection(db, 'archived_deleted'));
+        if (snap.empty) {
+            return Swal.fire({icon:'info', title:'Arsip Kosong', text:'Belum ada data yang dimusnahkan permanen.', background:'var(--card)', color:'var(--text)'});
+        }
+        let items = snap.docs.map(d => ({ ...d.data(), __archiveId: d.id }));
+        items.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+        let html = `<div style="margin-bottom:12px;"><button onclick="adminEraseAllArchive()" style="width:100%; background:rgba(248,113,113,0.1); color:var(--red2); border:1px solid var(--red2); padding:10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🔥 MUSNAHKAN SELURUH ARSIP (TIDAK BISA DIBATALKAN)</button></div>`;
+        html += '<div style="max-height:55vh; overflow-y:auto; text-align:left;">';
+        items.forEach(t => {
+            const ownerLabel = (adminUserLabels && adminUserLabels[t.__ownerUid]) || t.ownerEmail || `User-${(t.__ownerUid || '').substring(0,6)}`;
+            html += `
+            <div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
+                <div style="font-size:9px; font-weight:800; color:var(--blue); text-transform:uppercase; margin-bottom:4px;">👤 ${escapeHTML(ownerLabel)}</div>
+                <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(t.note || '-')} (${escapeHTML(t.category || '-')})</div>
+                <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">${fmtFull(t.amount || 0)} | ${t.date ? fmtDate(t.date) : '-'}</div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="adminRestoreFromArchive('${t.__archiveId}')" style="background:rgba(16,185,129,0.2); color:var(--green2); border:1px solid var(--green2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">PULIHKAN KE USER</button>
+                    <button onclick="adminEraseArchive('${t.__archiveId}')" style="background:rgba(248,113,113,0.2); color:var(--red2); border:1px solid var(--red2); padding:6px 12px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer; flex:1;">MUSNAHKAN</button>
+                </div>
+            </div>`;
+        });
+        html += '</div>';
+        Swal.fire({title: `🗄️ Arsip Terhapus Permanen (${items.length})`, html: html, showConfirmButton: false, background:'var(--card)', color:'var(--text)', width: 480});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Memuat Arsip', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.adminRestoreFromArchive = async function(archiveId) {
+    Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const ref = doc(db, 'archived_deleted', archiveId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return Swal.fire({icon:'error', title:'Data Tidak Ditemukan', background:'var(--card)', color:'var(--text)'});
+        const data = snap.data();
+        const ownerUid = data.__ownerUid;
+        const originalId = data.__originalId;
+        const payload = { ...data };
+        delete payload.__ownerUid; delete payload.__originalId; delete payload.__archivedAt; delete payload.__archivedBy;
+        payload.isDeleted = false;
+        await setDoc(doc(db, 'users', ownerUid, 'transactions', originalId), payload);
+        await deleteDoc(ref);
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 1300);
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.adminEraseArchive = async function(archiveId) {
+    const res = await Swal.fire({ title: 'Musnahkan Selamanya?', text: "Data ini akan hilang total dan tidak bisa dipulihkan lagi.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', confirmButtonText: 'Ya, Musnahkan', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    Swal.fire({title: 'Memusnahkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        await deleteDoc(doc(db, 'archived_deleted', archiveId));
+        Swal.fire({icon:'success', title:'Dimusnahkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 1100);
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.adminEraseAllArchive = async function() {
+    const res = await Swal.fire({ title: 'Musnahkan SELURUH Arsip?', text: "Semua data arsip akan hilang total selamanya.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', confirmButtonText: 'Ya, Musnahkan Semua', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    Swal.fire({title: 'Memusnahkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const snap = await getDocs(collection(db, 'archived_deleted'));
+        const docs = snap.docs;
+        const CHUNK_SIZE = 400;
+        for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
+            const chunk = docs.slice(i, i + CHUNK_SIZE);
+            const batch = writeBatch(db);
+            chunk.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+        }
+        Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// DOMPET SALDO — kartu gaya dompet digital di halaman Pengaturan, tiap user
+// bisa mengirim saldo dompetnya ke user lain memakai Kode Transfer 3 Angka
+// ==========================================================================
+window.__saldoHidden = false;
+function renderWalletTransferCard() {
+    const wrap = document.getElementById('saldo-wallet-card-wrap');
+    if (!wrap || !currentUser) return;
+    const { totalAset } = computeWalletsFromArr(txs);
+    const code = window.__myTransferCode || '···';
+    const hidden = window.__saldoHidden;
+    wrap.innerHTML = `
+    <div class="saldo-wallet-card">
+        <div class="saldo-wallet-top">
+            <span class="saldo-wallet-tag">💳 RHN WALLET</span>
+            <span class="saldo-wallet-eye" onclick="window.toggleSaldoVisibility()">${hidden ? '🙈' : '👁️'}</span>
+        </div>
+        <div class="saldo-wallet-label">Total Saldo Bisa Dikirim</div>
+        <div class="saldo-wallet-amt">${hidden ? '••••••••' : fmtFull(totalAset)}</div>
+        <div style="font-size:11px; font-weight:700; color:var(--text3); margin-top:2px; position:relative; z-index:1;">${hidden ? '••••' : (typeof getUSD === 'function' ? '≈ ' + getUSD(totalAset) : '')}</div>
+        <div class="saldo-wallet-code">
+            <div>
+                <div style="font-size:9px; color:var(--text3); font-weight:700; text-transform:uppercase;">Kode Terima Kamu</div>
+                <div style="font-size:16px; font-weight:800; color:var(--gold); letter-spacing:3px; font-family:'JetBrains Mono', monospace;">${escapeHTML(String(code))}</div>
+            </div>
+            <div style="font-size:9px; color:var(--text3); text-align:right; max-width:130px;">Bagikan kode ini agar user lain bisa kirim saldo ke kamu</div>
+        </div>
+        <div class="saldo-wallet-actions">
+            <button class="saldo-wallet-btn send" onclick="window.promptSendSaldo()">🚀 <span>KIRIM</span></button>
+            <button class="saldo-wallet-btn request" onclick="window.promptRequestSaldo()">📥 <span>MINTA SALDO</span></button>
+            <button class="saldo-wallet-btn topup" onclick="document.getElementById('qris-generator-group').scrollIntoView({behavior:'smooth'})">➕ <span>ISI SALDO</span></button>
+            <button class="saldo-wallet-btn receive" onclick="window.switchPage('riwayat')">🧾 <span>RIWAYAT</span></button>
+        </div>
+    </div>`;
+}
+window.renderWalletTransferCard = renderWalletTransferCard;
+
+// ==========================================================================
+// RIWAYAT TRANSAKSI WALLET — layar penuh (mirip halaman Riwayat, dipanggil
+// dari tombol di halaman Wallet). Menampilkan semua transaksi, bisa difilter
+// per dompet, memakai createTxCard/renderList yang sama dengan halaman Riwayat.
+// ==========================================================================
+window.openWalletHistoryScreen = function() {
+    const screen = document.getElementById('wallet-hist-screen');
+    if (!screen) return;
+    screen.style.display = 'flex';
+
+    // Isi dropdown filter dompet dari daftar dompet yang benar-benar ada di transaksi
+    const sel = document.getElementById('wallet-hist-filter-select');
+    if (sel) {
+        const wallets = new Set();
+        txs.forEach(t => { if (t.wallet) wallets.add(t.wallet); if (t.walletTo) wallets.add(t.walletTo); });
+        const prevVal = sel.value;
+        sel.innerHTML = '<option value="">Semua Dompet</option>' +
+            [...wallets].sort().map(w => `<option value="${w}">${w}</option>`).join('');
+        sel.value = [...wallets].includes(prevVal) ? prevVal : '';
+    }
+
+    window.renderWalletHistoryScreen(sel ? sel.value : '');
+};
+
+window.closeWalletHistoryScreen = function() {
+    const screen = document.getElementById('wallet-hist-screen');
+    if (screen) screen.style.display = 'none';
+};
+
+window.renderWalletHistoryScreen = function(walletFilter) {
+    const body = document.getElementById('wallet-hist-body');
+    if (!body) return;
+
+    let filtered = txs.slice();
+    if (walletFilter) {
+        filtered = filtered.filter(t => t.wallet === walletFilter || t.walletTo === walletFilter);
+    }
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const sub = document.getElementById('wallet-hist-sub');
+    if (sub) sub.textContent = walletFilter ? `Dompet: ${walletFilter} · ${filtered.length} transaksi` : `Semua dompet · ${filtered.length} transaksi`;
+
+    renderList(body, filtered);
+};
+
+window.toggleSaldoVisibility = function() {
+    window.__saldoHidden = !window.__saldoHidden;
+    renderWalletTransferCard();
+};
+
+window.promptSendSaldo = async function() {
+    if (!currentUser) return;
+    const { wallets } = computeWalletsFromArr(txs);
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
+
+    const { value: formVals } = await Swal.fire({
+        title: '🚀 Kirim Saldo',
+        html: `
+          <div style="text-align:left;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
+            <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Tujuan (3 Angka)</label>
+            <input id="saldo-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="number" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo</label>
+            <input id="saldo-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'LANJUT ➔',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const src = document.getElementById('saldo-src-wallet').value;
+            const code = document.getElementById('saldo-target-code').value;
+            const nominal = parseFloat(document.getElementById('saldo-nominal').value) || 0;
+            if (!code || code.length !== 3) { Swal.showValidationMessage('Kode transfer harus 3 angka!'); return false; }
+            if (nominal <= 0) { Swal.showValidationMessage('Nominal harus lebih dari 0!'); return false; }
+            return { src, code, nominal };
+        }
+    });
+
+    if (!formVals) return;
+
+    const { wallets: freshWallets } = computeWalletsFromArr(txs);
+    if ((freshWallets[formVals.src] || 0) < formVals.nominal) {
+        return Swal.fire({icon:'warning', title:'Saldo Tidak Cukup', text:`Saldo ${formVals.src} kamu cuma ${fmtFull(freshWallets[formVals.src] || 0)}.`, background:'var(--card)', color:'var(--text)'});
+    }
+
+    Swal.fire({title: 'Mencari Akun Tujuan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    let target;
+    try {
+        target = await window.lookupTransferTarget(formVals.code);
+    } catch(e) {
+        return Swal.fire({icon:'error', title:'Gagal Mencari Akun', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+    if (!target) {
+        return Swal.fire({icon:'error', title:'Kode Tidak Ditemukan', text:'Pastikan akun tujuan sudah pernah membuka aplikasi ini.', background:'var(--card)', color:'var(--text)'});
+    }
+    if (target.uid === currentUser.uid) {
+        return Swal.fire({icon:'warning', title:'Gagal', text:'Nggak bisa kirim saldo ke akun sendiri bro!', background:'var(--card)', color:'var(--text)'});
+    }
+
+    const res = await Swal.fire({
+        title: 'Konfirmasi Kirim Saldo',
+        html: `
+          <div style="text-align:left; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <div style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; margin-bottom:8px;">Saldo akan dikirim ke:</div>
+            <div style="font-size:16px; font-weight:800; color:var(--gold); margin-bottom:4px;">${escapeHTML(target.nama)}</div>
+            <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', monospace;">${escapeHTML(target.email)}</div>
+            <div style="font-size:10px; color:var(--text3); margin-top:12px;">Dari: <b style="color:var(--text);">${escapeHTML(formVals.src)}</b> · Jumlah: <b style="color:var(--green2);">${fmtFull(formVals.nominal)}</b></div>
+          </div>
+          <div style="font-size:11px; color:var(--red2); margin-top:12px;">Pastikan nama & email di atas benar. Saldo akan langsung berkurang dari dompetmu.</div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'YA, KIRIM SEKARANG',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)'
+    });
+
+    if (res.isConfirmed) {
+        await window.executeSaldoTransfer(formVals.src, formVals.nominal, target);
+    }
+};
+
+window.executeSaldoTransfer = async function(srcWallet, nominal, target) {
+    Swal.fire({title: 'Mengirim Saldo...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const nowD = new Date().toISOString();
+        const batch = writeBatch(db);
+        const outRef = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+        batch.set(outRef, {
+            type: 'expense', amount: nominal, category: 'Transfer Saldo Keluar', wallet: srcWallet,
+            note: 'Kirim Saldo ke ' + target.nama, date: nowD, ownerEmail: currentUser.email,
+            createdAt: serverTimestamp(), isDeleted: false
+        });
+        const inRef = doc(collection(db, 'users', target.uid, 'transactions'));
+        batch.set(inRef, {
+            type: 'income', amount: nominal, category: 'Transfer Saldo Masuk', wallet: 'Kas Tunai',
+            note: 'Terima Saldo dari ' + (currentUser.displayName || currentUser.email.split('@')[0]), date: nowD,
+            ownerEmail: target.email, createdAt: serverTimestamp(), isDeleted: false
+        });
+        await batch.commit();
+        Swal.fire({icon:'success', title:'Saldo Terkirim! 🚀', text: fmtFull(nominal) + ' berhasil dikirim ke ' + target.nama, background:'var(--card)', color:'var(--text)'});
+        renderWalletTransferCard();
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Kirim Saldo', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// MINTA SALDO — user bisa membuat permintaan saldo ke user lain memakai
+// Kode Transfer 3 Angka. User tujuan akan melihatnya di halaman Dompet dan
+// bisa menyetujui (saldo otomatis pindah) atau menolak permintaan tersebut.
+// ==========================================================================
+window.__unsubIncomingReq = null;
+window.__unsubSentReq = null;
+
+window.promptRequestSaldo = async function() {
+    if (!currentUser) return;
+    const { wallets } = computeWalletsFromArr(txs);
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w}</option>`).join('');
+
+    const { value: formVals } = await Swal.fire({
+        title: '↓ Minta Saldo',
+        html: `
+          <div style="text-align:left;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Pengirim (3 Angka)</label>
+            <input id="req-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="number" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo Diminta</label>
+            <input id="req-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0 12px; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Saldo Masuk Ke Dompet</label>
+            <select id="req-my-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Catatan (Opsional)</label>
+            <input id="req-note" class="swal2-input" placeholder="Contoh: Bayar utang kemarin" style="margin:4px 0; width:100%;">
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'KIRIM PERMINTAAN ➔',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const code = document.getElementById('req-target-code').value;
+            const nominal = parseFloat(document.getElementById('req-nominal').value) || 0;
+            const myWallet = document.getElementById('req-my-wallet').value;
+            const note = document.getElementById('req-note').value.trim();
+            if (!code || code.length !== 3) { Swal.showValidationMessage('Kode transfer harus 3 angka!'); return false; }
+            if (nominal <= 0) { Swal.showValidationMessage('Nominal harus lebih dari 0!'); return false; }
+            return { code, nominal, myWallet, note };
+        }
+    });
+
+    if (!formVals) return;
+
+    Swal.fire({title: 'Mencari Akun Tujuan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    let target;
+    try {
+        target = await window.lookupTransferTarget(formVals.code);
+    } catch(e) {
+        return Swal.fire({icon:'error', title:'Gagal Mencari Akun', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+    if (!target) {
+        return Swal.fire({icon:'error', title:'Kode Tidak Ditemukan', text:'Pastikan akun tujuan sudah pernah membuka aplikasi ini.', background:'var(--card)', color:'var(--text)'});
+    }
+    if (target.uid === currentUser.uid) {
+        return Swal.fire({icon:'warning', title:'Gagal', text:'Nggak bisa minta saldo ke akun sendiri bro!', background:'var(--card)', color:'var(--text)'});
+    }
+
+    try {
+        await addDoc(collection(db, 'balance_requests'), {
+            fromUid: currentUser.uid,
+            fromName: currentUser.displayName || currentUser.email.split('@')[0],
+            fromEmail: currentUser.email,
+            toUid: target.uid,
+            toName: target.nama,
+            toEmail: target.email,
+            amount: formVals.nominal,
+            myWallet: formVals.myWallet,
+            note: formVals.note || '-',
+            status: 'pending',
+            createdAt: serverTimestamp(),
+            createdAtLocal: new Date().toISOString()
+        });
+        Swal.fire({icon:'success', title:'Permintaan Terkirim! 📥', text:`Permintaan saldo ${fmtFull(formVals.nominal)} sudah dikirim ke ${target.nama}. Menunggu persetujuan.`, background:'var(--card)', color:'var(--text)'});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Mengirim Permintaan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.initBalanceRequests = function() {
+    if (!currentUser) return;
+    if (window.__unsubIncomingReq) { window.__unsubIncomingReq(); window.__unsubIncomingReq = null; }
+    if (window.__unsubSentReq) { window.__unsubSentReq(); window.__unsubSentReq = null; }
+
+    window.__incomingReqs = [];
+    window.__sentReqs = [];
+
+    try {
+        window.__unsubIncomingReq = onSnapshot(
+            query(collection(db, 'balance_requests'), where('toUid', '==', currentUser.uid), where('status', '==', 'pending')),
+            snap => {
+                window.__incomingReqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                window.renderPendingRequests();
+            }
+        );
+        window.__unsubSentReq = onSnapshot(
+            query(collection(db, 'balance_requests'), where('fromUid', '==', currentUser.uid)),
+            snap => {
+                window.__sentReqs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAtLocal || '').localeCompare(a.createdAtLocal || '')).slice(0, 20);
+                window.renderSentRequests();
+            }
+        );
+    } catch(e) { console.error('Gagal memuat permintaan saldo', e); }
+};
+
+window.renderPendingRequests = function() {
+    const wrap = document.getElementById('wallet-pending-requests');
+    if (!wrap) return;
+    const arr = window.__incomingReqs || [];
+    if (!arr.length) {
+        wrap.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text3); font-size:11px;">Tidak ada permintaan saldo masuk.</div>';
+        return;
+    }
+    wrap.innerHTML = arr.map(r => `
+        <div class="req-item">
+            <div class="req-top">
+                <div>
+                    <div class="req-name">${escapeHTML(r.fromName || 'User')}</div>
+                    <div style="font-size:9px; color:var(--text3);">${escapeHTML(r.fromEmail || '')}</div>
+                </div>
+                <div class="req-amt">${fmtFull(r.amount)}</div>
+            </div>
+            <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
+            <div class="req-actions">
+                <button class="req-btn ok" onclick="window.approveBalanceRequest('${r.id}')">✅ SETUJUI</button>
+                <button class="req-btn no" onclick="window.rejectBalanceRequest('${r.id}')">✕ TOLAK</button>
+            </div>
+        </div>
+    `).join('');
+};
+
+window.renderSentRequests = function() {
+    const wrap = document.getElementById('wallet-sent-requests');
+    if (!wrap) return;
+    const arr = window.__sentReqs || [];
+    if (!arr.length) {
+        wrap.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text3); font-size:11px;">Belum ada permintaan saldo yang kamu buat.</div>';
+        return;
+    }
+    wrap.innerHTML = arr.map(r => `
+        <div class="req-item">
+            <div class="req-top">
+                <div>
+                    <div class="req-name">Ke: ${escapeHTML(r.toName || 'User')}</div>
+                    <div style="font-size:9px; color:var(--text3);">${escapeHTML(r.toEmail || '')}</div>
+                </div>
+                <div class="req-amt">${fmtFull(r.amount)}</div>
+            </div>
+            <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
+            <span class="req-badge ${r.status}">${r.status === 'pending' ? 'MENUNGGU' : (r.status === 'approved' ? 'DISETUJUI' : 'DITOLAK')}</span>
+        </div>
+    `).join('');
+};
+
+window.approveBalanceRequest = async function(reqId) {
+    const r = (window.__incomingReqs || []).find(x => x.id === reqId);
+    if (!r) return;
+    const { wallets } = computeWalletsFromArr(txs);
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
+
+    const { value: srcWallet } = await Swal.fire({
+        title: 'Setujui Permintaan Saldo?',
+        html: `
+          <div style="text-align:left;">
+            <div style="font-size:12px; color:var(--text2); margin-bottom:12px;">Kirim <b style="color:var(--gold);">${fmtFull(r.amount)}</b> ke <b>${escapeHTML(r.fromName)}</b>?</div>
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Bayar Dari Dompet</label>
+            <select id="approve-src-wallet" class="swal2-input" style="margin:4px 0; width:100%;">${walletOpts}</select>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'YA, SETUJUI & KIRIM',
+        cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => document.getElementById('approve-src-wallet').value
+    });
+
+    if (!srcWallet) return;
+
+    const { wallets: freshWallets } = computeWalletsFromArr(txs);
+    if ((freshWallets[srcWallet] || 0) < r.amount) {
+        return Swal.fire({icon:'warning', title:'Saldo Tidak Cukup', text:`Saldo ${srcWallet} kamu cuma ${fmtFull(freshWallets[srcWallet] || 0)}.`, background:'var(--card)', color:'var(--text)'});
+    }
+
+    Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    try {
+        const nowD = new Date().toISOString();
+        const batch = writeBatch(db);
+        const outRef = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+        batch.set(outRef, {
+            type: 'expense', amount: r.amount, category: 'Transfer Saldo Keluar', wallet: srcWallet,
+            note: 'Setujui Permintaan Saldo dari ' + r.fromName, date: nowD, ownerEmail: currentUser.email,
+            createdAt: serverTimestamp(), isDeleted: false
+        });
+        const inRef = doc(collection(db, 'users', r.fromUid, 'transactions'));
+        batch.set(inRef, {
+            type: 'income', amount: r.amount, category: 'Transfer Saldo Masuk', wallet: r.myWallet || 'Kas Tunai',
+            note: 'Permintaan Saldo Disetujui oleh ' + (currentUser.displayName || currentUser.email.split('@')[0]), date: nowD,
+            ownerEmail: r.fromEmail, createdAt: serverTimestamp(), isDeleted: false
+        });
+        batch.update(doc(db, 'balance_requests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
+        await batch.commit();
+        Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(r.amount) + ' berhasil dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)'});
+        renderWalletTransferCard();
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Memproses', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.rejectBalanceRequest = async function(reqId) {
+    const res = await Swal.fire({ title: 'Tolak Permintaan Ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Tolak', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
+    if (!res.isConfirmed) return;
+    try {
+        await updateDoc(doc(db, 'balance_requests', reqId), { status: 'rejected', rejectedAt: serverTimestamp() });
+        Swal.fire({icon:'success', title:'Permintaan Ditolak', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+// ==========================================================================
+// CUSTOMER SERVICE CHAT — user bisa chat langsung ke admin dari halaman
+// Dompet. Admin melihat semua percakapan masuk di halaman Admin dan bisa
+// membalas real-time. Disimpan di collection 'support_chats/{uid}/messages'.
+// ==========================================================================
+window.__csActiveUid = null;
+window.__csIsAdminView = false;
+window.__unsubCSMessages = null;
+window.__unsubCSList = null;
+
+window.openCSChat = function() {
+    if (!currentUser) return;
+    window.__csActiveUid = currentUser.uid;
+    window.__csIsAdminView = false;
+    const titleEl = document.getElementById('cs-chat-title');
+    const subEl = document.getElementById('cs-chat-sub');
+    if (titleEl) titleEl.textContent = 'Customer Service';
+    if (subEl) subEl.textContent = 'Admin biasanya balas cepat';
+    document.getElementById('cs-chat-screen').style.display = 'flex';
+    window.subscribeCSMessages(currentUser.uid);
+    try {
+        setDoc(doc(db, 'support_chats', currentUser.uid), {
+            userUid: currentUser.uid,
+            userName: currentUser.displayName || currentUser.email.split('@')[0],
+            userEmail: currentUser.email,
+            unreadForUser: false
+        }, { merge: true });
+    } catch(e) {}
+};
+
+window.openAdminCSChat = function(uid, name) {
+    window.__csActiveUid = uid;
+    window.__csIsAdminView = true;
+    const titleEl = document.getElementById('cs-chat-title');
+    const subEl = document.getElementById('cs-chat-sub');
+    if (titleEl) titleEl.textContent = name || 'User';
+    if (subEl) subEl.textContent = 'Chat sebagai Admin';
+    document.getElementById('cs-chat-screen').style.display = 'flex';
+    window.subscribeCSMessages(uid);
+    try { setDoc(doc(db, 'support_chats', uid), { unreadForAdmin: false }, { merge: true }); } catch(e) {}
+};
+
+window.closeCSChat = function() {
+    const screen = document.getElementById('cs-chat-screen');
+    if (screen) screen.style.display = 'none';
+    if (window.__unsubCSMessages) { window.__unsubCSMessages(); window.__unsubCSMessages = null; }
+    const wasAdminView = window.__csIsAdminView;
+    window.__csActiveUid = null;
+    if (wasAdminView && typeof window.loadAdminCSList === 'function') window.loadAdminCSList();
+};
+
+window.subscribeCSMessages = function(uid) {
+    if (window.__unsubCSMessages) { window.__unsubCSMessages(); window.__unsubCSMessages = null; }
+    const body = document.getElementById('cs-chat-body');
+    if (body) body.innerHTML = '<div style="text-align:center; color:var(--text3); font-size:11px; padding:20px;">Memuat pesan...</div>';
+    try {
+        window.__unsubCSMessages = onSnapshot(
+            query(collection(db, 'support_chats', uid, 'messages'), orderBy('createdAtLocal', 'asc')),
+            snap => { window.renderCSMessages(snap.docs.map(d => d.data())); },
+            () => { if (body) body.innerHTML = '<div style="text-align:center; color:var(--red2); font-size:11px; padding:20px;">Gagal memuat chat.</div>'; }
+        );
+    } catch(e) { if (body) body.innerHTML = '<div style="text-align:center; color:var(--red2); font-size:11px; padding:20px;">Gagal memuat chat.</div>'; }
+};
+
+window.renderCSMessages = function(msgs) {
+    const body = document.getElementById('cs-chat-body');
+    if (!body) return;
+    if (!msgs.length) { body.innerHTML = '<div style="text-align:center; color:var(--text3); font-size:11px; padding:20px;">Belum ada pesan. Mulai chat sekarang!</div>'; return; }
+    const isAdminView = window.__csIsAdminView;
+    body.innerHTML = msgs.map(m => {
+        const mine = isAdminView ? (m.sender === 'admin') : (m.sender === 'user');
+        const timeStr = m.createdAtLocal ? fmtTime(m.createdAtLocal) : '';
+        return `<div class="cs-bubble ${mine ? 'me' : 'them'}">${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
+    }).join('');
+    body.scrollTop = body.scrollHeight;
+};
+
+window.sendCSMessage = async function() {
+    const input = document.getElementById('cs-chat-input');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text || !window.__csActiveUid || !currentUser) return;
+    input.value = '';
+    const sender = window.__csIsAdminView ? 'admin' : 'user';
+    const nowIso = new Date().toISOString();
+    try {
+        await addDoc(collection(db, 'support_chats', window.__csActiveUid, 'messages'), {
+            sender, text, createdAt: serverTimestamp(), createdAtLocal: nowIso,
+            senderName: currentUser.displayName || currentUser.email.split('@')[0]
+        });
+        const metaPayload = { lastMessage: text, lastMessageAt: serverTimestamp(), lastMessageAtLocal: nowIso, lastSender: sender };
+        if (sender === 'user') {
+            metaPayload.userUid = currentUser.uid;
+            metaPayload.userName = currentUser.displayName || currentUser.email.split('@')[0];
+            metaPayload.userEmail = currentUser.email;
+            metaPayload.unreadForAdmin = true;
+        } else {
+            metaPayload.unreadForUser = true;
+        }
+        await setDoc(doc(db, 'support_chats', window.__csActiveUid), metaPayload, { merge: true });
+    } catch(e) {
+        Swal.fire({icon:'error', title:'Gagal Mengirim Pesan', text: e.message, background:'var(--card)', color:'var(--text)'});
+    }
+};
+
+window.loadAdminCSList = function() {
+    if (window.__unsubCSList) { window.__unsubCSList(); window.__unsubCSList = null; }
+    const wrap = document.getElementById('admin-cs-list');
+    if (!wrap) return;
+    try {
+        window.__unsubCSList = onSnapshot(collection(db, 'support_chats'), snap => {
+            let arr = snap.docs.map(d => ({ uid: d.id, ...d.data() })).filter(x => x.lastMessage);
+            arr.sort((a, b) => (b.lastMessageAtLocal || '').localeCompare(a.lastMessageAtLocal || ''));
+            if (!arr.length) { wrap.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Belum ada chat dari user.</div>'; return; }
+            wrap.innerHTML = arr.map(c => {
+                const name = c.userName || 'User';
+                const initial = name.charAt(0).toUpperCase();
+                const unread = !!c.unreadForAdmin;
+                const safeName = String(name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `<div class="cs-list-item" onclick="window.openAdminCSChat('${c.uid}', '${safeName}')">
+                    <div class="cs-list-avatar">${escapeHTML(initial)}</div>
+                    <div class="cs-list-info">
+                        <div class="cs-list-name">${escapeHTML(name)}</div>
+                        <div class="cs-list-last">${c.lastSender === 'admin' ? 'Anda: ' : ''}${escapeHTML(c.lastMessage || '')}</div>
+                    </div>
+                    ${unread ? '<div class="cs-unread-dot"></div>' : ''}
+                </div>`;
+            }).join('');
+        }, () => { wrap.innerHTML = '<div style="padding:24px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat daftar chat.</div>'; });
+    } catch(e) { wrap.innerHTML = '<div style="padding:24px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat daftar chat.</div>'; }
 };
 
 window.promptFixUserInfo = async function(uid) {
@@ -5249,6 +6362,12 @@ window.refreshAll = function() {
         renderYearly();
     } else if (activePage === 'riwayat') {
         renderAll();
+    } else if (activePage === 'wallet') {
+        if (typeof renderWalletTransferCard === 'function') renderWalletTransferCard();
+        if (typeof window.renderPendingRequests === 'function') window.renderPendingRequests();
+        if (typeof window.renderSentRequests === 'function') window.renderSentRequests();
+    } else if (activePage === 'admin') {
+        if (typeof window.loadAdminCSList === 'function') window.loadAdminCSList();
     }
 };
 
@@ -5304,5 +6423,36 @@ window.addEventListener('focus', function () {
 });
 
 </script>
+<div id="cs-chat-screen">
+  <div class="cs-chat-head">
+    <div class="cs-back" onclick="window.closeCSChat()">←</div>
+    <div style="flex:1;">
+      <div class="cs-title" id="cs-chat-title">Customer Service</div>
+      <div class="cs-sub" id="cs-chat-sub">Admin biasanya balas cepat</div>
+    </div>
+  </div>
+  <div class="cs-chat-body" id="cs-chat-body"></div>
+  <div class="cs-chat-input-wrap">
+    <input type="text" id="cs-chat-input" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter'){window.sendCSMessage();}">
+    <button onclick="window.sendCSMessage()">➤</button>
+  </div>
+</div>
+
+<div id="wallet-hist-screen">
+  <div class="wallet-hist-head">
+    <div class="cs-back" onclick="window.closeWalletHistoryScreen()">←</div>
+    <div style="flex:1;">
+      <div class="cs-title">Riwayat Transaksi Wallet</div>
+      <div class="cs-sub" id="wallet-hist-sub">Semua transaksi di seluruh dompet</div>
+    </div>
+  </div>
+  <div class="wallet-hist-filter">
+    <select id="wallet-hist-filter-select" class="f-input-dark" onchange="window.renderWalletHistoryScreen(this.value)">
+      <option value="">Semua Dompet</option>
+    </select>
+  </div>
+  <div class="wallet-hist-body" id="wallet-hist-body"></div>
+</div>
+
 </body>
 </html>
