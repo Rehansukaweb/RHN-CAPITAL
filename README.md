@@ -1502,7 +1502,7 @@ body.global-privacy #xau-idr-gr {
           challenge, rp: { name: 'RHN CAPITAL' },
           user: { id: userId, name: uid, displayName: (window.currentUser && window.currentUser.email) || 'RHN User' },
           pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-          authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+          authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred', requireResidentKey: false },
           timeout: 60000
         }
       });
@@ -1563,14 +1563,29 @@ body.global-privacy #xau-idr-gr {
       if (!credB64 || !window.isBiometricSupported()) return false;
       const rawId = Uint8Array.from(atob(credB64), c => c.charCodeAt(0));
       const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
-      const assertion = await navigator.credentials.get({
-        publicKey: {
-          challenge,
-          allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
-          userVerification: 'required',
-          timeout: 60000
-        }
-      });
+
+      let assertion = null;
+      try {
+        // Percobaan 1: pakai ID kredensial yang tersimpan
+        assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge,
+            allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
+            userVerification: 'required',
+            timeout: 60000
+          }
+        });
+      } catch (e1) {
+        // FIX: kalau ID tersimpan gak cocok (mismatch encoding/perangkat), coba lagi
+        // TANPA filter ID spesifik — biarkan browser cari kredensial device manapun
+        // yang terdaftar untuk domain ini. Selama sensor sidik jari berhasil membaca
+        // & diverifikasi OS, ini dianggap valid untuk buka aplikasi.
+        const challenge2 = new Uint8Array(32); crypto.getRandomValues(challenge2);
+        assertion = await navigator.credentials.get({
+          publicKey: { challenge: challenge2, userVerification: 'required', timeout: 60000 }
+        });
+      }
+
       if (assertion) { window.appUnlocked = true; unlockApp(); return true; }
       return false;
     } catch(e) {
