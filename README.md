@@ -1493,14 +1493,14 @@ body.global-privacy #xau-idr-gr {
 
   window.setupBiometric = async function(silent) {
     try {
-      const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+      const uid = window.currentUser ? window.currentUser.uid : localStorage.getItem('last_uid_rhn');
       if (!uid) { if (!silent) Swal.fire({icon:'error', title:'Belum Login', background:'var(--card)', color:'var(--text)'}); return; }
       const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
       const userId = new TextEncoder().encode(uid);
       const cred = await navigator.credentials.create({
         publicKey: {
           challenge, rp: { name: 'RHN CAPITAL' },
-          user: { id: userId, name: uid, displayName: (currentUser && currentUser.email) || 'RHN User' },
+          user: { id: userId, name: uid, displayName: (window.currentUser && window.currentUser.email) || 'RHN User' },
           pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
           authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
           timeout: 60000
@@ -2684,7 +2684,7 @@ window.doLogout = function() {
 
 onAuthStateChanged(auth, async user => {
   if (user) {
-    currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
+    currentUser = user; window.currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'flex';
@@ -2794,7 +2794,7 @@ onAuthStateChanged(auth, async user => {
     
     
   } else {
-    currentUser = null; 
+    currentUser = null; window.currentUser = null;
     localStorage.removeItem('last_uid_rhn'); 
     localStorage.removeItem('local_pin_rhn');
     window.appUnlocked = false;
