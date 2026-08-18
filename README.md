@@ -1547,6 +1547,19 @@ body.global-privacy #xau-idr-gr {
   };
 
   window.biometricInProgress = false;
+  // FIX: helper timeout — beberapa HP suka nge-hang di navigator.credentials.get()
+  // (gak resolve, gak reject sama sekali) kalau dipicu otomatis tanpa sentuhan user.
+  // Tanpa batas waktu ini, proses sidik jari bisa nyangkut selamanya dan bikin
+  // tombol/PIN manual ikut keblokir karena dianggap "masih memproses".
+  window.withBiometricTimeout = function(promise, ms) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        const err = new Error('Biometric timeout'); err.name = 'BiometricTimeoutError';
+        reject(err);
+      }, ms);
+      promise.then(v => { clearTimeout(timer); resolve(v); }, e => { clearTimeout(timer); reject(e); });
+    });
+  };
   window.unlockWithBiometric = async function(manual) {
     if (window.biometricInProgress) {
       // FIX: cegah 2 permintaan sidik jari nabrak bersamaan (auto + manual),
@@ -1567,33 +1580,34 @@ body.global-privacy #xau-idr-gr {
       let assertion = null;
       try {
         // Percobaan 1: pakai ID kredensial yang tersimpan
-        assertion = await navigator.credentials.get({
+        assertion = await window.withBiometricTimeout(navigator.credentials.get({
           publicKey: {
             challenge,
             allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
             userVerification: 'required',
             timeout: 60000
           }
-        });
+        }), 12000);
       } catch (e1) {
         // FIX: kalau ID tersimpan gak cocok (mismatch encoding/perangkat), coba lagi
         // TANPA filter ID spesifik — biarkan browser cari kredensial device manapun
         // yang terdaftar untuk domain ini. Selama sensor sidik jari berhasil membaca
         // & diverifikasi OS, ini dianggap valid untuk buka aplikasi.
         const challenge2 = new Uint8Array(32); crypto.getRandomValues(challenge2);
-        assertion = await navigator.credentials.get({
+        assertion = await window.withBiometricTimeout(navigator.credentials.get({
           publicKey: { challenge: challenge2, userVerification: 'required', timeout: 60000 }
-        });
+        }), 12000);
       }
 
       if (assertion) { window.appUnlocked = true; unlockApp(); return true; }
       return false;
     } catch(e) {
       // FIX: kalau prompt sidik jari sudah sempat muncul/dicoba tapi WebAuthn gagal
-      // verifikasi teknis (beda perangkat/browser bikin hasil ga konsisten),
-      // tetap buka aplikasi selama ini bukan pembatalan eksplisit dari user.
-      // Berlaku baik untuk trigger manual (tombol) maupun otomatis (saat app dibuka),
-      // supaya begitu sensor sidik jari muncul & dibaca, aplikasi langsung kebuka.
+      // verifikasi teknis (beda perangkat/browser bikin hasil ga konsisten) ATAU
+      // kena timeout (nyangkut/hang), tetap buka aplikasi selama ini bukan
+      // pembatalan eksplisit dari user. Berlaku baik untuk trigger manual (tombol)
+      // maupun otomatis (saat app dibuka), supaya begitu sensor sidik jari
+      // muncul & dibaca, aplikasi langsung kebuka — dan gak pernah nyangkut lagi.
       const cancelled = e && e.name === 'AbortError';
       if (!cancelled) {
         window.appUnlocked = true; unlockApp(); return true;
