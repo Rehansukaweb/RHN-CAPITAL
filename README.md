@@ -1546,7 +1546,18 @@ body.global-privacy #xau-idr-gr {
     }
   };
 
+  window.biometricInProgress = false;
   window.unlockWithBiometric = async function(manual) {
+    if (window.biometricInProgress) {
+      // FIX: cegah 2 permintaan sidik jari nabrak bersamaan (auto + manual),
+      // yang bikin browser nolak keduanya dan muncul pesan "tidak dikenali" palsu.
+      if (manual) {
+        const errEl = document.getElementById('pin-err');
+        if (errEl) { errEl.textContent = 'Sedang memproses sidik jari, tunggu sebentar...'; errEl.style.display = 'block'; }
+      }
+      return false;
+    }
+    window.biometricInProgress = true;
     try {
       const credB64 = localStorage.getItem('biometric_cred_rhn');
       if (!credB64 || !window.isBiometricSupported()) return false;
@@ -1565,9 +1576,15 @@ body.global-privacy #xau-idr-gr {
     } catch(e) {
       if (manual) {
         const errEl = document.getElementById('pin-err');
-        if (errEl) { errEl.textContent = 'Sidik jari tidak dikenali, coba lagi atau pakai PIN.'; errEl.style.display = 'block'; }
+        let msg = 'Sidik jari tidak dikenali, coba lagi atau pakai PIN.';
+        if (e && e.name === 'NotAllowedError') msg = 'Sidik jari dibatalkan / tidak diizinkan. Coba lagi atau pakai PIN.';
+        else if (e && e.name === 'InvalidStateError') msg = 'Sedang ada proses sidik jari lain. Coba lagi.';
+        else if (e && e.name === 'SecurityError') msg = 'Situs tidak diakses lewat HTTPS yang valid untuk sidik jari.';
+        if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
       }
       return false;
+    } finally {
+      window.biometricInProgress = false;
     }
   };
 
