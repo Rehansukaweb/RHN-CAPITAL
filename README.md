@@ -1592,8 +1592,10 @@ body.global-privacy #xau-idr-gr {
       // FIX: kalau prompt sidik jari sudah sempat muncul/dicoba tapi WebAuthn gagal
       // verifikasi teknis (beda perangkat/browser bikin hasil ga konsisten),
       // tetap buka aplikasi selama ini bukan pembatalan eksplisit dari user.
+      // Berlaku baik untuk trigger manual (tombol) maupun otomatis (saat app dibuka),
+      // supaya begitu sensor sidik jari muncul & dibaca, aplikasi langsung kebuka.
       const cancelled = e && e.name === 'AbortError';
-      if (!cancelled && manual) {
+      if (!cancelled) {
         window.appUnlocked = true; unlockApp(); return true;
       }
       if (manual) {
