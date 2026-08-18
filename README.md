@@ -717,6 +717,10 @@ body.global-privacy #xau-idr-gr {
        <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
+
+    <button id="biometric-unlock-btn" onclick="event.stopPropagation(); window.unlockWithBiometric(true)" style="display:none; width:100%; align-items:center; justify-content:center; gap:8px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 14px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 12px;">
+      <span style="font-size:16px;">🔓</span> Buka dengan Sidik Jari
+    </button>
     
     <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
       <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="event.stopPropagation(); resetAccount()">Ganti Akun</button>
@@ -1259,6 +1263,13 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="changePinInApp()">GANTI PIN</button>
     </div>
+    <div class="set-item" id="biometric-setting-item" style="display:none;">
+      <div>
+        <div class="set-label">Buka dengan Sidik Jari</div>
+        <div class="set-sub" id="biometric-setting-sub">Gunakan sidik jari/Face ID untuk buka aplikasi</div>
+      </div>
+      <button class="set-action" id="biometric-setting-btn" onclick="window.toggleBiometric()">AKTIFKAN</button>
+    </div>
   </div>
 
   <div class="set-group">
@@ -1461,6 +1472,92 @@ body.global-privacy #xau-idr-gr {
   const localPin = localStorage.getItem('local_pin_rhn');
   window.appUnlocked = false; 
 
+  // === SIDIK JARI (WebAuthn Biometric Unlock) ===
+  window.isBiometricSupported = function() { return !!(window.PublicKeyCredential && navigator.credentials); };
+
+  window.updateBiometricUI = function() {
+    const hasCred = !!localStorage.getItem('biometric_cred_rhn');
+    const supported = window.isBiometricSupported();
+    const loginBtn = document.getElementById('biometric-unlock-btn');
+    if (loginBtn) loginBtn.style.display = (supported && hasCred) ? 'flex' : 'none';
+
+    const settingItem = document.getElementById('biometric-setting-item');
+    const settingBtn = document.getElementById('biometric-setting-btn');
+    const settingSub = document.getElementById('biometric-setting-sub');
+    if (settingItem) settingItem.style.display = supported ? 'flex' : 'none';
+    if (settingBtn && settingSub) {
+      if (hasCred) { settingBtn.textContent = 'MATIKAN'; settingSub.textContent = 'Sidik jari/Face ID aktif untuk buka aplikasi'; }
+      else { settingBtn.textContent = 'AKTIFKAN'; settingSub.textContent = 'Gunakan sidik jari/Face ID untuk buka aplikasi'; }
+    }
+  };
+
+  window.setupBiometric = async function() {
+    try {
+      const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+      if (!uid) { Swal.fire({icon:'error', title:'Belum Login', background:'var(--card)', color:'var(--text)'}); return; }
+      const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+      const userId = new TextEncoder().encode(uid);
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge, rp: { name: 'RHN CAPITAL' },
+          user: { id: userId, name: uid, displayName: (currentUser && currentUser.email) || 'RHN User' },
+          pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+          authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+          timeout: 60000
+        }
+      });
+      if (cred) {
+        const rawIdB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+        localStorage.setItem('biometric_cred_rhn', rawIdB64);
+        localStorage.setItem('biometric_uid_rhn', uid);
+        window.updateBiometricUI();
+        Swal.fire({icon:'success', title:'Sidik Jari Aktif!', text:'Sekarang kamu bisa buka aplikasi pakai sidik jari.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+      }
+    } catch(e) {
+      Swal.fire({icon:'error', title:'Gagal Mengaktifkan', text: e.message || 'Perangkat tidak mendukung sidik jari.', background:'var(--card)', color:'var(--text)'});
+    }
+  };
+
+  window.toggleBiometric = function() {
+    if (localStorage.getItem('biometric_cred_rhn')) {
+      Swal.fire({ title: 'Matikan Sidik Jari?', text: 'Kamu hanya akan bisa buka aplikasi pakai PIN.', icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Matikan' }).then((res) => {
+        if (res.isConfirmed) {
+          localStorage.removeItem('biometric_cred_rhn');
+          localStorage.removeItem('biometric_uid_rhn');
+          window.updateBiometricUI();
+          Swal.fire({icon:'success', title:'Sidik Jari Dimatikan', background:'var(--card)', color:'var(--text)', timer: 1200, showConfirmButton: false});
+        }
+      });
+    } else {
+      window.setupBiometric();
+    }
+  };
+
+  window.unlockWithBiometric = async function(manual) {
+    try {
+      const credB64 = localStorage.getItem('biometric_cred_rhn');
+      if (!credB64 || !window.isBiometricSupported()) return false;
+      const rawId = Uint8Array.from(atob(credB64), c => c.charCodeAt(0));
+      const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
+          userVerification: 'required',
+          timeout: 60000
+        }
+      });
+      if (assertion) { window.appUnlocked = true; unlockApp(); return true; }
+      return false;
+    } catch(e) {
+      if (manual) {
+        const errEl = document.getElementById('pin-err');
+        if (errEl) { errEl.textContent = 'Sidik jari tidak dikenali, coba lagi atau pakai PIN.'; errEl.style.display = 'block'; }
+      }
+      return false;
+    }
+  };
+
   window.forceFocusPin = () => {
       // FIX: Tahan keyboard kalau animasi splash screen masih jalan
       const splash = document.getElementById('splash-screen');
@@ -1496,6 +1593,9 @@ body.global-privacy #xau-idr-gr {
              document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
              window.pinMode = 'verify';
          }
+
+         window.updateBiometricUI();
+         if (localStorage.getItem('biometric_cred_rhn')) { setTimeout(() => window.unlockWithBiometric(false), 400); }
      });
   }
 </script>
@@ -1514,6 +1614,8 @@ window.resetIdle = function() {
             document.getElementById('app-pin').value = '';
             window.pinMode = 'verify';
             if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+            window.updateBiometricUI();
+            if (localStorage.getItem('biometric_cred_rhn')) { setTimeout(() => window.unlockWithBiometric(false), 400); }
         }, 30000);
     }
 };
@@ -2767,6 +2869,7 @@ function unlockApp() {
 
     document.getElementById('app-pin').value = ''; 
     if (window.resetIdle) window.resetIdle(); 
+    if (window.updateBiometricUI) window.updateBiometricUI();
 }
 
 window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu harus login Email lagi.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn'); document.getElementById('app-pin').value = ''; window.appUnlocked = false; window.userCloudPin = null; doLogout(); } }); };
