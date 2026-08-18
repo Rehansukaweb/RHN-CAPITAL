@@ -81,9 +81,9 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
 .cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
 .admin-detail-btn {
-  transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.08s ease, border-color 0.08s ease,
-              box-shadow 0.08s ease, opacity 0.08s ease, color 0.06s ease !important;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
   will-change: transform;
 }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
@@ -92,11 +92,11 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
 .admin-detail-btn:active {
   transform: scale(0.94);
-  transition-duration: 0.03s !important;
+  transition-duration: 0.11s !important;
 }
 .w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
   transform: scale(0.97);
-  transition-duration: 0.03s !important;
+  transition-duration: 0.11s !important;
 }
 /* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
 @media (hover: hover) and (pointer: fine) {
@@ -110,15 +110,20 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
-.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+.m-card, .w-card { animation: cardIn 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
-.page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
-@keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
+/* Transisi antar halaman terasa halus, tetap cepat dan tanpa jeda */
+.page.active { animation: pageIn 0.24s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Transisi halus antar layar penuh (login <-> pin <-> app) supaya perpindahan
+   tidak terasa "ngedet"/patah walau tetap cepat dan tanpa delay */
+#auth-screen, #pin-screen, #app-screen { animation: screenFadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; will-change: opacity, transform; }
+@keyframes screenFadeIn { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -144,14 +149,15 @@ html, body { -webkit-overflow-scrolling: touch; }
 body, button, a, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
-.nav-bottom, .nav-bottom * {
+.cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
+.admin-detail-btn, .nav-bottom, .nav-bottom * {
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .w-card, .recent-item, .m-card, .nav-ext-btn,
-.status-pill, .calc-curr-item {
+.status-pill, .calc-curr-item, .calc-btn, .swap-btn, .set-action, .auth-tab {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -231,6 +237,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .nav {
   padding: 0 24px 24px; display: flex; gap: 12px;
   overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+  -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
 }
 .nav::-webkit-scrollbar { display: none; }
 .nav-btn {
@@ -249,7 +256,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; -webkit-overflow-scrolling: touch; }
 .m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
@@ -267,7 +274,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; -webkit-overflow-scrolling: touch; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
@@ -296,7 +303,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
-#f-amount { overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 20px; font-weight: 800; }
+#f-amount { overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 20px; font-weight: 800; -webkit-overflow-scrolling: touch; }
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
@@ -375,14 +382,14 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 }
 .calc-name { font-size: 10px; color: var(--text3); margin-top: 2px; padding-left: 2px; }
 .calc-right { text-align: right; overflow: hidden; }
-.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 
 .swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); }
 /* Diubah warna bg nya pake variable tema biar nyesuaiin dengan light/dark mode */
 .calc-keypad-wrap { background: var(--bg3); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
 .calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
-.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.22s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; justify-content: center; }
 .calc-btn:active { background: rgba(128,128,128,0.2); }
 .calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
 .calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
@@ -405,7 +412,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .chart-legend { display: flex; gap: 16px; margin-bottom: 16px; justify-content: center; }
 .leg-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
-.period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
+.period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .chart-filter-badge { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; font-size: 11px; font-weight: 700; color: var(--gold); }
 .chart-filter-badge span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -503,7 +510,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .list-wrap { padding: 0 !important; margin: 0 !important; width: 100%; }
   .recent-item { width: 100% !important; margin: 0 0 12px 0 !important; padding: 12px 16px !important; border-radius: 24px !important; border-left: none !important; border-right: none !important; background: var(--card); flex-direction: row; justify-content: space-between; align-items: center; min-height: 92px; }
   .ri-right-wrap { margin-left: 8px !important; align-items: flex-end; flex-shrink: 0; max-width: 62%; }
-  .action-btns { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; justify-content: flex-end; width: 100%; gap: 4px !important; }
+  .action-btns { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; justify-content: flex-end; width: 100%; gap: 4px !important; -webkit-overflow-scrolling: touch; }
   .action-btns::-webkit-scrollbar { display: none; }
   .del-btn-recent, .edit-btn-recent { margin-top: 0px !important; padding: 4px 7px !important; font-size: 8px !important; flex-shrink: 0; }
   .cat-badge, .wallet-badge { font-size: 7px; padding: 2px 4px; display: inline-block !important; }
