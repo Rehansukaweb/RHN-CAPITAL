@@ -299,6 +299,24 @@
         <span style="font-size:11px; color:var(--muted); font-weight:600;">Pakai ini kalau kamu baru mengubah tarif atau komisi transaksi lama masih 0.</span>
       </div>
     </div>
+    <div id="pnlRateSection" style="margin-top:14px; border-top:1px dashed var(--line); padding-top:16px;">
+      <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:10px;">Nilai Profit Otomatis (USD per Pip, per 1.00 Lot)</div>
+      <div class="grid-5">
+        <div class="field"><label>Forex</label><input id="pPipForex" type="number" step="0.01" value="10" onblur="window.saveProfile(); window.previewAutoPnl()"></div>
+        <div class="field"><label>Emas (XAU)</label><input id="pPipGold" type="number" step="0.01" value="10" onblur="window.saveProfile(); window.previewAutoPnl()"></div>
+        <div class="field"><label>Perak (XAG)</label><input id="pPipSilver" type="number" step="0.01" value="50" onblur="window.saveProfile(); window.previewAutoPnl()"></div>
+        <div class="field"><label>Kripto</label><input id="pPipCrypto" type="number" step="0.01" value="1" onblur="window.saveProfile(); window.previewAutoPnl()"></div>
+        <div class="field"><label>Index/Lainnya</label><input id="pPipIndex" type="number" step="0.01" value="1" onblur="window.saveProfile(); window.previewAutoPnl()"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:10px;">Kolom P&amp;L di form Input Transaksi SELALU otomatis terhitung dari Pair, Lot, Arah, Harga Entry &amp; Harga Exit di atas (menyesuaikan Tipe Akun) — tidak bisa diketik/diubah manual.</div>
+      <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:6px;background:#f9fafb;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;">
+        📌 Referensi nilai per-pip standar per 1.00 lot (kalau kolom di atas dikosongkan/0, sistem otomatis pakai angka ini supaya P&amp;L tetap kehitung):
+        XAUUSD = $10 (Standard) / 10 USC (Cent, kontrak Cent Gold ≈100x lebih kecil — sudah dikoreksi sesuai data riil MT5) &nbsp;•&nbsp;
+        XAGUSD = $50 (Standard) / 5.000 USC (Cent) &nbsp;•&nbsp;
+        Forex mayor = $10 (Standard) / 1.000 USC (Cent) &nbsp;•&nbsp;
+        Kripto &amp; Index = $1 (Standard) / 100 USC (Cent).
+      </div>
+    </div>
   </div>
 
   <!-- INPUT TRANSAKSI (HIDES ON VIEW MODE) -->
@@ -309,7 +327,7 @@
     <div class="ocr-box">
         <label>⚡ Auto Scan dari Screenshot MT5 (Super Akurat + Auto Simpan + Komisi Otomatis)</label>
         <input type="file" id="tImageUpload" accept="image/*" onchange="window.processOCR(this)" style="padding:8px; border:1px solid #374151; background:#1f2937; color:#fff; border-radius:8px; font-family:inherit; font-size:12px;">
-        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Dibaca langsung oleh AI vision presisi tinggi yang fokus ke tiap digit sekecil/seterpotong apapun — harga entry, exit &amp; pip selalu terisi dan tidak pernah negatif, dan tidak perlu dicek/diperbaiki ulang. Untuk Akun Professional, Komisi tiap baris <strong>selalu dihitung otomatis</strong> dari pair &amp; lot yang terbaca — sama sekali tidak bergantung pada kolom Komisi di screenshot, jadi tetap benar walau baris di foto tidak menampilkan kolom Komisi sama sekali. Baris disimpan PERSIS sesuai urutannya di foto (dari atas ke bawah), langsung masuk ke jurnal.</div>
+        <div id="ocrStatus" style="font-size: 11px; color: #9ca3af;">Upload screenshot riwayat MT5 (mode Posisi/Deal). Sistem mendenoise &amp; mempertajam gambar dengan resolusi lebih tinggi, membaca 2 tahap (teks lengkap + verifikasi khusus digit) + retry otomatis kalau gagal terbaca, dan mengecek presisi titik desimal &amp; kewajaran lot per instrumen. Untuk Akun Professional, Komisi tiap baris <strong>selalu dihitung otomatis</strong> dari pair &amp; lot yang terbaca — sama sekali tidak bergantung pada kolom Komisi di screenshot, jadi tetap benar walau baris di foto tidak menampilkan kolom Komisi sama sekali. Baris disimpan PERSIS sesuai urutannya di foto (dari atas ke bawah). Baris yang meragukan tidak disimpan otomatis dan akan diberitahukan supaya kamu input manual.</div>
     </div>
 
     <div class="edit-mode-banner" id="editModeBanner">✏️ Mode Edit: Kamu sedang mengubah transaksi. Simpan perubahan atau klik Batal Edit.</div>
@@ -320,11 +338,11 @@
       </div>
       <div class="field">
         <label>Pair / Instrumen</label>
-        <input id="tPair" type="text" placeholder="Cth: XAUUSD" oninput="window.previewAutoCommission()" />
+        <input id="tPair" type="text" placeholder="Cth: XAUUSD" oninput="window.previewAutoCommission(); window.previewPips(); window.previewAutoPnl()" />
       </div>
       <div class="field">
         <label>Arah</label>
-        <select id="tDir">
+        <select id="tDir" onchange="window.previewAutoPnl()">
           <option value="Buy">Buy</option>
           <option value="Sell">Sell</option>
         </select>
@@ -340,11 +358,23 @@
       </div>
       <div class="field">
         <label>Lot Trade</label>
-        <input id="tLot" type="number" step="0.01" placeholder="0.10" oninput="window.previewAutoCommission()" />
+        <input id="tLot" type="number" step="0.01" placeholder="0.10" oninput="window.previewAutoCommission(); window.previewAutoPnl()" />
+      </div>
+      <div class="field">
+        <label>Harga Entry</label>
+        <input id="tEntryPrice" type="number" step="0.00001" placeholder="Cth: 1900.50" oninput="window.previewPips(); window.previewAutoPnl()" />
+      </div>
+      <div class="field">
+        <label>Harga Exit / Close</label>
+        <input id="tExitPrice" type="number" step="0.00001" placeholder="Cth: 1905.00" oninput="window.previewPips(); window.previewAutoPnl()" />
+      </div>
+      <div class="field">
+        <label>Pips (Otomatis)</label>
+        <input id="tPipsAuto" type="text" placeholder="Otomatis terhitung" readonly style="background:#f3f4f6; font-weight:800; color:var(--ink); cursor:not-allowed;" />
       </div>
       <div class="field">
         <label id="lblPnl">Profit / Loss (USC)</label>
-        <input id="tPnl" type="number" step="1" placeholder="Cth: 500 atau -120" />
+        <input id="tPnl" type="text" placeholder="Otomatis terhitung" readonly style="background:#f3f4f6; font-weight:800; color:var(--ink); cursor:not-allowed;" />
       </div>
       <div class="field">
         <label id="lblKomisi">Komisi (Opsional)</label>
@@ -420,7 +450,7 @@
     <div style="overflow-x: auto;">
       <table style="min-width: 900px;">
         <thead>
-          <tr><th>Tanggal</th><th>Pair</th><th>Arah</th><th>Sesi</th><th>Lot</th><th>P&amp;L</th><th id="lblKomisiCol">Komisi</th><th>Catatan</th><th class="hide-on-view">Aksi</th></tr>
+          <tr><th>Tanggal</th><th>Pair</th><th>Arah</th><th>Sesi</th><th>Lot</th><th>Pips</th><th>P&amp;L</th><th id="lblKomisiCol">Komisi</th><th>Catatan</th><th class="hide-on-view">Aksi</th></tr>
         </thead>
         <tbody id="tradeTable"></tbody>
       </table>
@@ -470,7 +500,7 @@
   function updateUnitLabels(){
     const lbl = unitLabel();
     document.getElementById('lblModal').textContent = `Modal Awal (${lbl})`;
-    document.getElementById('lblPnl').textContent = `Profit / Loss (${lbl})`;
+    document.getElementById('lblPnl').textContent = `Profit / Loss (${lbl}, Otomatis)`;
     document.getElementById('lblKomisi').textContent = isProfessional() ? `Komisi (${lbl}, Otomatis)` : `Komisi (${lbl}, Opsional)`;
     document.getElementById('lblKomisiCol').innerHTML = `Komisi (${lbl})`;
     document.getElementById('lblPairPnl').innerHTML = `P&amp;L (${lbl})`;
@@ -617,6 +647,107 @@
   };
 
   // =========================================================================
+  // ===================  MODUL PROFIT/LOSS (P&L) OTOMATIS  ================
+  // =========================================================================
+
+  // -- Nilai per-pip STANDAR (USD, per 1.00 lot, akun Standard) berdasarkan spesifikasi kontrak riil
+  //    broker pada umumnya. Dipakai sebagai FALLBACK kalau kolom di Pengaturan Profil kosong / ke-reset
+  //    ke 0, supaya P&L tetap SELALU kehitung (tidak pernah diam-diam jadi 0) walau user belum sempat
+  //    mengisi tarifnya sendiri. Untuk akun Cent, nilai ini otomatis dikali 100 lewat unitDivisor(). --
+  //    Forex (mayor, non-JPY & JPY)  : $10 / pip (0.0001) per 1.00 lot
+  //    XAUUSD (Emas, kontrak 100oz)  : $10 / pip (0.1 pergerakan harga) per 1.00 lot
+  //    XAGUSD (Perak, kontrak 5000oz): $50 / pip (0.01 pergerakan harga) per 1.00 lot
+  //    Kripto (BTC/ETH/dll)          : $1 / pip (1.0 pergerakan harga) per 1.00 lot
+  //    Index/Lainnya                 : $1 / pip per 1.00 lot
+  const PIP_VALUE_STANDARD_DEFAULT = { forex: 10, gold: 10, silver: 50, crypto: 1, index: 1 };
+
+  function getPipValueRates(){
+      const raw = {
+          forex: parseFloat(document.getElementById('pPipForex').value),
+          gold: parseFloat(document.getElementById('pPipGold').value),
+          silver: parseFloat(document.getElementById('pPipSilver').value),
+          crypto: parseFloat(document.getElementById('pPipCrypto').value),
+          index: parseFloat(document.getElementById('pPipIndex').value)
+      };
+      const out = {};
+      Object.keys(PIP_VALUE_STANDARD_DEFAULT).forEach(k=>{
+          out[k] = (!isNaN(raw[k]) && raw[k] > 0) ? raw[k] : PIP_VALUE_STANDARD_DEFAULT[k];
+      });
+      return out;
+  }
+
+  // -- Hitung P&L OTOMATIS dari Pair, Lot, Arah, Harga Entry & Harga Exit yang sudah diisi. Nilai
+  //    pip per kategori instrumen diambil dari Pengaturan Profil (Nilai Profit Otomatis), dikalikan
+  //    jumlah pip pergerakan harga (arah sesuai Buy/Sell) dan besar lot transaksi, lalu dikonversi
+  //    ke satuan mentah akun (dikali 100 untuk akun Cent) sama seperti Komisi Otomatis -- jadi selalu
+  //    ikut menyesuaikan Tipe Akun & Lot yang dipakai. --
+  // -- Bulatkan hasil perkalian/pembagian angka desimal supaya bebas dari noise floating-point
+  //    JavaScript (mis. 1905.15 - 1900.10 yang seharusnya 5.05 tapi jadi 5.050000000000182).
+  //    Dipakai di semua perhitungan Pip & P&L supaya hasilnya selalu presisi dan konsisten. --
+  function roundClean(num, decimals){
+      const factor = Math.pow(10, decimals);
+      return Math.round((num + Number.EPSILON) * factor) / factor;
+  }
+
+  function calcAutoPnl(pair, lot, dir, entryPrice, exitPrice){
+      const lotNum = parseFloat(lot) || 0;
+      const en = parseFloat(entryPrice), ex = parseFloat(exitPrice);
+      if (!pair || lotNum <= 0 || isNaN(en) || isNaN(ex)) return null;
+      const rates = getPipValueRates();
+      const cat = classifyInstrumentCategory(pair);
+      let rateUsd = (rates[cat] !== undefined && rates[cat] > 0) ? rates[cat] : PIP_VALUE_STANDARD_DEFAULT[cat];
+      // -- KOREKSI KHUSUS GOLD DI AKUN CENT: terverifikasi langsung dari data riil MT5 (screenshot SL
+      //    297 points / lot 0.2 = 59.40 USC), broker memakai kontrak Cent Gold yang 100x LEBIH KECIL
+      //    dari kontrak Standard (≈1oz vs 100oz per 1.0 lot) -- bukan cuma beda satuan mata uang biasa.
+      //    Jadi utk kategori gold di akun cent, rate dibagi 100 dulu supaya perkalian unitDivisor(100)
+      //    di bawah tidak melipatgandakan hasil jadi 100x kebesaran. Kategori lain (forex/silver/
+      //    crypto/index) & akun standard TIDAK disentuh karena belum ada data riil yang membuktikan
+      //    kontraknya juga beda. --
+      if (cat === 'gold' && accountType === 'cent') rateUsd = rateUsd / 100;
+      const unit = pipUnit(pair);
+      const diff = (dir === 'Sell') ? (en - ex) : (ex - en);
+      const pips = roundClean(diff * unit.multiplier, 4);
+      return roundClean(pips * rateUsd * lotNum * unitDivisor(), 2);
+  }
+
+  // -- Preview P&L otomatis di form input manual: berjalan tiap kali Pair/Lot/Arah/Harga Entry/Harga
+  //    Exit diketik, HANYA kalau user BELUM mengisi P&L secara manual (lihat markPnlManual). --
+  window.previewAutoPnl = function(){
+      const pnlEl = document.getElementById('tPnl');
+      if (!pnlEl) return;
+      const pair = document.getElementById('tPair').value.trim();
+      const lot = document.getElementById('tLot').value;
+      const dir = document.getElementById('tDir').value;
+      const entryPrice = document.getElementById('tEntryPrice').value;
+      const exitPrice = document.getElementById('tExitPrice').value;
+      const auto = calcAutoPnl(pair, lot, dir, entryPrice, exitPrice);
+      pnlEl.value = (auto === null) ? '' : auto.toFixed(2);
+  };
+
+  // -- Dipanggil saat user mengetik langsung ke kolom P&L: tandai sebagai override manual supaya
+  //    tidak ditimpa ulang oleh previewAutoPnl ketika Pair/Lot/Harga masih diubah-ubah setelahnya. --
+  window.markPnlManual = function(){
+      const pnlEl = document.getElementById('tPnl');
+      if (pnlEl) pnlEl.dataset.manualOverride = '1';
+  };
+
+  // -- Hitung Pips otomatis di form input manual dari Harga Entry & Harga Exit yang diketik,
+  //    memakai pengali pip sesuai jenis instrumen (pipUnit) supaya benar untuk forex, XAU/XAG,
+  //    pair JPY, maupun kripto. Berjalan tiap kali Pair/Entry/Exit diketik. --
+  window.previewPips = function(){
+      const pipsEl = document.getElementById('tPipsAuto');
+      if (!pipsEl) return;
+      const pair = document.getElementById('tPair').value.trim();
+      const entryStr = document.getElementById('tEntryPrice').value;
+      const exitStr = document.getElementById('tExitPrice').value;
+      const en = parseFloat(entryStr), ex = parseFloat(exitStr);
+      if (!pair || entryStr === '' || exitStr === '' || isNaN(en) || isNaN(ex)) { pipsEl.value = ''; return; }
+      const unit = pipUnit(pair);
+      const pips = roundClean(Math.abs(ex - en) * unit.multiplier, 4);
+      pipsEl.value = pips.toFixed(1) + ' Pip';
+  };
+
+  // =========================================================================
   // ============  MODUL OCR SUPER AKURAT (MULTI-LAYER CHECK)  =============
   // =========================================================================
 
@@ -677,7 +808,7 @@
       }
       const unit = pipUnit(pair);
       const diff = Math.abs(en - ex);
-      const pips = diff * unit.multiplier;
+      const pips = roundClean(diff * unit.multiplier, 4);
       if (pips > unit.maxReasonablePips) {
           return { text: `(${pips.toFixed(1)} Pip)`, pips, valid: false, reason: 'Jarak pip tidak wajar, kemungkinan salah baca harga' };
       }
@@ -1030,250 +1161,6 @@
   //    Duplikat: HANYA ditandai duplikat kalau harga entry/exit tersedia di kedua sisi DAN cocok
   //    persis. Kalau salah satu/kedua sisi tidak punya info harga, atau harganya beda, transaksi
   //    tetap disimpan sebagai transaksi baru (supaya trade asli yang kebetulan mirip tidak ke-skip). --
-  // -- Baca file gambar sebagai base64 murni (tanpa prefix "data:...;base64,") beserta media type-nya,
-  //    dikirim langsung ke model AI vision presisi tinggi (tanpa praproses tambahan) supaya
-  //    resolusi/kualitas asli screenshot tetap utuh saat dibaca oleh AI. --
-  function fileToBase64(file){
-      return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-              const result = reader.result;
-              const commaIdx = result.indexOf(',');
-              resolve({ base64: result.slice(commaIdx + 1), mediaType: file.type || 'image/png' });
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-      });
-  }
-
-  // -- Perbesar resolusi gambar TANPA mengubah warna/kontras (beda dari preprocessImageForOcr yang
-  //    diubah jadi hitam-putih untuk Tesseract lama) — supaya teks/digit kecil (harga, desimal,
-  //    kolom komisi) jadi lebih besar & lebih jelas saat dibaca AI vision, sementara warna asli
-  //    (mis. hijau/merah profit) tetap utuh sebagai konteks tambahan buat model. --
-  async function upscaleImageForVision(file){
-      const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-      });
-      const img = await new Promise((resolve, reject) => {
-          const im = new Image();
-          im.onload = () => resolve(im);
-          im.onerror = reject;
-          im.src = dataUrl;
-      });
-      const scale = Math.min(4, Math.max(1.5, 2600 / img.width));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const outUrl = canvas.toDataURL('image/png');
-      const commaIdx = outUrl.indexOf(',');
-      return { base64: outUrl.slice(commaIdx + 1), mediaType: 'image/png' };
-  }
-
-  // -- Minta AI vision membaca screenshot MT5 dan mengembalikan HANYA array JSON berisi baris
-  //    transaksi PERSIS sesuai urutan tampilnya di foto (atas ke bawah). Prompt secara eksplisit
-  //    mewajibkan: fokus super teliti ke tiap digit sekecil apa pun/terpotong sekalipun, harga
-  //    entry & exit WAJIB selalu berupa angka positif (tidak pernah minus), entry & exit WAJIB selalu
-  //    terisi (tidak boleh kosong/null), dan tidak ada satupun baris yang boleh dilewati. --
-  async function readTradesWithAiVision(file){
-      const { base64, mediaType } = await upscaleImageForVision(file);
-      const instruction = `Kamu adalah sistem pembaca gambar (vision) dengan presisi setinggi mungkin, khusus untuk screenshot riwayat transaksi trading MetaTrader 5 (tab Posisi/Deals/History).
-
-TUGAS: baca SETIAP baris transaksi yang terlihat pada gambar, dari PALING ATAS ke PALING BAWAH, persis sesuai urutan tampilnya di gambar. Jangan lewatkan satu baris pun, termasuk baris yang tulisannya sangat kecil atau sebagian terpotong di tepi gambar — untuk baris seperti itu tetap baca sedekat mungkin ke nilai aslinya berdasarkan digit yang tampak, jangan dikosongkan.
-
-WAJIB VERIFIKASI GANDA SEBELUM MENJAWAB: untuk SETIAP baris dan SETIAP angka, baca dulu sekali, lalu baca ULANG sekali lagi secara terpisah dari awal khusus untuk baris itu sebagai pengecekan, dan hanya kirimkan nilai yang SAMA di kedua bacaan tersebut. Kalau kedua bacaan berbeda, perhatikan lebih teliti lagi posisi digit demi digit (perhatikan risiko tertukar antar digit yang mirip: 0 vs 8 vs 6, 1 vs 7, 3 vs 8, 5 vs 6, 2 vs 7, serta posisi titik desimal) sebelum memutuskan nilai final. Perhatikan juga warna teks P&L (biasanya hijau = positif, merah = negatif) untuk memastikan tanda plus/minus konsisten dengan warnanya.
-
-ATURAN WAJIB, TANPA PENGECUALIAN:
-1. Fokuskan perhatian PERSIS ke teks/angka yang relevan (simbol pair, arah Buy/Sell, lot, harga entry, harga exit, profit/P&L, tanggal jika ada) — abaikan elemen UI lain (tombol, ikon, garis, watermark).
-2. "entry" dan "exit" HARUS SELALU berupa angka POSITIF (nilai mutlak/absolute) — TIDAK BOLEH PERNAH negatif, walau tanda minus terlihat di dekatnya (tanda minus di kolom harga itu bukan bagian dari nilai harga).
-3. "entry" dan "exit" HARUS SELALU terisi angka untuk setiap baris transaksi — tidak boleh null/kosong.
-4. Baca titik desimal dengan sangat teliti (jangan sampai tertukar posisinya), pertahankan jumlah digit persis seperti yang tertulis di gambar. Hitung ulang jumlah digit di kiri dan kanan titik desimal sebelum menjawab.
-5. "pnl" (profit/loss) boleh negatif atau positif sesuai yang tertulis, salin persis apa adanya termasuk tandanya.
-6. "dir" hanya boleh berisi "Buy" atau "Sell".
-7. "lot" berupa angka (boleh null jika benar-benar tidak terlihat sama sekali).
-8. "date" format "YYYY-MM-DD" kalau tanggal terlihat di baris/header tersebut, kalau tidak terlihat isi null.
-9. "commission" isi angka kalau ada kolom komisi/swap yang terbaca jelas, kalau tidak null.
-10. Jangan pernah menebak atau membulatkan angka supaya "terlihat wajar" — kirim persis apa yang tertulis di gambar, sekalipun angkanya terlihat tidak biasa.
-
-Balas HANYA dengan JSON array valid (tanpa markdown, tanpa backtick, tanpa penjelasan apapun), format setiap elemen:
-{"pair":"EURUSD","dir":"Buy","lot":0.10,"entry":1.08423,"exit":1.08501,"pnl":78.0,"commission":null,"date":null}
-
-Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas dengan array kosong: []`;
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              "x-api-key": "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",
-              "anthropic-version": "2023-06-01",
-              "anthropic-dangerous-direct-browser-access": "true"
-          },
-          body: JSON.stringify({
-              model: "claude-sonnet-5",
-              max_tokens: 4096,
-              messages: [{
-                  role: "user",
-                  content: [
-                      { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-                      { type: "text", text: instruction }
-                  ]
-              }]
-          })
-      });
-      if (!response.ok) throw new Error('Gagal menghubungi AI vision (status ' + response.status + ')');
-      const data = await response.json();
-      const textOut = (data.content || []).map(b => b.text || '').join('');
-      const cleaned = textOut.replace(/```json/gi, '').replace(/```/g, '').trim();
-      let parsed;
-      try { parsed = JSON.parse(cleaned); } catch (_) {
-          const m = cleaned.match(/\[[\s\S]*\]/);
-          if (!m) throw new Error('Respon AI tidak berformat JSON yang valid.');
-          parsed = JSON.parse(m[0]);
-      }
-      if (!Array.isArray(parsed)) throw new Error('Respon AI tidak berupa daftar transaksi.');
-      return parsed;
-  }
-
-  // -- LAPISAN CROSS-CHECK BERLAPIS OTOMATIS (tanpa perlu pengecekan manual dari user sama sekali):
-  //    Lapis 1: gambar diperbesar resolusinya dulu (upscaleImageForVision).
-  //    Lapis 2: dibaca AI vision 7 kali SECARA INDEPENDEN (request terpisah, masing-masing dengan
-  //             instruksi verifikasi ganda per digit).
-  //    Lapis 3: hasilnya divoting per-baris per-kolom dengan toleransi ketat berbasis presisi desimal.
-  //    Lapis 4: kalau ADA kolom penting (entry/exit/pnl/lot) yang BELUM capai mayoritas ketat, sistem
-  //             OTOMATIS menambah lebih banyak bacaan independen lagi (round tambahan +6, lalu +6 lagi)
-  //             dan menghitung ulang voting dengan gabungan SEMUA bacaan yang terkumpul — diulang sampai
-  //             semua kolom penting capai mayoritas ketat, atau sampai batas total 19 bacaan tercapai.
-  //    Lapis 5: kalau setelah 19 bacaan pun masih ada yang belum bulat, sistem tetap memutuskan sendiri
-  //             secara otomatis (ambil nilai yang paling banyak didukung / paling dekat median) — TIDAK
-  //             PERNAH meminta user mengedit atau mencocokkan ulang ke screenshot; semua final & langsung
-  //             tersimpan ke jurnal. --
-  function pickMajorityString(values){
-      const valid = values.filter(v => v !== null && v !== undefined && v !== '');
-      if (valid.length === 0) return { value: null, agreement: 0, total: 0 };
-      const counts = {};
-      valid.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
-      let best = valid[0], bestCount = 0;
-      Object.keys(counts).forEach(k => { if (counts[k] > bestCount) { bestCount = counts[k]; best = k; } });
-      return { value: best, agreement: bestCount, total: valid.length };
-  }
-
-  function pickMajorityNumeric(values, fixedTolerance){
-      const valid = values.filter(v => typeof v === 'number' && !isNaN(v));
-      if (valid.length === 0) return { value: null, agreement: 0, total: 0 };
-      const sorted = [...valid].sort((a, b) => a - b);
-      const median = sorted[Math.floor(sorted.length / 2)];
-      // -- Toleransi diperketat: berbasis presisi desimal (bukan persentase longgar) supaya angka
-      //    yang beda beneran (bukan cuma noise pembulatan) tidak ikut ke-cluster jadi satu. --
-      const tolerance = fixedTolerance != null ? fixedTolerance : Math.max(1e-6, Math.abs(median) * 0.0002);
-      const clusters = [];
-      valid.forEach(v => {
-          const cluster = clusters.find(c => Math.abs(c.value - v) <= tolerance);
-          if (cluster) { cluster.count++; cluster.sum += v; }
-          else clusters.push({ value: v, count: 1, sum: v });
-      });
-      clusters.sort((a, b) => (b.count - a.count) || (Math.abs(a.value - median) - Math.abs(b.value - median)));
-      return { value: clusters[0].sum / clusters[0].count, agreement: clusters[0].count, total: valid.length };
-  }
-
-  // -- Mayoritas KETAT: menang hanya kalau lebih dari separuh bacaan yang valid sepakat (bukan cuma
-  //    suara terbanyak dari cluster longgar). Total<=2 wajib bulat (2/2 atau 1/1) supaya tidak asal lolos. --
-  function hasStrictMajority(agreement, total){
-      if (total === 0) return false;
-      if (total <= 2) return agreement === total;
-      return agreement > total / 2;
-  }
-
-  function voteTradeRow(rows){
-      const pairV = pickMajorityString(rows.map(r => String(r.pair || '').trim().toUpperCase()));
-      const dirV = pickMajorityString(rows.map(r => /sell/i.test(String(r.dir || '')) ? 'Sell' : 'Buy'));
-      const lotV = pickMajorityNumeric(rows.map(r => parseFloat(r.lot)), 0.001);
-      const entryV = pickMajorityNumeric(rows.map(r => Math.abs(parseFloat(r.entry))), null);
-      const exitV = pickMajorityNumeric(rows.map(r => Math.abs(parseFloat(r.exit))), null);
-      const pnlV = pickMajorityNumeric(rows.map(r => parseFloat(r.pnl)), null);
-      const commissionV = pickMajorityNumeric(rows.map(r => parseFloat(r.commission)), null);
-      const dateV = pickMajorityString(rows.map(r => (/^\d{4}-\d{2}-\d{2}$/.test(String(r.date || '')) ? r.date : null)).filter(Boolean));
-
-      const settled = hasStrictMajority(entryV.agreement, entryV.total)
-          && hasStrictMajority(exitV.agreement, exitV.total)
-          && hasStrictMajority(pnlV.agreement, pnlV.total)
-          && (lotV.total === 0 || hasStrictMajority(lotV.agreement, lotV.total));
-
-      return {
-          row: {
-              pair: pairV.value,
-              dir: dirV.value,
-              lot: lotV.value,
-              entry: entryV.value,
-              exit: exitV.value,
-              pnl: pnlV.value,
-              commission: commissionV.value,
-              date: dateV.value
-          },
-          settled
-      };
-  }
-
-  function modeOrMedianLength(lengths){
-      const counts = {};
-      lengths.forEach(n => { counts[n] = (counts[n] || 0) + 1; });
-      let bestLen = null, bestCount = 0;
-      Object.keys(counts).forEach(k => { if (counts[k] > bestCount) { bestCount = counts[k]; bestLen = parseInt(k, 10); } });
-      if (bestCount > 1) return bestLen;
-      const sorted = [...lengths].sort((a, b) => a - b);
-      return sorted[Math.floor(sorted.length / 2)];
-  }
-
-  // -- Jalankan sejumlah bacaan independen tambahan dan gabungkan dengan bacaan yang sudah ada. --
-  async function runMoreReads(file, count){
-      const attempts = await Promise.allSettled(Array.from({ length: count }, () => readTradesWithAiVision(file)));
-      return attempts.filter(a => a.status === 'fulfilled').map(a => a.value);
-  }
-
-  const CROSS_CHECK_MAX_READS = 19; // batas atas total bacaan per gambar (berlapis, tapi tetap dibatasi supaya tidak macet/timeout)
-
-  async function readTradesWithAiVisionCrossChecked(file, statusLabel){
-      let allReads = await runMoreReads(file, 7);
-      if (allReads.length === 0) throw new Error('Gagal membaca gambar sama sekali, coba lagi.');
-
-      let targetLen, merged, allSettled;
-      const computeVote = () => {
-          targetLen = modeOrMedianLength(allReads.map(r => r.length));
-          merged = [];
-          allSettled = true;
-          for (let i = 0; i < targetLen; i++) {
-              const rowsAtIndex = allReads.map(r => r[i]).filter(Boolean);
-              if (rowsAtIndex.length === 0) continue;
-              const voted = voteTradeRow(rowsAtIndex);
-              merged.push(voted.row);
-              if (!voted.settled) allSettled = false;
-          }
-      };
-      computeVote();
-
-      // -- Lapis eskalasi otomatis: kalau belum semua baris "bulat" (mayoritas ketat) DAN belum
-      //    mentok batas, tambah lebih banyak bacaan independen lagi lalu voting ulang. Semua ini
-      //    terjadi otomatis di belakang layar, user cukup menunggu, tidak perlu action apapun. --
-      while (!allSettled && allReads.length < CROSS_CHECK_MAX_READS) {
-          const remaining = CROSS_CHECK_MAX_READS - allReads.length;
-          const nextBatch = Math.min(6, remaining);
-          if (statusLabel) statusLabel.innerText = `🧠 Sebagian data belum 100% bulat, menambah verifikasi (total akan jadi ${allReads.length + nextBatch}x bacaan independen)...`;
-          const more = await runMoreReads(file, nextBatch);
-          allReads = allReads.concat(more);
-          if (more.length === 0) break; // gagal total di batch ini, hentikan biar tidak infinite loop
-          computeVote();
-      }
-
-      if (statusLabel) statusLabel.innerText = `✅ ${allReads.length}x pembacaan independen selesai disilangkan (cross-check/voting), menyusun hasil final...`;
-      return merged;
-  }
-
-
   window.processOCR = async function(input) {
       if (!input.files || input.files.length === 0) return;
       if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan reload dan login.', 'error');
@@ -1282,88 +1169,188 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
       const statusLabel = document.getElementById('ocrStatus');
       statusLabel.style.color = 'var(--gold)';
 
+      let worker = null;
+      let digitWorker = null;
       try {
-          statusLabel.innerText = '🧠 AI membaca screenshot berlapis secara independen (mode presisi tinggi, verifikasi ganda per digit), fokus ke setiap angka & titik desimal...';
-          const aiRows = await readTradesWithAiVisionCrossChecked(file, statusLabel);
+          statusLabel.innerText = '⏳ Tahap 1/5: Mendenoise, mempertajam & memperbesar resolusi gambar...';
+          const processedImageURL = await preprocessImageForOcr(file);
 
-          if (aiRows.length === 0) {
+          statusLabel.innerText = '🧠 Tahap 2/5: AI membaca teks (mode presisi tinggi)...';
+          worker = await Tesseract.createWorker('eng');
+          await worker.setParameters({
+              tessedit_pageseg_mode: '6',
+              preserve_interword_spaces: '1'
+          });
+          const result = await worker.recognize(processedImageURL);
+          await worker.terminate();
+          worker = null;
+
+          statusLabel.innerText = '🔢 Tahap 3/5: Membaca ulang khusus digit untuk verifikasi presisi titik desimal & lot (lebih lambat, tapi lebih akurat)...';
+          digitWorker = await Tesseract.createWorker('eng');
+          await digitWorker.setParameters({
+              tessedit_pageseg_mode: '6',
+              preserve_interword_spaces: '1',
+              tessedit_char_whitelist: '0123456789.,-'
+          });
+          const digitResult = await digitWorker.recognize(processedImageURL);
+          await digitWorker.terminate();
+          digitWorker = null;
+
+          statusLabel.innerText = '🔎 Tahap 4/5: Menyusun transaksi sesuai urutan baris di foto & mencocokkan hasil verifikasi digit...';
+          let rawTrades = parseMt5Rows(result.data);
+          refinePricesWithDigitPass(rawTrades, digitResult.data);
+
+          // -- Retry otomatis (lapisan akurasi tambahan): kalau tidak ada satu baris pun terdeteksi,
+          //    kemungkinan mode segmentasi halaman '6' (blok teks seragam) kurang cocok untuk layout
+          //    screenshot ini. Coba ulang sekali dengan mode '4' (kolom teks bervariasi) sebelum
+          //    benar-benar menyerah -- banyak layout MT5 (terutama versi mobile/tablet/report web)
+          //    lebih cocok dibaca dengan mode ini. --
+          if (rawTrades.length === 0) {
+              statusLabel.innerText = '🔁 Tahap 4/5: Belum terbaca, mencoba ulang dengan mode segmentasi berbeda...';
+              const retryWorker = await Tesseract.createWorker('eng');
+              await retryWorker.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1' });
+              const retryResult = await retryWorker.recognize(processedImageURL);
+              await retryWorker.terminate();
+              const retryDigitWorker = await Tesseract.createWorker('eng');
+              await retryDigitWorker.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1', tessedit_char_whitelist: '0123456789.,-' });
+              const retryDigitResult = await retryDigitWorker.recognize(processedImageURL);
+              await retryDigitWorker.terminate();
+              rawTrades = parseMt5Rows(retryResult.data);
+              refinePricesWithDigitPass(rawTrades, retryDigitResult.data);
+          }
+
+          rawTrades.forEach(t => {
+              if (!t.date) t.date = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
+              if (!t.session) t.session = autoSession();
+          });
+
+          if (rawTrades.length === 0) {
               statusLabel.innerText = 'Tidak ada transaksi terdeteksi. Coba screenshot lebih jelas/terang & tidak miring.';
               statusLabel.style.color = 'var(--red)';
               Swal.fire('Format Tidak Terbaca', 'Pastikan screenshot menampilkan baris Posisi/Riwayat MT5 (simbol, buy/sell, lot, harga, profit) secara utuh dan tidak buram.', 'warning');
               return;
           }
 
-          statusLabel.innerText = '✅ Menyusun transaksi sesuai urutan foto & menghitung komisi otomatis...';
+          statusLabel.innerText = '✅ Tahap 5/5: Validasi ketat, menghitung komisi otomatis & menyimpan sesuai urutan foto...';
 
-          // -- Susun tiap baris hasil bacaan AI menjadi trade siap simpan. Harga entry/exit SELALU
-          //    dipaksa jadi nilai mutlak (Math.abs) supaya tidak pernah muncul harga negatif di
-          //    keterangan/catatan, dan SELALU diisi (fallback 0 kalau AI tidak mengembalikan nilai)
-          //    supaya kolom pip & harga tidak pernah kosong. Karena pembacaan AI ini yang dipercaya
-          //    sangat presisi (sudah melalui cross-check berlapis + eskalasi otomatis), setiap baris
-          //    langsung disimpan ke jurnal TANPA perlu dicek/diperbaiki/dicocokkan manual lagi — kartu
-          //    "Perlu Dicek Manual" tetap ada untuk data lama, tapi tidak lagi dipakai oleh alur scan
-          //    foto ini. --
-          const today = document.getElementById('tDate').value || new Date().toISOString().split('T')[0];
           const toSaveDirect = [];
+          const toPending = [];
           const toUpdateExisting = [];
           let dupCount = 0;
+          let refinedCount = 0;
           let correctedDupCount = 0;
           let komisiFoundCount = 0;
 
-          aiRows.forEach(raw => {
-              const pair = String(raw.pair || '').trim().toUpperCase();
-              const dir = /sell/i.test(String(raw.dir || '')) ? 'Sell' : 'Buy';
-              const lot = parseFloat(raw.lot);
-              const entry = Math.abs(parseFloat(raw.entry) || 0);
-              const exit = Math.abs(parseFloat(raw.exit) || 0);
-              const pnl = parseFloat(raw.pnl);
-              const dateMatch = /^\d{4}-\d{2}-\d{2}$/.test(String(raw.date || '')) ? raw.date : null;
-              const date = dateMatch || today;
-              const session = autoSession();
+          // Catatan: rawTrades sudah terurut dari atas ke bawah sesuai posisi baris di foto
+          // (lihat groupRowsFromOcr). forEach di bawah ini TIDAK mengubah urutan tsb — toSaveDirect
+          // dan toPending akan terisi persis mengikuti urutan kemunculan baris di screenshot.
+          rawTrades.forEach(t => {
+              if (t.refinedByDigitPass) refinedCount++;
 
-              if (!pair || isNaN(pnl)) return; // baris tanpa pair/P&L sama sekali bukan transaksi valid
+              const pipInfo = (t.entry !== undefined && t.exit !== undefined)
+                  ? getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr)
+                  : { valid: true, text: '' };
 
-              const unit = pipUnit(pair);
-              const pips = Math.abs(entry - exit) * unit.multiplier;
-              const note = `${entry} -> ${exit} (${pips.toFixed(1)} Pip)`;
-
-              const canCheckDup = date && pair && ['Buy','Sell'].includes(dir) && !isNaN(pnl);
+              // -- Cek duplikat/hampir-duplikat: baris baru punya harga entry & exit, dan ada transaksi lama
+              //    dengan tanggal+pair+arah+lot+P&L sama (kandidat kuat "transaksi yang sama").
+              //      1) Kalau harganya cocok persis -> memang duplikat, dilewati (tidak disimpan lagi).
+              //      2) Kalau harganya BEDA tapi kandidat kuat itu ada -> kemungkinan salah satu bacaan OCR
+              //         (lama atau baru) keliru baca digit. Bandingkan konsistensi jumlah digit entry vs exit
+              //         di kedua versi; kalau bacaan baru lebih konsisten, KOREKSI otomatis catatan transaksi
+              //         yang sudah tersimpan (bukan menambah baris baru, bukan cuma dilewati begitu saja).
+              //      3) Kalau tidak ada info harga untuk dibandingkan sama sekali -> jangan anggap duplikat. --
+              const canCheckDup = t.date && t.pair && ['Buy','Sell'].includes(t.dir) && !isNaN(t.pnl)
+                  && t.entry !== undefined && t.exit !== undefined && !isNaN(t.entry) && !isNaN(t.exit);
               if (canCheckDup) {
                   const candidate = trades.find(e =>
-                      e.date === date && e.pair === pair && e.dir === dir &&
-                      Math.abs((parseFloat(e.lot)||0) - (isNaN(lot)?0:lot)) < 0.001 &&
-                      Math.abs((parseFloat(e.pnl)||0) - pnl) < 0.01
+                      e.date === t.date && e.pair === t.pair && e.dir === t.dir &&
+                      Math.abs((parseFloat(e.lot)||0) - (t.lot||0)) < 0.001 &&
+                      Math.abs((parseFloat(e.pnl)||0) - (t.pnl||0)) < 0.01
                   );
                   if (candidate) {
                       const ePrices = extractPricesFromNote(candidate.note);
                       if (ePrices) {
-                          const exactMatch = Math.abs(ePrices.entry - entry) < 1e-6 && Math.abs(ePrices.exit - exit) < 1e-6;
+                          const exactMatch = Math.abs(ePrices.entry - t.entry) < 1e-6 && Math.abs(ePrices.exit - t.exit) < 1e-6;
                           if (exactMatch) { dupCount++; return; }
-                          toUpdateExisting.push({ id: candidate.id, note });
-                          correctedDupCount++;
-                          return;
+
+                          const existingDiff = Math.abs(countIntDigits(ePrices.entry) - countIntDigits(ePrices.exit));
+                          const newDiff = Math.abs(countIntDigits(t.entry) - countIntDigits(t.exit));
+                          if (newDiff < existingDiff) {
+                              const newPipInfo = getPipsInfo(t.pair, t.entry, t.exit, t.entryStr, t.exitStr);
+                              const newNote = newPipInfo.valid
+                                  ? `${t.entry} -> ${t.exit} ${newPipInfo.text}`.trim()
+                                  : `${t.entry} -> ${t.exit}`;
+                              toUpdateExisting.push({ id: candidate.id, note: newNote });
+                              correctedDupCount++;
+                              return;
+                          }
+                          // bacaan lama sudah sama/lebih konsisten -> anggap ini transaksi baru yang berbeda,
+                          // biarkan lanjut diproses & disimpan seperti biasa di bawah.
                       }
                   }
               }
 
-              const autoCommission = isProfessional() ? calcAutoCommission(pair, isNaN(lot)?0:lot) : (isNaN(parseFloat(raw.commission)) ? 0 : parseFloat(raw.commission));
+              const missingCritical = [];
+              if (!t.pair || t.pair.length < 2) missingCritical.push('Pair tidak jelas');
+              if (!['Buy','Sell'].includes(t.dir)) missingCritical.push('Arah tidak jelas');
+              if (t.pnl === undefined || isNaN(t.pnl)) missingCritical.push('P&L tidak terbaca');
+              if (!t.date) missingCritical.push('Tanggal tidak terbaca');
+
+              if (missingCritical.length > 0) {
+                  toPending.push({
+                      date: t.date || '',
+                      pair: t.pair || '',
+                      dir: ['Buy','Sell'].includes(t.dir) ? t.dir : 'Buy',
+                      session: t.session || autoSession(),
+                      lot: t.lot || '',
+                      pnl: (t.pnl === undefined || isNaN(t.pnl)) ? '' : t.pnl,
+                      commission: (isProfessional() && t.pair && isLotReasonable(t.lot)) ? calcAutoCommission(t.pair, t.lot) : '',
+                      note: (t.entry !== undefined && t.exit !== undefined) ? `${t.entry} -> ${t.exit}`.trim() : '',
+                      reason: missingCritical.join(', ')
+                  });
+                  return;
+              }
+
+              const flags = [];
+              if (!isLotReasonable(t.lot)) flags.push('Lot tidak terbaca/mencurigakan (cek nilai Komisi otomatisnya juga), cek manual');
+              if (pipInfo.valid === false && pipInfo.reason) flags.push(pipInfo.reason);
+
+              const note = (t.entry !== undefined && t.exit !== undefined && pipInfo.valid)
+                  ? `${t.entry} -> ${t.exit} ${pipInfo.text}`.trim()
+                  : (t.entry !== undefined && t.exit !== undefined ? `${t.entry} -> ${t.exit}` : (t.note || ''));
+
+              // -- Komisi TIDAK PERNAH diambil dari hasil baca gambar. Untuk Akun Professional, komisi
+              //    SELALU dihitung otomatis dari tarif per kategori instrumen (Profil) x lot transaksi
+              //    ini — berlaku persis sama walau baris di screenshot TIDAK menampilkan kolom Komisi
+              //    sama sekali. Untuk Cent/Standard, default 0 (isi manual lewat tombol Edit jika perlu). --
+              const autoCommission = isProfessional() ? calcAutoCommission(t.pair, t.lot || 0) : 0;
               if (autoCommission < 0) komisiFoundCount++;
 
               toSaveDirect.push({
-                  date, pair, dir, session, lot: isNaN(lot) ? 0 : lot, pnl,
+                  date: t.date, pair: t.pair, dir: t.dir, session: t.session, lot: t.lot || 0, pnl: t.pnl,
                   commission: autoCommission,
-                  note, flag: ''
+                  note, flag: flags.join(', ')
               });
           });
 
-          if (toSaveDirect.length > 0 || toUpdateExisting.length > 0) {
+          if (toSaveDirect.length > 0 || toPending.length > 0 || toUpdateExisting.length > 0) {
               const batch = writeBatch(db);
-              // -- Timestamp naik 1 milidetik per baris (bukan serverTimestamp) supaya urutan tersimpan
-              //    di database PERSIS sama dengan urutan baris di foto (atas ke bawah). --
+              // -- PENTING (fix urutan sesuai foto): kita SENGAJA TIDAK memakai serverTimestamp() di sini.
+              //    Kalau pakai serverTimestamp(), semua dokumen dalam SATU batch commit akan mendapat nilai
+              //    timestamp yang SAMA PERSIS (waktu commit di server), sehingga saat ditampilkan (orderBy
+              //    createdAt) urutannya jadi tidak terjamin sama dengan urutan baris di screenshot. Solusinya:
+              //    pakai timestamp sisi-client yang naik 1 milidetik untuk tiap baris, mengikuti persis urutan
+              //    parsing dari foto (dari atas ke bawah) — sehingga di tabel Riwayat Transaksi & kalkulasi
+              //    kronologis lainnya, urutannya PERSIS sama seperti urutan di foto yang kamu upload. --
               const baseTs = Date.now();
               let ordinal = 0;
               toSaveDirect.forEach(t => {
                   const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_trading'));
+                  batch.set(newRef, { ...t, createdAt: new Date(baseTs + ordinal) });
+                  ordinal++;
+              });
+              toPending.forEach(t => {
+                  const newRef = doc(collection(db, 'users', currentUser.uid, 'jurnal_pending'));
                   batch.set(newRef, { ...t, createdAt: new Date(baseTs + ordinal) });
                   ordinal++;
               });
@@ -1373,25 +1360,32 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
               await batch.commit();
           }
 
-          let summary = `${toSaveDirect.length} transaksi tersimpan sesuai urutan foto (cross-check berlapis otomatis, tanpa perlu dicek manual)`;
+          const flaggedCount = toSaveDirect.filter(t => t.flag).length;
+
+          let summary = `${toSaveDirect.length} transaksi tersimpan sesuai urutan foto`;
+          if (flaggedCount > 0) summary += ` (${flaggedCount} ditandai ⚠ CEK di tabel riwayat)`;
+          if (toPending.length > 0) summary += `, ${toPending.length} masuk daftar "Perlu Dicek Manual"`;
           if (dupCount > 0) summary += `, ${dupCount} duplikat dilewati`;
           if (correctedDupCount > 0) summary += `, ${correctedDupCount} duplikat mirip dikoreksi otomatis`;
+          if (refinedCount > 0) summary += `, ${refinedCount} harga dikoreksi lewat verifikasi digit-only`;
           if (komisiFoundCount > 0) summary += `, ${komisiFoundCount} komisi dihitung otomatis`;
           summary += '.';
 
           statusLabel.innerText = summary;
-          statusLabel.style.color = (toSaveDirect.length > 0 || toUpdateExisting.length > 0) ? 'var(--green)' : 'var(--red)';
+          statusLabel.style.color = (toSaveDirect.length > 0 || toPending.length > 0 || toUpdateExisting.length > 0) ? 'var(--green)' : 'var(--red)';
 
-          if (toSaveDirect.length === 0 && toUpdateExisting.length === 0) {
+          if (toSaveDirect.length === 0 && toPending.length === 0 && toUpdateExisting.length === 0) {
               Swal.fire('Tidak Ada Transaksi Baru', dupCount > 0 ? 'Semua baris terdeteksi ternyata sudah ada di jurnal (duplikat, harga cocok persis).' : 'Tidak ada transaksi terbaca dari gambar ini.', 'info');
           } else {
               Swal.fire({
                   icon: 'success',
                   title: 'Selesai Diproses',
                   html: `<div style="font-size:13px;text-align:left;">
-                           ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal (hasil cross-check berlapis + eskalasi verifikasi otomatis, TANPA perlu dicek/dicocokkan manual), urutannya PERSIS sesuai urutan barisnya di foto, harga &amp; pip selalu terisi dan tidak pernah negatif.</div>` : ''}
+                           ${toSaveDirect.length > 0 ? `<div>✅ <strong>${toSaveDirect.length}</strong> transaksi langsung tersimpan ke jurnal, urutannya PERSIS sesuai urutan barisnya di foto${flaggedCount>0 ? ` (<span style="color:var(--red)">${flaggedCount} perlu dicek</span> — tandanya ⚠ CEK di kolom Catatan tabel Riwayat Transaksi)` : ''}.</div>` : ''}
+                           ${toPending.length>0 ? `<div style="margin-top:6px;">🔶 <strong>${toPending.length}</strong> baris datanya kurang lengkap, sekarang muncul di kartu <strong>"Perlu Dicek Manual"</strong> di atas form input — lengkapi lalu klik Simpan.</div>` : ''}
                            ${dupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">↩️ ${dupCount} baris dilewati karena duplikat (harga entry/exit cocok persis dengan transaksi yang sudah ada).</div>` : ''}
-                           ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — catatan transaksi lama <strong>langsung dikoreksi</strong> ke harga hasil pembacaan AI (tidak ditambahkan sebagai baris baru).</div>` : ''}
+                           ${correctedDupCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔧 ${correctedDupCount} baris kelihatan seperti transaksi yang sama dengan yang sudah ada (tanggal, pair, arah, lot, P&amp;L sama) tapi harga entry/exit-nya beda — dicek konsistensi digitnya, dan catatan transaksi lama <strong>langsung dikoreksi</strong> ke harga hasil pembacaan ulang (tidak ditambahkan sebagai baris baru).</div>` : ''}
+                           ${refinedCount>0 ? `<div style="margin-top:6px;color:var(--muted);">🔢 ${refinedCount} harga dikoreksi otomatis berdasarkan pembacaan ulang khusus digit + cek presisi titik desimal (lebih presisi).</div>` : ''}
                            ${komisiFoundCount>0 ? `<div style="margin-top:6px;color:var(--muted);">💰 ${komisiFoundCount} baris komisinya dihitung OTOMATIS dari tarif per instrumen x lot (Akun Professional) — tidak bergantung sama sekali pada kolom Komisi di screenshot.</div>` : ''}
                          </div>`
               });
@@ -1399,8 +1393,10 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
 
       } catch (e) {
           console.error(e);
-          statusLabel.innerText = 'Error AI: ' + e.message;
+          statusLabel.innerText = 'Error OCR: ' + e.message;
           statusLabel.style.color = 'var(--red)';
+          if (worker) { try { await worker.terminate(); } catch (_) {} }
+          if (digitWorker) { try { await digitWorker.terminate(); } catch (_) {} }
           Swal.fire('Error AI', e.message, 'error');
       } finally {
           input.value = '';
@@ -1526,6 +1522,18 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
           accountType = (d.accountType === 'standard' || d.accountType === 'professional') ? d.accountType : 'cent';
           document.getElementById('pAccountType').value = accountType;
 
+          document.getElementById('pComForex').value = (d.comForex !== undefined && d.comForex !== null) ? d.comForex : 7;
+          document.getElementById('pComGold').value = (d.comGold !== undefined && d.comGold !== null) ? d.comGold : 6;
+          document.getElementById('pComSilver').value = (d.comSilver !== undefined && d.comSilver !== null) ? d.comSilver : 6;
+          document.getElementById('pComCrypto').value = (d.comCrypto !== undefined && d.comCrypto !== null) ? d.comCrypto : 0;
+          document.getElementById('pComIndex').value = (d.comIndex !== undefined && d.comIndex !== null) ? d.comIndex : 0;
+
+          document.getElementById('pPipForex').value = (d.pipForex !== undefined && d.pipForex !== null) ? d.pipForex : 10;
+          document.getElementById('pPipGold').value = (d.pipGold !== undefined && d.pipGold !== null) ? d.pipGold : 10;
+          document.getElementById('pPipSilver').value = (d.pipSilver !== undefined && d.pipSilver !== null) ? d.pipSilver : 50;
+          document.getElementById('pPipCrypto').value = (d.pipCrypto !== undefined && d.pipCrypto !== null) ? d.pipCrypto : 1;
+          document.getElementById('pPipIndex').value = (d.pipIndex !== undefined && d.pipIndex !== null) ? d.pipIndex : 1;
+
           if(isReadOnly) {
               document.getElementById('bannerView').innerText = `Melihat Portofolio: ${d.name || d.username} (Mode Baca Saja)`;
           }
@@ -1533,8 +1541,25 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
           ['pTraderName','pModal','pDesc','pUsername'].forEach(id => document.getElementById(id).value = '');
           accountType = 'cent';
           document.getElementById('pAccountType').value = 'cent';
+
+          document.getElementById('pComForex').value = 7;
+          document.getElementById('pComGold').value = 6;
+          document.getElementById('pComSilver').value = 6;
+          document.getElementById('pComCrypto').value = 0;
+          document.getElementById('pComIndex').value = 0;
+
+          document.getElementById('pPipForex').value = 10;
+          document.getElementById('pPipGold').value = 10;
+          document.getElementById('pPipSilver').value = 50;
+          document.getElementById('pPipCrypto').value = 1;
+          document.getElementById('pPipIndex').value = 1;
       }
       updateUnitLabels();
+      // Setelah tarif Komisi & Pip dari profil selesai dimuat, langsung hitung ulang preview
+      // Komisi & P&L di form input transaksi supaya tidak ada nilai basi/lama yang tertinggal.
+      window.previewAutoCommission();
+      window.previewPips();
+      window.previewAutoPnl();
 
       const q = query(collection(db, 'users', targetUid, 'jurnal_trading'), orderBy('createdAt', 'asc'));
       unsubListener = onSnapshot(q, (snap) => {
@@ -1637,8 +1662,18 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
       const rawType = document.getElementById('pAccountType').value;
       const accType = (rawType === 'standard' || rawType === 'professional') ? rawType : 'cent';
       accountType = accType; updateUnitLabels();
+      const comForex = parseFloat(document.getElementById('pComForex').value) || 0;
+      const comGold = parseFloat(document.getElementById('pComGold').value) || 0;
+      const comSilver = parseFloat(document.getElementById('pComSilver').value) || 0;
+      const comCrypto = parseFloat(document.getElementById('pComCrypto').value) || 0;
+      const comIndex = parseFloat(document.getElementById('pComIndex').value) || 0;
+      const pipForex = parseFloat(document.getElementById('pPipForex').value) || 0;
+      const pipGold = parseFloat(document.getElementById('pPipGold').value) || 0;
+      const pipSilver = parseFloat(document.getElementById('pPipSilver').value) || 0;
+      const pipCrypto = parseFloat(document.getElementById('pPipCrypto').value) || 0;
+      const pipIndex = parseFloat(document.getElementById('pPipIndex').value) || 0;
       try {
-          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType }, { merge: true });
+          await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'jurnal_profile'), { name, modal, desc, username, accountType: accType, comForex, comGold, comSilver, comCrypto, comIndex, pipForex, pipGold, pipSilver, pipCrypto, pipIndex }, { merge: true });
           if(username) await setDoc(doc(db, 'public_usernames', username), { uid: currentUser.uid });
           renderAll();
       } catch(e) { console.error("Gagal simpan profil", e); }
@@ -1658,9 +1693,17 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
     let commission = parseFloat(document.getElementById('tCommission').value);
     if (isNaN(commission)) commission = isProfessional() ? calcAutoCommission(pair, lot) : 0;
     const note = document.getElementById('tNote').value.trim();
+    // Harga Entry & Exit (opsional) -- kalau keduanya diisi, Pips dihitung otomatis dari selisihnya
+    // memakai pengali pip sesuai jenis instrumen (pipUnit), lalu ikut disimpan bersama transaksi.
+    const entryPriceRaw = parseFloat(document.getElementById('tEntryPrice').value);
+    const exitPriceRaw = parseFloat(document.getElementById('tExitPrice').value);
+    const hasPrices = !isNaN(entryPriceRaw) && !isNaN(exitPriceRaw);
+    const entryPrice = hasPrices ? entryPriceRaw : null;
+    const exitPrice = hasPrices ? exitPriceRaw : null;
+    const pips = hasPrices ? roundClean(Math.abs(exitPriceRaw - entryPriceRaw) * pipUnit(pair).multiplier, 4) : null;
 
-    if(!date || !pair || isNaN(pnl)){
-      return Swal.fire({icon:'warning', title:'Isian Tidak Lengkap', text:'Tanggal, Pair, dan P&L wajib diisi!', background:'var(--card)'});
+    if(!date || !pair || lot <= 0 || isNaN(pnl)){
+      return Swal.fire({icon:'warning', title:'Isian Tidak Lengkap', text:'Tanggal, Pair, Lot, Harga Entry & Harga Exit wajib diisi supaya Pips dan P&L otomatis terhitung (kolom Pips & P&L tidak bisa diisi manual).', background:'var(--card)'});
     }
 
     const btn = document.getElementById('btnSaveTrade');
@@ -1669,14 +1712,16 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
 
     try {
         if(isEditing){
-            await setDoc(doc(db, 'users', currentUser.uid, 'jurnal_trading', editingId), { date, pair, dir, session, lot, pnl, commission, note }, { merge: true });
+            await setDoc(doc(db, 'users', currentUser.uid, 'jurnal_trading', editingId), { date, pair, dir, session, lot, pnl, commission, note, entryPrice, exitPrice, pips }, { merge: true });
             Swal.fire({icon:'success', title:'Transaksi Diupdate!', timer: 800, showConfirmButton:false});
             window.cancelEdit();
         } else {
-            await addDoc(collection(db, 'users', currentUser.uid, 'jurnal_trading'), { date, pair, dir, session, lot, pnl, commission, note, createdAt: serverTimestamp() });
+            await addDoc(collection(db, 'users', currentUser.uid, 'jurnal_trading'), { date, pair, dir, session, lot, pnl, commission, note, entryPrice, exitPrice, pips, createdAt: serverTimestamp() });
             document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
             document.getElementById('tPnl').value=''; document.getElementById('tCommission').value=''; document.getElementById('tNote').value='';
+            document.getElementById('tEntryPrice').value=''; document.getElementById('tExitPrice').value=''; document.getElementById('tPipsAuto').value='';
             document.getElementById('tCommission').dataset.manualOverride = '';
+            document.getElementById('tPnl').dataset.manualOverride = '';
             Swal.fire({icon:'success', title:'Tersimpan!', timer: 800, showConfirmButton:false});
         }
     } catch(err) { Swal.fire({icon:'error', title:'Error', text: err.message});
@@ -1698,6 +1743,9 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
     commEl.value = t.commission || '';
     commEl.dataset.manualOverride = '1'; // jangan ditimpa auto-preview selagi mengedit nilai tersimpan
     document.getElementById('tNote').value = t.note || '';
+    document.getElementById('tEntryPrice').value = (t.entryPrice !== null && t.entryPrice !== undefined) ? t.entryPrice : '';
+    document.getElementById('tExitPrice').value = (t.exitPrice !== null && t.exitPrice !== undefined) ? t.exitPrice : '';
+    window.previewPips();
 
     document.getElementById('editModeBanner').classList.add('active');
     document.getElementById('btnSaveTrade').innerText = 'UPDATE TRANSAKSI';
@@ -1710,7 +1758,9 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
     document.getElementById('tDate').valueAsDate = new Date();
     document.getElementById('tPair').value=''; document.getElementById('tLot').value='';
     document.getElementById('tPnl').value=''; document.getElementById('tCommission').value=''; document.getElementById('tNote').value='';
+    document.getElementById('tEntryPrice').value=''; document.getElementById('tExitPrice').value=''; document.getElementById('tPipsAuto').value='';
     document.getElementById('tCommission').dataset.manualOverride = '';
+    document.getElementById('tPnl').dataset.manualOverride = '';
     document.getElementById('tDir').value = 'Buy';
     document.getElementById('tSession').value = 'Asia';
 
@@ -1907,6 +1957,7 @@ Kalau memang tidak ada satupun baris transaksi yang terlihat di gambar, balas de
         <td><span class="pill ${t.dir==='Buy'?'buy':'sell'}">${t.dir}</span></td>
         <td>${t.session}</td>
         <td>${t.lot || '-'}</td>
+        <td>${(t.pips !== null && t.pips !== undefined) ? t.pips.toFixed(1) : '-'}</td>
         <td>${fmtDual(t.pnl)}</td>
         <td>${t.commission ? fmtDual(t.commission) : '<span style="color:var(--muted);">-</span>'}</td>
         <td style="color:var(--muted); font-size:12px; font-weight:700;">${t.flag ? `<span style="display:inline-block;background:var(--red-light);color:var(--red);font-size:9px;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:6px;" title="${escapeHtml(t.flag)}">⚠ CEK</span>` : ''}${t.note || '-'}</td>
