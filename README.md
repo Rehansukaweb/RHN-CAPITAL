@@ -2724,10 +2724,15 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; window.currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
-    document.getElementById('app-screen').style.display = 'none';
-    document.getElementById('pin-screen').style.display = 'flex';
-    document.getElementById('app-pin').style.display = 'block';
-    if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    // FIX: kalau sudah kebuka duluan pakai sidik jari (appUnlocked true) sebelum event ini
+    // sempat jalan, jangan paksa balik ke layar PIN — itu yang bikin user ngerasa
+    // "udah verifikasi sidik jari tapi tetap ga masuk-masuk".
+    if (!window.appUnlocked) {
+        document.getElementById('app-screen').style.display = 'none';
+        document.getElementById('pin-screen').style.display = 'flex';
+        document.getElementById('app-pin').style.display = 'block';
+        if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    }
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
         const secSnap = await getDoc(secRef); 
@@ -2743,6 +2748,8 @@ onAuthStateChanged(auth, async user => {
                 window.userCloudPin = null; 
                 setLoading(false); 
                 if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+            } else {
+                unlockApp();
             }
         } else { 
             window.userCloudPin = secSnap.data().pin; 
@@ -2760,7 +2767,12 @@ onAuthStateChanged(auth, async user => {
                 unlockApp();
             }
         }
-    } catch(err) { console.error(err); setLoading(false); }
+    } catch(err) { 
+        console.error(err); 
+        // FIX: kalau gagal ambil data security dari server tapi app sudah kebuka
+        // duluan lewat sidik jari, tetap tampilkan app-screen, jangan gantung di PIN.
+        if (window.appUnlocked) { unlockApp(); } else { setLoading(false); }
+    }
     if(window.resetIdle) window.resetIdle();
     
     try {
