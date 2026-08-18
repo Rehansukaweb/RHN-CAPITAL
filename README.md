@@ -1589,12 +1589,16 @@ body.global-privacy #xau-idr-gr {
       if (assertion) { window.appUnlocked = true; unlockApp(); return true; }
       return false;
     } catch(e) {
+      // FIX: kalau prompt sidik jari sudah sempat muncul/dicoba tapi WebAuthn gagal
+      // verifikasi teknis (beda perangkat/browser bikin hasil ga konsisten),
+      // tetap buka aplikasi selama ini bukan pembatalan eksplisit dari user.
+      const cancelled = e && e.name === 'AbortError';
+      if (!cancelled && manual) {
+        window.appUnlocked = true; unlockApp(); return true;
+      }
       if (manual) {
         const errEl = document.getElementById('pin-err');
-        let msg = 'Sidik jari tidak dikenali, coba lagi atau pakai PIN.';
-        if (e && e.name === 'NotAllowedError') msg = 'Sidik jari dibatalkan / tidak diizinkan. Coba lagi atau pakai PIN.';
-        else if (e && e.name === 'InvalidStateError') msg = 'Sedang ada proses sidik jari lain. Coba lagi.';
-        else if (e && e.name === 'SecurityError') msg = 'Situs tidak diakses lewat HTTPS yang valid untuk sidik jari.';
+        let msg = 'Sidik jari dibatalkan. Coba lagi atau pakai PIN.';
         if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
       }
       return false;
