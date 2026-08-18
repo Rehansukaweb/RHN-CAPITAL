@@ -81,9 +81,9 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
 .cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
 .admin-detail-btn {
-  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.08s ease, border-color 0.08s ease,
+              box-shadow 0.08s ease, opacity 0.08s ease, color 0.06s ease !important;
   will-change: transform;
 }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
@@ -92,11 +92,11 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
 .admin-detail-btn:active {
   transform: scale(0.94);
-  transition-duration: 0.11s !important;
+  transition-duration: 0.03s !important;
 }
 .w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
   transform: scale(0.97);
-  transition-duration: 0.11s !important;
+  transition-duration: 0.03s !important;
 }
 /* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
 @media (hover: hover) and (pointer: fine) {
@@ -110,20 +110,15 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
-.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Transisi antar halaman terasa halus, tetap cepat dan tanpa jeda */
-.page.active { animation: pageIn 0.24s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
-@keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Transisi halus antar layar penuh (login <-> pin <-> app) supaya perpindahan
-   tidak terasa "ngedet"/patah walau tetap cepat dan tanpa delay */
-#auth-screen, #pin-screen, #app-screen { animation: screenFadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; will-change: opacity, transform; }
-@keyframes screenFadeIn { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: scale(1); } }
+/* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
+.page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
+@keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -149,15 +144,14 @@ html, body { -webkit-overflow-scrolling: touch; }
 body, button, a, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
-.cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
-.admin-detail-btn, .nav-bottom, .nav-bottom * {
+.nav-bottom, .nav-bottom * {
   touch-action: manipulation;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .w-card, .recent-item, .m-card, .nav-ext-btn,
-.status-pill, .calc-curr-item, .calc-btn, .swap-btn, .set-action, .auth-tab {
+.status-pill, .calc-curr-item {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -237,7 +231,6 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .nav {
   padding: 0 24px 24px; display: flex; gap: 12px;
   overflow-x: auto; scrollbar-width: none; white-space: nowrap;
-  -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
 }
 .nav::-webkit-scrollbar { display: none; }
 .nav-btn {
@@ -256,7 +249,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; -webkit-overflow-scrolling: touch; }
+.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
@@ -274,7 +267,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; -webkit-overflow-scrolling: touch; }
+.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 .w-pct-badge { position: absolute; top: 8px; right: 8px; font-size: 8px; font-weight: 800; background: var(--border); padding: 2px 4px; border-radius: 4px; color: var(--text2); display: none; }
@@ -303,7 +296,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
-#f-amount { overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 20px; font-weight: 800; -webkit-overflow-scrolling: touch; }
+#f-amount { overflow-x: auto; white-space: nowrap; scrollbar-width: none; font-size: 20px; font-weight: 800; }
 .f-input-dark:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
 .f-input-dark::placeholder { color: var(--text3); }
 
@@ -382,14 +375,14 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 }
 .calc-name { font-size: 10px; color: var(--text3); margin-top: 2px; padding-left: 2px; }
 .calc-right { text-align: right; overflow: hidden; }
-.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 
 .swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); }
 /* Diubah warna bg nya pake variable tema biar nyesuaiin dengan light/dark mode */
 .calc-keypad-wrap { background: var(--bg3); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
 .calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
-.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.22s cubic-bezier(0.22, 1, 0.36, 1); display: flex; align-items: center; justify-content: center; }
+.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
 .calc-btn:active { background: rgba(128,128,128,0.2); }
 .calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
 .calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
@@ -412,7 +405,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .chart-legend { display: flex; gap: 16px; margin-bottom: 16px; justify-content: center; }
 .leg-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
-.period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+.period-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; padding-bottom: 8px; }
 .p-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 11px; font-weight: 700; cursor: pointer; background: var(--bg2); color: var(--text3); white-space: nowrap; }
 .chart-filter-badge { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; font-size: 11px; font-weight: 700; color: var(--gold); }
 .chart-filter-badge span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -510,7 +503,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .list-wrap { padding: 0 !important; margin: 0 !important; width: 100%; }
   .recent-item { width: 100% !important; margin: 0 0 12px 0 !important; padding: 12px 16px !important; border-radius: 24px !important; border-left: none !important; border-right: none !important; background: var(--card); flex-direction: row; justify-content: space-between; align-items: center; min-height: 92px; }
   .ri-right-wrap { margin-left: 8px !important; align-items: flex-end; flex-shrink: 0; max-width: 62%; }
-  .action-btns { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; justify-content: flex-end; width: 100%; gap: 4px !important; -webkit-overflow-scrolling: touch; }
+  .action-btns { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; justify-content: flex-end; width: 100%; gap: 4px !important; }
   .action-btns::-webkit-scrollbar { display: none; }
   .del-btn-recent, .edit-btn-recent { margin-top: 0px !important; padding: 4px 7px !important; font-size: 8px !important; flex-shrink: 0; }
   .cat-badge, .wallet-badge { font-size: 7px; padding: 2px 4px; display: inline-block !important; }
@@ -717,10 +710,6 @@ body.global-privacy #xau-idr-gr {
        <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
-
-    <button id="biometric-unlock-btn" onclick="event.stopPropagation(); window.unlockWithBiometric(true)" style="display:none; width:100%; align-items:center; justify-content:center; gap:8px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 14px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 12px;">
-      <span style="font-size:16px;">🔓</span> Buka dengan Sidik Jari
-    </button>
     
     <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
       <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="event.stopPropagation(); resetAccount()">Ganti Akun</button>
@@ -1263,13 +1252,6 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="changePinInApp()">GANTI PIN</button>
     </div>
-    <div class="set-item" id="biometric-setting-item" style="display:none;">
-      <div>
-        <div class="set-label">Buka dengan Sidik Jari</div>
-        <div class="set-sub" id="biometric-setting-sub">Gunakan sidik jari/Face ID untuk buka aplikasi</div>
-      </div>
-      <button class="set-action" id="biometric-setting-btn" onclick="window.toggleBiometric()">AKTIFKAN</button>
-    </div>
   </div>
 
   <div class="set-group">
@@ -1472,157 +1454,6 @@ body.global-privacy #xau-idr-gr {
   const localPin = localStorage.getItem('local_pin_rhn');
   window.appUnlocked = false; 
 
-  // === SIDIK JARI (WebAuthn Biometric Unlock) ===
-  window.isBiometricSupported = function() { return !!(window.PublicKeyCredential && navigator.credentials); };
-
-  window.updateBiometricUI = function() {
-    const hasCred = !!localStorage.getItem('biometric_cred_rhn');
-    const supported = window.isBiometricSupported();
-    const loginBtn = document.getElementById('biometric-unlock-btn');
-    if (loginBtn) loginBtn.style.display = (supported && hasCred) ? 'flex' : 'none';
-
-    const settingItem = document.getElementById('biometric-setting-item');
-    const settingBtn = document.getElementById('biometric-setting-btn');
-    const settingSub = document.getElementById('biometric-setting-sub');
-    if (settingItem) settingItem.style.display = supported ? 'flex' : 'none';
-    if (settingBtn && settingSub) {
-      if (hasCred) { settingBtn.textContent = 'MATIKAN'; settingSub.textContent = 'Sidik jari/Face ID aktif untuk buka aplikasi'; }
-      else { settingBtn.textContent = 'AKTIFKAN'; settingSub.textContent = 'Gunakan sidik jari/Face ID untuk buka aplikasi'; }
-    }
-  };
-
-  window.setupBiometric = async function(silent) {
-    try {
-      const uid = window.currentUser ? window.currentUser.uid : localStorage.getItem('last_uid_rhn');
-      if (!uid) { if (!silent) Swal.fire({icon:'error', title:'Belum Login', background:'var(--card)', color:'var(--text)'}); return; }
-      const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
-      const userId = new TextEncoder().encode(uid);
-      const cred = await navigator.credentials.create({
-        publicKey: {
-          challenge, rp: { name: 'RHN CAPITAL' },
-          user: { id: userId, name: uid, displayName: (window.currentUser && window.currentUser.email) || 'RHN User' },
-          pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-          authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred', requireResidentKey: false },
-          timeout: 60000
-        }
-      });
-      if (cred) {
-        const rawIdB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
-        localStorage.setItem('biometric_cred_rhn', rawIdB64);
-        localStorage.setItem('biometric_uid_rhn', uid);
-        window.updateBiometricUI();
-        Swal.fire({icon:'success', title:'Sidik Jari Aktif!', text:'Sekarang kamu bisa buka aplikasi pakai sidik jari.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
-        return true;
-      }
-    } catch(e) {
-      if (!silent) Swal.fire({icon:'error', title:'Gagal Mengaktifkan', text: e.message || 'Perangkat tidak mendukung sidik jari.', background:'var(--card)', color:'var(--text)'});
-    }
-    return false;
-  };
-
-  window.maybeAutoEnableBiometric = async function() {
-    try {
-      if (!window.isBiometricSupported()) return;
-      if (localStorage.getItem('biometric_cred_rhn')) return;
-      if (localStorage.getItem('biometric_setup_attempted_rhn')) return;
-      localStorage.setItem('biometric_setup_attempted_rhn', '1');
-      await window.setupBiometric(true);
-    } catch(e) {}
-  };
-
-
-  window.toggleBiometric = function() {
-    if (localStorage.getItem('biometric_cred_rhn')) {
-      Swal.fire({ title: 'Matikan Sidik Jari?', text: 'Kamu hanya akan bisa buka aplikasi pakai PIN.', icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Matikan' }).then((res) => {
-        if (res.isConfirmed) {
-          localStorage.removeItem('biometric_cred_rhn');
-          localStorage.removeItem('biometric_uid_rhn');
-          window.updateBiometricUI();
-          Swal.fire({icon:'success', title:'Sidik Jari Dimatikan', background:'var(--card)', color:'var(--text)', timer: 1200, showConfirmButton: false});
-        }
-      });
-    } else {
-      window.setupBiometric();
-    }
-  };
-
-  window.biometricInProgress = false;
-  // FIX: helper timeout — beberapa HP suka nge-hang di navigator.credentials.get()
-  // (gak resolve, gak reject sama sekali) kalau dipicu otomatis tanpa sentuhan user.
-  // Tanpa batas waktu ini, proses sidik jari bisa nyangkut selamanya dan bikin
-  // tombol/PIN manual ikut keblokir karena dianggap "masih memproses".
-  window.withBiometricTimeout = function(promise, ms) {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        const err = new Error('Biometric timeout'); err.name = 'BiometricTimeoutError';
-        reject(err);
-      }, ms);
-      promise.then(v => { clearTimeout(timer); resolve(v); }, e => { clearTimeout(timer); reject(e); });
-    });
-  };
-  window.unlockWithBiometric = async function(manual) {
-    if (window.biometricInProgress) {
-      // FIX: cegah 2 permintaan sidik jari nabrak bersamaan (auto + manual),
-      // yang bikin browser nolak keduanya dan muncul pesan "tidak dikenali" palsu.
-      if (manual) {
-        const errEl = document.getElementById('pin-err');
-        if (errEl) { errEl.textContent = 'Sedang memproses sidik jari, tunggu sebentar...'; errEl.style.display = 'block'; }
-      }
-      return false;
-    }
-    window.biometricInProgress = true;
-    try {
-      const credB64 = localStorage.getItem('biometric_cred_rhn');
-      if (!credB64 || !window.isBiometricSupported()) return false;
-      const rawId = Uint8Array.from(atob(credB64), c => c.charCodeAt(0));
-      const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
-
-      let assertion = null;
-      try {
-        // Percobaan 1: pakai ID kredensial yang tersimpan
-        assertion = await window.withBiometricTimeout(navigator.credentials.get({
-          publicKey: {
-            challenge,
-            allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
-            userVerification: 'required',
-            timeout: 60000
-          }
-        }), 12000);
-      } catch (e1) {
-        // FIX: kalau ID tersimpan gak cocok (mismatch encoding/perangkat), coba lagi
-        // TANPA filter ID spesifik — biarkan browser cari kredensial device manapun
-        // yang terdaftar untuk domain ini. Selama sensor sidik jari berhasil membaca
-        // & diverifikasi OS, ini dianggap valid untuk buka aplikasi.
-        const challenge2 = new Uint8Array(32); crypto.getRandomValues(challenge2);
-        assertion = await window.withBiometricTimeout(navigator.credentials.get({
-          publicKey: { challenge: challenge2, userVerification: 'required', timeout: 60000 }
-        }), 12000);
-      }
-
-      if (assertion) { window.appUnlocked = true; unlockApp(); return true; }
-      return false;
-    } catch(e) {
-      // FIX: kalau prompt sidik jari sudah sempat muncul/dicoba tapi WebAuthn gagal
-      // verifikasi teknis (beda perangkat/browser bikin hasil ga konsisten) ATAU
-      // kena timeout (nyangkut/hang), tetap buka aplikasi selama ini bukan
-      // pembatalan eksplisit dari user. Berlaku baik untuk trigger manual (tombol)
-      // maupun otomatis (saat app dibuka), supaya begitu sensor sidik jari
-      // muncul & dibaca, aplikasi langsung kebuka — dan gak pernah nyangkut lagi.
-      const cancelled = e && e.name === 'AbortError';
-      if (!cancelled) {
-        window.appUnlocked = true; unlockApp(); return true;
-      }
-      if (manual) {
-        const errEl = document.getElementById('pin-err');
-        let msg = 'Sidik jari dibatalkan. Coba lagi atau pakai PIN.';
-        if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
-      }
-      return false;
-    } finally {
-      window.biometricInProgress = false;
-    }
-  };
-
   window.forceFocusPin = () => {
       // FIX: Tahan keyboard kalau animasi splash screen masih jalan
       const splash = document.getElementById('splash-screen');
@@ -1658,9 +1489,6 @@ body.global-privacy #xau-idr-gr {
              document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
              window.pinMode = 'verify';
          }
-
-         window.updateBiometricUI();
-         if (localStorage.getItem('biometric_cred_rhn')) { setTimeout(() => window.unlockWithBiometric(false), 400); }
      });
   }
 </script>
@@ -1679,8 +1507,6 @@ window.resetIdle = function() {
             document.getElementById('app-pin').value = '';
             window.pinMode = 'verify';
             if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
-            window.updateBiometricUI();
-            if (localStorage.getItem('biometric_cred_rhn')) { setTimeout(() => window.unlockWithBiometric(false), 400); }
         }, 30000);
     }
 };
@@ -2736,17 +2562,12 @@ window.doLogout = function() {
 
 onAuthStateChanged(auth, async user => {
   if (user) {
-    currentUser = user; window.currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
+    currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
-    // FIX: kalau sudah kebuka duluan pakai sidik jari (appUnlocked true) sebelum event ini
-    // sempat jalan, jangan paksa balik ke layar PIN — itu yang bikin user ngerasa
-    // "udah verifikasi sidik jari tapi tetap ga masuk-masuk".
-    if (!window.appUnlocked) {
-        document.getElementById('app-screen').style.display = 'none';
-        document.getElementById('pin-screen').style.display = 'flex';
-        document.getElementById('app-pin').style.display = 'block';
-        if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
-    }
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+    document.getElementById('app-pin').style.display = 'block';
+    if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
         const secSnap = await getDoc(secRef); 
@@ -2762,8 +2583,6 @@ onAuthStateChanged(auth, async user => {
                 window.userCloudPin = null; 
                 setLoading(false); 
                 if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
-            } else {
-                unlockApp();
             }
         } else { 
             window.userCloudPin = secSnap.data().pin; 
@@ -2781,12 +2600,7 @@ onAuthStateChanged(auth, async user => {
                 unlockApp();
             }
         }
-    } catch(err) { 
-        console.error(err); 
-        // FIX: kalau gagal ambil data security dari server tapi app sudah kebuka
-        // duluan lewat sidik jari, tetap tampilkan app-screen, jangan gantung di PIN.
-        if (window.appUnlocked) { unlockApp(); } else { setLoading(false); }
-    }
+    } catch(err) { console.error(err); setLoading(false); }
     if(window.resetIdle) window.resetIdle();
     
     try {
@@ -2858,7 +2672,7 @@ onAuthStateChanged(auth, async user => {
     
     
   } else {
-    currentUser = null; window.currentUser = null;
+    currentUser = null; 
     localStorage.removeItem('last_uid_rhn'); 
     localStorage.removeItem('local_pin_rhn');
     window.appUnlocked = false;
@@ -2891,7 +2705,6 @@ window.verifyPin = async function() {
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
             window.appUnlocked = true;
             unlockApp(); 
-            setTimeout(() => window.maybeAutoEnableBiometric(), 1200);
         } catch(e) { 
             errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
             document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
@@ -2905,7 +2718,6 @@ window.verifyPin = async function() {
         if (pinInput === localPin || pinInput === window.userCloudPin) { 
             window.appUnlocked = true;
             unlockApp(); 
-            setTimeout(() => window.maybeAutoEnableBiometric(), 800);
         } else { 
             errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block'; 
             document.getElementById('app-pin').value = ''; 
@@ -2948,7 +2760,6 @@ function unlockApp() {
 
     document.getElementById('app-pin').value = ''; 
     if (window.resetIdle) window.resetIdle(); 
-    if (window.updateBiometricUI) window.updateBiometricUI();
 }
 
 window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu harus login Email lagi.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Ganti' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn'); document.getElementById('app-pin').value = ''; window.appUnlocked = false; window.userCloudPin = null; doLogout(); } }); };
