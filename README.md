@@ -4199,66 +4199,44 @@ window.promptRequestSaldo = async function() {
         title: '↓ Minta Saldo',
         html: `
           <div style="text-align:left;">
-            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Pengirim (3 Angka)</label>
-            <input id="req-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="number" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
-            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo Diminta</label>
-            <input id="req-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0 12px; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Saldo Masuk Ke Dompet</label>
             <select id="req-my-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Catatan (Opsional)</label>
             <input id="req-note" class="swal2-input" placeholder="Contoh: Bayar utang kemarin" style="margin:4px 0; width:100%;">
+            <div style="font-size:10px; color:var(--text3); margin-top:2px;">Tidak perlu kode transfer atau nominal — QR code langsung muncul, tinggal disodorkan/scan ke pengirim dan pengirim yang mengisi nominal saat kirim saldo.</div>
           </div>
         `,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: 'KIRIM PERMINTAAN ➔',
+        confirmButtonText: 'BUAT QR PERMINTAAN ➔',
         cancelButtonText: 'Batal',
         background: 'var(--card)', color: 'var(--text)',
         confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
         preConfirm: () => {
-            const code = document.getElementById('req-target-code').value;
-            const nominal = parseFloat(document.getElementById('req-nominal').value) || 0;
             const myWallet = document.getElementById('req-my-wallet').value;
             const note = document.getElementById('req-note').value.trim();
-            if (!code || code.length !== 3) { Swal.showValidationMessage('Kode transfer harus 3 angka!'); return false; }
-            if (nominal <= 0) { Swal.showValidationMessage('Nominal harus lebih dari 0!'); return false; }
-            return { code, nominal, myWallet, note };
+            return { myWallet, note };
         }
     });
 
     if (!formVals) return;
-
-    Swal.fire({title: 'Mencari Akun Tujuan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
-    let target;
-    try {
-        target = await window.lookupTransferTarget(formVals.code);
-    } catch(e) {
-        return Swal.fire({icon:'error', title:'Gagal Mencari Akun', text: e.message, background:'var(--card)', color:'var(--text)'});
-    }
-    if (!target) {
-        return Swal.fire({icon:'error', title:'Kode Tidak Ditemukan', text:'Pastikan akun tujuan sudah pernah membuka aplikasi ini.', background:'var(--card)', color:'var(--text)'});
-    }
-    if (target.uid === currentUser.uid) {
-        return Swal.fire({icon:'warning', title:'Gagal', text:'Nggak bisa minta saldo ke akun sendiri bro!', background:'var(--card)', color:'var(--text)'});
-    }
 
     try {
         const reqRef = await addDoc(collection(db, 'balance_requests'), {
             fromUid: currentUser.uid,
             fromName: currentUser.displayName || currentUser.email.split('@')[0],
             fromEmail: currentUser.email,
-            toUid: target.uid,
-            toName: target.nama,
-            toEmail: target.email,
-            amount: formVals.nominal,
+            toUid: null,
+            toName: null,
+            toEmail: null,
+            amount: null,
             myWallet: formVals.myWallet,
             note: formVals.note || '-',
             status: 'pending',
             createdAt: serverTimestamp(),
             createdAtLocal: new Date().toISOString()
         });
-        Swal.fire({icon:'success', title:'Permintaan Terkirim! 📥', text:`Permintaan saldo ${fmtFull(formVals.nominal)} sudah dikirim ke ${target.nama}. Menunggu persetujuan.`, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
-        setTimeout(() => { window.showBarcodeRequest(reqRef.id, formVals.nominal, formVals.note); }, 1450);
+        window.showBarcodeRequest(reqRef.id, null, formVals.note);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal Mengirim Permintaan', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4291,8 +4269,15 @@ window.showBarcodeRequest = function(rid, amount, note) {
             });
         } catch(e) {}
     }
+    const amtLabelEl = document.getElementById('barcode-req-amt-label');
     const amtEl = document.getElementById('barcode-req-amt');
-    if (amtEl) amtEl.textContent = fmtFull(amount || 0);
+    if (amount) {
+        if (amtLabelEl) amtLabelEl.textContent = 'Jumlah Diminta';
+        if (amtEl) amtEl.textContent = fmtFull(amount);
+    } else {
+        if (amtLabelEl) amtLabelEl.textContent = 'Nominal';
+        if (amtEl) amtEl.textContent = 'Diisi oleh pengirim';
+    }
     const noteEl = document.getElementById('barcode-req-note');
     if (noteEl) noteEl.textContent = note ? ('📝 ' + note) : '';
     screen.style.display = 'flex';
@@ -4385,9 +4370,9 @@ window.__handleScanSendResult = async function(decodedText) {
             return Swal.fire({icon:'error', title:'Permintaan Tidak Ditemukan', text:'Barcode ini sudah tidak berlaku.', background:'var(--card)', color:'var(--text)'});
         }
         const r = { id: snap.id, ...snap.data() };
-        if (r.toUid !== currentUser.uid) {
+        if (r.fromUid === currentUser.uid) {
             window.__scanSendBusy = false;
-            return Swal.fire({icon:'warning', title:'Bukan Untukmu', text:'Barcode ini bukan permintaan saldo untuk akunmu.', background:'var(--card)', color:'var(--text)'});
+            return Swal.fire({icon:'warning', title:'Tidak Bisa', text:'Nggak bisa menyetujui permintaan saldo buatan sendiri bro!', background:'var(--card)', color:'var(--text)'});
         }
         if (r.status !== 'pending') {
             window.__scanSendBusy = false;
@@ -4458,7 +4443,7 @@ window.renderPendingRequests = function() {
                     <div class="req-name">${escapeHTML(r.fromName || 'User')}</div>
                     <div style="font-size:9px; color:var(--text3);">${escapeHTML(r.fromEmail || '')}</div>
                 </div>
-                <div class="req-amt">${fmtFull(r.amount)}</div>
+                <div class="req-amt">${r.amount ? fmtFull(r.amount) : 'Nominal bebas'}</div>
             </div>
             <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
             <div class="req-actions">
@@ -4484,11 +4469,11 @@ window.renderSentRequests = function() {
                     <div class="req-name">Ke: ${escapeHTML(r.toName || 'User')}</div>
                     <div style="font-size:9px; color:var(--text3);">${escapeHTML(r.toEmail || '')}</div>
                 </div>
-                <div class="req-amt">${fmtFull(r.amount)}</div>
+                <div class="req-amt">${r.amount ? fmtFull(r.amount) : 'Diisi pengirim'}</div>
             </div>
             <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
             <span class="req-badge ${r.status}">${r.status === 'pending' ? 'MENUNGGU' : (r.status === 'approved' ? 'DISETUJUI' : 'DITOLAK')}</span>
-            ${r.status === 'pending' ? `<button class="req-btn ok" style="margin-top:8px; width:100%;" onclick="window.showBarcodeRequest('${r.id}', ${Number(r.amount)||0}, ${JSON.stringify(r.note||'').replace(/"/g,'&quot;')})">🎫 LIHAT BARCODE</button>` : ''}
+            ${r.status === 'pending' ? `<button class="req-btn ok" style="margin-top:8px; width:100%;" onclick="window.showBarcodeRequest('${r.id}', ${r.amount ? Number(r.amount) : 'null'}, ${JSON.stringify(r.note||'').replace(/"/g,'&quot;')})">🎫 LIHAT BARCODE</button>` : ''}
         </div>
     `).join('');
 };
@@ -4498,12 +4483,17 @@ window.approveBalanceRequest = async function(reqId) {
     if (!r) return;
     const { wallets } = computeWalletsFromArr(txs);
     const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
+    const hasFixedAmount = !!r.amount;
 
-    const { value: srcWallet } = await Swal.fire({
+    const { value: formVals } = await Swal.fire({
         title: 'Setujui Permintaan Saldo?',
         html: `
           <div style="text-align:left;">
-            <div style="font-size:12px; color:var(--text2); margin-bottom:12px;">Kirim <b style="color:var(--gold);">${fmtFull(r.amount)}</b> ke <b>${escapeHTML(r.fromName)}</b>?</div>
+            <div style="font-size:12px; color:var(--text2); margin-bottom:12px;">${hasFixedAmount ? `Kirim <b style="color:var(--gold);">${fmtFull(r.amount)}</b> ke <b>${escapeHTML(r.fromName)}</b>?` : `Kirim saldo ke <b>${escapeHTML(r.fromName)}</b>. Masukkan nominal yang mau kamu kirim.`}</div>
+            ${hasFixedAmount ? '' : `
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo</label>
+            <input id="approve-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0 12px; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            `}
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Bayar Dari Dompet</label>
             <select id="approve-src-wallet" class="swal2-input" style="margin:4px 0; width:100%;">${walletOpts}</select>
           </div>
@@ -4514,37 +4504,43 @@ window.approveBalanceRequest = async function(reqId) {
         cancelButtonText: 'Batal',
         background: 'var(--card)', color: 'var(--text)',
         confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--bg3)',
-        preConfirm: () => document.getElementById('approve-src-wallet').value
+        preConfirm: () => {
+            const srcWallet = document.getElementById('approve-src-wallet').value;
+            const nominal = hasFixedAmount ? r.amount : (parseFloat(document.getElementById('approve-nominal').value) || 0);
+            if (!hasFixedAmount && nominal <= 0) { Swal.showValidationMessage('Nominal harus lebih dari 0!'); return false; }
+            return { srcWallet, nominal };
+        }
     });
 
-    if (!srcWallet) return;
+    if (!formVals) return;
+    const { srcWallet, nominal } = formVals;
 
     const { wallets: freshWallets } = computeWalletsFromArr(txs);
-    if ((freshWallets[srcWallet] || 0) < r.amount) {
+    if ((freshWallets[srcWallet] || 0) < nominal) {
         return Swal.fire({icon:'warning', title:'Saldo Tidak Cukup', text:`Saldo ${srcWallet} kamu cuma ${fmtFull(freshWallets[srcWallet] || 0)}.`, background:'var(--card)', color:'var(--text)'});
     }
 
     // Respon instan: langsung tampilkan hasil ke approver tanpa nunggu round-trip
     // server, lalu proses batch commit di background. Kalau ternyata gagal,
     // baru munculkan error menyusul.
-    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(r.amount) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(nominal) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
     (async () => {
         try {
             const nowD = new Date().toISOString();
             const batch = writeBatch(db);
             const outRef = doc(collection(db, 'users', currentUser.uid, 'transactions'));
             batch.set(outRef, {
-                type: 'expense', amount: r.amount, category: 'Transfer Saldo Keluar', wallet: srcWallet,
+                type: 'expense', amount: nominal, category: 'Transfer Saldo Keluar', wallet: srcWallet,
                 note: 'Setujui Permintaan Saldo dari ' + r.fromName, date: nowD, ownerEmail: currentUser.email,
                 createdAt: serverTimestamp(), isDeleted: false
             });
             const inRef = doc(collection(db, 'users', r.fromUid, 'transactions'));
             batch.set(inRef, {
-                type: 'income', amount: r.amount, category: 'Transfer Saldo Masuk', wallet: r.myWallet || 'Kas Tunai',
+                type: 'income', amount: nominal, category: 'Transfer Saldo Masuk', wallet: r.myWallet || 'Kas Tunai',
                 note: 'Permintaan Saldo Disetujui oleh ' + (currentUser.displayName || currentUser.email.split('@')[0]), date: nowD,
                 ownerEmail: r.fromEmail, createdAt: serverTimestamp(), isDeleted: false
             });
-            batch.update(doc(db, 'balance_requests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
+            batch.update(doc(db, 'balance_requests', reqId), { status: 'approved', amount: nominal, toUid: currentUser.uid, toName: currentUser.displayName || currentUser.email.split('@')[0], toEmail: currentUser.email, approvedAt: serverTimestamp() });
             await batch.commit();
             renderWalletTransferCard();
         } catch(e) {
@@ -6702,7 +6698,7 @@ window.addEventListener('focus', function () {
       <div id="barcode-req-qrcode"></div>
     </div>
     <div style="margin-top:20px; text-align:center;">
-      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; font-weight:800;">Jumlah Diminta</div>
+      <div id="barcode-req-amt-label" style="font-size:11px; color:var(--text3); text-transform:uppercase; font-weight:800;">Jumlah Diminta</div>
       <div id="barcode-req-amt" style="font-size:22px; font-weight:800; color:var(--gold); margin-top:4px;">Rp 0</div>
       <div id="barcode-req-note" style="font-size:11px; color:var(--text3); margin-top:8px;">-</div>
     </div>
