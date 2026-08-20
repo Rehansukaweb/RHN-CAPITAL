@@ -305,23 +305,31 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .req-btn.ok { background:var(--green2); color:#000; }
 .req-btn.no { background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); }
 
-#cs-chat-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:99999; flex-direction:column; }
-.cs-chat-head { display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid var(--border); background:var(--card); }
-.cs-chat-head .cs-back { background:var(--bg3); border:1px solid var(--border2); color:var(--text); width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; flex-shrink:0; }
-.cs-chat-head .cs-title { font-size:13px; font-weight:800; color:var(--text); }
-.cs-chat-head .cs-sub { font-size:10px; color:var(--text3); }
-.cs-chat-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:8px; }
-.cs-bubble { max-width:78%; padding:10px 14px; border-radius:16px; font-size:12px; line-height:1.4; word-break:break-word; }
-.cs-bubble.me { align-self:flex-end; background:var(--gold); color:#000; border-bottom-right-radius:4px; }
-.cs-bubble.them { align-self:flex-start; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-bottom-left-radius:4px; }
-.cs-bubble .cs-time { display:block; font-size:8px; opacity:0.6; margin-top:4px; text-align:right; }
+#cs-chat-screen { display:none; position:fixed; inset:0; background:#0b141a; z-index:99999; flex-direction:column; }
+.cs-chat-head { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid #1f2c34; background:#202c33; }
+.cs-chat-head .cs-back { background:#2a3942; border:none; color:#e9edef; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; flex-shrink:0; }
+.cs-chat-head .cs-title { font-size:13px; font-weight:800; color:#e9edef; }
+.cs-chat-head .cs-sub { font-size:10px; color:#8696a0; }
+.cs-chat-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:6px; background-image: radial-gradient(#182229 1px, transparent 1px); background-size: 18px 18px; background-color:#0b141a; }
+.cs-bubble { max-width:78%; padding:8px 10px 10px; border-radius:9px; font-size:12.5px; line-height:1.4; word-break:break-word; box-shadow:0 1px 1px rgba(0,0,0,0.3); }
+.cs-bubble.me { align-self:flex-end; background:#005c4b; color:#e9edef; border-top-right-radius:0; }
+.cs-bubble.them { align-self:flex-start; background:#202c33; color:#e9edef; border-top-left-radius:0; }
+.cs-bubble .cs-time { display:block; font-size:8px; opacity:0.6; margin-top:4px; text-align:right; color:#e9edef; }
 .cs-bubble { position:relative; }
-.cs-msg-del { position:absolute; top:-8px; right:-8px; width:18px; height:18px; border-radius:50%; background:var(--red2); color:#fff; font-size:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s ease, transform .15s ease; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
-.cs-bubble:hover .cs-msg-del, .cs-bubble:active .cs-msg-del { opacity:1; }
-@media (hover:none) { .cs-msg-del { opacity:0.85; } }
-.cs-chat-input-wrap { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); background:var(--card); }
-.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Outfit', sans-serif; outline:none; }
-.cs-chat-input-wrap button { background:var(--gold); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
+.cs-quote { background:rgba(255,255,255,0.08); border-left:3px solid var(--gold); border-radius:6px; padding:5px 8px; margin-bottom:5px; font-size:10.5px; color:#c9d3d8; cursor:pointer; }
+.cs-quote .cs-quote-name { font-weight:800; color:var(--gold); font-size:9.5px; display:block; margin-bottom:1px; }
+.cs-msg-actions { position:absolute; top:-10px; right:-6px; display:flex; gap:4px; opacity:0; transition:opacity .15s ease; }
+.cs-bubble:hover .cs-msg-actions, .cs-bubble:active .cs-msg-actions { opacity:1; }
+@media (hover:none) { .cs-msg-actions { opacity:0.9; } }
+.cs-msg-del, .cs-msg-reply { width:18px; height:18px; border-radius:50%; font-size:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.3); }
+.cs-msg-del { background:var(--red2); color:#fff; }
+.cs-msg-reply { background:#2a3942; color:#e9edef; }
+.cs-reply-preview { display:none; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; background:#1a2830; border-top:1px solid #1f2c34; }
+.cs-reply-preview .cs-quote { flex:1; margin:0; cursor:default; }
+.cs-reply-preview .cs-reply-cancel { background:#2a3942; color:#e9edef; border:none; width:24px; height:24px; border-radius:50%; font-size:12px; cursor:pointer; flex-shrink:0; }
+.cs-chat-input-wrap { display:flex; gap:8px; padding:10px 12px; border-top:1px solid #1f2c34; background:#202c33; }
+.cs-chat-input-wrap input { flex:1; background:#2a3942; border:none; color:#e9edef; border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Outfit', sans-serif; outline:none; }
+.cs-chat-input-wrap button { background:var(--green2); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
 .cs-list-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg3); cursor:pointer; transition:0.2s; }
 .cs-list-item:hover { border-color:var(--gold); }
 .cs-list-avatar { width:38px; height:38px; border-radius:50%; background:var(--gold); color:#000; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; flex-shrink:0; }
@@ -777,6 +785,14 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120"></div>
+    <div class="form-row" id="field-gender" style="display:none">
+      <select id="auth-gender" class="f-input-dark">
+        <option value="">Pilih Jenis Kelamin</option>
+        <option value="Laki-laki">Laki-laki</option>
+        <option value="Perempuan">Perempuan</option>
+      </select>
+    </div>
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
@@ -2276,42 +2292,200 @@ async function fetchUSDRate() {
 fetchUSDRate().then(initLiveCurrencies); 
 setInterval(fetchUSDRate, 300000); 
 
+// Harga XAU/USD realtime tanpa spread — diambil langsung dari harga spot emas
+// (mid price, bukan produk tokenized/berjangka yang punya selisih bid-ask),
+// di-polling tiap beberapa detik supaya tetap live.
+function applyXauPrice(newPrice) {
+    if (!newPrice) return;
+    const xauRate = document.getElementById('xau-rate-val');
+    if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2);
+    if (currentUSDRate > 0) {
+        const idrPriceOz = newPrice * currentUSDRate;
+        const idrPriceGram = idrPriceOz / 31.1034768;
+        const ozEl = document.getElementById('xau-idr-oz');
+        if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
+        const grEl = document.getElementById('xau-idr-gr');
+        if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
+    }
+}
+async function fetchLiveXAU() {
+    try {
+        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const data = await res.json();
+        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
+        if (price) { applyXauPrice(price); return; }
+        throw new Error('no price');
+    } catch (e) {
+        try {
+            const res2 = await fetch('https://api.gold-api.com/price/XAU');
+            const data2 = await res2.json();
+            if (data2 && data2.price) applyXauPrice(parseFloat(data2.price));
+        } catch (e2) {}
+    }
+}
 function initLiveXAU() {
-  const socketXAU = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
-  socketXAU.addEventListener('message', e => { 
-      const newPrice = parseFloat(JSON.parse(e.data).c); 
-      if (newPrice) { 
-          const xauRate = document.getElementById('xau-rate-val'); 
-          if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2); 
-          if (currentUSDRate > 0) { 
-              const idrPriceOz = newPrice * currentUSDRate; 
-              const idrPriceGram = idrPriceOz / 31.1034768; 
-              const ozEl = document.getElementById('xau-idr-oz'); 
-              if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz); 
-              const grEl = document.getElementById('xau-idr-gr'); 
-              if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram); 
-          } 
-      } 
-  });
-  socketXAU.addEventListener('close', () => setTimeout(initLiveXAU, 3000));
+    fetchLiveXAU();
+    if (window.__xauInterval) clearInterval(window.__xauInterval);
+    window.__xauInterval = setInterval(fetchLiveXAU, 8000);
 }
 initLiveXAU();
 
 let calcRates = null, calcFromCode = 'USD', calcToCode = 'IDR', calcActiveRow = 'from', calcInputVal = '100';
 
-const calcCurrencies = [ 
-  { code: 'IDR', name: 'Rupiah Indonesia', flag: '🇮🇩' }, { code: 'USD', name: 'Dolar Amerika', flag: '🇺🇸' }, 
-  { code: 'AED', name: 'Dirham Uni Emirat Arab', flag: '🇦🇪' }, { code: 'AUD', name: 'Dolar Australia', flag: '🇦🇺' }, 
-  { code: 'BRL', name: 'Real Brasil', flag: '🇧🇷' }, { code: 'CAD', name: 'Dolar Kanada', flag: '🇨🇦' }, 
-  { code: 'CHF', name: 'Franc Swiss', flag: '🇨🇭' }, { code: 'CNY', name: 'Yuan Tiongkok', flag: '🇨🇳' }, 
-  { code: 'EUR', name: 'Euro', flag: '🇪🇺' }, { code: 'GBP', name: 'Poundsterling Inggris', flag: '🇬🇧' }, 
-  { code: 'HKD', name: 'Dolar Hong Kong', flag: '🇭🇰' }, { code: 'INR', name: 'Rupee India', flag: '🇮🇳' }, 
-  { code: 'JPY', name: 'Yen Jepang', flag: '🇯🇵' }, { code: 'KRW', name: 'Won Korea Selatan', flag: '🇰🇷' }, 
-  { code: 'MYR', name: 'Ringgit Malaysia', flag: '🇲🇾' }, { code: 'NZD', name: 'Dolar Selandia Baru', flag: '🇳🇿' }, 
-  { code: 'PHP', name: 'Peso Filipina', flag: '🇵🇭' }, { code: 'RUB', name: 'Rubel Rusia', flag: '🇷🇺' }, 
-  { code: 'SAR', name: 'Riyal Arab Saudi', flag: '🇸🇦' }, { code: 'SEK', name: 'Krona Swedia', flag: '🇸🇪' }, 
-  { code: 'SGD', name: 'Dolar Singapura', flag: '🇸🇬' }, { code: 'THB', name: 'Baht Thailand', flag: '🇹🇭' }, 
-  { code: 'TRY', name: 'Lira Turki', flag: '🇹🇷' }, { code: 'ZAR', name: 'Rand Afrika Selatan', flag: '🇿🇦' } 
+const calcCurrencies = [
+  { code: 'IDR', name: 'Rupiah Indonesia', flag: '🇮🇩' },
+  { code: 'USD', name: 'Dolar Amerika', flag: '🇺🇸' },
+  { code: 'AED', name: 'Dirham Uni Emirat Arab', flag: '🇦🇪' },
+  { code: 'AFN', name: 'Afghani Afghanistan', flag: '🇦🇫' },
+  { code: 'ALL', name: 'Lek Albania', flag: '🇦🇱' },
+  { code: 'AMD', name: 'Dram Armenia', flag: '🇦🇲' },
+  { code: 'ANG', name: 'Guilder Antilla Belanda', flag: '🇨🇼' },
+  { code: 'AOA', name: 'Kwanza Angola', flag: '🇦🇴' },
+  { code: 'ARS', name: 'Peso Argentina', flag: '🇦🇷' },
+  { code: 'AUD', name: 'Dolar Australia', flag: '🇦🇺' },
+  { code: 'AWG', name: 'Florin Aruba', flag: '🇦🇼' },
+  { code: 'AZN', name: 'Manat Azerbaijan', flag: '🇦🇿' },
+  { code: 'BAM', name: 'Marka Bosnia Herzegovina', flag: '🇧🇦' },
+  { code: 'BBD', name: 'Dolar Barbados', flag: '🇧🇧' },
+  { code: 'BDT', name: 'Taka Bangladesh', flag: '🇧🇩' },
+  { code: 'BGN', name: 'Lev Bulgaria', flag: '🇧🇬' },
+  { code: 'BHD', name: 'Dinar Bahrain', flag: '🇧🇭' },
+  { code: 'BIF', name: 'Franc Burundi', flag: '🇧🇮' },
+  { code: 'BMD', name: 'Dolar Bermuda', flag: '🇧🇲' },
+  { code: 'BND', name: 'Dolar Brunei', flag: '🇧🇳' },
+  { code: 'BOB', name: 'Boliviano Bolivia', flag: '🇧🇴' },
+  { code: 'BRL', name: 'Real Brasil', flag: '🇧🇷' },
+  { code: 'BSD', name: 'Dolar Bahama', flag: '🇧🇸' },
+  { code: 'BTN', name: 'Ngultrum Bhutan', flag: '🇧🇹' },
+  { code: 'BWP', name: 'Pula Botswana', flag: '🇧🇼' },
+  { code: 'BYN', name: 'Rubel Belarus', flag: '🇧🇾' },
+  { code: 'BZD', name: 'Dolar Belize', flag: '🇧🇿' },
+  { code: 'CAD', name: 'Dolar Kanada', flag: '🇨🇦' },
+  { code: 'CDF', name: 'Franc Kongo', flag: '🇨🇩' },
+  { code: 'CHF', name: 'Franc Swiss', flag: '🇨🇭' },
+  { code: 'CLP', name: 'Peso Chili', flag: '🇨🇱' },
+  { code: 'CNY', name: 'Yuan Tiongkok', flag: '🇨🇳' },
+  { code: 'COP', name: 'Peso Kolombia', flag: '🇨🇴' },
+  { code: 'CRC', name: 'Colon Kosta Rika', flag: '🇨🇷' },
+  { code: 'CUP', name: 'Peso Kuba', flag: '🇨🇺' },
+  { code: 'CVE', name: 'Escudo Tanjung Verde', flag: '🇨🇻' },
+  { code: 'CZK', name: 'Koruna Ceko', flag: '🇨🇿' },
+  { code: 'DJF', name: 'Franc Djibouti', flag: '🇩🇯' },
+  { code: 'DKK', name: 'Krone Denmark', flag: '🇩🇰' },
+  { code: 'DOP', name: 'Peso Republik Dominika', flag: '🇩🇴' },
+  { code: 'DZD', name: 'Dinar Aljazair', flag: '🇩🇿' },
+  { code: 'EGP', name: 'Pound Mesir', flag: '🇪🇬' },
+  { code: 'ERN', name: 'Nakfa Eritrea', flag: '🇪🇷' },
+  { code: 'ETB', name: 'Birr Ethiopia', flag: '🇪🇹' },
+  { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
+  { code: 'FJD', name: 'Dolar Fiji', flag: '🇫🇯' },
+  { code: 'FKP', name: 'Pound Kepulauan Falkland', flag: '🇫🇰' },
+  { code: 'GBP', name: 'Poundsterling Inggris', flag: '🇬🇧' },
+  { code: 'GEL', name: 'Lari Georgia', flag: '🇬🇪' },
+  { code: 'GHS', name: 'Cedi Ghana', flag: '🇬🇭' },
+  { code: 'GIP', name: 'Pound Gibraltar', flag: '🇬🇮' },
+  { code: 'GMD', name: 'Dalasi Gambia', flag: '🇬🇲' },
+  { code: 'GNF', name: 'Franc Guinea', flag: '🇬🇳' },
+  { code: 'GTQ', name: 'Quetzal Guatemala', flag: '🇬🇹' },
+  { code: 'GYD', name: 'Dolar Guyana', flag: '🇬🇾' },
+  { code: 'HKD', name: 'Dolar Hong Kong', flag: '🇭🇰' },
+  { code: 'HNL', name: 'Lempira Honduras', flag: '🇭🇳' },
+  { code: 'HRK', name: 'Kuna Kroasia', flag: '🇭🇷' },
+  { code: 'HTG', name: 'Gourde Haiti', flag: '🇭🇹' },
+  { code: 'HUF', name: 'Forint Hungaria', flag: '🇭🇺' },
+  { code: 'ILS', name: 'Shekel Israel', flag: '🇮🇱' },
+  { code: 'INR', name: 'Rupee India', flag: '🇮🇳' },
+  { code: 'IQD', name: 'Dinar Irak', flag: '🇮🇶' },
+  { code: 'IRR', name: 'Rial Iran', flag: '🇮🇷' },
+  { code: 'ISK', name: 'Krona Islandia', flag: '🇮🇸' },
+  { code: 'JMD', name: 'Dolar Jamaika', flag: '🇯🇲' },
+  { code: 'JOD', name: 'Dinar Yordania', flag: '🇯🇴' },
+  { code: 'JPY', name: 'Yen Jepang', flag: '🇯🇵' },
+  { code: 'KES', name: 'Shilling Kenya', flag: '🇰🇪' },
+  { code: 'KGS', name: 'Som Kirgistan', flag: '🇰🇬' },
+  { code: 'KHR', name: 'Riel Kamboja', flag: '🇰🇭' },
+  { code: 'KMF', name: 'Franc Komoro', flag: '🇰🇲' },
+  { code: 'KRW', name: 'Won Korea Selatan', flag: '🇰🇷' },
+  { code: 'KWD', name: 'Dinar Kuwait', flag: '🇰🇼' },
+  { code: 'KYD', name: 'Dolar Kepulauan Cayman', flag: '🇰🇾' },
+  { code: 'KZT', name: 'Tenge Kazakhstan', flag: '🇰🇿' },
+  { code: 'LAK', name: 'Kip Laos', flag: '🇱🇦' },
+  { code: 'LBP', name: 'Pound Lebanon', flag: '🇱🇧' },
+  { code: 'LKR', name: 'Rupee Sri Lanka', flag: '🇱🇰' },
+  { code: 'LRD', name: 'Dolar Liberia', flag: '🇱🇷' },
+  { code: 'LSL', name: 'Loti Lesotho', flag: '🇱🇸' },
+  { code: 'LYD', name: 'Dinar Libya', flag: '🇱🇾' },
+  { code: 'MAD', name: 'Dirham Maroko', flag: '🇲🇦' },
+  { code: 'MDL', name: 'Leu Moldova', flag: '🇲🇩' },
+  { code: 'MGA', name: 'Ariary Madagaskar', flag: '🇲🇬' },
+  { code: 'MKD', name: 'Denar Makedonia Utara', flag: '🇲🇰' },
+  { code: 'MMK', name: 'Kyat Myanmar', flag: '🇲🇲' },
+  { code: 'MNT', name: 'Tugrik Mongolia', flag: '🇲🇳' },
+  { code: 'MOP', name: 'Pataca Makau', flag: '🇲🇴' },
+  { code: 'MRU', name: 'Ouguiya Mauritania', flag: '🇲🇷' },
+  { code: 'MUR', name: 'Rupee Mauritius', flag: '🇲🇺' },
+  { code: 'MVR', name: 'Rufiyaa Maladewa', flag: '🇲🇻' },
+  { code: 'MWK', name: 'Kwacha Malawi', flag: '🇲🇼' },
+  { code: 'MXN', name: 'Peso Meksiko', flag: '🇲🇽' },
+  { code: 'MYR', name: 'Ringgit Malaysia', flag: '🇲🇾' },
+  { code: 'MZN', name: 'Metical Mozambik', flag: '🇲🇿' },
+  { code: 'NAD', name: 'Dolar Namibia', flag: '🇳🇦' },
+  { code: 'NGN', name: 'Naira Nigeria', flag: '🇳🇬' },
+  { code: 'NIO', name: 'Cordoba Nikaragua', flag: '🇳🇮' },
+  { code: 'NOK', name: 'Krone Norwegia', flag: '🇳🇴' },
+  { code: 'NPR', name: 'Rupee Nepal', flag: '🇳🇵' },
+  { code: 'NZD', name: 'Dolar Selandia Baru', flag: '🇳🇿' },
+  { code: 'OMR', name: 'Rial Oman', flag: '🇴🇲' },
+  { code: 'PAB', name: 'Balboa Panama', flag: '🇵🇦' },
+  { code: 'PEN', name: 'Sol Peru', flag: '🇵🇪' },
+  { code: 'PGK', name: 'Kina Papua Nugini', flag: '🇵🇬' },
+  { code: 'PHP', name: 'Peso Filipina', flag: '🇵🇭' },
+  { code: 'PKR', name: 'Rupee Pakistan', flag: '🇵🇰' },
+  { code: 'PLN', name: 'Zloty Polandia', flag: '🇵🇱' },
+  { code: 'PYG', name: 'Guarani Paraguay', flag: '🇵🇾' },
+  { code: 'QAR', name: 'Rial Qatar', flag: '🇶🇦' },
+  { code: 'RON', name: 'Leu Rumania', flag: '🇷🇴' },
+  { code: 'RSD', name: 'Dinar Serbia', flag: '🇷🇸' },
+  { code: 'RUB', name: 'Rubel Rusia', flag: '🇷🇺' },
+  { code: 'RWF', name: 'Franc Rwanda', flag: '🇷🇼' },
+  { code: 'SAR', name: 'Riyal Arab Saudi', flag: '🇸🇦' },
+  { code: 'SBD', name: 'Dolar Kepulauan Solomon', flag: '🇸🇧' },
+  { code: 'SCR', name: 'Rupee Seychelles', flag: '🇸🇨' },
+  { code: 'SDG', name: 'Pound Sudan', flag: '🇸🇩' },
+  { code: 'SEK', name: 'Krona Swedia', flag: '🇸🇪' },
+  { code: 'SGD', name: 'Dolar Singapura', flag: '🇸🇬' },
+  { code: 'SLE', name: 'Leone Sierra Leone', flag: '🇸🇱' },
+  { code: 'SOS', name: 'Shilling Somalia', flag: '🇸🇴' },
+  { code: 'SRD', name: 'Dolar Suriname', flag: '🇸🇷' },
+  { code: 'SSP', name: 'Pound Sudan Selatan', flag: '🇸🇸' },
+  { code: 'STN', name: 'Dobra Sao Tome', flag: '🇸🇹' },
+  { code: 'SYP', name: 'Pound Suriah', flag: '🇸🇾' },
+  { code: 'SZL', name: 'Lilangeni Eswatini', flag: '🇸🇿' },
+  { code: 'THB', name: 'Baht Thailand', flag: '🇹🇭' },
+  { code: 'TJS', name: 'Somoni Tajikistan', flag: '🇹🇯' },
+  { code: 'TMT', name: 'Manat Turkmenistan', flag: '🇹🇲' },
+  { code: 'TND', name: 'Dinar Tunisia', flag: '🇹🇳' },
+  { code: 'TOP', name: 'Paʻanga Tonga', flag: '🇹🇴' },
+  { code: 'TRY', name: 'Lira Turki', flag: '🇹🇷' },
+  { code: 'TTD', name: 'Dolar Trinidad Tobago', flag: '🇹🇹' },
+  { code: 'TWD', name: 'Dolar Taiwan Baru', flag: '🇹🇼' },
+  { code: 'TZS', name: 'Shilling Tanzania', flag: '🇹🇿' },
+  { code: 'UAH', name: 'Hryvnia Ukraina', flag: '🇺🇦' },
+  { code: 'UGX', name: 'Shilling Uganda', flag: '🇺🇬' },
+  { code: 'UYU', name: 'Peso Uruguay', flag: '🇺🇾' },
+  { code: 'UZS', name: 'Som Uzbekistan', flag: '🇺🇿' },
+  { code: 'VES', name: 'Bolivar Venezuela', flag: '🇻🇪' },
+  { code: 'VND', name: 'Dong Vietnam', flag: '🇻🇳' },
+  { code: 'VUV', name: 'Vatu Vanuatu', flag: '🇻🇺' },
+  { code: 'WST', name: 'Tala Samoa', flag: '🇼🇸' },
+  { code: 'XAF', name: 'Franc CFA Afrika Tengah', flag: '🇨🇲' },
+  { code: 'XCD', name: 'Dolar Karibia Timur', flag: '🇦🇬' },
+  { code: 'XOF', name: 'Franc CFA Afrika Barat', flag: '🇸🇳' },
+  { code: 'XPF', name: 'Franc Pasifik', flag: '🇵🇫' },
+  { code: 'YER', name: 'Rial Yaman', flag: '🇾🇪' },
+  { code: 'ZAR', name: 'Rand Afrika Selatan', flag: '🇿🇦' },
+  { code: 'ZMW', name: 'Kwacha Zambia', flag: '🇿🇲' },
+  { code: 'ZWL', name: 'Dolar Zimbabwe', flag: '🇿🇼' }
 ];
 
 async function initCalc() { 
@@ -2406,6 +2580,7 @@ window.renderCalcDisplay = function() {
 
 document.addEventListener('DOMContentLoaded', () => {
     initCalc();
+    setInterval(initCalc, 60000);
     const syncSelectUI = (sel, ui) => { let text = sel.options[sel.selectedIndex]?.text; if(!text && sel.options.length > 0) text = sel.options[0].text; ui.querySelector('.sel-text').innerHTML = text || 'Pilih...'; };
     document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => { 
         sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
@@ -2432,7 +2607,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
@@ -2461,9 +2636,13 @@ window.doAuth = async function() {
     const email = document.getElementById('auth-email').value.trim(); 
     const pass = document.getElementById('auth-pass').value; 
     const nama = document.getElementById('auth-nama').value.trim(); 
+    const umur = document.getElementById('auth-umur').value.trim(); 
+    const gender = document.getElementById('auth-gender').value; 
     hideErr(); 
     if (!email || !pass) return showErr('Email dan Sandi tidak boleh kosong.'); 
     if (authMode === 'register' && !nama) return showErr('Nama tidak boleh kosong.'); 
+    if (authMode === 'register' && !umur) return showErr('Umur tidak boleh kosong.'); 
+    if (authMode === 'register' && !gender) return showErr('Jenis kelamin harus dipilih.'); 
     setLoading(true); 
     try { 
         if (authMode === 'login') {
@@ -2476,7 +2655,7 @@ window.doAuth = async function() {
             const cred = await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
             try {
                 await updateProfile(cred.user, { displayName: nama });
-                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama }, { merge: true });
+                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama, umur: umur, gender: gender }, { merge: true });
             } catch(eProfil) { console.error('Gagal menyimpan nama akun', eProfil); }
         }
         setLoading(false);
@@ -3004,7 +3183,9 @@ window.loadAllUsersData = async function() {
                     if (dUser.email) {
                         userInfos[uid] = {
                             email: dUser.email,
-                            nama: dUser.nama || dUser.email.split('@')[0]
+                            nama: dUser.nama || dUser.email.split('@')[0],
+                            umur: dUser.umur || null,
+                            gender: dUser.gender || null
                         };
                     }
                 }
@@ -3033,7 +3214,11 @@ window.loadAllUsersData = async function() {
 
     Object.keys(allUserDocs).forEach(uid => {
         if (!userInfos[uid] && allUserDocs[uid].email) {
-            userInfos[uid] = { email: allUserDocs[uid].email, nama: allUserDocs[uid].nama || allUserDocs[uid].email.split('@')[0] };
+            userInfos[uid] = { email: allUserDocs[uid].email, nama: allUserDocs[uid].nama || allUserDocs[uid].email.split('@')[0], umur: allUserDocs[uid].umur || null, gender: allUserDocs[uid].gender || null };
+        }
+        if (userInfos[uid] && (userInfos[uid].umur === undefined || userInfos[uid].umur === null)) {
+            if (allUserDocs[uid].umur) userInfos[uid].umur = allUserDocs[uid].umur;
+            if (allUserDocs[uid].gender) userInfos[uid].gender = allUserDocs[uid].gender;
         }
     });
 
@@ -3083,6 +3268,8 @@ window.loadAllUsersData = async function() {
             const fallbackInfo = userInfos[uid] || {};
             const finalEmail = fallbackInfo.email || emailByUid[uid];
             const finalNama = fallbackInfo.nama || (finalEmail ? finalEmail.split('@')[0] : null);
+            const finalUmur = fallbackInfo.umur || null;
+            const finalGender = fallbackInfo.gender || null;
             let ownerLabel = finalEmail ? `${finalNama} (${finalEmail})` : `User-${uid.substring(0,6)} (Perlu Login Ulang)`;
             adminUserLabels[uid] = ownerLabel;
             if (!window.adminUserEmails) window.adminUserEmails = {};
@@ -3091,7 +3278,7 @@ window.loadAllUsersData = async function() {
             return `
             <div class="m-card admin-user-card" style="border-color: var(--gold);">
                 <div class="m-label" style="color:var(--gold);">👤 ${escapeHTML(ownerLabel)}</div>
-                <div class="m-sub" style="margin-bottom:8px;">${s.count} transaksi</div>
+                <div class="m-sub" style="margin-bottom:8px;">${s.count} transaksi${(finalUmur || finalGender) ? ' · ' + escapeHTML([finalUmur ? finalUmur + ' th' : null, finalGender].filter(Boolean).join(' / ')) : ''}</div>
                 <div style="display:flex; flex-direction:column; gap:4px;">
                     <div style="display:flex; justify-content:space-between; font-size:11px;">
                         <span style="color:var(--text3);">Pemasukan</span>
@@ -4193,7 +4380,7 @@ window.__unsubSentReq = null;
 window.promptRequestSaldo = async function() {
     if (!currentUser) return;
     const { wallets } = computeWalletsFromArr(txs);
-    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w}</option>`).join('');
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
 
     const { value: formVals } = await Swal.fire({
         title: '↓ Minta Saldo',
@@ -4402,10 +4589,35 @@ window.closeScanSend = function() {
     }
 };
 
+// Riwayat permintaan saldo (masuk & terkirim) otomatis terhapus 24 jam setelah
+// dibuat, dengan penghitung mundur ditampilkan di tiap kartu permintaan.
+window.__purgeExpiredReqs = function(arr) {
+    const now = Date.now();
+    const keep = [];
+    (arr || []).forEach(r => {
+        const created = r.createdAtLocal ? new Date(r.createdAtLocal).getTime() : now;
+        if (now - created >= 86400000) {
+            try { deleteDoc(doc(db, 'balance_requests', r.id)); } catch(e) {}
+        } else {
+            keep.push(r);
+        }
+    });
+    return keep;
+};
+window.__fmtReqRemaining = function(createdAtLocal) {
+    const created = createdAtLocal ? new Date(createdAtLocal).getTime() : Date.now();
+    const ms = 86400000 - (Date.now() - created);
+    if (ms <= 0) return 'segera';
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    return `${h}j ${m}m`;
+};
+
 window.initBalanceRequests = function() {
     if (!currentUser) return;
     if (window.__unsubIncomingReq) { window.__unsubIncomingReq(); window.__unsubIncomingReq = null; }
     if (window.__unsubSentReq) { window.__unsubSentReq(); window.__unsubSentReq = null; }
+    if (window.__reqTimerInterval) { clearInterval(window.__reqTimerInterval); window.__reqTimerInterval = null; }
 
     window.__incomingReqs = [];
     window.__sentReqs = [];
@@ -4414,17 +4626,25 @@ window.initBalanceRequests = function() {
         window.__unsubIncomingReq = onSnapshot(
             query(collection(db, 'balance_requests'), where('toUid', '==', currentUser.uid), where('status', '==', 'pending')),
             snap => {
-                window.__incomingReqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                window.__incomingReqs = window.__purgeExpiredReqs(all);
                 window.renderPendingRequests();
             }
         );
         window.__unsubSentReq = onSnapshot(
             query(collection(db, 'balance_requests'), where('fromUid', '==', currentUser.uid)),
             snap => {
-                window.__sentReqs = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAtLocal || '').localeCompare(a.createdAtLocal || '')).slice(0, 20);
+                const all = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAtLocal || '').localeCompare(a.createdAtLocal || '')).slice(0, 20);
+                window.__sentReqs = window.__purgeExpiredReqs(all);
                 window.renderSentRequests();
             }
         );
+        window.__reqTimerInterval = setInterval(() => {
+            window.__incomingReqs = window.__purgeExpiredReqs(window.__incomingReqs || []);
+            window.__sentReqs = window.__purgeExpiredReqs(window.__sentReqs || []);
+            window.renderPendingRequests();
+            window.renderSentRequests();
+        }, 30000);
     } catch(e) { console.error('Gagal memuat permintaan saldo', e); }
 };
 
@@ -4446,6 +4666,7 @@ window.renderPendingRequests = function() {
                 <div class="req-amt">${r.amount ? fmtFull(r.amount) : 'Nominal bebas'}</div>
             </div>
             <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
+            <div style="font-size:9px; color:var(--text3); margin-top:4px;">⏱ Riwayat terhapus otomatis dalam ${window.__fmtReqRemaining(r.createdAtLocal)}</div>
             <div class="req-actions">
                 <button class="req-btn ok" onclick="window.approveBalanceRequest('${r.id}')">✅ SETUJUI</button>
                 <button class="req-btn no" onclick="window.rejectBalanceRequest('${r.id}')">✕ TOLAK</button>
@@ -4472,6 +4693,7 @@ window.renderSentRequests = function() {
                 <div class="req-amt">${r.amount ? fmtFull(r.amount) : 'Diisi pengirim'}</div>
             </div>
             <div class="req-note">📝 ${escapeHTML(r.note || '-')}</div>
+            <div style="font-size:9px; color:var(--text3); margin-top:4px;">⏱ Riwayat terhapus otomatis dalam ${window.__fmtReqRemaining(r.createdAtLocal)}</div>
             <span class="req-badge ${r.status}">${r.status === 'pending' ? 'MENUNGGU' : (r.status === 'approved' ? 'DISETUJUI' : 'DITOLAK')}</span>
             ${r.status === 'pending' ? `<button class="req-btn ok" style="margin-top:8px; width:100%;" onclick="window.showBarcodeRequest('${r.id}', ${r.amount ? Number(r.amount) : 'null'}, ${JSON.stringify(r.note||'').replace(/"/g,'&quot;')})">🎫 LIHAT BARCODE</button>` : ''}
         </div>
@@ -4583,6 +4805,7 @@ window.openCSChat = function() {
     if (titleEl) titleEl.textContent = 'Customer Service';
     if (subEl) subEl.textContent = 'Admin biasanya balas cepat';
     document.getElementById('cs-chat-screen').style.display = 'flex';
+    if (typeof window.cancelReplyTarget === 'function') window.cancelReplyTarget();
     window.subscribeCSMessages(currentUser.uid);
     try {
         setDoc(doc(db, 'support_chats', currentUser.uid), {
@@ -4602,6 +4825,7 @@ window.openAdminCSChat = function(uid, name) {
     if (titleEl) titleEl.textContent = name || 'User';
     if (subEl) subEl.textContent = 'Chat sebagai Admin';
     document.getElementById('cs-chat-screen').style.display = 'flex';
+    if (typeof window.cancelReplyTarget === 'function') window.cancelReplyTarget();
     window.subscribeCSMessages(uid);
     try { setDoc(doc(db, 'support_chats', uid), { unreadForAdmin: false }, { merge: true }); } catch(e) {}
 };
@@ -4633,14 +4857,46 @@ window.renderCSMessages = function(msgs) {
     if (!body) return;
     if (!msgs.length) { body.innerHTML = '<div style="text-align:center; color:var(--text3); font-size:11px; padding:20px;">Belum ada pesan. Mulai chat sekarang!</div>'; return; }
     const isAdminView = window.__csIsAdminView;
+    window.__csMsgMap = {};
+    msgs.forEach(m => { if (m.id) window.__csMsgMap[m.id] = m; });
     body.innerHTML = msgs.map(m => {
         const mine = isAdminView ? (m.sender === 'admin') : (m.sender === 'user');
         const timeStr = m.createdAtLocal ? fmtTime(m.createdAtLocal) : '';
         const canDelete = isAdminView || mine;
         const delBtn = canDelete && m.id ? `<span class="cs-msg-del" onclick="event.stopPropagation(); window.deleteCSMessage('${m.id}')" title="Hapus pesan">✕</span>` : '';
-        return `<div class="cs-bubble ${mine ? 'me' : 'them'}">${delBtn}${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
+        const replyBtn = m.id ? `<span class="cs-msg-reply" onclick="event.stopPropagation(); window.setReplyTarget('${m.id}')" title="Balas pesan">↩</span>` : '';
+        const quoteHtml = m.replyTo ? `<div class="cs-quote" onclick="window.scrollToCSMessage('${m.replyTo.id}')"><span class="cs-quote-name">${escapeHTML(m.replyTo.senderName || 'Pesan')}</span>${escapeHTML((m.replyTo.text || '').slice(0,80))}</div>` : '';
+        return `<div class="cs-bubble ${mine ? 'me' : 'them'}" id="cs-msg-${m.id}"><div class="cs-msg-actions">${replyBtn}${delBtn}</div>${quoteHtml}${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
     }).join('');
     body.scrollTop = body.scrollHeight;
+};
+
+window.setReplyTarget = function(msgId) {
+    const m = (window.__csMsgMap || {})[msgId];
+    if (!m) return;
+    window.__csReplyTarget = { id: msgId, text: m.text || '', senderName: m.senderName || (m.sender === 'admin' ? 'Admin' : 'User') };
+    const preview = document.getElementById('cs-reply-preview');
+    const nameEl = document.getElementById('cs-reply-name');
+    const textEl = document.getElementById('cs-reply-text');
+    if (nameEl) nameEl.textContent = window.__csReplyTarget.senderName;
+    if (textEl) textEl.textContent = window.__csReplyTarget.text.slice(0, 100);
+    if (preview) preview.style.display = 'flex';
+    const input = document.getElementById('cs-chat-input');
+    if (input) input.focus();
+};
+
+window.cancelReplyTarget = function() {
+    window.__csReplyTarget = null;
+    const preview = document.getElementById('cs-reply-preview');
+    if (preview) preview.style.display = 'none';
+};
+
+window.scrollToCSMessage = function(msgId) {
+    const el = document.getElementById('cs-msg-' + msgId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.outline = '2px solid var(--gold)';
+    setTimeout(() => { el.style.outline = 'none'; }, 1200);
 };
 
 window.deleteCSMessage = async function(msgId) {
@@ -4685,11 +4941,15 @@ window.sendCSMessage = async function() {
     input.value = '';
     const sender = window.__csIsAdminView ? 'admin' : 'user';
     const nowIso = new Date().toISOString();
+    const replyTo = window.__csReplyTarget ? { id: window.__csReplyTarget.id, text: window.__csReplyTarget.text, senderName: window.__csReplyTarget.senderName } : null;
+    window.cancelReplyTarget();
     try {
-        await addDoc(collection(db, 'support_chats', window.__csActiveUid, 'messages'), {
+        const msgPayload = {
             sender, text, createdAt: serverTimestamp(), createdAtLocal: nowIso,
             senderName: currentUser.displayName || currentUser.email.split('@')[0]
-        });
+        };
+        if (replyTo) msgPayload.replyTo = replyTo;
+        await addDoc(collection(db, 'support_chats', window.__csActiveUid, 'messages'), msgPayload);
         const metaPayload = { lastMessage: text, lastMessageAt: serverTimestamp(), lastMessageAtLocal: nowIso, lastSender: sender };
         if (sender === 'user') {
             metaPayload.userUid = currentUser.uid;
@@ -5476,6 +5736,22 @@ window.promptKoreksi = async function(walletName, recordedBal) {
             Swal.fire('Error', e.message, 'error');
         }
     }
+};
+
+window.updateWalletSelectBalances = function() {
+    if (typeof computeWalletsFromArr !== 'function') return;
+    const { wallets } = computeWalletsFromArr(typeof txs !== 'undefined' ? txs : []);
+    ['f-wallet','f-wallet-to','qris-wallet'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        Array.from(sel.options).forEach(opt => {
+            if (!opt.dataset.baseLabel) opt.dataset.baseLabel = opt.textContent.replace(/\s*\(Rp[^)]*\)\s*$/,'');
+            const base = opt.dataset.baseLabel;
+            const bal = wallets[opt.value];
+            opt.textContent = (bal !== undefined && typeof fmtFull === 'function') ? `${base} (${fmtFull(bal)})` : base;
+        });
+        sel.dispatchEvent(new Event('change'));
+    });
 };
 
 function renderWalletBalances() { 
@@ -6587,6 +6863,7 @@ window.exportCSV = function() {
 };
 
 window.refreshAll = function() {
+    if (typeof window.updateWalletSelectBalances === 'function') window.updateWalletSelectBalances();
     if (activePage === 'dashboard') {
         renderMetrics();
         renderList(document.getElementById('recent-list'), txs.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10));
@@ -6673,6 +6950,10 @@ window.addEventListener('focus', function () {
     <div class="cs-back" style="color:var(--red2);" onclick="window.deleteCSConversation()" title="Hapus Percakapan">🗑️</div>
   </div>
   <div class="cs-chat-body" id="cs-chat-body"></div>
+  <div class="cs-reply-preview" id="cs-reply-preview">
+    <div class="cs-quote"><span class="cs-quote-name" id="cs-reply-name"></span><span id="cs-reply-text"></span></div>
+    <button class="cs-reply-cancel" onclick="window.cancelReplyTarget()">✕</button>
+  </div>
   <div class="cs-chat-input-wrap">
     <input type="text" id="cs-chat-input" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter'){window.sendCSMessage();}">
     <button onclick="window.sendCSMessage()">➤</button>
