@@ -6527,9 +6527,23 @@ window.restoreBackupFile = function(evt) {
             return Swal.fire({ icon: 'error', title: 'File Tidak Valid', text: 'Format file backup rusak atau bukan JSON.', background: 'var(--card)', color: 'var(--text)' });
         }
         const jumlah = Array.isArray(data.transactions) ? data.transactions.length : 0;
+        const sigOfTx = t => [
+            (t.date || ''), (t.type || ''), (t.amount || 0), (t.category || ''),
+            (t.wallet || ''), (t.walletTo || ''), (t.note || '').trim().toLowerCase()
+        ].join('|');
+        const existingIds = new Set(txs.concat(deletedTxs).map(t => t.id));
+        const existingSigs = new Set(txs.concat(deletedTxs).map(sigOfTx));
+        const items = (data.transactions || []).filter(t => {
+            if (t.id && existingIds.has(t.id)) return false;
+            const sig = sigOfTx(t);
+            if (existingSigs.has(sig)) return false;
+            existingSigs.add(sig);
+            return true;
+        });
+        const jumlahLewat = jumlah - items.length;
         const res = await Swal.fire({
             title: 'Pulihkan Backup?',
-            html: `File berisi <b>${jumlah}</b> transaksi.<br>Data akan <b>ditambahkan</b> ke akun aktif tanpa menghapus data yang sudah ada.`,
+            html: `File berisi <b>${jumlah}</b> transaksi.<br><b>${items.length}</b> transaksi baru akan <b>ditambahkan</b> ke akun aktif.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah ada.` : 'Tidak ada data yang sudah ada.'}`,
             icon: 'warning', showCancelButton: true, confirmButtonText: 'PULIHKAN', cancelButtonText: 'Batal',
             confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', background: 'var(--card)', color: 'var(--text)'
         });
@@ -6537,8 +6551,6 @@ window.restoreBackupFile = function(evt) {
         if (!res.isConfirmed) return;
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
-            const existingIds = new Set(txs.concat(deletedTxs).map(t => t.id));
-            const items = (data.transactions || []).filter(t => !t.id || !existingIds.has(t.id));
             let batch = writeBatch(db); let opCount = 0; let total = 0;
             for (const t of items) {
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
