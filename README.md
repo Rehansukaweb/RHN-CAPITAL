@@ -6535,9 +6535,7 @@ window.restoreBackupFile = function(evt) {
         const existingSigs = new Set(txs.concat(deletedTxs).map(sigOfTx));
         const items = (data.transactions || []).filter(t => {
             if (t.id && existingIds.has(t.id)) return false;
-            const sig = sigOfTx(t);
-            if (existingSigs.has(sig)) return false;
-            existingSigs.add(sig);
+            if (existingSigs.has(sigOfTx(t))) return false;
             return true;
         });
         const jumlahLewat = jumlah - items.length;
