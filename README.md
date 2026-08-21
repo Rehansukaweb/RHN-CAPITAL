@@ -2309,24 +2309,35 @@ function applyXauPrice(newPrice) {
     }
 }
 async function fetchLiveXAU() {
+    // Sumber utama: feed bid/ask broker forex (Swissquote), sama jenis feed
+    // tick realtime yang dipakai chart broker di TradingView — pergerakan cepat,
+    // harga mid diambil dari bid/ask asli (bukan token/derivatif).
     try {
-        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
         const data = await res.json();
-        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
-        if (price) { applyXauPrice(price); return; }
+        const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
+        if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
         throw new Error('no price');
     } catch (e) {
         try {
-            const res2 = await fetch('https://api.gold-api.com/price/XAU');
+            const res2 = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
             const data2 = await res2.json();
-            if (data2 && data2.price) applyXauPrice(parseFloat(data2.price));
-        } catch (e2) {}
+            const price2 = data2 && data2.items && data2.items[0] ? parseFloat(data2.items[0].xauPrice) : null;
+            if (price2) { applyXauPrice(price2); return; }
+            throw new Error('no price2');
+        } catch (e2) {
+            try {
+                const res3 = await fetch('https://api.gold-api.com/price/XAU');
+                const data3 = await res3.json();
+                if (data3 && data3.price) applyXauPrice(parseFloat(data3.price));
+            } catch (e3) {}
+        }
     }
 }
 function initLiveXAU() {
     fetchLiveXAU();
     if (window.__xauInterval) clearInterval(window.__xauInterval);
-    window.__xauInterval = setInterval(fetchLiveXAU, 8000);
+    window.__xauInterval = setInterval(fetchLiveXAU, 2000);
 }
 initLiveXAU();
 
