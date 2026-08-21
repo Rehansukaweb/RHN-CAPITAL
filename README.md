@@ -2294,18 +2294,18 @@ setInterval(fetchUSDRate, 300000);
 
 // Harga XAU/USD realtime tanpa spread — diambil langsung dari harga spot emas
 // (mid price, bukan produk tokenized/berjangka yang punya selisih bid-ask),
-// di-polling tiap beberapa detik supaya tetap live.
-function applyXauPrice(newPrice) {
-    if (!newPrice) return;
+// bergerak tiap detik dengan simulasi tick di atas harga asli terakhir yang
+// didapat (persis gaya platform broker: anchor asli + gerakan halus per detik),
+// dan tetap "hidup" di Sabtu/Minggu walau pasar forex asli sedang tutup.
+const XAU_PIP_ADJUST = -0.65; // net 6.5 pip lebih rendah dari harga asli (1 pip XAU = $0.10)
+let xauBasePrice = null;   // harga asli terakhir dari feed (sudah + pip adjust)
+let xauDisplayPrice = null; // harga yang tampil, dianimasikan tiap detik
+
+function renderXauPrice(price) {
     const xauRate = document.getElementById('xau-rate-val');
-    if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2);
-    const dot = document.getElementById('xau-live-dot');
-    if (dot) {
-        dot.style.background = 'var(--green2)';
-        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
-    }
+    if (xauRate) xauRate.textContent = '$' + price.toFixed(2);
     if (currentUSDRate > 0) {
-        const idrPriceOz = newPrice * currentUSDRate;
+        const idrPriceOz = price * currentUSDRate;
         const idrPriceGram = idrPriceOz / 31.1034768;
         const ozEl = document.getElementById('xau-idr-oz');
         if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
@@ -2313,19 +2313,27 @@ function applyXauPrice(newPrice) {
         if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
     }
 }
-async function fetchLiveXAU() {
-    // Sumber 1: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid tanpa spread).
-    try {
-        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
-        const data = await res.json();
-        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
-        if (price) { applyXauPrice(price); return; }
-        throw new Error('goldprice: harga kosong');
-    } catch (e) {
-        console.warn('XAU sumber 1 (goldprice.org) gagal:', e.message || e);
+function applyXauPrice(newPrice) {
+    if (!newPrice) return;
+    xauBasePrice = newPrice + XAU_PIP_ADJUST;
+    if (xauDisplayPrice === null) xauDisplayPrice = xauBasePrice;
+    const dot = document.getElementById('xau-live-dot');
+    if (dot) {
+        dot.style.background = 'var(--green2)';
+        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
     }
-    // Sumber 2: feed bid/ask broker forex (Swissquote) — sama jenis feed tick realtime yang
-    // dipakai chart broker di TradingView. Bisa gagal kalau browser memblokir CORS.
+}
+function xauTick() {
+    if (xauBasePrice === null) return;
+    // Gerakan tick realistis ±0.30 sekitar harga asli terakhir, jalan tiap detik —
+    // termasuk saat Sabtu/Minggu walau feed asli tidak update (pasar forex tutup).
+    const jitter = (Math.random() - 0.5) * 0.6;
+    xauDisplayPrice = xauBasePrice + jitter;
+    renderXauPrice(xauDisplayPrice);
+}
+async function fetchLiveXAU() {
+    // Sumber 1: feed bid/ask broker forex (Swissquote) — jenis data yang sama dengan
+    // yang dipakai forex.com/TradingView, jadi harganya paling mendekati.
     try {
         const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
         const data = await res.json();
@@ -2333,7 +2341,17 @@ async function fetchLiveXAU() {
         if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
         throw new Error('swissquote: harga kosong');
     } catch (e) {
-        console.warn('XAU sumber 2 (swissquote) gagal:', e.message || e);
+        console.warn('XAU sumber 1 (swissquote/forex.com) gagal:', e.message || e);
+    }
+    // Sumber 2: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid).
+    try {
+        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const data = await res.json();
+        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
+        if (price) { applyXauPrice(price); return; }
+        throw new Error('goldprice: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 2 (goldprice.org) gagal:', e.message || e);
     }
     // Sumber 3: cadangan terakhir.
     try {
@@ -2343,14 +2361,18 @@ async function fetchLiveXAU() {
         throw new Error('gold-api: harga kosong');
     } catch (e) {
         console.warn('XAU sumber 3 (gold-api.com) gagal:', e.message || e);
-        const dot = document.getElementById('xau-live-dot');
-        if (dot) dot.style.background = 'var(--red2)';
+        if (xauBasePrice === null) {
+            const dot = document.getElementById('xau-live-dot');
+            if (dot) dot.style.background = 'var(--red2)';
+        }
     }
 }
 function initLiveXAU() {
     fetchLiveXAU();
     if (window.__xauInterval) clearInterval(window.__xauInterval);
-    window.__xauInterval = setInterval(fetchLiveXAU, 3000);
+    window.__xauInterval = setInterval(fetchLiveXAU, 5000);
+    if (window.__xauTickInterval) clearInterval(window.__xauTickInterval);
+    window.__xauTickInterval = setInterval(xauTick, 400);
 }
 initLiveXAU();
 
