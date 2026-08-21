@@ -80,23 +80,25 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
 .cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
-.admin-detail-btn {
-  transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.08s ease, border-color 0.08s ease,
-              box-shadow 0.08s ease, opacity 0.08s ease, color 0.06s ease !important;
+.admin-detail-btn, .f-input-dark, .set-select, .swal2-input, .swal2-select,
+.cs-back, .cs-msg-del, .cs-msg-reply, .cs-list-item, .req-btn {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.18s ease, border-color 0.18s ease,
+              box-shadow 0.18s ease, opacity 0.18s ease, color 0.18s ease !important;
   will-change: transform;
 }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
 .edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active,
 .cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
-.admin-detail-btn:active {
-  transform: scale(0.94);
-  transition-duration: 0.03s !important;
+.admin-detail-btn:active, .f-input-dark:active, .set-select:active, .swal2-input:active, .swal2-select:active,
+.cs-back:active, .cs-msg-del:active, .cs-msg-reply:active, .cs-list-item:active, .req-btn:active {
+  transform: scale(0.96);
+  transition-duration: 0.15s !important;
 }
 .w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
   transform: scale(0.97);
-  transition-duration: 0.03s !important;
+  transition-duration: 0.15s !important;
 }
 /* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
 @media (hover: hover) and (pointer: fine) {
@@ -113,12 +115,12 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+.m-card, .w-card { animation: cardIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
-.page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
-@keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
+/* Transisi antar halaman yang halus, standar (tidak terlalu cepat) */
+.page.active { animation: pageIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -402,6 +404,9 @@ select.swal2-input {
   cursor: pointer;
 }
 select.swal2-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); outline: none; }
+select.swal2-select { background: var(--bg2) !important; color: var(--text) !important; border: 1px solid var(--border2) !important; border-radius: 10px !important; font-size: 14px !important; padding: 10px 14px !important; }
+select.swal2-select:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15) !important; outline: none; }
+select.swal2-select option { background-color: var(--bg2); color: var(--text); }
 select.swal2-input option { background-color: var(--bg2); color: var(--text); }
 
 select.f-input-dark {
@@ -675,7 +680,7 @@ body.global-privacy #xau-idr-gr {
 }
 
 #splash-screen.splash-exit {
-  animation: splashSlideUpOut 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+  animation: splashSlideUpOut 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
 }
 
 @keyframes splashSlideUpOut {
@@ -724,6 +729,22 @@ body.global-privacy #xau-idr-gr {
   10% { opacity: 1; }
   100% { width: 150px; opacity: 0; }
 }
+/* Tampilan halaman Pengaturan diubah menyerupai daftar Pengaturan Android (list
+   bersih dengan garis pembatas tipis + panah), khusus untuk #page-pengaturan saja —
+   halaman lain (dompet, dsb) yang memakai class .set-* tetap seperti semula. */
+#page-pengaturan .set-group { background: none; border: none; box-shadow: none; padding: 0; margin-bottom: 26px; }
+#page-pengaturan .set-title { background: none; border: none; padding: 0 4px 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; color: var(--text3); text-transform: uppercase; }
+#page-pengaturan .set-item { background: none; border-radius: 0; padding: 14px 4px 14px 54px; border-bottom: 1px solid var(--border); position: relative; min-height: 34px; }
+#page-pengaturan .set-item::before { content: var(--icon, '⚙️'); position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; flex-shrink: 0; }
+#page-pengaturan .set-item:last-child { border-bottom: none; }
+#page-pengaturan .set-label { font-size: 14.5px; font-weight: 600; color: var(--text); }
+#page-pengaturan .set-sub { font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.35; }
+#page-pengaturan .set-action { background: transparent !important; border: none !important; box-shadow: none !important; color: var(--gold) !important; font-size: 11.5px; font-weight: 700; padding: 6px 18px 6px 6px !important; white-space: nowrap; position: relative; }
+#page-pengaturan .set-action.danger { color: var(--red2) !important; }
+#page-pengaturan .set-action::after { content: '›'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 400; color: var(--text3); }
+#page-pengaturan .set-item.no-icon { padding-left: 4px; }
+#page-pengaturan .set-item.no-icon::before { content: none; }
+#page-pengaturan .set-select { background: var(--bg2) !important; border: 1px solid var(--border2) !important; color: var(--text) !important; border-radius: 9px !important; font-size: 12px !important; padding: 9px 12px !important; box-shadow: none !important; }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -749,9 +770,9 @@ body.global-privacy #xau-idr-gr {
       const splash = document.getElementById('splash-screen');
       if (splash) {
         splash.classList.add('splash-exit');
-        setTimeout(() => { splash.style.display = 'none'; }, 800); // 800ms tunggu animasi kelar
+        setTimeout(() => { splash.style.display = 'none'; }, 600); // 600ms tunggu animasi kelar
       }
-    }, 2500); // Waktu tampil 2.5 detik
+    }, 1500); // Waktu tampil standar 1.5 detik
     // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
   });
 </script>
@@ -1331,7 +1352,7 @@ body.global-privacy #xau-idr-gr {
 </div>
 
 <div id="page-pengaturan" class="page">
-  <div class="set-group">
+  <div class="set-group" style="--icon:'💳';">
     <div class="set-title">💳 DOMPET SAYA</div>
     <div class="set-item">
       <div>
@@ -1341,7 +1362,7 @@ body.global-privacy #xau-idr-gr {
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('wallet')">💳 BUKA DOMPET</button>
     </div>
   </div>
-  <div class="set-group">
+  <div class="set-group" style="--icon:'🗂️';">
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
     <div class="set-item">
       <div>
@@ -1352,7 +1373,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'📊';">
     <div class="set-title">📊 ANGGARAN BULANAN (BUDGETING)</div>
     <div class="set-item">
         <div>
@@ -1363,7 +1384,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'⏱️';">
     <div class="set-title">⏱️ MANAJEMEN TRANSAKSI RUTIN</div>
     <div class="set-item">
       <div>
@@ -1374,7 +1395,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'🗑️';">
     <div class="set-title">🗑️ TEMPAT SAMPAH & RECOVERY</div>
     <div class="set-item">
         <div>
@@ -1385,8 +1406,8 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group" id="admin-settings-group" style="display:none; border-color: var(--gold);">
-    <div class="set-title" style="color: var(--gold);">👑 KONTROL ADMIN — SEMUA AKUN</div>
+  <div class="set-group" id="admin-settings-group" style="--icon:'👑'; display:none; border-color: var(--gold);">
+    <div class="set-title">👑 KONTROL ADMIN — SEMUA AKUN</div>
     <div class="set-item">
       <div>
         <div class="set-label">Lihat Semua Akun &amp; Isi Dompet</div>
@@ -1394,14 +1415,14 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('admin')">BUKA PANEL</button>
     </div>
-    <div class="set-item">
+    <div class="set-item" style="--icon:'🗑️';">
       <div>
         <div class="set-label">Sampah Semua User</div>
         <div class="set-sub">Lihat, pulihkan, atau hapus permanen sampah milik seluruh user</div>
       </div>
       <button class="set-action" style="background:var(--red2); color:#fff; border:none;" onclick="showGlobalTrash()">BUKA SAMPAH</button>
     </div>
-    <div class="set-item">
+    <div class="set-item" style="--icon:'📦';">
       <div>
         <div class="set-label">Arsip Terhapus Permanen</div>
         <div class="set-sub">Data yang sudah dimusnahkan dari sampah tetap tersimpan di sini &amp; masih bisa dipulihkan ke user</div>
@@ -1410,7 +1431,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'🔒';">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
       <div>
@@ -1419,7 +1440,7 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="reqResetPasswordViaSettings()">KIRIM LINK</button>
     </div>
-    <div class="set-item">
+    <div class="set-item" style="--icon:'🔢';">
       <div>
         <div class="set-label">Ubah PIN Keamanan</div>
         <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
@@ -1428,7 +1449,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'⚡';">
     <div class="set-title">⚡ PREFERENSI BAWAAN FORM</div>
     <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah transaksi setiap aplikasi dibuka.</div>
     <div class="set-item">
@@ -1453,12 +1474,12 @@ body.global-privacy #xau-idr-gr {
         <option value="Bank">Bank</option>
       </select>
     </div>
-    <div class="set-item" style="justify-content: flex-end; padding-top: 16px;">
+    <div class="set-item no-icon" style="justify-content: flex-end; padding-top: 16px;">
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="savePreferences()">SIMPAN PREFERENSI</button>
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'⚙️';">
     <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
     <div class="set-item">
       <div>
@@ -1542,7 +1563,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group">
+  <div class="set-group" style="--icon:'🛡️';">
     <div class="set-title">🛡️ BACKUP & PEMULIHAN DATA</div>
     <div class="set-item">
       <div>
@@ -1578,7 +1599,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'💾';">
     <div class="set-title">💾 MANAJEMEN DATA</div>
     <div class="set-item">
       <div>
@@ -1596,7 +1617,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group">
+  <div class="set-group" style="--icon:'⚙️';">
     <div class="set-title">ℹ️ DETAIL APLIKASI</div>
     <div class="set-item">
       <div>
@@ -2804,7 +2825,10 @@ window.manageCategories = async function() {
         window.userCats[type].forEach((cat, idx) => {
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:8px 12px; background:var(--bg2); border-radius:8px; border:1px solid var(--border);">
                         <span style="font-size:12px; font-weight:600;">${cat}</span>
-                        <button onclick="delCategory('${type}', ${idx})" style="color:var(--red2); background:rgba(248,113,113,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">HAPUS</button>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="editCategory('${type}', ${idx})" style="color:var(--blue); background:rgba(59,130,246,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">EDIT</button>
+                            <button onclick="delCategory('${type}', ${idx})" style="color:var(--red2); background:rgba(248,113,113,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">HAPUS</button>
+                        </div>
                      </div>`;
         });
     }
@@ -2821,6 +2845,22 @@ window.manageCategories = async function() {
     }).then((res) => {
         if (res.isDenied) { promptAddCategory(type); }
     });
+};
+
+window.editCategory = async function(type, idx) {
+    const currentName = window.userCats[type][idx];
+    const { value: newName } = await Swal.fire({
+        title: 'Edit Nama Kategori', input: 'text', inputValue: currentName,
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)',
+        confirmButtonText: 'Simpan', confirmButtonColor: 'var(--gold)'
+    });
+    if (newName && newName.trim() !== '' && newName.trim() !== currentName) {
+        window.userCats[type][idx] = newName.trim();
+        await savePreferencesData();
+        Swal.fire({icon:'success', title:'Kategori Diubah', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+    }
+    manageCategories();
 };
 
 window.delCategory = async function(type, idx) {
