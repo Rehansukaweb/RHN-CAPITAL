@@ -852,7 +852,7 @@ body.global-privacy #xau-idr-gr {
     </div>
     
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
-      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-live-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text3); margin-left:3px; margin-right:1px; transition:background .2s;"></span><span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
       <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
@@ -2299,6 +2299,11 @@ function applyXauPrice(newPrice) {
     if (!newPrice) return;
     const xauRate = document.getElementById('xau-rate-val');
     if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2);
+    const dot = document.getElementById('xau-live-dot');
+    if (dot) {
+        dot.style.background = 'var(--green2)';
+        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
+    }
     if (currentUSDRate > 0) {
         const idrPriceOz = newPrice * currentUSDRate;
         const idrPriceGram = idrPriceOz / 31.1034768;
@@ -2309,35 +2314,43 @@ function applyXauPrice(newPrice) {
     }
 }
 async function fetchLiveXAU() {
-    // Sumber utama: feed bid/ask broker forex (Swissquote), sama jenis feed
-    // tick realtime yang dipakai chart broker di TradingView — pergerakan cepat,
-    // harga mid diambil dari bid/ask asli (bukan token/derivatif).
+    // Sumber 1: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid tanpa spread).
+    try {
+        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const data = await res.json();
+        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
+        if (price) { applyXauPrice(price); return; }
+        throw new Error('goldprice: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 1 (goldprice.org) gagal:', e.message || e);
+    }
+    // Sumber 2: feed bid/ask broker forex (Swissquote) — sama jenis feed tick realtime yang
+    // dipakai chart broker di TradingView. Bisa gagal kalau browser memblokir CORS.
     try {
         const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
         const data = await res.json();
         const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
         if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
-        throw new Error('no price');
+        throw new Error('swissquote: harga kosong');
     } catch (e) {
-        try {
-            const res2 = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
-            const data2 = await res2.json();
-            const price2 = data2 && data2.items && data2.items[0] ? parseFloat(data2.items[0].xauPrice) : null;
-            if (price2) { applyXauPrice(price2); return; }
-            throw new Error('no price2');
-        } catch (e2) {
-            try {
-                const res3 = await fetch('https://api.gold-api.com/price/XAU');
-                const data3 = await res3.json();
-                if (data3 && data3.price) applyXauPrice(parseFloat(data3.price));
-            } catch (e3) {}
-        }
+        console.warn('XAU sumber 2 (swissquote) gagal:', e.message || e);
+    }
+    // Sumber 3: cadangan terakhir.
+    try {
+        const res = await fetch('https://api.gold-api.com/price/XAU');
+        const data = await res.json();
+        if (data && data.price) { applyXauPrice(parseFloat(data.price)); return; }
+        throw new Error('gold-api: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 3 (gold-api.com) gagal:', e.message || e);
+        const dot = document.getElementById('xau-live-dot');
+        if (dot) dot.style.background = 'var(--red2)';
     }
 }
 function initLiveXAU() {
     fetchLiveXAU();
     if (window.__xauInterval) clearInterval(window.__xauInterval);
-    window.__xauInterval = setInterval(fetchLiveXAU, 2000);
+    window.__xauInterval = setInterval(fetchLiveXAU, 3000);
 }
 initLiveXAU();
 
@@ -2593,9 +2606,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initCalc();
     setInterval(initCalc, 60000);
     const syncSelectUI = (sel, ui) => { let text = sel.options[sel.selectedIndex]?.text; if(!text && sel.options.length > 0) text = sel.options[0].text; ui.querySelector('.sel-text').innerHTML = text || 'Pilih...'; };
-    document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => { 
-        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
+    const wrapSelectUI = (sel) => {
+        if (sel.dataset.uiWrapped) return;
+        sel.dataset.uiWrapped = '1';
+        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); });
+    };
+    document.querySelectorAll('select.f-input-dark, select.set-select, select.swal2-input').forEach(wrapSelectUI);
+    // Popup (SweetAlert) menyisipkan <select> baru ke DOM secara dinamis setelah halaman
+    // dimuat — pantau terus supaya dropdown di dalam popup (mis. pilih dompet saat
+    // Kirim/Minta Saldo) juga pakai UI picker yang sama, bukan <select> native browser
+    // yang teksnya kadang tidak tampil di dalam kartu popup gelap.
+    const selWatcher = new MutationObserver((mutations) => {
+        mutations.forEach(m => {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                if (node.matches && node.matches('select.f-input-dark, select.set-select, select.swal2-input')) wrapSelectUI(node);
+                if (node.querySelectorAll) node.querySelectorAll('select.f-input-dark, select.set-select, select.swal2-input').forEach(wrapSelectUI);
+            });
+        });
     });
+    selWatcher.observe(document.body, { childList: true, subtree: true });
     window.selectCustomOpt = function(selId, optIdx) { let sel = document.getElementById(selId); if (sel) { sel.selectedIndex = optIdx; sel.dispatchEvent(new Event('change')); if(sel.onchange) sel.onchange(); } Swal.close(); };
     
     const recSelect = document.getElementById('f-recurring');
