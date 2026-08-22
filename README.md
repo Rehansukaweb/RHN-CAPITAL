@@ -3224,7 +3224,14 @@ function unlockApp() {
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
-        document.getElementById('user-name').textContent = 'Memuat...';
+        // FIX OFFLINE: sesi Firebase Auth belum "hidup" lagi (mis. baru buka
+        // app tanpa internet), tapi data transaksi tetap harus tampil dari
+        // cache HP. Ambil pakai UID terakhir yang tersimpan di localStorage,
+        // TANPA menunggu currentUser — Firestore offline cache tidak butuh
+        // koneksi aktif untuk baca data yang sudah pernah disinkron sebelumnya.
+        document.getElementById('user-name').textContent = 'Mode Offline'; 
+        const cachedUid = localStorage.getItem('last_uid_rhn'); 
+        if (cachedUid) { listenTransactions(cachedUid); }
     }
 
     document.getElementById('app-pin').value = ''; 
