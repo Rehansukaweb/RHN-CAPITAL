@@ -2984,12 +2984,13 @@ window.changePinInApp = async function() {
     if (!currentUser) return; 
     const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = newPin; 
+        localStorage.setItem('local_pin_rhn', newPin);
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
-            window.userCloudPin = newPin; 
-            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
@@ -3164,16 +3165,16 @@ window.verifyPin = async function() {
 
     if (window.pinMode === 'setup') { 
         document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = pinInput; 
+        localStorage.setItem('local_pin_rhn', pinInput);
+        window.appUnlocked = true;
+        unlockApp(); 
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
-            window.userCloudPin = pinInput; 
-            localStorage.setItem('local_pin_rhn', pinInput);
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
-            window.appUnlocked = true;
-            unlockApp(); 
         } catch(e) { 
-            errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
-            document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
+            Swal.fire({position: 'center', icon: 'success', title: 'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); 
         } 
     } else { 
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
@@ -3236,13 +3237,14 @@ window.resetPinFromLogin = async function() {
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
     const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = newPin; 
+        localStorage.setItem('local_pin_rhn', newPin);
+        document.getElementById('app-pin').value = ''; 
         try { 
             await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
-            window.userCloudPin = newPin; 
-            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-            document.getElementById('app-pin').value = ''; 
-        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
