@@ -7,6 +7,7 @@
 
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
+<link rel="manifest" href="manifest.json">
 
 <style>
 /* ==========================================================================
@@ -7615,5 +7616,12 @@ window.addEventListener('focus', function () {
   </div>
 </div>
 
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>
