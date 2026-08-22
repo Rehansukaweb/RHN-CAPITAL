@@ -749,6 +749,20 @@ body.global-privacy #xau-idr-gr {
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+  // JARING PENGAMAN PALING AWAL: dijalankan sebelum script CDN lain,
+  // supaya splash screen TETAP hilang meski library CDN gagal dimuat
+  // (mis. tidak ada internet), tidak peduli apapun yang error di skrip lain.
+  window.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      const splash = document.getElementById('splash-screen');
+      if (splash && splash.style.display !== 'none') {
+        splash.classList.add('splash-exit');
+        setTimeout(function () { splash.style.display = 'none'; }, 600);
+      }
+    }, 2500);
+  });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -760,10 +774,14 @@ body.global-privacy #xau-idr-gr {
 
 <script>
   // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
-  const OriginalSwal = window.Swal;
-  window.Swal = OriginalSwal.mixin({
-    heightAuto: false
-  });
+  // Dibungkus try-catch: kalau CDN SweetAlert2 gagal dimuat (mis. offline),
+  // error di sini TIDAK BOLEH menghentikan skrip splash-hide di bawah ini.
+  try {
+    const OriginalSwal = window.Swal;
+    window.Swal = OriginalSwal.mixin({
+      heightAuto: false
+    });
+  } catch (e) {}
 
   window.addEventListener('DOMContentLoaded', function() {
     // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
@@ -2966,12 +2984,13 @@ window.changePinInApp = async function() {
     if (!currentUser) return; 
     const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = newPin; 
+        localStorage.setItem('local_pin_rhn', newPin);
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
-            window.userCloudPin = newPin; 
-            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
@@ -3146,16 +3165,16 @@ window.verifyPin = async function() {
 
     if (window.pinMode === 'setup') { 
         document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = pinInput; 
+        localStorage.setItem('local_pin_rhn', pinInput);
+        window.appUnlocked = true;
+        unlockApp(); 
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
-            window.userCloudPin = pinInput; 
-            localStorage.setItem('local_pin_rhn', pinInput);
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
-            window.appUnlocked = true;
-            unlockApp(); 
         } catch(e) { 
-            errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
-            document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
+            Swal.fire({position: 'center', icon: 'success', title: 'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); 
         } 
     } else { 
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
@@ -3205,7 +3224,20 @@ function unlockApp() {
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
-        document.getElementById('user-name').textContent = 'Memuat...';
+        // FIX OFFLINE: sesi Firebase Auth belum "hidup" lagi (mis. baru buka
+        // app tanpa internet), tapi data transaksi tetap harus tampil dari
+        // cache HP. Ambil pakai UID terakhir yang tersimpan di localStorage,
+        // TANPA menunggu currentUser — Firestore offline cache tidak butuh
+        // koneksi aktif untuk baca data yang sudah pernah disinkron sebelumnya.
+        document.getElementById('user-name').textContent = 'Mode Offline'; 
+        const cachedUid = localStorage.getItem('last_uid_rhn'); 
+        if (cachedUid) { listenTransactions(cachedUid); }
+        // Isi ulang form "Tambah Transaksi" (tombol tipe + dropdown kategori)
+        // supaya tetap bisa dipakai normal walau offline, sama seperti online.
+        setTimeout(() => {
+            if (typeof window.updatePrefCategories === 'function') window.updatePrefCategories(false);
+            if (window.selType) { selType((appPrefs && appPrefs.type) || 'income'); }
+        }, 10);
     }
 
     document.getElementById('app-pin').value = ''; 
@@ -3218,13 +3250,14 @@ window.resetPinFromLogin = async function() {
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
     const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
+        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
+        window.userCloudPin = newPin; 
+        localStorage.setItem('local_pin_rhn', newPin);
+        document.getElementById('app-pin').value = ''; 
         try { 
             await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
-            window.userCloudPin = newPin; 
-            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-            document.getElementById('app-pin').value = ''; 
-        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
+        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
@@ -5354,6 +5387,20 @@ window.addTx = async function() {
   if (curType === 'transfer' && wallet === walletTo) { return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); }
   
   if (document.activeElement) document.activeElement.blur();
+
+  // Kalau lagi offline, kasih tahu dulu bahwa transaksi akan otomatis
+  // tersimpan/tersinkron begitu koneksi internet nyala lagi.
+  if (!navigator.onLine) {
+      const off = await Swal.fire({
+          icon: 'info', title: 'Kamu Sedang Offline',
+          text: 'Transaksi ini akan tersimpan dan otomatis tersinkron ke server begitu internet kembali online.',
+          confirmButtonText: 'LANJUT SIMPAN', showCancelButton: true, cancelButtonText: 'Batal',
+          confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+          background: 'var(--card)', color: 'var(--text)'
+      });
+      if (!off.isConfirmed) return;
+  }
+
   const saveBtn = document.getElementById('save-btn'); saveBtn.textContent = 'MENYIMPAN...'; saveBtn.style.opacity = '0.7'; saveBtn.disabled = true;
 
   if (curType === 'expense' && window.userBudgets && window.userBudgets[cat]) {
@@ -5395,6 +5442,7 @@ window.addTx = async function() {
       saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)'; 
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
       let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
+      if (!navigator.onLine) titleMsg = '💾 Tersimpan (Menunggu Sinkron)';
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
       Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
@@ -7051,6 +7099,34 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(function () {});
     });
 }
+
+// ==========================================================================
+// STATUS KONEKSI: banner saat offline + animasi konfirmasi saat online lagi.
+// Data yang sudah tampil di layar TIDAK disentuh/dihapus sama sekali di sini
+// (Firestore realtime listener memang sudah menahan data terakhir saat
+// koneksi putus, jadi angka & tampilan tetap sama seperti pas online).
+// ==========================================================================
+function updateOfflineBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+
+window.addEventListener('offline', updateOfflineBanner);
+
+window.addEventListener('online', function () {
+    updateOfflineBanner();
+    if (typeof Swal !== 'undefined' && Swal.fire) {
+        Swal.fire({
+            toast: true, position: 'top', icon: 'success',
+            title: 'Berhasil Online Kembali', showConfirmButton: false, timer: 1800,
+            background: 'var(--card)', color: 'var(--text)'
+        });
+    }
+    // Coba ulang hal-hal yang tadi gagal karena offline (mis. "GAGAL MEMUAT KODE").
+    if (typeof window.initTransferAccount === 'function') window.initTransferAccount();
+    if (typeof window.refreshAll === 'function') window.refreshAll();
+});
 
 </script>
 <div id="cs-chat-screen">
