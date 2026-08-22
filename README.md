@@ -7108,11 +7108,20 @@ if ('serviceWorker' in navigator) {
 // ==========================================================================
 function updateOfflineBanner() {
     const banner = document.getElementById('offline-banner');
-    if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+    if (banner) banner.style.display = 'none';
 }
 document.addEventListener('DOMContentLoaded', updateOfflineBanner);
 
-window.addEventListener('offline', updateOfflineBanner);
+window.addEventListener('offline', function () {
+    updateOfflineBanner();
+    if (typeof Swal !== 'undefined' && Swal.fire) {
+        Swal.fire({
+            toast: true, position: 'top', icon: 'warning',
+            title: 'Koneksi Terputus - Mode Offline Aktif', showConfirmButton: false, timer: 1800,
+            background: 'var(--card)', color: 'var(--text)'
+        });
+    }
+});
 
 window.addEventListener('online', function () {
     updateOfflineBanner();
