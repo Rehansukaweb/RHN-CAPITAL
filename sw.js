@@ -4,7 +4,7 @@
 // tetap halaman login/aplikasi ini, bukan error "net::ERR_INTERNET_DISCONNECTED".
 // Data (login, transaksi, saldo) tetap butuh internet karena disimpan di Firebase.
 
-const CACHE_NAME = 'rhn-capital-shell-v4';
+const CACHE_NAME = 'rhn-capital-shell-v5';
 const SHELL_FILES = [
   './',
   './index.html',
@@ -87,6 +87,22 @@ self.addEventListener('fetch', (event) => {
   // versi asli dari internet (dan cache-nya diperbarui), baru kalau gagal
   // (offline) fallback ke cache yang tersimpan.
   if (CDN_FILES.includes(req.url)) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Font Google Fonts (CSS + file .woff2 aslinya): sama, network-first lalu
+  // cache. File .woff2 URL-nya dinamis (tidak diketahui di awal), makanya
+  // dicek pakai hostname, bukan daftar URL tetap seperti CDN_FILES di atas.
+  if (req.url.includes('fonts.googleapis.com') || req.url.includes('fonts.gstatic.com')) {
     event.respondWith(
       fetch(req)
         .then((res) => {
