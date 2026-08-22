@@ -5374,6 +5374,20 @@ window.addTx = async function() {
   if (curType === 'transfer' && wallet === walletTo) { return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); }
   
   if (document.activeElement) document.activeElement.blur();
+
+  // Kalau lagi offline, kasih tahu dulu bahwa transaksi akan otomatis
+  // tersimpan/tersinkron begitu koneksi internet nyala lagi.
+  if (!navigator.onLine) {
+      const off = await Swal.fire({
+          icon: 'info', title: 'Kamu Sedang Offline',
+          text: 'Transaksi ini akan tersimpan dan otomatis tersinkron ke server begitu internet kembali online.',
+          confirmButtonText: 'LANJUT SIMPAN', showCancelButton: true, cancelButtonText: 'Batal',
+          confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+          background: 'var(--card)', color: 'var(--text)'
+      });
+      if (!off.isConfirmed) return;
+  }
+
   const saveBtn = document.getElementById('save-btn'); saveBtn.textContent = 'MENYIMPAN...'; saveBtn.style.opacity = '0.7'; saveBtn.disabled = true;
 
   if (curType === 'expense' && window.userBudgets && window.userBudgets[cat]) {
@@ -5415,6 +5429,7 @@ window.addTx = async function() {
       saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)'; 
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
       let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
+      if (!navigator.onLine) titleMsg = '💾 Tersimpan (Menunggu Sinkron)';
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
       Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
@@ -7071,6 +7086,34 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(function () {});
     });
 }
+
+// ==========================================================================
+// STATUS KONEKSI: banner saat offline + animasi konfirmasi saat online lagi.
+// Data yang sudah tampil di layar TIDAK disentuh/dihapus sama sekali di sini
+// (Firestore realtime listener memang sudah menahan data terakhir saat
+// koneksi putus, jadi angka & tampilan tetap sama seperti pas online).
+// ==========================================================================
+function updateOfflineBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+
+window.addEventListener('offline', updateOfflineBanner);
+
+window.addEventListener('online', function () {
+    updateOfflineBanner();
+    if (typeof Swal !== 'undefined' && Swal.fire) {
+        Swal.fire({
+            toast: true, position: 'top', icon: 'success',
+            title: 'Berhasil Online Kembali', showConfirmButton: false, timer: 1800,
+            background: 'var(--card)', color: 'var(--text)'
+        });
+    }
+    // Coba ulang hal-hal yang tadi gagal karena offline (mis. "GAGAL MEMUAT KODE").
+    if (typeof window.initTransferAccount === 'function') window.initTransferAccount();
+    if (typeof window.refreshAll === 'function') window.refreshAll();
+});
 
 </script>
 <div id="cs-chat-screen">
