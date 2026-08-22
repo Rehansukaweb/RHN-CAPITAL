@@ -4,7 +4,7 @@
 // tetap halaman login/aplikasi ini, bukan error "net::ERR_INTERNET_DISCONNECTED".
 // Data (login, transaksi, saldo) tetap butuh internet karena disimpan di Firebase.
 
-const CACHE_NAME = 'rhn-capital-shell-v2';
+const CACHE_NAME = 'rhn-capital-shell-v3';
 const SHELL_FILES = [
   './',
   './index.html',
@@ -21,7 +21,12 @@ const CDN_FILES = [
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
+  // Modul Firebase (WAJIB di-cache: tanpa ini, seluruh skrip login/PIN/data
+  // gagal total saat offline karena import modulenya gagal dimuat).
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'
 ];
 
 self.addEventListener('install', (event) => {
