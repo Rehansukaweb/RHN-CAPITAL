@@ -4,7 +4,7 @@
 // tetap halaman login/aplikasi ini, bukan error "net::ERR_INTERNET_DISCONNECTED".
 // Data (login, transaksi, saldo) tetap butuh internet karena disimpan di Firebase.
 
-const CACHE_NAME = 'rhn-capital-shell-v5';
+const CACHE_NAME = 'rhn-capital-shell-v6';
 const SHELL_FILES = [
   './',
   './index.html',
