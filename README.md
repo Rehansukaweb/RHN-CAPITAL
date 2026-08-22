@@ -3232,6 +3232,12 @@ function unlockApp() {
         document.getElementById('user-name').textContent = 'Mode Offline'; 
         const cachedUid = localStorage.getItem('last_uid_rhn'); 
         if (cachedUid) { listenTransactions(cachedUid); }
+        // Isi ulang form "Tambah Transaksi" (tombol tipe + dropdown kategori)
+        // supaya tetap bisa dipakai normal walau offline, sama seperti online.
+        setTimeout(() => {
+            if (typeof window.updatePrefCategories === 'function') window.updatePrefCategories(false);
+            if (window.selType) { selType((appPrefs && appPrefs.type) || 'income'); }
+        }, 10);
     }
 
     document.getElementById('app-pin').value = ''; 
