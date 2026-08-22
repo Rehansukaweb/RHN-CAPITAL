@@ -749,6 +749,20 @@ body.global-privacy #xau-idr-gr {
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+  // JARING PENGAMAN PALING AWAL: dijalankan sebelum script CDN lain,
+  // supaya splash screen TETAP hilang meski library CDN gagal dimuat
+  // (mis. tidak ada internet), tidak peduli apapun yang error di skrip lain.
+  window.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      const splash = document.getElementById('splash-screen');
+      if (splash && splash.style.display !== 'none') {
+        splash.classList.add('splash-exit');
+        setTimeout(function () { splash.style.display = 'none'; }, 600);
+      }
+    }, 2500);
+  });
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -760,10 +774,14 @@ body.global-privacy #xau-idr-gr {
 
 <script>
   // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
-  const OriginalSwal = window.Swal;
-  window.Swal = OriginalSwal.mixin({
-    heightAuto: false
-  });
+  // Dibungkus try-catch: kalau CDN SweetAlert2 gagal dimuat (mis. offline),
+  // error di sini TIDAK BOLEH menghentikan skrip splash-hide di bawah ini.
+  try {
+    const OriginalSwal = window.Swal;
+    window.Swal = OriginalSwal.mixin({
+      heightAuto: false
+    });
+  } catch (e) {}
 
   window.addEventListener('DOMContentLoaded', function() {
     // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
