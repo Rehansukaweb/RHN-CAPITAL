@@ -4,7 +4,7 @@
 // tetap halaman login/aplikasi ini, bukan error "net::ERR_INTERNET_DISCONNECTED".
 // Data (login, transaksi, saldo) tetap butuh internet karena disimpan di Firebase.
 
-const CACHE_NAME = 'rhn-capital-shell-v3';
+const CACHE_NAME = 'rhn-capital-shell-v4';
 const SHELL_FILES = [
   './',
   './index.html',
@@ -33,8 +33,12 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       const shell = SHELL_FILES.map((url) => cache.add(url).catch(() => {}));
+      // PENTING: TANPA mode 'no-cors'. Server CDN ini support CORS, jadi pakai
+      // fetch normal supaya responsnya valid (bukan "buram") dan bisa dipakai
+      // sebagai modul JavaScript. Response buram bikin modul Firebase gagal
+      // dipakai bahkan saat online.
       const cdn = CDN_FILES.map((url) =>
-        fetch(url, { mode: 'no-cors' }).then((res) => cache.put(url, res)).catch(() => {})
+        fetch(url).then((res) => cache.put(url, res)).catch(() => {})
       );
       return Promise.all([...shell, ...cdn]);
     })
@@ -79,11 +83,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Library CDN (Chart.js, SweetAlert2, dll): cache-first juga, supaya
-  // saat offline library-nya tetap ada dan app tidak setengah-jalan.
+  // Library CDN & modul Firebase: NETWORK-FIRST — saat online selalu ambil
+  // versi asli dari internet (dan cache-nya diperbarui), baru kalau gagal
+  // (offline) fallback ke cache yang tersimpan.
   if (CDN_FILES.includes(req.url)) {
     event.respondWith(
-      caches.match(req).then((cached) => cached || fetch(req, { mode: 'no-cors' }).catch(() => cached))
+      fetch(req)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req))
     );
   }
 });
