@@ -113,15 +113,19 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
-.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.06s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* Dipercepat: animasi kartu/halaman yang lama (0.25s) bikin ganti tombol berkali-kali
+   dengan cepat (mis. Bulanan<->Mingguan) terasa "nyangkut/ngedet" karena animasi lama
+   selalu numpuk ulang tiap tap. Durasi dipangkas biar hasilnya terasa instan tapi masih
+   ada sedikit polish visual (tidak patah/kaku). */
+.m-card, .w-card { animation: cardIn 0.08s ease-out; }
+@keyframes cardIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Transisi antar halaman yang halus, standar (tidak terlalu cepat) */
-.page.active { animation: pageIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
-@keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+/* Transisi antar halaman dipercepat agar respon tombol terasa instan */
+.page.active { animation: pageIn 0.08s ease-out; will-change: opacity; }
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -382,6 +386,16 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
+
+/* FIX KEYBOARD PIN/ANGKA: type="password" di iOS/Safari MENGABAIKAN inputmode="numeric"
+   dan tetap memunculkan keyboard QWERTY penuh (huruf) walau field-nya untuk PIN/angka.
+   Solusinya pakai type="tel" (dijamin keyboard numerik di semua HP) + class ini untuk
+   tetap menyamarkan tampilan digit seperti password (bulat-bulat), tanpa mengubah logika
+   value aslinya sama sekali. */
+.pin-mask-input {
+  -webkit-text-security: disc;
+  text-security: disc;
+}
 
 /* INPUT TEXT/NUMBER DI DALAM POPUP (SweetAlert) — radius diperbesar biar nggak kotak banget, senada sama f-input-dark */
 input.swal2-input, textarea.swal2-textarea {
@@ -825,7 +839,7 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
-    <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120"></div>
+    <div class="form-row" id="field-umur" style="display:none"><input type="text" id="auth-umur" class="f-input-dark" placeholder="Umur" inputmode="numeric" pattern="[0-9]*" maxlength="3" oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
     <div class="form-row" id="field-gender" style="display:none">
       <select id="auth-gender" class="f-input-dark">
         <option value="">Pilih Jenis Kelamin</option>
@@ -856,7 +870,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
+       <input type="tel" id="app-pin" class="f-input-dark pin-mask-input" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -2017,7 +2031,7 @@ window.promptTransfer = async function(txId) {
 
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer 1 Transaksi',
-        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2089,7 +2103,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="number" placeholder="Jumlah 1" value="${t.amount}"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Jumlah 1" value="${t.amount}"></div>
               </div>
             </div>
 
@@ -2105,7 +2119,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="number" placeholder="Jumlah 2" value="0"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Jumlah 2" value="0"></div>
               </div>
             </div>
 
@@ -2182,7 +2196,7 @@ window.promptTransferAll = async function() {
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer Semua Riwayat',
         html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2828,7 +2842,7 @@ window.doAuth = async function() {
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -2982,7 +2996,7 @@ window.saveExtraPrefs = async function() {
 
 window.changePinInApp = async function() { 
     if (!currentUser) return; 
-    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true, class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
         window.userCloudPin = newPin; 
@@ -3248,7 +3262,7 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
-    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true, class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
         window.userCloudPin = newPin; 
@@ -4416,7 +4430,7 @@ window.promptSendSaldo = async function() {
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
             <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Tujuan (3 Angka)</label>
-            <input id="saldo-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="number" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
+            <input id="saldo-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo</label>
             <input id="saldo-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
           </div>
@@ -5554,7 +5568,7 @@ window.showBudgetSetup = async function() {
         html: existingHtml + `
             <div style="font-size:11px; color:var(--text3); margin-bottom:12px; text-align:left;">Pilih kategori pengeluaran dan set batas maksimalnya.<br><span style="color:var(--red2)">Ketik angka 0 untuk menghapus budget.</span></div>
             <select id="swal-budget-cat" class="f-input-dark" style="width:100%; margin-bottom:12px;">${catOpts}</select>
-            <input id="swal-budget-amt" type="number" class="f-input-dark" style="width:100%;" placeholder="Nominal Budget (Cth: 1000000)">
+            <input id="swal-budget-amt" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" style="width:100%;" placeholder="Nominal Budget (Cth: 1000000)">
         `,
         background: 'var(--card)', color: 'var(--text)',
         showCancelButton: true, confirmButtonText: 'SIMPAN BUDGET', cancelButtonText: 'Batal',
@@ -5629,7 +5643,7 @@ window.addSavingsGoal = async function() {
     const { value: formValues } = await Swal.fire({
         title: 'Buat Target Tabungan',
         html: `<input id="swal-g-name" class="f-input-dark" placeholder="Nama Target (Misal: Beli PC)" style="margin-bottom:12px;">
-               <input id="swal-g-target" type="number" class="f-input-dark" placeholder="Target Nominal (Misal: 10000000)">`,
+               <input id="swal-g-target" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" placeholder="Target Nominal (Misal: 10000000)">`,
         focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN', showCancelButton: true, cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal',
         preConfirm: () => { return { name: document.getElementById('swal-g-name').value, target: parseFloat(document.getElementById('swal-g-target').value) } }
     });
@@ -5667,7 +5681,7 @@ window.editGoal = async function(idx) {
             const { value: formValues } = await Swal.fire({
                 title: 'Edit Target',
                 html: `<input id="swal-g-name-edit" class="f-input-dark" value="${window.savingsGoals[idx].name}" style="margin-bottom:12px;">
-                       <input id="swal-g-target-edit" type="number" class="f-input-dark" value="${window.savingsGoals[idx].target}">`,
+                       <input id="swal-g-target-edit" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" value="${window.savingsGoals[idx].target}">`,
                 focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
                 preConfirm: () => { return { name: document.getElementById('swal-g-name-edit').value, target: parseFloat(document.getElementById('swal-g-target-edit').value) } }
             });
@@ -5851,7 +5865,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
         title: `Koreksi Saldo ${walletName}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
-               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               <input id="swal-koreksi-amt" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
