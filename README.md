@@ -2335,7 +2335,7 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
 
     try {
         const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per transaksi)
-        const commitPromises = [];
+        const batches = [];
         for (let i = 0; i < txList.length; i += CHUNK_SIZE) {
             const chunk = txList.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -2348,10 +2348,9 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
                 const oldRef = doc(db, 'users', currentUser.uid, 'transactions', t.id);
                 batch.delete(oldRef);
             });
-            commitPromises.push(batch.commit());
+            batches.push(batch);
         }
-        // Semua batch dikirim sekaligus paralel supaya transfer jumlah besar instan.
-        await Promise.all(commitPromises);
+        await commitBatchesPooled(batches);
         Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 transaksi dipindahkan.' : `${txList.length} transaksi dipindahkan.`, background:'var(--card)', color:'var(--text)'});
     } catch(e) {
         Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal: " + e.message, background:'var(--card)', color:'var(--text)'});
@@ -4261,7 +4260,7 @@ window.adminEmptyTrash = async function(uid) {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
-        const commitPromises = [];
+        const batches = [];
         for (let i = 0; i < arr.length; i += CHUNK_SIZE) {
             const chunk = arr.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4275,9 +4274,9 @@ window.adminEmptyTrash = async function(uid) {
                 batch.set(doc(db, 'archived_deleted', uid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', uid, 'transactions', t.id));
             });
-            commitPromises.push(batch.commit());
+            batches.push(batch);
         }
-        await Promise.all(commitPromises);
+        await commitBatchesPooled(batches);
         // Update lokal langsung (tanpa reload total database) supaya instan.
         adminGroupedTrash[uid] = [];
         Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
@@ -4331,7 +4330,7 @@ window.adminEmptyAllTrash = async function() {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
-        const commitPromises = [];
+        const batches = [];
         for (let i = 0; i < allTrash.length; i += CHUNK_SIZE) {
             const chunk = allTrash.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4347,9 +4346,9 @@ window.adminEmptyAllTrash = async function() {
                 batch.set(doc(db, 'archived_deleted', ownerUid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', ownerUid, 'transactions', t.id));
             });
-            commitPromises.push(batch.commit());
+            batches.push(batch);
         }
-        await Promise.all(commitPromises);
+        await commitBatchesPooled(batches);
         // Update lokal langsung (tanpa reload total database) supaya instan.
         uids.forEach(uid => { adminGroupedTrash[uid] = []; });
         Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
@@ -4437,14 +4436,14 @@ window.adminEraseAllArchive = async function() {
         const snap = await getDocs(collection(db, 'archived_deleted'));
         const docs = snap.docs;
         const CHUNK_SIZE = 400;
-        const commitPromises = [];
+        const batches = [];
         for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
             const chunk = docs.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
             chunk.forEach(d => batch.delete(d.ref));
-            commitPromises.push(batch.commit());
+            batches.push(batch);
         }
-        await Promise.all(commitPromises);
+        await commitBatchesPooled(batches);
         Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
@@ -5344,20 +5343,37 @@ window.promptFixUserInfo = async function(uid) {
 };
 
 // ==========================================================================
+// Helper: commit banyak writeBatch dengan concurrency terbatas (5 sekaligus)
+// -> jauh lebih cepat dari satu-satu berurutan, tapi tetap dibatasi supaya
+//    tidak membanjiri koneksi/rules dan memicu error permission beruntun
+//    seperti waktu semuanya ditembak sekaligus tanpa batas.
+// ==========================================================================
+async function commitBatchesPooled(batches, poolSize = 5) {
+    let cursor = 0;
+    async function worker() {
+        while (cursor < batches.length) {
+            const b = batches[cursor++];
+            await b.commit();
+        }
+    }
+    await Promise.all(Array.from({ length: Math.min(poolSize, batches.length) }, () => worker()));
+}
+
+// ==========================================================================
 // ADMIN: Hapus Akun User Langsung dari Panel (Tanpa Buka Firebase Console)
 // ==========================================================================
 async function deleteCollectionInChunks(colRef) {
     const snap = await getDocs(colRef);
     const docs = snap.docs;
     const CHUNK_SIZE = 400;
-    const commitPromises = [];
+    const batches = [];
     for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
         const chunk = docs.slice(i, i + CHUNK_SIZE);
         const batch = writeBatch(db);
         chunk.forEach(d => batch.delete(d.ref));
-        commitPromises.push(batch.commit());
+        batches.push(batch);
     }
-    await Promise.all(commitPromises);
+    await commitBatchesPooled(batches);
     return docs.length;
 }
 
@@ -5621,14 +5637,14 @@ window.execBatchDelete = async function() {
             try {
                 const ids = Array.from(checkboxes).map(cb => cb.value);
                 const CHUNK_SIZE = 400;
-                const commitPromises = [];
+                const batches = [];
                 for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
                     const chunk = ids.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(id => batch.update(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true }));
-                    commitPromises.push(batch.commit());
+                    batches.push(batch);
                 }
-                await Promise.all(commitPromises);
+                await commitBatchesPooled(batches);
                 batchMode = false;
                 document.getElementById('btn-batch-del').style.display = 'none';
                 Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 100, showConfirmButton: false});
@@ -5664,14 +5680,14 @@ window.emptyRecycleBin = async function() {
             Swal.fire({title: 'Memusnahkan Data...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 const CHUNK_SIZE = 400;
-                const commitPromises = [];
+                const batches = [];
                 for (let i = 0; i < deletedTxs.length; i += CHUNK_SIZE) {
                     const chunk = deletedTxs.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(t => batch.delete(doc(db, 'users', currentUser.uid, 'transactions', t.id)));
-                    commitPromises.push(batch.commit());
+                    batches.push(batch);
                 }
-                await Promise.all(commitPromises);
+                await commitBatchesPooled(batches);
                 Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
             } catch(e) {
                 Swal.fire('Error', e.message, 'error');
@@ -7135,20 +7151,18 @@ window.restoreBackupFile = function(evt) {
         if (!res.isConfirmed) return;
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
+            const pendingBatches = [];
             let batch = writeBatch(db); let opCount = 0; let total = 0;
-            const commitPromises = [];
             for (const t of items) {
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
                 cleanTx.createdAt = serverTimestamp();
                 const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
                 batch.set(ref, cleanTx);
                 opCount++; total++;
-                if (opCount >= 450) { commitPromises.push(batch.commit()); batch = writeBatch(db); opCount = 0; }
+                if (opCount >= 450) { pendingBatches.push(batch); batch = writeBatch(db); opCount = 0; }
             }
-            if (opCount > 0) commitPromises.push(batch.commit());
-            // Semua batch dikirim SEKALIGUS secara paralel (bukan satu-satu berurutan)
-            // supaya pemulihan data dalam jumlah sangat banyak jadi jauh lebih instan.
-            await Promise.all(commitPromises);
+            if (opCount > 0) pendingBatches.push(batch);
+            await commitBatchesPooled(pendingBatches);
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil dipulihkan.', background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
