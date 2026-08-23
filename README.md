@@ -764,6 +764,34 @@ body.global-privacy #xau-idr-gr {
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script>
+  // JARING PENGAMAN ERROR PALING AWAL: kalau ada error JS di manapun (termasuk
+  // modul Firebase gagal load karena tidak ada internet/CDN diblokir), biasanya
+  // error itu cuma nongol di console browser yang TIDAK KELIHATAN di HP —
+  // makanya layar terasa "macet diam" tanpa pesan apapun. Kode ini nangkep
+  // error itu dan nampilinnya sebagai pita merah kecil di bawah layar, supaya
+  // langsung ketahuan apa yang sebenarnya gagal.
+  window.__errBanner = function(msg) {
+    try {
+      let b = document.getElementById('js-err-banner');
+      if (!b) {
+        b = document.createElement('div');
+        b.id = 'js-err-banner';
+        b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:999999;background:#7f1d1d;color:#fff;font-size:11px;font-family:monospace;padding:10px 12px;max-height:35vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -2px 10px rgba(0,0,0,0.4);';
+        document.body.appendChild(b);
+      }
+      const line = document.createElement('div');
+      line.style.cssText = 'border-top:1px solid rgba(255,255,255,0.25);padding-top:6px;margin-top:6px;';
+      line.textContent = msg;
+      b.appendChild(line);
+    } catch (e) {}
+  };
+  window.addEventListener('error', function (e) {
+    window.__errBanner('ERROR: ' + (e.message || 'unknown') + ' @ ' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + e.lineno);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    const r = e.reason;
+    window.__errBanner('PROMISE ERROR: ' + (r && r.message ? r.message : String(r)));
+  });
   // JARING PENGAMAN PALING AWAL: dijalankan sebelum script CDN lain,
   // supaya splash screen TETAP hilang meski library CDN gagal dimuat
   // (mis. tidak ada internet), tidak peduli apapun yang error di skrip lain.
@@ -1694,10 +1722,20 @@ body.global-privacy #xau-idr-gr {
       if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
 
       const pinEl = document.getElementById('app-pin');
-      if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
-          pinEl.focus();
-          try { pinEl.click(); } catch(e){}
-      }
+      if (!pinEl || document.getElementById('pin-screen').style.display === 'none') return;
+
+      // FIX PENTING: kalau user LAGI aktif ngetik di kolom PIN (sudah fokus di situ),
+      // JANGAN paksa focus()/click() lagi. Sebelumnya interval ini tetap nge-klik
+      // input tiap 200ms walau user sedang mengetik — di sebagian HP Android, klik
+      // sintetis ini bikin keyboard/IME sempat "kedip" pas user baru selesai ketik
+      // digit terakhir, sehingga event input untuk digit ke-6 tidak konsisten
+      // kepick oleh listener yang mengecek panjang PIN, akibatnya layar terlihat
+      // "macet" diam padahal PIN sudah lengkap diketik. Dengan skip ini, refocus
+      // paksa hanya berlaku saat kolom PIN BELUM difokus (misal pas pertama kali
+      // layar muncul), tidak lagi mengganggu proses mengetik yang sedang berjalan.
+      if (document.activeElement === pinEl) return;
+
+      pinEl.focus();
   };
 
   if (lastUid) {
@@ -2031,7 +2069,7 @@ window.promptTransfer = async function(txId) {
 
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer 1 Transaksi',
-        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+        html: `<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">`,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2196,7 +2234,7 @@ window.promptTransferAll = async function() {
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer Semua Riwayat',
         html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+              `<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">`,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -3172,6 +3210,7 @@ onAuthStateChanged(auth, async user => {
 });
 
 window.verifyPin = async function() { 
+  try {
     const pinInput = document.getElementById('app-pin').value; 
     const errEl = document.getElementById('pin-err'); 
     if (pinInput.length < 6) { errEl.textContent = 'PIN harus 6 digit.'; errEl.style.display = 'block'; return; } 
@@ -3191,8 +3230,16 @@ window.verifyPin = async function() {
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); 
         } 
     } else { 
+        // FIX: sebelumnya kalau uid kosong (sesi login belum siap / kehapus), fungsi
+        // ini cuma "return" diam-diam — layar PIN terlihat macet total tanpa pesan
+        // apapun padahal PIN yang diketik sudah benar. Sekarang kasih pesan jelas +
+        // arahkan ke Ganti Akun supaya user tahu harus login ulang, bukan nebak-nebak.
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
-        if (!uid) return; 
+        if (!uid) {
+            errEl.textContent = 'Sesi login tidak ditemukan. Tekan "Ganti Akun" lalu login ulang.';
+            errEl.style.display = 'block';
+            return;
+        } 
         
         const localPin = localStorage.getItem('local_pin_rhn');
 
@@ -3207,6 +3254,13 @@ window.verifyPin = async function() {
             if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
         } 
     } 
+  } catch (e) {
+    // FIX: kalau ada error tak terduga apapun di proses verifikasi, tetap kasih
+    // pesan ke layar (bukan macet diam) supaya user tahu harus coba lagi.
+    const errEl = document.getElementById('pin-err');
+    if (errEl) { errEl.textContent = 'Gagal memverifikasi PIN, coba lagi.'; errEl.style.display = 'block'; }
+    document.getElementById('app-pin').value = '';
+  }
 };
 
 function unlockApp() { 
@@ -3275,7 +3329,7 @@ window.resetPinFromLogin = async function() {
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
-document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
+document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { try { if (typeof window.verifyPin === 'function') { window.verifyPin(); } else { window.__errBanner('window.verifyPin belum siap (modul Firebase kemungkinan gagal dimuat, cek koneksi internet).'); } } catch (err) { window.__errBanner('Gagal verifikasi PIN: ' + err.message); } } });
 
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
