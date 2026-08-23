@@ -4753,6 +4753,9 @@ window.showBarcodeRequest = function(rid, amount, note) {
                 if (successText) successText.textContent = `${data.toName || 'Pengirim'} menolak permintaan saldo ini.`;
                 if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
             }
+        }, err => {
+            console.error('Gagal memantau status barcode permintaan saldo:', err);
+            if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
         });
     } catch(e) {}
 };
@@ -4888,6 +4891,10 @@ window.initBalanceRequests = function() {
                 const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 window.__incomingReqs = window.__purgeExpiredReqs(all);
                 window.renderPendingRequests();
+            },
+            err => {
+                console.error('Gagal memuat permintaan saldo masuk:', err);
+                if (window.__unsubIncomingReq) { window.__unsubIncomingReq(); window.__unsubIncomingReq = null; }
             }
         );
         window.__unsubSentReq = onSnapshot(
@@ -4896,6 +4903,10 @@ window.initBalanceRequests = function() {
                 const all = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAtLocal || '').localeCompare(a.createdAtLocal || '')).slice(0, 20);
                 window.__sentReqs = window.__purgeExpiredReqs(all);
                 window.renderSentRequests();
+            },
+            err => {
+                console.error('Gagal memuat permintaan saldo terkirim:', err);
+                if (window.__unsubSentReq) { window.__unsubSentReq(); window.__unsubSentReq = null; }
             }
         );
         window.__reqTimerInterval = setInterval(() => {
