@@ -747,19 +747,35 @@ body.global-privacy #xau-idr-gr {
 /* Tampilan halaman Pengaturan diubah menyerupai daftar Pengaturan Android (list
    bersih dengan garis pembatas tipis + panah), khusus untuk #page-pengaturan saja —
    halaman lain (dompet, dsb) yang memakai class .set-* tetap seperti semula. */
-#page-pengaturan .set-group { background: none; border: none; box-shadow: none; padding: 0; margin-bottom: 26px; }
-#page-pengaturan .set-title { background: none; border: none; padding: 0 4px 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; color: var(--text3); text-transform: uppercase; }
-#page-pengaturan .set-item { background: none; border-radius: 0; padding: 14px 4px 14px 54px; border-bottom: 1px solid var(--border); position: relative; min-height: 34px; }
-#page-pengaturan .set-item::before { content: var(--icon, '⚙️'); position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; flex-shrink: 0; }
+#page-pengaturan { padding-top: 2px; padding-bottom: 90px; }
+#page-pengaturan .set-page-title { font-size: 30px; font-weight: 700; color: var(--text); padding: 6px 4px 18px; letter-spacing: -0.4px; }
+#page-pengaturan .set-profile-card, #page-pengaturan .set-device-card { display: flex; align-items: center; gap: 14px; background: var(--card); border-radius: 20px; padding: 14px 16px; margin-bottom: 12px; cursor: pointer; }
+#page-pengaturan .set-profile-avatar { width: 46px; height: 46px; border-radius: 50%; background: #1E9E8F; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; color: #fff; flex-shrink: 0; text-transform: uppercase; }
+#page-pengaturan .set-device-icon { width: 34px; height: 34px; border-radius: 10px; background: #2FA84F; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+#page-pengaturan .set-profile-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
+#page-pengaturan .set-profile-sub { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+#page-pengaturan .set-device-name { font-size: 14.5px; font-weight: 600; color: var(--text); }
+#page-pengaturan .set-chev { margin-left: auto; color: var(--text3); font-size: 19px; flex-shrink: 0; }
+#page-pengaturan .set-group { background: var(--card); border: none; box-shadow: none; padding: 0; margin-bottom: 18px; border-radius: 20px; overflow: hidden; }
+#page-pengaturan .set-title { background: none; border: none; padding: 14px 16px 6px; margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; color: var(--text3); text-transform: uppercase; }
+#page-pengaturan .set-item { background: none; border-radius: 0; padding: 13px 16px 13px 64px; border-bottom: 1px solid var(--border); position: relative; min-height: 34px; }
+#page-pengaturan .set-item::before { content: var(--icon, '⚙️'); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 10px; background: var(--icon-bg, var(--bg3)); display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; flex-shrink: 0; }
 #page-pengaturan .set-item:last-child { border-bottom: none; }
 #page-pengaturan .set-label { font-size: 14.5px; font-weight: 600; color: var(--text); }
 #page-pengaturan .set-sub { font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.35; }
 #page-pengaturan .set-action { background: transparent !important; border: none !important; box-shadow: none !important; color: var(--gold) !important; font-size: 11.5px; font-weight: 700; padding: 6px 18px 6px 6px !important; white-space: nowrap; position: relative; }
 #page-pengaturan .set-action.danger { color: var(--red2) !important; }
 #page-pengaturan .set-action::after { content: '›'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 400; color: var(--text3); }
-#page-pengaturan .set-item.no-icon { padding-left: 4px; }
+#page-pengaturan .set-item.no-icon { padding-left: 16px; }
 #page-pengaturan .set-item.no-icon::before { content: none; }
 #page-pengaturan .set-select { background: var(--bg2) !important; border: 1px solid var(--border2) !important; color: var(--text) !important; border-radius: 9px !important; font-size: 12px !important; padding: 9px 12px !important; box-shadow: none !important; }
+#page-pengaturan .set-item.set-hidden-by-search { display: none !important; }
+#page-pengaturan .set-group.set-hidden-by-search { display: none !important; }
+#page-pengaturan .set-search-wrap { position: sticky; bottom: 10px; margin: 20px 4px 4px; z-index: 5; }
+#page-pengaturan .set-search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 999px; padding: 12px 16px; box-shadow: var(--shadow-float); }
+#page-pengaturan .set-search-bar input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif; }
+#page-pengaturan .set-search-bar input::placeholder { color: var(--text3); }
+#page-pengaturan .set-search-bar svg { flex-shrink: 0; color: var(--text3); }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1413,7 +1429,27 @@ body.global-privacy #xau-idr-gr {
 </div>
 
 <div id="page-pengaturan" class="page">
-  <div class="set-group" style="--icon:'💳';">
+  <div class="set-page-title">Pengaturan</div>
+
+  <div class="set-profile-card" onclick="switchPage('wallet')">
+    <div class="set-profile-avatar" id="settings-profile-avatar">?</div>
+    <div style="flex:1; min-width:0;">
+      <div class="set-profile-name" id="settings-profile-name">Memuat...</div>
+      <div class="set-profile-sub" id="settings-profile-sub">Akun &amp; keamanan</div>
+    </div>
+    <div class="set-chev">›</div>
+  </div>
+
+  <div class="set-device-card" onclick="window.showAppVersionInfo()">
+    <div class="set-device-icon">📱</div>
+    <div style="flex:1; min-width:0;">
+      <div class="set-device-name">RHN Capital OS</div>
+      <div class="set-profile-sub">v4.7 (Transfer Perantara)</div>
+    </div>
+    <div class="set-chev">›</div>
+  </div>
+
+  <div class="set-group" style="--icon:'💳'; --icon-bg:var(--gold);">
     <div class="set-title">💳 DOMPET SAYA</div>
     <div class="set-item">
       <div>
@@ -1423,7 +1459,7 @@ body.global-privacy #xau-idr-gr {
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('wallet')">💳 BUKA DOMPET</button>
     </div>
   </div>
-  <div class="set-group" style="--icon:'🗂️';">
+  <div class="set-group" style="--icon:'🗂️'; --icon-bg:#8B5CF6;">
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
     <div class="set-item">
       <div>
@@ -1434,7 +1470,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'📊';">
+  <div class="set-group" style="--icon:'📊'; --icon-bg:var(--green2);">
     <div class="set-title">📊 ANGGARAN BULANAN (BUDGETING)</div>
     <div class="set-item">
         <div>
@@ -1445,7 +1481,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⏱️';">
+  <div class="set-group" style="--icon:'⏱️'; --icon-bg:var(--blue);">
     <div class="set-title">⏱️ MANAJEMEN TRANSAKSI RUTIN</div>
     <div class="set-item">
       <div>
@@ -1456,7 +1492,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'🗑️';">
+  <div class="set-group" style="--icon:'🗑️'; --icon-bg:var(--red2);">
     <div class="set-title">🗑️ TEMPAT SAMPAH & RECOVERY</div>
     <div class="set-item">
         <div>
@@ -1467,7 +1503,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group" id="admin-settings-group" style="--icon:'👑'; display:none; border-color: var(--gold);">
+  <div class="set-group" id="admin-settings-group" style="--icon:'👑'; --icon-bg:var(--gold); display:none; border-color: var(--gold);">
     <div class="set-title">👑 KONTROL ADMIN — SEMUA AKUN</div>
     <div class="set-item">
       <div>
@@ -1476,14 +1512,14 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('admin')">BUKA PANEL</button>
     </div>
-    <div class="set-item" style="--icon:'🗑️';">
+    <div class="set-item" style="--icon:'🗑️'; --icon-bg:var(--red2);">
       <div>
         <div class="set-label">Sampah Semua User</div>
         <div class="set-sub">Lihat, pulihkan, atau hapus permanen sampah milik seluruh user</div>
       </div>
       <button class="set-action" style="background:var(--red2); color:#fff; border:none;" onclick="showGlobalTrash()">BUKA SAMPAH</button>
     </div>
-    <div class="set-item" style="--icon:'📦';">
+    <div class="set-item" style="--icon:'📦'; --icon-bg:var(--blue);">
       <div>
         <div class="set-label">Arsip Terhapus Permanen</div>
         <div class="set-sub">Data yang sudah dimusnahkan dari sampah tetap tersimpan di sini &amp; masih bisa dipulihkan ke user</div>
@@ -1492,7 +1528,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'🔒';">
+  <div class="set-group" style="--icon:'🔒'; --icon-bg:#F59E0B;">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
       <div>
@@ -1501,7 +1537,7 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="reqResetPasswordViaSettings()">KIRIM LINK</button>
     </div>
-    <div class="set-item" style="--icon:'🔢';">
+    <div class="set-item" style="--icon:'🔢'; --icon-bg:#F59E0B;">
       <div>
         <div class="set-label">Ubah PIN Keamanan</div>
         <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
@@ -1510,7 +1546,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚡';">
+  <div class="set-group" style="--icon:'⚡'; --icon-bg:var(--gold);">
     <div class="set-title">⚡ PREFERENSI BAWAAN FORM</div>
     <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah transaksi setiap aplikasi dibuka.</div>
     <div class="set-item">
@@ -1540,7 +1576,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚙️';">
+  <div class="set-group" style="--icon:'⚙️'; --icon-bg:#64748B;">
     <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
     <div class="set-item">
       <div>
@@ -1624,7 +1660,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group" style="--icon:'🛡️';">
+  <div class="set-group" style="--icon:'🛡️'; --icon-bg:#14B8A6;">
     <div class="set-title">🛡️ BACKUP & PEMULIHAN DATA</div>
     <div class="set-item">
       <div>
@@ -1660,7 +1696,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'💾';">
+  <div class="set-group" style="--icon:'💾'; --icon-bg:#2563EB;">
     <div class="set-title">💾 MANAJEMEN DATA</div>
     <div class="set-item">
       <div>
@@ -1678,7 +1714,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚙️';">
+  <div class="set-group" style="--icon:'⚙️'; --icon-bg:#6B7280;">
     <div class="set-title">ℹ️ DETAIL APLIKASI</div>
     <div class="set-item">
       <div>
@@ -1692,6 +1728,13 @@ body.global-privacy #xau-idr-gr {
         <div class="set-sub">Perbaiki jika aplikasi terasa berat</div>
       </div>
       <button class="set-action danger" onclick="clearLocalCache()">BERSIHKAN</button>
+    </div>
+  </div>
+
+  <div class="set-search-wrap">
+    <div class="set-search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="settings-search-input" placeholder="Cari" oninput="window.filterSettingsSearch(this.value)">
     </div>
   </div>
 
@@ -3286,6 +3329,13 @@ function unlockApp() {
             avatarEl.textContent = name.charAt(0).toUpperCase();
         }
 
+        const setProfName = document.getElementById('settings-profile-name');
+        const setProfAva = document.getElementById('settings-profile-avatar');
+        const setProfSub = document.getElementById('settings-profile-sub');
+        if (setProfName) setProfName.textContent = name;
+        if (setProfAva) setProfAva.textContent = name.charAt(0).toUpperCase();
+        if (setProfSub) setProfSub.textContent = (currentUser.emailVerified ? 'Email terverifikasi' : 'Info keamanan tidak lengkap') + ' • ' + (currentUser.email || '');
+
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         if (typeof window.initBalanceRequests === 'function') { window.initBalanceRequests(); }
         if (window.__isAdmin && typeof window.loadAdminCSList === 'function') { window.loadAdminCSList(); }
@@ -3298,6 +3348,10 @@ function unlockApp() {
         // TANPA menunggu currentUser — Firestore offline cache tidak butuh
         // koneksi aktif untuk baca data yang sudah pernah disinkron sebelumnya.
         document.getElementById('user-name').textContent = 'Mode Offline'; 
+        const setProfNameOff = document.getElementById('settings-profile-name');
+        const setProfSubOff = document.getElementById('settings-profile-sub');
+        if (setProfNameOff) setProfNameOff.textContent = 'Mode Offline';
+        if (setProfSubOff) setProfSubOff.textContent = 'Menunggu koneksi internet';
         const cachedUid = localStorage.getItem('last_uid_rhn'); 
         if (cachedUid) { listenTransactions(cachedUid); }
         // Isi ulang form "Tambah Transaksi" (tombol tipe + dropdown kategori)
@@ -7179,6 +7233,47 @@ function updateOfflineBanner() {
     if (banner) banner.style.display = 'none';
 }
 document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+
+// Cari cepat di halaman Pengaturan: menyaring baris (.set-item) berdasarkan
+// judul/label & sub-teksnya, lalu menyembunyikan grup yang jadi kosong.
+window.filterSettingsSearch = function (q) {
+    const page = document.getElementById('page-pengaturan');
+    if (!page) return;
+    const query = (q || '').trim().toLowerCase();
+    const groups = page.querySelectorAll('.set-group');
+    groups.forEach(function (group) {
+        let anyVisible = false;
+        const items = group.querySelectorAll('.set-item');
+        items.forEach(function (item) {
+            const text = item.textContent.toLowerCase();
+            const match = !query || text.indexOf(query) !== -1;
+            item.classList.toggle('set-hidden-by-search', !match);
+            if (match) anyVisible = true;
+        });
+        group.classList.toggle('set-hidden-by-search', !anyVisible);
+    });
+};
+
+// Kartu "RHN Capital OS" di atas halaman Pengaturan: menampilkan info versi
+// aplikasi (data sama seperti di grup "DETAIL APLIKASI") lewat popup.
+window.showAppVersionInfo = function () {
+    const emailInfo = (typeof currentUser !== 'undefined' && currentUser && currentUser.email) ? currentUser.email : '-';
+    if (typeof Swal !== 'undefined' && Swal.fire) {
+        Swal.fire({
+            title: 'RHN Capital OS',
+            html: '<div style="text-align:left; font-size:13px; line-height:1.7;">' +
+                  '<b>Versi Sistem:</b> v4.7 (Transfer Perantara)<br>' +
+                  '<b>Akun:</b> ' + emailInfo + '<br>' +
+                  '<b>Status:</b> Platform Arus Keuangan aman, cepat, dan terenkripsi.' +
+                  '</div>',
+            icon: 'info',
+            confirmButtonText: 'Tutup',
+            background: 'var(--card)', color: 'var(--text)'
+        });
+    } else {
+        alert('RHN Capital OS v4.7 (Transfer Perantara)');
+    }
+};
 
 window.addEventListener('offline', function () {
     updateOfflineBanner();
