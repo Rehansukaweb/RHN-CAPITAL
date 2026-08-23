@@ -3202,7 +3202,7 @@ onAuthStateChanged(auth, async user => {
         const todayStr = nowISO().slice(0,10);
         const nowTimeStr = new Date().toTimeString().slice(0,5);
         
-        recSnap.forEach(async (d) => {
+        recSnap.forEach((d) => {
             let rData = d.data();
             let shouldRun = false;
             
@@ -3210,16 +3210,22 @@ onAuthStateChanged(auth, async user => {
             else if (rData.nextRun === todayStr) { if (!rData.runTime || nowTimeStr >= rData.runTime) { shouldRun = true; } }
 
             if (shouldRun) {
-                await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-                   type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo || null, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
-                });
-                
-                let nextD = new Date();
-                if(rData.interval === 'daily') nextD.setDate(nextD.getDate()+1);
-                else if(rData.interval === 'weekly') nextD.setDate(nextD.getDate()+7);
-                else if(rData.interval === 'monthly') nextD.setMonth(nextD.getMonth()+1);
-                
-                await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
+                (async () => {
+                    try {
+                        await addDoc(collection(db, 'users', user.uid, 'transactions'), {
+                           type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo || null, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
+                        });
+
+                        let nextD = new Date();
+                        if(rData.interval === 'daily') nextD.setDate(nextD.getDate()+1);
+                        else if(rData.interval === 'weekly') nextD.setDate(nextD.getDate()+7);
+                        else if(rData.interval === 'monthly') nextD.setMonth(nextD.getMonth()+1);
+
+                        await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
+                    } catch (recErr) {
+                        console.error('Gagal menjalankan transaksi rutin:', recErr);
+                    }
+                })();
             }
         });
     } catch(err) { console.error("Gagal memproses transaksi rutin", err); }
