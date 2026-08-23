@@ -786,20 +786,11 @@ body.global-privacy #xau-idr-gr {
   // makanya layar terasa "macet diam" tanpa pesan apapun. Kode ini nangkep
   // error itu dan nampilinnya sebagai pita merah kecil di bawah layar, supaya
   // langsung ketahuan apa yang sebenarnya gagal.
+  // CATATAN: banner merah di layar sudah DIHILANGKAN TOTAL (sama seperti versi
+  // sebelumnya) — error tetap dicatat diam-diam di console browser untuk
+  // keperluan debug, tapi tidak lagi muncul menutupi tampilan aplikasi.
   window.__errBanner = function(msg) {
-    try {
-      let b = document.getElementById('js-err-banner');
-      if (!b) {
-        b = document.createElement('div');
-        b.id = 'js-err-banner';
-        b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:999999;background:#7f1d1d;color:#fff;font-size:11px;font-family:monospace;padding:10px 12px;max-height:35vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -2px 10px rgba(0,0,0,0.4);';
-        document.body.appendChild(b);
-      }
-      const line = document.createElement('div');
-      line.style.cssText = 'border-top:1px solid rgba(255,255,255,0.25);padding-top:6px;margin-top:6px;';
-      line.textContent = msg;
-      b.appendChild(line);
-    } catch (e) {}
+    try { console.error(msg); } catch (e) {}
   };
   window.addEventListener('error', function (e) {
     window.__errBanner('ERROR: ' + (e.message || 'unknown') + ' @ ' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + e.lineno);
@@ -2344,6 +2335,7 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
 
     try {
         const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per transaksi)
+        const commitPromises = [];
         for (let i = 0; i < txList.length; i += CHUNK_SIZE) {
             const chunk = txList.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -2356,8 +2348,10 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
                 const oldRef = doc(db, 'users', currentUser.uid, 'transactions', t.id);
                 batch.delete(oldRef);
             });
-            await batch.commit();
+            commitPromises.push(batch.commit());
         }
+        // Semua batch dikirim sekaligus paralel supaya transfer jumlah besar instan.
+        await Promise.all(commitPromises);
         Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 transaksi dipindahkan.' : `${txList.length} transaksi dipindahkan.`, background:'var(--card)', color:'var(--text)'});
     } catch(e) {
         Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal: " + e.message, background:'var(--card)', color:'var(--text)'});
@@ -2923,7 +2917,7 @@ window.doAuth = async function() {
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 100, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -3433,8 +3427,9 @@ window.loadAllUsersData = async function() {
 
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
     let userInfos = {};
-    
-    for (let uid of uniqueUids) {
+
+    // Ambil profil semua uid secara PARALEL (bukan satu-satu berurutan) supaya instan.
+    await Promise.all(uniqueUids.map(async (uid) => {
         if (uid === currentUser.uid) {
             userInfos[uid] = {
                 email: currentUser.email,
@@ -3465,7 +3460,7 @@ window.loadAllUsersData = async function() {
                 };
             }
         }
-    }
+    }));
 
     // ======================================================================
     // Ambil SEMUA profil user terdaftar di koleksi 'users' (termasuk yang
@@ -3588,7 +3583,7 @@ window.loadAllUsersData = async function() {
         title: 'Data Ditemukan', 
         text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, 
         background: 'var(--card)', color: 'var(--text)', 
-        timer: 1500,
+        timer: 100,
         showConfirmButton: false
     });
 
@@ -4217,9 +4212,17 @@ window.adminRestoreTx = async function(uid, id, reopenMode) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         await updateDoc(doc(db, 'users', uid, 'transactions', id), { isDeleted: false });
-        await window.loadAllUsersData();
-        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
-        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
+        // Update lokal langsung (tanpa reload total database) supaya instan.
+        const arr = adminGroupedTrash[uid] || [];
+        const idx = arr.findIndex(x => x.id === id);
+        if (idx > -1) {
+            const t = { ...arr[idx], isDeleted: false };
+            arr.splice(idx, 1);
+            if (!adminGrouped[uid]) adminGrouped[uid] = [];
+            adminGrouped[uid].unshift(t);
+        }
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 100); } else { window.showAdminTrash(uid); }
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4240,9 +4243,11 @@ window.adminHardDeleteTx = async function(uid, id, reopenMode) {
         payload.__archivedBy = currentUser.email;
         await setDoc(doc(db, 'archived_deleted', uid + '_' + id), payload);
         await deleteDoc(doc(db, 'users', uid, 'transactions', id));
-        await window.loadAllUsersData();
-        Swal.fire({icon:'success', title:'Dipindah ke Arsip', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
-        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
+        // Update lokal langsung (tanpa reload total database) supaya instan.
+        const idx = arr.findIndex(x => x.id === id);
+        if (idx > -1) arr.splice(idx, 1);
+        Swal.fire({icon:'success', title:'Dipindah ke Arsip', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 100); } else { window.showAdminTrash(uid); }
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4256,6 +4261,7 @@ window.adminEmptyTrash = async function(uid) {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
+        const commitPromises = [];
         for (let i = 0; i < arr.length; i += CHUNK_SIZE) {
             const chunk = arr.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4269,10 +4275,12 @@ window.adminEmptyTrash = async function(uid) {
                 batch.set(doc(db, 'archived_deleted', uid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', uid, 'transactions', t.id));
             });
-            await batch.commit();
+            commitPromises.push(batch.commit());
         }
-        await window.loadAllUsersData();
-        Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        await Promise.all(commitPromises);
+        // Update lokal langsung (tanpa reload total database) supaya instan.
+        adminGroupedTrash[uid] = [];
+        Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
         window.closeAdminDetail();
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
@@ -4323,6 +4331,7 @@ window.adminEmptyAllTrash = async function() {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
+        const commitPromises = [];
         for (let i = 0; i < allTrash.length; i += CHUNK_SIZE) {
             const chunk = allTrash.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4338,10 +4347,12 @@ window.adminEmptyAllTrash = async function() {
                 batch.set(doc(db, 'archived_deleted', ownerUid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', ownerUid, 'transactions', t.id));
             });
-            await batch.commit();
+            commitPromises.push(batch.commit());
         }
-        await window.loadAllUsersData();
-        Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+        await Promise.all(commitPromises);
+        // Update lokal langsung (tanpa reload total database) supaya instan.
+        uids.forEach(uid => { adminGroupedTrash[uid] = []; });
+        Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4398,8 +4409,8 @@ window.adminRestoreFromArchive = async function(archiveId) {
         payload.isDeleted = false;
         await setDoc(doc(db, 'users', ownerUid, 'transactions', originalId), payload);
         await deleteDoc(ref);
-        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
-        setTimeout(() => window.showAdminArchive(), 1300);
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 100);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4411,8 +4422,8 @@ window.adminEraseArchive = async function(archiveId) {
     Swal.fire({title: 'Memusnahkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         await deleteDoc(doc(db, 'archived_deleted', archiveId));
-        Swal.fire({icon:'success', title:'Dimusnahkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
-        setTimeout(() => window.showAdminArchive(), 1100);
+        Swal.fire({icon:'success', title:'Dimusnahkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 100);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4426,13 +4437,15 @@ window.adminEraseAllArchive = async function() {
         const snap = await getDocs(collection(db, 'archived_deleted'));
         const docs = snap.docs;
         const CHUNK_SIZE = 400;
+        const commitPromises = [];
         for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
             const chunk = docs.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
             chunk.forEach(d => batch.delete(d.ref));
-            await batch.commit();
+            commitPromises.push(batch.commit());
         }
-        Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        await Promise.all(commitPromises);
+        Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -5021,7 +5034,7 @@ window.approveBalanceRequest = async function(reqId) {
     // Respon instan: langsung tampilkan hasil ke approver tanpa nunggu round-trip
     // server, lalu proses batch commit di background. Kalau ternyata gagal,
     // baru munculkan error menyusul.
-    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(nominal) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(nominal) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
     (async () => {
         try {
             const nowD = new Date().toISOString();
@@ -5337,12 +5350,14 @@ async function deleteCollectionInChunks(colRef) {
     const snap = await getDocs(colRef);
     const docs = snap.docs;
     const CHUNK_SIZE = 400;
+    const commitPromises = [];
     for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
         const chunk = docs.slice(i, i + CHUNK_SIZE);
         const batch = writeBatch(db);
         chunk.forEach(d => batch.delete(d.ref));
-        await batch.commit();
+        commitPromises.push(batch.commit());
     }
+    await Promise.all(commitPromises);
     return docs.length;
 }
 
@@ -5414,7 +5429,7 @@ window.confirmDeleteUser = async function(uid) {
         delete adminGrouped[uid];
         delete adminUserLabels[uid];
 
-        Swal.fire({ icon: 'success', title: 'Akun Terhapus!', text: 'Seluruh data akun berhasil dihapus permanen.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Akun Terhapus!', text: 'Seluruh data akun berhasil dihapus permanen.', background: 'var(--card)', color: 'var(--text)', timer: 100, showConfirmButton: false });
 
         closeAdminDetail();
         await loadAllUsersData();
@@ -5456,7 +5471,7 @@ window.delTx = function(id) {
         if (result.isConfirmed) { 
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true });
-                Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:800}); 
+                Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:100}); 
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         } 
     }); 
@@ -5606,15 +5621,17 @@ window.execBatchDelete = async function() {
             try {
                 const ids = Array.from(checkboxes).map(cb => cb.value);
                 const CHUNK_SIZE = 400;
+                const commitPromises = [];
                 for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
                     const chunk = ids.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(id => batch.update(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true }));
-                    await batch.commit();
+                    commitPromises.push(batch.commit());
                 }
+                await Promise.all(commitPromises);
                 batchMode = false;
                 document.getElementById('btn-batch-del').style.display = 'none';
-                Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
+                Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 100, showConfirmButton: false});
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         } 
     });
@@ -5647,13 +5664,15 @@ window.emptyRecycleBin = async function() {
             Swal.fire({title: 'Memusnahkan Data...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 const CHUNK_SIZE = 400;
+                const commitPromises = [];
                 for (let i = 0; i < deletedTxs.length; i += CHUNK_SIZE) {
                     const chunk = deletedTxs.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(t => batch.delete(doc(db, 'users', currentUser.uid, 'transactions', t.id)));
-                    await batch.commit();
+                    commitPromises.push(batch.commit());
                 }
-                Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+                await Promise.all(commitPromises);
+                Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
             } catch(e) {
                 Swal.fire('Error', e.message, 'error');
             }
@@ -5664,14 +5683,14 @@ window.emptyRecycleBin = async function() {
 window.restoreTx = async function(id) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: false });
-    Swal.fire({icon:'success', title:'Dipulihkan', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+    Swal.fire({icon:'success', title:'Dipulihkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
 };
 window.hardDeleteTx = async function(id) {
     Swal.fire({ title: 'Hapus Permanen?', text: "Tindakan ini tidak bisa dibatalkan.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', confirmButtonText: 'Ya, Hapus', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
         if(res.isConfirmed) {
             Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', id));
-            Swal.fire({icon:'success', title:'Terhapus Permanen', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+            Swal.fire({icon:'success', title:'Terhapus Permanen', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
         }
     });
 };
@@ -7117,15 +7136,19 @@ window.restoreBackupFile = function(evt) {
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
             let batch = writeBatch(db); let opCount = 0; let total = 0;
+            const commitPromises = [];
             for (const t of items) {
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
                 cleanTx.createdAt = serverTimestamp();
                 const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
                 batch.set(ref, cleanTx);
                 opCount++; total++;
-                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                if (opCount >= 450) { commitPromises.push(batch.commit()); batch = writeBatch(db); opCount = 0; }
             }
-            if (opCount > 0) await batch.commit();
+            if (opCount > 0) commitPromises.push(batch.commit());
+            // Semua batch dikirim SEKALIGUS secara paralel (bukan satu-satu berurutan)
+            // supaya pemulihan data dalam jumlah sangat banyak jadi jauh lebih instan.
+            await Promise.all(commitPromises);
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil dipulihkan.', background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
