@@ -7,7 +7,6 @@
 
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
-<link rel="manifest" href="manifest.json">
 
 <style>
 /* ==========================================================================
@@ -81,25 +80,23 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .submit-btn, .export-btn, .edit-btn-recent, .del-btn-recent, .w-card,
 .recent-item, .m-card, .nav-ext-btn, .status-pill, .calc-curr-item,
 .cat-chip, .calc-btn, .swap-btn, .set-action, .admin-user-card, .auth-tab,
-.admin-detail-btn, .f-input-dark, .set-select, .swal2-input, .swal2-select,
-.cs-back, .cs-msg-del, .cs-msg-reply, .cs-list-item, .req-btn {
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.18s ease, border-color 0.18s ease,
-              box-shadow 0.18s ease, opacity 0.18s ease, color 0.18s ease !important;
+.admin-detail-btn {
+  transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.08s ease, border-color 0.08s ease,
+              box-shadow 0.08s ease, opacity 0.08s ease, color 0.06s ease !important;
   will-change: transform;
 }
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
 .edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active,
 .cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
-.admin-detail-btn:active, .f-input-dark:active, .set-select:active, .swal2-input:active, .swal2-select:active,
-.cs-back:active, .cs-msg-del:active, .cs-msg-reply:active, .cs-list-item:active, .req-btn:active {
-  transform: scale(0.96);
-  transition-duration: 0.15s !important;
+.admin-detail-btn:active {
+  transform: scale(0.94);
+  transition-duration: 0.03s !important;
 }
 .w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
   transform: scale(0.97);
-  transition-duration: 0.15s !important;
+  transition-duration: 0.03s !important;
 }
 /* Feedback hover halus untuk perangkat dengan mouse (tidak mengganggu di HP/tablet) */
 @media (hover: hover) and (pointer: fine) {
@@ -113,19 +110,15 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
-.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.06s cubic-bezier(0.22, 1, 0.36, 1); }
+.nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-/* Dipercepat: animasi kartu/halaman yang lama (0.25s) bikin ganti tombol berkali-kali
-   dengan cepat (mis. Bulanan<->Mingguan) terasa "nyangkut/ngedet" karena animasi lama
-   selalu numpuk ulang tiap tap. Durasi dipangkas biar hasilnya terasa instan tapi masih
-   ada sedikit polish visual (tidak patah/kaku). */
-.m-card, .w-card { animation: cardIn 0.08s ease-out; }
-@keyframes cardIn { from { opacity: 0; } to { opacity: 1; } }
+.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Transisi antar halaman dipercepat agar respon tombol terasa instan */
-.page.active { animation: pageIn 0.08s ease-out; will-change: opacity; }
-@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+/* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
+.page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
+@keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
 
 /* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -387,16 +380,6 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
 
-/* FIX KEYBOARD PIN/ANGKA: type="password" di iOS/Safari MENGABAIKAN inputmode="numeric"
-   dan tetap memunculkan keyboard QWERTY penuh (huruf) walau field-nya untuk PIN/angka.
-   Solusinya pakai type="tel" (dijamin keyboard numerik di semua HP) + class ini untuk
-   tetap menyamarkan tampilan digit seperti password (bulat-bulat), tanpa mengubah logika
-   value aslinya sama sekali. */
-.pin-mask-input {
-  -webkit-text-security: disc;
-  text-security: disc;
-}
-
 /* INPUT TEXT/NUMBER DI DALAM POPUP (SweetAlert) — radius diperbesar biar nggak kotak banget, senada sama f-input-dark */
 input.swal2-input, textarea.swal2-textarea {
   border-radius: 16px !important;
@@ -419,9 +402,6 @@ select.swal2-input {
   cursor: pointer;
 }
 select.swal2-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); outline: none; }
-select.swal2-select { background: var(--bg2) !important; color: var(--text) !important; border: 1px solid var(--border2) !important; border-radius: 10px !important; font-size: 14px !important; padding: 10px 14px !important; }
-select.swal2-select:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15) !important; outline: none; }
-select.swal2-select option { background-color: var(--bg2); color: var(--text); }
 select.swal2-input option { background-color: var(--bg2); color: var(--text); }
 
 select.f-input-dark {
@@ -695,7 +675,7 @@ body.global-privacy #xau-idr-gr {
 }
 
 #splash-screen.splash-exit {
-  animation: splashSlideUpOut 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+  animation: splashSlideUpOut 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards;
 }
 
 @keyframes splashSlideUpOut {
@@ -744,74 +724,9 @@ body.global-privacy #xau-idr-gr {
   10% { opacity: 1; }
   100% { width: 150px; opacity: 0; }
 }
-/* Tampilan halaman Pengaturan diubah menyerupai daftar Pengaturan Android (list
-   bersih dengan garis pembatas tipis + panah), khusus untuk #page-pengaturan saja —
-   halaman lain (dompet, dsb) yang memakai class .set-* tetap seperti semula. */
-#page-pengaturan { padding-top: 2px; padding-bottom: 90px; }
-#page-pengaturan .set-page-title { font-size: 30px; font-weight: 700; color: var(--text); padding: 6px 4px 18px; letter-spacing: -0.4px; }
-#page-pengaturan .set-profile-card, #page-pengaturan .set-device-card { display: flex; align-items: center; gap: 14px; background: var(--card); border-radius: 20px; padding: 14px 16px; margin-bottom: 12px; cursor: pointer; }
-#page-pengaturan .set-profile-avatar { width: 46px; height: 46px; border-radius: 50%; background: #1E9E8F; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; color: #fff; flex-shrink: 0; text-transform: uppercase; }
-#page-pengaturan .set-device-icon { width: 34px; height: 34px; border-radius: 10px; background: #2FA84F; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-#page-pengaturan .set-profile-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
-#page-pengaturan .set-profile-sub { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
-#page-pengaturan .set-device-name { font-size: 14.5px; font-weight: 600; color: var(--text); }
-#page-pengaturan .set-chev { margin-left: auto; color: var(--text3); font-size: 19px; flex-shrink: 0; }
-#page-pengaturan .set-group { background: var(--card); border: none; box-shadow: none; padding: 0; margin-bottom: 18px; border-radius: 20px; overflow: hidden; }
-#page-pengaturan .set-title { background: none; border: none; padding: 14px 16px 6px; margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; color: var(--text3); text-transform: uppercase; }
-#page-pengaturan .set-item { background: none; border-radius: 0; padding: 13px 16px 13px 64px; border-bottom: 1px solid var(--border); position: relative; min-height: 34px; }
-#page-pengaturan .set-item::before { content: var(--icon, '⚙️'); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 10px; background: var(--icon-bg, var(--bg3)); display: flex; align-items: center; justify-content: center; font-size: 15px; line-height: 1; flex-shrink: 0; }
-#page-pengaturan .set-item:last-child { border-bottom: none; }
-#page-pengaturan .set-label { font-size: 14.5px; font-weight: 600; color: var(--text); }
-#page-pengaturan .set-sub { font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.35; }
-#page-pengaturan .set-action { background: transparent !important; border: none !important; box-shadow: none !important; color: var(--gold) !important; font-size: 11.5px; font-weight: 700; padding: 6px 18px 6px 6px !important; white-space: nowrap; position: relative; }
-#page-pengaturan .set-action.danger { color: var(--red2) !important; }
-#page-pengaturan .set-action::after { content: '›'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 400; color: var(--text3); }
-#page-pengaturan .set-item.no-icon { padding-left: 16px; }
-#page-pengaturan .set-item.no-icon::before { content: none; }
-#page-pengaturan .set-select { background: var(--bg2) !important; border: 1px solid var(--border2) !important; color: var(--text) !important; border-radius: 9px !important; font-size: 12px !important; padding: 9px 12px !important; box-shadow: none !important; }
-#page-pengaturan .set-item.set-hidden-by-search { display: none !important; }
-#page-pengaturan .set-group.set-hidden-by-search { display: none !important; }
-#page-pengaturan .set-search-wrap { position: sticky; bottom: 10px; margin: 20px 4px 4px; z-index: 5; }
-#page-pengaturan .set-search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 999px; padding: 12px 16px; box-shadow: var(--shadow-float); }
-#page-pengaturan .set-search-bar input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif; }
-#page-pengaturan .set-search-bar input::placeholder { color: var(--text3); }
-#page-pengaturan .set-search-bar svg { flex-shrink: 0; color: var(--text3); }
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script>
-  // JARING PENGAMAN ERROR PALING AWAL: kalau ada error JS di manapun (termasuk
-  // modul Firebase gagal load karena tidak ada internet/CDN diblokir), biasanya
-  // error itu cuma nongol di console browser yang TIDAK KELIHATAN di HP —
-  // makanya layar terasa "macet diam" tanpa pesan apapun. Kode ini nangkep
-  // error itu dan nampilinnya sebagai pita merah kecil di bawah layar, supaya
-  // langsung ketahuan apa yang sebenarnya gagal.
-  // CATATAN: banner merah di layar sudah DIHILANGKAN TOTAL (sama seperti versi
-  // sebelumnya) — error tetap dicatat diam-diam di console browser untuk
-  // keperluan debug, tapi tidak lagi muncul menutupi tampilan aplikasi.
-  window.__errBanner = function(msg) {
-    try { console.error(msg); } catch (e) {}
-  };
-  window.addEventListener('error', function (e) {
-    window.__errBanner('ERROR: ' + (e.message || 'unknown') + ' @ ' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + e.lineno);
-  });
-  window.addEventListener('unhandledrejection', function (e) {
-    const r = e.reason;
-    window.__errBanner('PROMISE ERROR: ' + (r && r.message ? r.message : String(r)));
-  });
-  // JARING PENGAMAN PALING AWAL: dijalankan sebelum script CDN lain,
-  // supaya splash screen TETAP hilang meski library CDN gagal dimuat
-  // (mis. tidak ada internet), tidak peduli apapun yang error di skrip lain.
-  window.addEventListener('DOMContentLoaded', function () {
-    setTimeout(function () {
-      const splash = document.getElementById('splash-screen');
-      if (splash && splash.style.display !== 'none') {
-        splash.classList.add('splash-exit');
-        setTimeout(function () { splash.style.display = 'none'; }, 600);
-      }
-    }, 2500);
-  });
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -823,14 +738,10 @@ body.global-privacy #xau-idr-gr {
 
 <script>
   // FIX GLOBAL: Mencegah semua pop-up merusak scale/ngedet
-  // Dibungkus try-catch: kalau CDN SweetAlert2 gagal dimuat (mis. offline),
-  // error di sini TIDAK BOLEH menghentikan skrip splash-hide di bawah ini.
-  try {
-    const OriginalSwal = window.Swal;
-    window.Swal = OriginalSwal.mixin({
-      heightAuto: false
-    });
-  } catch (e) {}
+  const OriginalSwal = window.Swal;
+  window.Swal = OriginalSwal.mixin({
+    heightAuto: false
+  });
 
   window.addEventListener('DOMContentLoaded', function() {
     // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
@@ -838,9 +749,9 @@ body.global-privacy #xau-idr-gr {
       const splash = document.getElementById('splash-screen');
       if (splash) {
         splash.classList.add('splash-exit');
-        setTimeout(() => { splash.style.display = 'none'; }, 600); // 600ms tunggu animasi kelar
+        setTimeout(() => { splash.style.display = 'none'; }, 800); // 800ms tunggu animasi kelar
       }
-    }, 1500); // Waktu tampil standar 1.5 detik
+    }, 2500); // Waktu tampil 2.5 detik
     // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
   });
 </script>
@@ -874,7 +785,7 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
-    <div class="form-row" id="field-umur" style="display:none"><input type="text" id="auth-umur" class="f-input-dark" placeholder="Umur" inputmode="numeric" pattern="[0-9]*" maxlength="3" oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
+    <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120"></div>
     <div class="form-row" id="field-gender" style="display:none">
       <select id="auth-gender" class="f-input-dark">
         <option value="">Pilih Jenis Kelamin</option>
@@ -905,7 +816,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="tel" id="app-pin" class="f-input-dark pin-mask-input" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="6" placeholder="••••••" autofocus>
+       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -1420,27 +1331,7 @@ body.global-privacy #xau-idr-gr {
 </div>
 
 <div id="page-pengaturan" class="page">
-  <div class="set-page-title">Pengaturan</div>
-
-  <div class="set-profile-card" onclick="switchPage('wallet')">
-    <div class="set-profile-avatar" id="settings-profile-avatar">?</div>
-    <div style="flex:1; min-width:0;">
-      <div class="set-profile-name" id="settings-profile-name">Memuat...</div>
-      <div class="set-profile-sub" id="settings-profile-sub">Akun &amp; keamanan</div>
-    </div>
-    <div class="set-chev">›</div>
-  </div>
-
-  <div class="set-device-card" onclick="window.showAppVersionInfo()">
-    <div class="set-device-icon">📱</div>
-    <div style="flex:1; min-width:0;">
-      <div class="set-device-name">RHN Capital OS</div>
-      <div class="set-profile-sub">v4.7 (Transfer Perantara)</div>
-    </div>
-    <div class="set-chev">›</div>
-  </div>
-
-  <div class="set-group" style="--icon:'💳'; --icon-bg:var(--gold);">
+  <div class="set-group">
     <div class="set-title">💳 DOMPET SAYA</div>
     <div class="set-item">
       <div>
@@ -1450,7 +1341,7 @@ body.global-privacy #xau-idr-gr {
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('wallet')">💳 BUKA DOMPET</button>
     </div>
   </div>
-  <div class="set-group" style="--icon:'🗂️'; --icon-bg:#8B5CF6;">
+  <div class="set-group">
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
     <div class="set-item">
       <div>
@@ -1461,7 +1352,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'📊'; --icon-bg:var(--green2);">
+  <div class="set-group">
     <div class="set-title">📊 ANGGARAN BULANAN (BUDGETING)</div>
     <div class="set-item">
         <div>
@@ -1472,7 +1363,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⏱️'; --icon-bg:var(--blue);">
+  <div class="set-group">
     <div class="set-title">⏱️ MANAJEMEN TRANSAKSI RUTIN</div>
     <div class="set-item">
       <div>
@@ -1483,7 +1374,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'🗑️'; --icon-bg:var(--red2);">
+  <div class="set-group">
     <div class="set-title">🗑️ TEMPAT SAMPAH & RECOVERY</div>
     <div class="set-item">
         <div>
@@ -1494,8 +1385,8 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group" id="admin-settings-group" style="--icon:'👑'; --icon-bg:var(--gold); display:none; border-color: var(--gold);">
-    <div class="set-title">👑 KONTROL ADMIN — SEMUA AKUN</div>
+  <div class="set-group" id="admin-settings-group" style="display:none; border-color: var(--gold);">
+    <div class="set-title" style="color: var(--gold);">👑 KONTROL ADMIN — SEMUA AKUN</div>
     <div class="set-item">
       <div>
         <div class="set-label">Lihat Semua Akun &amp; Isi Dompet</div>
@@ -1503,14 +1394,14 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('admin')">BUKA PANEL</button>
     </div>
-    <div class="set-item" style="--icon:'🗑️'; --icon-bg:var(--red2);">
+    <div class="set-item">
       <div>
         <div class="set-label">Sampah Semua User</div>
         <div class="set-sub">Lihat, pulihkan, atau hapus permanen sampah milik seluruh user</div>
       </div>
       <button class="set-action" style="background:var(--red2); color:#fff; border:none;" onclick="showGlobalTrash()">BUKA SAMPAH</button>
     </div>
-    <div class="set-item" style="--icon:'📦'; --icon-bg:var(--blue);">
+    <div class="set-item">
       <div>
         <div class="set-label">Arsip Terhapus Permanen</div>
         <div class="set-sub">Data yang sudah dimusnahkan dari sampah tetap tersimpan di sini &amp; masih bisa dipulihkan ke user</div>
@@ -1519,7 +1410,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'🔒'; --icon-bg:#F59E0B;">
+  <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
       <div>
@@ -1528,7 +1419,7 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="reqResetPasswordViaSettings()">KIRIM LINK</button>
     </div>
-    <div class="set-item" style="--icon:'🔢'; --icon-bg:#F59E0B;">
+    <div class="set-item">
       <div>
         <div class="set-label">Ubah PIN Keamanan</div>
         <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
@@ -1537,7 +1428,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚡'; --icon-bg:var(--gold);">
+  <div class="set-group">
     <div class="set-title">⚡ PREFERENSI BAWAAN FORM</div>
     <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah transaksi setiap aplikasi dibuka.</div>
     <div class="set-item">
@@ -1562,12 +1453,12 @@ body.global-privacy #xau-idr-gr {
         <option value="Bank">Bank</option>
       </select>
     </div>
-    <div class="set-item no-icon" style="justify-content: flex-end; padding-top: 16px;">
+    <div class="set-item" style="justify-content: flex-end; padding-top: 16px;">
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="savePreferences()">SIMPAN PREFERENSI</button>
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚙️'; --icon-bg:#64748B;">
+  <div class="set-group">
     <div class="set-title">⚙️ 7 FITUR FINANSIAL & SISTEM TAMBAHAN</div>
     <div class="set-item">
       <div>
@@ -1651,7 +1542,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
   
-  <div class="set-group" style="--icon:'🛡️'; --icon-bg:#14B8A6;">
+  <div class="set-group">
     <div class="set-title">🛡️ BACKUP & PEMULIHAN DATA</div>
     <div class="set-item">
       <div>
@@ -1687,7 +1578,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'💾'; --icon-bg:#2563EB;">
+  <div class="set-group">
     <div class="set-title">💾 MANAJEMEN DATA</div>
     <div class="set-item">
       <div>
@@ -1705,7 +1596,7 @@ body.global-privacy #xau-idr-gr {
     </div>
   </div>
 
-  <div class="set-group" style="--icon:'⚙️'; --icon-bg:#6B7280;">
+  <div class="set-group">
     <div class="set-title">ℹ️ DETAIL APLIKASI</div>
     <div class="set-item">
       <div>
@@ -1719,13 +1610,6 @@ body.global-privacy #xau-idr-gr {
         <div class="set-sub">Perbaiki jika aplikasi terasa berat</div>
       </div>
       <button class="set-action danger" onclick="clearLocalCache()">BERSIHKAN</button>
-    </div>
-  </div>
-
-  <div class="set-search-wrap">
-    <div class="set-search-bar">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" id="settings-search-input" placeholder="Cari" oninput="window.filterSettingsSearch(this.value)">
     </div>
   </div>
 
@@ -1756,20 +1640,10 @@ body.global-privacy #xau-idr-gr {
       if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
 
       const pinEl = document.getElementById('app-pin');
-      if (!pinEl || document.getElementById('pin-screen').style.display === 'none') return;
-
-      // FIX PENTING: kalau user LAGI aktif ngetik di kolom PIN (sudah fokus di situ),
-      // JANGAN paksa focus()/click() lagi. Sebelumnya interval ini tetap nge-klik
-      // input tiap 200ms walau user sedang mengetik — di sebagian HP Android, klik
-      // sintetis ini bikin keyboard/IME sempat "kedip" pas user baru selesai ketik
-      // digit terakhir, sehingga event input untuk digit ke-6 tidak konsisten
-      // kepick oleh listener yang mengecek panjang PIN, akibatnya layar terlihat
-      // "macet" diam padahal PIN sudah lengkap diketik. Dengan skip ini, refocus
-      // paksa hanya berlaku saat kolom PIN BELUM difokus (misal pas pertama kali
-      // layar muncul), tidak lagi mengganggu proses mengetik yang sedang berjalan.
-      if (document.activeElement === pinEl) return;
-
-      pinEl.focus();
+      if (pinEl && document.getElementById('pin-screen').style.display !== 'none') {
+          pinEl.focus();
+          try { pinEl.click(); } catch(e){}
+      }
   };
 
   if (lastUid) {
@@ -2103,7 +1977,7 @@ window.promptTransfer = async function(txId) {
 
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer 1 Transaksi',
-        html: `<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">`,
+        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2175,7 +2049,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Jumlah 1" value="${t.amount}"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="number" placeholder="Jumlah 1" value="${t.amount}"></div>
               </div>
             </div>
 
@@ -2191,7 +2065,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Jumlah 2" value="0"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="number" placeholder="Jumlah 2" value="0"></div>
               </div>
             </div>
 
@@ -2268,7 +2142,7 @@ window.promptTransferAll = async function() {
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer Semua Riwayat',
         html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              `<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">`,
+              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2335,7 +2209,6 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
 
     try {
         const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per transaksi)
-        const commitPromises = [];
         for (let i = 0; i < txList.length; i += CHUNK_SIZE) {
             const chunk = txList.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -2348,10 +2221,8 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
                 const oldRef = doc(db, 'users', currentUser.uid, 'transactions', t.id);
                 batch.delete(oldRef);
             });
-            commitPromises.push(batch.commit());
+            await batch.commit();
         }
-        // Semua batch dikirim sekaligus paralel supaya transfer jumlah besar instan.
-        await Promise.all(commitPromises);
         Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 transaksi dipindahkan.' : `${txList.length} transaksi dipindahkan.`, background:'var(--card)', color:'var(--text)'});
     } catch(e) {
         Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal: " + e.message, background:'var(--card)', color:'var(--text)'});
@@ -2423,18 +2294,18 @@ setInterval(fetchUSDRate, 300000);
 
 // Harga XAU/USD realtime tanpa spread — diambil langsung dari harga spot emas
 // (mid price, bukan produk tokenized/berjangka yang punya selisih bid-ask),
-// bergerak tiap detik dengan simulasi tick di atas harga asli terakhir yang
-// didapat (persis gaya platform broker: anchor asli + gerakan halus per detik),
-// dan tetap "hidup" di Sabtu/Minggu walau pasar forex asli sedang tutup.
-const XAU_PIP_ADJUST = -0.65; // net 6.5 pip lebih rendah dari harga asli (1 pip XAU = $0.10)
-let xauBasePrice = null;   // harga asli terakhir dari feed (sudah + pip adjust)
-let xauDisplayPrice = null; // harga yang tampil, dianimasikan tiap detik
-
-function renderXauPrice(price) {
+// di-polling tiap beberapa detik supaya tetap live.
+function applyXauPrice(newPrice) {
+    if (!newPrice) return;
     const xauRate = document.getElementById('xau-rate-val');
-    if (xauRate) xauRate.textContent = '$' + price.toFixed(2);
+    if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2);
+    const dot = document.getElementById('xau-live-dot');
+    if (dot) {
+        dot.style.background = 'var(--green2)';
+        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
+    }
     if (currentUSDRate > 0) {
-        const idrPriceOz = price * currentUSDRate;
+        const idrPriceOz = newPrice * currentUSDRate;
         const idrPriceGram = idrPriceOz / 31.1034768;
         const ozEl = document.getElementById('xau-idr-oz');
         if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
@@ -2442,37 +2313,8 @@ function renderXauPrice(price) {
         if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
     }
 }
-function applyXauPrice(newPrice) {
-    if (!newPrice) return;
-    xauBasePrice = newPrice + XAU_PIP_ADJUST;
-    if (xauDisplayPrice === null) xauDisplayPrice = xauBasePrice;
-    const dot = document.getElementById('xau-live-dot');
-    if (dot) {
-        dot.style.background = 'var(--green2)';
-        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
-    }
-}
-function xauTick() {
-    if (xauBasePrice === null) return;
-    // Gerakan tick realistis ±0.30 sekitar harga asli terakhir, jalan tiap detik —
-    // termasuk saat Sabtu/Minggu walau feed asli tidak update (pasar forex tutup).
-    const jitter = (Math.random() - 0.5) * 0.6;
-    xauDisplayPrice = xauBasePrice + jitter;
-    renderXauPrice(xauDisplayPrice);
-}
 async function fetchLiveXAU() {
-    // Sumber 1: feed bid/ask broker forex (Swissquote) — jenis data yang sama dengan
-    // yang dipakai forex.com/TradingView, jadi harganya paling mendekati.
-    try {
-        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
-        const data = await res.json();
-        const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
-        if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
-        throw new Error('swissquote: harga kosong');
-    } catch (e) {
-        console.warn('XAU sumber 1 (swissquote/forex.com) gagal:', e.message || e);
-    }
-    // Sumber 2: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid).
+    // Sumber 1: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid tanpa spread).
     try {
         const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
         const data = await res.json();
@@ -2480,7 +2322,18 @@ async function fetchLiveXAU() {
         if (price) { applyXauPrice(price); return; }
         throw new Error('goldprice: harga kosong');
     } catch (e) {
-        console.warn('XAU sumber 2 (goldprice.org) gagal:', e.message || e);
+        console.warn('XAU sumber 1 (goldprice.org) gagal:', e.message || e);
+    }
+    // Sumber 2: feed bid/ask broker forex (Swissquote) — sama jenis feed tick realtime yang
+    // dipakai chart broker di TradingView. Bisa gagal kalau browser memblokir CORS.
+    try {
+        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
+        const data = await res.json();
+        const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
+        if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
+        throw new Error('swissquote: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 2 (swissquote) gagal:', e.message || e);
     }
     // Sumber 3: cadangan terakhir.
     try {
@@ -2490,18 +2343,14 @@ async function fetchLiveXAU() {
         throw new Error('gold-api: harga kosong');
     } catch (e) {
         console.warn('XAU sumber 3 (gold-api.com) gagal:', e.message || e);
-        if (xauBasePrice === null) {
-            const dot = document.getElementById('xau-live-dot');
-            if (dot) dot.style.background = 'var(--red2)';
-        }
+        const dot = document.getElementById('xau-live-dot');
+        if (dot) dot.style.background = 'var(--red2)';
     }
 }
 function initLiveXAU() {
     fetchLiveXAU();
     if (window.__xauInterval) clearInterval(window.__xauInterval);
-    window.__xauInterval = setInterval(fetchLiveXAU, 5000);
-    if (window.__xauTickInterval) clearInterval(window.__xauTickInterval);
-    window.__xauTickInterval = setInterval(xauTick, 400);
+    window.__xauInterval = setInterval(fetchLiveXAU, 3000);
 }
 initLiveXAU();
 
@@ -2917,7 +2766,7 @@ window.doAuth = async function() {
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 100, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); Swal.fire({icon: 'success', title: 'Data Diformat!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -2933,10 +2782,7 @@ window.manageCategories = async function() {
         window.userCats[type].forEach((cat, idx) => {
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:8px 12px; background:var(--bg2); border-radius:8px; border:1px solid var(--border);">
                         <span style="font-size:12px; font-weight:600;">${cat}</span>
-                        <div style="display:flex; gap:6px;">
-                            <button onclick="editCategory('${type}', ${idx})" style="color:var(--blue); background:rgba(59,130,246,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">EDIT</button>
-                            <button onclick="delCategory('${type}', ${idx})" style="color:var(--red2); background:rgba(248,113,113,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">HAPUS</button>
-                        </div>
+                        <button onclick="delCategory('${type}', ${idx})" style="color:var(--red2); background:rgba(248,113,113,0.1); border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:10px;">HAPUS</button>
                      </div>`;
         });
     }
@@ -2953,22 +2799,6 @@ window.manageCategories = async function() {
     }).then((res) => {
         if (res.isDenied) { promptAddCategory(type); }
     });
-};
-
-window.editCategory = async function(type, idx) {
-    const currentName = window.userCats[type][idx];
-    const { value: newName } = await Swal.fire({
-        title: 'Edit Nama Kategori', input: 'text', inputValue: currentName,
-        background: 'var(--card)', color: 'var(--text)',
-        showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)',
-        confirmButtonText: 'Simpan', confirmButtonColor: 'var(--gold)'
-    });
-    if (newName && newName.trim() !== '' && newName.trim() !== currentName) {
-        window.userCats[type][idx] = newName.trim();
-        await savePreferencesData();
-        Swal.fire({icon:'success', title:'Kategori Diubah', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
-    }
-    manageCategories();
 };
 
 window.delCategory = async function(type, idx) {
@@ -3071,15 +2901,14 @@ window.saveExtraPrefs = async function() {
 
 window.changePinInApp = async function() { 
     if (!currentUser) return; 
-    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true, class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
-        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
-        window.userCloudPin = newPin; 
-        localStorage.setItem('local_pin_rhn', newPin);
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            window.userCloudPin = newPin; 
+            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
+        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
@@ -3196,7 +3025,7 @@ onAuthStateChanged(auth, async user => {
         const todayStr = nowISO().slice(0,10);
         const nowTimeStr = new Date().toTimeString().slice(0,5);
         
-        recSnap.forEach((d) => {
+        recSnap.forEach(async (d) => {
             let rData = d.data();
             let shouldRun = false;
             
@@ -3204,22 +3033,16 @@ onAuthStateChanged(auth, async user => {
             else if (rData.nextRun === todayStr) { if (!rData.runTime || nowTimeStr >= rData.runTime) { shouldRun = true; } }
 
             if (shouldRun) {
-                (async () => {
-                    try {
-                        await addDoc(collection(db, 'users', user.uid, 'transactions'), {
-                           type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo || null, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
-                        });
-
-                        let nextD = new Date();
-                        if(rData.interval === 'daily') nextD.setDate(nextD.getDate()+1);
-                        else if(rData.interval === 'weekly') nextD.setDate(nextD.getDate()+7);
-                        else if(rData.interval === 'monthly') nextD.setMonth(nextD.getMonth()+1);
-
-                        await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
-                    } catch (recErr) {
-                        console.error('Gagal menjalankan transaksi rutin:', recErr);
-                    }
-                })();
+                await addDoc(collection(db, 'users', user.uid, 'transactions'), {
+                   type: rData.type, amount: rData.amount, category: rData.category, wallet: rData.wallet, walletTo: rData.walletTo || null, note: rData.note + ' (Auto-Rutin)', date: new Date().toISOString(), ownerEmail: user.email, createdAt: serverTimestamp(), isDeleted: false
+                });
+                
+                let nextD = new Date();
+                if(rData.interval === 'daily') nextD.setDate(nextD.getDate()+1);
+                else if(rData.interval === 'weekly') nextD.setDate(nextD.getDate()+7);
+                else if(rData.interval === 'monthly') nextD.setMonth(nextD.getMonth()+1);
+                
+                await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
             }
         });
     } catch(err) { console.error("Gagal memproses transaksi rutin", err); }
@@ -3253,7 +3076,6 @@ onAuthStateChanged(auth, async user => {
 });
 
 window.verifyPin = async function() { 
-  try {
     const pinInput = document.getElementById('app-pin').value; 
     const errEl = document.getElementById('pin-err'); 
     if (pinInput.length < 6) { errEl.textContent = 'PIN harus 6 digit.'; errEl.style.display = 'block'; return; } 
@@ -3261,28 +3083,20 @@ window.verifyPin = async function() {
 
     if (window.pinMode === 'setup') { 
         document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; 
-        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
-        window.userCloudPin = pinInput; 
-        localStorage.setItem('local_pin_rhn', pinInput);
-        window.appUnlocked = true;
-        unlockApp(); 
         try { 
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
+            window.userCloudPin = pinInput; 
+            localStorage.setItem('local_pin_rhn', pinInput);
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
+            window.appUnlocked = true;
+            unlockApp(); 
         } catch(e) { 
-            Swal.fire({position: 'center', icon: 'success', title: 'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', showConfirmButton: false, timer: 1500, background: 'var(--card)', color: 'var(--text)'}); 
+            errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
+            document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
         } 
     } else { 
-        // FIX: sebelumnya kalau uid kosong (sesi login belum siap / kehapus), fungsi
-        // ini cuma "return" diam-diam — layar PIN terlihat macet total tanpa pesan
-        // apapun padahal PIN yang diketik sudah benar. Sekarang kasih pesan jelas +
-        // arahkan ke Ganti Akun supaya user tahu harus login ulang, bukan nebak-nebak.
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
-        if (!uid) {
-            errEl.textContent = 'Sesi login tidak ditemukan. Tekan "Ganti Akun" lalu login ulang.';
-            errEl.style.display = 'block';
-            return;
-        } 
+        if (!uid) return; 
         
         const localPin = localStorage.getItem('local_pin_rhn');
 
@@ -3297,13 +3111,6 @@ window.verifyPin = async function() {
             if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
         } 
     } 
-  } catch (e) {
-    // FIX: kalau ada error tak terduga apapun di proses verifikasi, tetap kasih
-    // pesan ke layar (bukan macet diam) supaya user tahu harus coba lagi.
-    const errEl = document.getElementById('pin-err');
-    if (errEl) { errEl.textContent = 'Gagal memverifikasi PIN, coba lagi.'; errEl.style.display = 'block'; }
-    document.getElementById('app-pin').value = '';
-  }
 };
 
 function unlockApp() { 
@@ -3329,37 +3136,13 @@ function unlockApp() {
             avatarEl.textContent = name.charAt(0).toUpperCase();
         }
 
-        const setProfName = document.getElementById('settings-profile-name');
-        const setProfAva = document.getElementById('settings-profile-avatar');
-        const setProfSub = document.getElementById('settings-profile-sub');
-        if (setProfName) setProfName.textContent = name;
-        if (setProfAva) setProfAva.textContent = name.charAt(0).toUpperCase();
-        if (setProfSub) setProfSub.textContent = (currentUser.emailVerified ? 'Email terverifikasi' : 'Info keamanan tidak lengkap') + ' • ' + (currentUser.email || '');
-
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         if (typeof window.initBalanceRequests === 'function') { window.initBalanceRequests(); }
         if (window.__isAdmin && typeof window.loadAdminCSList === 'function') { window.loadAdminCSList(); }
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
-        // FIX OFFLINE: sesi Firebase Auth belum "hidup" lagi (mis. baru buka
-        // app tanpa internet), tapi data transaksi tetap harus tampil dari
-        // cache HP. Ambil pakai UID terakhir yang tersimpan di localStorage,
-        // TANPA menunggu currentUser — Firestore offline cache tidak butuh
-        // koneksi aktif untuk baca data yang sudah pernah disinkron sebelumnya.
-        document.getElementById('user-name').textContent = 'Mode Offline'; 
-        const setProfNameOff = document.getElementById('settings-profile-name');
-        const setProfSubOff = document.getElementById('settings-profile-sub');
-        if (setProfNameOff) setProfNameOff.textContent = 'Mode Offline';
-        if (setProfSubOff) setProfSubOff.textContent = 'Menunggu koneksi internet';
-        const cachedUid = localStorage.getItem('last_uid_rhn'); 
-        if (cachedUid) { listenTransactions(cachedUid); }
-        // Isi ulang form "Tambah Transaksi" (tombol tipe + dropdown kategori)
-        // supaya tetap bisa dipakai normal walau offline, sama seperti online.
-        setTimeout(() => {
-            if (typeof window.updatePrefCategories === 'function') window.updatePrefCategories(false);
-            if (window.selType) { selType((appPrefs && appPrefs.type) || 'income'); }
-        }, 10);
+        document.getElementById('user-name').textContent = 'Memuat...';
     }
 
     document.getElementById('app-pin').value = ''; 
@@ -3370,20 +3153,19 @@ window.resetAccount = function() { Swal.fire({ title: 'Ganti Akun?', text: "Lu h
 window.resetPinFromLogin = async function() { 
     const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
     if (!uid) { return Swal.fire({icon: 'error', title: 'Belum Login', text: 'Tunggu proses ke server sebentar', background: 'var(--card)', color: 'var(--text)'}); } 
-    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'tel', inputAttributes: { inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true, class: 'pin-mask-input' }, didOpen: () => { const el = Swal.getInput(); if (el) el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g, ''); }); }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
+    const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
-        // Simpan LOCAL dulu (pasti berhasil walau offline), baru sinkron ke cloud.
-        window.userCloudPin = newPin; 
-        localStorage.setItem('local_pin_rhn', newPin);
-        document.getElementById('app-pin').value = ''; 
         try { 
             await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            window.userCloudPin = newPin; 
+            localStorage.setItem('local_pin_rhn', newPin);
             Swal.fire({icon:'success', title:'PIN Berhasil Disimpan!', background:'var(--card)', color:'var(--text)', timer: 1000, showConfirmButton: false}); 
-        } catch(e) { Swal.fire({icon:'success', title:'PIN Tersimpan di HP Ini', text:'Akan disinkron ke cloud saat online kembali.', background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false}); } 
+            document.getElementById('app-pin').value = ''; 
+        } catch(e) { Swal.fire({icon:'error', title:'Gagal mengubah PIN', text: e.message, background:'var(--card)', color:'var(--text)'}); } 
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
-document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { try { if (typeof window.verifyPin === 'function') { window.verifyPin(); } else { window.__errBanner('window.verifyPin belum siap (modul Firebase kemungkinan gagal dimuat, cek koneksi internet).'); } } catch (err) { window.__errBanner('Gagal verifikasi PIN: ' + err.message); } } });
+document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
 
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
@@ -3427,9 +3209,8 @@ window.loadAllUsersData = async function() {
 
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
     let userInfos = {};
-
-    // Ambil profil semua uid secara PARALEL (bukan satu-satu berurutan) supaya instan.
-    await Promise.all(uniqueUids.map(async (uid) => {
+    
+    for (let uid of uniqueUids) {
         if (uid === currentUser.uid) {
             userInfos[uid] = {
                 email: currentUser.email,
@@ -3460,7 +3241,7 @@ window.loadAllUsersData = async function() {
                 };
             }
         }
-    }));
+    }
 
     // ======================================================================
     // Ambil SEMUA profil user terdaftar di koleksi 'users' (termasuk yang
@@ -3583,7 +3364,7 @@ window.loadAllUsersData = async function() {
         title: 'Data Ditemukan', 
         text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, 
         background: 'var(--card)', color: 'var(--text)', 
-        timer: 100,
+        timer: 1500,
         showConfirmButton: false
     });
 
@@ -4212,17 +3993,9 @@ window.adminRestoreTx = async function(uid, id, reopenMode) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         await updateDoc(doc(db, 'users', uid, 'transactions', id), { isDeleted: false });
-        // Update lokal langsung (tanpa reload total database) supaya instan.
-        const arr = adminGroupedTrash[uid] || [];
-        const idx = arr.findIndex(x => x.id === id);
-        if (idx > -1) {
-            const t = { ...arr[idx], isDeleted: false };
-            arr.splice(idx, 1);
-            if (!adminGrouped[uid]) adminGrouped[uid] = [];
-            adminGrouped[uid].unshift(t);
-        }
-        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
-        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 100); } else { window.showAdminTrash(uid); }
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4243,11 +4016,9 @@ window.adminHardDeleteTx = async function(uid, id, reopenMode) {
         payload.__archivedBy = currentUser.email;
         await setDoc(doc(db, 'archived_deleted', uid + '_' + id), payload);
         await deleteDoc(doc(db, 'users', uid, 'transactions', id));
-        // Update lokal langsung (tanpa reload total database) supaya instan.
-        const idx = arr.findIndex(x => x.id === id);
-        if (idx > -1) arr.splice(idx, 1);
-        Swal.fire({icon:'success', title:'Dipindah ke Arsip', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
-        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 100); } else { window.showAdminTrash(uid); }
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Dipindah ke Arsip', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        if (reopenMode === 'global') { setTimeout(() => window.showGlobalTrash(), 1100); } else { window.showAdminTrash(uid); }
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4261,7 +4032,6 @@ window.adminEmptyTrash = async function(uid) {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
-        const commitPromises = [];
         for (let i = 0; i < arr.length; i += CHUNK_SIZE) {
             const chunk = arr.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4275,12 +4045,10 @@ window.adminEmptyTrash = async function(uid) {
                 batch.set(doc(db, 'archived_deleted', uid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', uid, 'transactions', t.id));
             });
-            commitPromises.push(batch.commit());
+            await batch.commit();
         }
-        await Promise.all(commitPromises);
-        // Update lokal langsung (tanpa reload total database) supaya instan.
-        adminGroupedTrash[uid] = [];
-        Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
         window.closeAdminDetail();
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
@@ -4331,7 +4099,6 @@ window.adminEmptyAllTrash = async function() {
     Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const CHUNK_SIZE = 150;
-        const commitPromises = [];
         for (let i = 0; i < allTrash.length; i += CHUNK_SIZE) {
             const chunk = allTrash.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -4347,12 +4114,10 @@ window.adminEmptyAllTrash = async function() {
                 batch.set(doc(db, 'archived_deleted', ownerUid + '_' + t.id), payload);
                 batch.delete(doc(db, 'users', ownerUid, 'transactions', t.id));
             });
-            commitPromises.push(batch.commit());
+            await batch.commit();
         }
-        await Promise.all(commitPromises);
-        // Update lokal langsung (tanpa reload total database) supaya instan.
-        uids.forEach(uid => { adminGroupedTrash[uid] = []; });
-        Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        await window.loadAllUsersData();
+        Swal.fire({icon:'success', title:'Semua Sampah Dikosongkan', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4409,8 +4174,8 @@ window.adminRestoreFromArchive = async function(archiveId) {
         payload.isDeleted = false;
         await setDoc(doc(db, 'users', ownerUid, 'transactions', originalId), payload);
         await deleteDoc(ref);
-        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
-        setTimeout(() => window.showAdminArchive(), 100);
+        Swal.fire({icon:'success', title:'Dipulihkan ke User', background:'var(--card)', color:'var(--text)', timer:1200, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 1300);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4422,8 +4187,8 @@ window.adminEraseArchive = async function(archiveId) {
     Swal.fire({title: 'Memusnahkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         await deleteDoc(doc(db, 'archived_deleted', archiveId));
-        Swal.fire({icon:'success', title:'Dimusnahkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
-        setTimeout(() => window.showAdminArchive(), 100);
+        Swal.fire({icon:'success', title:'Dimusnahkan', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
+        setTimeout(() => window.showAdminArchive(), 1100);
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4437,15 +4202,13 @@ window.adminEraseAllArchive = async function() {
         const snap = await getDocs(collection(db, 'archived_deleted'));
         const docs = snap.docs;
         const CHUNK_SIZE = 400;
-        const commitPromises = [];
         for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
             const chunk = docs.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
             chunk.forEach(d => batch.delete(d.ref));
-            commitPromises.push(batch.commit());
+            await batch.commit();
         }
-        await Promise.all(commitPromises);
-        Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+        Swal.fire({icon:'success', title:'Arsip Bersih Total', background:'var(--card)', color:'var(--text)', timer:1000, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -4557,7 +4320,7 @@ window.promptSendSaldo = async function() {
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
             <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kode Transfer Tujuan (3 Angka)</label>
-            <input id="saldo-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
+            <input id="saldo-target-code" class="swal2-input" placeholder="Contoh: 482" maxlength="3" type="number" style="margin:4px 0 12px; text-align:center; letter-spacing:3px; font-weight:800; width:100%;">
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal Saldo</label>
             <input id="saldo-nominal" class="swal2-input" placeholder="Contoh: 50000" type="text" inputmode="numeric" style="margin:4px 0; width:100%;" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
           </div>
@@ -4772,9 +4535,6 @@ window.showBarcodeRequest = function(rid, amount, note) {
                 if (successText) successText.textContent = `${data.toName || 'Pengirim'} menolak permintaan saldo ini.`;
                 if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
             }
-        }, err => {
-            console.error('Gagal memantau status barcode permintaan saldo:', err);
-            if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
         });
     } catch(e) {}
 };
@@ -4910,10 +4670,6 @@ window.initBalanceRequests = function() {
                 const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 window.__incomingReqs = window.__purgeExpiredReqs(all);
                 window.renderPendingRequests();
-            },
-            err => {
-                console.error('Gagal memuat permintaan saldo masuk:', err);
-                if (window.__unsubIncomingReq) { window.__unsubIncomingReq(); window.__unsubIncomingReq = null; }
             }
         );
         window.__unsubSentReq = onSnapshot(
@@ -4922,10 +4678,6 @@ window.initBalanceRequests = function() {
                 const all = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAtLocal || '').localeCompare(a.createdAtLocal || '')).slice(0, 20);
                 window.__sentReqs = window.__purgeExpiredReqs(all);
                 window.renderSentRequests();
-            },
-            err => {
-                console.error('Gagal memuat permintaan saldo terkirim:', err);
-                if (window.__unsubSentReq) { window.__unsubSentReq(); window.__unsubSentReq = null; }
             }
         );
         window.__reqTimerInterval = setInterval(() => {
@@ -5034,7 +4786,7 @@ window.approveBalanceRequest = async function(reqId) {
     // Respon instan: langsung tampilkan hasil ke approver tanpa nunggu round-trip
     // server, lalu proses batch commit di background. Kalau ternyata gagal,
     // baru munculkan error menyusul.
-    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(nominal) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+    Swal.fire({icon:'success', title:'Permintaan Disetujui! ✅', text: fmtFull(nominal) + ' sedang dikirim ke ' + r.fromName, background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
     (async () => {
         try {
             const nowD = new Date().toISOString();
@@ -5350,14 +5102,12 @@ async function deleteCollectionInChunks(colRef) {
     const snap = await getDocs(colRef);
     const docs = snap.docs;
     const CHUNK_SIZE = 400;
-    const commitPromises = [];
     for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
         const chunk = docs.slice(i, i + CHUNK_SIZE);
         const batch = writeBatch(db);
         chunk.forEach(d => batch.delete(d.ref));
-        commitPromises.push(batch.commit());
+        await batch.commit();
     }
-    await Promise.all(commitPromises);
     return docs.length;
 }
 
@@ -5429,7 +5179,7 @@ window.confirmDeleteUser = async function(uid) {
         delete adminGrouped[uid];
         delete adminUserLabels[uid];
 
-        Swal.fire({ icon: 'success', title: 'Akun Terhapus!', text: 'Seluruh data akun berhasil dihapus permanen.', background: 'var(--card)', color: 'var(--text)', timer: 100, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Akun Terhapus!', text: 'Seluruh data akun berhasil dihapus permanen.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
 
         closeAdminDetail();
         await loadAllUsersData();
@@ -5471,7 +5221,7 @@ window.delTx = function(id) {
         if (result.isConfirmed) { 
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true });
-                Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:100}); 
+                Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:800}); 
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         } 
     }); 
@@ -5541,20 +5291,6 @@ window.addTx = async function() {
   if (curType === 'transfer' && wallet === walletTo) { return Swal.fire({position: 'center', icon: 'warning', title: 'Oops...', text: 'Dompet asal dan tujuan tidak boleh sama!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); }
   
   if (document.activeElement) document.activeElement.blur();
-
-  // Kalau lagi offline, kasih tahu dulu bahwa transaksi akan otomatis
-  // tersimpan/tersinkron begitu koneksi internet nyala lagi.
-  if (!navigator.onLine) {
-      const off = await Swal.fire({
-          icon: 'info', title: 'Kamu Sedang Offline',
-          text: 'Transaksi ini akan tersimpan dan otomatis tersinkron ke server begitu internet kembali online.',
-          confirmButtonText: 'LANJUT SIMPAN', showCancelButton: true, cancelButtonText: 'Batal',
-          confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
-          background: 'var(--card)', color: 'var(--text)'
-      });
-      if (!off.isConfirmed) return;
-  }
-
   const saveBtn = document.getElementById('save-btn'); saveBtn.textContent = 'MENYIMPAN...'; saveBtn.style.opacity = '0.7'; saveBtn.disabled = true;
 
   if (curType === 'expense' && window.userBudgets && window.userBudgets[cat]) {
@@ -5596,7 +5332,6 @@ window.addTx = async function() {
       saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)'; 
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
       let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
-      if (!navigator.onLine) titleMsg = '💾 Tersimpan (Menunggu Sinkron)';
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
       Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
@@ -5621,17 +5356,15 @@ window.execBatchDelete = async function() {
             try {
                 const ids = Array.from(checkboxes).map(cb => cb.value);
                 const CHUNK_SIZE = 400;
-                const commitPromises = [];
                 for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
                     const chunk = ids.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(id => batch.update(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true }));
-                    commitPromises.push(batch.commit());
+                    await batch.commit();
                 }
-                await Promise.all(commitPromises);
                 batchMode = false;
                 document.getElementById('btn-batch-del').style.display = 'none';
-                Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 100, showConfirmButton: false});
+                Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         } 
     });
@@ -5664,15 +5397,13 @@ window.emptyRecycleBin = async function() {
             Swal.fire({title: 'Memusnahkan Data...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 const CHUNK_SIZE = 400;
-                const commitPromises = [];
                 for (let i = 0; i < deletedTxs.length; i += CHUNK_SIZE) {
                     const chunk = deletedTxs.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(t => batch.delete(doc(db, 'users', currentUser.uid, 'transactions', t.id)));
-                    commitPromises.push(batch.commit());
+                    await batch.commit();
                 }
-                await Promise.all(commitPromises);
-                Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+                Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
             } catch(e) {
                 Swal.fire('Error', e.message, 'error');
             }
@@ -5683,14 +5414,14 @@ window.emptyRecycleBin = async function() {
 window.restoreTx = async function(id) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: false });
-    Swal.fire({icon:'success', title:'Dipulihkan', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+    Swal.fire({icon:'success', title:'Dipulihkan', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
 };
 window.hardDeleteTx = async function(id) {
     Swal.fire({ title: 'Hapus Permanen?', text: "Tindakan ini tidak bisa dibatalkan.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', confirmButtonText: 'Ya, Hapus', background: 'var(--card)', color: 'var(--text)'}).then(async (res) => {
         if(res.isConfirmed) {
             Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', id));
-            Swal.fire({icon:'success', title:'Terhapus Permanen', background:'var(--card)', color:'var(--text)', timer:100, showConfirmButton:false});
+            Swal.fire({icon:'success', title:'Terhapus Permanen', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
         }
     });
 };
@@ -5712,7 +5443,7 @@ window.showBudgetSetup = async function() {
         html: existingHtml + `
             <div style="font-size:11px; color:var(--text3); margin-bottom:12px; text-align:left;">Pilih kategori pengeluaran dan set batas maksimalnya.<br><span style="color:var(--red2)">Ketik angka 0 untuk menghapus budget.</span></div>
             <select id="swal-budget-cat" class="f-input-dark" style="width:100%; margin-bottom:12px;">${catOpts}</select>
-            <input id="swal-budget-amt" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" style="width:100%;" placeholder="Nominal Budget (Cth: 1000000)">
+            <input id="swal-budget-amt" type="number" class="f-input-dark" style="width:100%;" placeholder="Nominal Budget (Cth: 1000000)">
         `,
         background: 'var(--card)', color: 'var(--text)',
         showCancelButton: true, confirmButtonText: 'SIMPAN BUDGET', cancelButtonText: 'Batal',
@@ -5787,7 +5518,7 @@ window.addSavingsGoal = async function() {
     const { value: formValues } = await Swal.fire({
         title: 'Buat Target Tabungan',
         html: `<input id="swal-g-name" class="f-input-dark" placeholder="Nama Target (Misal: Beli PC)" style="margin-bottom:12px;">
-               <input id="swal-g-target" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" placeholder="Target Nominal (Misal: 10000000)">`,
+               <input id="swal-g-target" type="number" class="f-input-dark" placeholder="Target Nominal (Misal: 10000000)">`,
         focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN', showCancelButton: true, cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal',
         preConfirm: () => { return { name: document.getElementById('swal-g-name').value, target: parseFloat(document.getElementById('swal-g-target').value) } }
     });
@@ -5825,7 +5556,7 @@ window.editGoal = async function(idx) {
             const { value: formValues } = await Swal.fire({
                 title: 'Edit Target',
                 html: `<input id="swal-g-name-edit" class="f-input-dark" value="${window.savingsGoals[idx].name}" style="margin-bottom:12px;">
-                       <input id="swal-g-target-edit" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" value="${window.savingsGoals[idx].target}">`,
+                       <input id="swal-g-target-edit" type="number" class="f-input-dark" value="${window.savingsGoals[idx].target}">`,
                 focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
                 preConfirm: () => { return { name: document.getElementById('swal-g-name-edit').value, target: parseFloat(document.getElementById('swal-g-target-edit').value) } }
             });
@@ -6009,7 +5740,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
         title: `Koreksi Saldo ${walletName}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
-               <input id="swal-koreksi-amt" type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
@@ -7136,19 +6867,15 @@ window.restoreBackupFile = function(evt) {
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
             let batch = writeBatch(db); let opCount = 0; let total = 0;
-            const commitPromises = [];
             for (const t of items) {
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
                 cleanTx.createdAt = serverTimestamp();
                 const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
                 batch.set(ref, cleanTx);
                 opCount++; total++;
-                if (opCount >= 450) { commitPromises.push(batch.commit()); batch = writeBatch(db); opCount = 0; }
+                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
             }
-            if (opCount > 0) commitPromises.push(batch.commit());
-            // Semua batch dikirim SEKALIGUS secara paralel (bukan satu-satu berurutan)
-            // supaya pemulihan data dalam jumlah sangat banyak jadi jauh lebih instan.
-            await Promise.all(commitPromises);
+            if (opCount > 0) await batch.commit();
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil dipulihkan.', background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
@@ -7251,93 +6978,6 @@ window.addEventListener('pageshow', function () {
 
 window.addEventListener('focus', function () {
     requestAnimationFrame(resizeAllCharts);
-});
-
-// Daftarkan Service Worker: agar saat dibuka tanpa internet (mis. lewat app
-// pembungkus web-to-app), yang tampil adalah shell aplikasi ini dari cache,
-// bukan halaman error bawaan browser/WebView.
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js').catch(function () {});
-    });
-}
-
-// ==========================================================================
-// STATUS KONEKSI: banner saat offline + animasi konfirmasi saat online lagi.
-// Data yang sudah tampil di layar TIDAK disentuh/dihapus sama sekali di sini
-// (Firestore realtime listener memang sudah menahan data terakhir saat
-// koneksi putus, jadi angka & tampilan tetap sama seperti pas online).
-// ==========================================================================
-function updateOfflineBanner() {
-    const banner = document.getElementById('offline-banner');
-    if (banner) banner.style.display = 'none';
-}
-document.addEventListener('DOMContentLoaded', updateOfflineBanner);
-
-// Cari cepat di halaman Pengaturan: menyaring baris (.set-item) berdasarkan
-// judul/label & sub-teksnya, lalu menyembunyikan grup yang jadi kosong.
-window.filterSettingsSearch = function (q) {
-    const page = document.getElementById('page-pengaturan');
-    if (!page) return;
-    const query = (q || '').trim().toLowerCase();
-    const groups = page.querySelectorAll('.set-group');
-    groups.forEach(function (group) {
-        let anyVisible = false;
-        const items = group.querySelectorAll('.set-item');
-        items.forEach(function (item) {
-            const text = item.textContent.toLowerCase();
-            const match = !query || text.indexOf(query) !== -1;
-            item.classList.toggle('set-hidden-by-search', !match);
-            if (match) anyVisible = true;
-        });
-        group.classList.toggle('set-hidden-by-search', !anyVisible);
-    });
-};
-
-// Kartu "RHN Capital OS" di atas halaman Pengaturan: menampilkan info versi
-// aplikasi (data sama seperti di grup "DETAIL APLIKASI") lewat popup.
-window.showAppVersionInfo = function () {
-    const emailInfo = (typeof currentUser !== 'undefined' && currentUser && currentUser.email) ? currentUser.email : '-';
-    if (typeof Swal !== 'undefined' && Swal.fire) {
-        Swal.fire({
-            title: 'RHN Capital OS',
-            html: '<div style="text-align:left; font-size:13px; line-height:1.7;">' +
-                  '<b>Versi Sistem:</b> v4.7 (Transfer Perantara)<br>' +
-                  '<b>Akun:</b> ' + emailInfo + '<br>' +
-                  '<b>Status:</b> Platform Arus Keuangan aman, cepat, dan terenkripsi.' +
-                  '</div>',
-            icon: 'info',
-            confirmButtonText: 'Tutup',
-            background: 'var(--card)', color: 'var(--text)'
-        });
-    } else {
-        alert('RHN Capital OS v4.7 (Transfer Perantara)');
-    }
-};
-
-window.addEventListener('offline', function () {
-    updateOfflineBanner();
-    if (typeof Swal !== 'undefined' && Swal.fire) {
-        Swal.fire({
-            toast: true, position: 'top', icon: 'warning',
-            title: 'Koneksi Terputus - Mode Offline Aktif', showConfirmButton: false, timer: 1800,
-            background: 'var(--card)', color: 'var(--text)'
-        });
-    }
-});
-
-window.addEventListener('online', function () {
-    updateOfflineBanner();
-    if (typeof Swal !== 'undefined' && Swal.fire) {
-        Swal.fire({
-            toast: true, position: 'top', icon: 'success',
-            title: 'Berhasil Online Kembali', showConfirmButton: false, timer: 1800,
-            background: 'var(--card)', color: 'var(--text)'
-        });
-    }
-    // Coba ulang hal-hal yang tadi gagal karena offline (mis. "GAGAL MEMUAT KODE").
-    if (typeof window.initTransferAccount === 'function') window.initTransferAccount();
-    if (typeof window.refreshAll === 'function') window.refreshAll();
 });
 
 </script>
