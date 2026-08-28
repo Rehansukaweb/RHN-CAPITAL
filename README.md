@@ -424,6 +424,19 @@ select.swal2-input {
 select.swal2-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); outline: none; }
 select.swal2-input option { background-color: var(--bg2); color: var(--text); }
 
+/* SELECT BAWAAN SWEETALERT (input: 'select') — sebelumnya putih polos & teks putih jadi tak kelihatan */
+select.swal2-select {
+  -webkit-appearance: none; appearance: none;
+  background-color: var(--bg2) !important; color: var(--text) !important;
+  border: 1px solid var(--border) !important; border-radius: 16px;
+  padding: 16px 40px 16px 16px !important; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
+  cursor: pointer;
+}
+select.swal2-select:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); outline: none; }
+select.swal2-select option { background-color: var(--bg2); color: var(--text); }
+
 select.f-input-dark {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; cursor: pointer;
@@ -1567,8 +1580,8 @@ body.global-privacy #xau-idr-gr {
     <div class="set-title">🛡️ BACKUP & PEMULIHAN DATA</div>
     <div class="set-item">
       <div>
-        <div class="set-label">Backup Otomatis Harian</div>
-        <div class="set-sub">Data disimpan otomatis ke cloud setiap hari sekali</div>
+        <div class="set-label">Backup Otomatis</div>
+        <div class="set-sub">Data disimpan otomatis ke cloud setiap ada transaksi ditambah/dihapus</div>
       </div>
       <select id="ext_autobackup" class="set-select" onchange="saveExtraPrefs()">
         <option value="on">Aktif</option>
@@ -4935,6 +4948,7 @@ window.confirmDeleteUser = async function(uid) {
 
 function listenTransactions(uid) { 
     if (unsubListener) unsubListener(); 
+    window.__txBackupBaseline = false; 
     unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { 
         let allDocs = snap.docs.map(d => { 
             let data = d.data(); 
@@ -4946,11 +4960,24 @@ function listenTransactions(uid) {
         deletedTxs = allDocs.filter(t => t.isDeleted);
         setSyncStatus(true); 
         refreshAll(); 
+        window.triggerBackupOnTxChange();
     }, err => { 
         console.error(err); 
         setSyncStatus(false); 
     }); 
 }
+
+// Memicu backup otomatis setiap ada perubahan transaksi (tambah/kurangi/edit).
+// Snapshot pertama setelah login/refresh dijadikan baseline (tidak backup),
+// setelah itu tiap perubahan nyata pada data akan memicu backup (didebounce
+// sebentar agar tidak membuat banyak backup saat perubahan beruntun cepat).
+window.triggerBackupOnTxChange = function() {
+    if (!currentUser) return;
+    if (extraPrefs.ext_autobackup === 'off') return;
+    if (!window.__txBackupBaseline) { window.__txBackupBaseline = true; return; }
+    clearTimeout(window.__txBackupDebounce);
+    window.__txBackupDebounce = setTimeout(() => { window.performCloudBackup(true); }, 2000);
+};
 
 window.delTx = function(id) { 
     if (navigator.vibrate) navigator.vibrate(20); 
@@ -6228,9 +6255,9 @@ window.exportPDF = function() {
         // Ukuran font & tabel DIBESARKAN (disamakan dengan ukuran laporan Bulanan yang asli) supaya
         // tulisan tetap besar & jelas dibaca. TIDAK dipaksa muat 1 halaman lagi — kalau 1 minggu
         // datanya banyak, boleh sampai beberapa halaman (autoTable otomatis lanjut ke halaman berikutnya).
-        let cellPad = 4;
-        let bodyFontSize = 11;
-        let headFontSize = 11.8;
+        let cellPad = 3;
+        let bodyFontSize = 7.5;
+        let headFontSize = 8;
 
         docPdf.autoTable({
             startY: currentY,
@@ -6238,20 +6265,20 @@ window.exportPDF = function() {
             body: bodyRows,
             theme: 'grid',
             rowPageBreak: 'avoid',
-            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
+            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'linebreak', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 40, halign: 'center' },
-                1: { cellWidth: 56, halign: 'center' },
-                2: { cellWidth: 64, halign: 'center' },
-                3: { cellWidth: 50, halign: 'center' },
-                4: { cellWidth: 86, halign: 'center', overflow: 'ellipsize' },
-                5: { cellWidth: 100, overflow: 'ellipsize' },
-                6: { cellWidth: 104, overflow: 'ellipsize' },
-                7: { cellWidth: 104, overflow: 'ellipsize' },
-                8: { cellWidth: 'auto', overflow: 'ellipsize' },
-                9: { cellWidth: 100, halign: 'right', fontStyle: 'bold' }
+                0: { cellWidth: 28, halign: 'center' },
+                1: { cellWidth: 40, halign: 'center' },
+                2: { cellWidth: 50, halign: 'center' },
+                3: { cellWidth: 38, halign: 'center' },
+                4: { cellWidth: 62, halign: 'center', overflow: 'linebreak' },
+                5: { cellWidth: 78, overflow: 'linebreak' },
+                6: { cellWidth: 80, overflow: 'linebreak' },
+                7: { cellWidth: 80, overflow: 'linebreak' },
+                8: { cellWidth: 'auto', overflow: 'linebreak' },
+                9: { cellWidth: 84, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
@@ -6312,9 +6339,52 @@ window.exportPDF = function() {
 
 // Export Excel (.xlsx) — struktur & warna tulisan mengikuti PDF: dikelompokkan per minggu,
 // tiap minggu ada tabel transaksi + rekap Pemasukan/Pengeluaran/Saldo Bersih, lalu total keseluruhan di baris paling akhir.
+// Muat ulang library ExcelJS dari sumber CDN cadangan jika sumber utama gagal dimuat
+// (mengatasi kasus tombol Excel tidak bereaksi karena library belum termuat).
+function ensureExcelJSLoaded() {
+    return new Promise((resolve) => {
+        if (window.ExcelJS) return resolve(true);
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+        s.onload = () => resolve(!!window.ExcelJS);
+        s.onerror = () => resolve(!!window.ExcelJS);
+        document.head.appendChild(s);
+    });
+}
+
+// Simpan/bagikan file secara andal lintas perangkat. Di HP/WebView, unduhan
+// blob+link kadang tidak benar-benar tersimpan (file "tidak ke Excel"),
+// jadi utamakan Web Share API (biar bisa langsung Simpan/Buka di Excel),
+// lalu jatuh ke metode unduh biasa sebagai cadangan.
+window.saveOrShareFile = async function(blob, filename, mimeType) {
+    try {
+        if (navigator.canShare && navigator.share) {
+            const file = new File([blob], filename, { type: mimeType });
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: filename });
+                return true;
+            }
+        }
+    } catch (e) { /* lanjut ke cara unduh biasa di bawah */ }
+    try {
+        if (window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, filename); return true; }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url; link.download = filename; link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        return true;
+    } catch (e2) {
+        try { window.open(URL.createObjectURL(blob), '_blank'); } catch (e3) {}
+        return false;
+    }
+};
+
 window.exportExcel = async function() {
     if (txs.length === 0) return Swal.fire({ icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)' });
-    if (!window.ExcelJS) return Swal.fire({ icon: 'error', title: 'Gagal Membuat Excel', text: 'Library Excel belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+    if (!window.ExcelJS) { const excelReady = await ensureExcelJSLoaded(); if (!excelReady) return Swal.fire({ icon: 'error', title: 'Gagal Membuat Excel', text: 'Library Excel belum termuat, cek koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' }); }
 
     const typeFlt = document.getElementById('flt-type') ? document.getElementById('flt-type').value : '';
     const searchFlt = document.getElementById('flt-search') ? document.getElementById('flt-search').value.trim().toLowerCase() : '';
@@ -6488,14 +6558,8 @@ window.exportExcel = async function() {
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.xlsx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const filename = 'RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+    await window.saveOrShareFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 };
 
 
@@ -6536,7 +6600,7 @@ window.updateBackupInfoLabel = function() {
     const el = document.getElementById('last-backup-info');
     if (!el || !currentUser) return;
     const lastB = localStorage.getItem('rhn_last_backup_' + currentUser.uid);
-    el.textContent = lastB ? ('Backup Terakhir: ' + lastB + ' (Otomatis Tersimpan)') : 'Belum Ada Backup — akan dibuat otomatis hari ini';
+    el.textContent = lastB ? ('Backup Terakhir: ' + lastB + ' (Otomatis Tersimpan Setiap Ada Perubahan)') : 'Belum Ada Backup — akan dibuat otomatis saat ada transaksi';
 };
 
 window.downloadBackupFile = function() {
@@ -6616,20 +6680,21 @@ window.restoreBackupFile = function(evt) {
 
 window.exportCSV = function() {
     if(txs.length === 0) return Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data untuk diunduh.', background: 'var(--card)', color: 'var(--text)'});
-    let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Tipe,Nominal,Kategori,Dompet Asal,Dompet Tujuan,Keterangan\n";
-    txs.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
+    const escCsv = (val) => {
+        let s = String(val === undefined || val === null ? '' : val);
+        if (/[",\n\r]/.test(s)) { s = '"' + s.replace(/"/g, '""') + '"'; }
+        return s;
+    };
+    let rows = ["Tanggal,Waktu,Tipe,Nominal,Kategori,Dompet Asal,Dompet Tujuan,Keterangan"];
+    txs.slice().sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(t => {
         const row = [
-            fmtDate(t.date), fmtTime(t.date), t.type, t.amount, t.category, t.wallet || '', t.walletTo || '', (t.note || '').replace(/,/g, " ")
-        ];
-        csvContent += row.join(",") + "\n";
+            fmtDate(t.date), fmtTime(t.date), t.type, t.amount, t.category, t.wallet || '', t.walletTo || '', (t.note || '')
+        ].map(escCsv);
+        rows.push(row.join(","));
     });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "rhn_capital_laporan_keuangan.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csvContent = "\uFEFF" + rows.join("\r\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    window.saveOrShareFile(blob, "rhn_capital_laporan_keuangan.csv", 'text/csv;charset=utf-8;');
 };
 
 window.refreshAll = function() {
