@@ -12,29 +12,7 @@
 /* ==========================================================================
    TEMA ORIGINAL (GELAP PEKAT)
    ========================================================================== */
-/* ANTI "NYANGKUT" SAAT TAP/KLIK CEPAT BERULANG (level maksimal, berlaku ke SEMUA elemen):
-   1) user-select:none + touch-callout:none -> klik cepat berturut-turut tidak lagi kebaca
-      browser sebagai double/triple-click, jadi teks tombol tidak pernah ke-SELECT (ke-blok
-      biru) yang bikin tampilan terlihat macet/nyangkut.
-   2) touch-action:manipulation -> menghilangkan delay bawaan browser (gesture double-tap-zoom
-      recognition, ~300ms tap delay di sejumlah browser/WebView) sehingga setiap tap diproses
-      LANGSUNG tanpa jeda, secepat apapun kamu mengetuk/klik.
-   Dikecualikan untuk input/textarea/select di bawah supaya ketik & pilih teks di form tetap normal. */
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
-input, textarea, select, [contenteditable="true"] {
-  -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;
-  -webkit-touch-callout: default;
-}
-/* Catch-all: SEMUA elemen yang bisa diklik (punya onclick) otomatis kebagian
-   feedback tekan super-cepat & konsisten, walau belum masuk daftar class spesifik.
-   Aturan class spesifik di bawah (POLISH INTERAKSI) tetap menang & override ini. */
-[onclick] { transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.08s ease, background-color 0.08s ease !important; will-change: transform; cursor: pointer; }
-[onclick]:active { transform: scale(0.96); transition-duration: 0.03s !important; }
-input[type="range"] { -webkit-appearance: none; touch-action: pan-x; transition: opacity .1s ease; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; transition: transform .08s cubic-bezier(0.22, 1, 0.36, 1); }
-input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.2); }
-label, .toggle-switch, .type-toggle, .user-pill, .usd-pill, .cat-chip-wrap, .req-item, .cs-list-item, .leg-item, .set-item, .saldo-wallet-card, .saldo-wallet-tag, .auth-tabs, .cat-chip { transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.08s ease !important; }
-label:active, .toggle-switch:active, .type-toggle:active, .user-pill:active, .usd-pill:active, .cat-chip-wrap:active, .req-item:active, .cs-list-item:active, .leg-item:active, .set-item:active, .saldo-wallet-card:active, .saldo-wallet-tag:active { transform: scale(0.96); transition-duration: 0.03s !important; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: none; text-size-adjust: none; }
 
 h1, hr, .page-header, .site-header, .project-name { display: none !important; }
 
@@ -111,12 +89,15 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
 .setting-btn:active, .logout-btn:active, .submit-btn:active, .export-btn:active,
 .edit-btn-recent:active, .del-btn-recent:active, .nav-ext-btn:active,
-.cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .admin-user-card:active, .auth-tab:active,
+.cat-chip:active, .calc-btn:active, .swap-btn:active, .set-action:active, .auth-tab:active,
 .admin-detail-btn:active {
   transform: scale(0.94);
   transition-duration: 0.03s !important;
 }
-.w-card:active, .recent-item:active, .m-card:active, .calc-curr-item:active {
+/* .m-card, .recent-item, .admin-user-card TIDAK ikut bereaksi seperti tombol
+   karena kartu-kartu ini bukan tombol fungsi (tidak ada aksi saat kartunya
+   sendiri ditekan, hanya tombol-tombol kecil di dalamnya yang berfungsi) */
+.w-card:active, .calc-curr-item:active {
   transform: scale(0.97);
   transition-duration: 0.03s !important;
 }
@@ -128,11 +109,36 @@ button:active, .nav-btn:active, .t-btn:active, .p-btn:active, .theme-btn:active,
     transform: translateY(-1px);
     filter: brightness(1.06);
   }
-  .w-card:hover, .recent-item:hover, .m-card:hover { transform: translateY(-1px); }
+  .w-card:hover { transform: translateY(-1px); }
 }
 
 .nav-btn, .t-btn, .p-btn { position: relative; }
 .nav-btn.active, .t-btn.active, .p-btn.active { animation: activePulse 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Tombol yang sedang tidak berfungsi (disabled) tidak boleh ikut "bereaksi" saat ditekan */
+button:disabled, .nav-btn:disabled, .t-btn:disabled, .p-btn:disabled, .theme-btn:disabled,
+.setting-btn:disabled, .logout-btn:disabled, .submit-btn:disabled, .export-btn:disabled,
+.edit-btn-recent:disabled, .del-btn-recent:disabled, .nav-ext-btn:disabled,
+.cat-chip:disabled, .calc-btn:disabled, .swap-btn:disabled, .set-action:disabled,
+.admin-detail-btn:disabled {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+button:disabled:active, .nav-btn:disabled:active, .t-btn:disabled:active, .p-btn:disabled:active,
+.theme-btn:disabled:active, .setting-btn:disabled:active, .logout-btn:disabled:active,
+.submit-btn:disabled:active, .export-btn:disabled:active, .edit-btn-recent:disabled:active,
+.del-btn-recent:disabled:active, .nav-ext-btn:disabled:active, .cat-chip:disabled:active,
+.calc-btn:disabled:active, .swap-btn:disabled:active, .set-action:disabled:active,
+.admin-detail-btn:disabled:active,
+button:disabled:hover, .nav-btn:disabled:hover, .t-btn:disabled:hover, .p-btn:disabled:hover,
+.theme-btn:disabled:hover, .setting-btn:disabled:hover, .logout-btn:disabled:hover,
+.submit-btn:disabled:hover, .export-btn:disabled:hover, .edit-btn-recent:disabled:hover,
+.del-btn-recent:disabled:hover, .nav-ext-btn:disabled:hover, .cat-chip:disabled:hover,
+.calc-btn:disabled:hover, .swap-btn:disabled:hover, .set-action:disabled:hover,
+.admin-detail-btn:disabled:hover {
+  transform: none !important;
+  filter: none !important;
+}
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
 .m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -564,7 +570,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .filter-bar input.f-input-dark { flex: 1; }
 
 /* AUTH SCREEN */
-#auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+#auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; align-items: center; justify-content: safe center; padding: 40px 16px; }
+.auth-box { flex-shrink: 0; }
 .auth-box { background: var(--card); border-radius: 24px; padding: 40px 24px; width: 90%; max-width: 400px; border: 1px solid var(--border); text-align: center; }
 .auth-box img { width: 64px; border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--border2); }
 .auth-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
@@ -799,6 +806,14 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-gender" style="display:none">
+      <select id="auth-gender" class="f-input-dark">
+        <option value="">Pilih Jenis Kelamin</option>
+        <option value="Laki-laki">Laki-laki</option>
+        <option value="Perempuan">Perempuan</option>
+      </select>
+    </div>
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
@@ -858,7 +873,7 @@ body.global-privacy #xau-idr-gr {
     </div>
     
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
-      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-live-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text3); margin-left:3px; margin-right:1px; transition:background .2s;"></span><span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
       <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
@@ -2298,87 +2313,24 @@ async function fetchUSDRate() {
 fetchUSDRate().then(initLiveCurrencies); 
 setInterval(fetchUSDRate, 300000); 
 
-// Harga XAU/USD realtime tanpa spread — diambil langsung dari harga spot emas
-// (mid price, bukan produk tokenized/berjangka yang punya selisih bid-ask),
-// bergerak tiap detik dengan simulasi tick di atas harga asli terakhir yang
-// didapat (persis gaya platform broker: anchor asli + gerakan halus per detik),
-// dan tetap "hidup" di Sabtu/Minggu walau pasar forex asli sedang tutup.
-const XAU_PIP_ADJUST = -0.65; // net 6.5 pip lebih rendah dari harga asli (1 pip XAU = $0.10)
-let xauBasePrice = null;   // harga asli terakhir dari feed (sudah + pip adjust)
-let xauDisplayPrice = null; // harga yang tampil, dianimasikan tiap detik
-
-function renderXauPrice(price) {
-    const xauRate = document.getElementById('xau-rate-val');
-    if (xauRate) xauRate.textContent = '$' + price.toFixed(2);
-    if (currentUSDRate > 0) {
-        const idrPriceOz = price * currentUSDRate;
-        const idrPriceGram = idrPriceOz / 31.1034768;
-        const ozEl = document.getElementById('xau-idr-oz');
-        if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
-        const grEl = document.getElementById('xau-idr-gr');
-        if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
-    }
-}
-function applyXauPrice(newPrice) {
-    if (!newPrice) return;
-    xauBasePrice = newPrice + XAU_PIP_ADJUST;
-    if (xauDisplayPrice === null) xauDisplayPrice = xauBasePrice;
-    const dot = document.getElementById('xau-live-dot');
-    if (dot) {
-        dot.style.background = 'var(--green2)';
-        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
-    }
-}
-function xauTick() {
-    if (xauBasePrice === null) return;
-    // Gerakan tick realistis ±0.30 sekitar harga asli terakhir, jalan tiap detik —
-    // termasuk saat Sabtu/Minggu walau feed asli tidak update (pasar forex tutup).
-    const jitter = (Math.random() - 0.5) * 0.6;
-    xauDisplayPrice = xauBasePrice + jitter;
-    renderXauPrice(xauDisplayPrice);
-}
-async function fetchLiveXAU() {
-    // Sumber 1: feed bid/ask broker forex (Swissquote) — jenis data yang sama dengan
-    // yang dipakai forex.com/TradingView, jadi harganya paling mendekati.
-    try {
-        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
-        const data = await res.json();
-        const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
-        if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
-        throw new Error('swissquote: harga kosong');
-    } catch (e) {
-        console.warn('XAU sumber 1 (swissquote/forex.com) gagal:', e.message || e);
-    }
-    // Sumber 2: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid).
-    try {
-        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
-        const data = await res.json();
-        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
-        if (price) { applyXauPrice(price); return; }
-        throw new Error('goldprice: harga kosong');
-    } catch (e) {
-        console.warn('XAU sumber 2 (goldprice.org) gagal:', e.message || e);
-    }
-    // Sumber 3: cadangan terakhir.
-    try {
-        const res = await fetch('https://api.gold-api.com/price/XAU');
-        const data = await res.json();
-        if (data && data.price) { applyXauPrice(parseFloat(data.price)); return; }
-        throw new Error('gold-api: harga kosong');
-    } catch (e) {
-        console.warn('XAU sumber 3 (gold-api.com) gagal:', e.message || e);
-        if (xauBasePrice === null) {
-            const dot = document.getElementById('xau-live-dot');
-            if (dot) dot.style.background = 'var(--red2)';
-        }
-    }
-}
 function initLiveXAU() {
-    fetchLiveXAU();
-    if (window.__xauInterval) clearInterval(window.__xauInterval);
-    window.__xauInterval = setInterval(fetchLiveXAU, 5000);
-    if (window.__xauTickInterval) clearInterval(window.__xauTickInterval);
-    window.__xauTickInterval = setInterval(xauTick, 400);
+  const socketXAU = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
+  socketXAU.addEventListener('message', e => { 
+      const newPrice = parseFloat(JSON.parse(e.data).c); 
+      if (newPrice) { 
+          const xauRate = document.getElementById('xau-rate-val'); 
+          if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2); 
+          if (currentUSDRate > 0) { 
+              const idrPriceOz = newPrice * currentUSDRate; 
+              const idrPriceGram = idrPriceOz / 31.1034768; 
+              const ozEl = document.getElementById('xau-idr-oz'); 
+              if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz); 
+              const grEl = document.getElementById('xau-idr-gr'); 
+              if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram); 
+          } 
+      } 
+  });
+  socketXAU.addEventListener('close', () => setTimeout(initLiveXAU, 3000));
 }
 initLiveXAU();
 
@@ -2517,7 +2469,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
@@ -2546,9 +2498,13 @@ window.doAuth = async function() {
     const email = document.getElementById('auth-email').value.trim(); 
     const pass = document.getElementById('auth-pass').value; 
     const nama = document.getElementById('auth-nama').value.trim(); 
+    const umur = document.getElementById('auth-umur').value.trim(); 
+    const gender = document.getElementById('auth-gender').value; 
     hideErr(); 
     if (!email || !pass) return showErr('Email dan Sandi tidak boleh kosong.'); 
     if (authMode === 'register' && !nama) return showErr('Nama tidak boleh kosong.'); 
+    if (authMode === 'register' && !umur) return showErr('Umur tidak boleh kosong.'); 
+    if (authMode === 'register' && !gender) return showErr('Jenis Kelamin tidak boleh kosong.'); 
     setLoading(true); 
     try { 
         if (authMode === 'login') {
@@ -2561,7 +2517,7 @@ window.doAuth = async function() {
             const cred = await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
             try {
                 await updateProfile(cred.user, { displayName: nama });
-                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama }, { merge: true });
+                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama, umur: umur, jenisKelamin: gender }, { merge: true });
             } catch(eProfil) { console.error('Gagal menyimpan nama akun', eProfil); }
         }
         setLoading(false);
@@ -3079,7 +3035,8 @@ window.loadAllUsersData = async function() {
         if (uid === currentUser.uid) {
             userInfos[uid] = {
                 email: currentUser.email,
-                nama: currentUser.displayName || currentUser.email.split('@')[0]
+                nama: currentUser.displayName || currentUser.email.split('@')[0],
+                umur: '', jenisKelamin: ''
             };
         } else {
             try {
@@ -3089,7 +3046,8 @@ window.loadAllUsersData = async function() {
                     if (dUser.email) {
                         userInfos[uid] = {
                             email: dUser.email,
-                            nama: dUser.nama || dUser.email.split('@')[0]
+                            nama: dUser.nama || dUser.email.split('@')[0],
+                            umur: dUser.umur || '', jenisKelamin: dUser.jenisKelamin || ''
                         };
                     }
                 }
@@ -3118,7 +3076,7 @@ window.loadAllUsersData = async function() {
 
     Object.keys(allUserDocs).forEach(uid => {
         if (!userInfos[uid] && allUserDocs[uid].email) {
-            userInfos[uid] = { email: allUserDocs[uid].email, nama: allUserDocs[uid].nama || allUserDocs[uid].email.split('@')[0] };
+            userInfos[uid] = { email: allUserDocs[uid].email, nama: allUserDocs[uid].nama || allUserDocs[uid].email.split('@')[0], umur: allUserDocs[uid].umur || '', jenisKelamin: allUserDocs[uid].jenisKelamin || '' };
         }
     });
 
@@ -3173,9 +3131,12 @@ window.loadAllUsersData = async function() {
             if (!window.adminUserEmails) window.adminUserEmails = {};
             window.adminUserEmails[uid] = finalEmail || '';
             const isSelf = uid === currentUser.uid;
+            const finalUmur = fallbackInfo.umur || '';
+            const finalGender = fallbackInfo.jenisKelamin || '';
             return `
             <div class="m-card admin-user-card" style="border-color: var(--gold);">
                 <div class="m-label" style="color:var(--gold);">👤 ${escapeHTML(ownerLabel)}</div>
+                ${(finalUmur || finalGender) ? `<div class="m-sub" style="margin-bottom:4px;">${finalUmur ? 'Umur: ' + escapeHTML(String(finalUmur)) + ' th' : ''}${finalUmur && finalGender ? ' • ' : ''}${finalGender ? escapeHTML(finalGender) : ''}</div>` : ''}
                 <div class="m-sub" style="margin-bottom:8px;">${s.count} transaksi</div>
                 <div style="display:flex; flex-direction:column; gap:4px;">
                     <div style="display:flex; justify-content:space-between; font-size:11px;">
@@ -5398,9 +5359,6 @@ window.cancelEdit = function() {
 };
 
 window.selType = function(t) { 
-    // Sama seperti switchPage: kalau tombol jenis yang diklik SAMA dengan yang sudah aktif
-    // (misal kepencet dobel saat klik cepat), tidak perlu proses ulang sama sekali -> anti nyangkut.
-    if (t === curType) return;
     curType = t; document.getElementById('btn-inc').classList.toggle('active', t === 'income'); document.getElementById('btn-exp').classList.toggle('active', t === 'expense'); 
     const btnDebt = document.getElementById('btn-debt'); if (btnDebt) btnDebt.classList.toggle('active', t === 'debt'); 
     const btnRecv = document.getElementById('btn-recv'); if (btnRecv) btnRecv.classList.toggle('active', t === 'recv'); 
