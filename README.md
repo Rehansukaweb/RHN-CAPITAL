@@ -454,7 +454,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .pass-toggle svg { width: 20px; height: 20px; }
 .pass-toggle:hover { color: var(--text); }
 .pass-toggle, .pass-toggle:hover, .pass-toggle:active, .pass-toggle:focus {
-  transform: none !important;
+  transform: translateY(-50%) !important;
   filter: none !important;
   transition: color 0.15s ease !important;
   will-change: auto !important;
