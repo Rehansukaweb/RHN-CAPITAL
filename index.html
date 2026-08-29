@@ -6678,19 +6678,26 @@ window.restoreBackupFile = function(evt) {
         const jumlah = Array.isArray(data.transactions) ? data.transactions.length : 0;
         const sigOfTx = t => [
             (t.date || ''), (t.type || ''), (t.amount || 0), (t.category || ''),
-            (t.wallet || ''), (t.walletTo || ''), (t.note || '').trim().toLowerCase()
+            (t.wallet || ''), (t.walletTo || ''), (t.note || '').trim().toLowerCase(),
+            (t.isDeleted ? '1' : '0')
         ].join('|');
-        const existingIds = new Set(txs.concat(deletedTxs).map(t => t.id));
+        const existingById = new Map(txs.concat(deletedTxs).map(t => [t.id, t]));
         const existingSigs = new Set(txs.concat(deletedTxs).map(sigOfTx));
-        const items = (data.transactions || []).filter(t => {
-            if (t.id && existingIds.has(t.id)) return false;
-            if (existingSigs.has(sigOfTx(t))) return false;
-            return true;
+        const toAdd = [];
+        const toUpdate = [];
+        (data.transactions || []).forEach(t => {
+            if (t.id && existingById.has(t.id)) {
+                const cur = existingById.get(t.id);
+                if (sigOfTx(cur) !== sigOfTx(t)) toUpdate.push(t);
+                return;
+            }
+            if (existingSigs.has(sigOfTx(t))) return;
+            toAdd.push(t);
         });
-        const jumlahLewat = jumlah - items.length;
+        const jumlahLewat = jumlah - toAdd.length - toUpdate.length;
         const res = await Swal.fire({
             title: 'Pulihkan Backup?',
-            html: `File berisi <b>${jumlah}</b> transaksi.<br><b>${items.length}</b> transaksi baru akan <b>ditambahkan</b> ke akun aktif.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah ada.` : 'Tidak ada data yang sudah ada.'}`,
+            html: `File berisi <b>${jumlah}</b> transaksi.<br><b>${toAdd.length}</b> transaksi baru akan <b>ditambahkan</b>.<br><b>${toUpdate.length}</b> transaksi yang berbeda akan <b>disesuaikan</b> sesuai file backup.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah sama persis.` : 'Tidak ada data yang sudah sama persis.'}`,
             icon: 'warning', showCancelButton: true, confirmButtonText: 'PULIHKAN', cancelButtonText: 'Batal',
             confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', background: 'var(--card)', color: 'var(--text)'
         });
@@ -6699,7 +6706,7 @@ window.restoreBackupFile = function(evt) {
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
             let batch = writeBatch(db); let opCount = 0; let total = 0;
-            for (const t of items) {
+            for (const t of toAdd) {
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
                 cleanTx.createdAt = serverTimestamp();
                 const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
@@ -6707,9 +6714,17 @@ window.restoreBackupFile = function(evt) {
                 opCount++; total++;
                 if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
             }
+            for (const t of toUpdate) {
+                const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
+                if (typeof cleanTx.isDeleted !== 'boolean') cleanTx.isDeleted = false;
+                const ref = doc(db, 'users', currentUser.uid, 'transactions', t.id);
+                batch.set(ref, cleanTx, { merge: true });
+                opCount++; total++;
+                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+            }
             if (opCount > 0) await batch.commit();
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
-            Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil dipulihkan.', background: 'var(--card)', color: 'var(--text)' });
+            Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil disesuaikan/ditambahkan.', background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Pemulihan Gagal', text: err.message, background: 'var(--card)', color: 'var(--text)' });
         }
