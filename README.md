@@ -444,6 +444,21 @@ select.f-input-dark {
 select.f-input-dark option { background: var(--bg2); color: var(--text); font-weight: 500; padding: 12px; }
 
 .form-row { margin-bottom: 16px; }
+.pass-wrap { position: relative; }
+.pass-wrap input.f-input-dark { padding-right: 46px; }
+.pass-toggle {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; padding: 4px; display: flex;
+  align-items: center; justify-content: center; color: var(--text3);
+}
+.pass-toggle svg { width: 20px; height: 20px; }
+.pass-toggle:hover { color: var(--text); }
+.pass-toggle, .pass-toggle:hover, .pass-toggle:active, .pass-toggle:focus {
+  transform: none !important;
+  filter: none !important;
+  transition: color 0.15s ease !important;
+  will-change: auto !important;
+}
 .form-label { font-size: 10px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 .form-row textarea { height: 100px; resize: none; border-radius: 16px; }
 .submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
@@ -828,8 +843,18 @@ body.global-privacy #xau-idr-gr {
       </select>
     </div>
     <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
-    <div class="form-row"><input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()"></div>
-    <div class="form-row" id="field-confirm" style="display:none"><input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi"></div>
+    <div class="form-row pass-wrap">
+      <input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()">
+      <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass', this)" tabindex="-1" aria-label="Tampilkan sandi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="form-row pass-wrap" id="field-confirm" style="display:none">
+      <input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi">
+      <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass2', this)" tabindex="-1" aria-label="Tampilkan sandi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
     
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
     
@@ -2505,6 +2530,16 @@ window.doGoogleAuth = async function() {
         btn.disabled = false;
         btn.innerHTML = originalText;
     }
+};
+
+window.togglePassVisibility = function(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  btn.innerHTML = showing
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.62 21.62 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.61 3.85M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 };
 
 window.doAuth = async function() { 
@@ -6255,9 +6290,9 @@ window.exportPDF = function() {
         // Ukuran font & tabel DIBESARKAN (disamakan dengan ukuran laporan Bulanan yang asli) supaya
         // tulisan tetap besar & jelas dibaca. TIDAK dipaksa muat 1 halaman lagi — kalau 1 minggu
         // datanya banyak, boleh sampai beberapa halaman (autoTable otomatis lanjut ke halaman berikutnya).
-        let cellPad = 3;
-        let bodyFontSize = 7.5;
-        let headFontSize = 8;
+        let cellPad = 4;
+        let bodyFontSize = 11;
+        let headFontSize = 11.8;
 
         docPdf.autoTable({
             startY: currentY,
@@ -6265,20 +6300,20 @@ window.exportPDF = function() {
             body: bodyRows,
             theme: 'grid',
             rowPageBreak: 'avoid',
-            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'linebreak', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
+            styles: { font: 'helvetica', fontStyle: 'bold', fontSize: bodyFontSize, cellPadding: cellPad, valign: 'middle', overflow: 'ellipsize', textColor: [15, 15, 15], lineColor: [210, 210, 210], lineWidth: 0.4 },
             headStyles: { fillColor: [17, 17, 20], textColor: [251, 191, 36], fontStyle: 'bold', halign: 'center', fontSize: headFontSize },
             alternateRowStyles: { fillColor: [246, 247, 249] },
             columnStyles: {
-                0: { cellWidth: 28, halign: 'center' },
-                1: { cellWidth: 40, halign: 'center' },
-                2: { cellWidth: 50, halign: 'center' },
-                3: { cellWidth: 38, halign: 'center' },
-                4: { cellWidth: 62, halign: 'center', overflow: 'linebreak' },
-                5: { cellWidth: 78, overflow: 'linebreak' },
-                6: { cellWidth: 80, overflow: 'linebreak' },
-                7: { cellWidth: 80, overflow: 'linebreak' },
-                8: { cellWidth: 'auto', overflow: 'linebreak' },
-                9: { cellWidth: 84, halign: 'right', fontStyle: 'bold' }
+                0: { cellWidth: 40, halign: 'center' },
+                1: { cellWidth: 56, halign: 'center' },
+                2: { cellWidth: 64, halign: 'center' },
+                3: { cellWidth: 50, halign: 'center' },
+                4: { cellWidth: 86, halign: 'center', overflow: 'ellipsize' },
+                5: { cellWidth: 100, overflow: 'ellipsize' },
+                6: { cellWidth: 104, overflow: 'ellipsize' },
+                7: { cellWidth: 104, overflow: 'ellipsize' },
+                8: { cellWidth: 'auto', overflow: 'ellipsize' },
+                9: { cellWidth: 100, halign: 'right', fontStyle: 'bold' }
             },
             margin: { left: marginL, right: marginR }
         });
