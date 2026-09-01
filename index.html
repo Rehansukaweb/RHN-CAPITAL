@@ -830,9 +830,14 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
       <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
+      <button class="auth-tab" id="tab-code" onclick="switchTab('code')">Kode</button>
     </div>
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
-    
+
+    <div class="form-row" id="field-quickcode" style="display:none">
+      <input type="text" id="auth-quickcode" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
+    </div>
+
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-gender" style="display:none">
@@ -842,8 +847,8 @@ body.global-privacy #xau-idr-gr {
         <option value="Perempuan">Perempuan</option>
       </select>
     </div>
-    <div class="form-row"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
-    <div class="form-row">
+    <div class="form-row" id="field-email"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
+    <div class="form-row" id="field-pass">
      <div class="pass-wrap">
       <input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()">
       <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass', this)" tabindex="-1" aria-label="Tampilkan sandi">
@@ -867,8 +872,10 @@ body.global-privacy #xau-idr-gr {
       MASUK DENGAN GOOGLE
     </button>
 
-    <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:16px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
-    <div style="font-size: 10px; color: var(--gold); margin-top: 6px; text-align: center;">Cek folder SPAM jika email reset tidak masuk</div>
+    <div id="wrap-forgot">
+      <button style="background:transparent; border:none; color:var(--text3); font-size:10px; margin-top:16px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline; width:100%;" onclick="doResetPassword()" id="btn-forgot">Lupa Sandi?</button>
+      <div style="font-size: 10px; color: var(--gold); margin-top: 6px; text-align: center;">Cek folder SPAM jika email reset tidak masuk</div>
+    </div>
   </div>
 </div>
 
@@ -1488,6 +1495,13 @@ body.global-privacy #xau-idr-gr {
         <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
       </div>
       <button class="set-action" onclick="changePinInApp()">GANTI PIN</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Kode Login Cepat</div>
+        <div class="set-sub">Buat/ganti kode 3 digit untuk masuk tanpa email & sandi</div>
+      </div>
+      <button class="set-action" onclick="window.setQuickLoginCode()">ATUR KODE</button>
     </div>
   </div>
 
@@ -2511,7 +2525,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : 'DAFTAR'; hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
@@ -2547,6 +2561,7 @@ window.togglePassVisibility = function(inputId, btn) {
 };
 
 window.doAuth = async function() { 
+    if (authMode === 'code') return window.doQuickCodeLogin();
     const email = document.getElementById('auth-email').value.trim(); 
     const pass = document.getElementById('auth-pass').value; 
     const nama = document.getElementById('auth-nama').value.trim(); 
@@ -2636,6 +2651,75 @@ window.doAuth = async function() {
         }
     }
 };
+// LOGIN CEPAT PAKAI KODE 3 DIGIT (tanpa email/sandi/google)
+// Kode dibuat sendiri oleh user lewat Pengaturan > Kode Login Cepat.
+// Mapping kode -> kredensial akun disimpan di Firestore collection 'quickCodes'.
+window.doQuickCodeLogin = async function() {
+    const code = document.getElementById('auth-quickcode').value.trim();
+    hideErr();
+    if (!/^[0-9]{3}$/.test(code)) return showErr('Kode harus 3 digit angka.');
+    setLoading(true);
+    try {
+        const codeSnap = await withTimeout(getDoc(doc(db, 'quickCodes', code)), 3000, 'Proses cek kode terlalu lama. Cek koneksi lalu coba lagi.');
+        if (!codeSnap.exists()) {
+            setLoading(false);
+            return showErr('Kode tidak ditemukan. Pastikan kode benar atau buat dulu lewat Pengaturan.');
+        }
+        const { email: qEmail, pass: qPass } = codeSnap.data();
+        await withTimeout(signInWithEmailAndPassword(auth, qEmail, atob(qPass)), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+        setLoading(false);
+    } catch(e) {
+        showErr(e.message && !e.code ? e.message : 'Gagal login pakai kode. Coba lagi.');
+        setLoading(false);
+    }
+};
+
+// Dipanggil dari Pengaturan (harus sudah login) untuk membuat/mengganti kode 3 digit milik akun aktif.
+window.setQuickLoginCode = async function() {
+    if (!currentUser) return;
+    const { value: formValues } = await Swal.fire({
+        title: 'Atur Kode Login Cepat',
+        html:
+            '<input id="swal-qcode" class="swal2-input" inputmode="numeric" maxlength="3" placeholder="Kode 3 Digit (mis. 123)" style="text-align:center; letter-spacing:2px; font-size:13px;">' +
+            '<input id="swal-qpass" type="password" class="swal2-input" placeholder="Sandi Akun (untuk konfirmasi)" style="font-size:13px;">',
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--gold)',
+        confirmButtonText: 'SIMPAN',
+        cancelButtonText: 'Batal',
+        cancelButtonColor: 'var(--bg3)',
+        focusConfirm: false,
+        preConfirm: () => {
+            const kode = document.getElementById('swal-qcode').value.trim();
+            const sandi = document.getElementById('swal-qpass').value;
+            if (!/^[0-9]{3}$/.test(kode)) { Swal.showValidationMessage('Kode harus 3 digit angka.'); return false; }
+            if (!sandi) { Swal.showValidationMessage('Masukkan sandi akun kamu untuk konfirmasi.'); return false; }
+            return { kode, sandi };
+        }
+    });
+    if (!formValues) return;
+    try {
+        Swal.fire({ title: 'Memverifikasi...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
+        // Verifikasi sandi benar-benar milik akun ini sebelum kode disimpan.
+        await withTimeout(signInWithEmailAndPassword(auth, currentUser.email, formValues.sandi), 3000, 'Verifikasi sandi terlalu lama. Coba lagi.');
+
+        const codeRef = doc(db, 'quickCodes', formValues.kode);
+        const existing = await getDoc(codeRef);
+        if (existing.exists() && existing.data().uid !== currentUser.uid) {
+            return Swal.fire({ icon: 'error', title: 'Kode Sudah Dipakai', text: 'Kode ini sudah dipakai akun lain, pilih kode lain ya.', background: 'var(--card)', color: 'var(--text)' });
+        }
+
+        await setDoc(codeRef, { uid: currentUser.uid, email: currentUser.email, pass: btoa(formValues.sandi) });
+
+        Swal.fire({ icon: 'success', title: 'Kode Tersimpan!', html: `Mulai sekarang kamu bisa masuk langsung pakai kode <b>${formValues.kode}</b> di tab "Kode".`, background: 'var(--card)', color: 'var(--text)' });
+    } catch(e) {
+        let msg = 'Gagal menyimpan kode.';
+        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') msg = 'Sandi yang kamu masukkan salah.';
+        else if (e.message) msg = e.message;
+        Swal.fire({ icon: 'error', title: 'Gagal', text: msg, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); Swal.fire({ position: 'center', icon: 'success', title: 'Email Terkirim!', html: 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.', showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
 window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); Swal.fire({ position: 'center', icon: 'success', title: 'Terkirim!', html: `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)' }); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); Swal.fire({ position: 'center', icon: 'success', title: 'Bersih!', showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)' }); setTimeout(() => location.reload(), 800); } }); };
