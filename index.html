@@ -922,7 +922,7 @@ body.global-privacy #xau-idr-gr {
     </div>
     
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
-      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-live-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text3); margin-left:3px; margin-right:1px; transition:background .2s;"></span><span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
       <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
@@ -2369,24 +2369,87 @@ async function fetchUSDRate() {
 fetchUSDRate().then(initLiveCurrencies); 
 setInterval(fetchUSDRate, 300000); 
 
+// Harga XAU/USD realtime tanpa spread — diambil langsung dari harga spot emas
+// (mid price, bukan produk tokenized/berjangka yang punya selisih bid-ask),
+// bergerak tiap detik dengan simulasi tick di atas harga asli terakhir yang
+// didapat (persis gaya platform broker: anchor asli + gerakan halus per detik),
+// dan tetap "hidup" di Sabtu/Minggu walau pasar forex asli sedang tutup.
+const XAU_PIP_ADJUST = -0.65; // net 6.5 pip lebih rendah dari harga asli (1 pip XAU = $0.10)
+let xauBasePrice = null;   // harga asli terakhir dari feed (sudah + pip adjust)
+let xauDisplayPrice = null; // harga yang tampil, dianimasikan tiap detik
+
+function renderXauPrice(price) {
+    const xauRate = document.getElementById('xau-rate-val');
+    if (xauRate) xauRate.textContent = '$' + price.toFixed(2);
+    if (currentUSDRate > 0) {
+        const idrPriceOz = price * currentUSDRate;
+        const idrPriceGram = idrPriceOz / 31.1034768;
+        const ozEl = document.getElementById('xau-idr-oz');
+        if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz);
+        const grEl = document.getElementById('xau-idr-gr');
+        if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram);
+    }
+}
+function applyXauPrice(newPrice) {
+    if (!newPrice) return;
+    xauBasePrice = newPrice + XAU_PIP_ADJUST;
+    if (xauDisplayPrice === null) xauDisplayPrice = xauBasePrice;
+    const dot = document.getElementById('xau-live-dot');
+    if (dot) {
+        dot.style.background = 'var(--green2)';
+        setTimeout(() => { if (dot) dot.style.background = 'var(--text3)'; }, 600);
+    }
+}
+function xauTick() {
+    if (xauBasePrice === null) return;
+    // Gerakan tick realistis ±0.30 sekitar harga asli terakhir, jalan tiap detik —
+    // termasuk saat Sabtu/Minggu walau feed asli tidak update (pasar forex tutup).
+    const jitter = (Math.random() - 0.5) * 0.6;
+    xauDisplayPrice = xauBasePrice + jitter;
+    renderXauPrice(xauDisplayPrice);
+}
+async function fetchLiveXAU() {
+    // Sumber 1: feed bid/ask broker forex (Swissquote) — jenis data yang sama dengan
+    // yang dipakai forex.com/TradingView, jadi harganya paling mendekati.
+    try {
+        const res = await fetch('https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD');
+        const data = await res.json();
+        const q = data && data[0] && data[0].spreadProfilePrices && data[0].spreadProfilePrices[0];
+        if (q && q.bid && q.ask) { applyXauPrice((parseFloat(q.bid) + parseFloat(q.ask)) / 2); return; }
+        throw new Error('swissquote: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 1 (swissquote/forex.com) gagal:', e.message || e);
+    }
+    // Sumber 2: goldprice.org (mengizinkan akses langsung dari browser, harga spot mid).
+    try {
+        const res = await fetch('https://data-asg.goldprice.org/dbXRates/USD');
+        const data = await res.json();
+        const price = data && data.items && data.items[0] ? parseFloat(data.items[0].xauPrice) : null;
+        if (price) { applyXauPrice(price); return; }
+        throw new Error('goldprice: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 2 (goldprice.org) gagal:', e.message || e);
+    }
+    // Sumber 3: cadangan terakhir.
+    try {
+        const res = await fetch('https://api.gold-api.com/price/XAU');
+        const data = await res.json();
+        if (data && data.price) { applyXauPrice(parseFloat(data.price)); return; }
+        throw new Error('gold-api: harga kosong');
+    } catch (e) {
+        console.warn('XAU sumber 3 (gold-api.com) gagal:', e.message || e);
+        if (xauBasePrice === null) {
+            const dot = document.getElementById('xau-live-dot');
+            if (dot) dot.style.background = 'var(--red2)';
+        }
+    }
+}
 function initLiveXAU() {
-  const socketXAU = new WebSocket('wss://stream.binance.com:9443/ws/paxgusdt@ticker');
-  socketXAU.addEventListener('message', e => { 
-      const newPrice = parseFloat(JSON.parse(e.data).c); 
-      if (newPrice) { 
-          const xauRate = document.getElementById('xau-rate-val'); 
-          if (xauRate) xauRate.textContent = '$' + newPrice.toFixed(2); 
-          if (currentUSDRate > 0) { 
-              const idrPriceOz = newPrice * currentUSDRate; 
-              const idrPriceGram = idrPriceOz / 31.1034768; 
-              const ozEl = document.getElementById('xau-idr-oz'); 
-              if (ozEl) ozEl.textContent = `Rp ` + kursIndo.format(idrPriceOz); 
-              const grEl = document.getElementById('xau-idr-gr'); 
-              if (grEl) grEl.textContent = `Rp ` + kursIndo.format(idrPriceGram); 
-          } 
-      } 
-  });
-  socketXAU.addEventListener('close', () => setTimeout(initLiveXAU, 3000));
+    fetchLiveXAU();
+    if (window.__xauInterval) clearInterval(window.__xauInterval);
+    window.__xauInterval = setInterval(fetchLiveXAU, 5000);
+    if (window.__xauTickInterval) clearInterval(window.__xauTickInterval);
+    window.__xauTickInterval = setInterval(xauTick, 400);
 }
 initLiveXAU();
 
@@ -6765,23 +6828,43 @@ window.restoreBackupFile = function(evt) {
             (t.wallet || ''), (t.walletTo || ''), (t.note || '').trim().toLowerCase(),
             (t.isDeleted ? '1' : '0')
         ].join('|');
-        const existingById = new Map(txs.concat(deletedTxs).map(t => [t.id, t]));
-        const existingSigs = new Set(txs.concat(deletedTxs).map(sigOfTx));
+        const allExisting = txs.concat(deletedTxs);
+        const existingById = new Map(allExisting.map(t => [t.id, t]));
+        const existingSigs = new Set(allExisting.map(sigOfTx));
+        const keyOfTx = t => [
+            (t.date || ''), (t.type || ''), (t.amount || 0), (t.category || ''),
+            (t.wallet || ''), (t.walletTo || '')
+        ].join('|');
+        const existingByKey = new Map();
+        allExisting.forEach(t => {
+            const k = keyOfTx(t);
+            if (!existingByKey.has(k)) existingByKey.set(k, []);
+            existingByKey.get(k).push(t);
+        });
+        const usedIds = new Set();
         const toAdd = [];
         const toUpdate = [];
         (data.transactions || []).forEach(t => {
+            let cur = null;
             if (t.id && existingById.has(t.id)) {
-                const cur = existingById.get(t.id);
-                if (sigOfTx(cur) !== sigOfTx(t)) toUpdate.push(t);
+                cur = existingById.get(t.id);
+            } else {
+                const candidates = existingByKey.get(keyOfTx(t)) || [];
+                cur = candidates.find(c => !usedIds.has(c.id)) || null;
+            }
+            if (cur) {
+                usedIds.add(cur.id);
+                if (sigOfTx(cur) !== sigOfTx(t)) toUpdate.push(Object.assign({}, t, { id: cur.id }));
                 return;
             }
             if (existingSigs.has(sigOfTx(t))) return;
             toAdd.push(t);
         });
         const jumlahLewat = jumlah - toAdd.length - toUpdate.length;
+        const fileInfoLine = `File <b>${escapeHTML(file.name)}</b>${data.account ? ' (diekspor dari akun <b>' + escapeHTML(data.account) + '</b>' + (data.exportedAt ? ' pada <b>' + escapeHTML(new Date(data.exportedAt).toLocaleString('id-ID')) + '</b>' : '') + ')' : ''}.<br>`;
         const res = await Swal.fire({
             title: 'Pulihkan Backup?',
-            html: `File berisi <b>${jumlah}</b> transaksi.<br><b>${toAdd.length}</b> transaksi baru akan <b>ditambahkan</b>.<br><b>${toUpdate.length}</b> transaksi yang berbeda akan <b>disesuaikan</b> sesuai file backup.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah sama persis.` : 'Tidak ada data yang sudah sama persis.'}`,
+            html: fileInfoLine + `File berisi <b>${jumlah}</b> transaksi.<br><b>${toAdd.length}</b> transaksi baru akan <b>ditambahkan</b>.<br><b>${toUpdate.length}</b> transaksi yang berbeda akan <b>disesuaikan</b> sesuai file backup.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah sama persis.` : 'Tidak ada data yang sudah sama persis.'}`,
             icon: 'warning', showCancelButton: true, confirmButtonText: 'PULIHKAN', cancelButtonText: 'Batal',
             confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', background: 'var(--card)', color: 'var(--text)'
         });
@@ -6808,7 +6891,10 @@ window.restoreBackupFile = function(evt) {
             }
             if (opCount > 0) await batch.commit();
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
-            Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', text: total + ' transaksi berhasil disesuaikan/ditambahkan.', background: 'var(--card)', color: 'var(--text)' });
+            const doneHtml = total > 0
+                ? `<b>${total}</b> transaksi berhasil disesuaikan/ditambahkan dari file <b>${escapeHTML(file.name)}</b>.`
+                : `Tidak ada transaksi baru dari file <b>${escapeHTML(file.name)}</b> — seluruh datanya sudah sama persis dengan yang tersimpan.`;
+            Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', html: doneHtml, background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Pemulihan Gagal', text: err.message, background: 'var(--card)', color: 'var(--text)' });
         }
