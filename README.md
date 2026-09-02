@@ -835,7 +835,7 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
 
     <div class="form-row" id="field-quickcode" style="display:none">
-      <input type="text" id="auth-quickcode" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="auth-quickcode" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
 
     <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
