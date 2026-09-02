@@ -35,7 +35,7 @@ h1, hr, .page-header, .site-header, .project-name { display: none !important; }
   --blue-title: #007BFF;
   
   --shadow-float: 0 12px 32px rgba(0,0,0,0.5);
-  --radius: 16px; 
+  --radius: 20px; 
 }
 
 body.light-mode {
@@ -52,7 +52,7 @@ body.light-mode {
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: var(--bg);
   color: var(--text);
   font-size: 14px;
@@ -148,7 +148,7 @@ button:disabled:hover, .nav-btn:disabled:hover, .t-btn:disabled:hover, .p-btn:di
 .page.active { animation: pageIn 0.07s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity; }
 @keyframes pageIn { from { opacity: 0.7; } to { opacity: 1; } }
 
-/* Sorotan singkat saat form "Tambah Transaksi" dibuka via tombol EDIT */
+/* Sorotan singkat saat form "Tambah Catatan" dibuka via tombol EDIT */
 .flash-highlight { animation: flashHighlight 1.1s cubic-bezier(0.22, 1, 0.36, 1); }
 @keyframes flashHighlight {
   0% { box-shadow: 0 0 0 0 rgba(251,191,36,0.55); border-color: var(--gold); }
@@ -215,14 +215,14 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 }
 .nav-ext-btn {
   background: transparent; border: none; color: var(--gold);
-  font-weight: 700; font-size: 11px; font-family: 'Outfit', sans-serif;
+  font-weight: 700; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .nav-ext-btn:hover { color: var(--text); }
 
 .status-row { display: flex; gap: 12px; margin-bottom: 20px; }
 .status-pill {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 999px;
   padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .usd-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--text); }
@@ -232,13 +232,13 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 /* USER ROW */
 .user-row { display: flex; align-items: center; gap: 12px; position: relative; width: 100%; }
 .theme-btn {
-  background: var(--bg2); border: 1px solid var(--border); color: var(--gold);
-  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  background: var(--bg2); border: 1px solid var(--border2); color: var(--gold);
+  width: 40px; height: 40px; border-radius: 999px; display: flex; align-items: center; justify-content: center;
   font-size: 16px; cursor: pointer; flex-shrink: 0; transition: 0.3s;
 }
 .theme-btn:hover { background: var(--bg3); }
 .user-pill {
-  flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  flex: 1; background: var(--bg2); border: 1px solid var(--border2); border-radius: 999px;
   padding: 4px 12px 4px 4px; display: flex; align-items: center; justify-content: space-between;
 }
 .user-pill-left { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
@@ -250,8 +250,8 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .u-name { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; max-width: 140px;}
 
 .user-action-wrap { display: flex; gap: 6px; padding-right: 4px; align-items: center; }
-.setting-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; padding: 0; }
-.logout-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); height: 32px; padding: 0 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+.setting-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); width: 32px; height: 32px; border-radius: 999px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; padding: 0; }
+.logout-btn { background: transparent; border: 1px solid var(--border2); color: var(--text3); height: 32px; padding: 0 14px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; text-transform: uppercase; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
 .setting-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--text); color: var(--text); }
 .logout-btn:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); color: var(--red2); }
 
@@ -275,7 +275,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 
 /* METRICS */
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-.m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+.m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border2); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
 .m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .m-val::-webkit-scrollbar { display: none; }
@@ -292,7 +292,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 
 /* WALLETS */
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
-.w-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
+.w-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
@@ -329,7 +329,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .req-badge.approved { background:rgba(16,185,129,0.15); color:var(--green2); }
 .req-badge.rejected { background:rgba(248,113,113,0.15); color:var(--red2); }
 .req-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.req-btn { border:none; border-radius:10px; padding:10px; font-size:10px; font-weight:800; cursor:pointer; text-transform:uppercase; }
+.req-btn { border:none; border-radius:999px; padding:10px; font-size:10px; font-weight:800; cursor:pointer; text-transform:uppercase; }
 .req-btn.ok { background:var(--green2); color:#000; }
 .req-btn.no { background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); }
 
@@ -348,7 +348,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .cs-bubble:hover .cs-msg-del, .cs-bubble:active .cs-msg-del { opacity:1; }
 @media (hover:none) { .cs-msg-del { opacity:0.85; } }
 .cs-chat-input-wrap { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); background:var(--card); }
-.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Outfit', sans-serif; outline:none; }
+.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Plus Jakarta Sans', sans-serif; outline:none; }
 .cs-chat-input-wrap button { background:var(--gold); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
 .cs-list-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg3); cursor:pointer; transition:0.2s; }
 .cs-list-item:hover { border-color:var(--gold); }
@@ -375,20 +375,20 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .sum-grid .usd-pill { font-size: 9px; padding: 1px 6px; margin-bottom: 5px; }
 
 /* FORMS */
-.card { background: var(--card); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border); margin-bottom: 24px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 32px; border: 1px solid var(--border2); margin-bottom: 24px; }
 .card-head { margin-bottom: 16px; }
 .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .card-sub { font-size: 12px; color: var(--text3); }
 
-.type-toggle { display: flex; background: var(--bg3); border-radius: 16px; padding: 4px; margin-bottom: 20px; }
-.t-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text3); transition: 0.2s; }
+.type-toggle { display: flex; background: var(--bg3); border-radius: 999px; padding: 4px; margin-bottom: 20px; }
+.t-btn { flex: 1; padding: 12px; border: none; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text3); transition: 0.2s; }
 .t-btn.income.active { background: var(--bg2); color: var(--green2); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .t-btn.expense.active { background: var(--bg2); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
 .f-input-dark {
   width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
-  outline: none; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 500;
+  outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 500;
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
@@ -416,7 +416,7 @@ select.swal2-input {
   -webkit-appearance: none; appearance: none;
   background-color: var(--bg2) !important; color: var(--text) !important;
   border: 1px solid var(--border) !important; border-radius: 16px;
-  padding: 16px 40px 16px 16px !important; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
   cursor: pointer;
@@ -429,7 +429,7 @@ select.swal2-select {
   -webkit-appearance: none; appearance: none;
   background-color: var(--bg2) !important; color: var(--text) !important;
   border: 1px solid var(--border) !important; border-radius: 16px;
-  padding: 16px 40px 16px 16px !important; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
   cursor: pointer;
@@ -461,11 +461,33 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 }
 .form-label { font-size: 10px; font-weight: 800; color: var(--text3); margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 .form-row textarea { height: 100px; resize: none; border-radius: 16px; }
-.submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 16px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
+.submit-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin-top: 8px; }
 
 /* HISTORY CARDS */
-#recent-list { overflow-y: auto; scrollbar-width: none; }
+#recent-list { overflow: visible; scrollbar-width: none; }
 #recent-list::-webkit-scrollbar { display: none; }
+
+/* Aktivitas Terakhir - item dipadatkan agar 9 data muat tanpa scroll */
+#recent-list .recent-item { padding: 7px 10px; margin-bottom: 6px; min-height: 52px; }
+#recent-list .ri-icon { width: 26px; height: 26px; border-radius: 8px; font-size: 12px; margin-right: 8px; }
+#recent-list .ri-note { font-size: 11px; margin-bottom: 1px; }
+#recent-list .ri-meta { font-size: 9px; }
+#recent-list .ri-amount { font-size: 11.5px; }
+#recent-list .ri-usd { font-size: 8px; }
+#recent-list .cat-badge, #recent-list .wallet-badge { font-size: 7px; padding: 1px 4px; }
+#recent-list .del-btn-recent, #recent-list .edit-btn-recent { padding: 3px 6px !important; font-size: 8px !important; margin-top: 2px !important; }
+
+/* Laporan Harian s/d Admin - samakan ukuran catatan seperti Aktivitas Terakhir */
+#daily-body .recent-item, #week-body .recent-item, #month-body .recent-item, #year-body .recent-item, #all-body .recent-item, #admin-detail-list .recent-item { padding: 7px 10px; margin-bottom: 6px; min-height: 52px; }
+#daily-body .ri-icon, #week-body .ri-icon, #month-body .ri-icon, #year-body .ri-icon, #all-body .ri-icon, #admin-detail-list .ri-icon { width: 26px; height: 26px; border-radius: 8px; font-size: 12px; margin-right: 8px; }
+#daily-body .ri-note, #week-body .ri-note, #month-body .ri-note, #year-body .ri-note, #all-body .ri-note, #admin-detail-list .ri-note { font-size: 11px; margin-bottom: 1px; }
+#daily-body .ri-meta, #week-body .ri-meta, #month-body .ri-meta, #year-body .ri-meta, #all-body .ri-meta, #admin-detail-list .ri-meta { font-size: 9px; }
+#daily-body .ri-amount, #week-body .ri-amount, #month-body .ri-amount, #year-body .ri-amount, #all-body .ri-amount, #admin-detail-list .ri-amount { font-size: 11.5px; }
+#daily-body .ri-usd, #week-body .ri-usd, #month-body .ri-usd, #year-body .ri-usd, #all-body .ri-usd, #admin-detail-list .ri-usd { font-size: 8px; }
+#daily-body .cat-badge, #week-body .cat-badge, #month-body .cat-badge, #year-body .cat-badge, #all-body .cat-badge, #admin-detail-list .cat-badge,
+#daily-body .wallet-badge, #week-body .wallet-badge, #month-body .wallet-badge, #year-body .wallet-badge, #all-body .wallet-badge, #admin-detail-list .wallet-badge { font-size: 7px; padding: 1px 4px; }
+#daily-body .del-btn-recent, #week-body .del-btn-recent, #month-body .del-btn-recent, #year-body .del-btn-recent, #all-body .del-btn-recent, #admin-detail-list .del-btn-recent,
+#daily-body .edit-btn-recent, #week-body .edit-btn-recent, #month-body .edit-btn-recent, #year-body .edit-btn-recent, #all-body .edit-btn-recent, #admin-detail-list .edit-btn-recent { padding: 3px 6px !important; font-size: 8px !important; margin-top: 2px !important; }
 
 .list-wrap { padding: 8px 0; }
 .list-wrap::-webkit-scrollbar { width: 6px; }
@@ -473,8 +495,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .list-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
 .recent-item {
-  padding: 16px; margin-bottom: 12px; border-radius: 16px; 
-  background: var(--bg2); border: 1px solid var(--border); 
+  padding: 16px; margin-bottom: 12px; border-radius: 18px; 
+  background: var(--bg2); border: 1px solid var(--border2); 
   display: flex; align-items: center; justify-content: space-between;
   min-height: 96px;
   content-visibility: auto; contain-intrinsic-size: 0 108px; contain: layout style paint;
@@ -495,12 +517,12 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
 .ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 
-.edit-btn-recent { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
-.del-btn-recent { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
+.edit-btn-recent { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 999px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
+.del-btn-recent { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 999px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
 .edit-btn-recent:hover { background: var(--blue); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
 .del-btn-recent:hover { background: var(--red2); color: #fff; box-shadow: 0 4px 12px rgba(248, 113, 113, 0.4); }
 
-.export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
+.export-btn { background: var(--text); color: var(--bg); padding: 16px 24px; border: none; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; text-transform: uppercase; flex-shrink: 0; white-space: nowrap; }
 .export-row { display: flex; gap: 8px; align-items: center; }
 .action-btns { display: flex; gap: 8px; margin-top: 4px; align-items: center; justify-content: flex-end; flex-wrap: wrap;}
 
@@ -517,7 +539,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 .calc-select {
     background: transparent; color: var(--text); border: none; font-size: 16px; font-weight: 800;
-    outline: none; cursor: pointer; font-family: 'Outfit', sans-serif; appearance: none; -webkit-appearance: none; padding-right: 18px;
+    outline: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; appearance: none; -webkit-appearance: none; padding-right: 18px;
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat; background-position: right center;
 }
@@ -530,23 +552,23 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 /* Diubah warna bg nya pake variable tema biar nyesuaiin dengan light/dark mode */
 .calc-keypad-wrap { background: var(--bg3); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
 .calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
-.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Outfit', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
 .calc-btn:active { background: rgba(128,128,128,0.2); }
 .calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
 .calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
 
 /* SETTINGS MODULE */
-.set-group { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+.set-group { background: var(--card); border: 1px solid var(--border2); border-radius: 20px; padding: 20px; margin-bottom: 24px; }
 .set-title { font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px; border-bottom: 1px solid var(--border2); padding-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .set-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--border2); }
 .set-item:last-child { border-bottom: none; padding-bottom: 0; }
 .set-label { font-size: 13px; font-weight: 700; color: var(--text); }
 .set-sub { font-size: 10px; color: var(--text3); margin-top: 4px; font-weight: 500; }
-.set-action { padding: 8px 16px; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; white-space: nowrap; }
+.set-action { padding: 8px 16px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: 0.4px; cursor: pointer; transition: 0.2s; text-transform: uppercase; white-space: nowrap; }
 .set-action:hover { background: var(--bg2); border-color: var(--gold); color: var(--gold); }
 .set-action.danger { color: var(--red2); border-color: rgba(248,113,113,0.3); }
 .set-action.danger:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); }
-.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; font-family: 'Outfit', sans-serif; cursor: pointer; }
+.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
 
 /* CHART & FILTERS BAR */
 .chart-wrap { margin-bottom: 24px; }
@@ -569,14 +591,14 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
 
 /* ==========================================================================
-   ADMIN: DETAIL TRANSAKSI PER AKUN & GRAFIK BULANAN (Tambahan Baru)
+   ADMIN: DETAIL CATATAN PER AKUN & GRAFIK BULANAN (Tambahan Baru)
    ========================================================================== */
 .admin-user-card { transition: 0.3s; }
 .admin-user-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .admin-detail-btn {
   flex: 1 1 calc(50% - 8px); min-width: 100px; padding: 9px 6px; font-size: 9px; font-weight: 800; border-radius: 8px;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;
-  transition: 0.3s; font-family: 'Outfit', sans-serif;
+  transition: 0.3s; font-family: 'Plus Jakarta Sans', sans-serif;
   background: rgba(251,191,36,0.1); border: 1px solid var(--gold); color: var(--gold);
 }
 .admin-detail-btn:hover { background: var(--gold); color: #000; }
@@ -604,10 +626,10 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .auth-box img { width: 64px; border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--border2); }
 .auth-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
 .auth-sub { font-size: 12px; color: var(--text3); font-weight: 500; margin-bottom: 24px; }
-.auth-tabs { display: flex; background: var(--bg3); border-radius: 12px; padding: 4px; margin-bottom: 24px; }
-.auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 8px; }
+.auth-tabs { display: flex; background: var(--bg3); border-radius: 999px; padding: 4px; margin-bottom: 24px; }
+.auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 999px; }
 .auth-tab.active { background: var(--bg2); color: var(--text); }
-.auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Outfit', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
+.auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 .btn-google { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
 
@@ -676,9 +698,9 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
   .panel { display: flex; align-items: stretch; gap: 24px; }
   .panel > .card:nth-child(1) { width: 380px; flex-shrink: 0; margin-bottom: 0; }
   .panel > .card:nth-child(2) { flex-grow: 1; display: flex; flex-direction: column; margin-bottom: 0; }
-  .panel > .card:nth-child(2) .list-wrap { flex-grow: 1; overflow-y: auto; height: 0; padding-right: 8px; }
+  .panel > .card:nth-child(2) .list-wrap { flex-grow: 1; overflow: visible; padding-right: 8px; }
   
-  #recent-list { max-height: none !important; }
+  #recent-list { max-height: none !important; overflow: visible !important; }
   
   .main, .header-area, .nav { max-width: 1200px; margin: 0 auto; }
   
@@ -749,7 +771,7 @@ body.global-privacy #xau-idr-gr {
 }
 
 .splash-title-minimal {
-  font-size: 36px; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;
+  font-size: 36px; font-weight: 800; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
   letter-spacing: 6px; margin-bottom: 8px;
 }
 
@@ -775,7 +797,7 @@ body.global-privacy #xau-idr-gr {
 }
 </style>
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -980,7 +1002,7 @@ body.global-privacy #xau-idr-gr {
   <div class="panel">
     <div class="card">
       <div class="card-head">
-        <div class="card-title">Tambah Transaksi</div>
+        <div class="card-title">Tambah Catatan</div>
         <div class="card-sub">Catat pemasukan atau pengeluaran baru</div>
       </div>
       <div class="type-toggle" style="flex-wrap: wrap; gap: 8px;">
@@ -1031,11 +1053,11 @@ body.global-privacy #xau-idr-gr {
       
       <div class="form-row">
         <label class="form-label">KETERANGAN</label>
-        <textarea id="f-note" class="f-input-dark" placeholder="Catatan transaksi..."></textarea>
+        <textarea id="f-note" class="f-input-dark" placeholder="Catatan catatan..."></textarea>
       </div>
 
       <div class="form-row" id="row-recurring">
-        <label class="form-label">JADIKAN TRANSAKSI RUTIN?</label>
+        <label class="form-label">JADIKAN CATATAN RUTIN?</label>
         <select id="f-recurring" class="f-input-dark" onchange="window.toggleRecTime()">
             <option value="">Tidak / Sekali Saja</option>
             <option value="daily">Rutin Tiap Hari</option>
@@ -1052,13 +1074,13 @@ body.global-privacy #xau-idr-gr {
       <div class="form-row">
         <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
           <span>WAKTU</span>
-          <button type="button" onclick="setRealLocalTime()" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Outfit', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
+          <button type="button" onclick="setRealLocalTime()" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
         </label>
         <input type="datetime-local" id="f-date" class="f-input-dark">
       </div>
       
       <button class="submit-btn" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none; background:var(--bg3); color:var(--text); margin-bottom:8px;">BATAL EDIT</button>
-      <button class="submit-btn" id="save-btn" onclick="addTx()">SIMPAN TRANSAKSI</button>
+      <button class="submit-btn" id="save-btn" onclick="addTx()">SIMPAN CATATAN</button>
     </div>
     
     <div class="card">
@@ -1196,7 +1218,7 @@ body.global-privacy #xau-idr-gr {
     <div id="admin-detail-section" class="card" style="display:none; margin-bottom:24px; border-color: var(--gold); background: var(--bg2);">
       <div class="card-head" style="position:relative; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; text-align:center; padding-right:90px;">
         <div style="width:100%;">
-          <div class="card-title" id="admin-detail-title" style="color: var(--gold); text-align:center;">Detail Transaksi</div>
+          <div class="card-title" id="admin-detail-title" style="color: var(--gold); text-align:center;">Detail Catatan</div>
           <div class="card-sub" id="admin-detail-sub" style="text-align:center;">-</div>
         </div>
         <button class="edit-btn-recent" onclick="closeAdminDetail()" style="position:absolute; top:0; right:0; border-color:var(--red2); color:var(--red2); background:rgba(248,113,113,0.1);">✕ TUTUP</button>
@@ -1210,7 +1232,7 @@ body.global-privacy #xau-idr-gr {
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
-      <div class="card-title" style="font-size:12px; margin:16px 0 4px; color:var(--text3);">🧾 Riwayat Transaksi Periode Ini</div>
+      <div class="card-title" style="font-size:12px; margin:16px 0 4px; color:var(--text3);">🧾 Riwayat Catatan Periode Ini</div>
       <div class="list-wrap" id="admin-detail-list"></div>
     </div>
   </div>
@@ -1228,7 +1250,7 @@ body.global-privacy #xau-idr-gr {
   <div id="saldo-wallet-card-wrap"></div>
   <div style="font-size: 11px; color: var(--text3); margin: -8px 0 20px;">Kirim saldo langsung dari salah satu dompetmu ke dompet user lain memakai Kode Transfer 3 Angka. Saldo otomatis berkurang di akunmu dan langsung bertambah di akun tujuan, seperti dompet digital pada umumnya.</div>
 
-  <button class="export-btn" onclick="window.openWalletHistoryScreen()" style="width:100%; background:var(--blue); color:#fff; margin-bottom:20px; padding:14px; font-size:12px;">📜 RIWAYAT TRANSAKSI WALLET</button>
+  <button class="export-btn" onclick="window.openWalletHistoryScreen()" style="width:100%; background:var(--blue); color:#fff; margin-bottom:20px; padding:14px; font-size:12px;">📜 RIWAYAT CATATAN WALLET</button>
 
   <div class="set-group">
     <div class="set-title">↓ PERMINTAAN SALDO MASUK (UNTUK DISETUJUI)</div>
@@ -1307,8 +1329,8 @@ body.global-privacy #xau-idr-gr {
     
     <div class="form-row">
       <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
-        <span>WAKTU TRANSAKSI</span>
-        <button type="button" onclick="document.getElementById('qris-date').value = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Outfit', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
+        <span>WAKTU CATATAN</span>
+        <button type="button" onclick="document.getElementById('qris-date').value = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
       </label>
       <input type="datetime-local" id="qris-date" class="f-input-dark">
     </div>
@@ -1327,7 +1349,7 @@ body.global-privacy #xau-idr-gr {
             <circle cx="14" cy="16" r="14" fill="#f9a51a"/>
             <circle cx="26" cy="16" r="14" fill="#e6222a" opacity="0.85"/>
             <path d="M28 11 L48 12 L40 21 Z" fill="#d91b29"/>
-            <text x="2" y="30" font-family="'Outfit', sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
+            <text x="2" y="30" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
           </svg>
         </div>
       </div>
@@ -1349,7 +1371,7 @@ body.global-privacy #xau-idr-gr {
 
       <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 120%; margin-left: -10%; margin-right: -10%; background: transparent; position: relative; z-index: 3; padding-left: 10%; box-sizing: border-box;">
         
-        <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 9px; font-weight: 700; line-height: 1.4; font-family: 'Outfit', sans-serif;">
+        <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 9px; font-weight: 700; line-height: 1.4; font-family: 'Plus Jakarta Sans', sans-serif;">
           <div>Dicetak oleh: 93600914</div>
           <div id="qris-print-version" style="color: #000; font-weight: 800; font-size: 10px; margin-top: 2px;">Waktu Cetak: -</div>
         </div>
@@ -1415,7 +1437,7 @@ body.global-privacy #xau-idr-gr {
     <div class="set-title">🗂️ KUSTOMISASI KATEGORI</div>
     <div class="set-item">
       <div>
-        <div class="set-label">Atur Kategori Transaksi</div>
+        <div class="set-label">Atur Kategori Catatan</div>
         <div class="set-sub">Tambah atau hapus kategori bawaan sesuai kebutuhan</div>
       </div>
       <button class="set-action" onclick="manageCategories()">ATUR KATEGORI</button>
@@ -1434,11 +1456,11 @@ body.global-privacy #xau-idr-gr {
   </div>
 
   <div class="set-group">
-    <div class="set-title">⏱️ MANAJEMEN TRANSAKSI RUTIN</div>
+    <div class="set-title">⏱️ MANAJEMEN CATATAN RUTIN</div>
     <div class="set-item">
       <div>
         <div class="set-label">Atur Jadwal Otomatis</div>
-        <div class="set-sub">Lihat dan matikan transaksi yang berulang otomatis</div>
+        <div class="set-sub">Lihat dan matikan catatan yang berulang otomatis</div>
       </div>
       <button class="set-action" style="background:var(--blue); color:#fff; border:none;" onclick="manageRecurring()">LIHAT JADWAL</button>
     </div>
@@ -1460,7 +1482,7 @@ body.global-privacy #xau-idr-gr {
     <div class="set-item">
       <div>
         <div class="set-label">Lihat Semua Akun &amp; Isi Dompet</div>
-        <div class="set-sub">Pantau akun, transaksi, dan saldo dompet setiap user terdaftar</div>
+        <div class="set-sub">Pantau akun, catatan, dan saldo dompet setiap user terdaftar</div>
       </div>
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="switchPage('admin')">BUKA PANEL</button>
     </div>
@@ -1507,9 +1529,9 @@ body.global-privacy #xau-idr-gr {
 
   <div class="set-group">
     <div class="set-title">⚡ PREFERENSI BAWAAN FORM</div>
-    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah transaksi setiap aplikasi dibuka.</div>
+    <div style="font-size: 11px; color: var(--text3); margin-bottom: 16px;">Pengaturan ini otomatis terpilih di formulir tambah catatan setiap aplikasi dibuka.</div>
     <div class="set-item">
-      <div><div class="set-label">Tipe Transaksi</div></div>
+      <div><div class="set-label">Tipe Catatan</div></div>
       <select id="pref-type" class="set-select" onchange="updatePrefCategories()">
         <option value="expense">Pengeluaran</option>
         <option value="income">Pemasukan</option>
@@ -1624,7 +1646,7 @@ body.global-privacy #xau-idr-gr {
     <div class="set-item">
       <div>
         <div class="set-label">Backup Otomatis</div>
-        <div class="set-sub">Data disimpan otomatis ke cloud setiap ada transaksi ditambah/dihapus</div>
+        <div class="set-sub">Data disimpan otomatis ke cloud setiap ada catatan ditambah/dihapus</div>
       </div>
       <select id="ext_autobackup" class="set-select" onchange="saveExtraPrefs()">
         <option value="on">Aktif</option>
@@ -1660,7 +1682,7 @@ body.global-privacy #xau-idr-gr {
     <div class="set-item">
       <div>
         <div class="set-label">Unduh Laporan CSV</div>
-        <div class="set-sub">Ekspor semua riwayat transaksi untuk di Excel</div>
+        <div class="set-sub">Ekspor semua riwayat catatan untuk di Excel</div>
       </div>
       <button class="set-action" onclick="exportCSV()">UNDUH DATA</button>
     </div>
@@ -1695,7 +1717,7 @@ body.global-privacy #xau-idr-gr {
 <div style="text-align: center; padding: 24px; font-size: 10px; color: var(--text3); margin-top: 32px; border-top: 1px dashed var(--border2); line-height: 1.6;">
     &copy; 2026 RHN CAPITAL. Hak Cipta Dilindungi.<br>
     Platform Arus Keuangan yang aman, cepat, dan terenkripsi.<br>
-    Didesain khusus untuk memudahkan pengelolaan aset dan transaksi Anda secara presisi.
+    Didesain khusus untuk memudahkan pengelolaan aset dan catatan Anda secara presisi.
 </div>
 
 </div></div>
@@ -2053,8 +2075,8 @@ window.promptTransfer = async function(txId) {
     if (!t) return;
 
     const { value: targetCode } = await Swal.fire({
-        title: 'Transfer 1 Transaksi',
-        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+        title: 'Transfer 1 Catatan',
+        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Plus Jakarta Sans; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2071,7 +2093,7 @@ window.promptTransfer = async function(txId) {
 };
 
 // ======================================================================
-// Pisah 1 transaksi jadi 2 transaksi terpisah (misal 1 nota gabungan
+// Pisah 1 catatan jadi 2 catatan terpisah (misal 1 nota gabungan
 // "Cukur rambut dan parkir" dipecah jadi 2 catatan sendiri-sendiri)
 // ======================================================================
 window.splitTx = async function(txId) {
@@ -2083,7 +2105,7 @@ window.splitTx = async function(txId) {
     const catOptions = catList.map(c => `<option value="${c}" ${c === t.category ? 'selected' : ''}>${c}</option>`).join('');
 
     const { value: formVals } = await Swal.fire({
-        title: '✂️ Pisah Jadi 2 Transaksi',
+        title: '✂️ Pisah Jadi 2 Catatan',
         html: `
           <style>
             .sp-wrap{ text-align:left; }
@@ -2108,7 +2130,7 @@ window.splitTx = async function(txId) {
           <div class="sp-wrap">
             <div class="sp-info">
               <div>
-                <div class="sp-info-label">Total Transaksi</div>
+                <div class="sp-info-label">Total Catatan</div>
                 <div class="sp-info-sub">Jumlah bagian 1 + bagian 2 harus pas sama</div>
               </div>
               <div class="sp-info-amt">${fmtFull(t.amount)}</div>
@@ -2190,13 +2212,13 @@ window.splitTx = async function(txId) {
 
     if (!formVals) return;
 
-    Swal.fire({title: 'Memisahkan Transaksi...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    Swal.fire({title: 'Memisahkan Catatan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     try {
         const base = { ...t };
         delete base.id;
         // createdAt TIDAK dihapus & TIDAK diganti serverTimestamp() baru,
         // supaya hasil pisahan tetap di tanggal & jam yang sama persis
-        // dengan transaksi asli (t.date juga sudah ikut ke-copy via base).
+        // dengan catatan asli (t.date juga sudah ikut ke-copy via base).
 
         const batch = writeBatch(db);
         const ref1 = doc(collection(db, 'users', currentUser.uid, 'transactions'));
@@ -2206,7 +2228,7 @@ window.splitTx = async function(txId) {
         batch.delete(doc(db, 'users', currentUser.uid, 'transactions', txId));
         await batch.commit();
 
-        Swal.fire({icon:'success', title:'Berhasil Dipisah! ✂️', text:'1 transaksi sekarang jadi 2 catatan terpisah.', background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
+        Swal.fire({icon:'success', title:'Berhasil Dipisah! ✂️', text:'1 catatan sekarang jadi 2 catatan terpisah.', background:'var(--card)', color:'var(--text)', timer:1400, showConfirmButton:false});
     } catch(e) {
         Swal.fire({icon:'error', title:'Gagal Memisah', text: e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -2219,7 +2241,7 @@ window.promptTransferAll = async function() {
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer Semua Riwayat',
         html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Outfit; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Plus Jakarta Sans; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -2262,9 +2284,9 @@ window.confirmAndTransfer = async function(txList, targetCode, isSingle) {
             <div style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; margin-bottom:8px;">Transfer akan dikirim ke:</div>
             <div style="font-size:16px; font-weight:800; color:var(--gold); margin-bottom:4px;">${window.escapeHTML ? window.escapeHTML(target.nama) : target.nama}</div>
             <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', monospace;">${window.escapeHTML ? window.escapeHTML(target.email) : target.email}</div>
-            <div style="font-size:10px; color:var(--text3); margin-top:12px;">Kode: <b style="color:var(--text);">${targetCode}</b> · Jumlah data: <b style="color:var(--text);">${txList.length} transaksi</b></div>
+            <div style="font-size:10px; color:var(--text3); margin-top:12px;">Kode: <b style="color:var(--text);">${targetCode}</b> · Jumlah data: <b style="color:var(--text);">${txList.length} catatan</b></div>
           </div>
-          <div style="font-size:11px; color:var(--red2); margin-top:12px;">Pastikan nama & email di atas benar sebelum lanjut. Transaksi akan dipindahkan dan dihapus dari akun ini.</div>
+          <div style="font-size:11px; color:var(--red2); margin-top:12px;">Pastikan nama & email di atas benar sebelum lanjut. Catatan akan dipindahkan dan dihapus dari akun ini.</div>
         `,
         showCancelButton: true,
         confirmButtonText: isSingle ? 'YA, KIRIM SEKARANG' : `YA, KIRIM ${txList.length} DATA`,
@@ -2282,10 +2304,10 @@ window.confirmAndTransfer = async function(txList, targetCode, isSingle) {
 // Eksekusi transfer pakai writeBatch -> jauh lebih cepat dari loop satu-satu
 // ======================================================================
 window.executeTransfer = async function(txList, targetUid, isSingle) {
-    Swal.fire({title: 'Memproses Transfer...', html: `Memindahkan ${txList.length} transaksi, mohon tunggu...`, background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
+    Swal.fire({title: 'Memproses Transfer...', html: `Memindahkan ${txList.length} catatan, mohon tunggu...`, background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
 
     try {
-        const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per transaksi)
+        const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per catatan)
         for (let i = 0; i < txList.length; i += CHUNK_SIZE) {
             const chunk = txList.slice(i, i + CHUNK_SIZE);
             const batch = writeBatch(db);
@@ -2300,7 +2322,7 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
             });
             await batch.commit();
         }
-        Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 transaksi dipindahkan.' : `${txList.length} transaksi dipindahkan.`, background:'var(--card)', color:'var(--text)'});
+        Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 catatan dipindahkan.' : `${txList.length} catatan dipindahkan.`, background:'var(--card)', color:'var(--text)'});
     } catch(e) {
         Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal: " + e.message, background:'var(--card)', color:'var(--text)'});
     }
@@ -2510,7 +2532,7 @@ window.openCurrencySelector = function(rId) {
   let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; 
   calcCurrencies.forEach(c => { 
       let isActive = (rId === 'from' && calcFromCode === c.code) || (rId === 'to' && calcToCode === c.code); 
-      html += `<button onclick="changeCalcCurr('${rId}', '${c.code}'); Swal.close();" style="background:${isActive?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isActive?'var(--gold)':'var(--border)'}; padding:14px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">${c.flag}</span> ${c.code} - ${c.name}</button>`; 
+      html += `<button onclick="changeCalcCurr('${rId}', '${c.code}'); Swal.close();" style="background:${isActive?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isActive?'var(--gold)':'var(--border)'}; padding:14px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">${c.flag}</span> ${c.code} - ${c.name}</button>`; 
   }); 
   html += '</div>'; 
   Swal.fire({ title: '<div style="font-size:18px; text-align:left; font-weight:800; border-bottom:1px dashed var(--border); padding-bottom:12px; margin-bottom:8px;">Pilih Mata Uang</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); 
@@ -2564,7 +2586,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCalc();
     const syncSelectUI = (sel, ui) => { let text = sel.options[sel.selectedIndex]?.text; if(!text && sel.options.length > 0) text = sel.options[0].text; ui.querySelector('.sel-text').innerHTML = text || 'Pilih...'; };
     document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => { 
-        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Outfit'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
+        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
     });
     window.selectCustomOpt = function(selId, optIdx) { let sel = document.getElementById(selId); if (sel) { sel.selectedIndex = optIdx; sel.dispatchEvent(new Event('change')); if(sel.onchange) sel.onchange(); } Swal.close(); };
     
@@ -2851,7 +2873,7 @@ window.manageRecurring = async function() {
     try {
         const snap = await getDocs(collection(db, 'users', currentUser.uid, 'recurring_txs'));
         if(snap.empty) {
-            return Swal.fire({icon:'info', title:'Kosong', text:'Belum ada jadwal transaksi rutin yang aktif.', background:'var(--card)', color:'var(--text)'});
+            return Swal.fire({icon:'info', title:'Kosong', text:'Belum ada jadwal catatan rutin yang aktif.', background:'var(--card)', color:'var(--text)'});
         }
         let html = '<div style="max-height:60vh; overflow-y:auto; text-align:left;">';
         snap.forEach(d => {
@@ -3065,7 +3087,7 @@ onAuthStateChanged(auth, async user => {
                 await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
             }
         });
-    } catch(err) { console.error("Gagal memproses transaksi rutin", err); }
+    } catch(err) { console.error("Gagal memproses catatan rutin", err); }
 
     window.isAppLoading = true;
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip', 'ext_autobackup'].forEach(id => { if (document.getElementById(id) && extraPrefs[id]) { document.getElementById(id).value = extraPrefs[id]; document.getElementById(id).dispatchEvent(new Event('change')); } });
@@ -3219,7 +3241,7 @@ window.loadAllUsersData = async function() {
     });
 
     // ======================================================================
-    // Paksa deteksi nama & email pemilik akun dari data transaksi itu sendiri
+    // Paksa deteksi nama & email pemilik akun dari data catatan itu sendiri
     // (fallback wajib jika dokumen profil users/{uid} tidak terbaca/tidak ada)
     // ======================================================================
     let emailByUid = {};
@@ -3253,7 +3275,7 @@ window.loadAllUsersData = async function() {
             } catch(err) {}
 
             // Paksa fallback: jika profil users/{uid} tidak terbaca (mis. tertahan rules),
-            // tetap paksa ambil email dari salah satu transaksi milik uid tersebut.
+            // tetap paksa ambil email dari salah satu catatan milik uid tersebut.
             if (!userInfos[uid] && emailByUid[uid]) {
                 userInfos[uid] = {
                     email: emailByUid[uid],
@@ -3265,7 +3287,7 @@ window.loadAllUsersData = async function() {
 
     // ======================================================================
     // Ambil SEMUA profil user terdaftar di koleksi 'users' (termasuk yang
-    // belum pernah membuat transaksi sama sekali), agar semua akun kelihatan
+    // belum pernah membuat catatan sama sekali), agar semua akun kelihatan
     // ======================================================================
     let allUserDocs = {};
     try {
@@ -3297,7 +3319,7 @@ window.loadAllUsersData = async function() {
     });
 
     // ======================================================================
-    // Kelompokkan transaksi per akun (untuk fitur Detail Transaksi & Grafik Bulanan)
+    // Kelompokkan catatan per akun (untuk fitur Detail Catatan & Grafik Bulanan)
     // ======================================================================
     adminGrouped = {};
     adminUserLabels = {};
@@ -3308,7 +3330,7 @@ window.loadAllUsersData = async function() {
     });
 
     // ======================================================================
-    // Kelompokkan transaksi yang ADA DI SAMPAH (isDeleted:true) per akun,
+    // Kelompokkan catatan yang ADA DI SAMPAH (isDeleted:true) per akun,
     // supaya admin bisa memantau & mengendalikan sampah milik semua user
     // ======================================================================
     adminGroupedTrash = {};
@@ -3336,7 +3358,7 @@ window.loadAllUsersData = async function() {
             <div class="m-card admin-user-card" style="border-color: var(--gold);">
                 <div class="m-label" style="color:var(--gold);">👤 ${escapeHTML(ownerLabel)}</div>
                 ${(finalUmur || finalGender) ? `<div class="m-sub" style="margin-bottom:4px;">${finalUmur ? 'Umur: ' + escapeHTML(String(finalUmur)) + ' th' : ''}${finalUmur && finalGender ? ' • ' : ''}${finalGender ? escapeHTML(finalGender) : ''}</div>` : ''}
-                <div class="m-sub" style="margin-bottom:8px;">${s.count} transaksi</div>
+                <div class="m-sub" style="margin-bottom:8px;">${s.count} catatan</div>
                 <div style="display:flex; flex-direction:column; gap:4px;">
                     <div style="display:flex; justify-content:space-between; font-size:11px;">
                         <span style="color:var(--text3);">Pemasukan</span>
@@ -3352,7 +3374,7 @@ window.loadAllUsersData = async function() {
                     </div>
                 </div>
                 <div class="admin-user-actions">
-                    <button class="admin-detail-btn" onclick="showAdminDetail('${uid}','list')">📋 Detail Transaksi</button>
+                    <button class="admin-detail-btn" onclick="showAdminDetail('${uid}','list')">📋 Detail Catatan</button>
                     <button class="admin-detail-btn weekly" onclick="showAdminDetail('${uid}','weekly')">📅 Mingguan</button>
                     <button class="admin-detail-btn chart" onclick="showAdminDetail('${uid}','chart')">📊 Bulanan</button>
                     <button class="admin-detail-btn yearly" onclick="showAdminDetail('${uid}','yearly')">📈 Tahunan</button>
@@ -3379,7 +3401,7 @@ window.loadAllUsersData = async function() {
     Swal.fire({
         icon: 'success', 
         title: 'Data Ditemukan', 
-        text: `Berhasil memuat ${allUsersTxs.length} transaksi.`, 
+        text: `Berhasil memuat ${allUsersTxs.length} catatan.`, 
         background: 'var(--card)', color: 'var(--text)', 
         timer: 1500,
         showConfirmButton: false
@@ -3392,7 +3414,7 @@ window.loadAllUsersData = async function() {
 };
 
 // ==========================================================================
-// ADMIN: Detail Transaksi per Akun & Grafik Bulanan per Akun (Tambahan Baru)
+// ADMIN: Detail Catatan per Akun & Grafik Bulanan per Akun (Tambahan Baru)
 // ==========================================================================
 function adminTxCard(t) {
     let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
@@ -3426,7 +3448,7 @@ function renderAdminPeriodList(filtered) {
     const sorted = filtered.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     listWrap.innerHTML = sorted.length
         ? sorted.map(t => adminTxCard(t)).join('')
-        : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada periode ini</div>';
+        : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada catatan pada periode ini</div>';
 }
 
 function renderAdminSumGrid(arr) {
@@ -3765,7 +3787,7 @@ window.showAdminDetail = function(uid, mode) {
         const titleMap = { chart: '📊 Grafik Bulanan — ', weekly: '📅 Grafik Mingguan — ', yearly: '📈 Grafik Tahunan — ' };
         const granMap = { chart: 'month', weekly: 'week', yearly: 'year' };
         title.innerHTML = titleMap[mode] + escapeHTML(label);
-        sub.textContent = arr.length + ' transaksi tercatat pada akun ini.';
+        sub.textContent = arr.length + ' catatan tercatat pada akun ini.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'block';
         const ysel = document.getElementById('admin-riwayat-year-sel');
@@ -3806,7 +3828,7 @@ window.showAdminDetail = function(uid, mode) {
         }
     } else if (mode === 'riwayat') {
         title.innerHTML = '🕒 Riwayat — ' + escapeHTML(label);
-        sub.textContent = arr.length + ' transaksi ditemukan, riwayat lengkap dari yang terbaru.';
+        sub.textContent = arr.length + ' catatan ditemukan, riwayat lengkap dari yang terbaru.';
         chartWrap.style.display = 'block';
         listWrap.style.display = 'block';
         const msel = document.getElementById('admin-month-sel');
@@ -3820,8 +3842,8 @@ window.showAdminDetail = function(uid, mode) {
         window.__adminRiwayatArr = arr;
         renderAdminRiwayatChart(arr);
     } else {
-        title.innerHTML = '📋 Detail Transaksi — ' + escapeHTML(label);
-        sub.textContent = arr.length + ' transaksi ditemukan, diurutkan dari yang terbaru.';
+        title.innerHTML = '📋 Detail Catatan — ' + escapeHTML(label);
+        sub.textContent = arr.length + ' catatan ditemukan, diurutkan dari yang terbaru.';
         chartWrap.style.display = 'none';
         listWrap.style.display = 'block';
         listWrap.innerHTML = arr.length
@@ -3839,7 +3861,7 @@ window.closeAdminDetail = function() {
 };
 
 // ==========================================================================
-// Hitung saldo per dompet dari sekumpulan transaksi (dipakai dashboard user
+// Hitung saldo per dompet dari sekumpulan catatan (dipakai dashboard user
 // sendiri maupun panel Admin untuk melihat "isi dompet" milik user lain)
 // ==========================================================================
 function computeWalletsFromArr(arr) {
@@ -3899,7 +3921,7 @@ window.showAdminWallet = function(uid) {
 
 // ==========================================================================
 // ADMIN: Tambah / kurangi saldo dompet milik user lain secara langsung
-// (dicatat sebagai transaksi Penyesuaian Admin di akun user tersebut)
+// (dicatat sebagai catatan Penyesuaian Admin di akun user tersebut)
 // ==========================================================================
 window.adminAdjustBalance = async function(uid, mode) {
     const arr = adminGrouped[uid] || [];
@@ -3981,7 +4003,7 @@ window.showAdminTrash = function(uid) {
 
     section.style.display = 'block';
     title.innerHTML = '🗑️ Sampah — ' + escapeHTML(label);
-    sub.textContent = arr.length + ' transaksi ada di tempat sampah user ini.';
+    sub.textContent = arr.length + ' catatan ada di tempat sampah user ini.';
     chartWrap.style.display = 'none';
 
     if (!arr.length) {
@@ -4269,8 +4291,8 @@ function renderWalletTransferCard() {
 window.renderWalletTransferCard = renderWalletTransferCard;
 
 // ==========================================================================
-// RIWAYAT TRANSAKSI WALLET — layar penuh (mirip halaman Riwayat, dipanggil
-// dari tombol di halaman Wallet). Menampilkan semua transaksi, bisa difilter
+// RIWAYAT CATATAN WALLET — layar penuh (mirip halaman Riwayat, dipanggil
+// dari tombol di halaman Wallet). Menampilkan semua catatan, bisa difilter
 // per dompet, memakai createTxCard/renderList yang sama dengan halaman Riwayat.
 // ==========================================================================
 window.openWalletHistoryScreen = function() {
@@ -4278,7 +4300,7 @@ window.openWalletHistoryScreen = function() {
     if (!screen) return;
     screen.style.display = 'flex';
 
-    // Isi dropdown filter dompet dari daftar dompet yang benar-benar ada di transaksi
+    // Isi dropdown filter dompet dari daftar dompet yang benar-benar ada di catatan
     const sel = document.getElementById('wallet-hist-filter-select');
     if (sel) {
         const wallets = new Set();
@@ -4308,7 +4330,7 @@ window.renderWalletHistoryScreen = function(walletFilter) {
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const sub = document.getElementById('wallet-hist-sub');
-    if (sub) sub.textContent = walletFilter ? `Dompet: ${walletFilter} · ${filtered.length} transaksi` : `Semua dompet · ${filtered.length} transaksi`;
+    if (sub) sub.textContent = walletFilter ? `Dompet: ${walletFilter} · ${filtered.length} catatan` : `Semua dompet · ${filtered.length} catatan`;
 
     renderList(body, filtered);
 };
@@ -4332,7 +4354,7 @@ window.promptSendSaldo = async function() {
         title: '🚀 Kirim Saldo',
         html: `
           <div style="text-align:left;">
-            <button type="button" onclick="window.__closeSendModalAndScan()" style="width:100%; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; font-family:'Outfit',sans-serif; cursor:pointer; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 SCAN BARCODE PERMINTAAN SALDO</button>
+            <button type="button" onclick="window.__closeSendModalAndScan()" style="width:100%; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 SCAN BARCODE PERMINTAAN SALDO</button>
             <div style="text-align:center; font-size:9px; color:var(--text3); font-weight:800; text-transform:uppercase; margin:-8px 0 14px;">— atau isi manual —</div>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
             <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
@@ -4528,7 +4550,7 @@ window.showBarcodeRequest = function(rid, amount, note) {
     screen.style.display = 'flex';
 
     // Real-time: begitu pihak pengirim scan & permintaan disetujui, layar peminta
-    // otomatis berubah jadi respon "Transaksi Berhasil" tanpa perlu refresh apa pun.
+    // otomatis berubah jadi respon "Catatan Berhasil" tanpa perlu refresh apa pun.
     if (window.__unsubBarcodeReq) { window.__unsubBarcodeReq(); window.__unsubBarcodeReq = null; }
     try {
         window.__unsubBarcodeReq = onSnapshot(doc(db, 'balance_requests', rid), snap => {
@@ -5019,7 +5041,7 @@ window.promptFixUserInfo = async function(uid) {
         // Simpan profil user secara permanen ke koleksi 'users'
         await setDoc(doc(db, 'users', uid), { email: formValues.email, nama: formValues.nama }, { merge: true });
 
-        // Backfill juga ke seluruh transaksi milik uid ini supaya konsisten di daftar gabungan
+        // Backfill juga ke seluruh catatan milik uid ini supaya konsisten di daftar gabungan
         const txSnap = await getDocs(collection(db, 'users', uid, 'transactions'));
         const batch = writeBatch(db);
         let count = 0;
@@ -5069,11 +5091,11 @@ window.confirmDeleteUser = async function(uid) {
         html: `
             <div style="text-align:left; font-size:12px; color:var(--text2); line-height:1.6;">
                 Akun: <b style="color:var(--gold);">${escapeHTML(label)}</b><br>
-                Jumlah transaksi: <b>${s}</b><br><br>
+                Jumlah catatan: <b>${s}</b><br><br>
                 Tindakan ini akan <b style="color:var(--red2);">menghapus permanen</b>:
                 <ul style="margin:8px 0 8px 18px; padding:0;">
-                    <li>Seluruh transaksi akun ini</li>
-                    <li>Seluruh transaksi rutin (recurring)</li>
+                    <li>Seluruh catatan akun ini</li>
+                    <li>Seluruh catatan rutin (recurring)</li>
                     <li>Pengaturan (preferensi, keamanan, transfer)</li>
                     <li>Profil akun (nama &amp; email tersimpan)</li>
                 </ul>
@@ -5153,7 +5175,7 @@ function listenTransactions(uid) {
     }); 
 }
 
-// Memicu backup otomatis setiap ada perubahan transaksi (tambah/kurangi/edit).
+// Memicu backup otomatis setiap ada perubahan catatan (tambah/kurangi/edit).
 // Snapshot pertama setelah login/refresh dijadikan baseline (tidak backup),
 // setelah itu tiap perubahan nyata pada data akan memicu backup (didebounce
 // sebentar agar tidak membuat banyak backup saat perubahan beruntun cepat).
@@ -5240,7 +5262,7 @@ window.addTx = async function() {
   let cat = catInput.value; if (curType === 'transfer') cat = 'Transfer Antar Dompet';
   const isAmtEmpty = !amt || isNaN(amt); const isCatEmpty = !cat; const note = noteInput.value.trim(); const isNoteEmpty = !note;
 
-  if (isAmtEmpty && isCatEmpty && isNoteEmpty && curType !== 'transfer') { amountInput.classList.add('shake-error'); catInput.parentNode.previousSibling.classList.add('shake-error'); noteInput.classList.add('shake-error'); setTimeout(() => { amountInput.classList.remove('shake-error'); catInput.parentNode.previousSibling.classList.remove('shake-error'); noteInput.classList.remove('shake-error'); }, 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Masih Kosong!', text: 'Nominal, Kategori, dan Keterangan harus diisi!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isAmtEmpty) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) transaksi terlebih dahulu.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isCatEmpty && curType !== 'transfer') { catInput.parentNode.previousSibling.classList.add('shake-error'); setTimeout(() => catInput.parentNode.previousSibling.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori transaksi terlebih dahulu, bro!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isNoteEmpty) { noteInput.classList.add('shake-error'); setTimeout(() => noteInput.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Keterangan Kosong!', text: 'Jangan lupa isi keterangan transaksinya ya.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); }
+  if (isAmtEmpty && isCatEmpty && isNoteEmpty && curType !== 'transfer') { amountInput.classList.add('shake-error'); catInput.parentNode.previousSibling.classList.add('shake-error'); noteInput.classList.add('shake-error'); setTimeout(() => { amountInput.classList.remove('shake-error'); catInput.parentNode.previousSibling.classList.remove('shake-error'); noteInput.classList.remove('shake-error'); }, 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Data Masih Kosong!', text: 'Nominal, Kategori, dan Keterangan harus diisi!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isAmtEmpty) { amountInput.classList.add('shake-error'); setTimeout(() => amountInput.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Jumlah Belum Diisi!', text: 'Silakan isi nominal (Jumlah) catatan terlebih dahulu.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isCatEmpty && curType !== 'transfer') { catInput.parentNode.previousSibling.classList.add('shake-error'); setTimeout(() => catInput.parentNode.previousSibling.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Kategori Belum Diisi!', text: 'Pilih Kategori catatan terlebih dahulu, bro!', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } else if (isNoteEmpty) { noteInput.classList.add('shake-error'); setTimeout(() => noteInput.classList.remove('shake-error'), 400); return Swal.fire({ position: 'center', icon: 'warning', title: 'Keterangan Kosong!', text: 'Jangan lupa isi keterangan catatannya ya.', showConfirmButton: true, confirmButtonText: 'OKE, PAHAM', confirmButtonColor: 'var(--gold)', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); }
 
   const dt = document.getElementById('f-date').value; const wallet = document.getElementById('f-wallet') ? document.getElementById('f-wallet').value : 'Kas Tunai'; const walletTo = document.getElementById('f-wallet-to') ? document.getElementById('f-wallet-to').value : 'Kas Tunai'; 
   const recVal = document.getElementById('f-recurring') ? document.getElementById('f-recurring').value : '';
@@ -5264,7 +5286,7 @@ window.addTx = async function() {
               title: 'Batas Budget Terlewati!', html: `Pengeluaran <b>${cat}</b> bulan ini akan mencapai <b style="color:var(--red2)">${spentStr}</b>.<br>Batas budget kamu hanya <b>${limitStr}</b>.`,
               icon: 'warning', background: 'var(--card)', color: 'var(--text)', confirmButtonText: 'TETAP SIMPAN', showCancelButton: true, cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)'
           });
-          if (!res.isConfirmed) { saveBtn.textContent = 'SIMPAN TRANSAKSI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; return; }
+          if (!res.isConfirmed) { saveBtn.textContent = 'SIMPAN CATATAN'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; return; }
       }
   }
 
@@ -5306,9 +5328,9 @@ window.toggleBatchMode = function() {
 };
 window.execBatchDelete = async function() {
     const checkboxes = document.querySelectorAll('.batch-cb:checked');
-    if(checkboxes.length === 0) return Swal.fire({icon:'info', title:'Kosong', text:'Pilih minimal 1 transaksi', background:'var(--card)', color:'var(--text)'});
+    if(checkboxes.length === 0) return Swal.fire({icon:'info', title:'Kosong', text:'Pilih minimal 1 catatan', background:'var(--card)', color:'var(--text)'});
     
-    Swal.fire({ title: 'Hapus ' + checkboxes.length + ' Transaksi?', text: "Data akan dipindah ke Tempat Sampah.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(async (result) => { 
+    Swal.fire({ title: 'Hapus ' + checkboxes.length + ' Catatan?', text: "Data akan dipindah ke Tempat Sampah.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(async (result) => { 
         if (result.isConfirmed) { 
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
@@ -5531,7 +5553,7 @@ window.editGoal = async function(idx) {
 
 // Normalisasi berbagai kemungkinan format tanggal (ISO dengan detik/Z, epoch, dll)
 // jadi format "YYYY-MM-DDTHH:mm" (waktu lokal) yang dikenali input datetime-local,
-// supaya tanggal & jam asli transaksi selalu berhasil tampil saat mode edit dibuka.
+// supaya tanggal & jam asli catatan selalu berhasil tampil saat mode edit dibuka.
 function toDatetimeLocalValue(raw) {
     if (!raw) return nowISO();
     // Kalau sudah persis format "YYYY-MM-DDTHH:mm", langsung pakai apa adanya.
@@ -5548,9 +5570,9 @@ window.editTx = function(id) {
     setTimeout(() => { if (document.getElementById('f-cat')) { document.getElementById('f-cat').value = t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } }, 10); 
     if (document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } 
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
-    // Tanggal & jam SELALU diisi persis sama seperti transaksi aslinya (t.date).
+    // Tanggal & jam SELALU diisi persis sama seperti catatan aslinya (t.date).
     // Kalau memang mau diubah, silakan diubah manual lewat field ini atau tombol "SEKARANG".
-    document.getElementById('f-note').value = t.note === '-' ? '' : t.note; document.getElementById('f-date').value = toDatetimeLocalValue(t.date); document.getElementById('save-btn').textContent = 'UPDATE TRANSAKSI'; document.getElementById('cancel-edit-btn').style.display = 'block'; 
+    document.getElementById('f-note').value = t.note === '-' ? '' : t.note; document.getElementById('f-date').value = toDatetimeLocalValue(t.date); document.getElementById('save-btn').textContent = 'UPDATE CATATAN'; document.getElementById('cancel-edit-btn').style.display = 'block'; 
     switchPage('dashboard'); 
     setTimeout(() => { 
         const formCard = document.getElementById('f-amount') ? document.getElementById('f-amount').closest('.card') : null; 
@@ -5567,7 +5589,7 @@ window.cancelEdit = function() {
     document.getElementById('f-note').value = ''; 
     document.getElementById('f-date').value = nowISO(); 
     const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
-    document.getElementById('save-btn').textContent = 'SIMPAN TRANSAKSI'; 
+    document.getElementById('save-btn').textContent = 'SIMPAN CATATAN'; 
     document.getElementById('cancel-edit-btn').style.display = 'none'; 
 };
 
@@ -5639,10 +5661,10 @@ function renderSumGrid(el, arr, isDash = false) {
     const dailyColor = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'color: var(--red2); text-shadow: 0 0 10px rgba(248,113,113,0.5);' : ''; 
     const dailyBorder = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_budget === 'on' && ts.exp > 100000) ? 'border-color: rgba(248,113,113,0.5);' : ''; 
     el.innerHTML = ` 
-    <div class="m-card inc"> <div class="m-label">TOTAL PEMASUKAN</div> <div class="m-val">${fmt(s.inc, isDash)}</div> <div class="usd-pill">${getUSD(s.inc)}</div> <div class="m-sub">${s.inc > 0 ? s.count + ' transaksi' : '-'}</div> <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div> </div> 
+    <div class="m-card inc"> <div class="m-label">TOTAL PEMASUKAN</div> <div class="m-val">${fmt(s.inc, isDash)}</div> <div class="usd-pill">${getUSD(s.inc)}</div> <div class="m-sub">${s.inc > 0 ? s.count + ' catatan' : '-'}</div> <div class="m-bar"><div class="m-bar-fill" style="width:100%"></div></div> </div> 
     <div class="m-card exp"> <div class="m-label">TOTAL PENGELUARAN</div> <div class="m-val">${fmt(s.exp, isDash)}</div> <div class="usd-pill">${getUSD(s.exp)}</div> <div class="m-sub">${pct}% dari pemasukan</div> <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%"></div></div> </div> 
     <div class="m-card bal" ${warnStyle}> <div class="m-label">SALDO BERSIH ${warnStyle !== '' ? '⚠️ KRITIS' : ''}</div> <div class="m-val">${fmt(s.bal, isDash)}</div> <div class="usd-pill">${getUSD(s.bal)}</div> <div class="m-sub">${s.bal >= 0 ? 'Surplus' : 'Defisit'}</div> <div class="m-bar"><div class="m-bar-fill" style="width:${s.inc > 0 ? Math.max(0, Math.min(100, Math.round((s.bal / s.inc) * 100))) : 0}%"></div></div> </div> 
-    <div class="m-card cnt" style="${dailyBorder}"> <div class="m-label">HARI INI ${dailyColor ? '⚠️ OVER LIMIT' : ''}</div> <div class="m-val" style="${dailyColor}">${ts.count} transaksi</div> <div class="m-sub" style="font-weight:700;">+ ${fmt(ts.inc, isDash)} | - <span style="${dailyColor}">${fmt(ts.exp, isDash)}</span></div> <div class="m-bar"><div class="m-bar-fill" style="width:${ts.count > 0 ? 100 : 0}%; background: ${dailyColor ? 'var(--red2)' : 'var(--blue)'};"></div></div> </div> `; 
+    <div class="m-card cnt" style="${dailyBorder}"> <div class="m-label">HARI INI ${dailyColor ? '⚠️ OVER LIMIT' : ''}</div> <div class="m-val" style="${dailyColor}">${ts.count} catatan</div> <div class="m-sub" style="font-weight:700;">+ ${fmt(ts.inc, isDash)} | - <span style="${dailyColor}">${fmt(ts.exp, isDash)}</span></div> <div class="m-bar"><div class="m-bar-fill" style="width:${ts.count > 0 ? 100 : 0}%; background: ${dailyColor ? 'var(--red2)' : 'var(--blue)'};"></div></div> </div> `; 
 }
 
 const escapeHTML = (str) => str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
@@ -5730,7 +5752,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
             await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
                type: typeStr, amount: amt, category: 'Lainnya', wallet: walletName, note: userNote, date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
             });
-            Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Ditambahkan transaksi <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+            Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Ditambahkan catatan <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
         } catch(e) {
             Swal.fire('Error', e.message, 'error');
         }
@@ -5786,9 +5808,9 @@ function applyChartFilterSum(el, arr, scopeId, isDash) {
 }
 
 // ==========================================================================
-// RENDER BERTAHAP (virtual-scroll ringan) untuk daftar transaksi yang bisa
+// RENDER BERTAHAP (virtual-scroll ringan) untuk daftar catatan yang bisa
 // berisi ratusan/ribuan item (Mingguan/Bulanan/Tahunan/Riwayat). Alih-alih
-// bikin elemen DOM utk SEMUA transaksi sekaligus (bikin render awal terasa
+// bikin elemen DOM utk SEMUA catatan sekaligus (bikin render awal terasa
 // berat/nyendat kalau datanya banyak), di sini cuma batch pertama yang
 // langsung dirender; batch berikutnya baru dirender otomatis saat user
 // scroll mendekati akhir daftar (pakai IntersectionObserver, ringan &
@@ -5805,7 +5827,7 @@ function applyChartFilterList(container, arr, scopeId, rerenderFn) {
     const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
 
     if (!list.length) {
-        container.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>';
+        container.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada catatan pada bagian ini.</div>';
         if (f) { const btn = container.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
         return;
     }
@@ -5862,7 +5884,7 @@ function applyAdminChartFilterList(scopeId, arr, rerenderFn) {
     const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
 
     if (!sorted.length) {
-        listWrap.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada transaksi pada bagian ini.</div>';
+        listWrap.innerHTML = badge + '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Tidak ada catatan pada bagian ini.</div>';
         if (f) { const btn = listWrap.querySelector('.chart-filter-clear'); if (btn) btn.onclick = function() { window.clearChartFilter(scopeId, rerenderFn); }; }
         return;
     }
@@ -5949,19 +5971,19 @@ function mkChart(id, labels, incData, expData, onBarClick) {
                             return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
                         }
                     },
-                    titleFont: { family: "'Outfit'", size: 10 },
-                    bodyFont: { family: "'Outfit'", size: 10 }
+                    titleFont: { family: "'Plus Jakarta Sans'", size: 10 },
+                    bodyFont: { family: "'Plus Jakarta Sans'", size: 10 }
                 }
             }, 
             scales: { 
                 x: { 
-                    ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Outfit'", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, 
+                    ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Plus Jakarta Sans'", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, 
                     grid: {display: false}, border: {display: false} 
                 }, 
                 y: { 
                     ticks: {
                         color: isLight ? '#888' : '#888', 
-                        font: {size: isMobile ? 6 : 10, family: "'Outfit'", style: 'normal'}, 
+                        font: {size: isMobile ? 6 : 10, family: "'Plus Jakarta Sans'", style: 'normal'}, 
                         callback: v => new Intl.NumberFormat('id-ID').format(v) 
                     }, 
                     grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, border: {display: false} 
@@ -6236,17 +6258,17 @@ window.renderAll = function() {
                                     return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
                                 }
                             },
-                            titleFont: { family: "'Outfit'", size: 10 },
-                            bodyFont: { family: "'Outfit'", size: 10 }
+                            titleFont: { family: "'Plus Jakarta Sans'", size: 10 },
+                            bodyFont: { family: "'Plus Jakarta Sans'", size: 10 }
                         }
                     },
                     scales: {
                         x: {
-                            ticks: { color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Outfit'"}, autoSkip: false, maxRotation: isMobile ? 30 : 0, minRotation: 0 },
+                            ticks: { color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans'"}, autoSkip: false, maxRotation: isMobile ? 30 : 0, minRotation: 0 },
                             grid: { display: false }, border: { display: false }
                         },
                         y: {
-                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Outfit'"} },
+                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans'"} },
                             grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false }
                         }
                     }
@@ -6262,7 +6284,7 @@ window.renderAll = function() {
 
 // ======================================================================
 // Chip daftar SEMUA kategori di bawah grafik Riwayat. Klik salah satu
-// kategori -> langsung tampil semua transaksi kategori itu + total dihitung
+// kategori -> langsung tampil semua catatan kategori itu + total dihitung
 // di sum-grid atas (pakai mekanisme filter chart yang sama, scope 'riwayat').
 // ======================================================================
 function renderRiwayatCategoryChips(yearData, activeYr) {
@@ -6376,7 +6398,7 @@ window.exportPDF = function() {
     docPdf.setFontSize(6.5);
     docPdf.setTextColor(100, 100, 100);
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
-    const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
+    const genInfo = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' catatan';
     docPdf.text(genInfo, pageWidth / 2, 36, { align: 'center' });
 
     docPdf.setDrawColor(220, 220, 220);
@@ -6414,7 +6436,7 @@ window.exportPDF = function() {
         docPdf.line(marginL, currentY + 4, pageWidth - marginR, currentY + 4);
         currentY += 10;
 
-        // Susun baris per transaksi (Senin s/d Minggu) dalam minggu ini
+        // Susun baris per catatan (Senin s/d Minggu) dalam minggu ini
         const bodyRows = [];
         let lastDateStr = null;
         weekArr.forEach(t => {
@@ -6524,7 +6546,7 @@ window.exportPDF = function() {
 
 
 // Export Excel (.xlsx) — struktur & warna tulisan mengikuti PDF: dikelompokkan per minggu,
-// tiap minggu ada tabel transaksi + rekap Pemasukan/Pengeluaran/Saldo Bersih, lalu total keseluruhan di baris paling akhir.
+// tiap minggu ada tabel catatan + rekap Pemasukan/Pengeluaran/Saldo Bersih, lalu total keseluruhan di baris paling akhir.
 // Muat ulang library ExcelJS dari sumber CDN cadangan jika sumber utama gagal dimuat
 // (mengatasi kasus tombol Excel tidak bereaksi karena library belum termuat).
 function ensureExcelJSLoaded() {
@@ -6629,7 +6651,7 @@ window.exportExcel = async function() {
     const userLabel = (document.getElementById('user-name') && document.getElementById('user-name').textContent) ? document.getElementById('user-name').textContent.trim() : '';
     sheet.mergeCells(2, 1, 2, 10);
     const infoCell = sheet.getCell(2, 1);
-    infoCell.value = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' transaksi';
+    infoCell.value = 'Akun: ' + (userLabel || '-') + '   |   Dicetak: ' + new Date().toLocaleString('id-ID') + '   |   Total Data: ' + filtered.length + ' catatan';
     infoCell.font = { name: 'Calibri', size: 11, color: { argb: C_GREY } };
     infoCell.alignment = { horizontal: 'center' };
 
@@ -6786,7 +6808,7 @@ window.updateBackupInfoLabel = function() {
     const el = document.getElementById('last-backup-info');
     if (!el || !currentUser) return;
     const lastB = localStorage.getItem('rhn_last_backup_' + currentUser.uid);
-    el.textContent = lastB ? ('Backup Terakhir: ' + lastB + ' (Otomatis Tersimpan Setiap Ada Perubahan)') : 'Belum Ada Backup — akan dibuat otomatis saat ada transaksi';
+    el.textContent = lastB ? ('Backup Terakhir: ' + lastB + ' (Otomatis Tersimpan Setiap Ada Perubahan)') : 'Belum Ada Backup — akan dibuat otomatis saat ada catatan';
 };
 
 window.downloadBackupFile = function() {
@@ -6864,7 +6886,7 @@ window.restoreBackupFile = function(evt) {
         const fileInfoLine = `File <b>${escapeHTML(file.name)}</b>${data.account ? ' (diekspor dari akun <b>' + escapeHTML(data.account) + '</b>' + (data.exportedAt ? ' pada <b>' + escapeHTML(new Date(data.exportedAt).toLocaleString('id-ID')) + '</b>' : '') + ')' : ''}.<br>`;
         const res = await Swal.fire({
             title: 'Pulihkan Backup?',
-            html: fileInfoLine + `File berisi <b>${jumlah}</b> transaksi.<br><b>${toAdd.length}</b> transaksi baru akan <b>ditambahkan</b>.<br><b>${toUpdate.length}</b> transaksi yang berbeda akan <b>disesuaikan</b> sesuai file backup.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> transaksi dilewati karena datanya sudah sama persis.` : 'Tidak ada data yang sudah sama persis.'}`,
+            html: fileInfoLine + `File berisi <b>${jumlah}</b> catatan.<br><b>${toAdd.length}</b> catatan baru akan <b>ditambahkan</b>.<br><b>${toUpdate.length}</b> catatan yang berbeda akan <b>disesuaikan</b> sesuai file backup.<br>${jumlahLewat > 0 ? `<b>${jumlahLewat}</b> catatan dilewati karena datanya sudah sama persis.` : 'Tidak ada data yang sudah sama persis.'}`,
             icon: 'warning', showCancelButton: true, confirmButtonText: 'PULIHKAN', cancelButtonText: 'Batal',
             confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', background: 'var(--card)', color: 'var(--text)'
         });
@@ -6892,8 +6914,8 @@ window.restoreBackupFile = function(evt) {
             if (opCount > 0) await batch.commit();
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             const doneHtml = total > 0
-                ? `<b>${total}</b> transaksi berhasil disesuaikan/ditambahkan dari file <b>${escapeHTML(file.name)}</b>.`
-                : `Tidak ada transaksi baru dari file <b>${escapeHTML(file.name)}</b> — seluruh datanya sudah sama persis dengan yang tersimpan.`;
+                ? `<b>${total}</b> catatan berhasil disesuaikan/ditambahkan dari file <b>${escapeHTML(file.name)}</b>.`
+                : `Tidak ada catatan baru dari file <b>${escapeHTML(file.name)}</b> — seluruh datanya sudah sama persis dengan yang tersimpan.`;
             Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', html: doneHtml, background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Pemulihan Gagal', text: err.message, background: 'var(--card)', color: 'var(--text)' });
@@ -7018,8 +7040,8 @@ window.addEventListener('focus', function () {
   <div class="wallet-hist-head">
     <div class="cs-back" onclick="window.closeWalletHistoryScreen()">←</div>
     <div style="flex:1;">
-      <div class="cs-title">Riwayat Transaksi Wallet</div>
-      <div class="cs-sub" id="wallet-hist-sub">Semua transaksi di seluruh dompet</div>
+      <div class="cs-title">Riwayat Catatan Wallet</div>
+      <div class="cs-sub" id="wallet-hist-sub">Semua catatan di seluruh dompet</div>
     </div>
   </div>
   <div class="wallet-hist-filter">
@@ -7051,7 +7073,7 @@ window.addEventListener('focus', function () {
   </div>
   <div id="barcode-req-success-view" style="display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
     <div style="width:88px; height:88px; border-radius:50%; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; font-size:44px; margin-bottom:20px; box-shadow:0 0 0 8px rgba(16,185,129,0.08);">✅</div>
-    <div style="font-size:18px; font-weight:800; color:var(--green2); margin-bottom:8px;">Transaksi Berhasil!</div>
+    <div style="font-size:18px; font-weight:800; color:var(--green2); margin-bottom:8px;">Catatan Berhasil!</div>
     <div id="barcode-req-success-text" style="font-size:12px; color:var(--text2); max-width:280px; line-height:1.5;">Saldo sudah diterima.</div>
     <button class="set-action" style="margin-top:24px; background:var(--green2); color:#000; border:none; padding:12px 28px; border-radius:12px;" onclick="window.closeBarcodeRequest()">SELESAI</button>
   </div>
