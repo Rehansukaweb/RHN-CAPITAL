@@ -1525,6 +1525,13 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" onclick="window.setQuickLoginCode()">ATUR KODE</button>
     </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Perangkat Aktif</div>
+        <div class="set-sub">Lihat perangkat & merek HP yang login, bisa keluarkan dari jarak jauh</div>
+      </div>
+      <button class="set-action" onclick="manageDevices()">LIHAT PERANGKAT</button>
+    </div>
   </div>
 
   <div class="set-group">
@@ -1816,7 +1823,7 @@ import {
 import { 
   initializeFirestore, persistentLocalCache, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, writeBatch
+  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -1831,6 +1838,197 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+
+// ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
+function parseDeviceUA() {
+    const ua = navigator.userAgent || '';
+    let brand = 'Tidak Dikenal', os = 'Tidak Dikenal', browser = 'Tidak Dikenal';
+
+    if (/iPhone/i.test(ua)) brand = 'iPhone';
+    else if (/iPad/i.test(ua)) brand = 'iPad';
+    else if (/Macintosh/i.test(ua)) brand = 'Mac';
+    else if (/SM-|Samsung/i.test(ua)) brand = 'Samsung';
+    else if (/Redmi|MI \d|Xiaomi|POCO/i.test(ua)) brand = 'Xiaomi';
+    else if (/OPPO|CPH\d/i.test(ua)) brand = 'OPPO';
+    else if (/vivo|V\d{4}/i.test(ua)) brand = 'Vivo';
+    else if (/Realme|RMX\d/i.test(ua)) brand = 'Realme';
+    else if (/Infinix/i.test(ua)) brand = 'Infinix';
+    else if (/Tecno/i.test(ua)) brand = 'Tecno';
+    else if (/Huawei|HONOR/i.test(ua)) brand = 'Huawei/Honor';
+    else if (/Pixel/i.test(ua)) brand = 'Google Pixel';
+    else if (/Windows/i.test(ua)) brand = 'Windows PC';
+    else if (/Linux/i.test(ua) && !/Android/i.test(ua)) brand = 'Linux PC';
+    else if (/Android/i.test(ua)) brand = 'Android';
+
+    const modelMatch = ua.match(/Android[^;]*;\s*([^)]+)\)/i);
+    if (modelMatch && modelMatch[1] && /Android/i.test(ua)) {
+        let m = modelMatch[1].replace(/Build\/.*$/, '').trim();
+        if (m && m.toLowerCase() !== 'wv' && m.length < 40) brand = m;
+    }
+
+    if (/iPhone|iPad/i.test(ua)) { const v = ua.match(/OS (\d+_\d+)/); os = 'iOS' + (v ? ' ' + v[1].replace('_', '.') : ''); }
+    else if (/Android/i.test(ua)) { const v = ua.match(/Android (\d+(\.\d+)?)/); os = 'Android' + (v ? ' ' + v[1] : ''); }
+    else if (/Windows NT/i.test(ua)) os = 'Windows';
+    else if (/Mac OS X/i.test(ua)) os = 'macOS';
+    else if (/Linux/i.test(ua)) os = 'Linux';
+
+    if (/EdgA|Edge|Edg\//i.test(ua)) browser = 'Edge';
+    else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung Internet';
+    else if (/OPR|Opera/i.test(ua)) browser = 'Opera';
+    else if (/CriOS/i.test(ua)) browser = 'Chrome (iOS)';
+    else if (/FxiOS/i.test(ua)) browser = 'Firefox (iOS)';
+    else if (/Firefox/i.test(ua)) browser = 'Firefox';
+    else if (/Chrome/i.test(ua)) browser = 'Chrome';
+    else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+
+    return { brand: brand.trim(), os: os.trim(), browser: browser.trim() };
+}
+
+async function registerDeviceSession(user, _retryCount) {
+    try {
+        let deviceId = localStorage.getItem('rhn_device_id');
+        if (!deviceId) {
+            deviceId = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+            localStorage.setItem('rhn_device_id', deviceId);
+        }
+        window.__currentDeviceId = deviceId;
+        window.__deviceSessionStart = Date.now();
+        const info = parseDeviceUA();
+        const devRef = doc(db, 'users', user.uid, 'devices', deviceId);
+        const devSnap = await getDoc(devRef);
+        const payload = { deviceId, brand: info.brand, os: info.os, browser: info.browser, userAgent: ua_short(navigator.userAgent), email: user.email || '-', lastActive: serverTimestamp(), active: true };
+        if (!devSnap.exists()) payload.firstLogin = serverTimestamp();
+        await setDoc(devRef, payload, { merge: true });
+
+        if (window.__deviceUnsub) { window.__deviceUnsub(); }
+        window.__deviceUnsub = onSnapshot(devRef, snap => {
+            if (!snap.exists()) return;
+            const d = snap.data();
+            if (d.forceLogoutAt && d.forceLogoutAt.toMillis && d.forceLogoutAt.toMillis() > window.__deviceSessionStart) {
+                if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
+                Swal.fire({ icon: 'warning', title: 'Sesi Berakhir', text: 'Perangkat ini dikeluarkan dari perangkat lain.', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }).then(async () => {
+                    localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
+                    window.appUnlocked = false; window.userCloudPin = null;
+                    await signOut(auth);
+                });
+            }
+        });
+
+        // Heartbeat: perbarui "lastActive" secara berkala selagi aplikasi terbuka,
+        // supaya status perangkat benar-benar real-time (bukan cuma pas login doang)
+        if (window.__deviceHeartbeat) clearInterval(window.__deviceHeartbeat);
+        window.__deviceHeartbeat = setInterval(() => {
+            updateDoc(devRef, { lastActive: serverTimestamp(), active: true }).catch(() => {});
+        }, 60000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && window.__currentDeviceId === deviceId) {
+                updateDoc(devRef, { lastActive: serverTimestamp(), active: true }).catch(() => {});
+            }
+        });
+    } catch (e) {
+        console.error('Gagal daftar sesi perangkat', e);
+        // Retry sekali lagi setelah 3 detik, untuk jaga-jaga kalau tulis pertama gagal karena koneksi belum siap (sering terjadi di HP saat baru login)
+        if (!_retryCount) { setTimeout(() => registerDeviceSession(user, 1), 3000); }
+    }
+}
+function ua_short(s) { return (s || '').slice(0, 250); }
+
+function renderDeviceListHTML(snap, opts) {
+    opts = opts || {};
+    let html = '<div style="max-height:60vh; overflow-y:auto; text-align:left;">';
+    snap.forEach(d => {
+        const v = d.data();
+        const isCurrent = !opts.isAdmin && d.id === window.__currentDeviceId;
+        const last = (v.lastActive && v.lastActive.toDate) ? v.lastActive.toDate().toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+        const first = (v.firstLogin && v.firstLogin.toDate) ? v.firstLogin.toDate().toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+        // Dianggap online kalau lastActive kurang dari 2 menit yang lalu
+        const isOnline = v.lastActive && v.lastActive.toMillis && (Date.now() - v.lastActive.toMillis() < 120000) && v.active !== false;
+        const statusLabel = isCurrent ? '<span style="color:var(--green2); font-weight:800;">PERANGKAT INI</span>' : (isOnline ? '<span style="color:var(--green2); font-weight:800;">🟢 Online</span>' : (v.active === false ? '<span style="color:var(--text3);">Tidak Aktif</span>' : '<span style="color:var(--gold);">⚪ Offline</span>'));
+        const logoutFn = opts.isAdmin ? `forceLogoutAdminUserDevice('${opts.uid}','${d.id}','${(opts.ownerLabel||'').replace(/'/g, "\\'")}')` : `forceLogoutDevice('${d.id}')`;
+        html += `<div style="padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg2);">
+            <div style="font-size:12px; font-weight:700; color:var(--text);">${escapeHTML(v.brand || 'Tidak Dikenal')} &middot; ${escapeHTML(v.os || '-')}</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:2px;">${escapeHTML(v.browser || '-')}</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:2px;">Login sebagai: ${escapeHTML(v.email || '-')}</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:2px;">Login pertama: ${first}</div>
+            <div style="font-size:10px; color:var(--text3); margin-bottom:4px;">Terakhir aktif: ${last}</div>
+            <div style="font-size:10px; margin-bottom:8px;">${statusLabel}</div>
+            ${isCurrent ? '' : `<button onclick="${logoutFn}" style="width:100%; background:rgba(248, 113, 113, 0.1); color:var(--red2); border:1px solid var(--red2); padding:6px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">KELUARKAN PERANGKAT INI</button>`}
+        </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+window.manageDevices = async function() {
+    if (!currentUser) return;
+    if (window.__manageDevicesUnsub) { window.__manageDevicesUnsub(); window.__manageDevicesUnsub = null; }
+    Swal.fire({
+        title: '🔴 Perangkat Aktif (Live)',
+        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat...</div>',
+        showConfirmButton: false,
+        background: 'var(--card)', color: 'var(--text)',
+        didOpen: () => {
+            const q = query(collection(db, 'users', currentUser.uid, 'devices'), orderBy('lastActive', 'desc'));
+            window.__manageDevicesUnsub = onSnapshot(q, snap => {
+                if (snap.empty) {
+                    Swal.update({ html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Belum ada riwayat perangkat.</div>' });
+                    return;
+                }
+                Swal.update({ html: renderDeviceListHTML(snap, { isAdmin: false }) });
+            }, err => { Swal.update({ html: `<div style="padding:24px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ${escapeHTML(err.message)}</div>` }); });
+        },
+        willClose: () => { if (window.__manageDevicesUnsub) { window.__manageDevicesUnsub(); window.__manageDevicesUnsub = null; } }
+    });
+};
+
+window.forceLogoutDevice = function(deviceId) {
+    Swal.fire({ title: 'Keluarkan Perangkat?', text: 'Perangkat tersebut akan otomatis logout.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Keluarkan', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({ title: 'Memproses...', background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid, 'devices', deviceId), { active: false, forceLogoutAt: serverTimestamp() });
+                Swal.fire({ icon: 'success', title: 'Berhasil', background: 'var(--card)', color: 'var(--text)', timer: 900, showConfirmButton: false });
+                manageDevices();
+            } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        }
+    });
+};
+
+// ==== ADMIN: LIHAT PERANGKAT SEMUA USER ====
+window.showAdminUserDevices = async function(uid, ownerLabel) {
+    if (!window.__isAdmin) return;
+    if (window.__adminDevicesUnsub) { window.__adminDevicesUnsub(); window.__adminDevicesUnsub = null; }
+    Swal.fire({
+        title: `🔴 Perangkat (Live): ${ownerLabel}`,
+        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat...</div>',
+        showConfirmButton: false,
+        background: 'var(--card)', color: 'var(--text)',
+        didOpen: () => {
+            const q = query(collection(db, 'users', uid, 'devices'), orderBy('lastActive', 'desc'));
+            window.__adminDevicesUnsub = onSnapshot(q, snap => {
+                if (snap.empty) {
+                    Swal.update({ html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Belum ada riwayat perangkat untuk akun ini.</div>' });
+                    return;
+                }
+                Swal.update({ html: renderDeviceListHTML(snap, { isAdmin: true, uid: uid, ownerLabel: ownerLabel }) });
+            }, err => { Swal.update({ html: `<div style="padding:24px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ${escapeHTML(err.message)}</div>` }); });
+        },
+        willClose: () => { if (window.__adminDevicesUnsub) { window.__adminDevicesUnsub(); window.__adminDevicesUnsub = null; } }
+    });
+};
+
+window.forceLogoutAdminUserDevice = function(uid, deviceId, ownerLabel) {
+    Swal.fire({ title: 'Keluarkan Perangkat?', text: 'Perangkat milik user ini akan otomatis logout.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Keluarkan', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => {
+        if (res.isConfirmed) {
+            Swal.fire({ title: 'Memproses...', background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+            try {
+                await updateDoc(doc(db, 'users', uid, 'devices', deviceId), { active: false, forceLogoutAt: serverTimestamp() });
+                Swal.fire({ icon: 'success', title: 'Berhasil', background: 'var(--card)', color: 'var(--text)', timer: 900, showConfirmButton: false });
+                showAdminUserDevices(uid, ownerLabel);
+            } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        }
+    });
+};
 
 const QRIS_STATIS_ASLI = "00020101021126610014COM.GO-JEK.WWW01189360091430598840940210G0598840940303UMI51440014ID.CO.QRIS.WWW0215ID10264892253530303UMI5204899953033605802ID5919RHN CAPITAL FINANCE6005DEPOK61051645162070703A016304A525";
 window.userQrisBase = "";
@@ -2969,6 +3167,8 @@ window.doLogout = function() {
         if (result.isConfirmed) {
             Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
+            if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
+            if (currentUser && window.__currentDeviceId) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }); } catch(e) {} }
             txs = []; deletedTxs = []; 
             
             localStorage.removeItem('last_uid_rhn'); 
@@ -3034,6 +3234,8 @@ onAuthStateChanged(auth, async user => {
         txSnap.forEach(d => { if (!d.data().ownerEmail) { promises.push(updateDoc(d.ref, { ownerEmail: user.email })); } });
         if (promises.length > 0) { await Promise.all(promises); }
     } catch(e) { console.error("Gagal sinkron email lama", e); }
+
+    registerDeviceSession(user);
     
     const adminEmail = "rehantop245@gmail.com"; 
     const isAdminUser = (user.email === adminEmail);
@@ -3380,6 +3582,7 @@ window.loadAllUsersData = async function() {
                     <button class="admin-detail-btn yearly" onclick="showAdminDetail('${uid}','yearly')">📈 Tahunan</button>
                     <button class="admin-detail-btn riwayat" onclick="showAdminDetail('${uid}','riwayat')">🕒 Riwayat</button>
                     <button class="admin-detail-btn" style="background:rgba(16,185,129,0.08); border:1px solid var(--green2); color:var(--green2);" onclick="showAdminWallet('${uid}')">💰 Isi Dompet</button>
+                    <button class="admin-detail-btn" style="background:rgba(96,165,250,0.08); border:1px solid #60a5fa; color:#60a5fa;" onclick="showAdminUserDevices('${uid}','${escapeHTML(ownerLabel).replace(/'/g, "\\'")}')">📱 Perangkat</button>
                     <button class="admin-detail-btn danger" onclick="showAdminTrash('${uid}')">🗑️ Sampah (${(adminGroupedTrash[uid]||[]).length})</button>
                 </div>
                 ${!finalEmail ? `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn fix" onclick="promptFixUserInfo('${uid}')" style="flex:1;">✏️ Lengkapi Nama &amp; Email User Ini</button></div>` : ''}
