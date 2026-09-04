@@ -717,7 +717,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 }
 #auth-screen .f-input-dark::placeholder { color: var(--text3); }
 #auth-screen .pass-wrap .pass-toggle { color: var(--text3); }
-#auth-screen #wrap-forgot { order: 17; text-align: left; }
+#auth-screen #wrap-forgot { order: 17; text-align: left; margin-top: 18px; }
 #auth-screen #btn-forgot { text-decoration: none !important; color: var(--text3) !important; font-size: 11px !important; text-transform: none !important; margin-top: 2px !important; padding-left: 0 !important; }
 #auth-screen .auth-btn {
   background: #FFFFFF;
@@ -764,8 +764,6 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 #auth-screen .auth-box #auth-submit-btn { order: 14; }
 #auth-screen .auth-box .auth-divider { order: 15; }
 #auth-screen .auth-box #btn-google { order: 16; }
-
-#auth-screen #auth-submit-btn:not(:disabled)::after { content: ' \2192'; }
 
 /* ==========================================================================
    MOBILE RESPONSIVE
@@ -1026,7 +1024,7 @@ body.global-privacy #xau-idr-gr {
     
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
 
-    <div class="auth-divider">Atau</div>
+    <div class="auth-divider" id="auth-divider">Atau</div>
 
     <button class="auth-btn btn-google" id="btn-google" onclick="doGoogleAuth()">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
@@ -2947,7 +2945,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.querySelector('#auth-screen .auth-box').classList.toggle('mode-register', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.querySelector('#auth-screen .auth-box').classList.toggle('mode-register', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('auth-divider').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
