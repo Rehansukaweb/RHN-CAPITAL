@@ -634,6 +634,140 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .btn-google { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
 
 /* ==========================================================================
+   REDESIGN TAMPILAN LOGIN (khusus #auth-screen, tidak memengaruhi bagian lain)
+   Semua warna memakai variabel tema asli (var(--...)), bukan warna baru.
+   ========================================================================== */
+#auth-screen {
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.25), transparent 60%),
+    radial-gradient(1px 1px at 82% 12%, rgba(255,255,255,0.18), transparent 60%),
+    radial-gradient(1px 1px at 68% 78%, rgba(255,255,255,0.2), transparent 60%),
+    radial-gradient(1px 1px at 25% 88%, rgba(255,255,255,0.15), transparent 60%),
+    radial-gradient(1px 1px at 92% 55%, rgba(255,255,255,0.16), transparent 60%),
+    radial-gradient(1px 1px at 45% 40%, rgba(255,255,255,0.1), transparent 60%),
+    var(--bg) !important;
+}
+#auth-screen .auth-box {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 36px 24px 28px;
+  box-shadow: var(--shadow-float);
+}
+/* Wrapper logo: ukuran tetap, overflow disembunyikan, selalu di tengah,
+   supaya logo TIDAK pernah "geser ke samping" walau gambar gagal dimuat */
+#auth-screen .auth-logo-wrap {
+  order: 1;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 18px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+}
+#auth-screen .auth-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  margin: 0;
+  border-radius: 0;
+}
+#auth-screen .auth-title { order: 2; font-size: 19px; font-weight: 800; letter-spacing: 1.5px; color: var(--text); margin-bottom: 4px; text-transform: uppercase; }
+#auth-screen .auth-title .gold-part { color: var(--text); }
+#auth-screen .auth-sub { order: 3; font-size: 10px; letter-spacing: 2.5px; color: var(--text3); text-transform: uppercase; margin-bottom: 26px; font-weight: 600; }
+#auth-screen .auth-tabs {
+  order: 4;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 26px;
+  gap: 0;
+}
+#auth-screen .auth-tab {
+  padding: 10px 4px 14px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-weight: 700;
+  border-radius: 0;
+  position: relative;
+  background: transparent;
+}
+#auth-screen .auth-tab.active { background: transparent; color: var(--gold); }
+#auth-screen .auth-tab.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--gold); }
+#auth-screen #auth-err { order: 5; }
+#auth-screen .form-row { text-align: left; margin-bottom: 4px; }
+#auth-screen .f-label { display: block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); font-weight: 700; margin-bottom: 6px; }
+#auth-screen .f-input-dark,
+#auth-screen input.f-input-dark,
+#auth-screen select.f-input-dark {
+  background: var(--bg2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 15px 16px !important;
+  font-weight: 600 !important;
+}
+#auth-screen .f-input-dark::placeholder { color: var(--text3); }
+#auth-screen .pass-wrap .pass-toggle { color: var(--text3); }
+#auth-screen #wrap-forgot { order: 17; text-align: left; }
+#auth-screen #btn-forgot { text-decoration: none !important; color: var(--text3) !important; font-size: 11px !important; text-transform: none !important; margin-top: 2px !important; padding-left: 0 !important; }
+#auth-screen .auth-btn {
+  background: #FFFFFF;
+  color: #000000;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  box-shadow: none;
+}
+#auth-screen .auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  color: var(--text3);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#auth-screen .auth-divider::before,
+#auth-screen .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+#auth-screen .btn-google {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin-top: 0;
+}
+
+/* Susunan urutan elemen form (default: Masuk & Kode) */
+#auth-screen .auth-box #field-quickcode { order: 6; }
+#auth-screen .auth-box #field-nama { order: 8; }
+#auth-screen .auth-box #field-umur { order: 9; }
+#auth-screen .auth-box #field-gender { order: 10; }
+#auth-screen .auth-box #field-email { order: 11; }
+#auth-screen .auth-box #field-pass { order: 12; }
+#auth-screen .auth-box #field-confirm { order: 13; }
+#auth-screen .auth-box #auth-submit-btn { order: 14; }
+#auth-screen .auth-box .auth-divider { order: 15; }
+#auth-screen .auth-box #btn-google { order: 16; }
+
+#auth-screen #auth-submit-btn:not(:disabled)::after { content: ' \2192'; }
+
+/* ==========================================================================
    MOBILE RESPONSIVE
    ========================================================================== */
 @media (max-width: 768px) {
@@ -846,8 +980,8 @@ body.global-privacy #xau-idr-gr {
 
 <div id="auth-screen">
   <div class="auth-box">
-    <img src="RHN LOGO.jpg" alt="RHN Capital Logo">
-    <div class="auth-title">RHN CAPITAL</div>
+    <div class="auth-logo-wrap"><img src="RHN LOGO.jpg" alt="RHN Capital Logo"></div>
+    <div class="auth-title">RHN <span class="gold-part">CAPITAL</span></div>
     <div class="auth-sub">Arus Keuangan Akses Masuk</div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
@@ -860,17 +994,19 @@ body.global-privacy #xau-idr-gr {
       <input type="password" id="auth-quickcode" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
 
-    <div class="form-row" id="field-nama" style="display:none"><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
-    <div class="form-row" id="field-umur" style="display:none"><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-nama" style="display:none"><div class="f-label">Nama</div><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-umur" style="display:none"><div class="f-label">Umur</div><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-gender" style="display:none">
+      <div class="f-label">Jenis Kelamin</div>
       <select id="auth-gender" class="f-input-dark">
         <option value="">Pilih Jenis Kelamin</option>
         <option value="Laki-laki">Laki-laki</option>
         <option value="Perempuan">Perempuan</option>
       </select>
     </div>
-    <div class="form-row" id="field-email"><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
+    <div class="form-row" id="field-email"><div class="f-label">Email</div><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row" id="field-pass">
+     <div class="f-label">Sandi</div>
      <div class="pass-wrap">
       <input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()">
       <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass', this)" tabindex="-1" aria-label="Tampilkan sandi">
@@ -879,6 +1015,7 @@ body.global-privacy #xau-idr-gr {
      </div>
     </div>
     <div class="form-row" id="field-confirm" style="display:none">
+     <div class="f-label">Ulangi Sandi</div>
      <div class="pass-wrap">
       <input type="password" id="auth-pass2" class="f-input-dark" placeholder="Ulangi Sandi">
       <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass2', this)" tabindex="-1" aria-label="Tampilkan sandi">
@@ -888,7 +1025,9 @@ body.global-privacy #xau-idr-gr {
     </div>
     
     <button class="auth-btn" id="auth-submit-btn" onclick="doAuth()">MASUK</button>
-    
+
+    <div class="auth-divider">Atau</div>
+
     <button class="auth-btn btn-google" id="btn-google" onclick="doGoogleAuth()">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
       MASUK DENGAN GOOGLE
@@ -2808,7 +2947,7 @@ function withTimeout(promise, ms, timeoutMsg) {
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
-window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
+window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.querySelector('#auth-screen .auth-box').classList.toggle('mode-register', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
 
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
