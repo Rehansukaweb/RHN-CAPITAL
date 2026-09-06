@@ -5635,6 +5635,7 @@ window.addTx = async function() {
       if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') payload.isPaid = false;
       
       if (editId) { 
+          payload.lastEditedAt = new Date().toISOString();
           await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editId), payload); cancelEdit(); 
       } else { 
           payload.createdAt = serverTimestamp(); 
