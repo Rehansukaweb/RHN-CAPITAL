@@ -2617,9 +2617,9 @@ window.logoutFromSubscribeScreen = async function() {
         if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
         localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
         window.appUnlocked = false; window.userCloudPin = null;
-        const wasOfflineSession = window.__offlineSession || !navigator.onLine;
-        try { await signOut(auth); } catch(e) {}
-        if (wasOfflineSession) { forceResetToAuthScreen(); }
+        // FIX: langsung balik ke layar login TANPA nunggu server, sign-out jalan di belakang layar.
+        forceResetToAuthScreen();
+        signOut(auth).catch(()=>{});
     }
 };
 
@@ -4287,10 +4287,9 @@ window.doLogout = function() {
         background: 'var(--card)', color: 'var(--text)'
     }).then(async (result) => {
         if (result.isConfirmed) {
-            Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
-            if (currentUser && window.__currentDeviceId) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }); } catch(e) {} }
+            const logoutDeviceId = window.__currentDeviceId, logoutUser = currentUser;
             txs = []; deletedTxs = []; 
             
             localStorage.removeItem('last_uid_rhn'); 
@@ -4298,10 +4297,13 @@ window.doLogout = function() {
             window.appUnlocked = false; 
             window.userCloudPin = null; 
             
-            const wasOfflineSession = window.__offlineSession || !navigator.onLine;
-            try { await signOut(auth); } catch(e) {}
-            if (wasOfflineSession) { forceResetToAuthScreen(); }
+            // FIX: langsung balik ke layar login TANPA nunggu server sama sekali,
+            // supaya tombol KELUAR selalu instan biarpun lagi offline/koneksi lemot.
+            forceResetToAuthScreen();
             Swal.close();
+            // Beres-beres ke server dilakukan di belakang layar (tidak ditunggu/tidak memblokir UI).
+            if (logoutUser && logoutDeviceId) { updateDoc(doc(db, 'users', logoutUser.uid, 'devices', logoutDeviceId), { active: false }).catch(()=>{}); }
+            signOut(auth).catch(()=>{});
         }
     });
 };
