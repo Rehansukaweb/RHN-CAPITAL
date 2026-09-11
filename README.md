@@ -2617,9 +2617,9 @@ window.logoutFromSubscribeScreen = async function() {
         if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
         localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
         window.appUnlocked = false; window.userCloudPin = null;
-        // FIX: langsung balik ke layar login TANPA nunggu server, sign-out jalan di belakang layar.
+        // FIX: kasih timeout biar gak nyangkut kalau offline, dan selalu reset ke layar login.
+        try { await Promise.race([signOut(auth), new Promise(resolve => setTimeout(resolve, 3000))]); } catch(e) {}
         forceResetToAuthScreen();
-        signOut(auth).catch(()=>{});
     }
 };
 
@@ -2814,10 +2814,18 @@ window.redeemReferralCode = async function() {
             return;
         }
 
+        const durationDays = data.durationDays && parseInt(data.durationDays) > 0 ? parseInt(data.durationDays) : null;
+        let redeemExpiryISO = window.LIFETIME_EXPIRY_ISO;
+        if (durationDays) {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + durationDays);
+            redeemExpiryISO = expiryDate.toISOString();
+        }
+
         await setDoc(doc(db, 'users', currentUser.uid), {
-            subscriptionExpiry: window.LIFETIME_EXPIRY_ISO,
+            subscriptionExpiry: redeemExpiryISO,
             subscriptionStatus: 'active',
-            subscriptionPlan: 'lifetime_referral',
+            subscriptionPlan: durationDays ? 'referral_days' : 'lifetime_referral',
             subscriptionPending: null,
             referralCodeUsed: code
         }, { merge: true });
@@ -2827,7 +2835,7 @@ window.redeemReferralCode = async function() {
             usedBy: arrayUnion(currentUser.uid)
         });
 
-        Swal.fire({ icon: 'success', title: 'Kode Berhasil Dipakai!', text: 'Akses langgananmu sekarang SEUMUR HIDUP 🎉', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+        Swal.fire({ icon: 'success', title: 'Kode Berhasil Dipakai!', text: durationDays ? ('Akses langgananmu aktif selama ' + durationDays + ' hari 🎉') : 'Akses langgananmu sekarang SEUMUR HIDUP 🎉', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
         inputEl.value = '';
         btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
     } catch (e) {
@@ -2844,16 +2852,19 @@ window.createReferralCode = async function() {
         background: 'var(--card)', color: 'var(--text)',
         html:
             '<input id="swal-ref-code" class="swal2-input" placeholder="Kode (kosongkan = auto)" style="text-transform:uppercase;">' +
-            '<input id="swal-ref-max" class="swal2-input" placeholder="Batas pemakaian (kosong = tanpa batas)" inputmode="numeric">',
+            '<input id="swal-ref-max" class="swal2-input" placeholder="Batas pemakaian (kosong = tanpa batas)" inputmode="numeric">' +
+            '<input id="swal-ref-days" class="swal2-input" placeholder="Durasi akses dalam hari (kosong = seumur hidup)" inputmode="numeric">',
         showCancelButton: true,
         confirmButtonText: 'BUAT',
         confirmButtonColor: 'var(--gold)',
         preConfirm: () => {
             const codeInput = document.getElementById('swal-ref-code').value.trim().toUpperCase();
             const maxInput = document.getElementById('swal-ref-max').value.trim();
+            const daysInput = document.getElementById('swal-ref-days').value.trim();
             return {
                 code: codeInput || ('RHN' + Math.random().toString(36).slice(2, 8).toUpperCase()),
-                maxUses: maxInput ? parseInt(maxInput) : null
+                maxUses: maxInput ? parseInt(maxInput) : null,
+                durationDays: daysInput ? parseInt(daysInput) : null
             };
         }
     });
@@ -2871,6 +2882,7 @@ window.createReferralCode = async function() {
             createdAt: serverTimestamp(),
             createdBy: currentUser ? currentUser.email : 'admin',
             maxUses: formValues.maxUses,
+            durationDays: formValues.durationDays,
             usedCount: 0,
             usedBy: [],
             disabled: false
@@ -2906,7 +2918,8 @@ window.loadReferralCodes = async function() {
                   <div style="font-weight:800; font-size:13px; color:var(--gold); letter-spacing:0.5px;">${escapeHTML(d.id)}</div>
                   <span class="subs-status-pill ${v.disabled ? 'expired' : 'active'}">${v.disabled ? '● NONAKTIF' : '● AKTIF'}</span>
                 </div>
-                <div style="font-size:10.5px; color:var(--text3); margin-bottom:12px;">Dipakai: ${quota}</div>
+                <div style="font-size:10.5px; color:var(--text3); margin-bottom:2px;">Dipakai: ${quota}</div>
+                <div style="font-size:10.5px; color:var(--text3); margin-bottom:12px;">Durasi: ${v.durationDays ? v.durationDays + ' hari' : 'Seumur Hidup'}</div>
                 <div class="admin-user-actions">
                   <button class="admin-detail-btn ${v.disabled ? 'fix' : 'danger'}" onclick="window.toggleReferralCode('${d.id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>
                   <button class="admin-detail-btn danger" onclick="window.deleteReferralCode('${d.id}')">🗑️ HAPUS</button>
@@ -3002,7 +3015,7 @@ window.loadActiveSubscribers = async function() {
             const v = d.data();
             const isLifetime = v.subscriptionExpiry === window.LIFETIME_EXPIRY_ISO;
             const until = isLifetime ? 'SEUMUR HIDUP' : new Date(v.subscriptionExpiry).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)' };
+            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)', referral_days: 'Referral (Terbatas Hari)' };
             rows.push(`
               <div class="admin-user-card card" style="margin-bottom:10px; padding:12px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
@@ -4287,9 +4300,13 @@ window.doLogout = function() {
         background: 'var(--card)', color: 'var(--text)'
     }).then(async (result) => {
         if (result.isConfirmed) {
+            Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
-            const logoutDeviceId = window.__currentDeviceId, logoutUser = currentUser;
+            // FIX: bungkus panggilan network dengan timeout supaya kalau lagi offline,
+            // proses logout tidak nyangkut nunggu respons server selamanya (loading lama/gabisa keluar).
+            const withTimeout = (p, ms) => Promise.race([p, new Promise(resolve => setTimeout(resolve, ms))]);
+            if (currentUser && window.__currentDeviceId) { try { await withTimeout(updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }), 3000); } catch(e) {} }
             txs = []; deletedTxs = []; 
             
             localStorage.removeItem('last_uid_rhn'); 
@@ -4297,13 +4314,11 @@ window.doLogout = function() {
             window.appUnlocked = false; 
             window.userCloudPin = null; 
             
-            // FIX: langsung balik ke layar login TANPA nunggu server sama sekali,
-            // supaya tombol KELUAR selalu instan biarpun lagi offline/koneksi lemot.
+            try { await withTimeout(signOut(auth), 3000); } catch(e) {}
+            // FIX: selalu paksa balik ke layar login, jangan cuma pas sesi offline,
+            // supaya logout selalu tuntas walau koneksi lambat/putus di tengah jalan.
             forceResetToAuthScreen();
             Swal.close();
-            // Beres-beres ke server dilakukan di belakang layar (tidak ditunggu/tidak memblokir UI).
-            if (logoutUser && logoutDeviceId) { updateDoc(doc(db, 'users', logoutUser.uid, 'devices', logoutDeviceId), { active: false }).catch(()=>{}); }
-            signOut(auth).catch(()=>{});
         }
     });
 };
