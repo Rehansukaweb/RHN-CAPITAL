@@ -2130,9 +2130,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { 
-  initializeFirestore, persistentLocalCache, collection, doc, 
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion
+  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -2146,7 +2146,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
-const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
 function parseDeviceUA() {
@@ -2460,12 +2460,26 @@ window.konfirmasiPembayaranQris = async function() {
             payload.wallet = qrisWallet;
         }
 
-        await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload);
+        const writePromise = addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload);
+
+        // Sama seperti simpan catatan biasa: kalau offline/sinyal lemot, Promise-nya bisa
+        // ngambang lama padahal datanya sudah tersimpan di cache lokal. Kasih batas waktu
+        // biar UI tidak macet, sisanya otomatis naik ke server begitu online lagi.
+        let wroteOffline = !navigator.onLine;
+        if (!wroteOffline) {
+            const timedOut = await Promise.race([
+                writePromise.then(() => false),
+                new Promise(res => setTimeout(() => res(true), 3000))
+            ]);
+            if (timedOut) wroteOffline = true;
+        }
+        writePromise.catch(() => {});
+        if (wroteOffline) markPendingOfflineWrite();
 
         Swal.fire({
             icon: 'success',
-            title: 'Terkonfirmasi!',
-            text: 'Data Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat masuk ke ' + qrisWallet,
+            title: wroteOffline ? 'Tersimpan di HP!' : 'Terkonfirmasi!',
+            text: wroteOffline ? 'Belum ada internet, data otomatis naik ke server begitu online lagi.' : ('Data Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat masuk ke ' + qrisWallet),
             background: 'var(--card)', color: 'var(--text)',
             confirmButtonColor: 'var(--green2)',
             timer: 1500
@@ -2479,7 +2493,18 @@ window.konfirmasiPembayaranQris = async function() {
             btn.disabled = false;
         });
     } catch(e) {
-        Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+        if (!navigator.onLine) {
+            markPendingOfflineWrite();
+            Swal.fire({ icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false }).then(() => {
+                document.getElementById("qris-nominal").value = "";
+                document.getElementById("qris-note").value = "";
+                window.setRealLocalTime();
+                document.getElementById("qris-qrcode-container").style.display = "none";
+            });
+            btn.style.display = "none";
+        } else {
+            Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+        }
         btn.innerText = "✅ KONFIRMASI SUDAH BAYAR";
         btn.disabled = false;
     }
@@ -2592,7 +2617,9 @@ window.logoutFromSubscribeScreen = async function() {
         if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
         localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
         window.appUnlocked = false; window.userCloudPin = null;
-        await signOut(auth);
+        const wasOfflineSession = window.__offlineSession || !navigator.onLine;
+        try { await signOut(auth); } catch(e) {}
+        if (wasOfflineSession) { forceResetToAuthScreen(); }
     }
 };
 
@@ -3693,6 +3720,156 @@ window.togglePassVisibility = function(inputId, btn) {
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 };
 
+// Helper: kalau lagi offline, error simpan/hapus/proses SEBENARNYA sudah tersimpan lokal
+// (Firestore persistentLocalCache), jadi tampilkan konfirmasi sukses, bukan error.
+// Kalau memang lagi online tapi gagal beneran, baru tampilkan error asli.
+function reportSaveOutcome(e, successTitle, errorTitle) {
+    if (!navigator.onLine) {
+        markPendingOfflineWrite();
+        Swal.fire({ position: 'center', icon: 'success', title: successTitle || 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+    } else {
+        Swal.fire({ position: 'center', icon: 'error', title: errorTitle || 'Gagal', text: e && e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+    }
+}
+
+// ==== Pelacak transaksi yang masih menunggu naik ke server (dibuat/diubah/dihapus pas offline) ====
+// Dipakai supaya begitu internet nyambung lagi, kita bisa kasih konfirmasi jelas kalau
+// semua aktivitas offline tadi sudah benar-benar tersimpan ke database.
+function getPendingSyncKey(uid) { return 'rhn_pending_sync_' + (uid || 'anon'); }
+function markPendingOfflineWrite() {
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+    if (!uid) return;
+    try {
+        const key = getPendingSyncKey(uid);
+        const n = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+        localStorage.setItem(key, String(n + 1));
+    } catch(e) {}
+}
+async function resolvePendingOfflineWrites() {
+    const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn');
+    if (!uid) return;
+    const key = getPendingSyncKey(uid);
+    let n = 0;
+    try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch(e) {}
+    if (n <= 0) return;
+    try {
+        await waitForPendingWrites(db);
+    } catch(e) { /* tetap lanjut kasih tau user, datanya tetap akan naik di background */ }
+    try { localStorage.removeItem(key); } catch(e) {}
+    Swal.fire({
+        position: 'center', icon: 'success',
+        title: 'Tersinkron ke Server! ✅',
+        text: n === 1 ? 'Transaksi yang kamu simpan/hapus saat offline sudah tersimpan ke database.' : `${n} transaksi yang kamu simpan/hapus saat offline sudah tersimpan ke database.`,
+        showConfirmButton: false, timer: 2000,
+        background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
+    });
+    refreshAll();
+}
+
+// ==== CACHE LOGIN OFFLINE (mirip PIN): simpan kredensial login/daftar/kode di localStorage HP ====
+// supaya user tetap bisa Masuk / Daftar / pakai Kode Login Cepat walau HP lagi tanpa internet.
+function loadOfflineCreds() { try { return JSON.parse(localStorage.getItem('rhn_offauth_creds') || '{}'); } catch(e) { return {}; } }
+function saveOfflineCreds(obj) { try { localStorage.setItem('rhn_offauth_creds', JSON.stringify(obj)); } catch(e) {} }
+function loadOfflineQCodes() { try { return JSON.parse(localStorage.getItem('rhn_offauth_qcodes') || '{}'); } catch(e) { return {}; } }
+function saveOfflineQCodes(obj) { try { localStorage.setItem('rhn_offauth_qcodes', JSON.stringify(obj)); } catch(e) {} }
+function cacheOfflineCredential(email, pass, profile, pendingSync) {
+    const key = (email || '').trim().toLowerCase();
+    if (!key) return;
+    const creds = loadOfflineCreds();
+    const prev = creds[key] || {};
+    creds[key] = Object.assign({}, prev, profile, { email: (email || '').trim(), pass: btoa(pass), pendingSync: !!pendingSync });
+    saveOfflineCreds(creds);
+}
+function getOfflineCredential(email) { const creds = loadOfflineCreds(); return creds[(email || '').trim().toLowerCase()] || null; }
+function checkOfflineCredential(email, pass) {
+    const entry = getOfflineCredential(email);
+    if (!entry) return null;
+    try { if (atob(entry.pass) !== pass) return null; } catch(e) { return null; }
+    return entry;
+}
+function cacheOfflineQuickCode(code, email) { const codes = loadOfflineQCodes(); codes[code] = { email: (email || '').trim() }; saveOfflineQCodes(codes); }
+
+// Simpan PIN cloud (online) ke cache offline PER-AKUN, supaya kalau nanti device ini
+// dipakai login lagi tanpa internet (walau sudah pernah logout / local_pin_rhn kehapus),
+// PIN yang dipakai tetap PIN yang sama seperti online — tidak disuruh bikin PIN baru lagi.
+function syncPinToOfflineCache(email, pin) {
+    if (!email || !pin) return;
+    const key = email.trim().toLowerCase();
+    const creds = loadOfflineCreds();
+    if (creds[key]) { creds[key].pin = pin; saveOfflineCreds(creds); }
+}
+
+// Nyalain sesi pakai data cache lokal doang (tanpa hit Firebase sama sekali) - dipanggil pas offline.
+function completeOfflineLogin(entry) {
+    currentUser = { uid: entry.uid, email: entry.email, displayName: entry.nama || (entry.email || '').split('@')[0] };
+    window.__offlineSession = true;
+    // Deteksi admin dari email walau lagi offline, biar akun admin tidak dianggap user biasa (mis. kena paywall langganan).
+    window.__isAdmin = ((entry.email || '').trim().toLowerCase() === 'rehantop245@gmail.com');
+    localStorage.setItem('last_uid_rhn', entry.uid);
+    const navAdminEl = document.getElementById('nav-admin'); if (navAdminEl) navAdminEl.style.display = window.__isAdmin ? 'inline-block' : 'none';
+    const adminSettingsGroupEl = document.getElementById('admin-settings-group'); if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = window.__isAdmin ? 'block' : 'none';
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+    document.getElementById('app-pin').style.display = 'block';
+    document.getElementById('app-pin').value = '';
+    if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    // Prioritaskan PIN yang sudah dikenal untuk akun ini (sinkron dari online), baru fallback ke PIN lokal umum.
+    const localPin = entry.pin || localStorage.getItem('local_pin_rhn');
+    if (localPin) {
+        localStorage.setItem('local_pin_rhn', localPin);
+        window.userCloudPin = localPin;
+        document.getElementById('pin-title').textContent = 'Masukkan PIN';
+        document.getElementById('pin-sub').textContent = 'Mode Offline';
+        document.getElementById('pin-submit-btn').style.display = 'none';
+        window.pinMode = 'verify_local';
+    } else {
+        document.getElementById('pin-title').textContent = 'Buat PIN Offline';
+        document.getElementById('pin-sub').textContent = 'Buat 6 digit PIN untuk dipakai tanpa internet';
+        document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN';
+        document.getElementById('pin-submit-btn').style.display = 'block';
+        window.pinMode = 'setup_offline';
+    }
+    if (typeof setSyncStatus === 'function') setSyncStatus(false);
+    setLoading(false);
+}
+
+// Pas internet nyambung lagi, coba daftarkan ke Firebase asli akun-akun yang sempat dibuat pas offline.
+async function trySyncOfflineRegistrations() {
+    const creds = loadOfflineCreds();
+    let changed = false;
+    for (const key in creds) {
+        const entry = creds[key];
+        if (!entry.pendingSync) continue;
+        try {
+            const pass = atob(entry.pass);
+            const cred = await createUserWithEmailAndPassword(auth, entry.email, pass);
+            try {
+                await updateProfile(cred.user, { displayName: entry.nama || '' });
+                await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: entry.nama || '', umur: entry.umur || '', jenisKelamin: entry.gender || '' }, { merge: true });
+                if (entry.pin) { await setDoc(doc(db, 'users', cred.user.uid, 'settings', 'security'), { pin: entry.pin }, { merge: true }); }
+            } catch(eProfil) { console.error('Gagal menyinkronkan profil akun offline', eProfil); }
+            const oldUid = entry.uid;
+            entry.uid = cred.user.uid;
+            entry.pendingSync = false;
+            changed = true;
+            if (localStorage.getItem('last_uid_rhn') === oldUid) { localStorage.setItem('last_uid_rhn', cred.user.uid); }
+            if (currentUser && currentUser.uid === oldUid) { currentUser = cred.user; }
+        } catch(e) { console.error('Gagal sinkron akun offline ke server', e); }
+    }
+    if (changed) saveOfflineCreds(creds);
+}
+// Paksa Firestore langsung reconnect begitu internet nyala lagi, dan update badge
+// status (TERSINKRON/OFFLINE) seketika, tidak nunggu snapshot berikutnya.
+window.addEventListener('online', () => {
+    if (typeof setSyncStatus === 'function') setSyncStatus(true);
+    try { enableNetwork(db); } catch(e) {}
+    trySyncOfflineRegistrations(); resolvePendingOfflineWrites();
+});
+window.addEventListener('offline', () => {
+    if (typeof setSyncStatus === 'function') setSyncStatus(false);
+});
+
 window.doAuth = async function() { 
     if (authMode === 'code') return window.doQuickCodeLogin();
     const email = document.getElementById('auth-email').value.trim(); 
@@ -3706,9 +3883,35 @@ window.doAuth = async function() {
     if (authMode === 'register' && !umur) return showErr('Umur tidak boleh kosong.'); 
     if (authMode === 'register' && !gender) return showErr('Jenis Kelamin tidak boleh kosong.'); 
     setLoading(true); 
+
+    // MODE OFFLINE: HP lagi tanpa internet -> langsung pakai cache lokal (mirip PIN), tanpa hit Firebase.
+    if (!navigator.onLine) {
+        if (authMode === 'login') {
+            const entry = checkOfflineCredential(email, pass);
+            if (!entry) { setLoading(false); return showErr('Lagi offline & akun ini belum pernah login di HP ini. Sambungkan internet dulu sekali ya.'); }
+            completeOfflineLogin(entry);
+            return;
+        } else {
+            if (pass !== document.getElementById('auth-pass2').value) { setLoading(false); return showErr('Konfirmasi Sandi tidak sama.'); }
+            const existingOffline = getOfflineCredential(email);
+            if (existingOffline) {
+                let samePass = false; try { samePass = atob(existingOffline.pass) === pass; } catch(eChk) {}
+                if (!samePass) { setLoading(false); return showErr('Email ini sudah terdaftar di HP ini dengan sandi berbeda.'); }
+                completeOfflineLogin(existingOffline);
+                return;
+            }
+            const offlineUid = 'offline_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+            const offlineProfile = { uid: offlineUid, nama: nama, umur: umur, gender: gender };
+            cacheOfflineCredential(email, pass, offlineProfile, true);
+            completeOfflineLogin(Object.assign({ email: email.trim() }, offlineProfile));
+            return;
+        }
+    }
+
     try { 
         if (authMode === 'login') {
             await withTimeout(signInWithEmailAndPassword(auth, email, pass), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+            cacheOfflineCredential(email, pass, { uid: auth.currentUser.uid, nama: auth.currentUser.displayName || '' }, false);
         } else { 
             if (pass !== document.getElementById('auth-pass2').value) {
                 setLoading(false);
@@ -3719,9 +3922,29 @@ window.doAuth = async function() {
                 await updateProfile(cred.user, { displayName: nama });
                 await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama, umur: umur, jenisKelamin: gender }, { merge: true });
             } catch(eProfil) { console.error('Gagal menyimpan nama akun', eProfil); }
+            cacheOfflineCredential(email, pass, { uid: cred.user.uid, nama: nama, umur: umur, gender: gender }, false);
         }
         setLoading(false);
     } catch(e) {
+        // Kalau gagalnya gara-gara koneksi, coba dulu fallback ke cache offline sebelum nampilin error final.
+        if (e.code === 'auth/network-request-failed' || (e.message && e.message.indexOf('koneksi') !== -1)) {
+            if (authMode === 'login') {
+                const entryFallback = checkOfflineCredential(email, pass);
+                if (entryFallback) { completeOfflineLogin(entryFallback); return; }
+            } else if (pass === document.getElementById('auth-pass2').value) {
+                const existingFallback = getOfflineCredential(email);
+                if (existingFallback) {
+                    let samePassFb = false; try { samePassFb = atob(existingFallback.pass) === pass; } catch(eChk2) {}
+                    if (samePassFb) { completeOfflineLogin(existingFallback); return; }
+                } else {
+                    const offlineUidFb = 'offline_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+                    const offlineProfileFb = { uid: offlineUidFb, nama: nama, umur: umur, gender: gender };
+                    cacheOfflineCredential(email, pass, offlineProfileFb, true);
+                    completeOfflineLogin(Object.assign({ email: email.trim() }, offlineProfileFb));
+                    return;
+                }
+            }
+        }
         let errorMsg = "Terjadi kesalahan. Silakan coba lagi.";
         let isTooManyRequests = false; // Penanda khusus untuk error berkali-kali
         
@@ -3792,6 +4015,17 @@ window.doQuickCodeLogin = async function() {
     hideErr();
     if (!/^[0-9]{3}$/.test(code)) return showErr('Kode harus 3 digit angka.');
     setLoading(true);
+
+    // MODE OFFLINE: cek dulu di cache kode login cepat yang tersimpan lokal di HP.
+    if (!navigator.onLine) {
+        const offCodesNow = loadOfflineQCodes();
+        const mappedNow = offCodesNow[code];
+        const entryNow = mappedNow ? getOfflineCredential(mappedNow.email) : null;
+        if (!entryNow) { setLoading(false); return showErr('Lagi offline & kode ini belum pernah dipakai login di HP ini.'); }
+        completeOfflineLogin(entryNow);
+        return;
+    }
+
     try {
         const codeSnap = await withTimeout(getDoc(doc(db, 'quickCodes', code)), 3000, 'Proses cek kode terlalu lama. Cek koneksi lalu coba lagi.');
         if (!codeSnap.exists()) {
@@ -3799,9 +4033,19 @@ window.doQuickCodeLogin = async function() {
             return showErr('Kode tidak ditemukan. Pastikan kode benar atau buat dulu lewat Pengaturan.');
         }
         const { email: qEmail, pass: qPass } = codeSnap.data();
-        await withTimeout(signInWithEmailAndPassword(auth, qEmail, atob(qPass)), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+        const qPassPlain = atob(qPass);
+        await withTimeout(signInWithEmailAndPassword(auth, qEmail, qPassPlain), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+        cacheOfflineCredential(qEmail, qPassPlain, { uid: auth.currentUser.uid, nama: auth.currentUser.displayName || '' }, false);
+        cacheOfflineQuickCode(code, qEmail);
         setLoading(false);
     } catch(e) {
+        // Kalau gagalnya gara-gara koneksi, coba fallback ke cache kode offline.
+        if (e.code === 'auth/network-request-failed' || (e.message && e.message.indexOf('koneksi') !== -1)) {
+            const offCodesFb = loadOfflineQCodes();
+            const mappedFb = offCodesFb[code];
+            const entryFb = mappedFb ? getOfflineCredential(mappedFb.email) : null;
+            if (entryFb) { completeOfflineLogin(entryFb); return; }
+        }
         showErr(e.message && !e.code ? e.message : 'Gagal login pakai kode. Coba lagi.');
         setLoading(false);
     }
@@ -3843,6 +4087,9 @@ window.setQuickLoginCode = async function() {
         }
 
         await setDoc(codeRef, { uid: currentUser.uid, email: currentUser.email, pass: btoa(formValues.sandi) });
+
+        cacheOfflineCredential(currentUser.email, formValues.sandi, { uid: currentUser.uid, nama: currentUser.displayName || '' }, false);
+        cacheOfflineQuickCode(formValues.kode, currentUser.email);
 
         Swal.fire({ icon: 'success', title: 'Kode Tersimpan!', html: `Mulai sekarang kamu bisa masuk langsung pakai kode <b>${formValues.kode}</b> di tab "Kode".`, background: 'var(--card)', color: 'var(--text)' });
     } catch(e) {
@@ -4002,6 +4249,31 @@ window.changePinInApp = async function() {
     } else if (newPin) { Swal.fire({icon:'warning', title:'Gagal, harus 6 digit!', background:'var(--card)', color:'var(--text)'}); } 
 };
 
+// Helper: paksa balik ke layar login. Dipakai supaya logout TETAP jalan walau lagi offline
+// (sesi offline pakai akun palsu lokal, jadi onAuthStateChanged Firebase tidak akan pernah
+// terpanggil untuk membersihkan tampilan — makanya harus direset manual di sini).
+function forceResetToAuthScreen() {
+    currentUser = null;
+    window.__offlineSession = false;
+    localStorage.removeItem('last_uid_rhn');
+    localStorage.removeItem('local_pin_rhn');
+    window.appUnlocked = false;
+    window.userCloudPin = null;
+
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('subscribe-screen').style.display = 'none';
+    if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
+
+    setLoading(false);
+    const authBtn = document.getElementById('auth-submit-btn'); if (authBtn) authBtn.textContent = 'MASUK';
+    const appPinEl = document.getElementById('app-pin'); if (appPinEl) appPinEl.value = '';
+    if (unsubListener) { unsubListener(); unsubListener = null; }
+    if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
+    txs = []; deletedTxs = [];
+}
+
 window.doLogout = function() { 
     Swal.fire({
         title: 'Keluar Akun?',
@@ -4026,7 +4298,9 @@ window.doLogout = function() {
             window.appUnlocked = false; 
             window.userCloudPin = null; 
             
-            await signOut(auth); 
+            const wasOfflineSession = window.__offlineSession || !navigator.onLine;
+            try { await signOut(auth); } catch(e) {}
+            if (wasOfflineSession) { forceResetToAuthScreen(); }
             Swal.close();
         }
     });
@@ -4060,6 +4334,7 @@ onAuthStateChanged(auth, async user => {
         } else { 
             window.userCloudPin = secSnap.data().pin; 
             localStorage.setItem('local_pin_rhn', window.userCloudPin);
+            syncPinToOfflineCache(user.email, window.userCloudPin);
             if (!window.appUnlocked) {
                 document.getElementById('app-screen').style.display = 'none'; 
                 document.getElementById('pin-screen').style.display = 'flex'; 
@@ -4113,6 +4388,12 @@ onAuthStateChanged(auth, async user => {
             window.userQrisBase = "";
         }
     } catch(err) { console.error("Gagal sinkron data pengaturan", err); }
+
+    // Kategori (window.userCats) baru pasti lengkap SETELAH baris di atas selesai (async, bisa
+    // lambat/dari cache kalau offline). Dropdown kategori di form sudah sempat dirender duluan
+    // pas awal load pakai data yang belum lengkap, makanya suka kosong pas offline sampai user
+    // pindah tab manual. Refresh ulang dropdown-nya di sini begitu window.userCats final.
+    if (typeof selType === 'function') { try { selType(typeof curType !== 'undefined' && curType ? curType : 'income'); } catch(e) {} }
 
     try {
         const recSnap = await getDocs(collection(db, 'users', user.uid, 'recurring_txs'));
@@ -4183,6 +4464,7 @@ window.verifyPin = async function() {
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
             window.userCloudPin = pinInput; 
             localStorage.setItem('local_pin_rhn', pinInput);
+            if (currentUser && currentUser.email) { syncPinToOfflineCache(currentUser.email, pinInput); }
             Swal.fire({position: 'center', icon: 'success', title: 'PIN Berhasil Dibuat!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'}); 
             window.appUnlocked = true;
             unlockApp(); 
@@ -4190,6 +4472,24 @@ window.verifyPin = async function() {
             errEl.textContent = 'Gagal menyimpan PIN ke server.'; errEl.style.display = 'block'; 
             document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN'; 
         } 
+    } else if (window.pinMode === 'setup_offline') {
+        // Bikin PIN pas offline: disimpan lokal dulu di HP, nanti otomatis disinkron ke server pas online lagi.
+        document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...';
+        try {
+            window.userCloudPin = pinInput;
+            localStorage.setItem('local_pin_rhn', pinInput);
+            if (currentUser && currentUser.email) {
+                const offCredsNow = loadOfflineCreds();
+                const offKeyNow = currentUser.email.trim().toLowerCase();
+                if (offCredsNow[offKeyNow]) { offCredsNow[offKeyNow].pin = pinInput; saveOfflineCreds(offCredsNow); }
+            }
+            Swal.fire({position: 'center', icon: 'success', title: 'PIN Offline Tersimpan!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'});
+            window.appUnlocked = true;
+            unlockApp();
+        } catch(e) {
+            errEl.textContent = 'Gagal menyimpan PIN.'; errEl.style.display = 'block';
+            document.getElementById('pin-submit-btn').textContent = 'SIMPAN PIN';
+        }
     } else { 
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
         if (!uid) return; 
@@ -5912,6 +6212,7 @@ window.openCSChat = function() {
     const subEl = document.getElementById('cs-chat-sub');
     if (titleEl) titleEl.textContent = 'Customer Service';
     if (subEl) subEl.textContent = 'Admin biasanya balas cepat';
+    const delConvBtn = document.getElementById('cs-delete-conv-btn'); if (delConvBtn) delConvBtn.style.display = 'none';
     document.getElementById('cs-chat-screen').style.display = 'flex';
     window.subscribeCSMessages(currentUser.uid);
     try {
@@ -5931,6 +6232,7 @@ window.openAdminCSChat = function(uid, name) {
     const subEl = document.getElementById('cs-chat-sub');
     if (titleEl) titleEl.textContent = name || 'User';
     if (subEl) subEl.textContent = 'Chat sebagai Admin';
+    const delConvBtn = document.getElementById('cs-delete-conv-btn'); if (delConvBtn) delConvBtn.style.display = 'flex';
     document.getElementById('cs-chat-screen').style.display = 'flex';
     window.subscribeCSMessages(uid);
     try { setDoc(doc(db, 'support_chats', uid), { unreadForAdmin: false }, { merge: true }); } catch(e) {}
@@ -5966,7 +6268,7 @@ window.renderCSMessages = function(msgs) {
     body.innerHTML = msgs.map(m => {
         const mine = isAdminView ? (m.sender === 'admin') : (m.sender === 'user');
         const timeStr = m.createdAtLocal ? fmtTime(m.createdAtLocal) : '';
-        const canDelete = isAdminView || mine;
+        const canDelete = isAdminView;
         const delBtn = canDelete && m.id ? `<span class="cs-msg-del" onclick="event.stopPropagation(); window.deleteCSMessage('${m.id}')" title="Hapus pesan">✕</span>` : '';
         return `<div class="cs-bubble ${mine ? 'me' : 'them'}">${delBtn}${escapeHTML(m.text || '')}<span class="cs-time">${timeStr}</span></div>`;
     }).join('');
@@ -5986,6 +6288,7 @@ window.deleteCSMessage = async function(msgId) {
 
 window.deleteCSConversation = async function() {
     if (!window.__csActiveUid) return;
+    if (!window.__csIsAdminView) return;
     const res = await Swal.fire({ title: 'Hapus Seluruh Percakapan?', text: 'Semua pesan di chat ini akan dihapus permanen dan tidak bisa dikembalikan.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus Semua', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' });
     if (!res.isConfirmed) return;
     try {
@@ -6217,10 +6520,32 @@ window.confirmDeleteUser = async function(uid) {
     }
 };
 
+// Cadangan lokal (localStorage) untuk catatan transaksi, supaya kalau Firestore offline
+// cache-nya kosong (misal buka tab baru pas offline), catatan tetap bisa ditampilkan
+// dari salinan terakhir yang berhasil dimuat di HP ini.
+function saveTxLocalBackup(uid, allTxs, allDeleted) {
+    try { localStorage.setItem('rhn_tx_backup_' + uid, JSON.stringify({ txs: allTxs, deletedTxs: allDeleted, savedAt: Date.now() })); } catch(e) {}
+}
+function loadTxLocalBackup(uid) {
+    try { return JSON.parse(localStorage.getItem('rhn_tx_backup_' + uid) || 'null'); } catch(e) { return null; }
+}
+
 function listenTransactions(uid) { 
     if (unsubListener) unsubListener(); 
     window.__txBackupBaseline = false; 
-    unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), snap => { 
+
+    // Kalau lagi offline, tampilkan dulu salinan terakhir yang tersimpan lokal biar catatan
+    // langsung muncul (tidak nol dulu) sambil menunggu Firestore siap.
+    if (!navigator.onLine) {
+        const backup = loadTxLocalBackup(uid);
+        if (backup) {
+            txs = (backup.txs || []).filter(t => !t.isDeleted);
+            deletedTxs = backup.deletedTxs || [];
+            refreshAll();
+        }
+    }
+
+    unsubListener = onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc')), { includeMetadataChanges: true }, snap => { 
         let allDocs = snap.docs.map(d => { 
             let data = d.data(); 
             if (data.wallet && data.wallet.toUpperCase().includes('REKENING')) data.wallet = 'Bank'; 
@@ -6229,12 +6554,28 @@ function listenTransactions(uid) {
         }); 
         txs = allDocs.filter(t => !t.isDeleted);
         deletedTxs = allDocs.filter(t => t.isDeleted);
-        setSyncStatus(true); 
+        saveTxLocalBackup(uid, txs, deletedTxs);
+        // Badge status ikuti sumber data yang sebenarnya: kalau snapshot ini berasal dari cache
+        // lokal (fromCache = true, artinya belum kekonfirmasi server), berarti sedang offline.
+        // Kalau sudah dari server, baru dianggap tersinkron. Ini lebih akurat daripada asumsi
+        // "snapshot sukses = online", yang bikin badge kebalik pas offline pakai data cache.
+        setSyncStatus(!snap.metadata.fromCache); 
+        // Jaring pengaman tambahan: begitu snapshot ini konfirmasi sudah dari SERVER (bukan cache
+        // lagi), langsung cek juga apa ada aktivitas offline yang masih nunggu dikonfirmasi, terus
+        // munculkan notifikasi "Tersinkron ke Server!". Tidak cuma andalkan event 'online' browser
+        // (yang kadang telat/tidak akurat), jadi begitu Firestore beneran konek lagi, langsung ketahuan.
+        if (!snap.metadata.fromCache) resolvePendingOfflineWrites();
         refreshAll(); 
         window.triggerBackupOnTxChange();
     }, err => { 
         console.error(err); 
         setSyncStatus(false); 
+        const backup = loadTxLocalBackup(uid);
+        if (backup) {
+            txs = (backup.txs || []).filter(t => !t.isDeleted);
+            deletedTxs = backup.deletedTxs || [];
+            refreshAll();
+        }
     }); 
 }
 
@@ -6264,8 +6605,9 @@ window.delTx = function(id) {
         if (result.isConfirmed) { 
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true });
+                if (!navigator.onLine) markPendingOfflineWrite();
                 Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:800}); 
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+            } catch(e) { reportSaveOutcome(e, 'Masuk Tempat Sampah!', 'Gagal'); }
         } 
     }); 
 };
@@ -6288,8 +6630,9 @@ window.payDebt = async function(id) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                if (!navigator.onLine) markPendingOfflineWrite();
                 Swal.fire({icon:'success', title:'Hutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+            } catch(e) { reportSaveOutcome(e, 'Hutang Lunas! ✅', 'Gagal'); }
         }
     });
 };
@@ -6312,8 +6655,9 @@ window.payRecv = async function(id) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
+                if (!navigator.onLine) markPendingOfflineWrite();
                 Swal.fire({icon:'success', title:'Piutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+            } catch(e) { reportSaveOutcome(e, 'Piutang Lunas! ✅', 'Gagal'); }
         }
     });
 };
@@ -6357,32 +6701,67 @@ window.addTx = async function() {
       let payload = { type: curType, amount: amt, category: cat, wallet: wallet, note: note, date: dt || nowISO(), ownerEmail: currentUser.email, isDeleted: false }; 
       if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') payload.isPaid = false;
       
+      let writePromise;
       if (editId) { 
           payload.lastEditedAt = new Date().toISOString();
-          await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editId), payload); cancelEdit(); 
+          writePromise = updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editId), payload);
       } else { 
           payload.createdAt = serverTimestamp(); 
-          await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload); 
+          writePromise = addDoc(collection(db, 'users', currentUser.uid, 'transactions'), payload); 
           if (recVal) {
              let nextD = new Date();
              if(recVal==='daily') nextD.setDate(nextD.getDate()+1);
              if(recVal==='weekly') nextD.setDate(nextD.getDate()+7);
              if(recVal==='monthly') nextD.setMonth(nextD.getMonth()+1);
-             await addDoc(collection(db, 'users', currentUser.uid, 'recurring_txs'), { type: payload.type, amount: payload.amount, category: payload.category, wallet: payload.wallet, walletTo: payload.walletTo || null, note: payload.note, interval: recVal, nextRun: nextD.toISOString().slice(0,10), runTime: recTime });
+             addDoc(collection(db, 'users', currentUser.uid, 'recurring_txs'), { type: payload.type, amount: payload.amount, category: payload.category, wallet: payload.wallet, walletTo: payload.walletTo || null, note: payload.note, interval: recVal, nextRun: nextD.toISOString().slice(0,10), runTime: recTime }).catch(() => { if (!navigator.onLine) markPendingOfflineWrite(); });
           }
       } 
+
+      // Data offline SUDAH tersimpan di cache lokal Firestore (persistentLocalCache) begitu
+      // addDoc/updateDoc dipanggil. Tapi Promise-nya baru resolve setelah tersambung ke server,
+      // jadi kalau ditunggu terus (await) tombol bisa macet selamanya waktu offline/sinyal lemot.
+      // Solusinya: kasih batas waktu tunggu; kalau lewat, anggap "tersimpan di HP dulu" dan biarkan
+      // proses upload jalan di background, otomatis naik ke server begitu online lagi.
+      let wroteOffline = !navigator.onLine;
+      if (!wroteOffline) {
+          const OFFLINE_TIMEOUT_MS = 3000;
+          const timedOut = await Promise.race([
+              writePromise.then(() => false),
+              new Promise(res => setTimeout(() => res(true), OFFLINE_TIMEOUT_MS))
+          ]);
+          if (timedOut) wroteOffline = true;
+      }
+      writePromise.catch(() => {});
+      if (editId) cancelEdit();
+
       amountInput.value = ''; document.getElementById('f-note').value = ''; 
       saveBtn.style.opacity = '1';
       saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)'; 
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
+      if (wroteOffline) markPendingOfflineWrite();
       let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
-      Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
+      if (wroteOffline) {
+          Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
+      } else {
+          Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
+      }
       
-      setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 10); } else { selType('income'); } }, 800);
+      setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 10); } else { selType('income'); } }, wroteOffline ? 1400 : 800);
       const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
-  } catch(e) { Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false; } 
+  } catch(e) {
+      if (!navigator.onLine) {
+          markPendingOfflineWrite();
+          amountInput.value = ''; document.getElementById('f-note').value = '';
+          saveBtn.style.opacity = '1'; saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)';
+          if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+          Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+          setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; saveBtn.textContent = 'SIMPAN CATATAN'; }, 1400);
+      } else {
+          Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false;
+      }
+  } 
 };
 
 window.toggleBatchMode = function() {
@@ -6408,8 +6787,9 @@ window.execBatchDelete = async function() {
                 }
                 batchMode = false;
                 document.getElementById('btn-batch-del').style.display = 'none';
+                if (!navigator.onLine) markPendingOfflineWrite();
                 Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
-            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+            } catch(e) { reportSaveOutcome(e, 'Masuk ke Tempat Sampah!', 'Gagal'); }
         } 
     });
 };
@@ -6447,9 +6827,10 @@ window.emptyRecycleBin = async function() {
                     chunk.forEach(t => batch.delete(doc(db, 'users', currentUser.uid, 'transactions', t.id)));
                     await batch.commit();
                 }
+                if (!navigator.onLine) markPendingOfflineWrite();
                 Swal.fire({icon:'success', title:'Bersih Total!', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
             } catch(e) {
-                Swal.fire('Error', e.message, 'error');
+                reportSaveOutcome(e, 'Bersih Total!', 'Gagal');
             }
         }
     });
@@ -6458,6 +6839,7 @@ window.emptyRecycleBin = async function() {
 window.restoreTx = async function(id) {
     Swal.fire({title: 'Memulihkan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
     await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: false });
+    if (!navigator.onLine) markPendingOfflineWrite();
     Swal.fire({icon:'success', title:'Dipulihkan', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
 };
 window.hardDeleteTx = async function(id) {
@@ -6465,6 +6847,7 @@ window.hardDeleteTx = async function(id) {
         if(res.isConfirmed) {
             Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', id));
+            if (!navigator.onLine) markPendingOfflineWrite();
             Swal.fire({icon:'success', title:'Terhapus Permanen', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
         }
     });
@@ -6816,9 +7199,10 @@ window.promptKoreksi = async function(walletName, recordedBal) {
             await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
                type: typeStr, amount: amt, category: 'Lainnya', wallet: walletName, note: userNote, date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
             });
+            if (!navigator.onLine) markPendingOfflineWrite();
             Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Ditambahkan catatan <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
         } catch(e) {
-            Swal.fire('Error', e.message, 'error');
+            reportSaveOutcome(e, 'Saldo Terkoreksi!', 'Gagal');
         }
     }
 };
@@ -8093,7 +8477,7 @@ window.addEventListener('focus', function () {
       <div class="cs-title" id="cs-chat-title">Customer Service</div>
       <div class="cs-sub" id="cs-chat-sub">Admin biasanya balas cepat</div>
     </div>
-    <div class="cs-back" style="color:var(--red2);" onclick="window.deleteCSConversation()" title="Hapus Percakapan">🗑️</div>
+    <div class="cs-back" id="cs-delete-conv-btn" style="color:var(--red2);" onclick="window.deleteCSConversation()" title="Hapus Percakapan">🗑️</div>
   </div>
   <div class="cs-chat-body" id="cs-chat-body"></div>
   <div class="cs-chat-input-wrap">
