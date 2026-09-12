@@ -39,20 +39,20 @@ h1, hr, .page-header, .site-header, .project-name { display: none !important; }
 }
 
 body.light-mode {
-  --bg: #DFE2E6; 
-  --bg2: #E9EDF1; 
-  --bg3: #D0D5DB;
-  --card: #E9EDF1; 
-  --border: #C2C8D0; 
-  --border2: #9CA3AF;
+  --bg: #F1F3F6; 
+  --bg2: #F3F4F6; 
+  --bg3: #ECEEF1;
+  --card: #FFFFFF; 
+  --border: #E5E7EB; 
+  --border2: #D1D5DB;
   --text: #111827; 
   --text2: #374151; 
-  --text3: #4B5563;
+  --text3: #6B7280;
   --blue-title: #0056b3;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   font-size: 14px;
@@ -215,7 +215,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 }
 .nav-ext-btn {
   background: transparent; border: none; color: var(--gold);
-  font-weight: 700; font-size: 11px; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700; font-size: 11px; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .nav-ext-btn:hover { color: var(--text); }
@@ -225,7 +225,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
   background: var(--bg2); border: 1px solid var(--border2); border-radius: 999px;
   padding: 8px 16px; display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.usd-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--text); }
+.usd-val { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 14px; font-weight: 700; color: var(--text); }
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 .sync-text { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
 
@@ -277,11 +277,11 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .m-card { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1px solid var(--border2); display: flex; flex-direction: column; }
 .m-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.5px; }
-.m-val { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.m-val { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .m-val::-webkit-scrollbar { display: none; }
 .usd-pill {
   display: inline-block; background: var(--bg3); color: var(--text3);
-  font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: 10px; font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-weight: 600;
   padding: 2px 8px; border-radius: 6px; align-self: flex-start; margin-bottom: 8px;
 }
 .m-sub { font-size: 10px; font-weight: 500; color: var(--text3); margin-bottom: 12px; flex-grow: 1; }
@@ -297,7 +297,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
+.w-val { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
 
@@ -310,7 +310,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .saldo-wallet-tag { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--gold); text-transform:uppercase; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.35); padding:4px 10px; border-radius:20px; }
 .saldo-wallet-eye { background:rgba(255,255,255,0.06); border:1px solid var(--border2); color:var(--text2); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; }
 .saldo-wallet-label { font-size:10px; color:var(--text3); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; position:relative; z-index:1; }
-.saldo-wallet-amt { font-family:'JetBrains Mono', monospace; font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; word-break:break-all; position:relative; z-index:1; }
+.saldo-wallet-amt { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; word-break:break-all; position:relative; z-index:1; }
 .saldo-wallet-code { margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:rgba(255,255,255,0.05); border:1px dashed var(--border2); border-radius:12px; padding:10px 14px; position:relative; z-index:1; }
 .saldo-wallet-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; position:relative; z-index:1; }
 .saldo-wallet-actions .saldo-wallet-btn { font-size:9.5px; }
@@ -324,7 +324,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .req-item { background:var(--bg3); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px; }
 .req-item .req-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
 .req-item .req-name { font-size:12px; font-weight:800; color:var(--text); }
-.req-item .req-amt { font-family:'JetBrains Mono', monospace; font-size:14px; font-weight:800; color:var(--gold); }
+.req-item .req-amt { font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size:14px; font-weight:800; color:var(--gold); }
 .req-item .req-note { font-size:10px; color:var(--text3); margin-bottom:10px; }
 .req-badge { font-size:8px; font-weight:800; text-transform:uppercase; padding:3px 8px; border-radius:20px; letter-spacing:0.5px; }
 .req-badge.pending { background:rgba(251,191,36,0.15); color:var(--gold); }
@@ -350,7 +350,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .cs-bubble:hover .cs-msg-del, .cs-bubble:active .cs-msg-del { opacity:1; }
 @media (hover:none) { .cs-msg-del { opacity:0.85; } }
 .cs-chat-input-wrap { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); background:var(--card); }
-.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Plus Jakarta Sans', sans-serif; outline:none; }
+.cs-chat-input-wrap input { flex:1; background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:20px; padding:12px 16px; font-size:13px; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; outline:none; }
 .cs-chat-input-wrap button { background:var(--gold); color:#000; border:none; width:42px; height:42px; border-radius:50%; font-size:16px; cursor:pointer; flex-shrink:0; }
 .cs-list-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; background:var(--bg3); cursor:pointer; transition:0.2s; }
 .cs-list-item:hover { border-color:var(--gold); }
@@ -390,7 +390,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .f-input-dark {
   width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--border);
   background-color: var(--bg2) !important; color: var(--text) !important;
-  outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 500;
+  outline: none; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 500;
   appearance: none; -webkit-appearance: none; transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
 }
@@ -419,7 +419,7 @@ select.swal2-input {
   background-color: var(--bg2) !important; color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
   border: 1px solid var(--border) !important; border-radius: 16px;
-  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600;
   height: auto !important; min-height: 52px !important; line-height: 1.3 !important;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
@@ -434,7 +434,7 @@ select.swal2-select {
   background-color: var(--bg2) !important; color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
   border: 1px solid var(--border) !important; border-radius: 16px;
-  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 16px 40px 16px 16px !important; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600;
   height: auto !important; min-height: 52px !important; line-height: 1.3 !important;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FBBF24' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
@@ -520,8 +520,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 .ri-right-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-left: 12px; }
 .ri-amounts-col { display: flex; flex-direction: column; align-items: flex-end; }
-.ri-amount { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
-.ri-usd { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
+.ri-amount { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--text); }
+.ri-usd { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); margin-top: 2px; }
 
 .edit-btn-recent { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 999px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
 .del-btn-recent { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--red2); color: var(--red2); padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 999px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: 0.3s; text-decoration: none; }
@@ -545,20 +545,20 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 
 .calc-select {
     background: transparent; color: var(--text); border: none; font-size: 16px; font-weight: 800;
-    outline: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; appearance: none; -webkit-appearance: none; padding-right: 18px;
+    outline: none; cursor: pointer; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; appearance: none; -webkit-appearance: none; padding-right: 18px;
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23888899" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat; background-position: right center;
 }
 .calc-name { font-size: 10px; color: var(--text3); margin-top: 2px; padding-left: 2px; }
 .calc-right { text-align: right; overflow: hidden; }
-.calc-amount { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.calc-amount { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 2px; transition: color 0.2s; max-width: 55vw; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 
 .swap-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text3); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .swap-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--text3); }
 /* Diubah warna bg nya pake variable tema biar nyesuaiin dengan light/dark mode */
 .calc-keypad-wrap { background: var(--bg3); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; padding: 24px 16px; margin-top: 8px; }
 .calc-keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 55px); gap: 12px; }
-.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+.calc-btn { background: transparent; border: none; color: var(--text); font-size: 22px; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; cursor: pointer; border-radius: 12px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
 .calc-btn:active { background: rgba(128,128,128,0.2); }
 .calc-btn-ac { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 1 / 3; font-size: 20px; font-weight: 700; border-radius: 16px; }
 .calc-btn-del { background: #23342B; color: #4ADE80; grid-column: 4; grid-row: 3 / 5; border-radius: 16px; }
@@ -574,7 +574,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .set-action:hover { background: var(--bg2); border-color: var(--gold); color: var(--gold); }
 .set-action.danger { color: var(--red2); border-color: rgba(248,113,113,0.3); }
 .set-action.danger:hover { background: rgba(248,113,113,0.1); border-color: var(--red2); }
-.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+.set-select { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; outline: none; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; cursor: pointer; }
 
 /* CHART & FILTERS BAR */
 .chart-wrap { margin-bottom: 24px; }
@@ -594,7 +594,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .cat-chip.active { border-color: var(--gold); background: rgba(251, 191, 36, 0.12); color: var(--gold); }
 .cat-chip > span:first-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text); }
 .cat-chip.active > span:first-child { color: var(--gold); }
-.cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.9; white-space: nowrap; }
+.cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 10px; opacity: 0.9; white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
 
 /* ==========================================================================
@@ -605,7 +605,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .admin-detail-btn {
   flex: 1 1 calc(50% - 8px); min-width: 100px; padding: 9px 6px; font-size: 9px; font-weight: 800; border-radius: 8px;
   cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; text-align: center;
-  transition: 0.3s; font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: 0.3s; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: rgba(251,191,36,0.1); border: 1px solid var(--gold); color: var(--gold);
 }
 .admin-detail-btn:hover { background: var(--gold); color: #000; }
@@ -668,7 +668,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .auth-tabs { display: flex; background: var(--bg3); border-radius: 999px; padding: 4px; margin-bottom: 24px; }
 .auth-tab { flex: 1; padding: 12px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; border: none; color: var(--text3); border-radius: 999px; }
 .auth-tab.active { background: var(--bg2); color: var(--text); }
-.auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
+.auth-field input { width: 100%; padding: 16px; font-size: 14px; font-weight: 500; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); color: var(--text); margin-bottom: 12px; outline: none; }
 .auth-btn { width: 100%; padding: 16px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 8px; }
 .btn-google { background: #fff !important; color: #000 !important; border: 1px solid #ddd !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; }
 
@@ -945,7 +945,7 @@ body.global-privacy #xau-idr-gr {
 }
 
 .splash-title-minimal {
-  font-size: 36px; font-weight: 800; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 36px; font-weight: 800; color: #fff; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   letter-spacing: 6px; margin-bottom: 8px;
 }
 
@@ -1222,9 +1222,9 @@ body.global-privacy #xau-idr-gr {
     </div>
     
     <div class="status-pill" style="padding: 6px 4px; flex-direction: column; justify-content: center; gap: 2px; font-size: 8px; font-weight: 800; color: var(--gold);">
-      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-live-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text3); margin-left:3px; margin-right:1px; transition:background .2s;"></span><span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">XAU <span id="xau-live-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text3); margin-left:3px; margin-right:1px; transition:background .2s;"></span><span id="xau-rate-val" style="color: var(--text); font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-left: 2px;">...</span></span>
       <span id="xau-idr-oz" style="display: none;"></span>
-      <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', monospace; margin-left: 2px;">...</span></span>
+      <span style="line-height: 1; white-space: nowrap;">GRAM <span id="xau-idr-gr" style="color: var(--text); font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-left: 2px;">...</span></span>
     </div>
 
     <div class="status-pill" style="padding: 6px 4px; gap: 4px;">
@@ -1331,7 +1331,7 @@ body.global-privacy #xau-idr-gr {
       
       <div class="form-row">
         <label class="form-label">KETERANGAN</label>
-        <textarea id="f-note" class="f-input-dark" placeholder="Catatan catatan..."></textarea>
+        <textarea id="f-note" class="f-input-dark" placeholder="Tulis catatan tambahan..."></textarea>
       </div>
 
       <div class="form-row" id="row-recurring">
@@ -1352,7 +1352,7 @@ body.global-privacy #xau-idr-gr {
       <div class="form-row">
         <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
           <span>WAKTU</span>
-          <button type="button" onclick="setRealLocalTime()" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
+          <button type="button" onclick="setRealLocalTime()" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; cursor:pointer;">SEKARANG ⏱</button>
         </label>
         <input type="datetime-local" id="f-date" class="f-input-dark">
       </div>
@@ -1651,7 +1651,7 @@ body.global-privacy #xau-idr-gr {
     <div class="form-row">
       <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
         <span>WAKTU CATATAN</span>
-        <button type="button" onclick="document.getElementById('qris-date').value = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif; cursor:pointer;">SEKARANG ⏱</button>
+        <button type="button" onclick="document.getElementById('qris-date').value = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)" style="background:transparent; border:none; color:var(--gold); font-size:10px; font-weight:800; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; cursor:pointer;">SEKARANG ⏱</button>
       </label>
       <input type="datetime-local" id="qris-date" class="f-input-dark">
     </div>
@@ -1670,7 +1670,7 @@ body.global-privacy #xau-idr-gr {
             <circle cx="14" cy="16" r="14" fill="#f9a51a"/>
             <circle cx="26" cy="16" r="14" fill="#e6222a" opacity="0.85"/>
             <path d="M28 11 L48 12 L40 21 Z" fill="#d91b29"/>
-            <text x="2" y="30" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
+            <text x="2" y="30" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="900" fill="#0c2340" letter-spacing="0.5">GPN</text>
           </svg>
         </div>
       </div>
@@ -1692,7 +1692,7 @@ body.global-privacy #xau-idr-gr {
 
       <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 120%; margin-left: -10%; margin-right: -10%; background: transparent; position: relative; z-index: 3; padding-left: 10%; box-sizing: border-box;">
         
-        <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 9px; font-weight: 700; line-height: 1.4; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <div style="text-align: left; padding-bottom: 10px; color: #475569; font-size: 9px; font-weight: 700; line-height: 1.4; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
           <div>Dicetak oleh: 93600914</div>
           <div id="qris-print-version" style="color: #000; font-weight: 800; font-size: 10px; margin-top: 2px;">Waktu Cetak: -</div>
         </div>
@@ -3495,7 +3495,7 @@ window.promptTransfer = async function(txId) {
 
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer 1 Catatan',
-        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Plus Jakarta Sans; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+        html: '<input id="swal-tcode" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -3531,7 +3531,7 @@ window.splitTx = async function(txId) {
             .sp-info{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:12px 16px; margin-bottom:16px; }
             .sp-info-label{ font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; }
             .sp-info-sub{ font-size:11px; color:var(--text3); margin-top:2px; }
-            .sp-info-amt{ font-size:17px; font-weight:800; color:var(--gold); font-family:'JetBrains Mono', monospace; white-space:nowrap; }
+            .sp-info-amt{ font-size:17px; font-weight:800; color:var(--gold); font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; white-space:nowrap; }
             .sp-section{ background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:14px 16px 16px; margin-bottom:12px; position:relative; }
             .sp-badge{ display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:800; color:#000; text-transform:uppercase; letter-spacing:.5px; background:var(--gold); border-radius:20px; padding:3px 10px; margin-bottom:10px; }
             .sp-section.p2 .sp-badge{ background:var(--blue); color:#fff; }
@@ -3545,7 +3545,7 @@ window.splitTx = async function(txId) {
             .sp-amt-row .sp-prefix{ position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:12px; font-weight:800; color:var(--text3); pointer-events:none; z-index:2; }
             .sp-amt-row input{ padding-left:34px !important; font-weight:700 !important; }
             .sp-sum-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--bg3); border:1px dashed var(--border); border-radius:12px; padding:10px 14px; font-size:11px; font-weight:700; color:var(--text3); }
-            #sp-sum-val{ font-family:'JetBrains Mono', monospace; font-weight:800; font-size:13px; }
+            #sp-sum-val{ font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-weight:800; font-size:13px; }
           </style>
           <div class="sp-wrap">
             <div class="sp-info">
@@ -3661,7 +3661,7 @@ window.promptTransferAll = async function() {
     const { value: targetCode } = await Swal.fire({
         title: 'Transfer Semua Riwayat',
         html: '<p style="font-size:12px; color:var(--text3); margin-bottom:16px;">Semua data akan dipindah ke akun tujuan dan dihapus dari akun ini.</p>' +
-              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:Plus Jakarta Sans; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+              '<input id="swal-tcode-all" class="swal2-input" placeholder="Masukkan 3 Angka" maxlength="3" type="number" style="text-align:center; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'LANJUT ➔',
@@ -3703,7 +3703,7 @@ window.confirmAndTransfer = async function(txList, targetCode, isSingle) {
           <div style="text-align:left; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:8px;">
             <div style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; margin-bottom:8px;">Transfer akan dikirim ke:</div>
             <div style="font-size:16px; font-weight:800; color:var(--gold); margin-bottom:4px;">${window.escapeHTML ? window.escapeHTML(target.nama) : target.nama}</div>
-            <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', monospace;">${window.escapeHTML ? window.escapeHTML(target.email) : target.email}</div>
+            <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;">${window.escapeHTML ? window.escapeHTML(target.email) : target.email}</div>
             <div style="font-size:10px; color:var(--text3); margin-top:12px;">Kode: <b style="color:var(--text);">${targetCode}</b> · Jumlah data: <b style="color:var(--text);">${txList.length} catatan</b></div>
           </div>
           <div style="font-size:11px; color:var(--red2); margin-top:12px;">Pastikan nama & email di atas benar sebelum lanjut. Catatan akan dipindahkan dan dihapus dari akun ini.</div>
@@ -3952,7 +3952,7 @@ window.openCurrencySelector = function(rId) {
   let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; 
   calcCurrencies.forEach(c => { 
       let isActive = (rId === 'from' && calcFromCode === c.code) || (rId === 'to' && calcToCode === c.code); 
-      html += `<button onclick="changeCalcCurr('${rId}', '${c.code}'); Swal.close();" style="background:${isActive?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isActive?'var(--gold)':'var(--border)'}; padding:14px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">${c.flag}</span> ${c.code} - ${c.name}</button>`; 
+      html += `<button onclick="changeCalcCurr('${rId}', '${c.code}'); Swal.close();" style="background:${isActive?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isActive?'var(--gold)':'var(--border)'}; padding:14px; border-radius:12px; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align:left; font-size:14px; font-weight:600; display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">${c.flag}</span> ${c.code} - ${c.name}</button>`; 
   }); 
   html += '</div>'; 
   Swal.fire({ title: '<div style="font-size:18px; text-align:left; font-weight:800; border-bottom:1px dashed var(--border); padding-bottom:12px; margin-bottom:8px;">Pilih Mata Uang</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); 
@@ -4006,7 +4006,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCalc();
     const syncSelectUI = (sel, ui) => { let text = sel.options[sel.selectedIndex]?.text; if(!text && sel.options.length > 0) text = sel.options[0].text; ui.querySelector('.sel-text').innerHTML = text || 'Pilih...'; };
     document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => { 
-        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
+        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
     });
     window.selectCustomOpt = function(selId, optIdx) { let sel = document.getElementById(selId); if (sel) { sel.selectedIndex = optIdx; sel.dispatchEvent(new Event('change')); if(sel.onchange) sel.onchange(); } Swal.close(); };
     
@@ -5065,15 +5065,15 @@ window.loadAllUsersData = async function() {
                 <div style="display:flex; flex-direction:column; gap:4px;">
                     <div style="display:flex; justify-content:space-between; font-size:11px;">
                         <span style="color:var(--text3);">Pemasukan</span>
-                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--green2);">${fmtFull(s.inc)}</span>
+                        <span style="font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-weight:700; color:var(--green2);">${fmtFull(s.inc)}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; font-size:11px;">
                         <span style="color:var(--text3);">Pengeluaran</span>
-                        <span style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--red2);">${fmtFull(s.exp)}</span>
+                        <span style="font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-weight:700; color:var(--red2);">${fmtFull(s.exp)}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:4px; padding-top:4px; border-top:1px dashed var(--border2);">
                         <span style="color:var(--text2); font-weight:700;">Saldo Bersih</span>
-                        <span style="font-family:'JetBrains Mono', monospace; font-weight:800; color:${bal >= 0 ? 'var(--text)' : 'var(--red2)'};">${fmtFull(bal)}</span>
+                        <span style="font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; font-weight:800; color:${bal >= 0 ? 'var(--text)' : 'var(--red2)'};">${fmtFull(bal)}</span>
                     </div>
                 </div>
                 <div class="admin-user-actions">
@@ -5984,7 +5984,7 @@ function renderWalletTransferCard() {
         <div class="saldo-wallet-code">
             <div>
                 <div style="font-size:9px; color:var(--text3); font-weight:700; text-transform:uppercase;">Kode Terima Kamu</div>
-                <div style="font-size:16px; font-weight:800; color:var(--gold); letter-spacing:3px; font-family:'JetBrains Mono', monospace;">${escapeHTML(String(code))}</div>
+                <div style="font-size:16px; font-weight:800; color:var(--gold); letter-spacing:3px; font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;">${escapeHTML(String(code))}</div>
             </div>
             <div style="font-size:9px; color:var(--text3); text-align:right; max-width:130px;">Bagikan kode ini agar user lain bisa kirim saldo ke kamu</div>
         </div>
@@ -6062,7 +6062,7 @@ window.promptSendSaldo = async function() {
         title: '🚀 Kirim Saldo',
         html: `
           <div style="text-align:left;">
-            <button type="button" onclick="window.__closeSendModalAndScan()" style="width:100%; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 SCAN BARCODE PERMINTAAN SALDO</button>
+            <button type="button" onclick="window.__closeSendModalAndScan()" style="width:100%; background:var(--blue); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:12px; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; cursor:pointer; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 SCAN BARCODE PERMINTAAN SALDO</button>
             <div style="text-align:center; font-size:9px; color:var(--text3); font-weight:800; text-transform:uppercase; margin:-8px 0 14px;">— atau isi manual —</div>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Kirim Dari Dompet</label>
             <select id="saldo-src-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
@@ -6115,7 +6115,7 @@ window.promptSendSaldo = async function() {
           <div style="text-align:left; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px;">
             <div style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase; margin-bottom:8px;">Saldo akan dikirim ke:</div>
             <div style="font-size:16px; font-weight:800; color:var(--gold); margin-bottom:4px;">${escapeHTML(target.nama)}</div>
-            <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', monospace;">${escapeHTML(target.email)}</div>
+            <div style="font-size:12px; color:var(--text2); font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;">${escapeHTML(target.email)}</div>
             <div style="font-size:10px; color:var(--text3); margin-top:12px;">Dari: <b style="color:var(--text);">${escapeHTML(formVals.src)}</b> · Jumlah: <b style="color:var(--green2);">${fmtFull(formVals.nominal)}</b></div>
           </div>
           <div style="font-size:11px; color:var(--red2); margin-top:12px;">Pastikan nama & email di atas benar. Saldo akan langsung berkurang dari dompetmu.</div>
@@ -7205,7 +7205,7 @@ window.showBudgetSetup = async function() {
     if (window.userBudgets && Object.keys(window.userBudgets).length > 0) {
         existingHtml = '<div style="font-size:10px; color:var(--gold); margin-bottom:12px; text-align:left;">BUDGET YANG SEDANG AKTIF:</div>';
         for (let c in window.userBudgets) {
-            existingHtml += `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; padding-bottom:4px; border-bottom:1px dashed var(--border2); color:var(--text);"><span>${c}</span><span style="font-family:'JetBrains Mono', monospace;">${fmtFull(window.userBudgets[c])}</span></div>`;
+            existingHtml += `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; padding-bottom:4px; border-bottom:1px dashed var(--border2); color:var(--text);"><span>${c}</span><span style="font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;">${fmtFull(window.userBudgets[c])}</span></div>`;
         }
         existingHtml += '<div style="margin-bottom:16px;"></div>';
     }
@@ -7277,7 +7277,7 @@ window.renderSavings = function() {
                 <div style="font-weight:800; font-size:12px; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
                 <button onclick="editGoal(${idx})" style="background:none; border:none; color:var(--text3); cursor:pointer; font-size:12px;">⚙️</button>
             </div>
-            <div style="font-size:16px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-bottom:2px; color:var(--text);">${fmtFull(g.current)}</div>
+            <div style="font-size:16px; font-weight:800; font-family:'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-bottom:2px; color:var(--text);">${fmtFull(g.current)}</div>
             <div style="font-size:9px; color:var(--text3); margin-bottom:12px; font-weight:600;">DARI TARGET ${fmtFull(g.target)}</div>
             <div class="m-bar" style="height:6px; background:var(--bg3); margin-bottom:12px;"><div class="m-bar-fill" style="width:${pct}%; background:var(--gold);"></div></div>
             <button onclick="addGoalProgress(${idx})" style="width:100%; padding:8px; background:transparent; border:1px solid var(--gold); color:var(--gold); border-radius:8px; font-weight:800; font-size:10px; cursor:pointer;">+ ISI TABUNGAN</button>
@@ -7568,7 +7568,7 @@ function renderWalletBalances() {
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>
+                    <div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>
                 </div>` 
     }).join(''); 
     html += `
@@ -7576,12 +7576,12 @@ function renderWalletBalances() {
         <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05);">
             <div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div>
             <div class="w-val min">${fmtFull(hutangBal)}</div>
-            <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div>
+            <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div>
         </div> 
         <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05);">
             <div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div>
             <div class="w-val min">${fmtFull(piutangBal)}</div>
-            <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div>
+            <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div>
         </div> 
     </div>`; 
     container.innerHTML = html; 
@@ -7764,19 +7764,19 @@ function mkChart(id, labels, incData, expData, onBarClick) {
                             return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
                         }
                     },
-                    titleFont: { family: "'Plus Jakarta Sans'", size: 10 },
-                    bodyFont: { family: "'Plus Jakarta Sans'", size: 10 }
+                    titleFont: { family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", size: 10 },
+                    bodyFont: { family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", size: 10 }
                 }
             }, 
             scales: { 
                 x: { 
-                    ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Plus Jakarta Sans'", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, 
+                    ticks: {color: isLight ? '#888' : '#888', font: {size: isMobile ? 5 : 8, family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", style: 'normal'}, autoSkip: false, maxRotation: 0, minRotation: 0}, 
                     grid: {display: false}, border: {display: false} 
                 }, 
                 y: { 
                     ticks: {
                         color: isLight ? '#888' : '#888', 
-                        font: {size: isMobile ? 6 : 10, family: "'Plus Jakarta Sans'", style: 'normal'}, 
+                        font: {size: isMobile ? 6 : 10, family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", style: 'normal'}, 
                         callback: v => new Intl.NumberFormat('id-ID').format(v) 
                     }, 
                     grid: {color: isLight ? '#DEE2E6' : '#222228', drawBorder: false}, border: {display: false} 
@@ -8051,17 +8051,17 @@ window.renderAll = function() {
                                     return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
                                 }
                             },
-                            titleFont: { family: "'Plus Jakarta Sans'", size: 10 },
-                            bodyFont: { family: "'Plus Jakarta Sans'", size: 10 }
+                            titleFont: { family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", size: 10 },
+                            bodyFont: { family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", size: 10 }
                         }
                     },
                     scales: {
                         x: {
-                            ticks: { color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans'"}, autoSkip: false, maxRotation: isMobile ? 30 : 0, minRotation: 0 },
+                            ticks: { color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"}, autoSkip: false, maxRotation: isMobile ? 30 : 0, minRotation: 0 },
                             grid: { display: false }, border: { display: false }
                         },
                         y: {
-                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans'"} },
+                            ticks: { callback: v => new Intl.NumberFormat('id-ID').format(v), color: isLight ? '#888' : '#888', font: {size: isMobile ? 7 : 10, family: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"} },
                             grid: { color: isLight ? '#DEE2E6' : '#222228', drawBorder: false }, border: { display: false }
                         }
                     }
