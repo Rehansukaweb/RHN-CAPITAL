@@ -1161,6 +1161,18 @@ body.global-privacy #xau-idr-gr {
         </div>
       </div>
 
+      <div id="subs-screenshot-upload-box" style="background:var(--card); border:1.5px dashed var(--gold); border-radius:16px; padding:14px; margin-bottom:14px; text-align:center;">
+        <div style="font-size:11px; font-weight:800; color:var(--text); margin-bottom:8px;">📸 Upload Bukti Screenshot Pembayaran</div>
+        <div style="font-size:9.5px; color:var(--text3); margin-bottom:10px; line-height:1.5;">AI otomatis membaca waktu, nama tujuan & nominal dari screenshot. Pastikan screenshot diambil maksimal 1 menit setelah bayar.</div>
+        <input type="file" id="subs-screenshot-input" accept="image/*" style="display:none;" onchange="window.handleSubsScreenshotUpload(event)">
+        <button type="button" class="subs-back" style="border:1px solid var(--gold); color:var(--gold); margin:0 auto;" onclick="document.getElementById('subs-screenshot-input').click()">📎 PILIH SCREENSHOT</button>
+        <div id="subs-screenshot-preview-wrap" style="display:none; margin-top:12px;">
+          <img id="subs-screenshot-preview" src="" style="max-width:100%; max-height:160px; border-radius:10px; border:1px solid var(--gold);">
+          <div id="subs-screenshot-filename" style="font-size:9px; color:var(--text3); margin-top:6px;"></div>
+        </div>
+        <div id="subs-ai-status" style="font-size:10px; font-weight:700; margin-top:10px;"></div>
+      </div>
+
       <button class="subs-cta" id="subs-bayar-btn" onclick="window.konfirmasiBayarLangganan()" style="background:var(--green2); color:#04140e;">✅ SAYA SUDAH BAYAR</button>
       <button class="subs-back" onclick="window.batalPilihPaket()">← Ganti Paket</button>
     </div>
@@ -2562,6 +2574,14 @@ window.lanjutBayarLangganan = function() {
     const btn = document.getElementById('subs-bayar-btn');
     btn.disabled = false;
     btn.textContent = '✅ SAYA SUDAH BAYAR';
+
+    window.__subsScreenshotData = null;
+    const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+    if (previewWrap) previewWrap.style.display = 'none';
+    const fileInput = document.getElementById('subs-screenshot-input');
+    if (fileInput) fileInput.value = '';
+    const statusEl = document.getElementById('subs-ai-status');
+    if (statusEl) { statusEl.textContent = ''; }
 };
 
 window.batalPilihPaket = function() {
@@ -2569,11 +2589,169 @@ window.batalPilihPaket = function() {
     document.getElementById('subs-step-plans').style.display = 'block';
 };
 
+// ==== AI VERIFIKASI OTOMATIS BUKTI BAYAR (Gemini Vision) ====
+window.GEMINI_API_KEY = "AQ.Ab8RN6IE9ysUPP3nSDdSqotgaFQIXTl7eDIyTbtlkOfgEBDh8Q";
+window.__subsScreenshotData = null; // { base64, mime }
+
+window.handleSubsScreenshotUpload = function(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById('subs-ai-status');
+    if (statusEl) statusEl.textContent = '';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const result = e.target.result;
+        const base64 = result.split(',')[1];
+        window.__subsScreenshotData = { base64: base64, mime: file.type || 'image/jpeg' };
+        const previewImg = document.getElementById('subs-screenshot-preview');
+        const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+        const nameEl = document.getElementById('subs-screenshot-filename');
+        if (previewImg) previewImg.src = result;
+        if (previewWrap) previewWrap.style.display = 'block';
+        if (nameEl) nameEl.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+};
+
+async function getGeminiVisionModel() {
+    if (window.__geminiModelCache) return window.__geminiModelCache;
+    try {
+        const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + window.GEMINI_API_KEY);
+        if (resp.ok) {
+            const data = await resp.json();
+            const models = (data.models || []).filter(m =>
+                Array.isArray(m.supportedGenerationMethods) &&
+                m.supportedGenerationMethods.includes('generateContent') &&
+                /flash|pro/i.test(m.name) &&
+                !/embedding|tts|image-generation|vision-only/i.test(m.name)
+            );
+            const pilihan = models.find(m => /flash/i.test(m.name)) || models[0];
+            if (pilihan) {
+                window.__geminiModelCache = pilihan.name.replace('models/', '');
+                return window.__geminiModelCache;
+            }
+            window.__geminiListModelsInfo = 'ListModels OK tapi tidak ada model generateContent yang cocok (total model ditemukan: ' + ((data.models || []).length) + ')';
+        } else {
+            let bodyTxt = '';
+            try { bodyTxt = await resp.text(); } catch (e2) {}
+            window.__geminiListModelsInfo = 'ListModels gagal: HTTP ' + resp.status + (bodyTxt ? ' - ' + bodyTxt.slice(0, 300) : '');
+        }
+    } catch (e) {
+        window.__geminiListModelsInfo = 'ListModels error koneksi: ' + e.message;
+        console.error('Gagal mengambil daftar model tersedia:', e);
+    }
+    return null;
+}
+
+async function verifyPaymentScreenshotWithAI(base64, mime, expectedAmount) {
+    const now = new Date();
+    const tanggalHariIni = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const jamSekarang = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const prompt = 'Kamu adalah verifikator bukti pembayaran QRIS untuk merchant "RHN CAPITAL FINANCE". '
+        + 'Sekarang adalah tanggal ' + tanggalHariIni + ' pukul ' + jamSekarang + ' WIB (' + now.toISOString() + '). '
+        + 'Analisa gambar screenshot bukti pembayaran/transfer yang dilampirkan, lalu balas HANYA dengan JSON murni (tanpa markdown/backtick/penjelasan tambahan) berformat persis seperti ini: '
+        + '{"waktu_transaksi_iso": "<perkiraan waktu transaksi lengkap format ISO 8601 dengan offset +07:00. Jika screenshot hanya menampilkan jam tanpa tanggal, asumsikan tanggalnya adalah hari ini (' + tanggalHariIni + '). Jika waktu sama sekali tidak terbaca, isi null>", '
+        + '"nama_penerima": "<nama merchant/tujuan pembayaran persis seperti tertulis di bukti, atau null jika tidak terbaca>", '
+        + '"nominal": <nominal transaksi dalam angka tanpa simbol/pemisah, atau null jika tidak terbaca>, '
+        + '"status_berhasil": <true jika bukti jelas menunjukkan transaksi BERHASIL/SUKSES, false jika gagal/pending/tidak jelas>}';
+
+    const bodyPayload = JSON.stringify({
+        contents: [{
+            parts: [
+                { text: prompt },
+                { inline_data: { mime_type: mime, data: base64 } }
+            ]
+        }],
+        generationConfig: { temperature: 0, response_mime_type: 'application/json' }
+    });
+
+    const fallbackCandidates = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.5-pro'];
+    const modelViaDiscovery = await getGeminiVisionModel();
+    const modelCandidates = modelViaDiscovery ? [modelViaDiscovery, ...fallbackCandidates.filter(m => m !== modelViaDiscovery)] : fallbackCandidates;
+
+    let resp = null;
+    const attemptLog = [];
+    for (const modelName of modelCandidates) {
+        try {
+            resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + window.GEMINI_API_KEY, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: bodyPayload
+            });
+            if (resp.ok) { window.__geminiModelCache = modelName; break; }
+            let bodyTxt = '';
+            try { bodyTxt = await resp.text(); } catch (e2) {}
+            const errLine = modelName + ': HTTP ' + resp.status + (bodyTxt ? ' - ' + bodyTxt.slice(0, 200) : '');
+            attemptLog.push(errLine);
+            console.error('Verifikasi otomatis gagal untuk model', modelName, errLine);
+            resp = null;
+        } catch (fetchErr) {
+            const errLine = modelName + ': kesalahan koneksi - ' + fetchErr.message;
+            attemptLog.push(errLine);
+            console.error('Verifikasi otomatis - kesalahan koneksi untuk model', modelName, fetchErr);
+            resp = null;
+        }
+    }
+    if (!resp) {
+        console.error('Semua model verifikasi otomatis gagal dicoba:', attemptLog);
+        const err = new Error('layanan verifikasi sedang tidak tersedia');
+        err.technicalDetail = (window.__geminiListModelsInfo ? window.__geminiListModelsInfo + ' || ' : '') + attemptLog.join(' | ');
+        throw err;
+    }
+    const data = await resp.json();
+    let text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+    if (!text) {
+        console.error('Respons verifikasi kosong:', data);
+        const err = new Error('tidak ada hasil analisa');
+        err.technicalDetail = 'Model ' + (window.__geminiModelCache || '-') + ' membalas tanpa teks. Kemungkinan diblokir safety filter atau gambar tidak terbaca. Raw: ' + JSON.stringify(data).slice(0, 400);
+        throw err;
+    }
+    text = text.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(text); } catch (e) {
+        console.error('Gagal parse hasil verifikasi:', text);
+        const err = new Error('hasil analisa tidak terbaca');
+        err.technicalDetail = 'Model ' + (window.__geminiModelCache || '-') + ' membalas teks yang bukan JSON valid. Raw: ' + text.slice(0, 400);
+        throw err;
+    }
+
+    let cocokWaktu = false, selisihDetik = null;
+    if (parsed.waktu_transaksi_iso) {
+        const waktuTx = new Date(parsed.waktu_transaksi_iso);
+        if (!isNaN(waktuTx.getTime())) {
+            selisihDetik = Math.abs(Date.now() - waktuTx.getTime()) / 1000;
+            cocokWaktu = selisihDetik <= 60;
+        }
+    }
+    const cocokNama = !!(parsed.nama_penerima && String(parsed.nama_penerima).toUpperCase().includes('RHN CAPITAL'));
+    const cocokNominal = !!(parsed.nominal && Number(parsed.nominal) === Number(expectedAmount));
+    const valid = !!parsed.status_berhasil && cocokWaktu && cocokNama && cocokNominal;
+
+    return { valid, parsed, cocokWaktu, cocokNama, cocokNominal, selisihDetik };
+}
+
 window.konfirmasiBayarLangganan = async function() {
     if (!currentUser || !window.__subsSelectedPlan) return;
     const plan = window.SUBS_PLANS[window.__subsSelectedPlan];
     const btn = document.getElementById('subs-bayar-btn');
-    btn.disabled = true; btn.textContent = 'MENGIRIM...';
+    const statusEl = document.getElementById('subs-ai-status');
+
+    if (!window.__subsScreenshotData) {
+        Swal.fire({ icon: 'warning', title: 'Screenshot Belum Diupload', text: 'Upload dulu screenshot bukti pembayaran QRIS kamu sebelum konfirmasi.', background: 'var(--card)', color: 'var(--text)' });
+        return;
+    }
+
+    btn.disabled = true; btn.textContent = '🔍 MEMERIKSA BUKTI BAYAR...';
+    if (statusEl) { statusEl.style.color = 'var(--gold)'; statusEl.textContent = 'Sedang memeriksa bukti pembayaran kamu, mohon tunggu sebentar...'; }
+
+    let aiResult = null, aiError = null, aiTechnicalDetail = null;
+    try {
+        aiResult = await verifyPaymentScreenshotWithAI(window.__subsScreenshotData.base64, window.__subsScreenshotData.mime, plan.amount);
+    } catch (e) {
+        aiError = e.message;
+        aiTechnicalDetail = e.technicalDetail || null;
+        console.error('Verifikasi otomatis gagal:', e, aiTechnicalDetail);
+    }
 
     try {
         const reqRef = await addDoc(collection(db, 'subscriptionRequests'), {
@@ -2584,27 +2762,82 @@ window.konfirmasiBayarLangganan = async function() {
             planLabel: plan.label,
             amount: plan.amount,
             days: plan.days,
-            status: 'pending',
+            status: (aiResult && aiResult.valid) ? 'approved' : 'pending',
+            autoVerified: !!(aiResult && aiResult.valid),
+            aiAnalysis: aiResult ? {
+                nama_penerima: aiResult.parsed.nama_penerima || null,
+                nominal: aiResult.parsed.nominal || null,
+                waktu_transaksi_iso: aiResult.parsed.waktu_transaksi_iso || null,
+                status_berhasil: !!aiResult.parsed.status_berhasil,
+                selisihDetik: aiResult.selisihDetik,
+                cocokWaktu: aiResult.cocokWaktu,
+                cocokNama: aiResult.cocokNama,
+                cocokNominal: aiResult.cocokNominal
+            } : { error: aiError || 'Tidak ada hasil analisa', technicalDetail: aiTechnicalDetail || null },
             createdAt: serverTimestamp()
         });
 
-        await setDoc(doc(db, 'users', currentUser.uid), {
-            subscriptionPending: {
-                requestId: reqRef.id,
-                plan: window.__subsSelectedPlan,
-                planLabel: plan.label,
-                amount: plan.amount,
-                requestedAt: new Date().toISOString()
-            }
-        }, { merge: true });
+        if (aiResult && aiResult.valid) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const existingExpiry = userSnap.exists() ? userSnap.data().subscriptionExpiry : null;
+            const nowD = new Date();
+            const base = (existingExpiry && new Date(existingExpiry).getTime() > nowD.getTime()) ? new Date(existingExpiry) : nowD;
+            const newExpiry = new Date(base.getTime() + plan.days * 86400000);
+            await updateDoc(userRef, {
+                subscriptionExpiry: newExpiry.toISOString(),
+                subscriptionStatus: 'active',
+                subscriptionPlan: window.__subsSelectedPlan,
+                subscriptionPending: null
+            });
+            await updateDoc(doc(db, 'subscriptionRequests', reqRef.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: 'SISTEM-OTOMATIS' });
 
-        document.getElementById('subs-step-pay').style.display = 'none';
-        document.getElementById('subs-step-pending').style.display = 'block';
-        document.getElementById('subs-pending-plan').textContent = plan.label;
+            window.__subsScreenshotData = null;
+            const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+            if (previewWrap) previewWrap.style.display = 'none';
+            const fileInput = document.getElementById('subs-screenshot-input');
+            if (fileInput) fileInput.value = '';
+            if (statusEl) { statusEl.style.color = 'var(--green2)'; statusEl.textContent = '✅ Pembayaran terverifikasi otomatis!'; }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Terverifikasi! 🎉',
+                text: 'Langganan kamu sudah aktif sekarang. Selamat menikmati fitur lengkap RHN CAPITAL!',
+                background: 'var(--card)', color: 'var(--text)',
+                confirmButtonColor: 'var(--green2)',
+                timer: 2200, showConfirmButton: false
+            });
+        } else {
+            await setDoc(doc(db, 'users', currentUser.uid), {
+                subscriptionPending: {
+                    requestId: reqRef.id,
+                    plan: window.__subsSelectedPlan,
+                    planLabel: plan.label,
+                    amount: plan.amount,
+                    requestedAt: new Date().toISOString()
+                }
+            }, { merge: true });
+
+            if (statusEl) { statusEl.style.color = 'var(--gold)'; statusEl.textContent = 'Bukti pembayaran diteruskan ke admin untuk dicek manual.'; }
+
+            document.getElementById('subs-step-pay').style.display = 'none';
+            document.getElementById('subs-step-pending').style.display = 'block';
+            document.getElementById('subs-pending-plan').textContent = plan.label;
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Menunggu Verifikasi Admin',
+                text: 'Bukti pembayaran kamu sudah kami terima dan sedang dicek lebih lanjut oleh admin. Halaman ini otomatis terbuka begitu langganan dikonfirmasi aktif.',
+                background: 'var(--card)', color: 'var(--text)',
+                confirmButtonColor: 'var(--gold)'
+            });
+        }
     } catch (e) {
+        console.error('Gagal mengirim permintaan langganan:', e);
         Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: e.message, background: 'var(--card)', color: 'var(--text)' });
-        btn.disabled = false; btn.textContent = '✅ SAYA SUDAH BAYAR';
     }
+
+    btn.disabled = false; btn.textContent = '✅ SAYA SUDAH BAYAR';
 };
 
 window.logoutFromSubscribeScreen = async function() {
@@ -2617,9 +2850,9 @@ window.logoutFromSubscribeScreen = async function() {
         if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
         localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
         window.appUnlocked = false; window.userCloudPin = null;
-        // FIX: kasih timeout biar gak nyangkut kalau offline, dan selalu reset ke layar login.
-        try { await Promise.race([signOut(auth), new Promise(resolve => setTimeout(resolve, 3000))]); } catch(e) {}
-        forceResetToAuthScreen();
+        const wasOfflineSession = window.__offlineSession || !navigator.onLine;
+        try { await signOut(auth); } catch(e) {}
+        if (wasOfflineSession) { forceResetToAuthScreen(); }
     }
 };
 
@@ -2718,7 +2951,8 @@ window.loadAdminSubscriptionRequests = async function() {
                   <span class="subs-status-pill pending">● PENDING</span>
                 </div>
                 <div style="font-size:11px; color:var(--text2); margin-bottom:2px;">Paket: <b style="color:var(--gold);">${escapeHTML(v.planLabel || v.plan || '-')}</b> — ${fmtRupiah(v.amount || 0)}</div>
-                <div style="font-size:10px; color:var(--text3); margin-bottom:12px;">Diajukan: ${waktu}</div>
+                <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">Diajukan: ${waktu}</div>
+                ${v.aiAnalysis ? `<div style="font-size:9.5px; color:var(--text3); margin-bottom:12px; line-height:1.6; background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 10px;">🤖 <b>Analisa AI</b> (screenshot gagal diverifikasi otomatis):<br>${v.aiAnalysis.error ? 'Alasan: ' + escapeHTML(v.aiAnalysis.error) + (v.aiAnalysis.technicalDetail ? '<br><span style="color:var(--red2); font-size:9px;">Detail teknis: ' + escapeHTML(v.aiAnalysis.technicalDetail) + '</span>' : '') : 'Nama tujuan: ' + escapeHTML(v.aiAnalysis.nama_penerima || '-') + ' ' + (v.aiAnalysis.cocokNama ? '✅' : '❌') + '<br>Nominal terbaca: ' + fmtRupiah(v.aiAnalysis.nominal || 0) + ' ' + (v.aiAnalysis.cocokNominal ? '✅' : '❌') + '<br>Waktu transaksi: ' + escapeHTML(v.aiAnalysis.waktu_transaksi_iso || '-') + ' ' + (v.aiAnalysis.cocokWaktu ? '✅ (≤1 menit)' : ('❌' + (v.aiAnalysis.selisihDetik != null ? ' (selisih ' + Math.round(v.aiAnalysis.selisihDetik) + ' detik)' : ''))) + '<br>Status sukses menurut AI: ' + (v.aiAnalysis.status_berhasil ? '✅' : '❌')}</div>` : ''}
                 <div class="admin-user-actions">
                   <button class="admin-detail-btn fix" onclick="window.approveSubscriptionRequest('${d.id}','${v.uid}','${v.plan}',${v.days || 7})">✅ KONFIRMASI LUNAS</button>
                   <button class="admin-detail-btn danger" onclick="window.rejectSubscriptionRequest('${d.id}','${v.uid}')">✕ TOLAK</button>
@@ -2814,18 +3048,10 @@ window.redeemReferralCode = async function() {
             return;
         }
 
-        const durationDays = data.durationDays && parseInt(data.durationDays) > 0 ? parseInt(data.durationDays) : null;
-        let redeemExpiryISO = window.LIFETIME_EXPIRY_ISO;
-        if (durationDays) {
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + durationDays);
-            redeemExpiryISO = expiryDate.toISOString();
-        }
-
         await setDoc(doc(db, 'users', currentUser.uid), {
-            subscriptionExpiry: redeemExpiryISO,
+            subscriptionExpiry: window.LIFETIME_EXPIRY_ISO,
             subscriptionStatus: 'active',
-            subscriptionPlan: durationDays ? 'referral_days' : 'lifetime_referral',
+            subscriptionPlan: 'lifetime_referral',
             subscriptionPending: null,
             referralCodeUsed: code
         }, { merge: true });
@@ -2835,7 +3061,7 @@ window.redeemReferralCode = async function() {
             usedBy: arrayUnion(currentUser.uid)
         });
 
-        Swal.fire({ icon: 'success', title: 'Kode Berhasil Dipakai!', text: durationDays ? ('Akses langgananmu aktif selama ' + durationDays + ' hari 🎉') : 'Akses langgananmu sekarang SEUMUR HIDUP 🎉', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+        Swal.fire({ icon: 'success', title: 'Kode Berhasil Dipakai!', text: 'Akses langgananmu sekarang SEUMUR HIDUP 🎉', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
         inputEl.value = '';
         btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
     } catch (e) {
@@ -2852,19 +3078,16 @@ window.createReferralCode = async function() {
         background: 'var(--card)', color: 'var(--text)',
         html:
             '<input id="swal-ref-code" class="swal2-input" placeholder="Kode (kosongkan = auto)" style="text-transform:uppercase;">' +
-            '<input id="swal-ref-max" class="swal2-input" placeholder="Batas pemakaian (kosong = tanpa batas)" inputmode="numeric">' +
-            '<input id="swal-ref-days" class="swal2-input" placeholder="Durasi akses dalam hari (kosong = seumur hidup)" inputmode="numeric">',
+            '<input id="swal-ref-max" class="swal2-input" placeholder="Batas pemakaian (kosong = tanpa batas)" inputmode="numeric">',
         showCancelButton: true,
         confirmButtonText: 'BUAT',
         confirmButtonColor: 'var(--gold)',
         preConfirm: () => {
             const codeInput = document.getElementById('swal-ref-code').value.trim().toUpperCase();
             const maxInput = document.getElementById('swal-ref-max').value.trim();
-            const daysInput = document.getElementById('swal-ref-days').value.trim();
             return {
                 code: codeInput || ('RHN' + Math.random().toString(36).slice(2, 8).toUpperCase()),
-                maxUses: maxInput ? parseInt(maxInput) : null,
-                durationDays: daysInput ? parseInt(daysInput) : null
+                maxUses: maxInput ? parseInt(maxInput) : null
             };
         }
     });
@@ -2882,7 +3105,6 @@ window.createReferralCode = async function() {
             createdAt: serverTimestamp(),
             createdBy: currentUser ? currentUser.email : 'admin',
             maxUses: formValues.maxUses,
-            durationDays: formValues.durationDays,
             usedCount: 0,
             usedBy: [],
             disabled: false
@@ -2918,8 +3140,7 @@ window.loadReferralCodes = async function() {
                   <div style="font-weight:800; font-size:13px; color:var(--gold); letter-spacing:0.5px;">${escapeHTML(d.id)}</div>
                   <span class="subs-status-pill ${v.disabled ? 'expired' : 'active'}">${v.disabled ? '● NONAKTIF' : '● AKTIF'}</span>
                 </div>
-                <div style="font-size:10.5px; color:var(--text3); margin-bottom:2px;">Dipakai: ${quota}</div>
-                <div style="font-size:10.5px; color:var(--text3); margin-bottom:12px;">Durasi: ${v.durationDays ? v.durationDays + ' hari' : 'Seumur Hidup'}</div>
+                <div style="font-size:10.5px; color:var(--text3); margin-bottom:12px;">Dipakai: ${quota}</div>
                 <div class="admin-user-actions">
                   <button class="admin-detail-btn ${v.disabled ? 'fix' : 'danger'}" onclick="window.toggleReferralCode('${d.id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>
                   <button class="admin-detail-btn danger" onclick="window.deleteReferralCode('${d.id}')">🗑️ HAPUS</button>
@@ -3015,7 +3236,7 @@ window.loadActiveSubscribers = async function() {
             const v = d.data();
             const isLifetime = v.subscriptionExpiry === window.LIFETIME_EXPIRY_ISO;
             const until = isLifetime ? 'SEUMUR HIDUP' : new Date(v.subscriptionExpiry).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)', referral_days: 'Referral (Terbatas Hari)' };
+            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)' };
             rows.push(`
               <div class="admin-user-card card" style="margin-bottom:10px; padding:12px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
@@ -4303,10 +4524,7 @@ window.doLogout = function() {
             Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
-            // FIX: bungkus panggilan network dengan timeout supaya kalau lagi offline,
-            // proses logout tidak nyangkut nunggu respons server selamanya (loading lama/gabisa keluar).
-            const withTimeout = (p, ms) => Promise.race([p, new Promise(resolve => setTimeout(resolve, ms))]);
-            if (currentUser && window.__currentDeviceId) { try { await withTimeout(updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }), 3000); } catch(e) {} }
+            if (currentUser && window.__currentDeviceId) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }); } catch(e) {} }
             txs = []; deletedTxs = []; 
             
             localStorage.removeItem('last_uid_rhn'); 
@@ -4314,10 +4532,9 @@ window.doLogout = function() {
             window.appUnlocked = false; 
             window.userCloudPin = null; 
             
-            try { await withTimeout(signOut(auth), 3000); } catch(e) {}
-            // FIX: selalu paksa balik ke layar login, jangan cuma pas sesi offline,
-            // supaya logout selalu tuntas walau koneksi lambat/putus di tengah jalan.
-            forceResetToAuthScreen();
+            const wasOfflineSession = window.__offlineSession || !navigator.onLine;
+            try { await signOut(auth); } catch(e) {}
+            if (wasOfflineSession) { forceResetToAuthScreen(); }
             Swal.close();
         }
     });
