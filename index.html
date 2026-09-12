@@ -2589,8 +2589,129 @@ window.batalPilihPaket = function() {
     document.getElementById('subs-step-plans').style.display = 'block';
 };
 
-// ==== AI VERIFIKASI OTOMATIS BUKTI BAYAR (Gemini Vision) ====
-window.GEMINI_API_KEY = "AQ.Ab8RN6IE9ysUPP3nSDdSqotgaFQIXTl7eDIyTbtlkOfgEBDh8Q";
+// ==== AI VERIFIKASI OTOMATIS BUKTI BAYAR (OCR lokal - Tesseract.js, TANPA API KEY, GRATIS) ====
+function loadTesseractScript() {
+    if (window.Tesseract) return Promise.resolve();
+    if (window.__tesseractLoadingPromise) return window.__tesseractLoadingPromise;
+    window.__tesseractLoadingPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('gagal memuat mesin OCR (cek koneksi internet)'));
+        document.head.appendChild(s);
+    });
+    return window.__tesseractLoadingPromise;
+}
+
+// Preprocessing gambar di canvas: upscale + grayscale + contrast stretch + binarisasi Otsu.
+// Menghasilkan 2 varian gambar (grayscale halus & hitam-putih tegas) supaya OCR punya
+// peluang lebih besar membaca teks kecil/buram/kontras-rendah pada screenshot pembayaran.
+function preprocessImageVariants(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            try {
+                const targetWidth = Math.max(img.width, 1600);
+                const scale = Math.min(3, targetWidth / img.width);
+                const w = Math.max(1, Math.round(img.width * scale));
+                const h = Math.max(1, Math.round(img.height * scale));
+
+                const baseCanvas = document.createElement('canvas');
+                baseCanvas.width = w; baseCanvas.height = h;
+                const bctx = baseCanvas.getContext('2d');
+                bctx.imageSmoothingEnabled = true;
+                bctx.imageSmoothingQuality = 'high';
+                bctx.drawImage(img, 0, 0, w, h);
+
+                const imgData = bctx.getImageData(0, 0, w, h);
+                const n = w * h;
+                const grayVals = new Uint8ClampedArray(n);
+                for (let i = 0, p = 0; p < n; i += 4, p++) {
+                    grayVals[p] = Math.round(0.299 * imgData.data[i] + 0.587 * imgData.data[i + 1] + 0.114 * imgData.data[i + 2]);
+                }
+
+                let min = 255, max = 0;
+                for (let i = 0; i < n; i++) { if (grayVals[i] < min) min = grayVals[i]; if (grayVals[i] > max) max = grayVals[i]; }
+                const range = Math.max(1, max - min);
+                const stretched = new Uint8ClampedArray(n);
+                for (let i = 0; i < n; i++) stretched[i] = Math.round((grayVals[i] - min) * 255 / range);
+
+                const grayCanvas = document.createElement('canvas');
+                grayCanvas.width = w; grayCanvas.height = h;
+                const gctx = grayCanvas.getContext('2d');
+                const grayImgData = gctx.createImageData(w, h);
+                for (let p = 0, i = 0; p < n; p++, i += 4) {
+                    grayImgData.data[i] = grayImgData.data[i + 1] = grayImgData.data[i + 2] = stretched[p];
+                    grayImgData.data[i + 3] = 255;
+                }
+                gctx.putImageData(grayImgData, 0, 0);
+
+                // Threshold Otsu untuk binarisasi hitam-putih tegas
+                const hist = new Array(256).fill(0);
+                for (let i = 0; i < n; i++) hist[stretched[i]]++;
+                let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+                let sumB = 0, wB = 0, wF = 0, maxVar = 0, threshold = 127;
+                for (let t = 0; t < 256; t++) {
+                    wB += hist[t]; if (wB === 0) continue;
+                    wF = n - wB; if (wF === 0) break;
+                    sumB += t * hist[t];
+                    const mB = sumB / wB, mF = (sum - sumB) / wF;
+                    const varBetween = wB * wF * (mB - mF) * (mB - mF);
+                    if (varBetween > maxVar) { maxVar = varBetween; threshold = t; }
+                }
+                const binCanvas = document.createElement('canvas');
+                binCanvas.width = w; binCanvas.height = h;
+                const bnctx = binCanvas.getContext('2d');
+                const binImgData = bnctx.createImageData(w, h);
+                for (let p = 0, i = 0; p < n; p++, i += 4) {
+                    const v = stretched[p] >= threshold ? 255 : 0;
+                    binImgData.data[i] = binImgData.data[i + 1] = binImgData.data[i + 2] = v;
+                    binImgData.data[i + 3] = 255;
+                }
+                bnctx.putImageData(binImgData, 0, 0);
+
+                resolve({ gray: grayCanvas.toDataURL('image/png'), binary: binCanvas.toDataURL('image/png') });
+            } catch (e) { reject(e); }
+        };
+        img.onerror = () => reject(new Error('gagal memuat gambar untuk preprocessing'));
+        img.src = dataUrl;
+    });
+}
+
+// Perbaiki karakter yang sering salah dibaca OCR di dalam token yang mengandung angka
+// (O/o -> 0, l/I -> 1, S -> 5, B -> 8), tanpa mengubah kata biasa yang tidak mengandung digit.
+function normalizeOcrNumericTokens(text) {
+    return text.replace(/[0-9OolISB.,]{3,}/g, (tok) => {
+        if (!/\d/.test(tok)) return tok;
+        return tok.replace(/O/g, '0').replace(/o/g, '0').replace(/l/g, '1').replace(/I/g, '1').replace(/S/g, '5').replace(/B/g, '8');
+    });
+}
+
+function levenshteinDistance(a, b) {
+    const dp = [];
+    for (let i = 0; i <= a.length; i++) dp.push([i]);
+    for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+    return dp[a.length][b.length];
+}
+
+// Cek nama merchant secara toleran terhadap kesalahan baca OCR (maks. 2 karakter beda)
+// supaya spasi ganda/simbol aneh/huruf ganti tidak membuat verifikasi gagal secara tidak adil.
+function fuzzyContainsBrand(text, brand) {
+    const cleaned = String(text).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (cleaned.includes(brand)) return true;
+    const bl = brand.length;
+    for (let i = 0; i <= cleaned.length - Math.max(3, bl - 4); i++) {
+        const windowStr = cleaned.substr(i, bl + 2);
+        if (windowStr.length < bl - 2) continue;
+        if (levenshteinDistance(windowStr, brand) <= 2) return true;
+    }
+    return false;
+}
 window.__subsScreenshotData = null; // { base64, mime }
 
 window.handleSubsScreenshotUpload = function(event) {
@@ -2613,119 +2734,109 @@ window.handleSubsScreenshotUpload = function(event) {
     reader.readAsDataURL(file);
 };
 
-async function getGeminiVisionModel() {
-    if (window.__geminiModelCache) return window.__geminiModelCache;
-    try {
-        const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + window.GEMINI_API_KEY);
-        if (resp.ok) {
-            const data = await resp.json();
-            const models = (data.models || []).filter(m =>
-                Array.isArray(m.supportedGenerationMethods) &&
-                m.supportedGenerationMethods.includes('generateContent') &&
-                /flash|pro/i.test(m.name) &&
-                !/embedding|tts|image-generation|vision-only/i.test(m.name)
-            );
-            const pilihan = models.find(m => /flash/i.test(m.name)) || models[0];
-            if (pilihan) {
-                window.__geminiModelCache = pilihan.name.replace('models/', '');
-                return window.__geminiModelCache;
-            }
-            window.__geminiListModelsInfo = 'ListModels OK tapi tidak ada model generateContent yang cocok (total model ditemukan: ' + ((data.models || []).length) + ')';
-        } else {
-            let bodyTxt = '';
-            try { bodyTxt = await resp.text(); } catch (e2) {}
-            window.__geminiListModelsInfo = 'ListModels gagal: HTTP ' + resp.status + (bodyTxt ? ' - ' + bodyTxt.slice(0, 300) : '');
-        }
-    } catch (e) {
-        window.__geminiListModelsInfo = 'ListModels error koneksi: ' + e.message;
-        console.error('Gagal mengambil daftar model tersedia:', e);
-    }
-    return null;
-}
-
 async function verifyPaymentScreenshotWithAI(base64, mime, expectedAmount) {
     const now = new Date();
-    const tanggalHariIni = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-    const jamSekarang = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const prompt = 'Kamu adalah verifikator bukti pembayaran QRIS untuk merchant "RHN CAPITAL FINANCE". '
-        + 'Sekarang adalah tanggal ' + tanggalHariIni + ' pukul ' + jamSekarang + ' WIB (' + now.toISOString() + '). '
-        + 'Analisa gambar screenshot bukti pembayaran/transfer yang dilampirkan, lalu balas HANYA dengan JSON murni (tanpa markdown/backtick/penjelasan tambahan) berformat persis seperti ini: '
-        + '{"waktu_transaksi_iso": "<perkiraan waktu transaksi lengkap format ISO 8601 dengan offset +07:00. Jika screenshot hanya menampilkan jam tanpa tanggal, asumsikan tanggalnya adalah hari ini (' + tanggalHariIni + '). Jika waktu sama sekali tidak terbaca, isi null>", '
-        + '"nama_penerima": "<nama merchant/tujuan pembayaran persis seperti tertulis di bukti, atau null jika tidak terbaca>", '
-        + '"nominal": <nominal transaksi dalam angka tanpa simbol/pemisah, atau null jika tidak terbaca>, '
-        + '"status_berhasil": <true jika bukti jelas menunjukkan transaksi BERHASIL/SUKSES, false jika gagal/pending/tidak jelas>}';
+    const dataUrl = 'data:' + mime + ';base64,' + base64;
 
-    const bodyPayload = JSON.stringify({
-        contents: [{
-            parts: [
-                { text: prompt },
-                { inline_data: { mime_type: mime, data: base64 } }
-            ]
-        }],
-        generationConfig: { temperature: 0, response_mime_type: 'application/json' }
-    });
+    await loadTesseractScript();
 
-    const fallbackCandidates = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.5-pro'];
-    const modelViaDiscovery = await getGeminiVisionModel();
-    const modelCandidates = modelViaDiscovery ? [modelViaDiscovery, ...fallbackCandidates.filter(m => m !== modelViaDiscovery)] : fallbackCandidates;
+    // Preprocessing gambar dulu (upscale + grayscale + binarisasi Otsu) agar OCR lebih tajam.
+    // Kalau preprocessing gagal (mis. gambar rusak), tetap lanjut pakai gambar asli sebagai cadangan.
+    let variants;
+    try {
+        variants = await preprocessImageVariants(dataUrl);
+    } catch (prepErr) {
+        console.warn('Preprocessing gambar gagal, lanjut pakai gambar asli:', prepErr);
+        variants = { gray: dataUrl, binary: dataUrl };
+    }
 
-    let resp = null;
-    const attemptLog = [];
-    for (const modelName of modelCandidates) {
+    // Jalankan OCR pada 3 varian gambar (hitam-putih tegas, grayscale halus, dan asli)
+    // lalu gabungkan semua teks yang berhasil terbaca supaya recall maksimal (anti kelewat baca).
+    const sumberGambar = [variants.binary, variants.gray, dataUrl];
+    let combinedText = '';
+    const confidences = [];
+    let ocrGagalTotal = true;
+    for (const src of sumberGambar) {
         try {
-            resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + window.GEMINI_API_KEY, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: bodyPayload
-            });
-            if (resp.ok) { window.__geminiModelCache = modelName; break; }
-            let bodyTxt = '';
-            try { bodyTxt = await resp.text(); } catch (e2) {}
-            const errLine = modelName + ': HTTP ' + resp.status + (bodyTxt ? ' - ' + bodyTxt.slice(0, 200) : '');
-            attemptLog.push(errLine);
-            console.error('Verifikasi otomatis gagal untuk model', modelName, errLine);
-            resp = null;
-        } catch (fetchErr) {
-            const errLine = modelName + ': kesalahan koneksi - ' + fetchErr.message;
-            attemptLog.push(errLine);
-            console.error('Verifikasi otomatis - kesalahan koneksi untuk model', modelName, fetchErr);
-            resp = null;
+            const result = await window.Tesseract.recognize(src, 'ind+eng');
+            if (result && result.data) {
+                if (result.data.text && result.data.text.trim()) {
+                    combinedText += '\n' + result.data.text;
+                    ocrGagalTotal = false;
+                }
+                if (typeof result.data.confidence === 'number') confidences.push(result.data.confidence);
+            }
+        } catch (passErr) {
+            console.warn('Satu pass OCR gagal (lanjut ke varian berikutnya):', passErr);
         }
     }
-    if (!resp) {
-        console.error('Semua model verifikasi otomatis gagal dicoba:', attemptLog);
+
+    if (ocrGagalTotal || !combinedText.trim()) {
         const err = new Error('layanan verifikasi sedang tidak tersedia');
-        err.technicalDetail = (window.__geminiListModelsInfo ? window.__geminiListModelsInfo + ' || ' : '') + attemptLog.join(' | ');
-        throw err;
-    }
-    const data = await resp.json();
-    let text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
-    if (!text) {
-        console.error('Respons verifikasi kosong:', data);
-        const err = new Error('tidak ada hasil analisa');
-        err.technicalDetail = 'Model ' + (window.__geminiModelCache || '-') + ' membalas tanpa teks. Kemungkinan diblokir safety filter atau gambar tidak terbaca. Raw: ' + JSON.stringify(data).slice(0, 400);
-        throw err;
-    }
-    text = text.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
-    let parsed;
-    try { parsed = JSON.parse(text); } catch (e) {
-        console.error('Gagal parse hasil verifikasi:', text);
-        const err = new Error('hasil analisa tidak terbaca');
-        err.technicalDetail = 'Model ' + (window.__geminiModelCache || '-') + ' membalas teks yang bukan JSON valid. Raw: ' + text.slice(0, 400);
+        err.technicalDetail = 'OCR tidak berhasil membaca teks apa pun dari gambar pada semua varian preprocessing.';
         throw err;
     }
 
-    let cocokWaktu = false, selisihDetik = null;
-    if (parsed.waktu_transaksi_iso) {
-        const waktuTx = new Date(parsed.waktu_transaksi_iso);
-        if (!isNaN(waktuTx.getTime())) {
-            selisihDetik = Math.abs(Date.now() - waktuTx.getTime()) / 1000;
-            cocokWaktu = selisihDetik <= 60;
-        }
+    const avgConfidence = confidences.length ? confidences.reduce((a, b) => a + b, 0) / confidences.length : 0;
+    if (avgConfidence > 0 && avgConfidence < 35) {
+        const err = new Error('kualitas gambar terlalu buram untuk dibaca otomatis');
+        err.technicalDetail = 'Rata-rata keyakinan OCR hanya ' + avgConfidence.toFixed(1) + '/100. Minta user upload ulang screenshot yang lebih jelas/tidak buram/tidak terpotong.';
+        throw err;
     }
-    const cocokNama = !!(parsed.nama_penerima && String(parsed.nama_penerima).toUpperCase().includes('RHN CAPITAL'));
-    const cocokNominal = !!(parsed.nominal && Number(parsed.nominal) === Number(expectedAmount));
-    const valid = !!parsed.status_berhasil && cocokWaktu && cocokNama && cocokNominal;
+
+    // Perbaiki kesalahan baca karakter umum (O/o->0, l/I->1, S->5, B->8) khusus di token angka,
+    // lalu gabungkan dengan teks mentah supaya kandidat pencarian angka & kata kunci lebih lengkap.
+    const cleanedText = normalizeOcrNumericTokens(combinedText);
+    const searchText = combinedText + '\n' + cleanedText;
+
+    // --- Deteksi nominal: kumpulkan SEMUA kandidat angka dari teks asli + teks yang sudah dikoreksi.
+    // Nominal dianggap cocok HANYA jika ada kandidat yang PERSIS SAMA dengan nominal yang diharapkan
+    // (tidak menebak-nebak/toleransi nominal, supaya tidak ada celah orang mengaku bayar nominal lain). ---
+    const nominalMatches = [...searchText.matchAll(/(?:Rp\.?\s?)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/gi)]
+        .map(m => Number(String(m[1]).replace(/[.,]/g, '')))
+        .filter(n => !isNaN(n) && n > 0);
+    const cocokNominal = nominalMatches.includes(Number(expectedAmount));
+    let nominalTerdeteksi = cocokNominal
+        ? Number(expectedAmount)
+        : (nominalMatches.length ? nominalMatches.reduce((a, b) => Math.abs(a - expectedAmount) < Math.abs(b - expectedAmount) ? a : b) : null);
+
+    // --- Deteksi nama tujuan pembayaran, toleran terhadap salah-baca OCR ringan (maks 2 karakter beda) ---
+    const cocokNama = fuzzyContainsBrand(searchText, 'RHNCAPITAL');
+
+    // --- Deteksi status berhasil/sukses. Kata "gagal" menang mutlak atas kata "berhasil"
+    // supaya tidak ada celah screenshot campur aduk (mis. ada teks UI lain yg memuat kata sukses). ---
+    const kataGagal = /(GAGAL|DITOLAK|FAILED|PENDING|BELUM\s*BAYAR|MENUNGGU|EXPIRED|DIBATALKAN|TIDAK\s*BERHASIL|UNSUCCESSFUL)/i.test(searchText);
+    const kataBerhasil = /(BERHASIL|SUKSES|SUCCESS(FUL)?|TERKIRIM|SELESAI|COMPLETED|\bPAID\b)/i.test(searchText);
+    const statusBerhasil = kataBerhasil && !kataGagal;
+
+    // --- Deteksi waktu transaksi: kumpulkan SEMUA kandidat jam:menit(:detik) di teks,
+    // lalu pilih yang selisihnya PALING KECIL terhadap waktu sekarang (bukan kemunculan pertama),
+    // supaya angka lain yang kebetulan berpola jam tidak salah dipilih. ---
+    let waktuTransaksiIso = null, cocokWaktu = false, selisihDetik = null;
+    const jamMatches = [...searchText.matchAll(/([01]?\d|2[0-3])[.:]([0-5]\d)(?:[.:]([0-5]\d))?/g)];
+    let bestSelisih = Infinity, bestWaktu = null;
+    for (const m of jamMatches) {
+        const kandidat = new Date(now);
+        kandidat.setHours(Number(m[1]), Number(m[2]), Number(m[3] || 0), 0);
+        const selisih = Math.abs(now.getTime() - kandidat.getTime()) / 1000;
+        if (selisih < bestSelisih) { bestSelisih = selisih; bestWaktu = kandidat; }
+    }
+    if (bestWaktu) {
+        waktuTransaksiIso = bestWaktu.toISOString();
+        selisihDetik = bestSelisih;
+        cocokWaktu = bestSelisih <= 300; // toleransi 5 menit (OCR kurang presisi dibanding AI vision)
+    }
+
+    const valid = statusBerhasil && cocokWaktu && cocokNama && cocokNominal;
+
+    const parsed = {
+        waktu_transaksi_iso: waktuTransaksiIso,
+        nama_penerima: cocokNama ? 'RHN CAPITAL' : null,
+        nominal: nominalTerdeteksi,
+        status_berhasil: statusBerhasil,
+        ocr_confidence: Math.round(avgConfidence),
+        ocr_raw_text: combinedText.trim().slice(0, 500)
+    };
 
     return { valid, parsed, cocokWaktu, cocokNama, cocokNominal, selisihDetik };
 }
