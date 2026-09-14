@@ -2873,7 +2873,7 @@ window.konfirmasiBayarLangganan = async function() {
             planLabel: plan.label,
             amount: plan.amount,
             days: plan.days,
-            status: (aiResult && aiResult.valid) ? 'approved' : 'pending',
+            status: 'pending',
             autoVerified: !!(aiResult && aiResult.valid),
             aiAnalysis: aiResult ? {
                 nama_penerima: aiResult.parsed.nama_penerima || null,
@@ -2901,7 +2901,11 @@ window.konfirmasiBayarLangganan = async function() {
                 subscriptionPlan: window.__subsSelectedPlan,
                 subscriptionPending: null
             });
-            await updateDoc(doc(db, 'subscriptionRequests', reqRef.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: 'SISTEM-OTOMATIS' });
+            try {
+                await updateDoc(doc(db, 'subscriptionRequests', reqRef.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: 'SISTEM-OTOMATIS' });
+            } catch (eApprove) {
+                console.error('Gagal update status approved di subscriptionRequests:', eApprove);
+            }
 
             window.__subsScreenshotData = null;
             const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
