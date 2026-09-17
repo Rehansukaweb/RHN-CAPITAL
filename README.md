@@ -7449,7 +7449,7 @@ window.switchPage = function(p) {
   window.__spRaf1 = requestAnimationFrame(() => { window.__spRaf2 = requestAnimationFrame(refreshAll); });
 };
 
-function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { if (t.type === 'income') { inc += t.amount; } else if (t.type === 'expense') { exp += t.amount; } else if (t.type === 'debt') { if (!t.isPaid) inc += t.amount; else { inc += t.amount; exp += t.amount; } } else if (t.type === 'recv') { if (!t.isPaid) exp += t.amount; else { exp += t.amount; inc += t.amount; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
+function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { let a = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0; if (t.type === 'income') { inc += a; } else if (t.type === 'expense') { exp += a; } else if (t.type === 'debt') { if (!t.isPaid) inc += a; else { inc += a; exp += a; } } else if (t.type === 'recv') { if (!t.isPaid) exp += a; else { exp += a; inc += a; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
 
 function renderSumGrid(el, arr, isDash = false) { 
     const s = calcSum(arr); const ts = calcSum(txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString())); const pct = s.inc > 0 ? Math.min(100, Math.round((s.exp / s.inc) * 100)) : 0; 
@@ -7512,21 +7512,38 @@ function renderMetrics() { renderSumGrid(document.getElementById('metric-cards')
 
 window.promptKoreksi = async function(walletName, recordedBal) {
     if(!currentUser) return;
+    const isMT5 = /mt5/i.test(walletName);
+    const mt5CentHtml = isMT5 ? `
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam CENT):</div>
+               <input id="swal-koreksi-cent" type="number" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 15000000 (cent)" oninput="(function(){var c=parseFloat(document.getElementById('swal-koreksi-cent').value); var usd=isNaN(c)?0:c/100; var rate=(typeof currentUSDRate==='number'&&currentUSDRate>0)?currentUSDRate:0; var idr=usd*rate; document.getElementById('swal-koreksi-preview').innerHTML = 'Setara: <b style=\\'color:var(--text);\\'>'+fmtFull(idr)+'</b> &nbsp;(<b style=\\'color:var(--green2);\\'>'+getUSD(idr)+'</b>)';})()">
+               <div id="swal-koreksi-preview" style="font-size:11px; color:var(--text3); margin-bottom:16px; text-align:left;">Setara: <b style="color:var(--text);">Rp 0</b> &nbsp;(<b style="color:var(--green2);">$0.00</b>)</div>` : `
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
+               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">`;
     const { value: formValues } = await Swal.fire({
         title: `Koreksi Saldo ${walletName}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
-               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
-               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               ${mt5CentHtml}
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
         background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
         preConfirm: () => {
-            const amt = document.getElementById('swal-koreksi-amt').value;
             const note = document.getElementById('swal-koreksi-note').value;
-            if (!amt) { Swal.showValidationMessage('Saldo asli harus diisi!'); return false; }
+            let amt;
+            if (isMT5) {
+                const centVal = document.getElementById('swal-koreksi-cent').value;
+                const centNum = parseFloat(centVal);
+                if (!centVal || isNaN(centNum)) { Swal.showValidationMessage('Saldo asli (cent) harus diisi dengan angka!'); return false; }
+                if (typeof currentUSDRate !== 'number' || !currentUSDRate || isNaN(currentUSDRate) || currentUSDRate <= 0) { Swal.showValidationMessage('Kurs USD belum termuat, tunggu sebentar lalu coba lagi!'); return false; }
+                amt = (centNum / 100) * currentUSDRate;
+            } else {
+                const amtVal = document.getElementById('swal-koreksi-amt').value;
+                if (!amtVal) { Swal.showValidationMessage('Saldo asli harus diisi!'); return false; }
+                amt = parseFloat(amtVal);
+            }
+            if (isNaN(amt)) { Swal.showValidationMessage('Nilai saldo tidak valid!'); return false; }
             if (!note) { Swal.showValidationMessage('Keterangan harus diisi biar riwayatnya jelas!'); return false; }
-            return { amt: parseFloat(amt), note: note };
+            return { amt: amt, note: note };
         }
     });
 
@@ -7560,19 +7577,20 @@ function renderWalletBalances() {
     const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 }; 
     let hutangBal = 0; let piutangBal = 0; let totalAset = 0; 
     txs.forEach(t => { 
-        let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; 
+        let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; let tAmt = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0;
         if (w !== 'Hutang' && w !== 'Piutang' && !wallets.hasOwnProperty(w)) wallets[w] = 0; 
         if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang' && !wallets.hasOwnProperty(wTo)) wallets[wTo] = 0; 
-        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= t.amount; else if (w === 'Piutang') piutangBal += t.amount; else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (wTo === 'Hutang') hutangBal += t.amount; else if (wTo === 'Piutang') piutangBal -= t.amount; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += t.amount; } else if (t.type === 'debt') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; if (!t.isPaid) { hutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } } else if (t.type === 'recv') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (!t.isPaid) { piutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } } 
+        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= tAmt; else if (w === 'Piutang') piutangBal += tAmt; else if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; if (wTo === 'Hutang') hutangBal += tAmt; else if (wTo === 'Piutang') piutangBal -= tAmt; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += tAmt; } else if (t.type === 'debt') { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; if (!t.isPaid) { hutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } } else if (t.type === 'recv') { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; if (!t.isPaid) { piutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } } 
     }); 
     for (let key in wallets) { if (wallets[key] > 0) totalAset += wallets[key]; } 
     const container = document.getElementById('wallet-balances'); if (!container) return; 
     let html = Object.entries(wallets).filter(([name, bal]) => { if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_hidezero === 'on' && bal === 0) return false; return true; }).map(([name, bal]) => { 
         let pct = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_walletpct === 'on' && totalAset > 0 && bal > 0) ? `<div class="w-pct-badge" style="display:block;">${((bal/totalAset)*100).toFixed(1)}%</div>` : ''; 
+        let centLine = /mt5/i.test(name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>
+                    <div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}
                 </div>` 
     }).join(''); 
     html += `
