@@ -1,20 +1,41 @@
-// RHN CAPITAL - Service Worker
-// Menyimpan shell aplikasi (HTML+ikon) di cache perangkat, supaya saat
-// dibuka tanpa internet (mis. via app pembungkus web-to-app), yang tampil
-// tetap halaman login/aplikasi ini, bukan error "net::ERR_INTERNET_DISCONNECTED".
-// Data (login, transaksi, saldo) tetap butuh internet karena disimpan di Firebase.
+// ==========================================================================
+// RHN CAPITAL - Service Worker (mode offline)
+// Menyimpan shell aplikasi (halaman HTML + ikon) di cache perangkat, supaya
+// saat dibuka tanpa internet (mis. via Appsgeyser web-to-app) yang tampil
+// tetap halaman aplikasinya, bukan error "net::ERR_CONNECTION_ABORTED" /
+// "net::ERR_INTERNET_DISCONNECTED".
+// Data (login, transaksi, saldo) tetap disinkronkan ke Firebase begitu
+// online lagi — itu sudah ditangani terpisah oleh Firestore offline
+// persistence & localStorage di file HTML utama.
+//
+// Daftar file di bawah disamakan dengan isi repo GitHub Rehansukaweb/RHN-CAPITAL
+// (index.html, manifest.json, RHN LOGO.jpg, serta halaman-halaman satelit
+// yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
+// ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v6';
+const CACHE_NAME = 'rhn-capital-shell-v8';
+
+// File lokal satu repo (root domain rhncapital.online) yang aman di-cache
+// dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
+// satu belum ada / gagal diambil, dilewati diam-diam — tidak menghentikan
+// proses install Service Worker.
 const SHELL_FILES = [
-  './',
-  './index.html',
+  './RHN LOGO.jpg',
   './manifest.json',
-  './RHN LOGO.jpg'
+  './latar.html',
+  './galeri.html',
+  './jurnal.html',
+  './aset.html',
+  './data.html',
+  './ANALISACRYPTO.html',
+  './ANALISAFOREX.html',
+  './ANALISASAHAM.html'
 ];
+
 // Library CDN yang dipakai app (Chart.js, SweetAlert2, dll) ikut di-cache
 // supaya saat offline app tetap utuh, tidak cuma tampilan kosong.
 const CDN_FILES = [
-  'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js',
@@ -32,11 +53,16 @@ const CDN_FILES = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      const shell = SHELL_FILES.map((url) => cache.add(url).catch(() => {}));
+      // File lokal: fetch biasa juga (bukan cache.add) supaya satu file yang
+      // gagal (mis. ANALISACRYPTO.html belum pernah dibuka / 404) tidak bikin
+      // seluruh proses precache batal — masing-masing gagal sendiri-sendiri.
+      const shell = SHELL_FILES.map((url) =>
+        fetch(url).then((res) => cache.put(url, res)).catch(() => {})
+      );
       // PENTING: TANPA mode 'no-cors'. Server CDN ini support CORS, jadi pakai
-      // fetch normal supaya responsnya valid (bukan "buram") dan bisa dipakai
-      // sebagai modul JavaScript. Response buram bikin modul Firebase gagal
-      // dipakai bahkan saat online.
+      // fetch normal supaya responsnya valid (bukan "buram"/opaque) dan bisa
+      // dipakai sebagai modul JavaScript. Response opaque bikin modul Firebase
+      // gagal dipakai walau lagi online (khusus untuk <script type="module">).
       const cdn = CDN_FILES.map((url) =>
         fetch(url).then((res) => cache.put(url, res)).catch(() => {})
       );
@@ -61,21 +87,27 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Halaman utama (navigasi): coba jaringan dulu, fallback ke cache shell.
+  // Navigasi ke halaman mana pun di situs ini (index.html, atau salah satu
+  // halaman satelit seperti aset.html/data.html/dll saat dibuka lewat tombol):
+  // coba jaringan dulu, update cache-nya; kalau gagal (offline) fallback ke
+  // versi yang tersimpan terakhir kali berhasil dibuka, atau ke index.html.
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
         .then((res) => {
           const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put('./index.html', clone));
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
           return res;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() =>
+          caches.match(req).then((cached) => cached || caches.match('./'))
+        )
     );
     return;
   }
 
-  // File statis lokal (icon, manifest): cache-first, fallback ke jaringan.
+  // File statis lokal (logo, manifest, halaman satelit): cache-first,
+  // fallback ke jaringan.
   if (SHELL_FILES.some((f) => req.url.endsWith(f.replace('./', '')))) {
     event.respondWith(
       caches.match(req).then((cached) => cached || fetch(req))
