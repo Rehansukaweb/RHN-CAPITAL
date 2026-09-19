@@ -13,7 +13,7 @@
 // yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
 // ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v8';
+const CACHE_NAME = 'rhn-capital-shell-v9';
 
 // File lokal satu repo (root domain rhncapital.online) yang aman di-cache
 // dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
@@ -108,7 +108,12 @@ self.addEventListener('fetch', (event) => {
 
   // File statis lokal (logo, manifest, halaman satelit): cache-first,
   // fallback ke jaringan.
-  if (SHELL_FILES.some((f) => req.url.endsWith(f.replace('./', '')))) {
+  if (SHELL_FILES.some((f) => {
+    const name = f.replace('./', '');
+    let reqUrlDecoded = req.url;
+    try { reqUrlDecoded = decodeURIComponent(req.url); } catch (e) {}
+    return req.url.endsWith(name) || reqUrlDecoded.endsWith(name) || req.url.endsWith(encodeURIComponent(name));
+  })) {
     event.respondWith(
       caches.match(req).then((cached) => cached || fetch(req))
     );
