@@ -624,6 +624,37 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .admin-detail-btn.danger:hover { background: var(--red2); color: #fff; }
 #admin-detail-section { padding: 20px; }
 
+/* ==========================================================================
+   LAYAR LANGGANAN MEMBER (PAYWALL)
+   ========================================================================== */
+#subscribe-screen { display:none; position:fixed; inset:0; background:var(--bg); z-index:9998; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:32px 16px 60px; }
+#subscribe-screen .subs-wrap { max-width:420px; margin:0 auto; }
+#subscribe-screen .subs-logo { display:flex; justify-content:center; margin-bottom:14px; }
+#subscribe-screen .subs-logo img { width:64px; height:64px; border-radius:18px; object-fit:cover; box-shadow:0 8px 24px rgba(0,0,0,0.35); }
+#subscribe-screen .subs-title { text-align:center; font-size:19px; font-weight:800; color:var(--text); letter-spacing:0.3px; margin-bottom:4px; }
+#subscribe-screen .subs-sub { text-align:center; font-size:11.5px; color:var(--text3); margin-bottom:24px; line-height:1.6; padding:0 8px; }
+#subscribe-screen .subs-plans { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+.subs-plan-card { position:relative; display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1.5px solid var(--border); border-radius:16px; padding:16px 18px; cursor:pointer; }
+.subs-plan-card.selected { border-color:var(--gold); background:rgba(251,191,36,0.07); box-shadow:0 0 0 1px var(--gold) inset; }
+.subs-plan-card .sp-name { font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:3px; }
+.subs-plan-card .sp-desc { font-size:10.5px; color:var(--text3); font-weight:600; }
+.subs-plan-card .sp-price { font-size:15px; font-weight:800; color:var(--gold); white-space:nowrap; }
+.subs-plan-card .sp-badge { position:absolute; top:-9px; right:14px; background:var(--green2); color:#04140e; font-size:8.5px; font-weight:800; padding:3px 9px; border-radius:999px; letter-spacing:0.4px; text-transform:uppercase; }
+#subscribe-screen .subs-cta { width:100%; padding:14px; border-radius:14px; border:none; background:var(--gold); color:#1a1200; font-size:13px; font-weight:800; letter-spacing:0.3px; cursor:pointer; box-shadow:0 8px 20px rgba(251,191,36,0.25); }
+#subscribe-screen .subs-cta:disabled { opacity:0.55; cursor:default; box-shadow:none; }
+#subscribe-screen .subs-back { display:block; margin:16px auto 0; background:transparent; border:none; color:var(--text3); font-size:11px; font-weight:700; text-decoration:underline; cursor:pointer; text-transform:uppercase; letter-spacing:0.4px; }
+#subscribe-screen .subs-pay-amount { text-align:center; font-size:22px; font-weight:800; color:var(--text); margin:4px 0 18px; }
+#subscribe-screen .subs-pay-amount span { display:block; font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+#subscribe-screen .subs-pending-box { text-align:center; background:var(--card); border:1.5px dashed var(--gold); border-radius:18px; padding:28px 18px; }
+#subscribe-screen .subs-pending-box .sp-spin { width:34px; height:34px; margin:0 auto 14px; border-radius:50%; border:3px solid rgba(251,191,36,0.25); border-top-color:var(--gold); animation:subs-spin 0.9s linear infinite; }
+@keyframes subs-spin { to { transform:rotate(360deg); } }
+#subscribe-screen .subs-active-box { text-align:center; background:var(--card); border:1.5px solid var(--green2); border-radius:18px; padding:24px 18px; }
+#subscribe-screen .subs-logout { display:block; margin:22px auto 0; background:transparent; border:none; color:var(--red2); font-size:10.5px; font-weight:800; text-decoration:underline; cursor:pointer; text-transform:uppercase; letter-spacing:0.4px; }
+.subs-status-pill { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:800; padding:5px 12px; border-radius:999px; text-transform:uppercase; letter-spacing:0.4px; }
+.subs-status-pill.active { background:rgba(16,185,129,0.12); color:var(--green2); border:1px solid var(--green2); }
+.subs-status-pill.pending { background:rgba(251,191,36,0.12); color:var(--gold); border:1px solid var(--gold); }
+.subs-status-pill.expired { background:rgba(248,113,113,0.12); color:var(--red2); border:1px solid var(--red2); }
+.subs-mini-status { display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-bottom:14px; }
 .filter-bar { display: flex; gap: 16px; width: 100%; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
 .filter-bar select.f-input-dark { width: 250px; flex-shrink: 0; }
 .filter-bar input.f-input-dark { flex: 1; }
@@ -1082,6 +1113,105 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
+<div id="subscribe-screen">
+  <div class="subs-wrap">
+    <div class="subs-logo"><img src="RHN LOGO.jpg" alt="RHN Capital Logo"></div>
+    <div class="subs-title">Langganan Member</div>
+    <div class="subs-sub" id="subs-sub-text">Aktifkan langganan untuk lanjut memakai Arus Keuangan RHN CAPITAL sepenuhnya.</div>
+
+    <div id="subs-step-plans">
+      <div class="subs-plans">
+        <div class="subs-plan-card" data-plan="weekly" onclick="window.pilihPaketLangganan('weekly')">
+          <div>
+            <div class="sp-name">Mingguan</div>
+            <div class="sp-desc">Aktif 7 hari</div>
+          </div>
+          <div class="sp-price">Rp5.000</div>
+        </div>
+        <div class="subs-plan-card" data-plan="monthly" onclick="window.pilihPaketLangganan('monthly')">
+          <span class="sp-badge">Populer</span>
+          <div>
+            <div class="sp-name">Bulanan</div>
+            <div class="sp-desc">Aktif 30 hari • setara Rp5.000/minggu</div>
+          </div>
+          <div class="sp-price">Rp20.000</div>
+        </div>
+        <div class="subs-plan-card" data-plan="yearly" onclick="window.pilihPaketLangganan('yearly')">
+          <div>
+            <div class="sp-name">Tahunan</div>
+            <div class="sp-desc">Aktif 365 hari • setara Rp5.000/minggu</div>
+          </div>
+          <div class="sp-price">Rp260.000</div>
+        </div>
+      </div>
+      <button class="subs-cta" id="subs-lanjut-btn" onclick="window.lanjutBayarLangganan()" disabled>PILIH PAKET DULU</button>
+
+      <button class="subs-back" style="margin-top:18px;" onclick="window.toggleReferralInput()">🎁 Punya kode referral seumur hidup?</button>
+      <div id="subs-referral-box" style="display:none; margin-top:12px;">
+        <div class="form-row">
+          <label class="form-label">Kode Referral</label>
+          <input type="text" id="subs-referral-input" class="f-input-dark" placeholder="Contoh: RHNVIP2026" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <button class="subs-cta" id="subs-referral-btn" style="background:var(--blue); color:#fff;" onclick="window.redeemReferralCode()">🎁 PAKAI KODE REFERRAL</button>
+      </div>
+    </div>
+
+    <div id="subs-step-pay" style="display:none;">
+      <div class="subs-pay-amount"><span id="subs-pay-plan-label">PAKET MINGGUAN</span><span id="subs-pay-amount-num">Rp0</span></div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; background:#ffffff; color:#000000; border-radius:24px; padding:24px 20px 20px; margin-bottom:16px; box-shadow:0 10px 30px rgba(0,0,0,0.15); position:relative; overflow:hidden; width:100%; max-width:380px; margin-left:auto; margin-right:auto; box-sizing:border-box; border:1px solid #e2e8f0;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:16px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height:22px;">
+        </div>
+        <div style="text-align:center; margin-bottom:14px; color:#000000;">
+          <div style="font-size:15px; font-weight:800; text-transform:uppercase; margin-bottom:2px;">RHN CAPITAL FINANCE</div>
+          <div style="font-size:11px; font-weight:600; color:#334155;">NMID: ID1026489225353</div>
+        </div>
+        <div style="background:#ffffff; padding:12px; border-radius:16px; border:1px solid #e2e8f0; display:inline-flex; justify-content:center; align-items:center; margin-bottom:14px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+          <div id="subs-qrcode"></div>
+        </div>
+        <div style="text-align:center; width:100%;">
+          <div style="font-size:10.5px; font-weight:800; text-transform:uppercase; color:#0f172a; margin-bottom:1px;">SATU QRIS untuk semua</div>
+          <div style="font-size:8.5px; font-weight:600; color:#64748B;">Scan pakai aplikasi e-wallet / m-banking favoritmu</div>
+        </div>
+      </div>
+
+      <div id="subs-screenshot-upload-box" style="background:var(--card); border:1.5px dashed var(--gold); border-radius:16px; padding:14px; margin-bottom:14px; text-align:center;">
+        <div style="font-size:11px; font-weight:800; color:var(--text); margin-bottom:8px;">📸 Upload Bukti Screenshot Pembayaran</div>
+        <div style="font-size:9.5px; color:var(--text3); margin-bottom:10px; line-height:1.5;">AI otomatis membaca waktu, nama tujuan & nominal dari screenshot. Pastikan screenshot diambil maksimal 1 menit setelah bayar.</div>
+        <input type="file" id="subs-screenshot-input" accept="image/*" style="display:none;" onchange="window.handleSubsScreenshotUpload(event)">
+        <button type="button" class="subs-back" style="border:1px solid var(--gold); color:var(--gold); margin:0 auto;" onclick="document.getElementById('subs-screenshot-input').click()">📎 PILIH SCREENSHOT</button>
+        <div id="subs-screenshot-preview-wrap" style="display:none; margin-top:12px;">
+          <img id="subs-screenshot-preview" src="" style="max-width:100%; max-height:160px; border-radius:10px; border:1px solid var(--gold);">
+          <div id="subs-screenshot-filename" style="font-size:9px; color:var(--text3); margin-top:6px;"></div>
+        </div>
+        <div id="subs-ai-status" style="font-size:10px; font-weight:700; margin-top:10px;"></div>
+      </div>
+
+      <button class="subs-cta" id="subs-bayar-btn" onclick="window.konfirmasiBayarLangganan()" style="background:var(--green2); color:#04140e;">✅ SAYA SUDAH BAYAR</button>
+      <button class="subs-back" onclick="window.batalPilihPaket()">← Ganti Paket</button>
+    </div>
+
+    <div id="subs-step-pending" style="display:none;">
+      <div class="subs-pending-box">
+        <div class="sp-spin"></div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:6px;">Menunggu Verifikasi Admin</div>
+        <div style="font-size:11px; color:var(--text3); line-height:1.6;">Pembayaran kamu untuk paket <b id="subs-pending-plan" style="color:var(--gold);">-</b> sedang dicek admin. Halaman ini otomatis terbuka begitu saldo dikonfirmasi masuk.</div>
+      </div>
+    </div>
+
+    <div id="subs-step-active" style="display:none;">
+      <div class="subs-active-box">
+        <div style="font-size:28px; margin-bottom:8px;">✅</div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:6px;">Langganan Aktif</div>
+        <div style="font-size:11px; color:var(--text3);">Berlaku sampai <b id="subs-active-until" style="color:var(--green2);">-</b></div>
+      </div>
+    </div>
+
+    <button class="subs-logout" onclick="window.logoutFromSubscribeScreen()">Keluar Akun</button>
+  </div>
+</div>
+
 <div id="app-screen" style="display:none;">
 <div class="header-area">
   
@@ -1402,6 +1532,40 @@ if ('serviceWorker' in navigator) {
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">🎁 Kode Referral (Akses Seumur Hidup)</div>
+      <div class="card-sub">Buat kode khusus — kalau dimasukkan user, langganan otomatis aktif seumur hidup.</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="window.createReferralCode()" style="background:var(--blue); color:#fff;">➕ BUAT KODE BARU</button>
+      <button class="export-btn" onclick="window.loadReferralCodes()" style="background:var(--gold); color:#000; margin-left:8px;">🔄 MUAT DAFTAR KODE</button>
+    </div>
+    <div id="admin-referral-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat kode referral...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">👥 Member Aktif Berlangganan</div>
+      <div class="card-sub">Daftar semua user yang fitur berbayarnya sedang aktif (bayar QRIS maupun pakai kode referral).</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="window.loadActiveSubscribers()" style="background:var(--gold); color:#000;">🔄 MUAT DAFTAR MEMBER AKTIF</button>
+    </div>
+    <div id="admin-active-members-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat member aktif...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">💳 Verifikasi Langganan Member</div>
+      <div class="card-sub">Cek pembayaran QRIS masuk lalu konfirmasi agar member aktif kembali.</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="window.loadAdminSubscriptionRequests()" style="background:var(--gold); color:#000;">🔄 MUAT PERMINTAAN LANGGANAN</button>
+    </div>
+    <div id="admin-subscription-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat permintaan langganan...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">💬 Customer Service — Chat Masuk</div>
       <div class="card-sub">Percakapan bantuan dari seluruh user terdaftar.</div>
     </div>
@@ -1455,6 +1619,15 @@ if ('serviceWorker' in navigator) {
         <button class="calc-btn" onclick="calcPress('.')">,</button>
       </div>
     </div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">🎟️ LANGGANAN MEMBER</div>
+    <div class="set-item" id="settings-subs-status">
+      <div><div class="set-label">Status Langganan</div><div class="set-sub">Memuat status...</div></div>
+      <span class="subs-status-pill pending">● MEMUAT</span>
+    </div>
+    <button class="set-action" style="width:100%; margin-top:12px; background:var(--gold); color:#000; border:none;" onclick="window.bukaLayarLangganan()">PERPANJANG / LIHAT PAKET</button>
   </div>
 
   <div class="set-group" id="qris-generator-group">
@@ -2364,6 +2537,908 @@ window.konfirmasiPembayaranQris = async function() {
     }
 };
 
+
+// ==========================================================================
+// SISTEM LANGGANAN MEMBER (PAYWALL) — Mingguan/Bulanan/Tahunan
+// ==========================================================================
+window.SUBS_PLANS = {
+    weekly:  { label: 'Mingguan', amount: 5000,   days: 7,   note: 'PAKET MINGGUAN' },
+    monthly: { label: 'Bulanan',  amount: 20000,  days: 30,  note: 'PAKET BULANAN' },
+    yearly:  { label: 'Tahunan',  amount: 260000, days: 365, note: 'PAKET TAHUNAN' }
+};
+window.__subsSelectedPlan = null;
+window.__subsUnsub = null;
+
+function fmtRupiah(n) { return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
+
+window.pilihPaketLangganan = function(planKey) {
+    window.__subsSelectedPlan = planKey;
+    document.querySelectorAll('.subs-plan-card').forEach(el => {
+        el.classList.toggle('selected', el.getAttribute('data-plan') === planKey);
+    });
+    const btn = document.getElementById('subs-lanjut-btn');
+    btn.disabled = false;
+    btn.textContent = 'LANJUT BAYAR ' + fmtRupiah(window.SUBS_PLANS[planKey].amount);
+};
+
+window.lanjutBayarLangganan = function() {
+    if (!window.__subsSelectedPlan) return;
+    const plan = window.SUBS_PLANS[window.__subsSelectedPlan];
+
+    document.getElementById('subs-step-plans').style.display = 'none';
+    document.getElementById('subs-step-pay').style.display = 'block';
+    document.getElementById('subs-pay-plan-label').textContent = plan.note;
+    document.getElementById('subs-pay-amount-num').textContent = fmtRupiah(plan.amount);
+
+    const currentBase = QRIS_STATIS_ASLI;
+    let qrisTanpaCrc = currentBase.slice(0, -4);
+    let qrisBase = qrisTanpaCrc.slice(0, -4);
+    let nomStr = String(plan.amount);
+    let nomLen = nomStr.length.toString().padStart(2, '0');
+    let tagNominal = "54" + nomLen + nomStr;
+    let qrisBaruTanpaCrc = qrisBase + tagNominal + "6304";
+    let crcBaru = crc16(qrisBaruTanpaCrc);
+    let qrisDinamis = qrisBaruTanpaCrc + crcBaru;
+
+    const qrElement = document.getElementById("subs-qrcode");
+    qrElement.innerHTML = "";
+    new QRCode(qrElement, {
+        text: qrisDinamis, width: 200, height: 200,
+        colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M
+    });
+
+    const btn = document.getElementById('subs-bayar-btn');
+    btn.disabled = false;
+    btn.textContent = '✅ SAYA SUDAH BAYAR';
+
+    window.__subsScreenshotData = null;
+    const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+    if (previewWrap) previewWrap.style.display = 'none';
+    const fileInput = document.getElementById('subs-screenshot-input');
+    if (fileInput) fileInput.value = '';
+    const statusEl = document.getElementById('subs-ai-status');
+    if (statusEl) { statusEl.textContent = ''; }
+};
+
+window.batalPilihPaket = function() {
+    document.getElementById('subs-step-pay').style.display = 'none';
+    document.getElementById('subs-step-plans').style.display = 'block';
+};
+
+// ==== AI VERIFIKASI OTOMATIS BUKTI BAYAR (OCR lokal - Tesseract.js, TANPA API KEY, GRATIS) ====
+// DIOPTIMALKAN UNTUK KECEPATAN (<15 detik): worker Tesseract dibuat SEKALI lalu dipakai ulang
+// (tidak re-init mesin OCR + reload data bahasa setiap kali user upload bukti bayar), preprocessing
+// hanya menghasilkan 1 varian gambar (binarisasi Otsu, paling tajam utk teks UI), dan resolusi upscale
+// dibatasi secukupnya saja (bukan dipaksa minimal 1600px) supaya proses inferensi jauh lebih ringan.
+function loadTesseractScript() {
+    if (window.Tesseract) return Promise.resolve();
+    if (window.__tesseractLoadingPromise) return window.__tesseractLoadingPromise;
+    window.__tesseractLoadingPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('gagal memuat mesin OCR (cek koneksi internet)'));
+        document.head.appendChild(s);
+    });
+    return window.__tesseractLoadingPromise;
+}
+
+// Worker Tesseract persisten: dibuat & di-load bahasanya SEKALI saja untuk seluruh sesi aplikasi,
+// lalu dipakai berulang-ulang setiap ada upload bukti bayar. Inilah penghemat waktu terbesar —
+// tanpa ini, setiap verifikasi harus download+load ulang model OCR dari nol (paling lama).
+function getOcrWorker() {
+    if (window.__ocrWorker) return Promise.resolve(window.__ocrWorker);
+    if (window.__ocrWorkerPromise) return window.__ocrWorkerPromise;
+    window.__ocrWorkerPromise = (async () => {
+        const worker = await window.Tesseract.createWorker('ind+eng', 1);
+        // PSM 6 = anggap gambar sebagai satu blok teks seragam. Jauh lebih cepat daripada mode
+        // default (analisis tata-letak halaman penuh) dan cocok untuk screenshot struk/notifikasi.
+        await worker.setParameters({ tessedit_pageseg_mode: '6' });
+        window.__ocrWorker = worker;
+        return worker;
+    })();
+    return window.__ocrWorkerPromise;
+}
+
+// Preprocessing gambar di canvas: upscale secukupnya + grayscale + contrast stretch + binarisasi Otsu.
+// Cukup 1 varian (hitam-putih tegas) — sudah paling tajam untuk teks UI aplikasi pembayaran,
+// jadi tidak perlu OCR jalan berkali-kali di beberapa varian gambar yang sama.
+function preprocessImageForOcr(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            try {
+                // Target lebar dibatasi 900–1400px: cukup tajam utk dibaca OCR, tapi tidak
+                // membebani (gambar terlalu besar = OCR jauh lebih lambat tanpa nambah akurasi).
+                const targetWidth = Math.min(1400, Math.max(img.width, 900));
+                const scale = Math.min(2, targetWidth / img.width);
+                const w = Math.max(1, Math.round(img.width * scale));
+                const h = Math.max(1, Math.round(img.height * scale));
+
+                const baseCanvas = document.createElement('canvas');
+                baseCanvas.width = w; baseCanvas.height = h;
+                const bctx = baseCanvas.getContext('2d');
+                bctx.imageSmoothingEnabled = true;
+                bctx.imageSmoothingQuality = 'high';
+                bctx.drawImage(img, 0, 0, w, h);
+
+                const imgData = bctx.getImageData(0, 0, w, h);
+                const n = w * h;
+                const grayVals = new Uint8ClampedArray(n);
+                for (let i = 0, p = 0; p < n; i += 4, p++) {
+                    grayVals[p] = Math.round(0.299 * imgData.data[i] + 0.587 * imgData.data[i + 1] + 0.114 * imgData.data[i + 2]);
+                }
+
+                let min = 255, max = 0;
+                for (let i = 0; i < n; i++) { if (grayVals[i] < min) min = grayVals[i]; if (grayVals[i] > max) max = grayVals[i]; }
+                const range = Math.max(1, max - min);
+                const stretched = new Uint8ClampedArray(n);
+                for (let i = 0; i < n; i++) stretched[i] = Math.round((grayVals[i] - min) * 255 / range);
+
+                // Threshold Otsu untuk binarisasi hitam-putih tegas
+                const hist = new Array(256).fill(0);
+                for (let i = 0; i < n; i++) hist[stretched[i]]++;
+                let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+                let sumB = 0, wB = 0, wF = 0, maxVar = 0, threshold = 127;
+                for (let t = 0; t < 256; t++) {
+                    wB += hist[t]; if (wB === 0) continue;
+                    wF = n - wB; if (wF === 0) break;
+                    sumB += t * hist[t];
+                    const mB = sumB / wB, mF = (sum - sumB) / wF;
+                    const varBetween = wB * wF * (mB - mF) * (mB - mF);
+                    if (varBetween > maxVar) { maxVar = varBetween; threshold = t; }
+                }
+                const binCanvas = document.createElement('canvas');
+                binCanvas.width = w; binCanvas.height = h;
+                const bnctx = binCanvas.getContext('2d');
+                const binImgData = bnctx.createImageData(w, h);
+                for (let p = 0, i = 0; p < n; p++, i += 4) {
+                    const v = stretched[p] >= threshold ? 255 : 0;
+                    binImgData.data[i] = binImgData.data[i + 1] = binImgData.data[i + 2] = v;
+                    binImgData.data[i + 3] = 255;
+                }
+                bnctx.putImageData(binImgData, 0, 0);
+
+                resolve(binCanvas.toDataURL('image/png'));
+            } catch (e) { reject(e); }
+        };
+        img.onerror = () => reject(new Error('gagal memuat gambar untuk preprocessing'));
+        img.src = dataUrl;
+    });
+}
+
+// Perbaiki karakter yang sering salah dibaca OCR di dalam token yang mengandung angka
+// (O/o -> 0, l/I -> 1, S -> 5, B -> 8), tanpa mengubah kata biasa yang tidak mengandung digit.
+function normalizeOcrNumericTokens(text) {
+    return text.replace(/[0-9OolISB.,]{3,}/g, (tok) => {
+        if (!/\d/.test(tok)) return tok;
+        return tok.replace(/O/g, '0').replace(/o/g, '0').replace(/l/g, '1').replace(/I/g, '1').replace(/S/g, '5').replace(/B/g, '8');
+    });
+}
+
+function levenshteinDistance(a, b) {
+    const dp = [];
+    for (let i = 0; i <= a.length; i++) dp.push([i]);
+    for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+    return dp[a.length][b.length];
+}
+
+// Cek nama merchant secara toleran terhadap kesalahan baca OCR (maks. 2 karakter beda)
+// supaya spasi ganda/simbol aneh/huruf ganti tidak membuat verifikasi gagal secara tidak adil.
+function fuzzyContainsBrand(text, brand) {
+    const cleaned = String(text).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (cleaned.includes(brand)) return true;
+    const bl = brand.length;
+    for (let i = 0; i <= cleaned.length - Math.max(3, bl - 4); i++) {
+        const windowStr = cleaned.substr(i, bl + 2);
+        if (windowStr.length < bl - 2) continue;
+        if (levenshteinDistance(windowStr, brand) <= 2) return true;
+    }
+    return false;
+}
+window.__subsScreenshotData = null; // { base64, mime }
+
+window.handleSubsScreenshotUpload = function(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById('subs-ai-status');
+    if (statusEl) statusEl.textContent = '';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const result = e.target.result;
+        const base64 = result.split(',')[1];
+        window.__subsScreenshotData = { base64: base64, mime: file.type || 'image/jpeg' };
+        const previewImg = document.getElementById('subs-screenshot-preview');
+        const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+        const nameEl = document.getElementById('subs-screenshot-filename');
+        if (previewImg) previewImg.src = result;
+        if (previewWrap) previewWrap.style.display = 'block';
+        if (nameEl) nameEl.textContent = file.name;
+    };
+    reader.readAsDataURL(file);
+};
+
+async function verifyPaymentScreenshotWithAI(base64, mime, expectedAmount) {
+    const now = new Date();
+    const dataUrl = 'data:' + mime + ';base64,' + base64;
+
+    await loadTesseractScript();
+    // Worker dibuat sekali di awal (atau dipakai ulang kalau sudah ada dari verifikasi sebelumnya) —
+    // ini yang bikin proses jadi instan, karena mesin OCR + data bahasa tidak perlu dimuat ulang.
+    const worker = await getOcrWorker();
+
+    // Preprocessing gambar (upscale secukupnya + grayscale + binarisasi Otsu) agar OCR lebih tajam.
+    // Kalau preprocessing gagal (mis. gambar rusak), tetap lanjut pakai gambar asli sebagai cadangan.
+    let ocrImage;
+    try {
+        ocrImage = await preprocessImageForOcr(dataUrl);
+    } catch (prepErr) {
+        console.warn('Preprocessing gambar gagal, lanjut pakai gambar asli:', prepErr);
+        ocrImage = dataUrl;
+    }
+
+    // Cukup 1 pass OCR (gambar hasil preprocessing) — ini sudah cukup tajam untuk screenshot UI
+    // aplikasi pembayaran, jadi tidak perlu OCR berulang di beberapa varian gambar yang sama.
+    let combinedText = '';
+    let avgConfidence = 0;
+    try {
+        const result = await worker.recognize(ocrImage);
+        if (result && result.data) {
+            combinedText = (result.data.text || '').trim();
+            if (typeof result.data.confidence === 'number') avgConfidence = result.data.confidence;
+        }
+    } catch (passErr) {
+        console.warn('Pass OCR utama gagal:', passErr);
+    }
+
+    // Fallback: HANYA dijalankan kalau pass pertama benar-benar kosong/gagal, memakai gambar asli
+    // (tanpa preprocessing) sebagai percobaan kedua — bukan dijalankan selalu, supaya kasus normal
+    // (mayoritas upload) tetap cuma 1x OCR dan selesai dalam hitungan detik.
+    if (!combinedText) {
+        try {
+            const result2 = await worker.recognize(dataUrl);
+            if (result2 && result2.data && result2.data.text) {
+                combinedText = result2.data.text.trim();
+                if (typeof result2.data.confidence === 'number') avgConfidence = result2.data.confidence;
+            }
+        } catch (fallbackErr) {
+            console.warn('Pass OCR cadangan juga gagal:', fallbackErr);
+        }
+    }
+
+    if (!combinedText) {
+        const err = new Error('layanan verifikasi sedang tidak tersedia');
+        err.technicalDetail = 'OCR tidak berhasil membaca teks apa pun dari gambar.';
+        throw err;
+    }
+
+    if (avgConfidence > 0 && avgConfidence < 35) {
+        const err = new Error('kualitas gambar terlalu buram untuk dibaca otomatis');
+        err.technicalDetail = 'Rata-rata keyakinan OCR hanya ' + avgConfidence.toFixed(1) + '/100. Minta user upload ulang screenshot yang lebih jelas/tidak buram/tidak terpotong.';
+        throw err;
+    }
+
+    // Perbaiki kesalahan baca karakter umum (O/o->0, l/I->1, S->5, B->8) khusus di token angka,
+    // lalu gabungkan dengan teks mentah supaya kandidat pencarian angka & kata kunci lebih lengkap.
+    const cleanedText = normalizeOcrNumericTokens(combinedText);
+    const searchText = combinedText + '\n' + cleanedText;
+
+    // --- Deteksi nominal: kumpulkan SEMUA kandidat angka dari teks asli + teks yang sudah dikoreksi.
+    // Nominal dianggap cocok HANYA jika ada kandidat yang PERSIS SAMA dengan nominal yang diharapkan
+    // (tidak menebak-nebak/toleransi nominal, supaya tidak ada celah orang mengaku bayar nominal lain). ---
+    const nominalMatches = [...searchText.matchAll(/(?:Rp\.?\s?)?(\d{1,3}(?:[.,]\d{3})+|\d{4,})/gi)]
+        .map(m => Number(String(m[1]).replace(/[.,]/g, '')))
+        .filter(n => !isNaN(n) && n > 0);
+    const cocokNominal = nominalMatches.includes(Number(expectedAmount));
+    let nominalTerdeteksi = cocokNominal
+        ? Number(expectedAmount)
+        : (nominalMatches.length ? nominalMatches.reduce((a, b) => Math.abs(a - expectedAmount) < Math.abs(b - expectedAmount) ? a : b) : null);
+
+    // --- Deteksi nama tujuan pembayaran, toleran terhadap salah-baca OCR ringan (maks 2 karakter beda) ---
+    const cocokNama = fuzzyContainsBrand(searchText, 'RHNCAPITAL');
+
+    // --- Deteksi status berhasil/sukses. Kata "gagal" menang mutlak atas kata "berhasil"
+    // supaya tidak ada celah screenshot campur aduk (mis. ada teks UI lain yg memuat kata sukses). ---
+    const kataGagal = /(GAGAL|DITOLAK|FAILED|PENDING|BELUM\s*BAYAR|MENUNGGU|EXPIRED|DIBATALKAN|TIDAK\s*BERHASIL|UNSUCCESSFUL)/i.test(searchText);
+    const kataBerhasil = /(BERHASIL|SUKSES|SUCCESS(FUL)?|TERKIRIM|SELESAI|COMPLETED|\bPAID\b)/i.test(searchText);
+    const statusBerhasil = kataBerhasil && !kataGagal;
+
+    // --- Deteksi waktu transaksi: kumpulkan SEMUA kandidat jam:menit(:detik) di teks,
+    // lalu pilih yang selisihnya PALING KECIL terhadap waktu sekarang (bukan kemunculan pertama),
+    // supaya angka lain yang kebetulan berpola jam tidak salah dipilih. ---
+    let waktuTransaksiIso = null, cocokWaktu = false, selisihDetik = null;
+    const jamMatches = [...searchText.matchAll(/([01]?\d|2[0-3])[.:]([0-5]\d)(?:[.:]([0-5]\d))?/g)];
+    let bestSelisih = Infinity, bestWaktu = null;
+    for (const m of jamMatches) {
+        const kandidat = new Date(now);
+        kandidat.setHours(Number(m[1]), Number(m[2]), Number(m[3] || 0), 0);
+        const selisih = Math.abs(now.getTime() - kandidat.getTime()) / 1000;
+        if (selisih < bestSelisih) { bestSelisih = selisih; bestWaktu = kandidat; }
+    }
+    if (bestWaktu) {
+        waktuTransaksiIso = bestWaktu.toISOString();
+        selisihDetik = bestSelisih;
+        cocokWaktu = bestSelisih <= 300; // toleransi 5 menit (OCR kurang presisi dibanding AI vision)
+    }
+
+    const valid = statusBerhasil && cocokWaktu && cocokNama && cocokNominal;
+
+    const parsed = {
+        waktu_transaksi_iso: waktuTransaksiIso,
+        nama_penerima: cocokNama ? 'RHN CAPITAL' : null,
+        nominal: nominalTerdeteksi,
+        status_berhasil: statusBerhasil,
+        ocr_confidence: Math.round(avgConfidence),
+        ocr_raw_text: combinedText.trim().slice(0, 500)
+    };
+
+    return { valid, parsed, cocokWaktu, cocokNama, cocokNominal, selisihDetik };
+}
+
+window.konfirmasiBayarLangganan = async function() {
+    if (!currentUser || !window.__subsSelectedPlan) return;
+    const plan = window.SUBS_PLANS[window.__subsSelectedPlan];
+    const btn = document.getElementById('subs-bayar-btn');
+    const statusEl = document.getElementById('subs-ai-status');
+
+    if (!window.__subsScreenshotData) {
+        Swal.fire({ icon: 'warning', title: 'Screenshot Belum Diupload', text: 'Upload dulu screenshot bukti pembayaran QRIS kamu sebelum konfirmasi.', background: 'var(--card)', color: 'var(--text)' });
+        return;
+    }
+
+    btn.disabled = true; btn.textContent = '🔍 MEMERIKSA BUKTI BAYAR...';
+    if (statusEl) { statusEl.style.color = 'var(--gold)'; statusEl.textContent = 'Sedang memeriksa bukti pembayaran kamu, mohon tunggu sebentar...'; }
+
+    let aiResult = null, aiError = null, aiTechnicalDetail = null;
+    try {
+        aiResult = await verifyPaymentScreenshotWithAI(window.__subsScreenshotData.base64, window.__subsScreenshotData.mime, plan.amount);
+    } catch (e) {
+        aiError = e.message;
+        aiTechnicalDetail = e.technicalDetail || null;
+        console.error('Verifikasi otomatis gagal:', e, aiTechnicalDetail);
+    }
+
+    try {
+        const reqRef = await addDoc(collection(db, 'subscriptionRequests'), {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            nama: currentUser.displayName || currentUser.email.split('@')[0],
+            plan: window.__subsSelectedPlan,
+            planLabel: plan.label,
+            amount: plan.amount,
+            days: plan.days,
+            status: 'pending',
+            autoVerified: !!(aiResult && aiResult.valid),
+            aiAnalysis: aiResult ? {
+                nama_penerima: aiResult.parsed.nama_penerima || null,
+                nominal: aiResult.parsed.nominal || null,
+                waktu_transaksi_iso: aiResult.parsed.waktu_transaksi_iso || null,
+                status_berhasil: !!aiResult.parsed.status_berhasil,
+                selisihDetik: aiResult.selisihDetik,
+                cocokWaktu: aiResult.cocokWaktu,
+                cocokNama: aiResult.cocokNama,
+                cocokNominal: aiResult.cocokNominal
+            } : { error: aiError || 'Tidak ada hasil analisa', technicalDetail: aiTechnicalDetail || null },
+            createdAt: serverTimestamp()
+        });
+
+        if (aiResult && aiResult.valid) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const existingExpiry = userSnap.exists() ? userSnap.data().subscriptionExpiry : null;
+            const nowD = new Date();
+            const base = (existingExpiry && new Date(existingExpiry).getTime() > nowD.getTime()) ? new Date(existingExpiry) : nowD;
+            const newExpiry = new Date(base.getTime() + plan.days * 86400000);
+            await updateDoc(userRef, {
+                subscriptionExpiry: newExpiry.toISOString(),
+                subscriptionStatus: 'active',
+                subscriptionPlan: window.__subsSelectedPlan,
+                subscriptionPending: null
+            });
+            try {
+                await updateDoc(doc(db, 'subscriptionRequests', reqRef.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: 'SISTEM-OTOMATIS' });
+            } catch (eApprove) {
+                console.error('Gagal update status approved di subscriptionRequests:', eApprove);
+            }
+
+            window.__subsScreenshotData = null;
+            const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
+            if (previewWrap) previewWrap.style.display = 'none';
+            const fileInput = document.getElementById('subs-screenshot-input');
+            if (fileInput) fileInput.value = '';
+            if (statusEl) { statusEl.style.color = 'var(--green2)'; statusEl.textContent = '✅ Pembayaran terverifikasi otomatis!'; }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Terverifikasi! 🎉',
+                text: 'Langganan kamu sudah aktif sekarang. Selamat menikmati fitur lengkap RHN CAPITAL!',
+                background: 'var(--card)', color: 'var(--text)',
+                confirmButtonColor: 'var(--green2)',
+                timer: 2200, showConfirmButton: false
+            });
+        } else {
+            await setDoc(doc(db, 'users', currentUser.uid), {
+                subscriptionPending: {
+                    requestId: reqRef.id,
+                    plan: window.__subsSelectedPlan,
+                    planLabel: plan.label,
+                    amount: plan.amount,
+                    requestedAt: new Date().toISOString()
+                }
+            }, { merge: true });
+
+            if (statusEl) { statusEl.style.color = 'var(--gold)'; statusEl.textContent = 'Bukti pembayaran diteruskan ke admin untuk dicek manual.'; }
+
+            document.getElementById('subs-step-pay').style.display = 'none';
+            document.getElementById('subs-step-pending').style.display = 'block';
+            document.getElementById('subs-pending-plan').textContent = plan.label;
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Menunggu Verifikasi Admin',
+                text: 'Bukti pembayaran kamu sudah kami terima dan sedang dicek lebih lanjut oleh admin. Halaman ini otomatis terbuka begitu langganan dikonfirmasi aktif.',
+                background: 'var(--card)', color: 'var(--text)',
+                confirmButtonColor: 'var(--gold)'
+            });
+        }
+    } catch (e) {
+        console.error('Gagal mengirim permintaan langganan:', e);
+        Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+
+    btn.disabled = false; btn.textContent = '✅ SAYA SUDAH BAYAR';
+};
+
+window.logoutFromSubscribeScreen = async function() {
+    const result = await Swal.fire({
+        title: 'Keluar akun?', text: 'Kamu akan keluar dan bisa masuk lagi kapan saja.',
+        icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Keluar', cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)'
+    });
+    if (result.isConfirmed) {
+        if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
+        localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
+        window.appUnlocked = false; window.userCloudPin = null;
+        const wasOfflineSession = window.__offlineSession || !navigator.onLine;
+        try { await signOut(auth); } catch(e) {}
+        if (wasOfflineSession) { forceResetToAuthScreen(); }
+    }
+};
+
+function subsResetToPlanStep() {
+    window.__subsSelectedPlan = null;
+    document.getElementById('subs-step-plans').style.display = 'block';
+    document.getElementById('subs-step-pay').style.display = 'none';
+    document.getElementById('subs-step-pending').style.display = 'none';
+    document.getElementById('subs-step-active').style.display = 'none';
+    document.querySelectorAll('.subs-plan-card').forEach(el => el.classList.remove('selected'));
+    const btn = document.getElementById('subs-lanjut-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'PILIH PAKET DULU'; }
+}
+
+// Dipanggil sesudah PIN berhasil dibuka, mengecek status langganan user & memasang listener real-time
+window.checkSubscriptionStatus = function(uid) {
+    if (window.__isAdmin) {
+        document.getElementById('subscribe-screen').style.display = 'none';
+        return;
+    }
+    if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
+
+    window.__subsUnsub = onSnapshot(doc(db, 'users', uid), (snap) => {
+        const data = snap.exists() ? snap.data() : {};
+        const expiryStr = data.subscriptionExpiry || null;
+        const isActive = expiryStr && new Date(expiryStr).getTime() > Date.now();
+        window.__subsIsActive = !!isActive;
+
+        renderSubsStatusWidgets(data, isActive);
+
+        if (isActive) {
+            document.getElementById('subscribe-screen').style.display = 'none';
+        } else {
+            document.getElementById('subscribe-screen').style.display = 'block';
+            if (data.subscriptionPending) {
+                document.getElementById('subs-step-plans').style.display = 'none';
+                document.getElementById('subs-step-pay').style.display = 'none';
+                document.getElementById('subs-step-active').style.display = 'none';
+                document.getElementById('subs-step-pending').style.display = 'block';
+                document.getElementById('subs-pending-plan').textContent = data.subscriptionPending.planLabel || '-';
+                document.getElementById('subs-sub-text').textContent = 'Pembayaranmu sedang diverifikasi admin.';
+            } else {
+                subsResetToPlanStep();
+                document.getElementById('subs-sub-text').textContent = expiryStr
+                    ? 'Langganan kamu sudah berakhir. Pilih paket untuk melanjutkan.'
+                    : 'Aktifkan langganan untuk lanjut memakai Arus Keuangan RHN CAPITAL sepenuhnya.';
+            }
+        }
+    });
+};
+
+function renderSubsStatusWidgets(data, isActive) {
+    const el = document.getElementById('settings-subs-status');
+    if (!el) return;
+    const expiryStr = data.subscriptionExpiry || null;
+    if (isActive) {
+        const isLifetime = expiryStr === window.LIFETIME_EXPIRY_ISO;
+        const until = isLifetime ? 'SEUMUR HIDUP 🎉' : new Date(expiryStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+        el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">${isLifetime ? 'Akses aktif' : 'Aktif sampai'} ${until}</div></div><span class="subs-status-pill active">● AKTIF</span>`;
+    } else if (data.subscriptionPending) {
+        el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">Menunggu verifikasi admin (${data.subscriptionPending.planLabel || '-'})</div></div><span class="subs-status-pill pending">● PENDING</span>`;
+    } else {
+        el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">${expiryStr ? 'Sudah berakhir, silakan perpanjang' : 'Belum berlangganan'}</div></div><span class="subs-status-pill expired">● NONAKTIF</span>`;
+    }
+}
+
+window.bukaLayarLangganan = function() {
+    document.getElementById('subscribe-screen').style.display = 'block';
+    subsResetToPlanStep();
+};
+
+// ---- ADMIN: verifikasi permintaan langganan ----
+window.loadAdminSubscriptionRequests = async function() {
+    const listEl = document.getElementById('admin-subscription-list');
+    if (!listEl || !window.__isAdmin) return;
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat permintaan langganan...</div>';
+
+    try {
+        const q = query(collection(db, 'subscriptionRequests'), where('status', '==', 'pending'));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Tidak ada permintaan langganan yang menunggu.</div>';
+            return;
+        }
+        let rows = [];
+        snap.forEach(d => {
+            const v = d.data();
+            const waktu = (v.createdAt && v.createdAt.toDate) ? v.createdAt.toDate().toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+            rows.push(`
+              <div class="admin-user-card card" style="margin-bottom:12px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;">
+                  <div>
+                    <div style="font-weight:800; font-size:12.5px; color:var(--text);">${escapeHTML(v.nama || v.email || '-')}</div>
+                    <div style="font-size:10.5px; color:var(--text3);">${escapeHTML(v.email || '-')}</div>
+                  </div>
+                  <span class="subs-status-pill pending">● PENDING</span>
+                </div>
+                <div style="font-size:11px; color:var(--text2); margin-bottom:2px;">Paket: <b style="color:var(--gold);">${escapeHTML(v.planLabel || v.plan || '-')}</b> — ${fmtRupiah(v.amount || 0)}</div>
+                <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">Diajukan: ${waktu}</div>
+                ${v.aiAnalysis ? `<div style="font-size:9.5px; color:var(--text3); margin-bottom:12px; line-height:1.6; background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 10px;">🤖 <b>Analisa AI</b> (screenshot gagal diverifikasi otomatis):<br>${v.aiAnalysis.error ? 'Alasan: ' + escapeHTML(v.aiAnalysis.error) + (v.aiAnalysis.technicalDetail ? '<br><span style="color:var(--red2); font-size:9px;">Detail teknis: ' + escapeHTML(v.aiAnalysis.technicalDetail) + '</span>' : '') : 'Nama tujuan: ' + escapeHTML(v.aiAnalysis.nama_penerima || '-') + ' ' + (v.aiAnalysis.cocokNama ? '✅' : '❌') + '<br>Nominal terbaca: ' + fmtRupiah(v.aiAnalysis.nominal || 0) + ' ' + (v.aiAnalysis.cocokNominal ? '✅' : '❌') + '<br>Waktu transaksi: ' + escapeHTML(v.aiAnalysis.waktu_transaksi_iso || '-') + ' ' + (v.aiAnalysis.cocokWaktu ? '✅ (≤1 menit)' : ('❌' + (v.aiAnalysis.selisihDetik != null ? ' (selisih ' + Math.round(v.aiAnalysis.selisihDetik) + ' detik)' : ''))) + '<br>Status sukses menurut AI: ' + (v.aiAnalysis.status_berhasil ? '✅' : '❌')}</div>` : ''}
+                <div class="admin-user-actions">
+                  <button class="admin-detail-btn fix" onclick="window.approveSubscriptionRequest('${d.id}','${v.uid}','${v.plan}',${v.days || 7})">✅ KONFIRMASI LUNAS</button>
+                  <button class="admin-detail-btn danger" onclick="window.rejectSubscriptionRequest('${d.id}','${v.uid}')">✕ TOLAK</button>
+                </div>
+              </div>
+            `);
+        });
+        listEl.innerHTML = rows.join('');
+    } catch (e) {
+        listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
+    }
+};
+
+window.approveSubscriptionRequest = async function(reqId, uid, planKey, days) {
+    try {
+        const userRef = doc(db, 'users', uid);
+        const userSnap = await getDoc(userRef);
+        const existingExpiry = userSnap.exists() ? userSnap.data().subscriptionExpiry : null;
+        const now = new Date();
+        const base = (existingExpiry && new Date(existingExpiry).getTime() > now.getTime()) ? new Date(existingExpiry) : now;
+        const newExpiry = new Date(base.getTime() + (Number(days) || 7) * 86400000);
+
+        await updateDoc(userRef, {
+            subscriptionExpiry: newExpiry.toISOString(),
+            subscriptionStatus: 'active',
+            subscriptionPlan: planKey,
+            subscriptionPending: null
+        });
+        await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
+
+        Swal.fire({ icon: 'success', title: 'Langganan Dikonfirmasi!', background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
+        window.loadAdminSubscriptionRequests();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Konfirmasi', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+window.rejectSubscriptionRequest = async function(reqId, uid) {
+    try {
+        await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'rejected', rejectedAt: serverTimestamp() });
+        await updateDoc(doc(db, 'users', uid), { subscriptionPending: null });
+        Swal.fire({ icon: 'info', title: 'Permintaan Ditolak', background: 'var(--card)', color: 'var(--text)', timer: 1000, showConfirmButton: false });
+        window.loadAdminSubscriptionRequests();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menolak', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+// ---- KODE REFERRAL: AKSES SEUMUR HIDUP ----
+window.LIFETIME_EXPIRY_ISO = '9999-12-31T23:59:59.000Z';
+
+window.toggleReferralInput = function() {
+    const box = document.getElementById('subs-referral-box');
+    box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+};
+
+window.redeemReferralCode = async function() {
+    if (!currentUser) return;
+    const inputEl = document.getElementById('subs-referral-input');
+    const code = (inputEl.value || '').trim().toUpperCase();
+    if (!code) {
+        Swal.fire({ icon: 'warning', title: 'Kode Kosong', text: 'Masukkan kode referral dulu bro.', background: 'var(--card)', color: 'var(--text)' });
+        return;
+    }
+
+    const btn = document.getElementById('subs-referral-btn');
+    btn.disabled = true; btn.textContent = 'MEMERIKSA...';
+
+    try {
+        const codeRef = doc(db, 'referralCodes', code);
+        const snap = await getDoc(codeRef);
+
+        if (!snap.exists()) {
+            Swal.fire({ icon: 'error', title: 'Kode Tidak Ditemukan', text: 'Kode referral tidak valid atau sudah tidak berlaku.', background: 'var(--card)', color: 'var(--text)' });
+            btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+            return;
+        }
+
+        const data = snap.data();
+        if (data.disabled) {
+            Swal.fire({ icon: 'error', title: 'Kode Dinonaktifkan', text: 'Kode referral ini sudah tidak aktif.', background: 'var(--card)', color: 'var(--text)' });
+            btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+            return;
+        }
+        if (data.maxUses && (data.usedCount || 0) >= data.maxUses) {
+            Swal.fire({ icon: 'error', title: 'Kuota Habis', text: 'Kode referral ini sudah mencapai batas maksimal pemakaian.', background: 'var(--card)', color: 'var(--text)' });
+            btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+            return;
+        }
+        if (Array.isArray(data.usedBy) && data.usedBy.includes(currentUser.uid)) {
+            Swal.fire({ icon: 'info', title: 'Sudah Pernah Dipakai', text: 'Kamu sudah pernah memakai kode ini sebelumnya.', background: 'var(--card)', color: 'var(--text)' });
+            btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+            return;
+        }
+
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            subscriptionExpiry: window.LIFETIME_EXPIRY_ISO,
+            subscriptionStatus: 'active',
+            subscriptionPlan: 'lifetime_referral',
+            subscriptionPending: null,
+            referralCodeUsed: code
+        }, { merge: true });
+
+        await updateDoc(codeRef, {
+            usedCount: increment(1),
+            usedBy: arrayUnion(currentUser.uid)
+        });
+
+        Swal.fire({ icon: 'success', title: 'Kode Berhasil Dipakai!', text: 'Akses langgananmu sekarang SEUMUR HIDUP 🎉', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+        inputEl.value = '';
+        btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Memproses', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+        btn.disabled = false; btn.textContent = '🎁 PAKAI KODE REFERRAL';
+    }
+};
+
+// ---- ADMIN: kelola kode referral ----
+window.createReferralCode = async function() {
+    if (!window.__isAdmin) return;
+    const { value: formValues } = await Swal.fire({
+        title: 'Buat Kode Referral Baru',
+        background: 'var(--card)', color: 'var(--text)',
+        html:
+            '<input id="swal-ref-code" class="swal2-input" placeholder="Kode (kosongkan = auto)" style="text-transform:uppercase;">' +
+            '<input id="swal-ref-max" class="swal2-input" placeholder="Batas pemakaian (kosong = tanpa batas)" inputmode="numeric">',
+        showCancelButton: true,
+        confirmButtonText: 'BUAT',
+        confirmButtonColor: 'var(--gold)',
+        preConfirm: () => {
+            const codeInput = document.getElementById('swal-ref-code').value.trim().toUpperCase();
+            const maxInput = document.getElementById('swal-ref-max').value.trim();
+            return {
+                code: codeInput || ('RHN' + Math.random().toString(36).slice(2, 8).toUpperCase()),
+                maxUses: maxInput ? parseInt(maxInput) : null
+            };
+        }
+    });
+
+    if (!formValues) return;
+
+    try {
+        const codeRef = doc(db, 'referralCodes', formValues.code);
+        const existing = await getDoc(codeRef);
+        if (existing.exists()) {
+            Swal.fire({ icon: 'error', title: 'Kode Sudah Ada', text: 'Pakai kode lain ya bro.', background: 'var(--card)', color: 'var(--text)' });
+            return;
+        }
+        await setDoc(codeRef, {
+            createdAt: serverTimestamp(),
+            createdBy: currentUser ? currentUser.email : 'admin',
+            maxUses: formValues.maxUses,
+            usedCount: 0,
+            usedBy: [],
+            disabled: false
+        });
+        Swal.fire({ icon: 'success', title: 'Kode Dibuat!', text: 'Kode: ' + formValues.code, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+        window.loadReferralCodes();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Membuat Kode', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+window.loadReferralCodes = async function() {
+    const listEl = document.getElementById('admin-referral-list');
+    if (!listEl || !window.__isAdmin) return;
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat kode referral...</div>';
+
+    try {
+        const snap = await getDocs(collection(db, 'referralCodes'));
+        if (snap.empty) {
+            listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada kode referral. Buat satu dulu.</div>';
+            return;
+        }
+        let rows = [];
+        let codesForUsers = [];
+        snap.forEach(d => {
+            const v = d.data();
+            const quota = v.maxUses ? (v.usedCount || 0) + ' / ' + v.maxUses : (v.usedCount || 0) + ' / ∞';
+            const usedByList = Array.isArray(v.usedBy) ? v.usedBy : [];
+            codesForUsers.push({ code: d.id, usedBy: usedByList });
+            rows.push(`
+              <div class="admin-user-card card" style="margin-bottom:12px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
+                  <div style="font-weight:800; font-size:13px; color:var(--gold); letter-spacing:0.5px;">${escapeHTML(d.id)}</div>
+                  <span class="subs-status-pill ${v.disabled ? 'expired' : 'active'}">${v.disabled ? '● NONAKTIF' : '● AKTIF'}</span>
+                </div>
+                <div style="font-size:10.5px; color:var(--text3); margin-bottom:12px;">Dipakai: ${quota}</div>
+                <div class="admin-user-actions">
+                  <button class="admin-detail-btn ${v.disabled ? 'fix' : 'danger'}" onclick="window.toggleReferralCode('${d.id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>
+                  <button class="admin-detail-btn danger" onclick="window.deleteReferralCode('${d.id}')">🗑️ HAPUS</button>
+                  ${usedByList.length ? `<button class="admin-detail-btn fix" onclick="window.toggleReferralUsersList('${d.id}')">👥 LIHAT PEMAKAI (${usedByList.length})</button>` : ''}
+                </div>
+                ${usedByList.length ? `<div id="ref-users-${d.id}" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border);"></div>` : ''}
+              </div>
+            `);
+        });
+        listEl.innerHTML = rows.join('');
+        window.__referralCodeUsers = codesForUsers;
+    } catch (e) {
+        listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
+    }
+};
+
+window.toggleReferralUsersList = async function(code) {
+    const box = document.getElementById('ref-users-' + code);
+    if (!box) return;
+    if (box.style.display === 'block') {
+        box.style.display = 'none';
+        return;
+    }
+    box.style.display = 'block';
+    box.innerHTML = '<div style="padding:10px; text-align:center; color:var(--text3); font-size:10.5px;">Memuat daftar pemakai...</div>';
+    try {
+        const entry = (window.__referralCodeUsers || []).find(c => c.code === code);
+        const uids = entry ? entry.usedBy : [];
+        if (!uids.length) {
+            box.innerHTML = '<div style="padding:10px; text-align:center; color:var(--text3); font-size:10.5px;">Belum ada yang pakai kode ini.</div>';
+            return;
+        }
+        const userDocs = await Promise.all(uids.map(uid => getDoc(doc(db, 'users', uid)).catch(() => null)));
+        let items = userDocs.map((uSnap, i) => {
+            const uid = uids[i];
+            if (uSnap && uSnap.exists()) {
+                const u = uSnap.data();
+                return `<div style="padding:8px 10px; border-radius:8px; background:var(--bg2); margin-bottom:6px;">
+                    <div style="font-weight:700; font-size:11.5px; color:var(--text);">${escapeHTML(u.nama || u.email || uid)}</div>
+                    <div style="font-size:10px; color:var(--text3);">${escapeHTML(u.email || '-')}</div>
+                </div>`;
+            }
+            return `<div style="padding:8px 10px; border-radius:8px; background:var(--bg2); margin-bottom:6px;">
+                <div style="font-weight:700; font-size:11.5px; color:var(--text);">${escapeHTML(uid)}</div>
+                <div style="font-size:10px; color:var(--text3);">User tidak ditemukan</div>
+            </div>`;
+        });
+        box.innerHTML = `<div style="font-size:10.5px; color:var(--text3); margin-bottom:8px; font-weight:700;">👥 PEMAKAI KODE INI:</div>` + items.join('');
+    } catch (e) {
+        box.innerHTML = '<div style="padding:10px; text-align:center; color:var(--red2); font-size:10.5px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
+    }
+};
+
+window.toggleReferralCode = async function(code, currentlyDisabled) {
+    try {
+        await updateDoc(doc(db, 'referralCodes', code), { disabled: !currentlyDisabled });
+        window.loadReferralCodes();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Mengubah', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+window.deleteReferralCode = async function(code) {
+    const result = await Swal.fire({
+        title: 'Hapus kode ini?', text: code, icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)',
+        background: 'var(--card)', color: 'var(--text)'
+    });
+    if (!result.isConfirmed) return;
+    try {
+        await deleteDoc(doc(db, 'referralCodes', code));
+        window.loadReferralCodes();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+// ---- ADMIN: daftar member yang sedang aktif berlangganan (bayar / referral) ----
+window.loadActiveSubscribers = async function() {
+    const listEl = document.getElementById('admin-active-members-list');
+    if (!listEl || !window.__isAdmin) return;
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar member aktif...</div>';
+
+    try {
+        const q = query(collection(db, 'users'), where('subscriptionExpiry', '>', new Date().toISOString()));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada member dengan langganan aktif.</div>';
+            return;
+        }
+        let rows = [];
+        snap.forEach(d => {
+            const v = d.data();
+            const isLifetime = v.subscriptionExpiry === window.LIFETIME_EXPIRY_ISO;
+            const until = isLifetime ? 'SEUMUR HIDUP' : new Date(v.subscriptionExpiry).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)' };
+            rows.push(`
+              <div class="admin-user-card card" style="margin-bottom:10px; padding:12px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                  <div>
+                    <div style="font-weight:800; font-size:12.5px; color:var(--text);">${escapeHTML(v.nama || v.email || d.id)}</div>
+                    <div style="font-size:10.5px; color:var(--text3);">${escapeHTML(v.email || '-')}</div>
+                    <div style="font-size:10px; color:var(--text3); margin-top:2px;">Paket: <b style="color:var(--gold);">${escapeHTML(planLabelMap[v.subscriptionPlan] || v.subscriptionPlan || '-')}</b>${v.referralCodeUsed ? ' • Kode: <b style="color:var(--blue);">' + escapeHTML(v.referralCodeUsed) + '</b>' : ''}</div>
+                  </div>
+                  <span class="subs-status-pill active" style="white-space:nowrap;">${isLifetime ? '♾️ SEUMUR HIDUP' : 'S/D ' + until}</span>
+                </div>
+                <div class="admin-user-actions">
+                  <button class="admin-detail-btn danger" onclick="window.revokeSubscription('${d.id}', '${escapeHTML(v.nama || v.email || d.id).replace(/'/g, "\\'")}')">🚫 CABUT AKSES</button>
+                </div>
+              </div>
+            `);
+        });
+        listEl.innerHTML = rows.join('');
+    } catch (e) {
+        listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
+    }
+};
+
+window.revokeSubscription = async function(uid, name) {
+    if (!window.__isAdmin) return;
+    const result = await Swal.fire({
+        title: 'Cabut akses langganan?',
+        text: (name || 'User ini') + ' akan langsung kehilangan akses fitur berbayar dan wajib bayar ulang / pakai kode referral lagi untuk lanjut.',
+        icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Ya, Cabut Akses', cancelButtonText: 'Batal',
+        confirmButtonColor: 'var(--red2)', background: 'var(--card)', color: 'var(--text)'
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+        await updateDoc(doc(db, 'users', uid), {
+            subscriptionExpiry: null,
+            subscriptionStatus: 'revoked',
+            subscriptionPlan: null,
+            subscriptionPending: null,
+            subscriptionRevokedAt: serverTimestamp(),
+            subscriptionRevokedBy: currentUser ? currentUser.email : 'admin'
+        });
+        Swal.fire({ icon: 'success', title: 'Akses Dicabut', text: 'User wajib berlangganan ulang untuk lanjut pakai aplikasi.', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
+        window.loadActiveSubscribers();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Mencabut Akses', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
 
 window.defaultCATS = { 
   income: ['Gaji', 'Hasil Trading', 'Bonus / THR', 'Penjualan', 'Pendapatan Lainnya', 'Pemberian', 'Investasi', 'Ongkos Harian', 'Dividen', 'Profit', 'Transfer Masuk', 'Lainnya'], 
@@ -3576,6 +4651,8 @@ function forceResetToAuthScreen() {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('subscribe-screen').style.display = 'none';
+    if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
 
     setLoading(false);
     const authBtn = document.getElementById('auth-submit-btn'); if (authBtn) authBtn.textContent = 'MASUK';
@@ -3752,6 +4829,8 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('auth-screen').style.display = 'flex'; 
     document.getElementById('app-screen').style.display = 'none'; 
     document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('subscribe-screen').style.display = 'none';
+    if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
     
     setLoading(false); 
     document.getElementById('auth-submit-btn').textContent = 'MASUK'; 
@@ -3844,6 +4923,10 @@ function unlockApp() {
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         if (typeof window.initBalanceRequests === 'function') { window.initBalanceRequests(); }
         if (window.__isAdmin && typeof window.loadAdminCSList === 'function') { window.loadAdminCSList(); }
+        if (window.__isAdmin && typeof window.loadAdminSubscriptionRequests === 'function') { window.loadAdminSubscriptionRequests(); }
+        if (window.__isAdmin && typeof window.loadReferralCodes === 'function') { window.loadReferralCodes(); }
+        if (window.__isAdmin && typeof window.loadActiveSubscribers === 'function') { window.loadActiveSubscribers(); }
+        if (typeof window.checkSubscriptionStatus === 'function') { window.checkSubscriptionStatus(currentUser.uid); }
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
