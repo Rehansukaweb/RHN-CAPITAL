@@ -13,7 +13,7 @@
 // yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
 // ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v9';
+const CACHE_NAME = 'rhn-capital-shell-v10';
 
 // File lokal satu repo (root domain rhncapital.online) yang aman di-cache
 // dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
@@ -43,6 +43,9 @@ const CDN_FILES = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
+  // Mesin OCR (Tesseract.js) dipakai fitur verifikasi otomatis bukti bayar QRIS,
+  // supaya bisa dimuat lagi walau lagi offline.
+  'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js',
   // Modul Firebase (WAJIB di-cache: tanpa ini, seluruh skrip login/PIN/data
   // gagal total saat offline karena import modulenya gagal dimuat).
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
@@ -140,6 +143,31 @@ self.addEventListener('fetch', (event) => {
   // cache. File .woff2 URL-nya dinamis (tidak diketahui di awal), makanya
   // dicek pakai hostname, bukan daftar URL tetap seperti CDN_FILES di atas.
   if (req.url.includes('fonts.googleapis.com') || req.url.includes('fonts.gstatic.com')) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Fallback khusus: file pendukung Tesseract OCR (worker script, inti WASM,
+  // data bahasa .traineddata) diambil dari CDN dengan URL yang dinamis/tidak
+  // tetap (beda per versi), jadi tidak bisa didaftar satu-satu seperti CDN_FILES
+  // di atas. Dibatasi HANYA ke host CDN yang memang dipakai Tesseract — supaya
+  // trafik lain (mis. Firestore real-time, Google Auth) TIDAK ikut ke-cache,
+  // yang bisa bikin data jadi basi kalau ikut tersangkut aturan ini.
+  // NETWORK-FIRST — begitu berhasil diambil sekali secara online, otomatis
+  // tersimpan di cache supaya fitur scan OCR bukti bayar tetap bisa dipakai
+  // saat offline setelahnya.
+  const OCR_SUPPORT_HOSTS = ['tessdata.projectnaptha.com', 'cdn.jsdelivr.net', 'unpkg.com', 'cdnjs.cloudflare.com'];
+  let reqHost = '';
+  try { reqHost = new URL(req.url).hostname; } catch (e) {}
+  if (OCR_SUPPORT_HOSTS.includes(reqHost)) {
     event.respondWith(
       fetch(req)
         .then((res) => {
