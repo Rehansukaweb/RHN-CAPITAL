@@ -13,13 +13,15 @@
 // yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
 // ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v10';
+const CACHE_NAME = 'rhn-capital-shell-v11';
 
 // File lokal satu repo (root domain rhncapital.online) yang aman di-cache
 // dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
 // satu belum ada / gagal diambil, dilewati diam-diam — tidak menghentikan
 // proses install Service Worker.
 const SHELL_FILES = [
+  './',
+  './index.html',
   './RHN LOGO.jpg',
   './manifest.json',
   './latar.html',
@@ -59,16 +61,26 @@ self.addEventListener('install', (event) => {
       // File lokal: fetch biasa juga (bukan cache.add) supaya satu file yang
       // gagal (mis. ANALISACRYPTO.html belum pernah dibuka / 404) tidak bikin
       // seluruh proses precache batal — masing-masing gagal sendiri-sendiri.
-      const shell = SHELL_FILES.map((url) =>
-        fetch(url).then((res) => cache.put(url, res)).catch(() => {})
-      );
+      // FIX: sekarang tiap kegagalan di-log ke console (bukan diam-diam
+      // ditelan), supaya gampang ketahuan lewat DevTools kalau ada file
+      // penting (terutama 3 file Firebase SDK) yang gagal ke-cache saat
+      // instalasi — itu yang bikin app "mati total" pas offline.
+      const cacheOne = (url) =>
+        fetch(url)
+          .then((res) => {
+            if (!res || (!res.ok && res.type !== 'opaque')) {
+              throw new Error('status ' + (res && res.status));
+            }
+            return cache.put(url, res);
+          })
+          .catch((err) => console.warn('[SW] Gagal precache:', url, err));
+
+      const shell = SHELL_FILES.map(cacheOne);
       // PENTING: TANPA mode 'no-cors'. Server CDN ini support CORS, jadi pakai
       // fetch normal supaya responsnya valid (bukan "buram"/opaque) dan bisa
       // dipakai sebagai modul JavaScript. Response opaque bikin modul Firebase
       // gagal dipakai walau lagi online (khusus untuk <script type="module">).
-      const cdn = CDN_FILES.map((url) =>
-        fetch(url).then((res) => cache.put(url, res)).catch(() => {})
-      );
+      const cdn = CDN_FILES.map(cacheOne);
       return Promise.all([...shell, ...cdn]);
     })
   );
