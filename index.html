@@ -2149,18 +2149,18 @@ window.toggleRecTime = function() {
     if(rt) rt.style.display = val ? 'block' : 'none';
 };
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
   GoogleAuthProvider, signInWithPopup, updateProfile 
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { 
-  initializeFirestore, memoryLocalCache, collection, doc, 
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
   serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", 
@@ -2173,7 +2173,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app); 
-const db = initializeFirestore(app, { localCache: memoryLocalCache() });
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
 function parseDeviceUA() {
@@ -2988,17 +2988,7 @@ window.konfirmasiBayarLangganan = async function() {
         }
     } catch (e) {
         console.error('Gagal mengirim permintaan langganan:', e);
-        const isInternalAssert = e && e.message && e.message.indexOf('INTERNAL ASSERTION FAILED') !== -1;
-        if (isInternalAssert) {
-            Swal.fire({
-                icon: 'error', title: 'Gagal Mengirim',
-                text: 'Terjadi gangguan sementara pada koneksi database. Mohon muat ulang halaman ini lalu coba kirim bukti pembayaran sekali lagi.',
-                background: 'var(--card)', color: 'var(--text)',
-                confirmButtonText: 'Muat Ulang', confirmButtonColor: 'var(--gold)'
-            }).then(() => { window.location.reload(); });
-        } else {
-            Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: e.message, background: 'var(--card)', color: 'var(--text)' });
-        }
+        Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: e.message, background: 'var(--card)', color: 'var(--text)' });
     }
 
     btn.disabled = false; btn.textContent = '✅ SAYA SUDAH BAYAR';
