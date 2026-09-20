@@ -2149,50 +2149,18 @@ window.toggleRecTime = function() {
     if(rt) rt.style.display = val ? 'block' : 'none';
 };
 
-// ==========================================================================
-// FIX OFFLINE: import Firebase SDK di-bikin "dinamis" + dibungkus try/catch.
-// SEBELUMNYA pakai `import ... from "https://..."` (static import) di paling
-// atas modul ini. Aturan browser: kalau SATU SAJA static import gagal (mis.
-// lagi offline dan file itu belum sempat ke-cache Service Worker), maka
-// SELURUH <script type="module"> ini (~6800 baris di bawah, termasuk
-// window.verifyPin, window.doAuth, dan semua logic PIN/offline-login yang
-// sudah dibuat) TIDAK PERNAH DIEKSEKUSI SAMA SEKALI. Itu sebabnya PIN
-// kelihatan ga "kebaca" saat offline: bukan PIN-nya salah, tapi kode
-// pembacanya belum sempat nyala.
-// Dengan dynamic import() + try/catch di bawah ini, kalau Firebase gagal
-// dimuat, sisa kode tetap jalan dan mode PIN/login offline tetap bisa dipakai.
-// ==========================================================================
-let initializeApp, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    signOut, onAuthStateChanged, sendPasswordResetEmail,
-    GoogleAuthProvider, signInWithPopup, updateProfile;
-let initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc,
-    addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-    serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch,
-    increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+  signOut, onAuthStateChanged, sendPasswordResetEmail, 
+  GoogleAuthProvider, signInWithPopup, updateProfile 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-window.__firebaseReady = false;
-try {
-    const _appMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const _authMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    const _fsMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-
-    ({ initializeApp } = _appMod);
-    ({
-        getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-        signOut, onAuthStateChanged, sendPasswordResetEmail,
-        GoogleAuthProvider, signInWithPopup, updateProfile
-    } = _authMod);
-    ({
-        initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc,
-        addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-        serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch,
-        increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
-    } = _fsMod);
-
-    window.__firebaseReady = true;
-} catch (e) {
-    console.warn('[RHN] Firebase SDK gagal dimuat (kemungkinan lagi offline). Lanjut pakai mode PIN/login offline saja.', e);
-}
+import { 
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
+  addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
+  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = { 
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", 
@@ -2203,17 +2171,9 @@ const firebaseConfig = {
   appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" 
 };
 
-let app, auth, db;
-if (window.__firebaseReady) {
-    try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
-    } catch (e) {
-        console.warn('[RHN] Inisialisasi Firebase gagal.', e);
-        window.__firebaseReady = false;
-    }
-}
+const app = initializeApp(firebaseConfig); 
+const auth = getAuth(app); 
+const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
 function parseDeviceUA() {
@@ -4734,7 +4694,6 @@ window.doLogout = function() {
     });
 };
 
-if (window.__firebaseReady) {
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
@@ -4880,7 +4839,6 @@ onAuthStateChanged(auth, async user => {
     txs = []; deletedTxs = [];
   }
 });
-} // tutup: if (window.__firebaseReady)
 
 window.verifyPin = async function() { 
     const pinInput = document.getElementById('app-pin').value; 
@@ -7443,7 +7401,7 @@ function toDatetimeLocalValue(raw) {
 
 window.editTx = function(id) { 
     const t = txs.find(x => x.id === id); if (!t) return; 
-    editId = id; selType(t.type); document.getElementById('f-amount').value = t.amount; 
+    editId = id; selType(t.type); document.getElementById('f-amount').value = Math.round(Math.abs(t.amount || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
     setTimeout(() => { if (document.getElementById('f-cat')) { document.getElementById('f-cat').value = t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } }, 10); 
     if (document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } 
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
