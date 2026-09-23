@@ -7,7 +7,6 @@
 
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
-<link rel="manifest" href="manifest.json">
 
 <style>
 /* ==========================================================================
@@ -1003,20 +1002,6 @@ body.global-privacy #xau-idr-gr {
 </script>
 </head>
 <body>
-
-<script>
-// ==== MODE OFFLINE: daftarkan Service Worker biar halaman ini + aset pentingnya ====
-// ==== kesimpan di cache HP, sehingga aplikasi tetap bisa dibuka normal walau ====
-// ==== tanpa internet (dipakai lewat WebView Appsgeyser). ====
-// Halaman ini otomatis kesimpan ke cache oleh sw.js sendiri (lewat event
-// 'fetch' mode navigate) begitu berhasil dimuat pertama kali saat online.
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js')
-      .catch(function(err) { console.warn('Gagal daftar Service Worker (mode offline tidak aktif):', err); });
-  });
-}
-</script>
 
 <div id="splash-screen">
   <div class="splash-content">
@@ -2537,7 +2522,6 @@ window.konfirmasiPembayaranQris = async function() {
     }
 };
 
-
 // ==========================================================================
 // SISTEM LANGGANAN MEMBER (PAYWALL) — Mingguan/Bulanan/Tahunan
 // ==========================================================================
@@ -2606,10 +2590,6 @@ window.batalPilihPaket = function() {
 };
 
 // ==== AI VERIFIKASI OTOMATIS BUKTI BAYAR (OCR lokal - Tesseract.js, TANPA API KEY, GRATIS) ====
-// DIOPTIMALKAN UNTUK KECEPATAN (<15 detik): worker Tesseract dibuat SEKALI lalu dipakai ulang
-// (tidak re-init mesin OCR + reload data bahasa setiap kali user upload bukti bayar), preprocessing
-// hanya menghasilkan 1 varian gambar (binarisasi Otsu, paling tajam utk teks UI), dan resolusi upscale
-// dibatasi secukupnya saja (bukan dipaksa minimal 1600px) supaya proses inferensi jauh lebih ringan.
 function loadTesseractScript() {
     if (window.Tesseract) return Promise.resolve();
     if (window.__tesseractLoadingPromise) return window.__tesseractLoadingPromise;
@@ -2623,35 +2603,16 @@ function loadTesseractScript() {
     return window.__tesseractLoadingPromise;
 }
 
-// Worker Tesseract persisten: dibuat & di-load bahasanya SEKALI saja untuk seluruh sesi aplikasi,
-// lalu dipakai berulang-ulang setiap ada upload bukti bayar. Inilah penghemat waktu terbesar —
-// tanpa ini, setiap verifikasi harus download+load ulang model OCR dari nol (paling lama).
-function getOcrWorker() {
-    if (window.__ocrWorker) return Promise.resolve(window.__ocrWorker);
-    if (window.__ocrWorkerPromise) return window.__ocrWorkerPromise;
-    window.__ocrWorkerPromise = (async () => {
-        const worker = await window.Tesseract.createWorker('ind+eng', 1);
-        // PSM 6 = anggap gambar sebagai satu blok teks seragam. Jauh lebih cepat daripada mode
-        // default (analisis tata-letak halaman penuh) dan cocok untuk screenshot struk/notifikasi.
-        await worker.setParameters({ tessedit_pageseg_mode: '6' });
-        window.__ocrWorker = worker;
-        return worker;
-    })();
-    return window.__ocrWorkerPromise;
-}
-
-// Preprocessing gambar di canvas: upscale secukupnya + grayscale + contrast stretch + binarisasi Otsu.
-// Cukup 1 varian (hitam-putih tegas) — sudah paling tajam untuk teks UI aplikasi pembayaran,
-// jadi tidak perlu OCR jalan berkali-kali di beberapa varian gambar yang sama.
-function preprocessImageForOcr(dataUrl) {
+// Preprocessing gambar di canvas: upscale + grayscale + contrast stretch + binarisasi Otsu.
+// Menghasilkan 2 varian gambar (grayscale halus & hitam-putih tegas) supaya OCR punya
+// peluang lebih besar membaca teks kecil/buram/kontras-rendah pada screenshot pembayaran.
+function preprocessImageVariants(dataUrl) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
             try {
-                // Target lebar dibatasi 900–1400px: cukup tajam utk dibaca OCR, tapi tidak
-                // membebani (gambar terlalu besar = OCR jauh lebih lambat tanpa nambah akurasi).
-                const targetWidth = Math.min(1400, Math.max(img.width, 900));
-                const scale = Math.min(2, targetWidth / img.width);
+                const targetWidth = Math.max(img.width, 1600);
+                const scale = Math.min(3, targetWidth / img.width);
                 const w = Math.max(1, Math.round(img.width * scale));
                 const h = Math.max(1, Math.round(img.height * scale));
 
@@ -2674,6 +2635,16 @@ function preprocessImageForOcr(dataUrl) {
                 const range = Math.max(1, max - min);
                 const stretched = new Uint8ClampedArray(n);
                 for (let i = 0; i < n; i++) stretched[i] = Math.round((grayVals[i] - min) * 255 / range);
+
+                const grayCanvas = document.createElement('canvas');
+                grayCanvas.width = w; grayCanvas.height = h;
+                const gctx = grayCanvas.getContext('2d');
+                const grayImgData = gctx.createImageData(w, h);
+                for (let p = 0, i = 0; p < n; p++, i += 4) {
+                    grayImgData.data[i] = grayImgData.data[i + 1] = grayImgData.data[i + 2] = stretched[p];
+                    grayImgData.data[i + 3] = 255;
+                }
+                gctx.putImageData(grayImgData, 0, 0);
 
                 // Threshold Otsu untuk binarisasi hitam-putih tegas
                 const hist = new Array(256).fill(0);
@@ -2699,7 +2670,7 @@ function preprocessImageForOcr(dataUrl) {
                 }
                 bnctx.putImageData(binImgData, 0, 0);
 
-                resolve(binCanvas.toDataURL('image/png'));
+                resolve({ gray: grayCanvas.toDataURL('image/png'), binary: binCanvas.toDataURL('image/png') });
             } catch (e) { reject(e); }
         };
         img.onerror = () => reject(new Error('gagal memuat gambar untuk preprocessing'));
@@ -2768,55 +2739,45 @@ async function verifyPaymentScreenshotWithAI(base64, mime, expectedAmount) {
     const dataUrl = 'data:' + mime + ';base64,' + base64;
 
     await loadTesseractScript();
-    // Worker dibuat sekali di awal (atau dipakai ulang kalau sudah ada dari verifikasi sebelumnya) —
-    // ini yang bikin proses jadi instan, karena mesin OCR + data bahasa tidak perlu dimuat ulang.
-    const worker = await getOcrWorker();
 
-    // Preprocessing gambar (upscale secukupnya + grayscale + binarisasi Otsu) agar OCR lebih tajam.
+    // Preprocessing gambar dulu (upscale + grayscale + binarisasi Otsu) agar OCR lebih tajam.
     // Kalau preprocessing gagal (mis. gambar rusak), tetap lanjut pakai gambar asli sebagai cadangan.
-    let ocrImage;
+    let variants;
     try {
-        ocrImage = await preprocessImageForOcr(dataUrl);
+        variants = await preprocessImageVariants(dataUrl);
     } catch (prepErr) {
         console.warn('Preprocessing gambar gagal, lanjut pakai gambar asli:', prepErr);
-        ocrImage = dataUrl;
+        variants = { gray: dataUrl, binary: dataUrl };
     }
 
-    // Cukup 1 pass OCR (gambar hasil preprocessing) — ini sudah cukup tajam untuk screenshot UI
-    // aplikasi pembayaran, jadi tidak perlu OCR berulang di beberapa varian gambar yang sama.
+    // Jalankan OCR pada 3 varian gambar (hitam-putih tegas, grayscale halus, dan asli)
+    // lalu gabungkan semua teks yang berhasil terbaca supaya recall maksimal (anti kelewat baca).
+    const sumberGambar = [variants.binary, variants.gray, dataUrl];
     let combinedText = '';
-    let avgConfidence = 0;
-    try {
-        const result = await worker.recognize(ocrImage);
-        if (result && result.data) {
-            combinedText = (result.data.text || '').trim();
-            if (typeof result.data.confidence === 'number') avgConfidence = result.data.confidence;
-        }
-    } catch (passErr) {
-        console.warn('Pass OCR utama gagal:', passErr);
-    }
-
-    // Fallback: HANYA dijalankan kalau pass pertama benar-benar kosong/gagal, memakai gambar asli
-    // (tanpa preprocessing) sebagai percobaan kedua — bukan dijalankan selalu, supaya kasus normal
-    // (mayoritas upload) tetap cuma 1x OCR dan selesai dalam hitungan detik.
-    if (!combinedText) {
+    const confidences = [];
+    let ocrGagalTotal = true;
+    for (const src of sumberGambar) {
         try {
-            const result2 = await worker.recognize(dataUrl);
-            if (result2 && result2.data && result2.data.text) {
-                combinedText = result2.data.text.trim();
-                if (typeof result2.data.confidence === 'number') avgConfidence = result2.data.confidence;
+            const result = await window.Tesseract.recognize(src, 'ind+eng');
+            if (result && result.data) {
+                if (result.data.text && result.data.text.trim()) {
+                    combinedText += '\n' + result.data.text;
+                    ocrGagalTotal = false;
+                }
+                if (typeof result.data.confidence === 'number') confidences.push(result.data.confidence);
             }
-        } catch (fallbackErr) {
-            console.warn('Pass OCR cadangan juga gagal:', fallbackErr);
+        } catch (passErr) {
+            console.warn('Satu pass OCR gagal (lanjut ke varian berikutnya):', passErr);
         }
     }
 
-    if (!combinedText) {
+    if (ocrGagalTotal || !combinedText.trim()) {
         const err = new Error('layanan verifikasi sedang tidak tersedia');
-        err.technicalDetail = 'OCR tidak berhasil membaca teks apa pun dari gambar.';
+        err.technicalDetail = 'OCR tidak berhasil membaca teks apa pun dari gambar pada semua varian preprocessing.';
         throw err;
     }
 
+    const avgConfidence = confidences.length ? confidences.reduce((a, b) => a + b, 0) / confidences.length : 0;
     if (avgConfidence > 0 && avgConfidence < 35) {
         const err = new Error('kualitas gambar terlalu buram untuk dibaca otomatis');
         err.technicalDetail = 'Rata-rata keyakinan OCR hanya ' + avgConfidence.toFixed(1) + '/100. Minta user upload ulang screenshot yang lebih jelas/tidak buram/tidak terpotong.';
@@ -5622,8 +5583,8 @@ function computeWalletsFromArr(arr) {
         if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; }
         else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; }
         else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= t.amount; else if (w === 'Piutang') piutangBal += t.amount; else if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (wTo === 'Hutang') hutangBal += t.amount; else if (wTo === 'Piutang') piutangBal -= t.amount; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += t.amount; }
-        else if (t.type === 'debt') { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; if (!t.isPaid) { hutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } }
-        else if (t.type === 'recv') { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; if (!t.isPaid) { piutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } }
+        else if (t.type === 'debt') { if (t.isKoreksi) { if (t.koreksiArah === 'plus') hutangBal += t.amount; else if (!t.isLunasKoreksi) hutangBal -= t.amount; } else if (!t.isPaid) { hutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= t.amount; } }
+        else if (t.type === 'recv') { if (t.isKoreksi) { if (t.koreksiArah === 'plus') piutangBal += t.amount; else if (!t.isLunasKoreksi) piutangBal -= t.amount; } else if (!t.isPaid) { piutangBal -= t.amount; } else { if (wallets.hasOwnProperty(w)) wallets[w] += t.amount; } }
     });
     for (let key in wallets) { if (wallets[key] > 0) totalAset += wallets[key]; }
     return { wallets, hutangBal, piutangBal, totalAset };
@@ -7000,13 +6961,36 @@ window.delTx = function(id) {
     }); 
 };
 
+// Helper tombol LUNAS: updateDoc baru resolve setelah server konfirmasi, jadi kalau offline/sinyal lemot
+// dialog "Memproses..." bisa macet selamanya. Beri batas tunggu; data tetap tersimpan lokal & naik otomatis.
+async function markTxPaid(id, successTitle, paidVal, field) {
+    const writePromise = updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { [field || 'isPaid']: paidVal === false ? false : true });
+    let __failShown = false;
+    writePromise.catch((err) => { if (navigator.onLine && !__failShown) { __failShown = true; Swal.fire({ position: 'center', icon: 'error', title: 'Gagal Menyimpan', text: (err && err.message) || 'Coba lagi.', background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); } });
+    let wroteOffline = !navigator.onLine;
+    if (!wroteOffline) {
+        const timedOut = await Promise.race([
+            writePromise.then(() => false),
+            new Promise(res => setTimeout(() => res(true), 3000))
+        ]);
+        if (timedOut) wroteOffline = true;
+    }
+    if (wroteOffline && !navigator.onLine) {
+        markPendingOfflineWrite();
+        Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+    } else {
+        if (wroteOffline) markPendingOfflineWrite();
+        Swal.fire({icon:'success', title: successTitle, background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+    }
+}
+
 window.payDebt = async function(id) {
     if (!currentUser) return;
     const t = txs.find(x => x.id === id);
     if (!t) return;
     Swal.fire({
         title: 'Tandai Lunas?',
-        html: `Hutang <b>"${escapeHTML(t.note)}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">Saldo dompet ${t.wallet} otomatis berkurang karena hutang dibayar.</span>`,
+        html: `Hutang <b>"${escapeHTML(String(t.note || '-'))}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">${t.isKoreksi ? (t.koreksiArah === 'plus' ? 'Koreksi ini sudah mengurangi total hutang, jadi total tidak berubah.' : 'Total hutang otomatis berkurang sebesar catatan ini.') : 'Saldo dompet ' + t.wallet + ' otomatis berkurang karena hutang dibayar.'}</span>`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'YA, LUNAS',
@@ -7017,9 +7001,7 @@ window.payDebt = async function(id) {
         if (res.isConfirmed) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
-                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-                if (!navigator.onLine) markPendingOfflineWrite();
-                Swal.fire({icon:'success', title:'Hutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+                await markTxPaid(id, 'Hutang Lunas! ✅', true, t.isKoreksi ? 'isLunasKoreksi' : 'isPaid');
             } catch(e) { reportSaveOutcome(e, 'Hutang Lunas! ✅', 'Gagal'); }
         }
     });
@@ -7031,7 +7013,7 @@ window.payRecv = async function(id) {
     if (!t) return;
     Swal.fire({
         title: 'Tandai Sudah Dibayar?',
-        html: `Piutang <b>"${escapeHTML(t.note)}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">Saldo dompet ${t.wallet} otomatis bertambah karena piutang dibayar.</span>`,
+        html: `Piutang <b>"${escapeHTML(String(t.note || '-'))}"</b> sebesar <b>${fmtFull(t.amount)}</b> akan ditandai LUNAS.<br><span style="font-size:11px; color:var(--text3);">${t.isKoreksi ? (t.koreksiArah === 'plus' ? 'Koreksi ini sudah mengurangi total piutang, jadi total tidak berubah.' : 'Total piutang otomatis berkurang sebesar catatan ini.') : 'Saldo dompet ' + t.wallet + ' otomatis bertambah karena piutang dibayar.'}</span>`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'YA, SUDAH BAYAR',
@@ -7042,9 +7024,7 @@ window.payRecv = async function(id) {
         if (res.isConfirmed) {
             Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
-                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isPaid: true });
-                if (!navigator.onLine) markPendingOfflineWrite();
-                Swal.fire({icon:'success', title:'Piutang Lunas! ✅', background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
+                await markTxPaid(id, 'Piutang Lunas! ✅', true, t.isKoreksi ? 'isLunasKoreksi' : 'isPaid');
             } catch(e) { reportSaveOutcome(e, 'Piutang Lunas! ✅', 'Gagal'); }
         }
     });
@@ -7087,7 +7067,7 @@ window.addTx = async function() {
 
   try { 
       let payload = { type: curType, amount: amt, category: cat, wallet: wallet, note: note, date: dt || nowISO(), ownerEmail: currentUser.email, isDeleted: false }; 
-      if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') payload.isPaid = false;
+      if (curType === 'transfer') payload.walletTo = walletTo; if (curType === 'debt' || curType === 'recv') { const __old = editId ? txs.find(x => x.id === editId) : null; payload.isPaid = (__old && __old.type === curType && __old.isPaid === true) ? true : false; }
       
       let writePromise;
       if (editId) { 
@@ -7347,12 +7327,38 @@ window.addSavingsGoal = async function() {
 };
 
 window.addGoalProgress = async function(idx) {
-    const { value: amt } = await Swal.fire({
-        title: 'Isi Tabungan', input: 'number', inputPlaceholder: 'Nominal yang ditabung...',
-        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'TAMBAH', showCancelButton: true, cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal'
+    if(!currentUser) return;
+    const { wallets } = computeWalletsFromArr(txs);
+    let walletNames = Object.keys(wallets);
+    if (!walletNames.length) walletNames = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+    const walletOpts = walletNames.map(w => `<option value="${w}">${w} (${fmtFull(wallets[w] || 0)})</option>`).join('');
+
+    const { value: formVals } = await Swal.fire({
+        title: 'Isi Tabungan',
+        html: `
+          <div style="text-align:left;">
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Ambil Dari Dompet</label>
+            <select id="swal-g-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
+            <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal</label>
+            <input id="swal-g-amt" class="swal2-input" type="number" placeholder="Nominal yang ditabung..." style="margin:4px 0; width:100%;">
+          </div>
+        `,
+        focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'TAMBAH', showCancelButton: true, cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal',
+        preConfirm: () => { return { wallet: document.getElementById('swal-g-wallet').value, amt: parseFloat(document.getElementById('swal-g-amt').value) } }
     });
-    if(amt && !isNaN(amt)) {
-        window.savingsGoals[idx].current += parseFloat(amt);
+
+    if(formVals && formVals.amt && !isNaN(formVals.amt) && formVals.amt > 0) {
+        const amt = formVals.amt; const wallet = formVals.wallet;
+        try {
+            await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
+                type: 'expense', amount: amt, category: 'Tabungan', wallet: wallet,
+                note: 'Isi Tabungan: ' + window.savingsGoals[idx].name, date: nowISO(),
+                ownerEmail: currentUser.email, isDeleted: false, createdAt: serverTimestamp()
+            });
+            if (!navigator.onLine) markPendingOfflineWrite();
+        } catch(e) { reportSaveOutcome(e, 'Tabungan Tersimpan', 'Gagal'); return; }
+
+        window.savingsGoals[idx].current += amt;
         await savePreferencesData();
         renderSavings();
         if(window.savingsGoals[idx].current >= window.savingsGoals[idx].target) {
@@ -7401,7 +7407,7 @@ function toDatetimeLocalValue(raw) {
 
 window.editTx = function(id) { 
     const t = txs.find(x => x.id === id); if (!t) return; 
-    editId = id; selType(t.type); document.getElementById('f-amount').value = Math.round(Math.abs(t.amount || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+    editId = id; selType(t.type); document.getElementById('f-amount').value = t.amount; 
     setTimeout(() => { if (document.getElementById('f-cat')) { document.getElementById('f-cat').value = t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } }, 10); 
     if (document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } 
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
@@ -7488,7 +7494,7 @@ window.switchPage = function(p) {
   window.__spRaf1 = requestAnimationFrame(() => { window.__spRaf2 = requestAnimationFrame(refreshAll); });
 };
 
-function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { let a = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0; if (t.type === 'income') { inc += a; } else if (t.type === 'expense') { exp += a; } else if (t.type === 'debt') { if (!t.isPaid) inc += a; else { inc += a; exp += a; } } else if (t.type === 'recv') { if (!t.isPaid) exp += a; else { exp += a; inc += a; } } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
+function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { let a = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0; if (t.type === 'income') { inc += a; } else if (t.type === 'expense') { exp += a; } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
 
 function renderSumGrid(el, arr, isDash = false) { 
     const s = calcSum(arr); const ts = calcSum(txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString())); const pct = s.inc > 0 ? Math.min(100, Math.round((s.exp / s.inc) * 100)) : 0; 
@@ -7515,8 +7521,8 @@ const createTxCard = (t) => {
     let debtWarn = ''; 
     if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_debtbadge === 'on') { if ((t.type === 'debt' || t.type === 'recv') && !t.isPaid) { debtWarn = ` <span style="font-size:8px; font-weight:800; color:var(--red2);">· BELUM LUNAS</span>`; } } 
     
-    let actionBtn = ''; 
-    if (t.type === 'debt' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`; } else if (t.type === 'debt' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } else if (t.type === 'recv' && !t.isPaid) { actionBtn = `<button class="edit-btn-recent" style="color:var(--blue); border: 1px solid var(--blue); background: rgba(59, 130, 246, 0.1);" onclick="payRecv('${t.id}')">SUDAH BAYAR</button>`; } else if (t.type === 'recv' && t.isPaid) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } 
+    let actionBtn = ''; const paidEff = t.isKoreksi ? !!t.isLunasKoreksi : !!t.isPaid; 
+    if (t.type === 'debt' && !paidEff) { actionBtn = `<button class="edit-btn-recent" style="color:var(--gold); border: 1px solid var(--gold); background: rgba(251, 191, 36, 0.1);" onclick="payDebt('${t.id}')">LUNAS</button>`; } else if (t.type === 'debt' && paidEff) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } else if (t.type === 'recv' && !paidEff) { actionBtn = `<button class="edit-btn-recent" style="color:var(--blue); border: 1px solid var(--blue); background: rgba(59, 130, 246, 0.1);" onclick="payRecv('${t.id}')">SUDAH BAYAR</button>`; } else if (t.type === 'recv' && paidEff) { actionBtn = `<span style="color:var(--green2); font-size:10px; font-weight:800; padding: 4px 0;">LUNAS ✅</span>`; } 
     
     let cbHtml = batchMode ? `<input type="checkbox" class="batch-cb" value="${t.id}" style="margin-right:12px; width:20px; height:20px; flex-shrink:0;">` : '';
     let splitBtn = (t.type === 'income' || t.type === 'expense') ? `<button class="edit-btn-recent" onclick="splitTx('${t.id}')" style="color:var(--gold); border:1px solid var(--gold); background:rgba(251, 191, 36, 0.1);">PISAH</button>` : '';
@@ -7612,6 +7618,56 @@ window.promptKoreksi = async function(walletName, recordedBal) {
     }
 };
 
+window.promptKoreksiHutangPiutang = async function(kind, recordedBal) {
+    if (!currentUser) return;
+    const isDebt = kind === 'debt';
+    const label = isDebt ? 'Hutang' : 'Piutang';
+    const recordedMag = Math.abs(recordedBal || 0);
+    const { value: formValues } = await Swal.fire({
+        title: `Koreksi Saldo ${label}`,
+        html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Total ${label} Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal || 0)}</b></div>
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan total ${label} yang sebenarnya saat ini:</div>
+               <input id="swal-koreksi-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
+               <input id="swal-koreksi-hp-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Ada catatan yang kelewat...">`,
+        showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: isDebt ? 'var(--gold)' : 'var(--blue)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const note = document.getElementById('swal-koreksi-hp-note').value;
+            const amtVal = document.getElementById('swal-koreksi-hp-amt').value;
+            if (!amtVal) { Swal.showValidationMessage(`Total ${label} sebenarnya harus diisi!`); return false; }
+            const amt = parseFloat(amtVal);
+            if (isNaN(amt) || amt < 0) { Swal.showValidationMessage('Nilai tidak valid!'); return false; }
+            if (!note) { Swal.showValidationMessage('Keterangan harus diisi biar riwayatnya jelas!'); return false; }
+            return { amt: amt, note: note };
+        }
+    });
+
+    if (formValues) {
+        const actualMag = formValues.amt;
+        const userNote = formValues.note;
+        const diff = actualMag - recordedMag;
+        if (diff === 0) return Swal.fire({icon:'info', title:'Saldo Sudah Sesuai!', background:'var(--card)', color:'var(--text)'});
+
+        const koreksiArah = diff > 0 ? 'minus' : 'plus';
+        const amt = Math.abs(diff);
+
+        Swal.fire({
+            title: 'Menyesuaikan...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}
+        });
+
+        try {
+            await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
+               type: kind, amount: amt, category: 'Lainnya', wallet: isDebt ? 'Hutang' : 'Piutang', note: userNote, date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false, isPaid: true, isKoreksi: true, koreksiArah: koreksiArah
+            });
+            if (!navigator.onLine) markPendingOfflineWrite();
+            Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Total ${label} disesuaikan.`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+        } catch(e) {
+            reportSaveOutcome(e, 'Saldo Terkoreksi!', 'Gagal');
+        }
+    }
+};
+
 function renderWalletBalances() { 
     const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 }; 
     let hutangBal = 0; let piutangBal = 0; let totalAset = 0; 
@@ -7619,7 +7675,7 @@ function renderWalletBalances() {
         let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; let tAmt = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0;
         if (w !== 'Hutang' && w !== 'Piutang' && !wallets.hasOwnProperty(w)) wallets[w] = 0; 
         if (wTo && wTo !== 'Hutang' && wTo !== 'Piutang' && !wallets.hasOwnProperty(wTo)) wallets[wTo] = 0; 
-        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= tAmt; else if (w === 'Piutang') piutangBal += tAmt; else if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; if (wTo === 'Hutang') hutangBal += tAmt; else if (wTo === 'Piutang') piutangBal -= tAmt; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += tAmt; } else if (t.type === 'debt') { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; if (!t.isPaid) { hutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } } else if (t.type === 'recv') { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; if (!t.isPaid) { piutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } } 
+        if (t.type === 'income') { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } else if (t.type === 'expense') { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } else if (t.type === 'transfer') { if (w === 'Hutang') hutangBal -= tAmt; else if (w === 'Piutang') piutangBal += tAmt; else if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; if (wTo === 'Hutang') hutangBal += tAmt; else if (wTo === 'Piutang') piutangBal -= tAmt; else if (wTo && wallets.hasOwnProperty(wTo)) wallets[wTo] += tAmt; } else if (t.type === 'debt') { if (t.isKoreksi) { if (t.koreksiArah === 'plus') hutangBal += tAmt; else if (!t.isLunasKoreksi) hutangBal -= tAmt; } else if (!t.isPaid) { hutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] -= tAmt; } } else if (t.type === 'recv') { if (t.isKoreksi) { if (t.koreksiArah === 'plus') piutangBal += tAmt; else if (!t.isLunasKoreksi) piutangBal -= tAmt; } else if (!t.isPaid) { piutangBal -= tAmt; } else { if (wallets.hasOwnProperty(w)) wallets[w] += tAmt; } } 
     }); 
     for (let key in wallets) { if (wallets[key] > 0) totalAset += wallets[key]; } 
     const container = document.getElementById('wallet-balances'); if (!container) return; 
@@ -7634,12 +7690,14 @@ function renderWalletBalances() {
     }).join(''); 
     html += `
     <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: inherit;"> 
-        <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05);">
+        <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05); position:relative; cursor:pointer;" onclick="promptKoreksiHutangPiutang('debt', ${hutangBal})" title="Klik untuk Koreksi Saldo Hutang">
+            <span style="position:absolute; top:8px; right:8px; font-size:12px; opacity:0.4;">✏️</span>
             <div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div>
             <div class="w-val min">${fmtFull(hutangBal)}</div>
             <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div>
         </div> 
-        <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05);">
+        <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05); position:relative; cursor:pointer;" onclick="promptKoreksiHutangPiutang('recv', ${piutangBal})" title="Klik untuk Koreksi Saldo Piutang">
+            <span style="position:absolute; top:8px; right:8px; font-size:12px; opacity:0.4;">✏️</span>
             <div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div>
             <div class="w-val min">${fmtFull(piutangBal)}</div>
             <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div>
