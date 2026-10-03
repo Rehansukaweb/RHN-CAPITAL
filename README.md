@@ -608,6 +608,25 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 #week-day-sel, #month-day-sel, #year-day-sel, #riwayat-day-sel { justify-content: center !important; gap: 8px; padding-left: 16px; padding-right: 16px; }
 .p-btn.dy-btn { padding: 6px 0; width: 60px; min-width: 60px; flex: 0 0 60px; border-radius: 14px; text-align: center; }
 .p-btn.dy-btn.sun:not(.active) .wk-no { color: var(--red2); }
+.cal-month { background: var(--bg2); border: 1px solid var(--border); border-radius: 22px; padding: 14px; }
+.cal-title { font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--gold); text-align: center; margin-bottom: 10px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal-dow { font-size: 9px; font-weight: 800; letter-spacing: 0.5px; text-align: center; color: var(--text3); padding: 4px 0 6px; text-transform: uppercase; }
+.cal-dow.sun { color: var(--red2); }
+.cal-day { aspect-ratio: 1 / 1; min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 12px; border: 1px solid transparent; background: var(--bg3); color: var(--text3); font-family: inherit; cursor: pointer; padding: 0; }
+.cal-day .cal-n { font-size: 12px; font-weight: 700; line-height: 1; }
+.cal-day .cal-dots { display: flex; gap: 3px; height: 5px; }
+.cal-day .cal-dots i { width: 5px; height: 5px; border-radius: 50%; display: block; }
+.cal-day .cal-dots i.in { background: var(--green2); }
+.cal-day .cal-dots i.ex { background: var(--red2); }
+.cal-day.has { color: var(--text); border-color: var(--border2); }
+.cal-day.sun .cal-n { color: var(--red2); }
+.cal-day.today { border-color: var(--gold); }
+.cal-day.sel { background: var(--text); color: var(--bg); border-color: var(--text); }
+.cal-day.sel .cal-n { color: var(--bg); }
+.cal-day:hover { border-color: var(--text3); }
+.cal-info { text-align: center; font-size: 12px; color: var(--text2); display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.cal-clear { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); border-radius: 999px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
 /* ==========================================================================
    ADMIN: DETAIL CATATAN PER AKUN & GRAFIK BULANAN (Tambahan Baru)
@@ -1395,6 +1414,7 @@ body.global-privacy #xau-idr-gr {
 
 <div id="page-mingguan" class="page">
   <div class="period-bar" id="week-sel"></div>
+  <div id="week-cal" style="display:none; margin-bottom:16px;"></div>
   <div class="period-bar" id="week-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="week-sum"></div>
   <div class="card">
@@ -1418,6 +1438,7 @@ body.global-privacy #xau-idr-gr {
 
 <div id="page-bulanan" class="page">
   <div class="period-bar" id="month-sel"></div>
+  <div id="month-cal" style="display:none; margin-bottom:16px;"></div>
   <div class="period-bar" id="month-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="month-sum"></div>
   <div class="card" style="padding-bottom:16px;">
@@ -1446,6 +1467,7 @@ body.global-privacy #xau-idr-gr {
   <div class="period-bar" id="year-sel"></div>
   <div class="period-bar" id="year-month-sel" style="display:none; margin-bottom:12px;"></div>
   <div class="period-bar" id="year-week-sel" style="display:none; margin-bottom:12px;"></div>
+  <div id="year-cal" style="display:none; margin-bottom:16px;"></div>
   <div class="period-bar" id="year-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="year-sum"></div>
   <div class="card">
@@ -1490,6 +1512,7 @@ body.global-privacy #xau-idr-gr {
     <div class="period-bar" id="riwayat-year-sel"></div>
     <div class="period-bar" id="riwayat-month-sel" style="display:none; margin-bottom:12px;"></div>
     <div class="period-bar" id="riwayat-week-sel" style="display:none; margin-bottom:12px;"></div>
+    <div id="riwayat-cal" style="display:none; margin-bottom:16px;"></div>
     <div class="period-bar" id="riwayat-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
     <div class="chart-wrap" style="margin-top: 16px;">
       <div class="chart-legend" id="riwayat-legend" style="flex-wrap: wrap;"></div>
@@ -7974,7 +7997,7 @@ window.renderWeekly = function() {
   sel.innerHTML = window.__weekChipsHTML(weeks, sel.dataset.active, w => `document.getElementById('week-sel').dataset.active='${w}'; window.__rafRun('weekly', renderWeekly);`);
   const targetWk = sel.dataset.active;
   const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
-  const listArr = window.__dayBarRender('week', window.__segDays(targetWk), targetWk, arr, window.renderWeekly);
+  const listArr = window.__calDayRender('week', window.__segDays(targetWk), targetWk, arr, window.renderWeekly, window.__weekCalTitle(targetWk));
   applyChartFilterSum(document.getElementById('week-sum'), listArr, 'week');
   applyChartFilterList(document.getElementById('week-body'), listArr, 'week', window.renderWeekly);
   
@@ -8018,7 +8041,7 @@ window.renderMonthly = function() {
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
-    const listArr = window.__dayBarRender('month', window.__monthDays(active), active, arr, window.renderMonthly);
+    const listArr = window.__calDayRender('month', window.__monthDays(active), active, arr, window.renderMonthly, window.__monthCalTitle(active));
     applyChartFilterSum(document.getElementById('month-sum'), listArr, 'month');
     applyChartFilterList(document.getElementById('month-body'), listArr, 'month', window.renderMonthly);
     
@@ -8089,11 +8112,67 @@ window.__dayBarRender = function(scope, days, parentKey, arr, rerender) {
   return st.d ? arr.filter(t => t.date.slice(0,10) === st.d) : arr;
 };
 
+window.__calInfo = function(arr) {
+  const info = {};
+  arr.forEach(t => { const k = t.date.slice(0,10); const o = info[k] = info[k] || { i: 0, e: 0 }; if (t.type === 'income') o.i++; else if (t.type === 'expense') o.e++; });
+  return info;
+};
+window.__calGrid = function(scope, title, days, info, selD) {
+  const DW = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const n = new Date(), todayStr = n.getFullYear() + '-' + String(n.getMonth()+1).padStart(2,'0') + '-' + String(n.getDate()).padStart(2,'0');
+  let cells = DW.map((d, i) => '<div class="cal-dow' + (i === 6 ? ' sun' : '') + '">' + d + '</div>').join('');
+  const f = days[0];
+  const lead = (new Date(Date.UTC(+f.slice(0,4), +f.slice(5,7)-1, +f.slice(8,10))).getUTCDay() + 6) % 7;
+  for (let i = 0; i < lead; i++) cells += '<div></div>';
+  days.forEach((dstr, idx) => {
+    const o = info[dstr];
+    const isSun = ((lead + idx) % 7) === 6;
+    cells += '<button class="cal-day' + (o ? ' has' : '') + (isSun ? ' sun' : '') + (dstr === selD ? ' sel' : '') + (dstr === todayStr ? ' today' : '') + '" onclick="window.__calPick(\'' + scope + '\',\'' + dstr + '\')"><span class="cal-n">' + (+dstr.slice(8,10)) + '</span><span class="cal-dots">' + (o && o.i ? '<i class="in"></i>' : '') + (o && o.e ? '<i class="ex"></i>' : '') + '</span></button>';
+  });
+  return '<div class="cal-month"><div class="cal-title">' + title + '</div><div class="cal-grid">' + cells + '</div></div>';
+};
+window.__calInfoLine = function(scope, d) {
+  if (!d) return '';
+  const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return '<div class="cal-info" style="grid-column:1/-1;">Transaksi tanggal <b>' + (+d.slice(8,10)) + ' ' + BLN[+d.slice(5,7)-1] + ' ' + d.slice(0,4) + '</b> <button class="cal-clear" onclick="window.__calPick(\'' + scope + '\',\'' + d + '\')">Tampilkan semua</button></div>';
+};
+window.__calPick = function(scope, date) {
+  const ds = window.__dayState[scope] = window.__dayState[scope] || { d: '', pk: '' };
+  ds.d = (ds.d === date) ? '' : date;
+  if (window.__chartFilters) window.__chartFilters[scope] = null;
+  window.__rafRun('cal-' + scope, window.__dayRerender[scope] || window.__subRerender[scope]);
+};
+window.__calDayRender = function(scope, days, parentKey, arr, rerender, title) {
+  const st = window.__dayState[scope] = window.__dayState[scope] || { d: '', pk: '' };
+  window.__dayRerender[scope] = rerender;
+  const calEl = document.getElementById(scope + '-cal');
+  const dEl = document.getElementById(scope + '-day-sel'); if (dEl) { dEl.style.display = 'none'; dEl.innerHTML = ''; }
+  if (st.pk !== parentKey) { st.pk = parentKey; st.d = ''; }
+  if (!days || !days.length) { st.d = ''; if (calEl) { calEl.style.display = 'none'; calEl.innerHTML = ''; } return arr; }
+  if (!days.includes(st.d)) st.d = '';
+  if (calEl) {
+    calEl.style.display = 'grid';
+    calEl.style.gridTemplateColumns = 'minmax(0, 560px)';
+    calEl.style.justifyContent = 'center';
+    calEl.style.gap = '14px';
+    calEl.innerHTML = window.__calGrid(scope, title, days, window.__calInfo(arr), st.d) + window.__calInfoLine(scope, st.d);
+  }
+  return st.d ? arr.filter(t => t.date.slice(0,10) === st.d) : arr;
+};
+window.__weekCalTitle = function(w) {
+  const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const days = window.__segDays(w); const a = +days[0].slice(8,10), b = +days[days.length-1].slice(8,10);
+  return 'Minggu ' + (function(){ let n = 1; for (let x = 2; x <= a; x++) { if (new Date(Date.UTC(+w.slice(0,4), +w.slice(5,7)-1, x)).getUTCDay() === 1) n++; } return n; })() + ' · ' + (a === b ? a : a + '–' + b) + ' ' + BLN[+w.slice(5,7)-1] + ' ' + w.slice(0,4);
+};
+window.__monthCalTitle = function(m) {
+  const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return BLN[+String(m).slice(5,7)-1] + ' ' + String(m).slice(0,4);
+};
 window.__subState = { year: { m: '', w: '' }, riwayat: { m: '', w: '' } };
 window.__subRerender = {};
 window.__subPick = function(scope, kind, val) {
   const st = window.__subState[scope];
-  if (kind === 'm') { st.m = val; st.w = ''; } else { st.w = val; }
+  if (kind === 'm') { st.m = val; st.w = ''; if (window.__dayState[scope]) window.__dayState[scope].d = ''; } else { st.w = val; }
   if (window.__chartFilters) window.__chartFilters[scope] = null;
   window.__rafRun('sub-' + scope, window.__subRerender[scope]);
 };
@@ -8123,6 +8202,29 @@ window.__subPeriodRender = function(scope, yearArr, rerender) {
       mEl.innerHTML = '<button class="p-btn ' + (!st.m ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'m\',\'\')">Semua Bulan</button>' +
         months.map(m => '<button class="p-btn ' + (m === st.m ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'m\',\'' + m + '\')">' + BLN[parseInt(m.slice(5,7),10)-1] + '</button>').join('');
     } else { mEl.style.display = 'none'; mEl.innerHTML = ''; }
+  }
+  if (scope === 'year' || scope === 'riwayat') {
+    st.w = '';
+    if (wEl) { wEl.style.display = 'none'; wEl.innerHTML = ''; }
+    const dEl = document.getElementById(scope + '-day-sel'); if (dEl) { dEl.style.display = 'none'; dEl.innerHTML = ''; }
+    const ds = window.__dayState[scope] = window.__dayState[scope] || { d: '', pk: '' };
+    const calEl = document.getElementById(scope + '-cal');
+    const showMonths = st.m ? [st.m] : months;
+    if (calEl) {
+      if (!showMonths.length) { calEl.style.display = 'none'; calEl.innerHTML = ''; }
+      else {
+        calEl.style.display = 'grid';
+        calEl.style.gridTemplateColumns = st.m ? 'minmax(0, 560px)' : 'repeat(auto-fit, minmax(290px, 1fr))';
+        calEl.style.justifyContent = 'center';
+        calEl.style.gap = '14px';
+        const info = window.__calInfo(yearArr);
+        calEl.innerHTML = showMonths.map(m => window.__calGrid(scope, BLN[+m.slice(5,7)-1] + ' ' + m.slice(0,4), window.__monthDays(m), info, ds.d)).join('') + window.__calInfoLine(scope, ds.d);
+      }
+    }
+    let outY = yearArr;
+    if (st.m) outY = outY.filter(t => t.date.slice(0,7) === st.m);
+    if (ds.d) outY = outY.filter(t => t.date.slice(0,10) === ds.d);
+    return outY;
   }
   if (wEl) {
     if (st.m && weeks.length) {
