@@ -605,7 +605,8 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .p-btn.wk-btn .wk-no { font-size: 11px; font-weight: 800; }
 .p-btn.wk-btn .wk-dt { font-size: 9px; font-weight: 600; opacity: 0.6; }
 .p-btn.wk-btn.active { background: var(--bg); }
-.p-btn.dy-btn { padding: 6px 10px; min-width: 52px; border-radius: 14px; }
+#week-day-sel, #month-day-sel, #year-day-sel, #riwayat-day-sel { justify-content: center !important; gap: 8px; padding-left: 16px; padding-right: 16px; }
+.p-btn.dy-btn { padding: 6px 0; width: 60px; min-width: 60px; flex: 0 0 60px; border-radius: 14px; text-align: center; }
 .p-btn.dy-btn.sun:not(.active) .wk-no { color: var(--red2); }
 
 /* ==========================================================================
