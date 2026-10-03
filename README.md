@@ -1867,6 +1867,18 @@ body.global-privacy #xau-idr-gr {
   </div>
 
   <div class="set-group">
+    <div class="set-title">🔗 AKUN TERTAUT</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Tautkan Akun</div>
+        <div class="set-sub">Catatan baru di salah satu akun otomatis tercatat sama persis di akun yang tertaut (tambah, edit, hapus)</div>
+      </div>
+      <button class="set-action" onclick="window.openLinkAccount()">TAUTKAN</button>
+    </div>
+    <div id="linked-accounts-list"></div>
+  </div>
+
+  <div class="set-group">
     <div class="set-title">🔒 KEAMANAN AKUN</div>
     <div class="set-item">
       <div>
@@ -6922,7 +6934,198 @@ function loadTxLocalBackup(uid) {
     try { return JSON.parse(localStorage.getItem('rhn_tx_backup_' + uid) || 'null'); } catch(e) { return null; }
 }
 
+// ======================================================================
+// AKUN TERTAUT: catatan di salah satu akun otomatis disalin ke akun yang tertaut
+// ======================================================================
+window.__links = [];
+const LINK_CORE = ['type','amount','category','wallet','walletTo','note','date','isDeleted','isPaid'];
+const linkSigOf = d => JSON.stringify(LINK_CORE.map(k => d[k] === undefined ? null : d[k]));
+const linkCacheKey = (uid, pid) => 'rhn_linksig_' + uid + '_' + pid;
+function linkLoadCache(uid, pid) { try { return JSON.parse(localStorage.getItem(linkCacheKey(uid, pid)) || '{}'); } catch(e) { return {}; } }
+function linkSaveCache(uid, pid, obj) { try { localStorage.setItem(linkCacheKey(uid, pid), JSON.stringify(obj)); } catch(e) {} }
+const __linkInflight = new Set();
+
+const __linkBusy = {}, __linkPending = {};
+window.syncLinkedAccounts = function(uid, allDocs, skipRemoval) {
+    if (!currentUser || currentUser.uid !== uid || !window.__links || !window.__links.length) return;
+    window.__links.forEach(link => runLinkSync(uid, link, allDocs, skipRemoval));
+};
+
+async function runLinkSync(uid, link, allDocs, skipRemoval) {
+    const pid = link.uid;
+    if (__linkBusy[pid]) { __linkPending[pid] = { allDocs, skipRemoval }; return; }
+    __linkBusy[pid] = true;
+    try {
+        const cache = linkLoadCache(uid, pid);
+        const ops = [];
+        const present = new Set();
+        const prefix = 'lnk_' + pid + '_';
+        allDocs.forEach(d => {
+            if (!d || !d.id) return;
+            present.add(d.id);
+            const isMirror = !!d.linkedFrom;
+            if (isMirror && d.linkedFrom !== pid) return;
+            const sig = linkSigOf(d);
+            if (cache[d.id] === sig) return;
+            // Perubahan yang barusan datang dari akun tertaut -> cukup dicatat, jangan dipantulkan balik
+            if (isMirror && (d.linkedSig === sig || cache[d.id] === undefined)) { cache[d.id] = sig; return; }
+            const core = {};
+            LINK_CORE.forEach(k => { if (d[k] !== undefined) core[k] = d[k]; });
+            if (isMirror) {
+                ops.push({ id: d.id, sig, ref: doc(db, 'users', pid, 'transactions', d.linkedSrcId),
+                    data: Object.assign(core, { linkedSig: sig, lastEditedAt: new Date().toISOString() }) });
+            } else {
+                ops.push({ id: d.id, sig, ref: doc(db, 'users', pid, 'transactions', 'lnk_' + uid + '_' + d.id),
+                    data: Object.assign(core, { ownerEmail: link.email || '', isDeleted: d.isDeleted === true,
+                        createdAt: d.createdAt || serverTimestamp(), linkedFrom: uid, linkedSrcId: d.id, linkedSig: sig }) });
+            }
+        });
+
+        // Hapus permanen (kosongkan sampah, dll) ikut dicerminkan ke akun tertaut
+        if (!skipRemoval) {
+            let gone = Object.keys(cache).filter(id => !present.has(id));
+            if (gone.length >= 10) {
+                const r = await Swal.fire({ title: 'Hapus di Akun Tertaut Juga?', text: gone.length + ' catatan hilang dari akun ini. Hapus juga di akun tertaut?', icon: 'warning', background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'Ya, Hapus Juga', cancelButtonText: 'Tidak', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)' });
+                if (!r.isConfirmed) { gone.forEach(id => { delete cache[id]; }); gone = []; }
+            }
+            gone.forEach(id => {
+                delete cache[id];
+                const tid = id.startsWith(prefix) ? id.slice(prefix.length) : 'lnk_' + uid + '_' + id;
+                ops.push({ del: true, id, ref: doc(db, 'users', pid, 'transactions', tid) });
+            });
+        }
+
+        for (let i = 0; i < ops.length; i += 400) {
+            const chunk = ops.slice(i, i + 400);
+            try {
+                const batch = writeBatch(db);
+                chunk.forEach(o => { if (o.del) batch.delete(o.ref); else batch.set(o.ref, o.data, { merge: true }); });
+                await batch.commit();
+                chunk.forEach(o => { if (!o.del) cache[o.id] = o.sig; });
+            } catch(e) {
+                console.error('Batch sinkron akun tertaut gagal, coba satu-satu', e);
+                for (const o of chunk) {
+                    try {
+                        if (o.del) await deleteDoc(o.ref); else { await setDoc(o.ref, o.data, { merge: true }); cache[o.id] = o.sig; }
+                    } catch(e2) { console.error('Gagal sinkron akun tertaut', e2); }
+                }
+            }
+        }
+        linkSaveCache(uid, pid, cache);
+    } catch(e) {
+        console.error('Sinkron akun tertaut error', e);
+    } finally {
+        __linkBusy[pid] = false;
+        const pend = __linkPending[pid];
+        if (pend) { delete __linkPending[pid]; runLinkSync(uid, link, pend.allDocs, pend.skipRemoval); }
+    }
+}
+
+function renderLinkedAccounts() {
+    const el = document.getElementById('linked-accounts-list');
+    if (!el) return;
+    const esc = window.escapeHTML || (x => x);
+    if (!window.__links.length) { el.innerHTML = '<div style="padding:12px 16px; font-size:11px; color:var(--text3);">Belum ada akun tertaut.</div>'; return; }
+    el.innerHTML = window.__links.map(l => `
+      <div class="set-item">
+        <div>
+          <div class="set-label">${esc(l.nama || 'Pengguna')}</div>
+          <div class="set-sub">${esc(l.email || '')} • tertaut</div>
+        </div>
+        <button class="set-action" onclick="window.unlinkAccount('${esc(l.uid)}')">PUTUSKAN</button>
+      </div>`).join('');
+}
+
+window.listenLinkedAccounts = function(uid) {
+    if (window.__unsubLinks) window.__unsubLinks();
+    if (window.__unsubLinkReq) window.__unsubLinkReq();
+    window.__links = [];
+    window.__unsubLinks = onSnapshot(collection(db, 'users', uid, 'linked_accounts'), snap => {
+        window.__links = snap.docs.map(d => Object.assign({ uid: d.id }, d.data()));
+        renderLinkedAccounts();
+        if (typeof txs !== 'undefined') {
+            const all = [].concat(txs || [], deletedTxs || []);
+            window.syncLinkedAccounts(uid, all, true);
+        }
+    }, err => console.error('Gagal memuat akun tertaut', err));
+    window.__unsubLinkReq = onSnapshot(collection(db, 'users', uid, 'link_requests'), snap => {
+        snap.docChanges().forEach(ch => {
+            if (ch.type === 'removed') return;
+            const r = ch.doc.data();
+            if (!r || r.status !== 'pending' || window['__shownLinkReq_' + ch.doc.id]) return;
+            window['__shownLinkReq_' + ch.doc.id] = true;
+            window.answerLinkRequest(ch.doc.id, r);
+        });
+    }, err => console.error('Gagal memuat permintaan tautan', err));
+};
+
+window.openLinkAccount = async function() {
+    if (!currentUser) return;
+    const { value: code } = await Swal.fire({
+        title: 'Tautkan Akun',
+        html: '<div style="font-size:12px; color:var(--text3); margin-bottom:10px;">Masukkan Kode Transfer 3 Angka milik akun yang mau ditautkan.</div><input id="swal-linkcode" class="swal2-input" placeholder="3 Angka" maxlength="3" type="number" style="text-align:center; font-weight:800; font-size:18px; letter-spacing:2px; max-width:100%; width:80%; margin:0 auto; display:block; box-sizing:border-box;">',
+        background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'CARI AKUN', cancelButtonText: 'Batal', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => { const v = document.getElementById('swal-linkcode').value.trim(); if (v.length !== 3) { Swal.showValidationMessage('Kode harus 3 angka'); return false; } return v; }
+    });
+    if (!code) return;
+    Swal.fire({ title: 'Mencari Akun...', background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+    let target;
+    try { target = await window.lookupTransferTarget(code); } catch(e) { return Swal.fire({ icon: 'error', title: 'Gagal Mencari Akun', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+    if (!target) return Swal.fire({ icon: 'error', title: 'Tidak Ditemukan', text: 'Kode 3 Angka tidak ditemukan.', background: 'var(--card)', color: 'var(--text)' });
+    if (target.uid === currentUser.uid) return Swal.fire({ icon: 'warning', title: 'Gagal', text: 'Tidak bisa menautkan ke akun sendiri.', background: 'var(--card)', color: 'var(--text)' });
+    if (window.__links.some(l => l.uid === target.uid)) return Swal.fire({ icon: 'info', title: 'Sudah Tertaut', text: 'Akun ini sudah tertaut.', background: 'var(--card)', color: 'var(--text)' });
+    const esc = window.escapeHTML || (x => x);
+    const ok = await Swal.fire({
+        title: 'Kirim Permintaan Tautan?',
+        html: `<div style="font-size:16px; font-weight:800; color:var(--gold);">${esc(target.nama)}</div><div style="font-size:12px; color:var(--text2);">${esc(target.email)}</div><div style="font-size:11px; color:var(--text3); margin-top:10px;">Setelah disetujui, catatan baru di salah satu akun otomatis tercatat di akun satunya.</div>`,
+        background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'KIRIM', cancelButtonText: 'Batal', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)'
+    });
+    if (!ok.isConfirmed) return;
+    try {
+        await setDoc(doc(db, 'users', target.uid, 'link_requests', currentUser.uid), {
+            fromUid: currentUser.uid, fromEmail: currentUser.email || '',
+            fromNama: currentUser.displayName || (currentUser.email || '').split('@')[0],
+            status: 'pending', createdAt: new Date().toISOString()
+        });
+        Swal.fire({ icon: 'success', title: 'Permintaan Terkirim', text: 'Menunggu persetujuan dari ' + target.nama + '.', background: 'var(--card)', color: 'var(--text)' });
+    } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+};
+
+window.answerLinkRequest = async function(reqId, r) {
+    const esc = window.escapeHTML || (x => x);
+    const res = await Swal.fire({
+        title: 'Permintaan Tautan Akun',
+        html: `<div style="font-size:16px; font-weight:800; color:var(--gold);">${esc(r.fromNama || 'Pengguna')}</div><div style="font-size:12px; color:var(--text2);">${esc(r.fromEmail || '')}</div><div style="font-size:11px; color:var(--text3); margin-top:10px;">ingin menautkan akun. Catatan baru di salah satu akun akan otomatis tercatat di akun satunya.</div>`,
+        background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'TERIMA', cancelButtonText: 'TOLAK', confirmButtonColor: 'var(--green2)', cancelButtonColor: 'var(--red2)', allowOutsideClick: false
+    });
+    const reqRef = doc(db, 'users', currentUser.uid, 'link_requests', reqId);
+    if (!res.isConfirmed) { try { await deleteDoc(reqRef); } catch(e) {} return; }
+    try {
+        const since = new Date().toISOString();
+        const myNama = currentUser.displayName || (currentUser.email || '').split('@')[0];
+        const batch = writeBatch(db);
+        batch.set(doc(db, 'users', currentUser.uid, 'linked_accounts', r.fromUid), { nama: r.fromNama || '', email: r.fromEmail || '', since });
+        batch.set(doc(db, 'users', r.fromUid, 'linked_accounts', currentUser.uid), { nama: myNama, email: currentUser.email || '', since });
+        batch.delete(reqRef);
+        await batch.commit();
+        Swal.fire({ icon: 'success', title: 'Akun Tertaut!', text: 'Catatan baru kini otomatis tersinkron.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal Menautkan', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+};
+
+window.unlinkAccount = async function(pid) {
+    const ok = await Swal.fire({ title: 'Putuskan Tautan?', text: 'Catatan yang sudah tersalin tetap ada, tapi catatan baru tidak lagi tersinkron.', icon: 'warning', background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'Ya, Putuskan', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)' });
+    if (!ok.isConfirmed) return;
+    try {
+        const batch = writeBatch(db);
+        batch.delete(doc(db, 'users', currentUser.uid, 'linked_accounts', pid));
+        batch.delete(doc(db, 'users', pid, 'linked_accounts', currentUser.uid));
+        await batch.commit();
+        try { localStorage.removeItem(linkCacheKey(currentUser.uid, pid)); } catch(e) {}
+    } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal Memutuskan', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+};
+
 function listenTransactions(uid) { 
+    window.listenLinkedAccounts(uid);
     if (unsubListener) unsubListener(); 
     window.__txBackupBaseline = false; 
 
@@ -6947,6 +7150,7 @@ function listenTransactions(uid) {
         txs = allDocs.filter(t => !t.isDeleted);
         deletedTxs = allDocs.filter(t => t.isDeleted);
         saveTxLocalBackup(uid, txs, deletedTxs);
+        if (window.syncLinkedAccounts) window.syncLinkedAccounts(uid, allDocs, snap.metadata.fromCache);
         // Badge status ikuti sumber data yang sebenarnya: kalau snapshot ini berasal dari cache
         // lokal (fromCache = true, artinya belum kekonfirmasi server), berarti sedang offline.
         // Kalau sudah dari server, baru dianggap tersinkron. Ini lebih akurat daripada asumsi
@@ -7661,6 +7865,57 @@ window.promptKoreksi = async function(walletName, recordedBal) {
     }
 };
 
+window.promptHutangPiutangMenu = async function(kind, bal) {
+    if (!currentUser) return;
+    const isDebt = kind === 'debt';
+    const label = isDebt ? 'Hutang' : 'Piutang';
+    const sisa = Math.abs(bal || 0);
+    const pick = await Swal.fire({
+        title: 'Total ' + label,
+        html: '<div style="font-size:12px; color:var(--text3);">Sisa tercatat: <b style="color:var(--text);">' + fmtFull(bal || 0) + '</b></div>',
+        showCancelButton: true, showDenyButton: true,
+        confirmButtonText: isDebt ? '💸 BAYAR HUTANG' : '💰 TERIMA BAYARAN',
+        denyButtonText: '✏️ KOREKSI', cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: isDebt ? 'var(--gold)' : 'var(--blue)', denyButtonColor: 'var(--bg3)', cancelButtonColor: 'var(--bg3)'
+    });
+    if (pick.isDenied) return window.promptKoreksiHutangPiutang(kind, bal);
+    if (!pick.isConfirmed) return;
+    if (sisa <= 0) return Swal.fire({ icon: 'info', title: 'Tidak Ada ' + label, text: 'Total ' + label + ' sudah nol.', background: 'var(--card)', color: 'var(--text)' });
+    const { value: fv } = await Swal.fire({
+        title: isDebt ? 'Bayar Hutang' : 'Terima Bayaran Piutang',
+        html: '<div style="font-size:12px; color:var(--text3); margin-bottom:12px;">Sisa ' + label + ': <b style="color:var(--text);">' + fmtFull(sisa) + '</b></div>' +
+              '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Nominal ' + (isDebt ? 'dibayar' : 'diterima') + ':</div>' +
+              '<input id="swal-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:12px;" placeholder="Cth: 50000">' +
+              '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">' + (isDebt ? 'Dibayar dari dompet:' : 'Masuk ke dompet:') + '</div>' +
+              '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;"><option value="Kas Tunai">Kas Tunai</option><option value="DANA">DANA</option><option value="GoPay">GoPay</option><option value="ShopeePay">ShopeePay</option><option value="MT5 Trading">Saldo MT5 Trading</option><option value="Bank">Bank</option></select>' +
+              '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Keterangan (opsional):</div>' +
+              '<input id="swal-hp-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Cicilan ke-1">',
+        showCancelButton: true, confirmButtonText: 'SIMPAN', cancelButtonText: 'Batal',
+        background: 'var(--card)', color: 'var(--text)', confirmButtonColor: isDebt ? 'var(--gold)' : 'var(--blue)', cancelButtonColor: 'var(--bg3)',
+        preConfirm: () => {
+            const amt = parseFloat(document.getElementById('swal-hp-amt').value);
+            if (!amt || isNaN(amt) || amt <= 0) { Swal.showValidationMessage('Nominal harus diisi!'); return false; }
+            if (amt > sisa) { Swal.showValidationMessage('Nominal melebihi sisa ' + label + ' (' + fmtFull(sisa) + ')'); return false; }
+            return { amt: amt, wallet: document.getElementById('swal-hp-wallet').value, note: document.getElementById('swal-hp-note').value.trim() };
+        }
+    });
+    if (!fv) return;
+    Swal.fire({ title: 'Menyimpan...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
+    try {
+        const defNote = isDebt ? 'Bayar Hutang' : 'Terima Bayaran Piutang';
+        const writePromise = addDoc(collection(db, 'users', currentUser.uid, 'transactions'), {
+            type: 'transfer', amount: fv.amt, category: 'Transfer Antar Dompet',
+            wallet: isDebt ? fv.wallet : 'Piutang', walletTo: isDebt ? 'Hutang' : fv.wallet,
+            note: fv.note ? defNote + ' - ' + fv.note : defNote, date: nowISO(),
+            ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
+        });
+        if (!navigator.onLine) markPendingOfflineWrite();
+        await Promise.race([writePromise, new Promise(r => setTimeout(r, 1500))]);
+        Swal.fire({ icon: 'success', title: isDebt ? 'Hutang Terbayar!' : 'Piutang Diterima!', html: 'Sisa ' + label + ' berkurang <b>' + fmtFull(fv.amt) + '</b>', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
+    } catch(e) { reportSaveOutcome(e, isDebt ? 'Hutang Terbayar!' : 'Piutang Diterima!', 'Gagal'); }
+};
+
 window.promptKoreksiHutangPiutang = async function(kind, recordedBal) {
     if (!currentUser) return;
     const isDebt = kind === 'debt';
@@ -7733,13 +7988,13 @@ function renderWalletBalances() {
     }).join(''); 
     html += `
     <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: inherit;"> 
-        <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05); position:relative; cursor:pointer;" onclick="promptKoreksiHutangPiutang('debt', ${hutangBal})" title="Klik untuk Koreksi Saldo Hutang">
+        <div class="w-card" style="border-color:rgba(251, 191, 36, 0.5); background:rgba(251, 191, 36, 0.05); position:relative; cursor:pointer;" onclick="promptHutangPiutangMenu('debt', ${hutangBal})" title="Klik untuk Bayar / Koreksi Hutang">
             <span style="position:absolute; top:8px; right:8px; font-size:12px; opacity:0.4;">✏️</span>
             <div class="w-label" style="color:var(--gold);">TOTAL HUTANG</div>
             <div class="w-val min">${fmtFull(hutangBal)}</div>
             <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(hutangBal)}</div>
         </div> 
-        <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05); position:relative; cursor:pointer;" onclick="promptKoreksiHutangPiutang('recv', ${piutangBal})" title="Klik untuk Koreksi Saldo Piutang">
+        <div class="w-card" style="border-color:rgba(59, 130, 246, 0.5); background:rgba(59, 130, 246, 0.05); position:relative; cursor:pointer;" onclick="promptHutangPiutangMenu('recv', ${piutangBal})" title="Klik untuk Terima Bayaran / Koreksi Piutang">
             <span style="position:absolute; top:8px; right:8px; font-size:12px; opacity:0.4;">✏️</span>
             <div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div>
             <div class="w-val min">${fmtFull(piutangBal)}</div>
