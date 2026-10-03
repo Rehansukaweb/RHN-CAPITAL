@@ -596,6 +596,17 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .cat-chip.active > span:first-child { color: var(--gold); }
 .cat-chip .cat-chip-amt { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.9; white-space: nowrap; }
 .p-btn.active { border-color: var(--text); color: var(--text); background: var(--bg); }
+#week-sel, #admin-week-sel { gap: 10px; align-items: stretch; }
+.wk-group { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; border: 1px solid var(--border); border-radius: 22px; background: var(--bg2); }
+.wk-group.has-active { border-color: var(--border2); }
+.wk-month { font-size: 9px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--gold); padding-left: 6px; white-space: nowrap; }
+.wk-chips { display: flex; gap: 6px; }
+.p-btn.wk-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px; border-radius: 16px; background: var(--bg3); }
+.p-btn.wk-btn .wk-no { font-size: 11px; font-weight: 800; }
+.p-btn.wk-btn .wk-dt { font-size: 9px; font-weight: 600; opacity: 0.6; }
+.p-btn.wk-btn.active { background: var(--bg); }
+.p-btn.dy-btn { padding: 6px 10px; min-width: 52px; border-radius: 14px; }
+.p-btn.dy-btn.sun:not(.active) .wk-no { color: var(--red2); }
 
 /* ==========================================================================
    ADMIN: DETAIL CATATAN PER AKUN & GRAFIK BULANAN (Tambahan Baru)
@@ -1383,6 +1394,7 @@ body.global-privacy #xau-idr-gr {
 
 <div id="page-mingguan" class="page">
   <div class="period-bar" id="week-sel"></div>
+  <div class="period-bar" id="week-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="week-sum"></div>
   <div class="card">
     <div class="card-head"><div class="card-title">Laporan Mingguan</div></div>
@@ -1405,6 +1417,7 @@ body.global-privacy #xau-idr-gr {
 
 <div id="page-bulanan" class="page">
   <div class="period-bar" id="month-sel"></div>
+  <div class="period-bar" id="month-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="month-sum"></div>
   <div class="card" style="padding-bottom:16px;">
     <div class="card-head"><div class="card-title">Laporan Bulanan</div></div>
@@ -1430,6 +1443,9 @@ body.global-privacy #xau-idr-gr {
 
 <div id="page-tahunan" class="page">
   <div class="period-bar" id="year-sel"></div>
+  <div class="period-bar" id="year-month-sel" style="display:none; margin-bottom:12px;"></div>
+  <div class="period-bar" id="year-week-sel" style="display:none; margin-bottom:12px;"></div>
+  <div class="period-bar" id="year-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
   <div class="sum-grid" id="year-sum"></div>
   <div class="card">
     <div class="card-head"><div class="card-title">Laporan Tahunan</div></div>
@@ -1471,6 +1487,9 @@ body.global-privacy #xau-idr-gr {
       <button class="export-btn" onclick="toggleBatchMode()" style="background:var(--bg3); color:var(--text); margin-left:8px;">PILIH BANYAK ☑</button>
     </div>
     <div class="period-bar" id="riwayat-year-sel"></div>
+    <div class="period-bar" id="riwayat-month-sel" style="display:none; margin-bottom:12px;"></div>
+    <div class="period-bar" id="riwayat-week-sel" style="display:none; margin-bottom:12px;"></div>
+    <div class="period-bar" id="riwayat-day-sel" style="display:none; margin-bottom:12px; flex-wrap:wrap; overflow:visible;"></div>
     <div class="chart-wrap" style="margin-top: 16px;">
       <div class="chart-legend" id="riwayat-legend" style="flex-wrap: wrap;"></div>
       <div style="height:250px"><canvas id="chartRiwayat"></canvas></div>
@@ -5351,7 +5370,7 @@ window.renderAdminWeeklyChart = function(arr) {
     sel.style.display = 'flex';
     if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
 
-    sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('admin-week-sel').dataset.active='${w}'; window.__rafRun('admWeek', () => renderAdminWeeklyChart(window.__adminWeeklyArr || []));">Minggu ${fmtDate(w)}</button>`).join('');
+    sel.innerHTML = window.__weekChipsHTML(weeks, sel.dataset.active, w => `document.getElementById('admin-week-sel').dataset.active='${w}'; window.__rafRun('admWeek', () => renderAdminWeeklyChart(window.__adminWeeklyArr || []));`);
 
     const targetWk = sel.dataset.active;
     const filtered = arr.filter(t => wkKey(t.date) === targetWk);
@@ -7908,7 +7927,35 @@ function mkChart(id, labels, incData, expData, onBarClick) {
 
 window.renderDaily = function() { const pick = document.getElementById('pick-daily').value; const target = pick ? new Date(pick).toDateString() : new Date().toDateString(); const arr = txs.filter(t => new Date(t.date).toDateString() === target).sort((a, b) => new Date(b.date) - new Date(a.date)); renderSumGrid(document.getElementById('daily-sum'), arr); renderList(document.getElementById('daily-body'), arr); };
 
-function wkKey(d) { const dt = new Date(d); const day = dt.getDay(); const diff = dt.getDate() - day + (day === 0 ? -6 : 1); const monday = new Date(new Date(d).setDate(diff)); monday.setMinutes(monday.getMinutes() - monday.getTimezoneOffset()); return monday.toISOString().slice(0,10); }
+function wkKeyRaw(d) { const dt = new Date(d); const day = dt.getDay(); const diff = dt.getDate() - day + (day === 0 ? -6 : 1); const monday = new Date(new Date(d).setDate(diff)); monday.setMinutes(monday.getMinutes() - monday.getTimezoneOffset()); return monday.toISOString().slice(0,10); }
+function wkKey(d) { const mk = wkKeyRaw(d); const dt = new Date(d); const ym = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0'); return mk.slice(0,7) < ym ? ym + '-01' : mk; }
+
+window.__weekChipsHTML = function(weeks, active, clickFn) {
+  const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const SH = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const groups = {};
+  weeks.forEach(w => { const m = w.slice(0,7); (groups[m] = groups[m] || []).push(w); });
+  const segNo = w => {
+    const y = +w.slice(0,4), mo = +w.slice(5,7) - 1, d = +w.slice(8,10);
+    let n = 1;
+    for (let x = 2; x <= d; x++) { if (new Date(Date.UTC(y, mo, x)).getUTCDay() === 1) n++; }
+    return n;
+  };
+  return Object.keys(groups).sort().reverse().map(m => {
+    const list = groups[m].slice().sort();
+    const hasActive = list.includes(active);
+    const chips = list.map(w => {
+      const y = +w.slice(0,4), mo = +w.slice(5,7) - 1, d = +w.slice(8,10);
+      const dow = new Date(Date.UTC(y, mo, d)).getUTCDay();
+      const toSun = dow === 0 ? 0 : 7 - dow;
+      const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+      const ed = Math.min(d + toSun, last);
+      const rng = d === ed ? (d + ' ' + SH[mo]) : (d + '–' + ed + ' ' + SH[mo]);
+      return `<button class="p-btn wk-btn ${w === active ? 'active' : ''}" onclick="${clickFn(w)}"><span class="wk-no">Minggu ${segNo(w)}</span><span class="wk-dt">${rng}</span></button>`;
+    }).join('');
+    return `<div class="wk-group ${hasActive ? 'has-active' : ''}"><div class="wk-month">${BLN[parseInt(m.slice(5,7),10)-1]} ${m.slice(0,4)}</div><div class="wk-chips">${chips}</div></div>`;
+  }).join('');
+};
 
 window.renderWeekly = function() {
   const weeks = [...new Set(txs.map(t => wkKey(t.date)))].sort().reverse();
@@ -7923,12 +7970,12 @@ window.renderWeekly = function() {
   }
   if (!sel.dataset.active || !weeks.includes(sel.dataset.active)) sel.dataset.active = weeks[0];
   
-  sel.innerHTML = weeks.map(w => `<button class="p-btn ${w === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('week-sel').dataset.active
-='${w}'; window.__rafRun('weekly', renderWeekly);">Minggu ${fmtDate(w)}</button>`).join('');
+  sel.innerHTML = window.__weekChipsHTML(weeks, sel.dataset.active, w => `document.getElementById('week-sel').dataset.active='${w}'; window.__rafRun('weekly', renderWeekly);`);
   const targetWk = sel.dataset.active;
   const arr = txs.filter(t => wkKey(t.date) === targetWk).sort((a,b) => new Date(b.date) - new Date(a.date));
-  applyChartFilterSum(document.getElementById('week-sum'), arr, 'week');
-  applyChartFilterList(document.getElementById('week-body'), arr, 'week', window.renderWeekly);
+  const listArr = window.__dayBarRender('week', window.__segDays(targetWk), targetWk, arr, window.renderWeekly);
+  applyChartFilterSum(document.getElementById('week-sum'), listArr, 'week');
+  applyChartFilterList(document.getElementById('week-body'), listArr, 'week', window.renderWeekly);
   
   const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
   let incD = [0,0,0,0,0,0,0], expD = [0,0,0,0,0,0,0];
@@ -7970,8 +8017,9 @@ window.renderMonthly = function() {
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,7) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
-    applyChartFilterSum(document.getElementById('month-sum'), arr, 'month');
-    applyChartFilterList(document.getElementById('month-body'), arr, 'month', window.renderMonthly);
+    const listArr = window.__dayBarRender('month', window.__monthDays(active), active, arr, window.renderMonthly);
+    applyChartFilterSum(document.getElementById('month-sum'), listArr, 'month');
+    applyChartFilterList(document.getElementById('month-body'), listArr, 'month', window.renderMonthly);
     
     let daysInM = new Date(active.slice(0,4), active.slice(5,7), 0).getDate();
     let labels = Array.from({length: daysInM}, (_, i) => i + 1);
@@ -7999,6 +8047,104 @@ window.renderMonthly = function() {
     renderBudgets(active);
 };
 
+window.__dayState = {};
+window.__dayRerender = {};
+window.__monthDays = function(m) {
+  const y = +m.slice(0,4), mo = +m.slice(5,7) - 1, last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(), out = [];
+  for (let x = 1; x <= last; x++) out.push(m + '-' + String(x).padStart(2,'0'));
+  return out;
+};
+window.__segDays = function(w) {
+  const y = +w.slice(0,4), mo = +w.slice(5,7) - 1, d = +w.slice(8,10);
+  const dow = new Date(Date.UTC(y, mo, d)).getUTCDay();
+  const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+  const ed = Math.min(d + (dow === 0 ? 0 : 7 - dow), last), out = [];
+  for (let x = d; x <= ed; x++) out.push(w.slice(0,7) + '-' + String(x).padStart(2,'0'));
+  return out;
+};
+window.__dayPick = function(scope, d) {
+  window.__dayState[scope].d = d;
+  if (window.__chartFilters) window.__chartFilters[scope] = null;
+  window.__rafRun('day-' + scope, window.__dayRerender[scope]);
+};
+window.__dayBarRender = function(scope, days, parentKey, arr, rerender) {
+  const st = window.__dayState[scope] = window.__dayState[scope] || { d: '', pk: '' };
+  window.__dayRerender[scope] = rerender;
+  const el = document.getElementById(scope + '-day-sel');
+  if (st.pk !== parentKey) { st.pk = parentKey; st.d = ''; }
+  if (!days || !days.length) { st.d = ''; if (el) { el.style.display = 'none'; el.innerHTML = ''; } return arr; }
+  if (!days.includes(st.d)) st.d = '';
+  const DW = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const SH = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  if (el) {
+    el.style.display = 'flex';
+    el.innerHTML = '<button class="p-btn wk-btn dy-btn ' + (!st.d ? 'active' : '') + '" onclick="window.__dayPick(\'' + scope + '\',\'\')"><span class="wk-no">Semua</span><span class="wk-dt">Hari</span></button>' +
+      days.map(d => {
+        const dt = new Date(Date.UTC(+d.slice(0,4), +d.slice(5,7)-1, +d.slice(8,10)));
+        const wd = dt.getUTCDay();
+        return '<button class="p-btn wk-btn dy-btn ' + (wd === 0 ? 'sun ' : '') + (d === st.d ? 'active' : '') + '" onclick="window.__dayPick(\'' + scope + '\',\'' + d + '\')"><span class="wk-no">' + DW[wd] + '</span><span class="wk-dt">' + (+d.slice(8,10)) + ' ' + SH[+d.slice(5,7)-1] + '</span></button>';
+      }).join('');
+  }
+  return st.d ? arr.filter(t => t.date.slice(0,10) === st.d) : arr;
+};
+
+window.__subState = { year: { m: '', w: '' }, riwayat: { m: '', w: '' } };
+window.__subRerender = {};
+window.__subPick = function(scope, kind, val) {
+  const st = window.__subState[scope];
+  if (kind === 'm') { st.m = val; st.w = ''; } else { st.w = val; }
+  if (window.__chartFilters) window.__chartFilters[scope] = null;
+  window.__rafRun('sub-' + scope, window.__subRerender[scope]);
+};
+window.__subPeriodRender = function(scope, yearArr, rerender) {
+  window.__subRerender[scope] = rerender;
+  const st = window.__subState[scope];
+  const mEl = document.getElementById(scope + '-month-sel');
+  const wEl = document.getElementById(scope + '-week-sel');
+  const BLN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const SH = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const hasMonths = [...new Set(yearArr.map(t => t.date.slice(0,7)))].sort();
+  const months = [];
+  if (hasMonths.length) {
+    const yy = hasMonths[0].slice(0,4);
+    for (let i = parseInt(hasMonths[0].slice(5,7),10); i <= parseInt(hasMonths[hasMonths.length-1].slice(5,7),10); i++) months.push(yy + '-' + String(i).padStart(2,'0'));
+  }
+  if (!months.includes(st.m)) { st.m = ''; st.w = ''; }
+  let weeks = [];
+  if (st.m) {
+    const ly = +st.m.slice(0,4), lm = +st.m.slice(5,7) - 1, lastD = new Date(Date.UTC(ly, lm + 1, 0)).getUTCDate();
+    for (let x = 1; x <= lastD; x++) { if (x === 1 || new Date(Date.UTC(ly, lm, x)).getUTCDay() === 1) weeks.push(st.m + '-' + String(x).padStart(2,'0')); }
+    if (!weeks.includes(st.w)) st.w = '';
+  }
+  if (mEl) {
+    if (months.length > 1 || st.m) {
+      mEl.style.display = 'flex';
+      mEl.innerHTML = '<button class="p-btn ' + (!st.m ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'m\',\'\')">Semua Bulan</button>' +
+        months.map(m => '<button class="p-btn ' + (m === st.m ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'m\',\'' + m + '\')">' + BLN[parseInt(m.slice(5,7),10)-1] + '</button>').join('');
+    } else { mEl.style.display = 'none'; mEl.innerHTML = ''; }
+  }
+  if (wEl) {
+    if (st.m && weeks.length) {
+      wEl.style.display = 'flex';
+      wEl.innerHTML = '<button class="p-btn wk-btn ' + (!st.w ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'w\',\'\')"><span class="wk-no">Semua Minggu</span><span class="wk-dt">' + BLN[parseInt(st.m.slice(5,7),10)-1] + '</span></button>' +
+        weeks.map(w => {
+          const y = +w.slice(0,4), mo = +w.slice(5,7) - 1, d = +w.slice(8,10);
+          let no = 1; for (let x = 2; x <= d; x++) { if (new Date(Date.UTC(y, mo, x)).getUTCDay() === 1) no++; }
+          const dow = new Date(Date.UTC(y, mo, d)).getUTCDay();
+          const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+          const ed = Math.min(d + (dow === 0 ? 0 : 7 - dow), last);
+          const rng = d === ed ? (d + ' ' + SH[mo]) : (d + '–' + ed + ' ' + SH[mo]);
+          return '<button class="p-btn wk-btn ' + (w === st.w ? 'active' : '') + '" onclick="window.__subPick(\'' + scope + '\',\'w\',\'' + w + '\')"><span class="wk-no">Minggu ' + no + '</span><span class="wk-dt">' + rng + '</span></button>';
+        }).join('');
+    } else { wEl.style.display = 'none'; wEl.innerHTML = ''; }
+  }
+  let out = yearArr;
+  if (st.m) out = out.filter(t => t.date.slice(0,7) === st.m);
+  if (st.w) out = out.filter(t => wkKey(t.date) === st.w);
+  const dayList = st.w ? window.__segDays(st.w) : (st.m ? window.__monthDays(st.m) : null);
+  return window.__dayBarRender(scope, dayList, st.m + '|' + st.w, out, rerender);
+};
+
 window.renderYearly = function() {
     const yrs = [...new Set(txs.map(t => t.date.slice(0,4)))].sort().reverse();
     const sel = document.getElementById('year-sel');
@@ -8015,8 +8161,9 @@ window.renderYearly = function() {
     
     const active = sel.dataset.active;
     const arr = txs.filter(t => t.date.slice(0,4) === active).sort((a,b) => new Date(b.date) - new Date(a.date));
-    applyChartFilterSum(document.getElementById('year-sum'), arr, 'year');
-    applyChartFilterList(document.getElementById('year-body'), arr, 'year', window.renderYearly);
+    const listArr = window.__subPeriodRender('year', arr, window.renderYearly);
+    applyChartFilterSum(document.getElementById('year-sum'), listArr, 'year');
+    applyChartFilterList(document.getElementById('year-body'), listArr, 'year', window.renderYearly);
     
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     let incD = Array(12).fill(0), expD = Array(12).fill(0);
@@ -8068,7 +8215,8 @@ window.renderAll = function() {
         sel.innerHTML = yrs.map(y => `<button class="p-btn ${y === sel.dataset.active ? 'active' : ''}" onclick="document.getElementById('riwayat-year-sel').dataset.active='${y}'; window.__rafRun('riwayatAll', renderAll);">Tahun ${y}</button>`).join('');
         
         const activeYr = sel.dataset.active;
-        const yearData = filtered.filter(t => t.date.slice(0,4) === activeYr);
+        const yearDataAll = filtered.filter(t => t.date.slice(0,4) === activeYr);
+        const yearData = window.__subPeriodRender('riwayat', yearDataAll, window.renderAll);
         applyChartFilterSum(document.getElementById('all-sum'), yearData, 'riwayat');
         applyChartFilterList(document.getElementById('all-body'), yearData, 'riwayat', window.renderAll);
 
@@ -9007,5 +9155,30 @@ window.addEventListener('focus', function () {
   </div>
 </div>
 
+<script>
+/* Drag-to-scroll + wheel scroll untuk bar pilihan minggu */
+(function(){
+  function enable(el){
+    if(!el||el.dataset.dragScroll) return; el.dataset.dragScroll='1';
+    var down=false,moved=false,sx=0,sl=0;
+    el.style.cursor='grab';
+    el.addEventListener('mousedown',function(e){ if(e.button!==0) return; down=true;moved=false;sx=e.pageX;sl=el.scrollLeft; });
+    window.addEventListener('mousemove',function(e){
+      if(!down) return; var dx=e.pageX-sx;
+      if(Math.abs(dx)>4){ moved=true; el.style.cursor='grabbing'; el.style.userSelect='none'; }
+      if(moved){ el.scrollLeft=sl-dx; e.preventDefault(); }
+    });
+    window.addEventListener('mouseup',function(){ if(!down) return; down=false; el.style.cursor='grab'; el.style.userSelect=''; });
+    el.addEventListener('click',function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } },true);
+    el.addEventListener('dragstart',function(e){ e.preventDefault(); });
+    el.addEventListener('wheel',function(e){
+      if(el.scrollWidth<=el.clientWidth) return;
+      if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){ el.scrollLeft+=e.deltaY; e.preventDefault(); }
+    },{passive:false});
+  }
+  function init(){ enable(document.getElementById('week-sel')); enable(document.getElementById('admin-week-sel')); ['year','riwayat'].forEach(function(k){ enable(document.getElementById(k+'-month-sel')); enable(document.getElementById(k+'-week-sel')); }); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
 </body>
 </html>
