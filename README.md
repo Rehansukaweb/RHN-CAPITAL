@@ -3575,7 +3575,7 @@ window.uploadApkAdmin = async function () {
     let url = ((inp && inp.value) || '').trim();
     if (!/^https:\/\//i.test(url)) { pr.textContent = 'Link harus diawali https://'; return; }
     const gd = url.match(/drive\.google\.com\/file\/d\/([^\/?#]+)/);
-    if (gd) url = 'https://drive.google.com/uc?export=download&id=' + gd[1];
+    if (gd) url = 'https://drive.usercontent.google.com/download?id=' + gd[1] + '&export=download&confirm=t';
     btn.disabled = true; pr.textContent = 'Menyimpan...';
     try {
         await setDoc(doc(db, 'appConfig', 'apk'), { url: url, fileName: 'Link APK', size: 0, updatedAt: new Date().toISOString() });
