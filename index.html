@@ -3523,7 +3523,7 @@ const ibSwal = o => Swal.fire(Object.assign({ background: 'var(--card)', color: 
 const ibMask = e => { e = String(e || ''); const i = e.indexOf('@'); return i > 2 ? e.slice(0, 2) + '***' + e.slice(i) : e; };
 function ibNextWorkday(d) { const x = new Date(d); x.setDate(x.getDate() + 1); while (x.getDay() === 0 || x.getDay() === 6) x.setDate(x.getDate() + 1); return x; }
 // ISI dengan alamat website aplikasi kamu yang sudah online (contoh: 'https://rhn-capital.web.app/'). Kalau kosong, otomatis pakai alamat halaman yang sedang dibuka.
-window.IB_BASE_URL = '';
+window.IB_BASE_URL = 'https://magnificent-pixie-180194.netlify.app/';
 window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?ib=' + code;
 
 // Simpan kode IB dari link (?ib=KODE) & arahkan ke tab Daftar
@@ -3609,7 +3609,7 @@ window.renderIBPage = async function () {
     if (!window.__ibUnsubs.length) {
         const uid = currentUser.uid, code = window.__myIB.code;
         const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { window.__ib[key] = s.docs.map(d => Object.assign({ id: d.id }, d.data())); window.drawIB(); }, e => console.error('IB listener', key, e)));
-        window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } }));
+        window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } else if (!s.metadata.fromCache) { ibStopListeners(); window.__myIB = null; window.renderIBPage(); } }));
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
         sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
@@ -3752,15 +3752,20 @@ window.drawAdminIB = function () {
         const act = cl.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > Date.now()).length;
         return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(ib.nama)} <span style="color:var(--gold);">• ${ibEsc(ib.code)}</span></div><div class="s">${ibEsc(ib.email)} • Daftar ${ibDay(ib.createdAt)} • Rate ${ib.rate}%</div></div><div class="r">${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">NONAKTIF</span>'}</div></div>
           <div class="s" style="margin-top:8px; font-size:11px; color:var(--text2);">Client: <b>${cl.length}</b> (aktif ${act}) • Komisi: <b style="color:var(--green2);">${ibRp(tc)}</b> • Ditarik: <b>${ibRp(pd)}</b> • Proses: <b>${ibRp(pn)}</b> • Saldo: <b style="color:var(--gold);">${ibRp(tc - pd - pn)}</b></div>
-          <div class="ib-admin-actions"><button class="ib-btn blue" onclick="window.adminIBDetail('${ibEsc(ib.code)}')">🔍 DETAIL</button><button class="ib-btn" onclick="window.adminIBRate('${ibEsc(ib.code)}')">✏️ RATE</button><button class="ib-btn ${ib.status === 'active' ? 'red' : 'green'}" onclick="window.adminIBToggle('${ibEsc(ib.code)}')">${ib.status === 'active' ? '🚫 NONAKTIFKAN' : '✅ AKTIFKAN'}</button></div></div>`;
+          <div class="ib-admin-actions"><button class="ib-btn blue" onclick="window.adminIBDetail('${ibEsc(ib.code)}')">🔍 DETAIL</button><button class="ib-btn" onclick="window.adminIBRate('${ibEsc(ib.code)}')">✏️ RATE</button><button class="ib-btn ${ib.status === 'active' ? 'red' : 'green'}" onclick="window.adminIBToggle('${ibEsc(ib.code)}')">${ib.status === 'active' ? '🚫 NONAKTIFKAN' : '✅ AKTIFKAN'}</button><button class="ib-btn red" onclick="window.adminIBDelete('${ibEsc(ib.code)}')">🗑️ HAPUS</button></div></div>`;
     }).join('');
 
     const feed = [];
-    D.ibs.forEach(i => feed.push({ t: i.createdAt, ic: '🆕', x: `<b>${ibEsc(i.nama)}</b> mendaftar jadi IB (${ibEsc(i.code)})` }));
-    D.clients.forEach(c => feed.push({ t: c.joinedAt, ic: '👤', x: `Client <b>${ibEsc(c.nama)}</b> daftar lewat IB ${ibEsc(c.ibCode)}` }));
-    D.comms.forEach(c => feed.push({ t: c.createdAt, ic: '💰', x: `<b>${ibEsc(c.clientNama)}</b> langganan ${ibEsc(c.planLabel)} (${ibRp(c.amount)}) → komisi ${ibRp(c.commission)} untuk IB ${ibEsc(c.ibCode)}` }));
-    D.wds.forEach(w => { feed.push({ t: w.createdAt, ic: '🏦', x: `IB <b>${ibEsc(w.ibNama)}</b> ajukan penarikan ${ibRp(w.amount)}` }); if (w.status === 'paid') feed.push({ t: w.paidAt, ic: '✅', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} dibayar` }); if (w.status === 'rejected') feed.push({ t: w.rejectedAt, ic: '✕', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} ditolak` }); });
+    D.ibs.forEach(i => { if (!i.feedHidden) feed.push({ col: 'ibs', id: i.id, fld: 'feedHidden', t: i.createdAt, ic: '🆕', x: `<b>${ibEsc(i.nama)}</b> mendaftar jadi IB (${ibEsc(i.code)})` }); });
+    D.clients.forEach(c => { if (!c.feedHidden) feed.push({ col: 'ibClients', id: c.id, fld: 'feedHidden', t: c.joinedAt, ic: '👤', x: `Client <b>${ibEsc(c.nama)}</b> daftar lewat IB ${ibEsc(c.ibCode)}` }); });
+    D.comms.forEach(c => { if (!c.feedHidden) feed.push({ col: 'ibCommissions', id: c.id, fld: 'feedHidden', t: c.createdAt, ic: '💰', x: `<b>${ibEsc(c.clientNama)}</b> langganan ${ibEsc(c.planLabel)} (${ibRp(c.amount)}) → komisi ${ibRp(c.commission)} untuk IB ${ibEsc(c.ibCode)}` }); });
+    D.wds.forEach(w => {
+        if (!w.feedHiddenReq) feed.push({ col: 'ibWithdrawals', id: w.id, fld: 'feedHiddenReq', t: w.createdAt, ic: '🏦', x: `IB <b>${ibEsc(w.ibNama)}</b> ajukan penarikan ${ibRp(w.amount)}` });
+        if (w.status === 'paid' && !w.feedHiddenDone) feed.push({ col: 'ibWithdrawals', id: w.id, fld: 'feedHiddenDone', t: w.paidAt, ic: '✅', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} dibayar` });
+        if (w.status === 'rejected' && !w.feedHiddenDone) feed.push({ col: 'ibWithdrawals', id: w.id, fld: 'feedHiddenDone', t: w.rejectedAt, ic: '✕', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} ditolak` });
+    });
     feed.sort((x, y) => new Date(y.t || 0) - new Date(x.t || 0));
+    window.__adminFeed = feed;
 
     el.innerHTML = `
     <div class="ib-stats">
@@ -3775,8 +3780,8 @@ window.drawAdminIB = function () {
     <div style="margin-bottom:16px;">${pendList.length ? pendList.map(w => `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(w.ibNama)} (${ibEsc(w.ibCode)}) — ${ibRp(w.amount)}</div><div class="s">${ibEsc(w.bank)} • ${ibEsc(w.accountNo)} • a.n. ${ibEsc(w.accountName)}<br>Diajukan ${ibDate(w.createdAt)} • Batas proses ${ibDay(w.estimatedAt)}</div></div><div class="r">${pill(w.status)}</div></div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminWDPay('${w.id}')">✅ TANDAI SUDAH DIBAYAR</button><button class="ib-btn red" onclick="window.adminWDReject('${w.id}')">✕ TOLAK</button></div></div>`).join('') : '<div class="ib-empty">Tidak ada penarikan yang menunggu.</div>'}</div>
     <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length})</div>
     <div style="margin-bottom:16px;">${ibCards || '<div class="ib-empty">Belum ada IB terdaftar.</div>'}</div>
-    <div class="ib-sec-title">📜 Aktivitas Terbaru IB & Client</div>
-    <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`;
+    <div class="ib-sec-title" style="display:flex; justify-content:space-between; align-items:center;"><span>📜 Aktivitas Terbaru IB & Client</span><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedClear()">🗑️ HAPUS SEMUA</button></div>
+    <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedHide('${f.col}','${f.id}','${f.fld}')">🗑️</button></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`;
 };
 
 window.adminIBDetail = function (code) {
@@ -3790,7 +3795,7 @@ window.adminIBDetail = function (code) {
         html: `<div style="text-align:left; font-size:11px; max-height:60vh; overflow-y:auto;">
           <div class="s" style="color:var(--text3);">${ibEsc(ib.email)}<br>Link: ${ibEsc(window.ibLink(ib.code))}<br>Rekening terakhir: ${p ? ibEsc(p.bank + ' • ' + p.accountNo + ' • ' + p.accountName) : '-'}</div>
           <div class="ib-sec-title" style="margin-top:12px;">👥 Client (${cl.length})</div>
-          ${cl.map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.nama)}</div><div class="s">${ibEsc(c.email)} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="r">${ibRp(c.totalPaid)}<div class="s">${c.paymentsCount || 0}× bayar</div></div></div>`).join('') || '<div class="ib-empty">Belum ada client.</div>'}
+          ${cl.map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.nama)}</div><div class="s">${ibEsc(c.email)} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="r">${ibRp(c.totalPaid)}<div class="s">${c.paymentsCount || 0}× bayar</div></div><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminIBDeleteClient('${c.id}','${ibEsc(ib.code)}')">🗑️</button></div>`).join('') || '<div class="ib-empty">Belum ada client.</div>'}
           <div class="ib-sec-title" style="margin-top:12px;">💰 Komisi (${cm.length})</div>
           ${cm.map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.clientNama)} • ${ibEsc(c.planLabel)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="r" style="color:var(--green2);">+${ibRp(c.commission)}</div></div>`).join('') || '<div class="ib-empty">Belum ada komisi.</div>'}
           <div class="ib-sec-title" style="margin-top:12px;">🏦 Penarikan (${wd.length})</div>
@@ -3837,6 +3842,66 @@ window.adminWDReject = async function (id) {
         const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'rejected'; w.rejectedAt = now; w.note = r.value || ''; }
         window.drawAdminIB();
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
+};
+
+// ---- Hapus IB / client / aktivitas (admin) ----
+window.adminIBDelete = async function (code) {
+    if (!window.__isAdmin) return;
+    const D = window.__adminIB; const ib = D.ibs.find(i => i.code === code); if (!ib) return;
+    const cl = D.clients.filter(c => c.ibUid === ib.uid), cm = D.comms.filter(c => c.ibUid === ib.uid), wd = D.wds.filter(w => w.ibUid === ib.uid);
+    const tc = cm.reduce((x, c) => x + (c.commission || 0), 0), pd = wd.filter(w => w.status === 'paid').reduce((x, w) => x + w.amount, 0), pn = wd.filter(w => w.status === 'pending').reduce((x, w) => x + w.amount, 0);
+    const r = await ibSwal({
+        icon: 'warning', title: 'Hapus IB ' + ibEsc(ib.nama) + '?',
+        html: '<div style="font-size:12px; text-align:left; line-height:1.6;">Link IB <b>' + ibEsc(code) + '</b> langsung mati.' + (pn > 0 ? '<br>⚠️ Masih ada penarikan pending ' + ibRp(pn) + '.' : '') + ((tc - pd - pn) > 0 ? '<br>⚠️ Saldo IB belum ditarik ' + ibRp(tc - pd - pn) + '.' : '') + '</div>',
+        input: 'checkbox', inputValue: 1, inputPlaceholder: 'Hapus juga semua client, komisi & penarikan IB ini (' + cl.length + ' client)',
+        showCancelButton: true, confirmButtonText: 'HAPUS', confirmButtonColor: 'var(--red2)'
+    });
+    if (!r.isConfirmed) return;
+    try {
+        const refs = [];
+        if (r.value) { cl.forEach(c => refs.push(doc(db, 'ibClients', c.id))); cm.forEach(c => refs.push(doc(db, 'ibCommissions', c.id))); wd.forEach(w => refs.push(doc(db, 'ibWithdrawals', w.id))); }
+        refs.push(doc(db, 'ibs', code));
+        for (let i = 0; i < refs.length; i += 400) { const b = writeBatch(db); refs.slice(i, i + 400).forEach(x => b.delete(x)); await b.commit(); }
+        try { await setDoc(doc(db, 'users', ib.uid), { ibCode: null, isIB: false }, { merge: true }); } catch (e) {}
+        await window.loadAdminIB();
+        ibSwal({ icon: 'success', title: 'IB Dihapus', timer: 1000, showConfirmButton: false });
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
+};
+
+window.adminIBDeleteClient = async function (clientUid, code) {
+    if (!window.__isAdmin) return;
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus client ini dari IB?', text: 'Client tidak lagi tercatat di IB ini dan komisi baru dari dia tidak akan masuk. Riwayat komisi lama tetap ada.', showCancelButton: true, confirmButtonText: 'HAPUS', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    try {
+        await deleteDoc(doc(db, 'ibClients', clientUid));
+        window.__adminIB.clients = window.__adminIB.clients.filter(c => c.id !== clientUid);
+        window.drawAdminIB(); window.adminIBDetail(code);
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
+};
+
+function ibLocalHide(col, id, fld) {
+    const D = window.__adminIB; const list = { ibs: D.ibs, ibClients: D.clients, ibCommissions: D.comms, ibWithdrawals: D.wds }[col];
+    const it = list && list.find(x => x.id === id); if (it) it[fld] = true;
+}
+window.adminFeedHide = async function (col, id, fld) {
+    if (!window.__isAdmin) return;
+    try { await updateDoc(doc(db, col, id), { [fld]: true }); ibLocalHide(col, id, fld); window.drawAdminIB(); }
+    catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
+};
+window.adminFeedClear = async function () {
+    if (!window.__isAdmin) return;
+    const items = (window.__adminFeed || []).slice();
+    if (!items.length) return;
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus semua aktivitas?', text: items.length + ' aktivitas dibersihkan dari daftar. Data IB, client, komisi & penarikan tidak ikut terhapus.', showCancelButton: true, confirmButtonText: 'HAPUS SEMUA', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    try {
+        const merged = {};
+        items.forEach(f => { const k = f.col + '/' + f.id; merged[k] = merged[k] || { col: f.col, id: f.id, data: {} }; merged[k].data[f.fld] = true; });
+        const all = Object.values(merged);
+        for (let i = 0; i < all.length; i += 400) { const b = writeBatch(db); all.slice(i, i + 400).forEach(m => b.update(doc(db, m.col, m.id), m.data)); await b.commit(); }
+        items.forEach(f => ibLocalHide(f.col, f.id, f.fld));
+        window.drawAdminIB();
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
 };
 
 window.defaultCATS = { 
