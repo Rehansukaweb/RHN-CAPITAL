@@ -1031,6 +1031,38 @@ body.global-privacy #xau-idr-gr {
     // Skrip Zoom checker yang menyebabkan auto-scale/menciut telah dihapus.
   });
 </script>
+<style id="ib-style">
+/* ===== IB BROKER (Introducing Broker) ===== */
+.ib-hero { background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(59,130,246,0.10)); border: 1px solid var(--gold); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.ib-hero h3 { font-size: 15px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+.ib-hero p { font-size: 11.5px; color: var(--text2); line-height: 1.6; }
+.ib-link-box { display: flex; gap: 8px; align-items: center; background: var(--bg3); border: 1px dashed var(--gold); border-radius: 14px; padding: 10px 12px; margin-top: 12px; }
+.ib-link-box input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font-size: 11.5px; font-weight: 700; }
+.ib-btn { border: none; border-radius: 12px; padding: 10px 14px; font-size: 11px; font-weight: 800; cursor: pointer; background: var(--gold); color: #1a1200; }
+.ib-btn.blue { background: var(--blue); color: #fff; }
+.ib-btn.green { background: var(--green2); color: #04140e; }
+.ib-btn.red { background: var(--red2); color: #fff; }
+.ib-btn:disabled { opacity: .5; cursor: default; }
+.ib-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.ib-stat { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 14px; }
+.ib-stat .l { font-size: 9px; font-weight: 800; letter-spacing: .8px; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
+.ib-stat .v { font-size: 16px; font-weight: 800; color: var(--text); }
+.ib-stat.gold { border-color: var(--gold); } .ib-stat.gold .v { color: var(--gold); }
+.ib-stat.green .v { color: var(--green2); }
+.ib-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.ib-row:last-child { border-bottom: none; }
+.ib-row .t { font-size: 12px; font-weight: 700; color: var(--text); }
+.ib-row .s { font-size: 10px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+.ib-row .r { text-align: right; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+.ib-pill { display: inline-block; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 999px; letter-spacing: .4px; }
+.ib-pill.ok { background: rgba(16,185,129,.15); color: var(--green2); }
+.ib-pill.wait { background: rgba(251,191,36,.15); color: var(--gold); }
+.ib-pill.bad { background: rgba(248,113,113,.15); color: var(--red2); }
+.ib-empty { padding: 18px; text-align: center; color: var(--text3); font-size: 11px; }
+.ib-sec-title { font-size: 12px; font-weight: 800; color: var(--gold); margin: 4px 0 6px; }
+.ib-admin-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+.ib-admin-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+</style>
 </head>
 <body>
 
@@ -1294,6 +1326,7 @@ body.global-privacy #xau-idr-gr {
   <button class="nav-btn" onclick="switchPage('tahunan')">TAHUNAN</button>
   <button class="nav-btn" onclick="switchPage('riwayat')">RIWAYAT</button>
   <button class="nav-btn" id="nav-admin" onclick="switchPage('admin')" style="display:none; color: var(--gold);">👑 ADMIN</button>
+  <button class="nav-btn" id="nav-ib" onclick="switchPage('ib')" style="color: var(--gold);">🤝 IB</button>
 </div>
 
 <div class="main">
@@ -1594,11 +1627,27 @@ body.global-privacy #xau-idr-gr {
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">🤝 Monitoring IB Broker</div>
+      <div class="card-sub">Pantau semua IB, client mereka, komisi masuk, dan penarikan saldo (proses maks 1 hari kerja).</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="window.loadAdminIB()" style="background:var(--gold); color:#000;">🔄 MUAT DATA IB</button>
+    </div>
+    <div id="admin-ib-root"><div class="ib-empty">Memuat data IB...</div></div>
+  </div>
+
+  
+<div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">💬 Customer Service — Chat Masuk</div>
       <div class="card-sub">Percakapan bantuan dari seluruh user terdaftar.</div>
     </div>
     <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar chat...</div></div>
   </div>
+</div>
+
+<div id="page-ib" class="page">
+  <div id="ib-root"><div class="ib-empty">Memuat dashboard IB...</div></div>
 </div>
 
 <div id="page-wallet" class="page">
@@ -2961,6 +3010,7 @@ window.konfirmasiBayarLangganan = async function() {
             } catch (eApprove) {
                 console.error('Gagal update status approved di subscriptionRequests:', eApprove);
             }
+            if (typeof window.creditIBCommission === 'function') { window.creditIBCommission(currentUser.uid, reqRef.id, plan.amount, window.__subsSelectedPlan, plan.days); }
 
             window.__subsScreenshotData = null;
             const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
@@ -3152,6 +3202,7 @@ window.approveSubscriptionRequest = async function(reqId, uid, planKey, days) {
             subscriptionPending: null
         });
         await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
+        if (typeof window.creditIBCommission === 'function') { await window.creditIBCommission(uid, reqId, (window.SUBS_PLANS[planKey] || {}).amount || 0, planKey, days); }
 
         Swal.fire({ icon: 'success', title: 'Langganan Dikonfirmasi!', background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
         window.loadAdminSubscriptionRequests();
@@ -3454,6 +3505,338 @@ window.revokeSubscription = async function(uid, name) {
     } catch (e) {
         Swal.fire({ icon: 'error', title: 'Gagal Mencabut Akses', text: e.message, background: 'var(--card)', color: 'var(--text)' });
     }
+};
+
+// ==========================================================================
+// SISTEM IB (INTRODUCING BROKER) — link referral, komisi otomatis, penarikan, monitoring admin
+// Koleksi Firestore: ibs/{kode}, ibClients/{uidClient}, ibCommissions/{requestId}, ibWithdrawals/{id}
+// ==========================================================================
+window.IB_DEFAULT_RATE = 20;   // komisi default (%) dari tiap pembayaran langganan client
+window.IB_MIN_WD = 1000;       // minimal penarikan
+window.__myIB = undefined; window.__ibUid = null; window.__ibUnsubs = []; window.__ib = { me: null, clients: [], comms: [], wds: [] };
+
+const ibEsc = s => String(s == null ? '' : s).replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
+const ibRp = n => 'Rp' + Math.round(n || 0).toLocaleString('id-ID');
+const ibDate = iso => iso ? new Date(iso).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+const ibDay = iso => iso ? new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+const ibSwal = o => Swal.fire(Object.assign({ background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }, o));
+const ibMask = e => { e = String(e || ''); const i = e.indexOf('@'); return i > 2 ? e.slice(0, 2) + '***' + e.slice(i) : e; };
+function ibNextWorkday(d) { const x = new Date(d); x.setDate(x.getDate() + 1); while (x.getDay() === 0 || x.getDay() === 6) x.setDate(x.getDate() + 1); return x; }
+// ISI dengan alamat website aplikasi kamu yang sudah online (contoh: 'https://rhn-capital.web.app/'). Kalau kosong, otomatis pakai alamat halaman yang sedang dibuka.
+window.IB_BASE_URL = '';
+window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?ib=' + code;
+
+// Simpan kode IB dari link (?ib=KODE) & arahkan ke tab Daftar
+(function () {
+    try {
+        const p = new URLSearchParams(location.search).get('ib');
+        if (p) {
+            localStorage.setItem('rhn_ib_ref', p.trim().toUpperCase());
+            setTimeout(() => { try { if (!auth.currentUser && typeof window.switchTab === 'function') window.switchTab('register'); } catch (e) {} }, 700);
+        }
+    } catch (e) {}
+})();
+
+// Pasang client baru ke IB pemilik link (sekali, hanya akun baru)
+window.attachIBReferral = async function (user) {
+    try {
+        const code = (localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase();
+        if (!code || !user || !user.uid || !user.metadata) return;
+        const done = () => localStorage.removeItem('rhn_ib_ref');
+        if (user.metadata.creationTime && (Date.now() - new Date(user.metadata.creationTime).getTime()) > 86400000) { done(); return; }
+        const cRef = doc(db, 'ibClients', user.uid);
+        if ((await getDoc(cRef)).exists()) { done(); return; }
+        const ibSnap = await getDoc(doc(db, 'ibs', code));
+        if (!ibSnap.exists()) { done(); return; }
+        const ib = ibSnap.data();
+        if (ib.status !== 'active' || ib.uid === user.uid) { done(); return; }
+        await setDoc(cRef, {
+            ibUid: ib.uid, ibCode: code, clientUid: user.uid,
+            nama: user.displayName || (user.email || '').split('@')[0], email: user.email || '',
+            joinedAt: new Date().toISOString(), activeUntil: null, totalPaid: 0, paymentsCount: 0
+        });
+        try { await setDoc(doc(db, 'users', user.uid), { ibReferredBy: ib.uid, ibReferredByCode: code }, { merge: true }); } catch (e) {}
+        done();
+    } catch (e) { console.error('Gagal pasang referral IB:', e); }
+};
+
+// Komisi otomatis tiap langganan client terkonfirmasi (ID dokumen = requestId → tidak bisa dobel)
+window.creditIBCommission = async function (clientUid, requestId, amount, planKey, days) {
+    try {
+        if (!clientUid || !requestId || !amount) return;
+        const cRef = doc(db, 'ibClients', clientUid);
+        const cs = await getDoc(cRef); if (!cs.exists()) return;
+        const cl = cs.data();
+        const ibSnap = await getDoc(doc(db, 'ibs', cl.ibCode)); if (!ibSnap.exists()) return;
+        const ib = ibSnap.data(); if (ib.status !== 'active') return;
+        const cmRef = doc(db, 'ibCommissions', requestId);
+        if ((await getDoc(cmRef)).exists()) return;
+        const rate = (typeof ib.rate === 'number') ? ib.rate : window.IB_DEFAULT_RATE;
+        const now = new Date();
+        await setDoc(cmRef, {
+            ibUid: ib.uid, ibCode: ib.code, ibNama: ib.nama || '', clientUid, clientNama: cl.nama || '', clientEmail: cl.email || '',
+            plan: planKey, planLabel: (window.SUBS_PLANS[planKey] || {}).label || planKey, amount, rate,
+            commission: Math.floor(amount * rate / 100), requestId, createdAt: now.toISOString()
+        });
+        const base = (cl.activeUntil && new Date(cl.activeUntil) > now) ? new Date(cl.activeUntil) : now;
+        await updateDoc(cRef, {
+            activeUntil: new Date(base.getTime() + (days || 0) * 86400000).toISOString(),
+            totalPaid: increment(amount), paymentsCount: increment(1), lastPaymentAt: now.toISOString(), lastPlan: planKey
+        });
+    } catch (e) { console.error('Gagal kredit komisi IB:', e); }
+};
+
+// ---------------- DASHBOARD IB (sisi user) ----------------
+function ibStopListeners() { (window.__ibUnsubs || []).forEach(u => { try { u(); } catch (e) {} }); window.__ibUnsubs = []; }
+
+window.renderIBPage = async function () {
+    const el = document.getElementById('ib-root'); if (!el || !currentUser) return;
+    if (window.__ibUid !== currentUser.uid) { ibStopListeners(); window.__myIB = undefined; window.__ibUid = currentUser.uid; window.__ib = { me: null, clients: [], comms: [], wds: [] }; }
+    if (window.__myIB === undefined) {
+        el.innerHTML = '<div class="ib-empty">Memuat dashboard IB...</div>';
+        try {
+            const q = await getDocs(query(collection(db, 'ibs'), where('uid', '==', currentUser.uid), limit(1)));
+            window.__myIB = q.empty ? null : q.docs[0].data();
+        } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; return; }
+    }
+    if (!window.__myIB) {
+        el.innerHTML = `<div class="ib-hero"><h3>🤝 Jadi IB Partner RHN CAPITAL</h3>
+            <p>Daftar jadi IB, dapatkan link khusus kamu. Setiap orang yang mendaftar lewat link kamu lalu berlangganan, kamu otomatis dapat komisi <b style="color:var(--gold);">${window.IB_DEFAULT_RATE}%</b> dari tiap pembayaran langganan mereka. Saldo bisa ditarik, diproses maksimal 1 hari kerja.</p>
+            <button class="ib-btn" style="margin-top:14px; width:100%; padding:13px;" onclick="window.daftarJadiIB()">🚀 DAFTAR JADI IB SEKARANG</button></div>`;
+        return;
+    }
+    window.__ib.me = window.__myIB;
+    if (!window.__ibUnsubs.length) {
+        const uid = currentUser.uid, code = window.__myIB.code;
+        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { window.__ib[key] = s.docs.map(d => Object.assign({ id: d.id }, d.data())); window.drawIB(); }, e => console.error('IB listener', key, e)));
+        window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } }));
+        sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
+        sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
+        sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
+    }
+    window.drawIB();
+};
+
+window.daftarJadiIB = async function () {
+    if (!currentUser) return;
+    const r = await ibSwal({ title: 'Jadi IB Partner?', html: '<div style="font-size:12px; line-height:1.6; text-align:left;">Kamu akan mendapat link khusus. Komisi <b>' + window.IB_DEFAULT_RATE + '%</b> dari setiap langganan client yang daftar lewat link kamu.</div>', showCancelButton: true, confirmButtonText: 'DAFTAR' });
+    if (!r.isConfirmed) return;
+    try {
+        let code = '', tries = 0;
+        while (tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
+        const data = { code, uid: currentUser.uid, email: currentUser.email || '', nama: currentUser.displayName || (currentUser.email || '').split('@')[0], rate: window.IB_DEFAULT_RATE, status: 'active', createdAt: new Date().toISOString(), payout: null };
+        await setDoc(doc(db, 'ibs', code), data);
+        try { await setDoc(doc(db, 'users', currentUser.uid), { ibCode: code, isIB: true }, { merge: true }); } catch (e) {}
+        window.__myIB = data;
+        await window.renderIBPage();
+        ibSwal({ icon: 'success', title: 'Kamu Sekarang IB! 🎉', text: 'Link referral kamu sudah aktif. Bagikan ke calon client.', timer: 1800, showConfirmButton: false });
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Mendaftar IB', text: e.message }); }
+};
+
+window.ibStats = function () {
+    const { clients, comms, wds } = window.__ib;
+    const total = comms.reduce((a, c) => a + (c.commission || 0), 0);
+    const paid = wds.filter(w => w.status === 'paid').reduce((a, w) => a + (w.amount || 0), 0);
+    const pend = wds.filter(w => w.status === 'pending').reduce((a, w) => a + (w.amount || 0), 0);
+    const now = Date.now();
+    return { total, paid, pend, available: Math.max(0, total - paid - pend), clients: clients.length, active: clients.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > now).length };
+};
+
+window.drawIB = function () {
+    const el = document.getElementById('ib-root'); const ib = window.__ib.me; if (!el || !ib) return;
+    const s = window.ibStats(); window.__ibStats = s;
+    const link = window.ibLink(ib.code);
+    const clients = window.__ib.clients.slice().sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+    const comms = window.__ib.comms.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const wds = window.__ib.wds.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const now = Date.now();
+    const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
+    el.innerHTML = `
+    <div class="ib-hero"><h3>🤝 Dashboard IB — ${ibEsc(ib.nama)}</h3>
+      <p>Kode IB: <b style="color:var(--gold);">${ibEsc(ib.code)}</b> • Komisi: <b style="color:var(--gold);">${ib.rate}%</b> per langganan client • Status: ${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">DINONAKTIFKAN</span>'}</p>
+      <div class="ib-link-box"><input id="ib-link-input" readonly value="${ibEsc(link)}" onclick="this.select()"><button class="ib-btn" onclick="window.ibCopyLink()">SALIN</button><button class="ib-btn blue" onclick="window.ibShareLink()">BAGIKAN</button></div>
+      ${(location.protocol === 'file:' && !(window.IB_BASE_URL || '').trim()) ? '<div style="margin-top:10px; font-size:10.5px; color:var(--red2); line-height:1.5;">⚠️ Link ini masih alamat file di komputer (file:///), tidak bisa dibuka orang lain. Upload aplikasi ke hosting dulu lalu isi IB_BASE_URL.</div>' : ''}
+      <div id="ib-qr" style="margin-top:12px; display:flex; justify-content:center;"></div>
+    </div>
+    <div class="ib-stats">
+      <div class="ib-stat gold"><div class="l">Saldo Bisa Ditarik</div><div class="v">${ibRp(s.available)}</div></div>
+      <div class="ib-stat green"><div class="l">Total Komisi</div><div class="v">${ibRp(s.total)}</div></div>
+      <div class="ib-stat"><div class="l">Sudah Ditarik</div><div class="v">${ibRp(s.paid)}</div></div>
+      <div class="ib-stat"><div class="l">Sedang Diproses</div><div class="v">${ibRp(s.pend)}</div></div>
+      <div class="ib-stat"><div class="l">Total Client</div><div class="v">${s.clients}</div></div>
+      <div class="ib-stat"><div class="l">Client Aktif</div><div class="v">${s.active}</div></div>
+    </div>
+    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">💸 Tarik Saldo</div><div class="card-sub">Minimal ${ibRp(window.IB_MIN_WD)}. Penarikan diproses maksimal 1 hari kerja (Senin–Jumat).</div></div>
+      <button class="ib-btn green" style="width:100%; padding:13px;" onclick="window.ibTarik()" ${s.available < window.IB_MIN_WD || ib.status !== 'active' ? 'disabled' : ''}>TARIK ${ibRp(s.available)}</button></div>
+    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">👥 Client Saya</div></div>
+      ${clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ib-row"><div><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="r">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div></div></div>`; }).join('') : '<div class="ib-empty">Belum ada client. Bagikan link kamu!</div>'}
+    </div>
+    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">💰 Riwayat Komisi</div></div>
+      ${comms.length ? comms.slice(0, 100).map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="r" style="color:var(--green2);">+${ibRp(c.commission)}</div></div>`).join('') : '<div class="ib-empty">Belum ada komisi masuk.</div>'}
+    </div>
+    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">🏦 Riwayat Penarikan</div></div>
+      ${wds.length ? wds.slice(0, 100).map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) : ''}${w.status === 'rejected' ? '<br>Alasan: ' + ibEsc(w.note || '-') : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') : '<div class="ib-empty">Belum ada penarikan.</div>'}
+    </div>`;
+    try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') new QRCode(q, { text: link, width: 120, height: 120 }); } catch (e) {}
+};
+
+window.ibCopyLink = function () {
+    const link = window.ibLink(window.__ib.me.code);
+    const ok = () => ibSwal({ icon: 'success', title: 'Link Disalin!', timer: 900, showConfirmButton: false });
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(link).then(ok).catch(() => { const i = document.getElementById('ib-link-input'); i.select(); document.execCommand('copy'); ok(); }); }
+    else { const i = document.getElementById('ib-link-input'); i.select(); document.execCommand('copy'); ok(); }
+};
+window.ibShareLink = function () {
+    const link = window.ibLink(window.__ib.me.code);
+    if (navigator.share) navigator.share({ title: 'RHN CAPITAL', text: 'Catat arus keuangan kamu di RHN CAPITAL:', url: link }).catch(() => {});
+    else window.ibCopyLink();
+};
+
+window.ibTarik = async function () {
+    const ib = window.__ib.me, s = window.ibStats(); if (!ib) return;
+    if (ib.status !== 'active') return ibSwal({ icon: 'error', title: 'Akun IB Nonaktif' });
+    if (s.available < window.IB_MIN_WD) return ibSwal({ icon: 'warning', title: 'Saldo Belum Cukup', text: 'Minimal penarikan ' + ibRp(window.IB_MIN_WD) });
+    const p = ib.payout || {};
+    const r = await ibSwal({
+        title: 'Tarik Saldo IB',
+        html: `<div style="font-size:12px; margin-bottom:8px;">Saldo tersedia: <b style="color:var(--gold);">${ibRp(s.available)}</b></div>
+          <input id="wd-amt" class="swal2-input" placeholder="Nominal" inputmode="numeric" value="${s.available}">
+          <input id="wd-bank" class="swal2-input" placeholder="Bank / E-Wallet (BCA, DANA, dll)" value="${ibEsc(p.bank || '')}">
+          <input id="wd-no" class="swal2-input" placeholder="No. Rekening / HP" value="${ibEsc(p.accountNo || '')}">
+          <input id="wd-name" class="swal2-input" placeholder="Atas Nama" value="${ibEsc(p.accountName || '')}">
+          <div style="font-size:10px; color:var(--text3); margin-top:8px;">Diproses maksimal 1 hari kerja.</div>`,
+        showCancelButton: true, confirmButtonText: 'AJUKAN PENARIKAN',
+        preConfirm: () => {
+            const amount = parseInt((document.getElementById('wd-amt').value || '').replace(/\D/g, '')) || 0;
+            const bank = document.getElementById('wd-bank').value.trim(), accountNo = document.getElementById('wd-no').value.trim(), accountName = document.getElementById('wd-name').value.trim();
+            if (amount < window.IB_MIN_WD) return Swal.showValidationMessage('Minimal ' + ibRp(window.IB_MIN_WD));
+            if (amount > window.ibStats().available) return Swal.showValidationMessage('Melebihi saldo tersedia');
+            if (!bank || !accountNo || !accountName) return Swal.showValidationMessage('Lengkapi data rekening / e-wallet');
+            return { amount, bank, accountNo, accountName };
+        }
+    });
+    if (!r.isConfirmed || !r.value) return;
+    try {
+        const now = new Date(), v = r.value;
+        await addDoc(collection(db, 'ibWithdrawals'), { ibUid: ib.uid, ibCode: ib.code, ibNama: ib.nama || '', ibEmail: ib.email || '', amount: v.amount, bank: v.bank, accountNo: v.accountNo, accountName: v.accountName, status: 'pending', createdAt: now.toISOString(), estimatedAt: ibNextWorkday(now).toISOString() });
+        try { await updateDoc(doc(db, 'ibs', ib.code), { payout: { bank: v.bank, accountNo: v.accountNo, accountName: v.accountName } }); } catch (e) {}
+        ibSwal({ icon: 'success', title: 'Penarikan Diajukan', text: 'Estimasi cair: ' + ibDay(ibNextWorkday(now).toISOString()) + ' (maks 1 hari kerja).' });
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Mengajukan', text: e.message }); }
+};
+
+// ---------------- MONITORING IB (sisi admin) ----------------
+window.loadAdminIB = async function () {
+    if (!window.__isAdmin) return;
+    const el = document.getElementById('admin-ib-root'); if (!el) return;
+    el.innerHTML = '<div class="ib-empty">Memuat data IB...</div>';
+    try {
+        const [a, b, c, d] = await Promise.all(['ibs', 'ibClients', 'ibCommissions', 'ibWithdrawals'].map(n => getDocs(collection(db, n))));
+        const map = s => s.docs.map(x => Object.assign({ id: x.id }, x.data()));
+        window.__adminIB = { ibs: map(a), clients: map(b), comms: map(c), wds: map(d) };
+        window.drawAdminIB();
+    } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; }
+};
+
+window.drawAdminIB = function () {
+    const el = document.getElementById('admin-ib-root'); const D = window.__adminIB; if (!el || !D) return;
+    const totComm = D.comms.reduce((x, c) => x + (c.commission || 0), 0);
+    const totPaid = D.wds.filter(w => w.status === 'paid').reduce((x, w) => x + (w.amount || 0), 0);
+    const pendList = D.wds.filter(w => w.status === 'pending').sort((x, y) => new Date(x.createdAt) - new Date(y.createdAt));
+    const totPend = pendList.reduce((x, w) => x + (w.amount || 0), 0);
+    const totRev = D.comms.reduce((x, c) => x + (c.amount || 0), 0);
+    const pill = st => st === 'paid' ? '<span class="ib-pill ok">DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">PENDING</span>');
+
+    const ibCards = D.ibs.slice().sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt)).map(ib => {
+        const cl = D.clients.filter(c => c.ibUid === ib.uid), cm = D.comms.filter(c => c.ibUid === ib.uid), wd = D.wds.filter(w => w.ibUid === ib.uid);
+        const tc = cm.reduce((x, c) => x + (c.commission || 0), 0), pd = wd.filter(w => w.status === 'paid').reduce((x, w) => x + w.amount, 0), pn = wd.filter(w => w.status === 'pending').reduce((x, w) => x + w.amount, 0);
+        const act = cl.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > Date.now()).length;
+        return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(ib.nama)} <span style="color:var(--gold);">• ${ibEsc(ib.code)}</span></div><div class="s">${ibEsc(ib.email)} • Daftar ${ibDay(ib.createdAt)} • Rate ${ib.rate}%</div></div><div class="r">${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">NONAKTIF</span>'}</div></div>
+          <div class="s" style="margin-top:8px; font-size:11px; color:var(--text2);">Client: <b>${cl.length}</b> (aktif ${act}) • Komisi: <b style="color:var(--green2);">${ibRp(tc)}</b> • Ditarik: <b>${ibRp(pd)}</b> • Proses: <b>${ibRp(pn)}</b> • Saldo: <b style="color:var(--gold);">${ibRp(tc - pd - pn)}</b></div>
+          <div class="ib-admin-actions"><button class="ib-btn blue" onclick="window.adminIBDetail('${ibEsc(ib.code)}')">🔍 DETAIL</button><button class="ib-btn" onclick="window.adminIBRate('${ibEsc(ib.code)}')">✏️ RATE</button><button class="ib-btn ${ib.status === 'active' ? 'red' : 'green'}" onclick="window.adminIBToggle('${ibEsc(ib.code)}')">${ib.status === 'active' ? '🚫 NONAKTIFKAN' : '✅ AKTIFKAN'}</button></div></div>`;
+    }).join('');
+
+    const feed = [];
+    D.ibs.forEach(i => feed.push({ t: i.createdAt, ic: '🆕', x: `<b>${ibEsc(i.nama)}</b> mendaftar jadi IB (${ibEsc(i.code)})` }));
+    D.clients.forEach(c => feed.push({ t: c.joinedAt, ic: '👤', x: `Client <b>${ibEsc(c.nama)}</b> daftar lewat IB ${ibEsc(c.ibCode)}` }));
+    D.comms.forEach(c => feed.push({ t: c.createdAt, ic: '💰', x: `<b>${ibEsc(c.clientNama)}</b> langganan ${ibEsc(c.planLabel)} (${ibRp(c.amount)}) → komisi ${ibRp(c.commission)} untuk IB ${ibEsc(c.ibCode)}` }));
+    D.wds.forEach(w => { feed.push({ t: w.createdAt, ic: '🏦', x: `IB <b>${ibEsc(w.ibNama)}</b> ajukan penarikan ${ibRp(w.amount)}` }); if (w.status === 'paid') feed.push({ t: w.paidAt, ic: '✅', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} dibayar` }); if (w.status === 'rejected') feed.push({ t: w.rejectedAt, ic: '✕', x: `Penarikan ${ibRp(w.amount)} IB ${ibEsc(w.ibNama)} ditolak` }); });
+    feed.sort((x, y) => new Date(y.t || 0) - new Date(x.t || 0));
+
+    el.innerHTML = `
+    <div class="ib-stats">
+      <div class="ib-stat"><div class="l">Total IB</div><div class="v">${D.ibs.length}</div></div>
+      <div class="ib-stat"><div class="l">Total Client IB</div><div class="v">${D.clients.length}</div></div>
+      <div class="ib-stat"><div class="l">Omzet dari Client IB</div><div class="v">${ibRp(totRev)}</div></div>
+      <div class="ib-stat green"><div class="l">Total Komisi</div><div class="v">${ibRp(totComm)}</div></div>
+      <div class="ib-stat"><div class="l">Sudah Dibayar</div><div class="v">${ibRp(totPaid)}</div></div>
+      <div class="ib-stat gold"><div class="l">Penarikan Pending</div><div class="v">${ibRp(totPend)}</div></div>
+    </div>
+    <div class="ib-sec-title">🏦 Antrian Penarikan (${pendList.length})</div>
+    <div style="margin-bottom:16px;">${pendList.length ? pendList.map(w => `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(w.ibNama)} (${ibEsc(w.ibCode)}) — ${ibRp(w.amount)}</div><div class="s">${ibEsc(w.bank)} • ${ibEsc(w.accountNo)} • a.n. ${ibEsc(w.accountName)}<br>Diajukan ${ibDate(w.createdAt)} • Batas proses ${ibDay(w.estimatedAt)}</div></div><div class="r">${pill(w.status)}</div></div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminWDPay('${w.id}')">✅ TANDAI SUDAH DIBAYAR</button><button class="ib-btn red" onclick="window.adminWDReject('${w.id}')">✕ TOLAK</button></div></div>`).join('') : '<div class="ib-empty">Tidak ada penarikan yang menunggu.</div>'}</div>
+    <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length})</div>
+    <div style="margin-bottom:16px;">${ibCards || '<div class="ib-empty">Belum ada IB terdaftar.</div>'}</div>
+    <div class="ib-sec-title">📜 Aktivitas Terbaru IB & Client</div>
+    <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`;
+};
+
+window.adminIBDetail = function (code) {
+    const D = window.__adminIB; const ib = D.ibs.find(i => i.code === code); if (!ib) return;
+    const cl = D.clients.filter(c => c.ibUid === ib.uid).sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+    const cm = D.comms.filter(c => c.ibUid === ib.uid).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const wd = D.wds.filter(w => w.ibUid === ib.uid).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const p = ib.payout;
+    ibSwal({
+        title: ibEsc(ib.nama) + ' • ' + ibEsc(ib.code), width: 640, confirmButtonText: 'TUTUP',
+        html: `<div style="text-align:left; font-size:11px; max-height:60vh; overflow-y:auto;">
+          <div class="s" style="color:var(--text3);">${ibEsc(ib.email)}<br>Link: ${ibEsc(window.ibLink(ib.code))}<br>Rekening terakhir: ${p ? ibEsc(p.bank + ' • ' + p.accountNo + ' • ' + p.accountName) : '-'}</div>
+          <div class="ib-sec-title" style="margin-top:12px;">👥 Client (${cl.length})</div>
+          ${cl.map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.nama)}</div><div class="s">${ibEsc(c.email)} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="r">${ibRp(c.totalPaid)}<div class="s">${c.paymentsCount || 0}× bayar</div></div></div>`).join('') || '<div class="ib-empty">Belum ada client.</div>'}
+          <div class="ib-sec-title" style="margin-top:12px;">💰 Komisi (${cm.length})</div>
+          ${cm.map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.clientNama)} • ${ibEsc(c.planLabel)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="r" style="color:var(--green2);">+${ibRp(c.commission)}</div></div>`).join('') || '<div class="ib-empty">Belum ada komisi.</div>'}
+          <div class="ib-sec-title" style="margin-top:12px;">🏦 Penarikan (${wd.length})</div>
+          ${wd.map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)} ${ibEsc(w.accountNo)}</div><div class="s">${ibDate(w.createdAt)}${w.note ? ' • ' + ibEsc(w.note) : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') || '<div class="ib-empty">Belum ada penarikan.</div>'}
+        </div>`
+    });
+    function pill(st) { return st === 'paid' ? '<span class="ib-pill ok">DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">PENDING</span>'); }
+};
+
+window.adminIBRate = async function (code) {
+    const ib = window.__adminIB.ibs.find(i => i.code === code); if (!ib) return;
+    const r = await ibSwal({ title: 'Atur Komisi IB', input: 'number', inputValue: ib.rate, inputLabel: 'Persentase komisi (%) untuk ' + ib.nama, inputAttributes: { min: 0, max: 100, step: 1 }, showCancelButton: true, confirmButtonText: 'SIMPAN' });
+    if (!r.isConfirmed) return;
+    const v = Math.max(0, Math.min(100, parseFloat(r.value)));
+    if (isNaN(v)) return;
+    try { await updateDoc(doc(db, 'ibs', code), { rate: v }); ib.rate = v; window.drawAdminIB(); } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
+};
+
+window.adminIBToggle = async function (code) {
+    const ib = window.__adminIB.ibs.find(i => i.code === code); if (!ib) return;
+    const to = ib.status === 'active' ? 'suspended' : 'active';
+    const r = await ibSwal({ title: (to === 'active' ? 'Aktifkan' : 'Nonaktifkan') + ' IB ini?', text: to === 'suspended' ? 'IB tidak akan menerima komisi baru dan tidak bisa menarik saldo.' : '', icon: 'warning', showCancelButton: true, confirmButtonText: 'YA' });
+    if (!r.isConfirmed) return;
+    try { await updateDoc(doc(db, 'ibs', code), { status: to }); ib.status = to; window.drawAdminIB(); } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
+};
+
+window.adminWDPay = async function (id) {
+    const r = await ibSwal({ title: 'Tandai sudah dibayar?', text: 'Pastikan transfer ke IB sudah kamu lakukan.', input: 'text', inputPlaceholder: 'Catatan / no. referensi (opsional)', showCancelButton: true, confirmButtonText: 'SUDAH DIBAYAR' });
+    if (!r.isConfirmed) return;
+    try {
+        const now = new Date().toISOString();
+        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'paid', paidAt: now, note: r.value || '', processedBy: currentUser ? currentUser.email : 'admin' });
+        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'paid'; w.paidAt = now; w.note = r.value || ''; }
+        window.drawAdminIB();
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
+};
+
+window.adminWDReject = async function (id) {
+    const r = await ibSwal({ title: 'Tolak penarikan?', text: 'Saldo akan dikembalikan ke IB.', input: 'text', inputPlaceholder: 'Alasan penolakan', showCancelButton: true, confirmButtonText: 'TOLAK', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    try {
+        const now = new Date().toISOString();
+        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'rejected', rejectedAt: now, note: r.value || '', processedBy: currentUser ? currentUser.email : 'admin' });
+        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'rejected'; w.rejectedAt = now; w.note = r.value || ''; }
+        window.drawAdminIB();
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
 };
 
 window.defaultCATS = { 
@@ -4942,6 +5325,8 @@ function unlockApp() {
         if (window.__isAdmin && typeof window.loadAdminSubscriptionRequests === 'function') { window.loadAdminSubscriptionRequests(); }
         if (window.__isAdmin && typeof window.loadReferralCodes === 'function') { window.loadReferralCodes(); }
         if (window.__isAdmin && typeof window.loadActiveSubscribers === 'function') { window.loadActiveSubscribers(); }
+        if (typeof window.attachIBReferral === 'function') { window.attachIBReferral(currentUser); }
+        if (window.__isAdmin && typeof window.loadAdminIB === 'function') { window.loadAdminIB(); }
         if (typeof window.checkSubscriptionStatus === 'function') { window.checkSubscriptionStatus(currentUser.uid); }
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
@@ -7716,7 +8101,7 @@ window.switchPage = function(p) {
   // Kalau tombol yang ditekan adalah halaman yang sedang aktif, tidak perlu render ulang
   // (render ulang yang tidak perlu inilah salah satu sumber "ngedet" saat tombol dipencet berkali-kali).
   if (p === activePage) return;
-  const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin']; 
+  const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin', 'ib']; 
   const navBtns = document.querySelectorAll('.nav-btn');
   // Hanya sentuh elemen yang benar-benar berubah (halaman lama & baru, tombol lama & baru)
   // alih-alih looping semua .page & semua .nav-btn tiap kali pindah, supaya browser tidak
@@ -7728,7 +8113,7 @@ window.switchPage = function(p) {
   document.getElementById('page-' + p).classList.add('active'); 
   const idx = pages.indexOf(p); 
   if (idx !== -1 && navBtns[idx]) { navBtns[idx].classList.add('active'); } 
-  activePage = p; 
+  activePage = p; if (p === 'ib' && typeof window.renderIBPage === 'function') window.renderIBPage(); 
   // PENTING: pakai DOUBLE requestAnimationFrame, bukan 1x. Kenapa: 1x rAF TIDAK menjamin
   // browser sudah sempat menggambar (paint) perubahan class (tombol aktif, halaman baru
   // muncul) sebelum callback jalan — kalau refreshAll() berat (rebuild chart, dst), semuanya
