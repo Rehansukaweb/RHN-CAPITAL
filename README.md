@@ -1634,6 +1634,17 @@ body.global-privacy #xau-idr-gr {
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">📲 File Aplikasi (APK)</div>
+      <div class="card-sub">Upload APK ke Google Drive / GitHub Releases / hosting lain (gratis), lalu tempel link downloadnya di sini. Orang yang membuka link IB akan melihat tombol download aplikasi.</div>
+    </div>
+    <div id="admin-apk-info" style="padding:10px 4px; font-size:11.5px; color:var(--text2); line-height:1.6;">Memuat info APK...</div>
+    <input type="text" id="admin-apk-url" class="f-input-dark" placeholder="Tempel link download APK (https://...)" style="margin-top:8px;">
+    <div id="admin-apk-progress" style="font-size:11px; color:var(--gold); margin-top:8px;"></div>
+    <button class="export-btn" id="admin-apk-btn" onclick="window.uploadApkAdmin()" style="background:var(--gold); color:#000; margin-top:8px;">💾 SIMPAN LINK APK</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">🤝 Monitoring IB Broker</div>
       <div class="card-sub">Pantau semua IB, client mereka, komisi masuk, dan penarikan saldo (proses maks 1 hari kerja).</div>
     </div>
@@ -3547,6 +3558,51 @@ const ibMask = e => { e = String(e || ''); const i = e.indexOf('@'); return i > 
 function ibNextWorkday(d) { const x = new Date(d); x.setDate(x.getDate() + 1); while (x.getDay() === 0 || x.getDay() === 6) x.setDate(x.getDate() + 1); return x; }
 // ISI dengan alamat website aplikasi kamu yang sudah online (contoh: 'https://rhn-capital.web.app/'). Kalau kosong, otomatis pakai alamat halaman yang sedang dibuka.
 window.IB_BASE_URL = 'https://rhncapital.online/';
+// ---------------- FILE APK (upload admin + banner download di link IB) ----------------
+window.loadApkAdminInfo = async function () {
+    const el = document.getElementById('admin-apk-info'); if (!el) return;
+    try {
+        const sn = await getDoc(doc(db, 'appConfig', 'apk'));
+        if (sn.exists() && sn.data().url) {
+            const d = sn.data();
+            el.innerHTML = 'Link saat ini: <b style="word-break:break-all;">' + ibEsc(d.url) + '</b><br>Disimpan: ' + (d.updatedAt ? new Date(d.updatedAt).toLocaleString('id-ID') : '-');
+        } else { el.textContent = 'Belum ada APK yang diupload.'; }
+    } catch (e) { el.textContent = 'Gagal memuat info APK: ' + (e.message || ''); }
+};
+window.uploadApkAdmin = async function () {
+    if (!window.__isAdmin) return;
+    const inp = document.getElementById('admin-apk-url'), pr = document.getElementById('admin-apk-progress'), btn = document.getElementById('admin-apk-btn');
+    let url = ((inp && inp.value) || '').trim();
+    if (!/^https:\/\//i.test(url)) { pr.textContent = 'Link harus diawali https://'; return; }
+    const gd = url.match(/drive\.google\.com\/file\/d\/([^\/?#]+)/);
+    if (gd) url = 'https://drive.google.com/uc?export=download&id=' + gd[1];
+    btn.disabled = true; pr.textContent = 'Menyimpan...';
+    try {
+        await setDoc(doc(db, 'appConfig', 'apk'), { url: url, fileName: 'Link APK', size: 0, updatedAt: new Date().toISOString() });
+        pr.textContent = '✅ Link APK tersimpan.'; inp.value = '';
+        window.loadApkAdminInfo();
+    } catch (e) { pr.textContent = 'Gagal menyimpan: ' + (e.message || ''); }
+    btn.disabled = false;
+};
+setTimeout(() => { try { window.loadApkAdminInfo(); } catch (e) {} }, 2000);
+
+// Banner download aplikasi untuk orang yang membuka link IB (?ib=KODE)
+(function () {
+    try {
+        if (!new URLSearchParams(location.search).get('ib')) return;
+        if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
+        getDoc(doc(db, 'appConfig', 'apk')).then(sn => {
+            if (!sn.exists() || !sn.data().url) return;
+            const b = document.createElement('div');
+            b.style.cssText = 'position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); z-index:99999; display:flex; align-items:center; gap:10px; background:#111827; border:1px solid #fbbf24; border-radius:16px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.5); font-family:inherit;';
+            b.innerHTML = '<div style="flex:1; min-width:0; color:#f8fafc; font-size:12px; font-weight:700; line-height:1.4;">📲 Download aplikasi RHN CAPITAL</div>' +
+                '<a href="' + sn.data().url + '" style="background:#fbbf24; color:#000; font-weight:800; font-size:12px; padding:10px 14px; border-radius:12px; text-decoration:none; white-space:nowrap;">DOWNLOAD</a>' +
+                '<button type="button" style="background:transparent; border:none; color:#94a3b8; font-size:18px; cursor:pointer;" onclick="this.parentNode.remove()">✕</button>';
+            document.body.appendChild(b);
+        }).catch(() => {});
+    } catch (e) {}
+})();
+
 window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?ib=' + code;
 
 // Simpan kode IB dari link (?ib=KODE) & arahkan ke tab Daftar
@@ -3797,7 +3853,7 @@ window.drawIB = function () {
     <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">🏦 Riwayat Penarikan</div></div>
       ${wds.length ? wds.slice(0, 100).map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) : ''}${w.status === 'rejected' ? '<br>Alasan: ' + ibEsc(w.note || '-') : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') : '<div class="ib-empty">Belum ada penarikan.</div>'}
     </div>`;
-    try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') new QRCode(q, { text: link, width: 120, height: 120 }); } catch (e) {}
+    try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
 };
 
 window.ibCopyLink = function () {
