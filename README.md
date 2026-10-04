@@ -1843,6 +1843,18 @@ body.global-privacy #xau-idr-gr {
 </div>
 
 <div id="page-pengaturan" class="page">
+  <div class="set-group" id="settings-ib-group">
+    <div class="set-title">🤝 IB SAYA</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">IB Saat Ini</div>
+        <div class="set-sub" id="settings-ib-name">Memuat...</div>
+      </div>
+      <span id="settings-ib-code" style="font-weight:800; letter-spacing:1px; color:var(--gold); font-size:13px;">-</span>
+    </div>
+    <button class="set-action" style="width:100%; margin-top:12px; background:var(--blue); color:#fff; border:none;" onclick="window.gantiIBSaya()">🔄 GANTI IB</button>
+  </div>
+
   <div class="set-group">
     <div class="set-title">💳 DOMPET SAYA</div>
     <div class="set-item">
@@ -3542,7 +3554,7 @@ window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.spli
     try {
         const p = new URLSearchParams(location.search).get('ib');
         if (p) {
-            localStorage.setItem('rhn_ib_ref', p.trim().toUpperCase());
+            localStorage.setItem('rhn_ib_ref', p.trim().toUpperCase()); localStorage.setItem('rhn_ib_link', p.trim().toUpperCase()); window.__ibLinkCode = p.trim().toUpperCase();
             setTimeout(() => { try { if (!auth.currentUser && typeof window.switchTab === 'function') window.switchTab('register'); } catch (e) {} }, 700);
         }
     } catch (e) {}
@@ -3575,18 +3587,71 @@ window.attachIBReferral = async function (user, force) {
 window.__subsIBCode = null; window.__subsIBFor = null;
 window.refreshSubsIBBox = async function () {
     const box = document.getElementById('subs-ib-box'); if (!box || !currentUser) return;
-    if (window.__subsIBFor === currentUser.uid) return;
-    let code = null, ok = true;
+    // Kode dari link yang diklik selalu dipakai & dipaksa tampil (tidak bisa diubah)
+    let linkCode = (window.__ibLinkCode || localStorage.getItem('rhn_ib_link') || localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase();
+    if (window.__subsIBFor === currentUser.uid && window.__subsIBCode) return;
+    let code = linkCode || null, ok = true;
     try {
         await window.attachIBReferral(currentUser, true);
+        if (!code) {
+            const cs = await getDoc(doc(db, 'ibClients', currentUser.uid));
+            if (cs.exists()) code = cs.data().ibCode || null;
+        }
+        if (!code) {
+            const us = await getDoc(doc(db, 'users', currentUser.uid));
+            if (us.exists()) code = us.data().ibReferredByCode || null;
+        }
+    } catch (e) { ok = false; }
+    window.__subsIBCode = code;
+    const inp = document.getElementById('subs-ib-input'); if (inp) { inp.value = code || ''; inp.readOnly = true; inp.disabled = true; }
+    box.style.display = code ? 'block' : 'none';
+    if (code) {
+        try { await setDoc(doc(db, 'users', currentUser.uid), { ibLinkCode: code }, { merge: true }); } catch (e) {}
+    }
+    if (ok && code) window.__subsIBFor = currentUser.uid;
+};
+
+// ---- PENGATURAN: lihat IB saat ini & ganti IB ----
+window.refreshSettingsIB = async function () {
+    const nm = document.getElementById('settings-ib-name'), cd = document.getElementById('settings-ib-code');
+    if (!nm || !cd || !currentUser) return;
+    let code = null, nama = '';
+    try {
         const cs = await getDoc(doc(db, 'ibClients', currentUser.uid));
         if (cs.exists()) code = cs.data().ibCode || null;
-    } catch (e) { ok = false; }
-    if (!code) { const l = (localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase(); if (l) code = l; }
-    window.__subsIBCode = code;
-    const inp = document.getElementById('subs-ib-input'); if (inp) inp.value = code || '';
-    box.style.display = code ? 'block' : 'none';
-    if (ok) window.__subsIBFor = currentUser.uid;
+        if (!code) { const us = await getDoc(doc(db, 'users', currentUser.uid)); if (us.exists()) code = us.data().ibReferredByCode || us.data().ibLinkCode || null; }
+        if (!code) code = (window.__ibLinkCode || localStorage.getItem('rhn_ib_link') || '').trim().toUpperCase() || null;
+        if (code) { const ib = await getDoc(doc(db, 'ibs', code)); if (ib.exists()) nama = ib.data().nama || ''; }
+    } catch (e) {}
+    cd.textContent = code || '-';
+    nm.textContent = code ? (nama ? 'IB: ' + nama : 'Kode IB terpasang') : 'Belum terhubung ke IB manapun';
+};
+window.gantiIBSaya = async function () {
+    if (!currentUser) return;
+    const r = await Swal.fire({ title: 'Ganti IB', input: 'text', inputLabel: 'Masukkan kode IB baru', inputPlaceholder: 'Contoh: IB1ABC23', showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', inputAttributes: { style: 'text-transform:uppercase' } });
+    if (!r.isConfirmed) return;
+    const code = String(r.value || '').trim().toUpperCase();
+    if (!code) return ibSwal({ icon: 'warning', title: 'Kode kosong' });
+    try {
+        const ibSnap = await getDoc(doc(db, 'ibs', code));
+        if (!ibSnap.exists()) return ibSwal({ icon: 'error', title: 'Kode IB tidak ditemukan' });
+        const ib = ibSnap.data();
+        if (ib.status !== 'active') return ibSwal({ icon: 'error', title: 'IB tidak aktif' });
+        if (ib.uid === currentUser.uid) return ibSwal({ icon: 'error', title: 'Tidak bisa memakai kode IB sendiri' });
+        const cRef = doc(db, 'ibClients', currentUser.uid);
+        const cs = await getDoc(cRef);
+        if (cs.exists()) {
+            await updateDoc(cRef, { ibUid: ib.uid, ibCode: code });
+        } else {
+            await setDoc(cRef, { ibUid: ib.uid, ibCode: code, clientUid: currentUser.uid, nama: currentUser.displayName || (currentUser.email || '').split('@')[0], email: currentUser.email || '', joinedAt: new Date().toISOString(), activeUntil: null, totalPaid: 0, paymentsCount: 0 });
+        }
+        try { await setDoc(doc(db, 'users', currentUser.uid), { ibReferredBy: ib.uid, ibReferredByCode: code, ibLinkCode: code }, { merge: true }); } catch (e) {}
+        localStorage.setItem('rhn_ib_link', code); localStorage.setItem('rhn_ib_ref', code); window.__ibLinkCode = code;
+        window.__subsIBCode = code; window.__subsIBFor = null;
+        const inp = document.getElementById('subs-ib-input'); if (inp) inp.value = code;
+        window.refreshSettingsIB();
+        ibSwal({ icon: 'success', title: 'IB berhasil diganti', text: 'IB sekarang: ' + code, timer: 1800, showConfirmButton: false });
+    } catch (e) { console.error(e); ibSwal({ icon: 'error', title: 'Gagal ganti IB', text: e.message || '' }); }
 };
 
 // Komisi otomatis tiap langganan client terkonfirmasi (ID dokumen = requestId → tidak bisa dobel)
@@ -8260,7 +8325,7 @@ window.switchPage = function(p) {
   document.getElementById('page-' + p).classList.add('active'); 
   const idx = pages.indexOf(p); 
   if (idx !== -1 && navBtns[idx]) { navBtns[idx].classList.add('active'); } 
-  activePage = p; if (p === 'ib' && typeof window.renderIBPage === 'function') window.renderIBPage(); 
+  activePage = p; if (p === 'ib' && typeof window.renderIBPage === 'function') window.renderIBPage(); if (p === 'pengaturan' && typeof window.refreshSettingsIB === 'function') window.refreshSettingsIB(); 
   // PENTING: pakai DOUBLE requestAnimationFrame, bukan 1x. Kenapa: 1x rAF TIDAK menjamin
   // browser sudah sempat menggambar (paint) perubahan class (tombol aktif, halaman baru
   // muncul) sebelum callback jalan — kalau refreshAll() berat (rebuild chart, dst), semuanya
