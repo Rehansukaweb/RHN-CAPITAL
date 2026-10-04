@@ -2257,18 +2257,18 @@ window.toggleRecTime = function() {
     if(rt) rt.style.display = val ? 'block' : 'none';
 };
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
   GoogleAuthProvider, signInWithPopup, updateProfile 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 import { 
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
   serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = { 
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", 
