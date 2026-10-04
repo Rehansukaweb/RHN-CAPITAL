@@ -1192,6 +1192,13 @@ body.global-privacy #xau-idr-gr {
           <div class="sp-price">Rp260.000</div>
         </div>
       </div>
+      <div id="subs-ib-box" style="display:none; margin-bottom:14px;">
+        <div class="form-row">
+          <label class="form-label">🔒 Kode Referral IB</label>
+          <input type="text" id="subs-ib-input" class="f-input-dark" readonly disabled style="text-transform:uppercase; font-weight:800; letter-spacing:1px; color:var(--gold); opacity:1; cursor:not-allowed;">
+          <div style="font-size:10px; color:var(--text3); margin-top:6px;">Terisi otomatis dari link pendaftaran kamu dan tidak bisa diubah.</div>
+        </div>
+      </div>
       <button class="subs-cta" id="subs-lanjut-btn" onclick="window.lanjutBayarLangganan()" disabled>PILIH PAKET DULU</button>
 
       <button class="subs-back" style="margin-top:18px;" onclick="window.toggleReferralInput()">🎁 Punya kode referral seumur hidup?</button>
@@ -2977,6 +2984,7 @@ window.konfirmasiBayarLangganan = async function() {
             planLabel: plan.label,
             amount: plan.amount,
             days: plan.days,
+            ibCode: window.__subsIBCode || null,
             status: 'pending',
             autoVerified: !!(aiResult && aiResult.valid),
             aiAnalysis: aiResult ? {
@@ -3107,6 +3115,7 @@ window.checkSubscriptionStatus = function(uid) {
             document.getElementById('subscribe-screen').style.display = 'none';
         } else {
             document.getElementById('subscribe-screen').style.display = 'block';
+            if (typeof window.refreshSubsIBBox === 'function') window.refreshSubsIBBox();
             if (data.subscriptionPending) {
                 document.getElementById('subs-step-plans').style.display = 'none';
                 document.getElementById('subs-step-pay').style.display = 'none';
@@ -3140,6 +3149,7 @@ function renderSubsStatusWidgets(data, isActive) {
 }
 
 window.bukaLayarLangganan = function() {
+    if (typeof window.refreshSubsIBBox === 'function') window.refreshSubsIBBox();
     document.getElementById('subscribe-screen').style.display = 'block';
     subsResetToPlanStep();
 };
@@ -3172,6 +3182,7 @@ window.loadAdminSubscriptionRequests = async function() {
                 </div>
                 <div style="font-size:11px; color:var(--text2); margin-bottom:2px;">Paket: <b style="color:var(--gold);">${escapeHTML(v.planLabel || v.plan || '-')}</b> — ${fmtRupiah(v.amount || 0)}</div>
                 <div style="font-size:10px; color:var(--text3); margin-bottom:8px;">Diajukan: ${waktu}</div>
+                ${v.ibCode ? `<div style="font-size:10.5px; color:var(--gold); margin-bottom:8px;">🤝 Kode IB: <b>${escapeHTML(v.ibCode)}</b> — komisi otomatis masuk ke IB saat dikonfirmasi</div>` : ''}
                 ${v.aiAnalysis ? `<div style="font-size:9.5px; color:var(--text3); margin-bottom:12px; line-height:1.6; background:rgba(255,255,255,0.04); border-radius:8px; padding:8px 10px;">🤖 <b>Analisa AI</b> (screenshot gagal diverifikasi otomatis):<br>${v.aiAnalysis.error ? 'Alasan: ' + escapeHTML(v.aiAnalysis.error) + (v.aiAnalysis.technicalDetail ? '<br><span style="color:var(--red2); font-size:9px;">Detail teknis: ' + escapeHTML(v.aiAnalysis.technicalDetail) + '</span>' : '') : 'Nama tujuan: ' + escapeHTML(v.aiAnalysis.nama_penerima || '-') + ' ' + (v.aiAnalysis.cocokNama ? '✅' : '❌') + '<br>Nominal terbaca: ' + fmtRupiah(v.aiAnalysis.nominal || 0) + ' ' + (v.aiAnalysis.cocokNominal ? '✅' : '❌') + '<br>Waktu transaksi: ' + escapeHTML(v.aiAnalysis.waktu_transaksi_iso || '-') + ' ' + (v.aiAnalysis.cocokWaktu ? '✅ (≤1 menit)' : ('❌' + (v.aiAnalysis.selisihDetik != null ? ' (selisih ' + Math.round(v.aiAnalysis.selisihDetik) + ' detik)' : ''))) + '<br>Status sukses menurut AI: ' + (v.aiAnalysis.status_berhasil ? '✅' : '❌')}</div>` : ''}
                 <div class="admin-user-actions">
                   <button class="admin-detail-btn fix" onclick="window.approveSubscriptionRequest('${d.id}','${v.uid}','${v.plan}',${v.days || 7})">✅ KONFIRMASI LUNAS</button>
@@ -3523,7 +3534,7 @@ const ibSwal = o => Swal.fire(Object.assign({ background: 'var(--card)', color: 
 const ibMask = e => { e = String(e || ''); const i = e.indexOf('@'); return i > 2 ? e.slice(0, 2) + '***' + e.slice(i) : e; };
 function ibNextWorkday(d) { const x = new Date(d); x.setDate(x.getDate() + 1); while (x.getDay() === 0 || x.getDay() === 6) x.setDate(x.getDate() + 1); return x; }
 // ISI dengan alamat website aplikasi kamu yang sudah online (contoh: 'https://rhn-capital.web.app/'). Kalau kosong, otomatis pakai alamat halaman yang sedang dibuka.
-window.IB_BASE_URL = 'https://magnificent-pixie-180194.netlify.app/';
+window.IB_BASE_URL = 'https://rhncapital.online/';
 window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?ib=' + code;
 
 // Simpan kode IB dari link (?ib=KODE) & arahkan ke tab Daftar
@@ -3538,12 +3549,12 @@ window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.spli
 })();
 
 // Pasang client baru ke IB pemilik link (sekali, hanya akun baru)
-window.attachIBReferral = async function (user) {
+window.attachIBReferral = async function (user, force) {
     try {
         const code = (localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase();
-        if (!code || !user || !user.uid || !user.metadata) return;
+        if (!code || !user || !user.uid || (!force && !user.metadata)) return;
         const done = () => localStorage.removeItem('rhn_ib_ref');
-        if (user.metadata.creationTime && (Date.now() - new Date(user.metadata.creationTime).getTime()) > 86400000) { done(); return; }
+        if (!force && user.metadata && user.metadata.creationTime && (Date.now() - new Date(user.metadata.creationTime).getTime()) > 86400000) { done(); return; }
         const cRef = doc(db, 'ibClients', user.uid);
         if ((await getDoc(cRef)).exists()) { done(); return; }
         const ibSnap = await getDoc(doc(db, 'ibs', code));
@@ -3560,12 +3571,32 @@ window.attachIBReferral = async function (user) {
     } catch (e) { console.error('Gagal pasang referral IB:', e); }
 };
 
+// Kode referral IB di layar langganan: otomatis dari link IB & terkunci (read-only)
+window.__subsIBCode = null; window.__subsIBFor = null;
+window.refreshSubsIBBox = async function () {
+    const box = document.getElementById('subs-ib-box'); if (!box || !currentUser) return;
+    if (window.__subsIBFor === currentUser.uid) return;
+    let code = null, ok = true;
+    try {
+        await window.attachIBReferral(currentUser, true);
+        const cs = await getDoc(doc(db, 'ibClients', currentUser.uid));
+        if (cs.exists()) code = cs.data().ibCode || null;
+    } catch (e) { ok = false; }
+    if (!code) { const l = (localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase(); if (l) code = l; }
+    window.__subsIBCode = code;
+    const inp = document.getElementById('subs-ib-input'); if (inp) inp.value = code || '';
+    box.style.display = code ? 'block' : 'none';
+    if (ok) window.__subsIBFor = currentUser.uid;
+};
+
 // Komisi otomatis tiap langganan client terkonfirmasi (ID dokumen = requestId → tidak bisa dobel)
 window.creditIBCommission = async function (clientUid, requestId, amount, planKey, days) {
     try {
         if (!clientUid || !requestId || !amount) return;
         const cRef = doc(db, 'ibClients', clientUid);
-        const cs = await getDoc(cRef); if (!cs.exists()) return;
+        let cs = await getDoc(cRef);
+        if (!cs.exists() && currentUser && currentUser.uid === clientUid) { await window.attachIBReferral(currentUser, true); cs = await getDoc(cRef); }
+        if (!cs.exists()) return;
         const cl = cs.data();
         const ibSnap = await getDoc(doc(db, 'ibs', cl.ibCode)); if (!ibSnap.exists()) return;
         const ib = ibSnap.data(); if (ib.status !== 'active') return;
@@ -3601,8 +3632,8 @@ window.renderIBPage = async function () {
     }
     if (!window.__myIB) {
         el.innerHTML = `<div class="ib-hero"><h3>🤝 Jadi IB Partner RHN CAPITAL</h3>
-            <p>Daftar jadi IB, dapatkan link khusus kamu. Setiap orang yang mendaftar lewat link kamu lalu berlangganan, kamu otomatis dapat komisi <b style="color:var(--gold);">${window.IB_DEFAULT_RATE}%</b> dari tiap pembayaran langganan mereka. Saldo bisa ditarik, diproses maksimal 1 hari kerja.</p>
-            <button class="ib-btn" style="margin-top:14px; width:100%; padding:13px;" onclick="window.daftarJadiIB()">🚀 DAFTAR JADI IB SEKARANG</button></div>`;
+            <p>Daftar jadi IB, dapatkan link khusus kamu. Setiap orang yang mendaftar lewat link kamu lalu berlangganan, kamu otomatis dapat komisi <b style="color:var(--gold);">${window.IB_DEFAULT_RATE}%</b> dari tiap pembayaran langganan mereka. Saldo bisa ditarik, diproses maksimal 1 hari kerja. Pendaftaran wajib mengisi formulir dan disetujui admin dulu.</p>
+            <button class="ib-btn" style="margin-top:14px; width:100%; padding:13px;" onclick="window.daftarJadiIB()">📝 ISI FORMULIR PENDAFTARAN IB</button></div>`;
         return;
     }
     window.__ib.me = window.__myIB;
@@ -3619,17 +3650,36 @@ window.renderIBPage = async function () {
 
 window.daftarJadiIB = async function () {
     if (!currentUser) return;
-    const r = await ibSwal({ title: 'Jadi IB Partner?', html: '<div style="font-size:12px; line-height:1.6; text-align:left;">Kamu akan mendapat link khusus. Komisi <b>' + window.IB_DEFAULT_RATE + '%</b> dari setiap langganan client yang daftar lewat link kamu.</div>', showCancelButton: true, confirmButtonText: 'DAFTAR' });
-    if (!r.isConfirmed) return;
+    const inp = (id, ph, val, extra) => '<input id="' + id + '" class="swal2-input" placeholder="' + ph + '" value="' + ibEsc(val || '') + '" ' + (extra || '') + '>';
+    const r = await ibSwal({
+        title: 'Formulir Pendaftaran IB',
+        html: '<div style="font-size:11px; color:var(--text3); text-align:left; margin-bottom:6px; line-height:1.5;">Isi data dengan benar. Pendaftaran ditinjau admin dulu, setelah disetujui kamu resmi jadi IB dan link aktif.</div>'
+            + inp('ibf-nama', 'Nama Lengkap', currentUser.displayName || '')
+            + inp('ibf-wa', 'No. WhatsApp', '', 'inputmode="tel"')
+            + inp('ibf-bank', 'Bank / E-Wallet (BCA, DANA, dll)')
+            + inp('ibf-no', 'No. Rekening / HP E-Wallet')
+            + inp('ibf-an', 'Atas Nama Rekening')
+            + '<textarea id="ibf-promo" class="swal2-textarea" placeholder="Rencana promosi (grup WhatsApp, TikTok, komunitas trading, dll)"></textarea>',
+        showCancelButton: true, confirmButtonText: 'KIRIM PENDAFTARAN', focusConfirm: false,
+        preConfirm: () => {
+            const v = id => (document.getElementById(id).value || '').trim();
+            const d = { nama: v('ibf-nama'), wa: v('ibf-wa'), bank: v('ibf-bank'), accountNo: v('ibf-no'), accountName: v('ibf-an'), promo: v('ibf-promo') };
+            if (!d.nama || !d.wa || !d.bank || !d.accountNo || !d.accountName) return Swal.showValidationMessage('Lengkapi semua data wajib (nama, WhatsApp, rekening)');
+            if (d.wa.replace(/\D/g, '').length < 9) return Swal.showValidationMessage('No. WhatsApp tidak valid');
+            if (!d.promo) return Swal.showValidationMessage('Isi rencana promosi kamu');
+            return d;
+        }
+    });
+    if (!r.isConfirmed || !r.value) return;
     try {
+        const f = r.value;
         let code = '', tries = 0;
         while (tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
-        const data = { code, uid: currentUser.uid, email: currentUser.email || '', nama: currentUser.displayName || (currentUser.email || '').split('@')[0], rate: window.IB_DEFAULT_RATE, status: 'active', createdAt: new Date().toISOString(), payout: null };
+        const data = { code, uid: currentUser.uid, email: currentUser.email || '', nama: f.nama, rate: window.IB_DEFAULT_RATE, status: 'pending', createdAt: new Date().toISOString(), payout: { bank: f.bank, accountNo: f.accountNo, accountName: f.accountName }, application: { nama: f.nama, wa: f.wa, promo: f.promo } };
         await setDoc(doc(db, 'ibs', code), data);
-        try { await setDoc(doc(db, 'users', currentUser.uid), { ibCode: code, isIB: true }, { merge: true }); } catch (e) {}
         window.__myIB = data;
         await window.renderIBPage();
-        ibSwal({ icon: 'success', title: 'Kamu Sekarang IB! 🎉', text: 'Link referral kamu sudah aktif. Bagikan ke calon client.', timer: 1800, showConfirmButton: false });
+        ibSwal({ icon: 'success', title: 'Pendaftaran Terkirim', text: 'Tunggu persetujuan admin. Link IB aktif setelah disetujui.' });
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Mendaftar IB', text: e.message }); }
 };
 
@@ -3644,6 +3694,11 @@ window.ibStats = function () {
 
 window.drawIB = function () {
     const el = document.getElementById('ib-root'); const ib = window.__ib.me; if (!el || !ib) return;
+    if (ib.status === 'pending' || ib.status === 'rejected') {
+        const ap = ib.application || {};
+        el.innerHTML = '<div class="ib-hero"><h3>' + (ib.status === 'pending' ? '⏳ Pendaftaran IB Sedang Ditinjau' : '✕ Pendaftaran IB Ditolak') + '</h3><p>' + (ib.status === 'pending' ? 'Formulir kamu sudah masuk. Link IB akan aktif setelah admin menyetujui.' : 'Alasan: ' + ibEsc(ib.rejectNote || '-') + '. Hubungi admin lewat Customer Service kalau ingin mendaftar ulang.') + '</p><div class="s" style="margin-top:10px; font-size:10.5px; color:var(--text3); line-height:1.7;">Nama: ' + ibEsc(ap.nama || ib.nama) + '<br>WhatsApp: ' + ibEsc(ap.wa || '-') + '<br>Diajukan: ' + ibDate(ib.createdAt) + '</div></div>';
+        return;
+    }
     const s = window.ibStats(); window.__ibStats = s;
     const link = window.ibLink(ib.code);
     const clients = window.__ib.clients.slice().sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
@@ -3744,19 +3799,20 @@ window.drawAdminIB = function () {
     const pendList = D.wds.filter(w => w.status === 'pending').sort((x, y) => new Date(x.createdAt) - new Date(y.createdAt));
     const totPend = pendList.reduce((x, w) => x + (w.amount || 0), 0);
     const totRev = D.comms.reduce((x, c) => x + (c.amount || 0), 0);
+    const appList = D.ibs.filter(i => i.status === 'pending').sort((x, y) => new Date(x.createdAt) - new Date(y.createdAt));
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">PENDING</span>');
 
-    const ibCards = D.ibs.slice().sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt)).map(ib => {
+    const ibCards = D.ibs.filter(i => i.status !== 'pending').sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt)).map(ib => {
         const cl = D.clients.filter(c => c.ibUid === ib.uid), cm = D.comms.filter(c => c.ibUid === ib.uid), wd = D.wds.filter(w => w.ibUid === ib.uid);
         const tc = cm.reduce((x, c) => x + (c.commission || 0), 0), pd = wd.filter(w => w.status === 'paid').reduce((x, w) => x + w.amount, 0), pn = wd.filter(w => w.status === 'pending').reduce((x, w) => x + w.amount, 0);
         const act = cl.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > Date.now()).length;
-        return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(ib.nama)} <span style="color:var(--gold);">• ${ibEsc(ib.code)}</span></div><div class="s">${ibEsc(ib.email)} • Daftar ${ibDay(ib.createdAt)} • Rate ${ib.rate}%</div></div><div class="r">${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">NONAKTIF</span>'}</div></div>
+        return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(ib.nama)} <span style="color:var(--gold);">• ${ibEsc(ib.code)}</span></div><div class="s">${ibEsc(ib.email)} • Daftar ${ibDay(ib.createdAt)} • Rate ${ib.rate}%</div></div><div class="r">${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : (ib.status === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill bad">NONAKTIF</span>')}</div></div>
           <div class="s" style="margin-top:8px; font-size:11px; color:var(--text2);">Client: <b>${cl.length}</b> (aktif ${act}) • Komisi: <b style="color:var(--green2);">${ibRp(tc)}</b> • Ditarik: <b>${ibRp(pd)}</b> • Proses: <b>${ibRp(pn)}</b> • Saldo: <b style="color:var(--gold);">${ibRp(tc - pd - pn)}</b></div>
           <div class="ib-admin-actions"><button class="ib-btn blue" onclick="window.adminIBDetail('${ibEsc(ib.code)}')">🔍 DETAIL</button><button class="ib-btn" onclick="window.adminIBRate('${ibEsc(ib.code)}')">✏️ RATE</button><button class="ib-btn ${ib.status === 'active' ? 'red' : 'green'}" onclick="window.adminIBToggle('${ibEsc(ib.code)}')">${ib.status === 'active' ? '🚫 NONAKTIFKAN' : '✅ AKTIFKAN'}</button><button class="ib-btn red" onclick="window.adminIBDelete('${ibEsc(ib.code)}')">🗑️ HAPUS</button></div></div>`;
     }).join('');
 
     const feed = [];
-    D.ibs.forEach(i => { if (!i.feedHidden) feed.push({ col: 'ibs', id: i.id, fld: 'feedHidden', t: i.createdAt, ic: '🆕', x: `<b>${ibEsc(i.nama)}</b> mendaftar jadi IB (${ibEsc(i.code)})` }); });
+    D.ibs.forEach(i => { if (!i.feedHidden) feed.push({ col: 'ibs', id: i.id, fld: 'feedHidden', t: i.createdAt, ic: '🆕', x: `<b>${ibEsc(i.nama)}</b> ${i.status === 'pending' ? 'mengajukan pendaftaran IB' : 'mendaftar jadi IB'} (${ibEsc(i.code)})` }); });
     D.clients.forEach(c => { if (!c.feedHidden) feed.push({ col: 'ibClients', id: c.id, fld: 'feedHidden', t: c.joinedAt, ic: '👤', x: `Client <b>${ibEsc(c.nama)}</b> daftar lewat IB ${ibEsc(c.ibCode)}` }); });
     D.comms.forEach(c => { if (!c.feedHidden) feed.push({ col: 'ibCommissions', id: c.id, fld: 'feedHidden', t: c.createdAt, ic: '💰', x: `<b>${ibEsc(c.clientNama)}</b> langganan ${ibEsc(c.planLabel)} (${ibRp(c.amount)}) → komisi ${ibRp(c.commission)} untuk IB ${ibEsc(c.ibCode)}` }); });
     D.wds.forEach(w => {
@@ -3769,16 +3825,18 @@ window.drawAdminIB = function () {
 
     el.innerHTML = `
     <div class="ib-stats">
-      <div class="ib-stat"><div class="l">Total IB</div><div class="v">${D.ibs.length}</div></div>
+      <div class="ib-stat"><div class="l">Total IB</div><div class="v">${D.ibs.length - appList.length}</div></div>
       <div class="ib-stat"><div class="l">Total Client IB</div><div class="v">${D.clients.length}</div></div>
       <div class="ib-stat"><div class="l">Omzet dari Client IB</div><div class="v">${ibRp(totRev)}</div></div>
       <div class="ib-stat green"><div class="l">Total Komisi</div><div class="v">${ibRp(totComm)}</div></div>
       <div class="ib-stat"><div class="l">Sudah Dibayar</div><div class="v">${ibRp(totPaid)}</div></div>
       <div class="ib-stat gold"><div class="l">Penarikan Pending</div><div class="v">${ibRp(totPend)}</div></div>
     </div>
+    <div class="ib-sec-title">📝 Pendaftaran IB Menunggu Persetujuan (${appList.length})</div>
+    <div style="margin-bottom:16px;">${appList.length ? appList.map(i => { const ap = i.application || {}, py = i.payout || {}; return `<div class="ib-admin-card"><div class="t">${ibEsc(i.nama)} <span style="color:var(--gold);">• ${ibEsc(i.code)}</span></div><div class="s">${ibEsc(i.email)} • WA ${ibEsc(ap.wa || '-')}<br>Rekening: ${ibEsc(py.bank || '-')} ${ibEsc(py.accountNo || '')} a.n. ${ibEsc(py.accountName || '')}<br>Promosi: ${ibEsc(ap.promo || '-')}<br>Diajukan ${ibDate(i.createdAt)}</div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminIBApprove('${ibEsc(i.code)}')">✅ SETUJUI</button><button class="ib-btn red" onclick="window.adminIBRejectApp('${ibEsc(i.code)}')">✕ TOLAK</button></div></div>`; }).join('') : '<div class="ib-empty">Tidak ada pendaftaran yang menunggu.</div>'}</div>
     <div class="ib-sec-title">🏦 Antrian Penarikan (${pendList.length})</div>
     <div style="margin-bottom:16px;">${pendList.length ? pendList.map(w => `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(w.ibNama)} (${ibEsc(w.ibCode)}) — ${ibRp(w.amount)}</div><div class="s">${ibEsc(w.bank)} • ${ibEsc(w.accountNo)} • a.n. ${ibEsc(w.accountName)}<br>Diajukan ${ibDate(w.createdAt)} • Batas proses ${ibDay(w.estimatedAt)}</div></div><div class="r">${pill(w.status)}</div></div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminWDPay('${w.id}')">✅ TANDAI SUDAH DIBAYAR</button><button class="ib-btn red" onclick="window.adminWDReject('${w.id}')">✕ TOLAK</button></div></div>`).join('') : '<div class="ib-empty">Tidak ada penarikan yang menunggu.</div>'}</div>
-    <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length})</div>
+    <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length - appList.length})</div>
     <div style="margin-bottom:16px;">${ibCards || '<div class="ib-empty">Belum ada IB terdaftar.</div>'}</div>
     <div class="ib-sec-title" style="display:flex; justify-content:space-between; align-items:center;"><span>📜 Aktivitas Terbaru IB & Client</span><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedClear()">🗑️ HAPUS SEMUA</button></div>
     <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedHide('${f.col}','${f.id}','${f.fld}')">🗑️</button></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`;
@@ -3902,6 +3960,30 @@ window.adminFeedClear = async function () {
         items.forEach(f => ibLocalHide(f.col, f.id, f.fld));
         window.drawAdminIB();
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
+};
+
+// ---- Persetujuan pendaftaran IB (admin) ----
+window.adminIBApprove = async function (code) {
+    if (!window.__isAdmin) return;
+    const ib = window.__adminIB.ibs.find(i => i.code === code); if (!ib) return;
+    const r = await ibSwal({ icon: 'question', title: 'Setujui ' + ibEsc(ib.nama) + ' jadi IB?', text: 'Link IB langsung aktif dengan komisi ' + (ib.rate || window.IB_DEFAULT_RATE) + '%.', showCancelButton: true, confirmButtonText: 'SETUJUI' });
+    if (!r.isConfirmed) return;
+    try {
+        const now = new Date().toISOString();
+        await updateDoc(doc(db, 'ibs', code), { status: 'active', approvedAt: now, approvedBy: currentUser ? currentUser.email : 'admin' });
+        try { await setDoc(doc(db, 'users', ib.uid), { ibCode: code, isIB: true }, { merge: true }); } catch (e) {}
+        ib.status = 'active'; ib.approvedAt = now; window.drawAdminIB();
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
+};
+window.adminIBRejectApp = async function (code) {
+    if (!window.__isAdmin) return;
+    const ib = window.__adminIB.ibs.find(i => i.code === code); if (!ib) return;
+    const r = await ibSwal({ title: 'Tolak pendaftaran IB?', input: 'text', inputPlaceholder: 'Alasan penolakan', showCancelButton: true, confirmButtonText: 'TOLAK', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    try {
+        await updateDoc(doc(db, 'ibs', code), { status: 'rejected', rejectNote: r.value || '', rejectedAt: new Date().toISOString() });
+        ib.status = 'rejected'; ib.rejectNote = r.value || ''; window.drawAdminIB();
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
 };
 
 window.defaultCATS = { 
