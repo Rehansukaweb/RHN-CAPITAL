@@ -300,6 +300,10 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .w-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; display: block; letter-spacing: -0.5px; }
 .w-val::-webkit-scrollbar { display: none; }
 .w-val.min { color: var(--red2); }
+.w-card:has(.w-row21) { justify-content: flex-start; }
+.w-row21 > span { margin-top: 1px; }
+.w-row21 .ib-bl { filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4)); }
+.w-row21 .ib-bl svg, .w-row21 .ib-bl img { border-radius: 7px; }
 
 /* ==========================================================================
    DOMPET SALDO — Kartu transfer saldo antar user (gaya dompet digital / Bitget)
@@ -1426,7 +1430,7 @@ body.global-privacy #xau-idr-gr {
           <option value="DANA">DANA</option>
           <option value="GoPay">GoPay</option>
           <option value="ShopeePay">ShopeePay</option>
-          <option value="MT5 Trading">Saldo MT5 Trading</option>
+          <option value="MT5 Trading">Saldo MetaTrader 5</option>
           <option value="Bank">Bank</option>
           <option value="Hutang">Hutang (Tarik/Bayar)</option>
           <option value="Piutang">Piutang (Beri/Tarik)</option>
@@ -1440,7 +1444,7 @@ body.global-privacy #xau-idr-gr {
           <option value="DANA">DANA</option>
           <option value="GoPay">GoPay</option>
           <option value="ShopeePay">ShopeePay</option>
-          <option value="MT5 Trading">Saldo MT5 Trading</option>
+          <option value="MT5 Trading">Saldo MetaTrader 5</option>
           <option value="Bank">Bank</option>
           <option value="Hutang">Hutang (Tarik/Bayar)</option>
           <option value="Piutang">Piutang (Beri/Tarik)</option>
@@ -2057,7 +2061,7 @@ body.global-privacy #xau-idr-gr {
         <option value="DANA">DANA</option>
         <option value="GoPay">GoPay</option>
         <option value="ShopeePay">ShopeePay</option>
-        <option value="MT5 Trading">Saldo MT5 Trading</option>
+        <option value="MT5 Trading">Saldo MetaTrader 5</option>
         <option value="Bank">Bank</option>
       </select>
     </div>
@@ -3853,14 +3857,17 @@ window.IB_BANKS = [
   { g: 'ewallet', n: 'Sakuku', bg: '#0A5CAE', fg: '#fff', t: 'Sakuku' },
   { g: 'ewallet', n: 'iSaku', bg: '#E31E24', fg: '#fff', t: 'iSaku' }
 ];
+window.WALLET_EXTRA = [{ g: 'trading', n: 'MT5 Trading', bg: '#1F2937', fg: '#fff', t: 'MT5', x: 'mt5' }];
+window.ibFindAny = function (name) { return window.ibFindBank(name) || window.WALLET_EXTRA.find(b => b.n.toLowerCase() === String(name || '').trim().toLowerCase()) || null; };
 window.ibFindBank = function (name) {
   const k = String(name || '').trim().toLowerCase(); if (!k) return null;
   return window.IB_BANKS.find(b => b.n.toLowerCase() === k) || window.IB_BANKS.find(b => b.n.length > 3 && (k === b.t.toLowerCase() || b.n.toLowerCase().indexOf(k) === 0)) || null;
 };
 window.ibBankLogo = function (name, sz) {
   sz = sz || 40;
-  const b = window.ibFindBank(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
+  const b = window.ibFindAny(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
   const url = window.IB_LOGO_URLS[b.n];
+  if (!url && b.x === 'mt5') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mt5bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FA9F5"/><stop offset="1" stop-color="#1565C0"/></linearGradient><linearGradient id="mt5gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8BD06B"/><stop offset="1" stop-color="#3E8E41"/></linearGradient><linearGradient id="mt5ye" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6E27A"/><stop offset="1" stop-color="#C9A227"/></linearGradient><linearGradient id="mt5bl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7CC4F5"/><stop offset="1" stop-color="#2D7FC9"/></linearGradient></defs><rect width="48" height="48" rx="11" fill="url(#mt5bg)"/><path d="M0 12H48M0 24H48M0 36H48M12 0V48M24 0V48M36 0V48" stroke="#fff" stroke-opacity=".08" stroke-width=".6"/><path d="M24 14c-4 0-7 3-7 7 0 2 .6 3.600 1.800 4.800L24 31l5.200-5.200C30.400 24.600 31 23 31 21c0-4-3-7-7-7z" fill="url(#mt5gr)"/><circle cx="24" cy="10.500" r="4.200" fill="url(#mt5gr)"/><path d="M10 25c-3 1-5 4-4.500 7 .3 2 1.500 3.600 3.200 4.400L18 33l2-6.500C17 23.500 13 23.500 10 25z" fill="url(#mt5ye)"/><circle cx="13.500" cy="22" r="4" fill="url(#mt5ye)"/><path d="M38 25c3 1 5 4 4.500 7-.3 2-1.500 3.600-3.200 4.400L30 33l-2-6.500c3-3 7-3 10-1.500z" fill="url(#mt5bl)"/><circle cx="34.500" cy="22" r="4" fill="url(#mt5bl)"/><circle cx="24" cy="28.500" r="8" fill="#fff" stroke="#E3ECF5" stroke-width=".8"/><text x="24" y="28.800" text-anchor="middle" dy=".35em" fill="#F59E0B" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="12">5</text></svg></span>';
   if (url) return '<span class="ib-bl"><img src="' + ibEsc(url) + '" width="' + sz + '" height="' + sz + '" style="object-fit:contain;background:#fff;padding:3px;box-sizing:border-box;" alt="' + ibEsc(b.n) + '"></span>';
   const L = b.t.length, fs = L <= 3 ? 16 : L <= 4 ? 13 : 10.5, tl = L <= 3 ? '' : ' textLength="' + (L <= 4 ? 34 : 38) + '" lengthAdjust="spacingAndGlyphs"';
   const gid = 'g' + Math.random().toString(36).slice(2, 8);
@@ -3870,16 +3877,17 @@ window.ibBankLogo = function (name, sz) {
   const txt = (b.t === 'gopay' || b.t === 'mandiri' || b.t === 'flip') ? b.t : b.t;
   return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="' + b.bg + '"/><rect width="48" height="48" rx="12" fill="url(#' + gid + ')"/>' + ex + '<text x="24" y="' + ty + '" text-anchor="middle" dy=".35em" fill="' + b.fg + '" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="' + fs + '"' + tl + '>' + ibEsc(txt) + '</text></svg></span>';
 };
-window.ibBankPicker = function (inputId, selected, only) {
+window.ibBankPicker = function (inputId, selected, only, withExtra) {
   let list = window.IB_BANKS.slice();
   const sel = String(selected || '').trim();
-  const cur = window.ibFindBank(sel); const curName = cur ? cur.n : '';
-  const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n) + '</div></div>';
+  const cur = withExtra ? window.ibFindAny(sel) : window.ibFindBank(sel); const curName = cur ? cur.n : '';
+  const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n === 'MT5 Trading' ? 'MetaTrader 5' : b.n) + '</div></div>';
   return '<input type="hidden" id="' + inputId + '" value="' + ibEsc(curName) + '">'
     + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="Cari bank / e-wallet…" autocomplete="off" oninput="window.ibBankFilter(this)">'
     + '<div class="ib-bp-scroll">'
     + (only === 'bank' ? '' : '<div class="ib-bank-sec">E-Wallet</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'ewallet').map(tile).join('') + '</div>')
     + (only === 'ewallet' ? '' : '<div class="ib-bank-sec">Bank</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'bank').map(tile).join('') + '</div>')
+    + (withExtra ? '<div class="ib-bank-sec">Trading</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.map(tile).join('') + '</div>' : '')
     + '<div class="ib-bank-empty">Bank / e-wallet tidak ditemukan.</div></div></div>';
 };
 window.ibBankFilter = function (inp) {
@@ -3907,7 +3915,7 @@ window.ibGenCode = function () { return String(Math.floor(100000 + Math.random()
 
 
 // ---------- LOGO DOMPET (kartu saldo dompet) + PILIHAN BANK ----------
-window.WALLET_PICKABLE = { 'Bank': 'bank', 'DANA': 'ewallet', 'GoPay': 'ewallet', 'ShopeePay': 'ewallet', 'MT5 Trading': 'all' };
+window.WALLET_PICKABLE = { 'Kas Tunai': 'all', 'Bank': 'bank', 'DANA': 'ewallet', 'GoPay': 'ewallet', 'ShopeePay': 'ewallet', 'MT5 Trading': 'all' };
 window.getWalletChoices = function () {
   try {
     if (window.__walletChoice) return window.__walletChoice;
@@ -3917,23 +3925,23 @@ window.getWalletChoices = function () {
     return o;
   } catch (e) { return window.__walletChoice || {}; }
 };
-window.getWalletChoice = function (name) { const c = window.getWalletChoices()[name]; return (c && window.ibFindBank(c)) ? c : ''; };
+window.getWalletChoice = function (name) { const c = window.getWalletChoices()[name]; return (c && window.ibFindAny(c)) ? c : ''; };
 window.getWalletBank = function () { return window.getWalletChoice('Bank'); };
 window.walletLogo = function (name, sz) {
   sz = sz || 34; const n = String(name || '').toLowerCase();
   const ch = window.getWalletChoice(name); if (ch) return window.ibBankLogo(ch, sz);
   if (n === 'bank') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#3B4A63"/><path d="M24 11L10 18v3h28v-3L24 11zM13 24v10h4V24h-4zm9 0v10h4V24h-4zm9 0v10h4V24h-4zM10 37v3h28v-3H10z" fill="#fff"/></svg></span>';
   if (n === 'kas tunai') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#16A34A"/><rect x="9" y="15" width="30" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="24" cy="24" r="4.5" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="14.5" cy="24" r="1.4" fill="#fff"/><circle cx="33.5" cy="24" r="1.4" fill="#fff"/></svg></span>';
-  if (n.indexOf('mt5') > -1) return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#1F2937"/><path d="M10 33l8-9 6 5 8-12 6 6" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="24" y="14" text-anchor="middle" dy=".35em" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="9">MT5</text></svg></span>';
+  if (n.indexOf('mt5') > -1) return window.ibBankLogo('MT5 Trading', sz);
   return window.ibBankLogo(String(name || '?'), sz);
 };
 window.pickWalletChoice = async function (name) {
   const only = window.WALLET_PICKABLE[name]; if (!only) return;
   const cur = window.getWalletChoice(name);
   const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
-    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only),
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only, only !== 'bank'),
     showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
-    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindBank(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
   if (!r.isConfirmed && !r.isDenied) return;
   const map = Object.assign({}, window.getWalletChoices());
   if (r.isDenied) delete map[name]; else map[name] = r.value;
@@ -8756,7 +8764,7 @@ window.promptHutangPiutangMenu = async function(kind, bal) {
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Nominal ' + (isDebt ? 'dibayar' : 'diterima') + ':</div>' +
               '<input id="swal-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:12px;" placeholder="Cth: 50000">' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">' + (isDebt ? 'Dibayar dari dompet:' : 'Masuk ke dompet:') + '</div>' +
-              '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;"><option value="Kas Tunai">Kas Tunai</option><option value="DANA">DANA</option><option value="GoPay">GoPay</option><option value="ShopeePay">ShopeePay</option><option value="MT5 Trading">Saldo MT5 Trading</option><option value="Bank">Bank</option></select>' +
+              '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;"><option value="Kas Tunai">Kas Tunai</option><option value="DANA">DANA</option><option value="GoPay">GoPay</option><option value="ShopeePay">ShopeePay</option><option value="MT5 Trading">Saldo MetaTrader 5</option><option value="Bank">Bank</option></select>' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Keterangan (opsional):</div>' +
               '<input id="swal-hp-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Cicilan ke-1">',
         showCancelButton: true, confirmButtonText: 'SIMPAN', cancelButtonText: 'Batal',
@@ -8847,13 +8855,13 @@ function renderWalletBalances() {
     const container = document.getElementById('wallet-balances'); if (!container) return; 
     let html = Object.entries(wallets).filter(([name, bal]) => { if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_hidezero === 'on' && bal === 0) return false; return true; }).map(([name, bal]) => { 
         let pct = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_walletpct === 'on' && totalAset > 0 && bal > 0) ? `<div class="w-pct-badge" style="display:block;">${((bal/totalAset)*100).toFixed(1)}%</div>` : ''; 
-        let centLine = /mt5/i.test(name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
+        let centLine = /mt5/i.test((typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) || name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px;">
-                    ${(typeof window.walletLogo === 'function') ? window.walletLogo(name, 30) : ''}
-                    <div style="min-width:0; width:100%;"><div class="w-label" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:5px; font-size:8px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:4px 9px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
+                    <div class="w-row21" style="display:flex; align-items:flex-start; gap:6px;">
+                    ${(typeof window.walletLogo === 'function') ? ((window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<span onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" title="Tap logo untuk ganti" style="cursor:pointer; flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>` : `<span style="flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>`) : ''}
+                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name === 'MT5 Trading' ? 'MetaTrader 5' : name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:7.5px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:3px 7px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
                     </div>
                 </div>` 
     }).join(''); 
