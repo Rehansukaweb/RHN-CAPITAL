@@ -1062,6 +1062,53 @@ body.global-privacy #xau-idr-gr {
 .ib-sec-title { font-size: 12px; font-weight: 800; color: var(--gold); margin: 4px 0 6px; }
 .ib-admin-card { background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
 .ib-admin-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+/* ===== IB: PILIH BANK / E-WALLET + KODE VERIFIKASI ===== */
+
+.ib-bl { display: inline-flex; flex-shrink: 0; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+.ib-bl svg, .ib-bl img { display: block; border-radius: 12px; }
+.ib-bp { text-align: left; }
+.ib-bp-search { width: 100%; box-sizing: border-box; margin: 0 0 10px; padding: 11px 14px 11px 38px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888899' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 12px center / 17px; color: var(--text); font-size: 12px; font-weight: 600; outline: none; transition: border-color .2s, box-shadow .2s; }
+.ib-bp-search:focus { border-color: rgba(251,191,36,0.6); box-shadow: 0 0 0 3px rgba(251,191,36,0.10); }
+.ib-bp-scroll { max-height: 340px; overflow-y: auto; padding: 2px 4px 4px 2px; scrollbar-width: thin; scrollbar-color: rgba(251,191,36,0.35) transparent; }
+.ib-bp-scroll::-webkit-scrollbar { width: 4px; } .ib-bp-scroll::-webkit-scrollbar-thumb { background: rgba(251,191,36,0.35); border-radius: 99px; }
+.ib-bank-sec { display: flex; align-items: center; gap: 8px; font-size: 9px; font-weight: 800; letter-spacing: 1.6px; color: var(--text3); margin: 12px 0 8px; text-transform: uppercase; }
+.ib-bank-sec::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.14), transparent); }
+.ib-bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.ib-bank-tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 6px 14px; border-radius: 18px; cursor: pointer; background: linear-gradient(155deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 55%, rgba(255,255,255,0.03) 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 6px 16px rgba(0,0,0,0.35); transition: transform .18s, border-color .2s, box-shadow .2s, background .2s; overflow: hidden; }
+.ib-bank-tile::before { content: ''; position: absolute; top: 0; left: 14%; right: 14%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); opacity: .5; transition: opacity .2s; }
+.ib-bank-tile::after { content: ''; position: absolute; top: 8px; right: 8px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14); background: transparent; transition: all .2s; }
+.ib-bank-tile:hover { transform: translateY(-2px); border-color: rgba(251,191,36,0.35); }
+.ib-bank-tile:hover::before { opacity: 1; }
+.ib-bank-tile:active { transform: scale(0.96); }
+.ib-bank-tile .n { font-size: 11px; font-weight: 700; color: var(--text2); text-align: center; line-height: 1.2; letter-spacing: .2px; max-width: 100%; }
+.ib-bank-tile.sel { border-color: rgba(251,191,36,0.9); background: linear-gradient(155deg, rgba(251,191,36,0.20) 0%, rgba(251,191,36,0.04) 60%, rgba(59,130,246,0.08) 100%); box-shadow: 0 0 0 1px rgba(251,191,36,0.35), 0 0 22px rgba(251,191,36,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
+.ib-bank-tile.sel::before { opacity: 1; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.ib-bank-tile.sel::after { background: var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23140e00' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") no-repeat center / 9px; border-color: var(--gold); box-shadow: 0 0 10px rgba(251,191,36,0.7); }
+.ib-bank-tile.sel .n { color: var(--gold); }
+.ib-bank-empty { text-align: center; font-size: 11px; color: var(--text3); padding: 18px 0; display: none; }
+.ib-sel-bank { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015)); border: 1px solid rgba(255,255,255,0.09); margin: 12px 0 4px; text-align: left; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+.ib-sel-bank .a { font-size: 13px; font-weight: 800; color: var(--text); }
+.ib-sel-bank .b { font-size: 10px; color: var(--text3); margin-top: 2px; }
+@media (max-width: 380px) { .ib-bank-grid { grid-template-columns: repeat(2, 1fr); } }
+.ib-chips { display: flex; gap: 6px; margin: 8px 0 0; flex-wrap: wrap; }
+.ib-chip { border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.05); color: var(--text2); font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 99px; cursor: pointer; transition: all .15s; }
+.ib-chip:hover, .ib-chip:active { border-color: var(--gold); color: var(--gold); background: rgba(251,191,36,0.10); }
+.ib-fee { margin-top: 10px; padding: 11px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); font-size: 11px; color: var(--text3); }
+.ib-fee > div { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+.ib-fee b { color: var(--text); font-size: 12px; }
+.ib-fee .tot { margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); }
+.ib-fee .tot b { color: var(--green2); font-size: 15px; }
+.ib-otp { margin-top: 14px; padding: 14px; border-radius: 16px; border: 1px dashed var(--gold); background: linear-gradient(135deg, rgba(251,191,36,0.10), rgba(59,130,246,0.08)); text-align: center; }
+.ib-otp .l { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; color: var(--text3); }
+.ib-otp .c { font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 800; letter-spacing: 6px; color: var(--gold); margin: 6px 0 8px; text-shadow: 0 0 14px rgba(251,191,36,0.35); user-select: none; }
+.ib-otp .bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.ib-otp .bar i { display: block; height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold), var(--gold2)); transition: width .25s linear; }
+.ib-otp .s { font-size: 10px; color: var(--text3); margin-top: 7px; }
+.ib-otp .s b { color: var(--text); }
+.ib-wd-lbl { font-size: 9px; font-weight: 800; letter-spacing: 1px; color: var(--text3); text-align: left; margin: 12px 0 2px; text-transform: uppercase; }
+.ib-wd-bal { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--bg3); border: 1px solid var(--border2); font-size: 11px; color: var(--text3); }
+.ib-wd-bal b { font-size: 15px; color: var(--gold); }
 </style>
 </head>
 <body>
@@ -3546,7 +3593,8 @@ window.revokeSubscription = async function(uid, name) {
 // Koleksi Firestore: ibs/{kode}, ibClients/{uidClient}, ibCommissions/{requestId}, ibWithdrawals/{id}
 // ==========================================================================
 window.IB_DEFAULT_RATE = 20;   // komisi default (%) dari tiap pembayaran langganan client
-window.IB_MIN_WD = 1000;       // minimal penarikan
+window.IB_MIN_WD = 10000;      // minimal penarikan
+window.IB_WD_FEE = 5000;       // biaya penarikan (dipotong dari nominal yang ditarik)
 window.__myIB = undefined; window.__ibUid = null; window.__ibUnsubs = []; window.__ib = { me: null, clients: [], comms: [], wds: [] };
 
 const ibEsc = s => String(s == null ? '' : s).replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
@@ -3769,15 +3817,141 @@ window.renderIBPage = async function () {
     window.drawIB();
 };
 
+
+// ---------- LOGO BANK / E-WALLET + PICKER ----------
+// Opsional: isi URL/base64 logo resmi per nama, mis. window.IB_LOGO_URLS['BCA'] = 'https://.../bca.png'. Kalau kosong, otomatis pakai logo SVG bawaan di bawah.
+window.IB_LOGO_URLS = window.IB_LOGO_URLS || {};
+window.IB_BANKS = [
+  { g: 'bank', n: 'BCA', bg: '#0A5CAE', fg: '#fff', t: 'BCA' },
+  { g: 'bank', n: 'Mandiri', bg: '#00386E', fg: '#FDB913', t: 'mandiri', x: 'w' },
+  { g: 'bank', n: 'BNI', bg: '#F37021', fg: '#fff', t: 'BNI', x: 'u' },
+  { g: 'bank', n: 'BRI', bg: '#00529C', fg: '#fff', t: 'BRI' },
+  { g: 'bank', n: 'BTN', bg: '#F5A800', fg: '#00467F', t: 'BTN' },
+  { g: 'bank', n: 'CIMB Niaga', bg: '#8B0A1E', fg: '#fff', t: 'CIMB' },
+  { g: 'bank', n: 'Permata', bg: '#0E9F4A', fg: '#fff', t: 'Permata' },
+  { g: 'bank', n: 'Danamon', bg: '#F28C1B', fg: '#fff', t: 'Danamon' },
+  { g: 'bank', n: 'OCBC', bg: '#E3000F', fg: '#fff', t: 'OCBC' },
+  { g: 'bank', n: 'Maybank', bg: '#FFC82E', fg: '#1a1200', t: 'Maybank' },
+  { g: 'bank', n: 'Panin', bg: '#0057A8', fg: '#fff', t: 'Panin' },
+  { g: 'bank', n: 'Jenius (BTPN)', bg: '#00A6E3', fg: '#fff', t: 'Jenius' },
+  { g: 'bank', n: 'Bank Jago', bg: '#FFB81C', fg: '#1a1200', t: 'Jago' },
+  { g: 'bank', n: 'SeaBank', bg: '#F25A29', fg: '#fff', t: 'SeaBank' },
+  { g: 'bank', n: 'Allo Bank', bg: '#5B2A86', fg: '#fff', t: 'Allo' },
+  { g: 'bank', n: 'Bank Neo Commerce', bg: '#F7931E', fg: '#fff', t: 'neo' },
+  { g: 'bank', n: 'blu by BCA Digital', bg: '#0A5CAE', fg: '#fff', t: 'blu' },
+  { g: 'bank', n: 'Superbank', bg: '#00B14F', fg: '#fff', t: 'Super' },
+  { g: 'bank', n: 'Bank Mega', bg: '#0066B3', fg: '#fff', t: 'MEGA' },
+  { g: 'bank', n: 'BSI', bg: '#00A19B', fg: '#fff', t: 'BSI' },
+  { g: 'bank', n: 'Bank Muamalat', bg: '#00735C', fg: '#fff', t: 'Muamalat' },
+  { g: 'bank', n: 'Bank BJB', bg: '#00709E', fg: '#fff', t: 'bjb' },
+  { g: 'bank', n: 'Bank DKI', bg: '#E2231A', fg: '#fff', t: 'DKI' },
+  { g: 'ewallet', n: 'GoPay', bg: '#00AED6', fg: '#fff', t: 'gopay' },
+  { g: 'ewallet', n: 'DANA', bg: '#118EEA', fg: '#fff', t: 'DANA' },
+  { g: 'ewallet', n: 'OVO', bg: '#4C2A86', fg: '#fff', t: 'OVO' },
+  { g: 'ewallet', n: 'ShopeePay', bg: '#EE4D2D', fg: '#fff', t: 'ShopeePay' },
+  { g: 'ewallet', n: 'LinkAja', bg: '#E82529', fg: '#fff', t: 'LinkAja' },
+  { g: 'ewallet', n: 'Sakuku', bg: '#0A5CAE', fg: '#fff', t: 'Sakuku' },
+  { g: 'ewallet', n: 'iSaku', bg: '#E31E24', fg: '#fff', t: 'iSaku' }
+];
+window.ibFindBank = function (name) {
+  const k = String(name || '').trim().toLowerCase(); if (!k) return null;
+  return window.IB_BANKS.find(b => b.n.toLowerCase() === k) || window.IB_BANKS.find(b => b.n.length > 3 && (k === b.t.toLowerCase() || b.n.toLowerCase().indexOf(k) === 0)) || null;
+};
+window.ibBankLogo = function (name, sz) {
+  sz = sz || 40;
+  const b = window.ibFindBank(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
+  const url = window.IB_LOGO_URLS[b.n];
+  if (url) return '<span class="ib-bl"><img src="' + ibEsc(url) + '" width="' + sz + '" height="' + sz + '" style="object-fit:contain;background:#fff;padding:3px;box-sizing:border-box;" alt="' + ibEsc(b.n) + '"></span>';
+  const L = b.t.length, fs = L <= 3 ? 16 : L <= 4 ? 13 : 10.5, tl = L <= 3 ? '' : ' textLength="' + (L <= 4 ? 34 : 38) + '" lengthAdjust="spacingAndGlyphs"';
+  const gid = 'g' + Math.random().toString(36).slice(2, 8);
+  let ex = '', ty = 24;
+  if (b.x === 'w') { ex = '<path d="M9 34 Q16.5 28 24 34 T39 34" stroke="#FDB913" stroke-width="2.4" fill="none" stroke-linecap="round"/>'; ty = 19; }
+  if (b.x === 'u') { ex = '<rect x="11" y="31" width="26" height="2.6" rx="1.3" fill="#00A19B"/>'; ty = 21; }
+  const txt = (b.t === 'gopay' || b.t === 'mandiri' || b.t === 'flip') ? b.t : b.t;
+  return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="' + b.bg + '"/><rect width="48" height="48" rx="12" fill="url(#' + gid + ')"/>' + ex + '<text x="24" y="' + ty + '" text-anchor="middle" dy=".35em" fill="' + b.fg + '" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="' + fs + '"' + tl + '>' + ibEsc(txt) + '</text></svg></span>';
+};
+window.ibBankPicker = function (inputId, selected, only) {
+  let list = window.IB_BANKS.slice();
+  const sel = String(selected || '').trim();
+  const cur = window.ibFindBank(sel); const curName = cur ? cur.n : '';
+  const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n) + '</div></div>';
+  return '<input type="hidden" id="' + inputId + '" value="' + ibEsc(curName) + '">'
+    + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="Cari bank / e-wallet…" autocomplete="off" oninput="window.ibBankFilter(this)">'
+    + '<div class="ib-bp-scroll">'
+    + (only === 'bank' ? '' : '<div class="ib-bank-sec">E-Wallet</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'ewallet').map(tile).join('') + '</div>')
+    + (only === 'ewallet' ? '' : '<div class="ib-bank-sec">Bank</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'bank').map(tile).join('') + '</div>')
+    + '<div class="ib-bank-empty">Bank / e-wallet tidak ditemukan.</div></div></div>';
+};
+window.ibBankFilter = function (inp) {
+  const q = inp.value.trim().toLowerCase(), root = inp.closest('.ib-bp'); let any = false;
+  root.querySelectorAll('.ib-bank-tile').forEach(t => { const ok = !q || t.getAttribute('data-bank').toLowerCase().indexOf(q) > -1; t.style.display = ok ? '' : 'none'; if (ok) any = true; });
+  root.querySelectorAll('.ib-bank-sec').forEach(h => { const g = h.nextElementSibling; h.style.display = g && [...g.children].some(c => c.style.display !== 'none') ? '' : 'none'; });
+  const em = root.querySelector('.ib-bank-empty'); if (em) em.style.display = any ? 'none' : 'block';
+};
+window.ibPickBank = function (el, inputId) {
+  const inp = document.getElementById(inputId); if (!inp) return;
+  inp.value = el.getAttribute('data-bank');
+  el.closest('.ib-bp').querySelectorAll('.ib-bank-tile').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  const isW = (window.ibFindBank(inp.value) || {}).g === 'ewallet';
+  const lbl = document.getElementById(inputId + '-lbl');
+  if (lbl) { lbl.innerHTML = window.ibBankLogo(inp.value, 46) + '<div><div class="a">' + ibEsc(inp.value) + '</div><div class="b">' + (isW ? 'Nomor HP e-wallet' : 'Nomor rekening bank') + '</div></div>'; lbl.style.display = 'flex'; }
+  const no = document.getElementById(inputId === 'wd-bank' ? 'wd-no' : 'ibf-no');
+  if (no) no.placeholder = isW ? 'Nomor HP e-wallet' : 'Nomor rekening';
+};
+window.ibBankSelBox = function (inputId, name) {
+  const b = window.ibFindBank(name); name = b ? b.n : '';
+  return '<div class="ib-sel-bank" id="' + inputId + '-lbl" style="' + (name ? '' : 'display:none;') + '">' + (name ? window.ibBankLogo(name, 46) + '<div><div class="a">' + ibEsc(b ? b.n : name) + '</div><div class="b">' + ((b && b.g === 'ewallet') ? 'Nomor HP e-wallet' : 'Nomor rekening bank') + '</div></div>' : '') + '</div>';
+};
+window.ibGenCode = function () { return String(Math.floor(100000 + Math.random() * 900000)); };
+
+
+// ---------- LOGO DOMPET (kartu saldo dompet) + PILIHAN BANK ----------
+window.WALLET_PICKABLE = { 'Bank': 'bank', 'DANA': 'ewallet', 'GoPay': 'ewallet', 'ShopeePay': 'ewallet', 'MT5 Trading': 'all' };
+window.getWalletChoices = function () {
+  try {
+    if (window.__walletChoice) return window.__walletChoice;
+    const u = (typeof currentUser !== 'undefined' && currentUser && currentUser.uid) || '';
+    const o = JSON.parse(localStorage.getItem('rhn_wallet_choice_' + u) || '{}') || {};
+    const old = localStorage.getItem('rhn_wallet_bank_' + u); if (old && !o.Bank) o.Bank = old;
+    return o;
+  } catch (e) { return window.__walletChoice || {}; }
+};
+window.getWalletChoice = function (name) { const c = window.getWalletChoices()[name]; return (c && window.ibFindBank(c)) ? c : ''; };
+window.getWalletBank = function () { return window.getWalletChoice('Bank'); };
+window.walletLogo = function (name, sz) {
+  sz = sz || 34; const n = String(name || '').toLowerCase();
+  const ch = window.getWalletChoice(name); if (ch) return window.ibBankLogo(ch, sz);
+  if (n === 'bank') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#3B4A63"/><path d="M24 11L10 18v3h28v-3L24 11zM13 24v10h4V24h-4zm9 0v10h4V24h-4zm9 0v10h4V24h-4zM10 37v3h28v-3H10z" fill="#fff"/></svg></span>';
+  if (n === 'kas tunai') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#16A34A"/><rect x="9" y="15" width="30" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="24" cy="24" r="4.5" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="14.5" cy="24" r="1.4" fill="#fff"/><circle cx="33.5" cy="24" r="1.4" fill="#fff"/></svg></span>';
+  if (n.indexOf('mt5') > -1) return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#1F2937"/><path d="M10 33l8-9 6 5 8-12 6 6" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="24" y="14" text-anchor="middle" dy=".35em" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="9">MT5</text></svg></span>';
+  return window.ibBankLogo(String(name || '?'), sz);
+};
+window.pickWalletChoice = async function (name) {
+  const only = window.WALLET_PICKABLE[name]; if (!only) return;
+  const cur = window.getWalletChoice(name);
+  const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only),
+    showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
+    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindBank(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+  if (!r.isConfirmed && !r.isDenied) return;
+  const map = Object.assign({}, window.getWalletChoices());
+  if (r.isDenied) delete map[name]; else map[name] = r.value;
+  window.__walletChoice = map;
+  try { localStorage.setItem('rhn_wallet_choice_' + currentUser.uid, JSON.stringify(map)); } catch (e) {}
+  try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { walletChoice: map }, { merge: true }); } catch (e) { console.error('Gagal simpan pilihan dompet', e); }
+  if (typeof renderWalletBalances === 'function') { try { renderWalletBalances(); } catch (e) {} }
+};
+window.pickWalletBank = function () { return window.pickWalletChoice('Bank'); };
 window.daftarJadiIB = async function () {
     if (!currentUser) return;
     const inp = (id, ph, val, extra) => '<input id="' + id + '" class="swal2-input" placeholder="' + ph + '" value="' + ibEsc(val || '') + '" ' + (extra || '') + '>';
     const r = await ibSwal({
-        title: 'Formulir Pendaftaran IB',
+        title: 'Formulir Pendaftaran IB', width: 460,
         html: '<div style="font-size:11px; color:var(--text3); text-align:left; margin-bottom:6px; line-height:1.5;">Isi data dengan benar. Pendaftaran ditinjau admin dulu, setelah disetujui kamu resmi jadi IB dan link aktif.</div>'
             + inp('ibf-nama', 'Nama Lengkap', currentUser.displayName || '')
             + inp('ibf-wa', 'No. WhatsApp', '', 'inputmode="tel"')
-            + inp('ibf-bank', 'Bank / E-Wallet (BCA, DANA, dll)')
+            + '<div class="ib-wd-lbl">Pilih Bank / E-Wallet</div>' + window.ibBankPicker('ibf-bank', '') + window.ibBankSelBox('ibf-bank', '')
             + inp('ibf-no', 'No. Rekening / HP E-Wallet')
             + inp('ibf-an', 'Atas Nama Rekening')
             + '<textarea id="ibf-promo" class="swal2-textarea" placeholder="Rencana promosi (grup WhatsApp, TikTok, komunitas trading, dll)"></textarea>',
@@ -3785,6 +3959,7 @@ window.daftarJadiIB = async function () {
         preConfirm: () => {
             const v = id => (document.getElementById(id).value || '').trim();
             const d = { nama: v('ibf-nama'), wa: v('ibf-wa'), bank: v('ibf-bank'), accountNo: v('ibf-no'), accountName: v('ibf-an'), promo: v('ibf-promo') };
+            if (d.bank && !window.ibFindBank(d.bank)) return Swal.showValidationMessage('Pilih bank / e-wallet dari daftar');
             if (!d.nama || !d.wa || !d.bank || !d.accountNo || !d.accountName) return Swal.showValidationMessage('Lengkapi semua data wajib (nama, WhatsApp, rekening)');
             if (d.wa.replace(/\D/g, '').length < 9) return Swal.showValidationMessage('No. WhatsApp tidak valid');
             if (!d.promo) return Swal.showValidationMessage('Isi rencana promosi kamu');
@@ -3833,6 +4008,7 @@ window.drawIB = function () {
       <div class="ib-link-box"><input id="ib-link-input" readonly value="${ibEsc(link)}" onclick="this.select()"><button class="ib-btn" onclick="window.ibCopyLink()">SALIN</button><button class="ib-btn blue" onclick="window.ibShareLink()">BAGIKAN</button></div>
       ${(location.protocol === 'file:' && !(window.IB_BASE_URL || '').trim()) ? '<div style="margin-top:10px; font-size:10.5px; color:var(--red2); line-height:1.5;">⚠️ Link ini masih alamat file di komputer (file:///), tidak bisa dibuka orang lain. Upload aplikasi ke hosting dulu lalu isi IB_BASE_URL.</div>' : ''}
       <div id="ib-qr" style="margin-top:12px; display:flex; justify-content:center;"></div>
+      <button class="ib-btn blue" style="width:100%; margin-top:12px; padding:12px;" onclick="window.openCSChat()">💬 CHAT ADMIN</button>
     </div>
     <div class="ib-stats">
       <div class="ib-stat gold"><div class="l">Saldo Bisa Ditarik</div><div class="v">${ibRp(s.available)}</div></div>
@@ -3851,7 +4027,7 @@ window.drawIB = function () {
       ${comms.length ? comms.slice(0, 100).map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="r" style="color:var(--green2);">+${ibRp(c.commission)}</div></div>`).join('') : '<div class="ib-empty">Belum ada komisi masuk.</div>'}
     </div>
     <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">🏦 Riwayat Penarikan</div></div>
-      ${wds.length ? wds.slice(0, 100).map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) : ''}${w.status === 'rejected' ? '<br>Alasan: ' + ibEsc(w.note || '-') : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') : '<div class="ib-empty">Belum ada penarikan.</div>'}
+      ${wds.length ? wds.slice(0, 100).map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') : '<div class="ib-empty">Belum ada penarikan.</div>'}
     </div>`;
     try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
 };
@@ -3868,33 +4044,71 @@ window.ibShareLink = function () {
     else window.ibCopyLink();
 };
 
+window.ibWdSet = function (v) { const i = document.getElementById('wd-amt'); if (i) { i.value = v; window.ibWdCalc(); } };
+window.ibWdCalc = function () {
+    const i = document.getElementById('wd-amt'), n = document.getElementById('wd-net'); if (!i || !n) return;
+    const a = parseInt((i.value || '').replace(/\D/g, '')) || 0;
+    n.textContent = ibRp(Math.max(0, a - window.IB_WD_FEE));
+};
 window.ibTarik = async function () {
     const ib = window.__ib.me, s = window.ibStats(); if (!ib) return;
     if (ib.status !== 'active') return ibSwal({ icon: 'error', title: 'Akun IB Nonaktif' });
     if (s.available < window.IB_MIN_WD) return ibSwal({ icon: 'warning', title: 'Saldo Belum Cukup', text: 'Minimal penarikan ' + ibRp(window.IB_MIN_WD) });
     const p = ib.payout || {};
+    let wdTimer = null; window.__wdCode = { cur: window.ibGenCode(), prev: '', at: Date.now() };
+    const PERIOD = 30000;
     const r = await ibSwal({
-        title: 'Tarik Saldo IB',
-        html: `<div style="font-size:12px; margin-bottom:8px;">Saldo tersedia: <b style="color:var(--gold);">${ibRp(s.available)}</b></div>
-          <input id="wd-amt" class="swal2-input" placeholder="Nominal" inputmode="numeric" value="${s.available}">
-          <input id="wd-bank" class="swal2-input" placeholder="Bank / E-Wallet (BCA, DANA, dll)" value="${ibEsc(p.bank || '')}">
-          <input id="wd-no" class="swal2-input" placeholder="No. Rekening / HP" value="${ibEsc(p.accountNo || '')}">
-          <input id="wd-name" class="swal2-input" placeholder="Atas Nama" value="${ibEsc(p.accountName || '')}">
+        title: 'Tarik Saldo IB', width: 460, customClass: { htmlContainer: 'ib-wd-html' },
+        html: `<div class="ib-wd-bal"><span>Saldo tersedia</span><b>${ibRp(s.available)}</b></div>
+          <div class="ib-wd-lbl">Nominal Penarikan (bebas)</div>
+          <input id="wd-amt" class="swal2-input" style="margin:0; width:100%; font-weight:800; font-size:16px;" placeholder="Ketik nominal bebas (min ${ibRp(window.IB_MIN_WD)})" inputmode="numeric" value="" autocomplete="off" oninput="window.ibWdCalc()">
+          <div class="ib-chips">${[10000, 25000, 50000, 100000].filter(v => v <= s.available).map(v => '<button type="button" class="ib-chip" onclick="window.ibWdSet(' + v + ')">' + (v / 1000) + 'rb</button>').join('')}<button type="button" class="ib-chip" onclick="window.ibWdSet(${s.available})">Semua</button></div>
+          <div class="ib-fee"><div><span>Biaya penarikan</span><b>${ibRp(window.IB_WD_FEE)}</b></div><div class="tot"><span>Total diterima</span><b id="wd-net">Rp0</b></div></div>
+          <div class="ib-wd-lbl" style="margin-top:14px;">Tujuan Penarikan</div>
+          ${window.ibBankPicker('wd-bank', p.bank || '')}
+          ${window.ibBankSelBox('wd-bank', p.bank || '')}
+          <input id="wd-no" class="swal2-input" style="margin:8px 0 0; width:100%;" placeholder="${(window.ibFindBank(p.bank) || {}).g === 'ewallet' ? 'Nomor HP e-wallet' : 'No. Rekening / HP'}" inputmode="numeric" value="${ibEsc(p.accountNo || '')}">
+          <input id="wd-name" class="swal2-input" style="margin:8px 0 0; width:100%;" placeholder="Atas Nama" value="${ibEsc(p.accountName || '')}">
+          <div class="ib-otp">
+            <div class="l">🔐 KODE VERIFIKASI PENARIKAN</div>
+            <div class="c" id="wd-code">------</div>
+            <div class="bar"><i id="wd-code-bar"></i></div>
+            <div class="s">Kode berubah otomatis dalam <b id="wd-code-t">30</b> detik</div>
+          </div>
+          <input id="wd-otp" class="swal2-input" style="margin:10px 0 0; width:100%; text-align:center; letter-spacing:6px; font-weight:800;" placeholder="Ketik kode di atas" inputmode="numeric" maxlength="6" autocomplete="off">
           <div style="font-size:10px; color:var(--text3); margin-top:8px;">Diproses maksimal 1 hari kerja.</div>`,
         showCancelButton: true, confirmButtonText: 'AJUKAN PENARIKAN',
+        didOpen: () => {
+            const codeEl = document.getElementById('wd-code'), barEl = document.getElementById('wd-code-bar'), tEl = document.getElementById('wd-code-t');
+            const tick = () => {
+                const c = window.__wdCode, el = Date.now() - c.at;
+                if (el >= PERIOD) { c.prev = c.cur; c.cur = window.ibGenCode(); c.at = Date.now(); c.prevUntil = Date.now() + 3000; }
+                const left = Math.max(0, PERIOD - (Date.now() - c.at));
+                if (codeEl) codeEl.textContent = c.cur.slice(0, 3) + ' ' + c.cur.slice(3);
+                if (barEl) barEl.style.width = (left / PERIOD * 100) + '%';
+                if (tEl) tEl.textContent = Math.ceil(left / 1000);
+            };
+            tick(); wdTimer = setInterval(tick, 250);
+        },
+        willClose: () => { if (wdTimer) clearInterval(wdTimer); },
         preConfirm: () => {
             const amount = parseInt((document.getElementById('wd-amt').value || '').replace(/\D/g, '')) || 0;
             const bank = document.getElementById('wd-bank').value.trim(), accountNo = document.getElementById('wd-no').value.trim(), accountName = document.getElementById('wd-name').value.trim();
-            if (amount < window.IB_MIN_WD) return Swal.showValidationMessage('Minimal ' + ibRp(window.IB_MIN_WD));
+            const otp = (document.getElementById('wd-otp').value || '').replace(/\D/g, ''), c = window.__wdCode;
+            if (amount < window.IB_MIN_WD) return Swal.showValidationMessage('Minimal penarikan ' + ibRp(window.IB_MIN_WD));
             if (amount > window.ibStats().available) return Swal.showValidationMessage('Melebihi saldo tersedia');
-            if (!bank || !accountNo || !accountName) return Swal.showValidationMessage('Lengkapi data rekening / e-wallet');
+            if (!bank || !window.ibFindBank(bank)) return Swal.showValidationMessage('Pilih bank / e-wallet dari daftar');
+            if (!accountNo || !accountName) return Swal.showValidationMessage('Lengkapi data rekening / e-wallet');
+            if (!otp) return Swal.showValidationMessage('Masukkan kode verifikasi yang tampil di halaman');
+            if (!(otp === c.cur || (c.prev && otp === c.prev && Date.now() < (c.prevUntil || 0)))) return Swal.showValidationMessage('Kode verifikasi salah atau sudah berubah');
             return { amount, bank, accountNo, accountName };
         }
     });
+    if (wdTimer) clearInterval(wdTimer); window.__wdCode = null;
     if (!r.isConfirmed || !r.value) return;
     try {
         const now = new Date(), v = r.value;
-        await addDoc(collection(db, 'ibWithdrawals'), { ibUid: ib.uid, ibCode: ib.code, ibNama: ib.nama || '', ibEmail: ib.email || '', amount: v.amount, bank: v.bank, accountNo: v.accountNo, accountName: v.accountName, status: 'pending', createdAt: now.toISOString(), estimatedAt: ibNextWorkday(now).toISOString() });
+        await addDoc(collection(db, 'ibWithdrawals'), { ibUid: ib.uid, ibCode: ib.code, ibNama: ib.nama || '', ibEmail: ib.email || '', amount: v.amount, fee: window.IB_WD_FEE, netAmount: Math.max(0, v.amount - window.IB_WD_FEE), bank: v.bank, accountNo: v.accountNo, accountName: v.accountName, status: 'pending', createdAt: now.toISOString(), estimatedAt: ibNextWorkday(now).toISOString() });
         try { await updateDoc(doc(db, 'ibs', ib.code), { payout: { bank: v.bank, accountNo: v.accountNo, accountName: v.accountName } }); } catch (e) {}
         ibSwal({ icon: 'success', title: 'Penarikan Diajukan', text: 'Estimasi cair: ' + ibDay(ibNextWorkday(now).toISOString()) + ' (maks 1 hari kerja).' });
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Mengajukan', text: e.message }); }
@@ -3956,7 +4170,7 @@ window.drawAdminIB = function () {
     <div class="ib-sec-title">📝 Pendaftaran IB Menunggu Persetujuan (${appList.length})</div>
     <div style="margin-bottom:16px;">${appList.length ? appList.map(i => { const ap = i.application || {}, py = i.payout || {}; return `<div class="ib-admin-card"><div class="t">${ibEsc(i.nama)} <span style="color:var(--gold);">• ${ibEsc(i.code)}</span></div><div class="s">${ibEsc(i.email)} • WA ${ibEsc(ap.wa || '-')}<br>Rekening: ${ibEsc(py.bank || '-')} ${ibEsc(py.accountNo || '')} a.n. ${ibEsc(py.accountName || '')}<br>Promosi: ${ibEsc(ap.promo || '-')}<br>Diajukan ${ibDate(i.createdAt)}</div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminIBApprove('${ibEsc(i.code)}')">✅ SETUJUI</button><button class="ib-btn red" onclick="window.adminIBRejectApp('${ibEsc(i.code)}')">✕ TOLAK</button></div></div>`; }).join('') : '<div class="ib-empty">Tidak ada pendaftaran yang menunggu.</div>'}</div>
     <div class="ib-sec-title">🏦 Antrian Penarikan (${pendList.length})</div>
-    <div style="margin-bottom:16px;">${pendList.length ? pendList.map(w => `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(w.ibNama)} (${ibEsc(w.ibCode)}) — ${ibRp(w.amount)}</div><div class="s">${ibEsc(w.bank)} • ${ibEsc(w.accountNo)} • a.n. ${ibEsc(w.accountName)}<br>Diajukan ${ibDate(w.createdAt)} • Batas proses ${ibDay(w.estimatedAt)}</div></div><div class="r">${pill(w.status)}</div></div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminWDPay('${w.id}')">✅ TANDAI SUDAH DIBAYAR</button><button class="ib-btn red" onclick="window.adminWDReject('${w.id}')">✕ TOLAK</button></div></div>`).join('') : '<div class="ib-empty">Tidak ada penarikan yang menunggu.</div>'}</div>
+    <div style="margin-bottom:16px;">${pendList.length ? pendList.map(w => `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${ibEsc(w.ibNama)} (${ibEsc(w.ibCode)}) — ${ibRp(w.amount)}</div><div class="s">${ibEsc(w.bank)} • ${ibEsc(w.accountNo)} • a.n. ${ibEsc(w.accountName)}<br>${w.fee ? '<b>Transfer ' + ibRp(w.netAmount) + '</b> (biaya ' + ibRp(w.fee) + ')<br>' : ''}Diajukan ${ibDate(w.createdAt)} • Batas proses ${ibDay(w.estimatedAt)}</div></div><div class="r">${pill(w.status)}</div></div><div class="ib-admin-actions"><button class="ib-btn green" onclick="window.adminWDPay('${w.id}')">✅ TANDAI SUDAH DIBAYAR</button><button class="ib-btn red" onclick="window.adminWDReject('${w.id}')">✕ TOLAK</button><button class="ib-btn blue" onclick="window.openAdminCSChat('${w.ibUid}', decodeURIComponent('${encodeURIComponent(w.ibNama || 'IB')}'))">💬 CHAT IB</button></div></div>`).join('') : '<div class="ib-empty">Tidak ada penarikan yang menunggu.</div>'}</div>
     <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length - appList.length})</div>
     <div style="margin-bottom:16px;">${ibCards || '<div class="ib-empty">Belum ada IB terdaftar.</div>'}</div>
     <div class="ib-sec-title" style="display:flex; justify-content:space-between; align-items:center;"><span>📜 Aktivitas Terbaru IB & Client</span><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedClear()">🗑️ HAPUS SEMUA</button></div>
@@ -4002,23 +4216,23 @@ window.adminIBToggle = async function (code) {
 };
 
 window.adminWDPay = async function (id) {
-    const r = await ibSwal({ title: 'Tandai sudah dibayar?', text: 'Pastikan transfer ke IB sudah kamu lakukan.', input: 'text', inputPlaceholder: 'Catatan / no. referensi (opsional)', showCancelButton: true, confirmButtonText: 'SUDAH DIBAYAR' });
+    const r = await ibSwal({ title: 'Tandai sudah dibayar?', text: 'Pastikan transfer ke IB sudah kamu lakukan.', input: 'textarea', inputLabel: 'Keterangan untuk IB (wajib)', inputPlaceholder: 'Contoh: Sudah ditransfer ke BCA, no. ref 12345', inputValidator: v => (!v || !v.trim()) ? 'Keterangan wajib diisi agar IB tahu' : null, showCancelButton: true, confirmButtonText: 'SUDAH DIBAYAR' });
     if (!r.isConfirmed) return;
     try {
         const now = new Date().toISOString();
-        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'paid', paidAt: now, note: r.value || '', processedBy: currentUser ? currentUser.email : 'admin' });
-        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'paid'; w.paidAt = now; w.note = r.value || ''; }
+        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'paid', paidAt: now, note: (r.value || '').trim(), processedBy: currentUser ? currentUser.email : 'admin' });
+        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'paid'; w.paidAt = now; w.note = (r.value || '').trim(); }
         window.drawAdminIB();
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
 };
 
 window.adminWDReject = async function (id) {
-    const r = await ibSwal({ title: 'Tolak penarikan?', text: 'Saldo akan dikembalikan ke IB.', input: 'text', inputPlaceholder: 'Alasan penolakan', showCancelButton: true, confirmButtonText: 'TOLAK', confirmButtonColor: 'var(--red2)' });
+    const r = await ibSwal({ title: 'Tolak penarikan?', text: 'Saldo akan dikembalikan ke IB.', input: 'textarea', inputLabel: 'Alasan penolakan (wajib, dilihat IB)', inputPlaceholder: 'Contoh: Nama rekening tidak sesuai, silakan ajukan ulang', inputValidator: v => (!v || !v.trim()) ? 'Alasan penolakan wajib diisi' : null, showCancelButton: true, confirmButtonText: 'TOLAK', confirmButtonColor: 'var(--red2)' });
     if (!r.isConfirmed) return;
     try {
         const now = new Date().toISOString();
-        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'rejected', rejectedAt: now, note: r.value || '', processedBy: currentUser ? currentUser.email : 'admin' });
-        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'rejected'; w.rejectedAt = now; w.note = r.value || ''; }
+        await updateDoc(doc(db, 'ibWithdrawals', id), { status: 'rejected', rejectedAt: now, note: (r.value || '').trim(), processedBy: currentUser ? currentUser.email : 'admin' });
+        const w = window.__adminIB.wds.find(x => x.id === id); if (w) { w.status = 'rejected'; w.rejectedAt = now; w.note = (r.value || '').trim(); }
         window.drawAdminIB();
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal', text: e.message }); }
 };
@@ -5429,6 +5643,7 @@ onAuthStateChanged(auth, async user => {
         if (prefSnap.exists()) { 
             const data = prefSnap.data(); 
             if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } 
+            if (data.walletChoice) { window.__walletChoice = data.walletChoice; try { localStorage.setItem('rhn_wallet_choice_' + user.uid, JSON.stringify(data.walletChoice)); } catch (e) {} } else if (data.walletBank) { window.__walletChoice = { Bank: data.walletBank }; }
             if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } 
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
             if (data.categories) { window.userCats = data.categories; } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
@@ -8636,7 +8851,10 @@ function renderWalletBalances() {
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div class="w-label">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}
+                    <div style="display:flex; align-items:center; gap:9px;">
+                    ${(typeof window.walletLogo === 'function') ? window.walletLogo(name, 34) : ''}
+                    <div style="min-width:0; flex:1;"><div class="w-label">${name}${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? ' • ' + escapeHTML(window.getWalletChoice(name)) : ''}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:8px; font-weight:800; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:2px 8px; cursor:pointer;">${name === 'Bank' ? '🏦 PILIH BANK' : '🔁 PILIH WALLET'}</div>` : ''}</div>
+                    </div>
                 </div>` 
     }).join(''); 
     html += `
