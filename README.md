@@ -3853,14 +3853,17 @@ window.IB_BANKS = [
   { g: 'ewallet', n: 'Sakuku', bg: '#0A5CAE', fg: '#fff', t: 'Sakuku' },
   { g: 'ewallet', n: 'iSaku', bg: '#E31E24', fg: '#fff', t: 'iSaku' }
 ];
+window.WALLET_EXTRA = [{ g: 'trading', n: 'MT5 Trading', bg: '#1F2937', fg: '#fff', t: 'MT5', x: 'mt5' }];
+window.ibFindAny = function (name) { return window.ibFindBank(name) || window.WALLET_EXTRA.find(b => b.n.toLowerCase() === String(name || '').trim().toLowerCase()) || null; };
 window.ibFindBank = function (name) {
   const k = String(name || '').trim().toLowerCase(); if (!k) return null;
   return window.IB_BANKS.find(b => b.n.toLowerCase() === k) || window.IB_BANKS.find(b => b.n.length > 3 && (k === b.t.toLowerCase() || b.n.toLowerCase().indexOf(k) === 0)) || null;
 };
 window.ibBankLogo = function (name, sz) {
   sz = sz || 40;
-  const b = window.ibFindBank(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
+  const b = window.ibFindAny(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
   const url = window.IB_LOGO_URLS[b.n];
+  if (!url && b.x === 'mt5') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="#1F2937"/><path d="M10 33l8-9 6 5 8-12 6 6" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="24" y="14" text-anchor="middle" dy=".35em" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="9">MT5</text></svg></span>';
   if (url) return '<span class="ib-bl"><img src="' + ibEsc(url) + '" width="' + sz + '" height="' + sz + '" style="object-fit:contain;background:#fff;padding:3px;box-sizing:border-box;" alt="' + ibEsc(b.n) + '"></span>';
   const L = b.t.length, fs = L <= 3 ? 16 : L <= 4 ? 13 : 10.5, tl = L <= 3 ? '' : ' textLength="' + (L <= 4 ? 34 : 38) + '" lengthAdjust="spacingAndGlyphs"';
   const gid = 'g' + Math.random().toString(36).slice(2, 8);
@@ -3870,16 +3873,17 @@ window.ibBankLogo = function (name, sz) {
   const txt = (b.t === 'gopay' || b.t === 'mandiri' || b.t === 'flip') ? b.t : b.t;
   return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="' + b.bg + '"/><rect width="48" height="48" rx="12" fill="url(#' + gid + ')"/>' + ex + '<text x="24" y="' + ty + '" text-anchor="middle" dy=".35em" fill="' + b.fg + '" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="' + fs + '"' + tl + '>' + ibEsc(txt) + '</text></svg></span>';
 };
-window.ibBankPicker = function (inputId, selected, only) {
+window.ibBankPicker = function (inputId, selected, only, withExtra) {
   let list = window.IB_BANKS.slice();
   const sel = String(selected || '').trim();
-  const cur = window.ibFindBank(sel); const curName = cur ? cur.n : '';
+  const cur = withExtra ? window.ibFindAny(sel) : window.ibFindBank(sel); const curName = cur ? cur.n : '';
   const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n) + '</div></div>';
   return '<input type="hidden" id="' + inputId + '" value="' + ibEsc(curName) + '">'
     + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="Cari bank / e-wallet…" autocomplete="off" oninput="window.ibBankFilter(this)">'
     + '<div class="ib-bp-scroll">'
     + (only === 'bank' ? '' : '<div class="ib-bank-sec">E-Wallet</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'ewallet').map(tile).join('') + '</div>')
     + (only === 'ewallet' ? '' : '<div class="ib-bank-sec">Bank</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'bank').map(tile).join('') + '</div>')
+    + (withExtra ? '<div class="ib-bank-sec">Trading</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.map(tile).join('') + '</div>' : '')
     + '<div class="ib-bank-empty">Bank / e-wallet tidak ditemukan.</div></div></div>';
 };
 window.ibBankFilter = function (inp) {
@@ -3917,23 +3921,23 @@ window.getWalletChoices = function () {
     return o;
   } catch (e) { return window.__walletChoice || {}; }
 };
-window.getWalletChoice = function (name) { const c = window.getWalletChoices()[name]; return (c && window.ibFindBank(c)) ? c : ''; };
+window.getWalletChoice = function (name) { const c = window.getWalletChoices()[name]; return (c && window.ibFindAny(c)) ? c : ''; };
 window.getWalletBank = function () { return window.getWalletChoice('Bank'); };
 window.walletLogo = function (name, sz) {
   sz = sz || 34; const n = String(name || '').toLowerCase();
   const ch = window.getWalletChoice(name); if (ch) return window.ibBankLogo(ch, sz);
   if (n === 'bank') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#3B4A63"/><path d="M24 11L10 18v3h28v-3L24 11zM13 24v10h4V24h-4zm9 0v10h4V24h-4zm9 0v10h4V24h-4zM10 37v3h28v-3H10z" fill="#fff"/></svg></span>';
   if (n === 'kas tunai') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#16A34A"/><rect x="9" y="15" width="30" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="24" cy="24" r="4.5" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="14.5" cy="24" r="1.4" fill="#fff"/><circle cx="33.5" cy="24" r="1.4" fill="#fff"/></svg></span>';
-  if (n.indexOf('mt5') > -1) return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#1F2937"/><path d="M10 33l8-9 6 5 8-12 6 6" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><text x="24" y="14" text-anchor="middle" dy=".35em" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="9">MT5</text></svg></span>';
+  if (n.indexOf('mt5') > -1) return window.ibBankLogo('MT5 Trading', sz);
   return window.ibBankLogo(String(name || '?'), sz);
 };
 window.pickWalletChoice = async function (name) {
   const only = window.WALLET_PICKABLE[name]; if (!only) return;
   const cur = window.getWalletChoice(name);
   const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
-    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only),
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only, only !== 'bank'),
     showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
-    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindBank(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
   if (!r.isConfirmed && !r.isDenied) return;
   const map = Object.assign({}, window.getWalletChoices());
   if (r.isDenied) delete map[name]; else map[name] = r.value;
@@ -8847,13 +8851,13 @@ function renderWalletBalances() {
     const container = document.getElementById('wallet-balances'); if (!container) return; 
     let html = Object.entries(wallets).filter(([name, bal]) => { if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_hidezero === 'on' && bal === 0) return false; return true; }).map(([name, bal]) => { 
         let pct = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_walletpct === 'on' && totalAset > 0 && bal > 0) ? `<div class="w-pct-badge" style="display:block;">${((bal/totalAset)*100).toFixed(1)}%</div>` : ''; 
-        let centLine = /mt5/i.test(name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
+        let centLine = /mt5/i.test((typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) || name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px;">
-                    ${(typeof window.walletLogo === 'function') ? window.walletLogo(name, 30) : ''}
-                    <div style="min-width:0; width:100%;"><div class="w-label" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:5px; font-size:8px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:4px 9px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
+                    <div style="display:flex; align-items:center; gap:7px;">
+                    ${(typeof window.walletLogo === 'function') ? ((window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<span onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" title="Tap logo untuk ganti" style="cursor:pointer; flex-shrink:0; display:flex;">${window.walletLogo(name, 26)}</span>` : `<span style="flex-shrink:0; display:flex;">${window.walletLogo(name, 26)}</span>`) : ''}
+                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}</div>
                     </div>
                 </div>` 
     }).join(''); 
