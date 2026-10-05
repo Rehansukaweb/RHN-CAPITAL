@@ -8851,9 +8851,9 @@ function renderWalletBalances() {
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
-                    <div style="display:flex; align-items:center; gap:9px;">
-                    ${(typeof window.walletLogo === 'function') ? window.walletLogo(name, 34) : ''}
-                    <div style="min-width:0; flex:1;"><div class="w-label">${name}${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? ' • ' + escapeHTML(window.getWalletChoice(name)) : ''}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:8px; font-weight:800; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:2px 8px; cursor:pointer;">${name === 'Bank' ? '🏦 PILIH BANK' : '🔁 PILIH WALLET'}</div>` : ''}</div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px;">
+                    ${(typeof window.walletLogo === 'function') ? window.walletLogo(name, 30) : ''}
+                    <div style="min-width:0; width:100%;"><div class="w-label" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:5px; font-size:8px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:4px 9px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
                     </div>
                 </div>` 
     }).join(''); 
