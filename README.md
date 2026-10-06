@@ -1901,6 +1901,27 @@ body.global-privacy #xau-idr-gr {
       </div>
       <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="window.openCSChat()">💬 CHAT ADMIN</button>
     </div>
+    <div class="set-item sup-wa-row" style="display:none;">
+      <div>
+        <div class="set-label">WhatsApp Admin</div>
+        <div class="set-sub">Respon lebih cepat lewat WhatsApp</div>
+      </div>
+      <button class="set-action" style="background:var(--green2); color:#000; border:none;" onclick="window.openSupportWA()">📱 WHATSAPP</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Email Support</div>
+        <div class="set-sub">Kirim email untuk keluhan atau permintaan data</div>
+      </div>
+      <button class="set-action" onclick="window.openSupportEmail()">✉️ EMAIL</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Pertanyaan Umum (FAQ)</div>
+        <div class="set-sub">Jawaban cepat seputar langganan, data, dan akun</div>
+      </div>
+      <button class="set-action" onclick="window.openFAQ()">❓ FAQ</button>
+    </div>
   </div>
 </div>
 
@@ -2209,6 +2230,63 @@ body.global-privacy #xau-idr-gr {
   </div>
 
   <div class="set-group">
+    <div class="set-title">💬 KANAL SUPPORT</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Chat Langsung ke Admin</div>
+        <div class="set-sub">Chat di dalam aplikasi, admin membalas real-time</div>
+      </div>
+      <button class="set-action" style="background:var(--gold); color:#000; border:none;" onclick="window.openCSChat()">💬 CHAT ADMIN</button>
+    </div>
+    <div class="set-item sup-wa-row" style="display:none;">
+      <div>
+        <div class="set-label">WhatsApp Admin</div>
+        <div class="set-sub">Respon lebih cepat lewat WhatsApp</div>
+      </div>
+      <button class="set-action" style="background:var(--green2); color:#000; border:none;" onclick="window.openSupportWA()">📱 WHATSAPP</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Email Support</div>
+        <div class="set-sub">Kirim email untuk keluhan atau permintaan data</div>
+      </div>
+      <button class="set-action" onclick="window.openSupportEmail()">✉️ EMAIL</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Pertanyaan Umum (FAQ)</div>
+        <div class="set-sub">Jawaban cepat seputar langganan, data, dan akun</div>
+      </div>
+      <button class="set-action" onclick="window.openFAQ()">❓ FAQ</button>
+    </div>
+  </div>
+
+  <div class="set-group">
+    <div class="set-title">🔒 PRIVASI & HAPUS AKUN</div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Kebijakan Privasi</div>
+        <div class="set-sub">Data apa yang kami simpan dan bagaimana dipakai</div>
+      </div>
+      <button class="set-action" onclick="window.openLegal('privacy')">BACA</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Syarat Layanan</div>
+        <div class="set-sub">Aturan pemakaian aplikasi, langganan, dan IB</div>
+      </div>
+      <button class="set-action" onclick="window.openLegal('terms')">BACA</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Hapus Akun Permanen</div>
+        <div class="set-sub">Hapus akun beserta seluruh datanya. Tidak bisa dibatalkan</div>
+      </div>
+      <button class="set-action danger" onclick="window.deleteMyAccount()">HAPUS AKUN</button>
+    </div>
+  </div>
+
+  <div class="set-group">
     <div class="set-title">ℹ️ DETAIL APLIKASI</div>
     <div class="set-item">
       <div>
@@ -2323,7 +2401,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/fireba
 import { 
   getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
-  GoogleAuthProvider, signInWithPopup, updateProfile 
+  GoogleAuthProvider, signInWithPopup, updateProfile, 
+  deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider 
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 import { 
@@ -7722,6 +7801,245 @@ async function deleteCollectionInChunks(colRef) {
     }
     return docs.length;
 }
+
+// ==========================================================================
+// LEGAL, PRIVASI, KANAL SUPPORT & HAPUS AKUN (ditambahkan untuk rilis publik)
+// ==========================================================================
+window.SUPPORT_EMAIL = 'rehantop245@gmail.com';
+window.SUPPORT_WA = [ { label: 'Admin 1', num: '6285717426626', show: '0857-1742-6626' }, { label: 'Admin 2', num: '6285781562782', show: '0857-8156-2782' } ];
+window.LEGAL_VERSION = '2026-10';
+window.LEGAL_UPDATED = '6 Oktober 2026';
+
+(function initSupportRows() {
+    const show = () => { document.querySelectorAll('.sup-wa-row').forEach(el => { el.style.display = (window.SUPPORT_WA && window.SUPPORT_WA.length) ? '' : 'none'; }); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+    setTimeout(show, 1500);
+})();
+
+window.__waGo = function (i) {
+    const w = window.SUPPORT_WA[i]; if (!w) return;
+    const nama = (currentUser && (currentUser.displayName || currentUser.email)) || '';
+    const txt = encodeURIComponent('Halo Admin RHN Capital, saya butuh bantuan.' + (nama ? '\nAkun: ' + nama : ''));
+    window.open('https://wa.me/' + w.num + '?text=' + txt, '_blank');
+    if (window.Swal) Swal.close();
+};
+window.openSupportWA = function () {
+    const L = window.SUPPORT_WA || []; if (!L.length) return;
+    if (L.length === 1) return window.__waGo(0);
+    Swal.fire({
+        title: '📱 Pilih Admin WhatsApp', background: 'var(--card)', color: 'var(--text)', heightAuto: false, showConfirmButton: false, showCloseButton: true,
+        html: '<div style="display:flex; flex-direction:column; gap:10px;">' + L.map((w, i) => '<button onclick="window.__waGo(' + i + ')" style="background:var(--green2); color:#000; border:none; border-radius:14px; padding:14px; font-size:13px; font-weight:800; cursor:pointer;">' + w.label + ' • ' + w.show + '</button>').join('') + '</div>'
+    });
+};
+window.openSupportEmail = function () {
+    const sub = encodeURIComponent('Bantuan Aplikasi Arus Keuangan RHN Capital');
+    const body = encodeURIComponent('Halo Admin,\n\nAkun: ' + ((currentUser && currentUser.email) || '-') + '\nMasalah:\n');
+    window.location.href = 'mailto:' + window.SUPPORT_EMAIL + '?subject=' + sub + '&body=' + body;
+};
+
+window.__legalHtml = {
+    privacy: `
+<h4>1. Siapa Kami</h4>
+<p>Aplikasi <b>Arus Keuangan</b> dikelola oleh <b>RHN CAPITAL</b> ("kami"). Kami bertindak sebagai pengendali data pribadi untuk data yang kamu masukkan ke aplikasi ini. Kontak: <b>${window.SUPPORT_EMAIL}</b>.</p>
+<h4>2. Data yang Kami Kumpulkan</h4>
+<ul>
+<li><b>Data akun:</b> email, nama, umur, jenis kelamin, dan (jika masuk lewat Google) nama serta email akun Google. Sandi dikelola Firebase Authentication, kami tidak melihat sandi kamu.</li>
+<li><b>Data keuangan yang kamu catat:</b> pemasukan, pengeluaran, transfer, hutang/piutang, saldo dompet, kategori, anggaran, catatan rutin, serta pengaturan dan preferensi aplikasi.</li>
+<li><b>Data keamanan:</b> PIN aplikasi, kode cepat, serta daftar sesi perangkat (jenis perangkat dan waktu terakhir aktif).</li>
+<li><b>Data langganan:</b> permintaan langganan, paket, status, masa aktif, dan kode referral yang dipakai. Pembayaran dilakukan manual lewat QRIS dan diverifikasi admin.</li>
+<li><b>Data transfer antar pengguna:</b> kode transfer, nama/email penerima atau pengirim, dan permintaan saldo yang kamu buat atau terima.</li>
+<li><b>Data program IB (jika mendaftar):</b> nama, nomor WhatsApp, rekening bank/e-wallet untuk pencairan, daftar client, komisi, dan penarikan.</li>
+<li><b>Chat bantuan:</b> isi percakapan kamu dengan admin.</li>
+<li><b>Data teknis lokal:</b> cache di perangkat (localStorage/IndexedDB) agar aplikasi bisa dipakai offline.</li>
+</ul>
+<h4>3. Untuk Apa Data Dipakai</h4>
+<p>Menjalankan fitur pencatatan, laporan, backup dan sinkronisasi; mengamankan akun; memverifikasi langganan dan menghitung komisi IB; memproses transfer/permintaan saldo antar pengguna; memberi bantuan; serta mencegah penyalahgunaan. Kami <b>tidak menjual</b> data pribadi kamu dan tidak memakainya untuk iklan.</p>
+<h4>4. Penyimpanan & Pihak Ketiga</h4>
+<p>Data disimpan di layanan <b>Google Firebase</b> (Authentication dan Cloud Firestore) yang servernya dapat berada di luar Indonesia. Aplikasi juga memuat pustaka dari CDN pihak ketiga (misalnya Chart.js, SweetAlert2, Google Fonts) yang dapat menerima alamat IP dan data teknis peramban kamu.</p>
+<h4>5. Akses Admin</h4>
+<p>Admin aplikasi dapat melihat data akun, catatan, saldo dompet, dan percakapan bantuan pengguna untuk keperluan dukungan, verifikasi langganan, perbaikan data, dan pencegahan penyalahgunaan. Catatan yang kamu hapus dan riwayat chat bantuan dapat tersimpan di arsip admin untuk riwayat bantuan dan pembukuan, serta tidak ikut terhapus otomatis saat kamu menghapus akun.</p>
+<h4>6. Berbagi Data</h4>
+<p>Data hanya dibagikan: (a) ke pengguna lain sebatas yang perlu untuk transfer atau permintaan saldo, (b) ke IB yang mengajak kamu mendaftar (nama dan status langganan), (c) ke penyedia infrastruktur seperti Firebase, dan (d) ke pihak berwenang bila diwajibkan hukum.</p>
+<h4>7. Lama Penyimpanan</h4>
+<p>Data disimpan selama akunmu aktif. Setelah kamu menghapus akun, data akun, catatan, pengaturan, dan perangkat dihapus dari sistem aktif. Chat bantuan, arsip catatan terhapus, serta catatan pembayaran langganan, komisi, dan penarikan IB tetap disimpan admin untuk riwayat, pembukuan, dan penyelesaian sengketa. Salinan cadangan sistem dapat bertahan sementara sebelum terhapus.</p>
+<h4>8. Keamanan</h4>
+<p><b>Data kamu aman dan terenkripsi:</b> dikirim lewat koneksi HTTPS terenkripsi dan disimpan terenkripsi di server Google Firebase. Kami juga memakai Firebase Authentication, PIN aplikasi, dan kontrol sesi per perangkat. Tidak ada sistem yang 100% aman, jadi jaga kerahasiaan sandi, PIN, dan kode cepat kamu, dan segera hubungi kami bila akun terasa diakses orang lain.</p>
+<h4>9. Hak Kamu</h4>
+<p>Sesuai UU Pelindungan Data Pribadi (UU No. 27 Tahun 2022), kamu berhak mengakses, memperbaiki, mengunduh (menu Unduh Laporan & Backup), menarik persetujuan, dan menghapus datamu (Pengaturan &gt; Privasi &amp; Hapus Akun). Untuk permintaan lain atau keluhan, hubungi kami lewat kanal support.</p>
+<h4>10. Usia Pengguna</h4>
+<p>Aplikasi ditujukan untuk pengguna berusia minimal 17 tahun. Pengguna di bawah umur wajib mendapat izin orang tua/wali.</p>
+<h4>11. Perubahan Kebijakan</h4>
+<p>Kebijakan ini dapat diperbarui. Perubahan penting akan diumumkan lewat aplikasi, dan versi terbaru selalu ada di menu ini.</p>
+<h4>12. Kontak</h4>
+<p>Email: <b>${window.SUPPORT_EMAIL}</b><br>WhatsApp: ${window.SUPPORT_WA.map(w => '<b>' + w.show + '</b> (' + w.label + ')').join(' / ')}</p>
+<div style="margin-top:16px; padding:12px; border:1px solid rgba(251,191,36,0.4); border-radius:12px; background:rgba(251,191,36,0.07); text-align:center; color:var(--text);"><b style="color:var(--gold);">Terima kasih telah menggunakan dan mempercayai RHN CAPITAL 🙏</b><br>Kepercayaanmu adalah alasan kami terus menjaga datamu tetap aman dan layanan ini terus berkembang.</div>`,
+    terms: `
+<h4>1. Penerimaan</h4>
+<p>Dengan mendaftar atau memakai aplikasi <b>Arus Keuangan RHN CAPITAL</b>, kamu menyetujui Syarat Layanan dan Kebijakan Privasi ini. Jika tidak setuju, mohon jangan memakai aplikasi.</p>
+<h4>2. Sifat Layanan</h4>
+<p>Aplikasi adalah <b>alat pencatat keuangan pribadi</b>. Kami bukan bank, bukan dompet digital, dan bukan penyedia pembayaran. Saldo dompet, transfer, hutang/piutang, dan saldo MetaTrader 5 hanyalah <b>catatan</b>, bukan uang sungguhan yang disimpan atau dipindahkan oleh kami.</p>
+<h4>3. Akun & Keamanan</h4>
+<ul><li>Data pendaftaran harus benar dan satu akun untuk satu orang.</li><li>Kamu bertanggung jawab menjaga sandi, PIN, dan kode cepat serta semua aktivitas di akunmu.</li><li>Jumlah perangkat yang boleh masuk bisa dibatasi demi keamanan.</li></ul>
+<h4>4. Langganan & Pembayaran Manual</h4>
+<ul><li>Fitur berbayar aktif setelah pembayaran QRIS diverifikasi admin. Proses verifikasi manual bisa memerlukan waktu.</li><li>Simpan bukti pembayaran sampai langgananmu aktif.</li><li>Pembayaran yang sudah diverifikasi pada dasarnya tidak dapat dikembalikan, kecuali terjadi pembayaran ganda atau kesalahan sistem yang terbukti.</li><li>Kode referral hanya berlaku sesuai ketentuan masing-masing kode dan tidak boleh disalahgunakan.</li><li>Jika langganan berakhir, fitur berbayar dibatasi namun datamu tidak otomatis dihapus.</li></ul>
+<h4>5. Program IB</h4>
+<p>Pendaftaran IB perlu disetujui admin. Komisi dan biaya penarikan mengikuti ketentuan yang tampil di aplikasi. Admin berhak menolak, menahan komisi, atau menghentikan IB yang terbukti curang, memakai data palsu, atau melanggar syarat ini.</p>
+<h4>6. Larangan</h4>
+<p>Dilarang memakai aplikasi untuk penipuan, pencucian uang, atau kegiatan melanggar hukum; mengakses akun/data orang lain; menghindari langganan atau memanipulasi referral/IB; memakai bot atau membebani sistem; serta membongkar atau menyalin kode aplikasi.</p>
+<h4>7. Transfer & Permintaan Saldo Antar Pengguna</h4>
+<p>Fitur ini hanya mencatat di aplikasi. Perselisihan uang nyata antar pengguna adalah urusan para pihak dan di luar tanggung jawab kami.</p>
+<h4>8. Informasi Pasar</h4>
+<p>Kurs USD, harga emas, dan data pasar lain bersifat informasi, dapat terlambat atau tidak akurat, dan <b>bukan nasihat keuangan, investasi, atau pajak</b>. Keputusan sepenuhnya milik kamu.</p>
+<h4>9. Data, Backup & Offline</h4>
+<p>Kamu bertanggung jawab melakukan ekspor/backup berkala. Kami berupaya menjaga data tetapi tidak menjamin bebas kehilangan. Data yang dicatat saat offline akan disinkronkan saat online dan dapat terjadi perbedaan jika kamu memakai beberapa perangkat sekaligus.</p>
+<h4>10. Ketersediaan Layanan</h4>
+<p>Layanan diberikan "sebagaimana adanya". Gangguan, pemeliharaan, atau perubahan fitur dapat terjadi sewaktu-waktu.</p>
+<h4>11. Batasan Tanggung Jawab</h4>
+<p>Sejauh diizinkan hukum, kami tidak bertanggung jawab atas kerugian tidak langsung, kehilangan keuntungan, atau kerugian akibat kelalaian pengguna menjaga akun, keputusan keuangan, maupun gangguan layanan pihak ketiga (misalnya Firebase atau internet).</p>
+<h4>12. Penangguhan & Penghentian</h4>
+<p>Kami dapat menangguhkan atau menutup akun yang melanggar syarat ini. Kamu dapat menghapus akunmu kapan saja lewat menu Pengaturan.</p>
+<h4>13. Perubahan & Hukum</h4>
+<p>Syarat ini dapat diperbarui dan tunduk pada hukum Republik Indonesia. Kontak: <b>${window.SUPPORT_EMAIL}</b> atau WhatsApp ${window.SUPPORT_WA.map(w => '<b>' + w.show + '</b>').join(' / ')}.</p>
+<h4>14. Keamanan Data</h4>
+<p><b>Data kamu aman dan terenkripsi.</b> Data dikirim lewat koneksi HTTPS terenkripsi dan disimpan terenkripsi di server Google Firebase, dilindungi login, PIN, dan kontrol akses.</p>
+<div style="margin-top:16px; padding:12px; border:1px solid rgba(251,191,36,0.4); border-radius:12px; background:rgba(251,191,36,0.07); text-align:center; color:var(--text);"><b style="color:var(--gold);">Terima kasih telah menggunakan dan mempercayai RHN CAPITAL 🙏</b><br>Kepercayaanmu adalah alasan kami terus menjaga datamu tetap aman dan layanan ini terus berkembang.</div>`
+};
+
+window.openLegal = function (type) {
+    const isP = type === 'privacy';
+    Swal.fire({
+        title: isP ? '🔒 Kebijakan Privasi' : '📜 Syarat Layanan',
+        html: '<div style="text-align:left; font-size:11.5px; line-height:1.6; color:var(--text2); max-height:60vh; overflow-y:auto; padding-right:6px; -webkit-overflow-scrolling:touch;">'
+            + '<style>.lg-body h4{color:var(--gold);font-size:12px;margin:14px 0 4px;} .lg-body p{margin:0 0 6px;} .lg-body ul{margin:4px 0 6px 18px;padding:0;}</style>'
+            + '<div class="lg-body"><div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Berlaku sejak: ' + window.LEGAL_UPDATED + '</div>' + window.__legalHtml[type] + '</div></div>',
+        background: 'var(--card)', color: 'var(--text)', confirmButtonText: 'MENGERTI', confirmButtonColor: 'var(--gold)',
+        heightAuto: false, width: 520
+    });
+};
+
+window.openFAQ = function () {
+    const qa = [
+        ['Berapa lama langganan saya aktif setelah bayar?', 'Pembayaran QRIS diverifikasi manual oleh admin, jadi butuh waktu. Setelah bayar, tekan "Konfirmasi Sudah Bayar" lalu tunggu. Kalau lama, chat admin dan kirim bukti bayar.'],
+        ['Saya lupa sandi / PIN, bagaimana?', 'Sandi: tekan "Lupa Sandi?" di halaman masuk lalu cek email (termasuk folder spam). PIN: hubungi admin lewat kanal support dengan menyebut email akunmu.'],
+        ['Apakah saldo di aplikasi uang sungguhan?', 'Bukan. Saldo dompet dan transfer hanya catatan keuanganmu. Aplikasi tidak menyimpan atau memindahkan uang asli.'],
+        ['Bisa dipakai tanpa internet?', 'Bisa untuk mencatat. Data akan naik ke server otomatis saat internet tersambung lagi. Login pertama di HP baru tetap butuh internet.'],
+        ['Data saya aman?', 'Data disimpan di Firebase dan dilindungi login serta PIN. Tetap jaga sandi dan PIN, dan rutin unduh backup/CSV dari menu Pengaturan.'],
+        ['Catatan terhapus bisa dikembalikan?', 'Cek menu Tempat Sampah & Recovery di Pengaturan.'],
+        ['Bagaimana cara jadi IB?', 'Buka Pengaturan > IB Saya, isi formulir pendaftaran, lalu tunggu persetujuan admin.'],
+        ['Bagaimana menghapus akun & data saya?', 'Pengaturan > Privasi & Hapus Akun > Hapus Akun Permanen. Tindakan ini tidak bisa dibatalkan, jadi unduh backup dulu.']
+    ];
+    Swal.fire({
+        title: '❓ Pertanyaan Umum (FAQ)',
+        html: '<div style="text-align:left; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch;">' + qa.map(x =>
+            '<details style="border:1px solid var(--border2); border-radius:12px; padding:10px 12px; margin-bottom:8px; background:var(--bg3);"><summary style="cursor:pointer; font-size:12px; font-weight:800; color:var(--text);">' + x[0] + '</summary><div style="font-size:11.5px; line-height:1.6; color:var(--text2); margin-top:8px;">' + x[1] + '</div></details>').join('') + '</div>',
+        background: 'var(--card)', color: 'var(--text)', confirmButtonText: 'TUTUP', confirmButtonColor: 'var(--gold)', heightAuto: false, width: 520
+    });
+};
+
+
+// ---- GERBANG PERSETUJUAN: muncul setelah daftar / saat mau masuk (bukan di layar login) ----
+window.showLegalGate = function (user) {
+    if (document.getElementById('legal-gate') || !user) return;
+    const ov = document.createElement('div');
+    ov.id = 'legal-gate';
+    ov.style.cssText = 'position:fixed; inset:0; z-index:2147483000; background:rgba(0,0,0,0.78); display:flex; align-items:center; justify-content:center; padding:14px;';
+    ov.innerHTML = '<style>#legal-gate .lg-body h4{color:var(--gold);font-size:12px;margin:14px 0 4px;} #legal-gate .lg-body p{margin:0 0 6px;} #legal-gate .lg-body ul{margin:4px 0 6px 18px;padding:0;} #legal-gate button:disabled{opacity:.4; cursor:not-allowed;}</style>'
+        + '<div style="background:var(--card); border:1px solid var(--border2); border-radius:20px; width:100%; max-width:520px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.6);">'
+        + '<div style="padding:16px 16px 10px; text-align:center;"><div style="font-size:14px; font-weight:800; color:var(--text);">Syarat Layanan & Kebijakan Privasi</div><div style="font-size:10.5px; color:var(--text3); margin-top:4px;">Baca keduanya sampai bawah untuk melanjutkan</div></div>'
+        + '<div style="display:flex; gap:6px; padding:0 14px 8px;"><button id="lg-tab-terms" style="flex:1; padding:9px; border-radius:999px; border:1px solid var(--gold); background:var(--gold); color:#000; font-size:11px; font-weight:800; cursor:pointer;">📜 Syarat Layanan <span id="lg-ck-terms"></span></button><button id="lg-tab-privacy" style="flex:1; padding:9px; border-radius:999px; border:1px solid var(--border2); background:var(--bg3); color:var(--text); font-size:11px; font-weight:800; cursor:pointer;">🔒 Kebijakan Privasi <span id="lg-ck-privacy"></span></button></div>'
+        + '<div id="lg-box-terms" class="lg-body" style="flex:1; min-height:200px; overflow-y:auto; padding:6px 16px 14px; font-size:11.5px; line-height:1.6; color:var(--text2); -webkit-overflow-scrolling:touch;">' + window.__legalHtml.terms + '</div>'
+        + '<div id="lg-box-privacy" class="lg-body" style="display:none; flex:1; min-height:200px; overflow-y:auto; padding:6px 16px 14px; font-size:11.5px; line-height:1.6; color:var(--text2); -webkit-overflow-scrolling:touch;">' + window.__legalHtml.privacy + '</div>'
+        + '<div style="padding:12px 14px 14px; border-top:1px solid var(--border); background:var(--bg2);">'
+        + '<div id="lg-hint" style="font-size:10px; color:var(--gold); text-align:center; margin-bottom:8px;">Gulir sampai bawah di kedua tab untuk mengaktifkan centang.</div>'
+        + '<label style="display:flex; gap:8px; align-items:flex-start; font-size:11px; color:var(--text2); line-height:1.5; margin-bottom:10px;"><input type="checkbox" id="lg-check" disabled style="margin-top:2px; flex-shrink:0;"><span>Saya sudah membaca dan menyetujui Syarat Layanan serta Kebijakan Privasi RHN CAPITAL.</span></label>'
+        + '<div style="display:flex; gap:8px;"><button id="lg-decline" style="flex:1; padding:12px; border-radius:12px; border:1px solid rgba(248,113,113,0.4); background:transparent; color:var(--red2); font-size:11px; font-weight:800; cursor:pointer;">TOLAK & KELUAR</button><button id="lg-accept" disabled style="flex:1.4; padding:12px; border-radius:12px; border:none; background:var(--gold); color:#000; font-size:11px; font-weight:800; cursor:pointer;">SETUJU & LANJUT</button></div>'
+        + '</div></div>';
+    document.body.appendChild(ov);
+    const $ = id => document.getElementById(id);
+    const read = { terms: false, privacy: false };
+    const refresh = () => {
+        $('lg-ck-terms').textContent = read.terms ? '✔' : ''; $('lg-ck-privacy').textContent = read.privacy ? '✔' : '';
+        const ok = read.terms && read.privacy; $('lg-check').disabled = !ok;
+        if (ok) $('lg-hint').style.display = 'none';
+        $('lg-accept').disabled = !(ok && $('lg-check').checked);
+    };
+    const watch = k => { const b = $('lg-box-' + k); const chk = () => { if (b.scrollTop + b.clientHeight >= b.scrollHeight - 12) { read[k] = true; refresh(); } }; b.addEventListener('scroll', chk); setTimeout(chk, 300); return chk; };
+    const chkT = watch('terms'), chkP = watch('privacy');
+    const tab = k => {
+        ['terms', 'privacy'].forEach(x => {
+            $('lg-box-' + x).style.display = x === k ? 'block' : 'none';
+            const t = $('lg-tab-' + x); t.style.background = x === k ? 'var(--gold)' : 'var(--bg3)'; t.style.color = x === k ? '#000' : 'var(--text)'; t.style.borderColor = x === k ? 'var(--gold)' : 'var(--border2)';
+        });
+        setTimeout(k === 'terms' ? chkT : chkP, 100);
+    };
+    $('lg-tab-terms').onclick = () => tab('terms'); $('lg-tab-privacy').onclick = () => tab('privacy');
+    $('lg-check').onchange = refresh;
+    $('lg-decline').onclick = async () => { ov.remove(); try { await signOut(auth); } catch (e) {} };
+    $('lg-accept').onclick = async () => {
+        $('lg-accept').disabled = true;
+        try { localStorage.setItem('legal_ok_' + user.uid, window.LEGAL_VERSION); } catch (e) {}
+        try { await setDoc(doc(db, 'users', user.uid), { consentAt: new Date().toISOString(), consentVersion: window.LEGAL_VERSION }, { merge: true }); } catch (e) { console.warn('Gagal simpan persetujuan', e); }
+        ov.remove();
+    };
+};
+onAuthStateChanged(auth, async (user) => {
+    if (!user || String(user.uid).startsWith('offline_')) return;
+    try { if (localStorage.getItem('legal_ok_' + user.uid) === window.LEGAL_VERSION) return; } catch (e) {}
+    try { const sn = await getDoc(doc(db, 'users', user.uid)); if (sn.exists() && sn.data().consentVersion === window.LEGAL_VERSION) { try { localStorage.setItem('legal_ok_' + user.uid, window.LEGAL_VERSION); } catch (e) {} return; } } catch (e) {}
+    // Tunggu sampai layar login, splash, dan layar PIN sudah tertutup (jadi tidak muncul di atas logo / layar login).
+    const hidden = id => { const el = document.getElementById(id); return !el || getComputedStyle(el).display === 'none' || el.classList.contains('splash-exit'); };
+    let tries = 0;
+    const t = setInterval(() => {
+        if (!auth.currentUser || auth.currentUser.uid !== user.uid) { clearInterval(t); return; }
+        if (++tries > 150) { clearInterval(t); return; }
+        if (hidden('auth-screen') && hidden('splash-screen') && hidden('pin-screen')) { clearInterval(t); window.showLegalGate(user); }
+    }, 400);
+});
+
+window.deleteMyAccount = async function () {
+    const user = auth.currentUser;
+    const sw = { background: 'var(--card)', color: 'var(--text)', heightAuto: false };
+    if (!user || String(user.uid).startsWith('offline_')) return Swal.fire({ ...sw, icon: 'info', title: 'Perlu Akun Online', text: 'Masuk dengan akun online dulu untuk menghapus akun.' });
+    if (!navigator.onLine) return Swal.fire({ ...sw, icon: 'info', title: 'Tidak Ada Internet', text: 'Sambungkan internet dulu untuk menghapus akun.' });
+    const hasPass = (user.providerData || []).some(p => p.providerId === 'password');
+    const uid = user.uid;
+    const form = await Swal.fire({
+        ...sw, icon: 'warning', title: '⚠️ Hapus Akun Permanen?',
+        html: '<div style="text-align:left; font-size:12px; color:var(--text2); line-height:1.6;">Yang akan <b style="color:var(--red2);">dihapus permanen</b>: profil, seluruh catatan, catatan rutin, pengaturan &amp; PIN, daftar perangkat, akun tertaut, backup, dan akun login kamu.<br><br>Chat bantuan, arsip catatan terhapus, serta catatan pembayaran langganan, komisi, dan penarikan IB tetap disimpan admin untuk riwayat dan pembukuan (lihat Kebijakan Privasi).<br><br><b>Tidak bisa dibatalkan.</b> Unduh backup dulu bila perlu.<br><br>'
+            + (hasPass ? '<input id="del-acc-pass" type="password" class="swal2-input" placeholder="Sandi akun kamu" style="max-width:100%; width:80%; margin:0 auto 8px; display:block;">' : '<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Kamu akan diminta login Google ulang untuk konfirmasi.</div>')
+            + '<input id="del-acc-confirm" class="swal2-input" placeholder="Ketik HAPUS" style="max-width:100%; width:80%; margin:0 auto; display:block; text-align:center; font-weight:800;"></div>',
+        showCancelButton: true, confirmButtonText: 'HAPUS AKUN SAYA', cancelButtonText: 'BATAL', confirmButtonColor: 'var(--red2)', focusConfirm: false,
+        preConfirm: () => {
+            if (document.getElementById('del-acc-confirm').value.trim().toUpperCase() !== 'HAPUS') { Swal.showValidationMessage('Ketik HAPUS (huruf besar) untuk konfirmasi.'); return false; }
+            const pw = hasPass ? document.getElementById('del-acc-pass').value : '';
+            if (hasPass && !pw) { Swal.showValidationMessage('Masukkan sandi akun kamu.'); return false; }
+            return { pw };
+        }
+    });
+    if (!form.isConfirmed) return;
+    Swal.fire({ ...sw, title: 'Menghapus Akun...', html: 'Jangan tutup halaman ini.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    try {
+        if (hasPass) await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, form.value.pw));
+        else await reauthenticateWithPopup(user, new GoogleAuthProvider());
+    } catch (e) {
+        return Swal.fire({ ...sw, icon: 'error', title: 'Verifikasi Gagal', text: (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Sandi salah.' : (e.message || 'Gagal verifikasi ulang.') });
+    }
+    const safe = async (fn) => { try { await fn(); } catch (e) { console.warn('Hapus akun (sebagian):', e); } };
+    try {
+        for (const sc of ['transactions', 'recurring_txs', 'devices', 'link_requests', 'linked_accounts', 'backups', 'settings']) {
+            await safe(() => deleteCollectionInChunks(collection(db, 'users', uid, sc)));
+        }
+        await safe(async () => { const s = await getDocs(query(collection(db, 'transfer_registry'), where('uid', '==', uid))); for (const d of s.docs) await deleteDoc(d.ref); });
+        await safe(() => deleteDoc(doc(db, 'ibClients', uid)));
+        await deleteDoc(doc(db, 'users', uid));
+        await deleteUser(user);
+    } catch (e) {
+        return Swal.fire({ ...sw, icon: 'error', title: 'Gagal Menghapus Akun', text: (e.message || 'Terjadi kesalahan.') + ' Hubungi admin lewat kanal support bila berulang.' });
+    }
+    try { Object.keys(localStorage).forEach(k => { if (/rhn|offline|cred|pin|last_uid/i.test(k)) localStorage.removeItem(k); }); } catch (e) {}
+    await Swal.fire({ ...sw, icon: 'success', title: 'Akun Terhapus', text: 'Akun dan datamu sudah dihapus. Terima kasih sudah memakai RHN Capital.', timer: 2500, showConfirmButton: false });
+    location.reload();
+};
 
 window.confirmDeleteUser = async function(uid) {
     if (!currentUser) return;
