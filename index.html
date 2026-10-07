@@ -4760,6 +4760,7 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
         await fastBatchRun(txList, 2, (batch, t) => {
             let payload = { ...t };
             delete payload.id;
+            window.stripLinkMeta(payload);
             payload.createdAt = serverTimestamp();
             const newRef = doc(collection(db, 'users', targetUid, 'transactions'));
             batch.set(newRef, payload);
@@ -8251,6 +8252,19 @@ function linkFields(d, forSig) {
     return o;
 }
 const linkSig = d => linkStable(linkFields(d, true));
+// Dokumen dianggap "salinan" (mirror) HANYA kalau ID-nya cocok dengan pola salinan. Dokumen hasil pulihkan backup /
+// transfer yang masih membawa sisa penanda tautan lama dianggap catatan biasa, jadi tetap ikut tersinkron.
+const linkIsMir = d => !!d.linkedFrom && d.id === 'lnk_' + d.linkedFrom + '_' + d.linkedSrcId;
+const LINK_META_KEYS = ['linkedFrom','linkedSrcId','linkedSig','linkedSyncs','linkedLinkId','linkedV'];
+window.stripLinkMeta = function(o) { LINK_META_KEYS.forEach(k => { delete o[k]; }); return o; };
+const __linkStatus = {}, __linkDelSeen = {};
+function linkStatusText(pid) {
+    const s = __linkStatus[pid]; if (!s) return '';
+    if (s.err) return ' • ⚠️ gagal sinkron, mencoba lagi';
+    if (s.wait) return ' • menunggu server…';
+    if (s.writes > 0) return ' • menyinkronkan ' + s.writes + ' catatan…';
+    return ' • ✓ sinkron (' + s.pairs + ' catatan) ' + new Date(s.t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
 
 const __linkState = {};      // pid -> { docs, fromCache, pending, loaded, unsub }
 let __linkMine = null;       // { uid, docs, fromCache, pending }
@@ -8296,8 +8310,11 @@ async function runLinkReconcile(pid) {
     const link = (window.__links || []).find(l => l.uid === pid);
     const st = __linkState[pid];
     if (!link || !st || !st.loaded || !__linkMine || __linkMine.uid !== uid) return;
+    if (window.__linkPaused) return; // sedang pulihkan backup / proses massal -> tunggu selesai dulu
     // Tunggu sampai KEDUA sisi sudah dari server & tidak ada tulisan tertunda -> 0 salah hapus / salah timpa
-    if (__linkMine.fromCache || st.fromCache || __linkMine.pending || st.pending) return;
+    if (__linkMine.fromCache || st.fromCache || __linkMine.pending || st.pending) {
+        __linkStatus[pid] = Object.assign({}, __linkStatus[pid], { wait: true }); renderLinkedAccounts(); return;
+    }
     __linkBusy[pid] = true;
     try {
         const lid = String(link.linkId || link.since || 'v1');
@@ -8309,10 +8326,10 @@ async function runLinkReconcile(pid) {
         };
         const keys = new Map();
         const addKey = (own, sid) => { if (sid) keys.set(own + ':' + sid, [own, sid]); };
-        mine.forEach(d => { if (!d.linkedFrom) addKey('me', d.id); else if (d.linkedFrom === pid) addKey('them', d.linkedSrcId); });
-        theirs.forEach(d => { if (!d.linkedFrom) addKey('them', d.id); else if (d.linkedFrom === uid) addKey('me', d.linkedSrcId); });
+        mine.forEach(d => { if (!linkIsMir(d)) addKey('me', d.id); else if (d.linkedFrom === pid) addKey('them', d.linkedSrcId); });
+        theirs.forEach(d => { if (!linkIsMir(d)) addKey('them', d.id); else if (d.linkedFrom === uid) addKey('me', d.linkedSrcId); });
 
-        const writes = [], deletions = [];
+        const writes = []; let deletions = [];
         const txRef = (u, id) => doc(db, 'users', u, 'transactions', id);
         const newMirrorData = (S, sSide, mSide, sid, sigS, M) => Object.assign(linkFields(S, false), {
             createdAt: S.createdAt || serverTimestamp(), ownerEmail: (M && M.ownerEmail) || mSide.email,
@@ -8322,18 +8339,25 @@ async function runLinkReconcile(pid) {
         for (const [own, sid] of keys.values()) {
             const sSide = side[own], mSide = side[own === 'me' ? 'them' : 'me'];
             const S = sSide.map.get(sid);
-            if (S && S.linkedFrom) continue;
+            if (S && linkIsMir(S)) continue;
             const mid = 'lnk_' + sSide.uid + '_' + sid;
             const M = mSide.map.get(mid);
             const sRef = txRef(sSide.uid, sid), mRef = txRef(mSide.uid, mid);
-            const flagged = !!(S && S.linkedSyncs && S.linkedSyncs[mSide.uid] === lid);
+            // Penanda "pernah disalin" terikat ke ID dokumen -> salinan hasil backup/transfer (ID baru) tidak dianggap pernah disalin
+            const flagVal = lid + '|' + sid;
+            const flagged = !!(S && S.linkedSyncs && S.linkedSyncs[mSide.uid] === flagVal);
+            const flagData = () => {
+                const o = { linkedSyncs: { [mSide.uid]: flagVal } };
+                if (S && S.linkedFrom) { o.linkedFrom = deleteField(); o.linkedSrcId = deleteField(); o.linkedSig = deleteField(); o.linkedV = deleteField(); o.linkedLinkId = deleteField(); }
+                return o;
+            };
 
             if (S && M) {
                 const sigS = linkSig(S), sigM = linkSig(M);
                 if (sigS === sigM) {
                     if (M.linkedSig !== sigS || M.linkedV !== 2 || M.linkedLinkId !== lid || M.linkedFrom !== sSide.uid || M.linkedSrcId !== sid)
                         writes.push({ ref: mRef, data: { linkedSig: sigS, linkedV: 2, linkedLinkId: lid, linkedFrom: sSide.uid, linkedSrcId: sid }, merge: true });
-                    if (!flagged) writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                    if (!flagged) writes.push({ ref: sRef, data: flagData(), merge: true });
                     continue;
                 }
                 let dir;
@@ -8343,9 +8367,9 @@ async function runLinkReconcile(pid) {
                 else { const ts = x => Date.parse(x.lastEditedAt || '') || 0; dir = ts(M) > ts(S) ? 'M2S' : 'S2M'; }
                 if (dir === 'S2M') {
                     writes.push({ ref: mRef, data: newMirrorData(S, sSide, mSide, sid, sigS, M), merge: false });
-                    if (!flagged) writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                    if (!flagged) writes.push({ ref: sRef, data: flagData(), merge: true });
                 } else {
-                    const sd = Object.assign(linkFields(M, false), { createdAt: S.createdAt || serverTimestamp(), linkedSyncs: Object.assign({}, S.linkedSyncs || {}, { [mSide.uid]: lid }) });
+                    const sd = Object.assign(linkFields(M, false), { createdAt: S.createdAt || serverTimestamp(), linkedSyncs: Object.assign({}, S.linkedSyncs || {}, { [mSide.uid]: flagVal }) });
                     if (S.ownerEmail) sd.ownerEmail = S.ownerEmail;
                     writes.push({ ref: sRef, data: sd, merge: false });
                     writes.push({ ref: mRef, data: { linkedSig: sigM, linkedV: 2, linkedLinkId: lid }, merge: true });
@@ -8356,7 +8380,7 @@ async function runLinkReconcile(pid) {
                     deletions.push({ kind: 'delS', ref: sRef, flagUid: mSide.uid });
                 } else {
                     writes.push({ ref: mRef, data: newMirrorData(S, sSide, mSide, sid, linkSig(S), null), merge: false });
-                    writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                    writes.push({ ref: sRef, data: flagData(), merge: true });
                 }
             } else if (!S && M) {
                 if (M.linkedV !== 2 || M.linkedLinkId === lid) {
@@ -8364,13 +8388,24 @@ async function runLinkReconcile(pid) {
                     deletions.push({ kind: 'delM', ref: mRef });
                 } else {
                     // Sisa dari tautan lama: pertahankan, buat ulang aslinya supaya tidak ada data hilang
-                    const sd = Object.assign(linkFields(M, false), { createdAt: M.createdAt || serverTimestamp(), ownerEmail: sSide.email, linkedSyncs: { [mSide.uid]: lid } });
+                    const sd = Object.assign(linkFields(M, false), { createdAt: M.createdAt || serverTimestamp(), ownerEmail: sSide.email, linkedSyncs: { [mSide.uid]: flagVal } });
                     writes.push({ ref: sRef, data: sd, merge: false });
                     writes.push({ ref: mRef, data: { linkedSig: linkSig(M), linkedV: 2, linkedLinkId: lid, linkedFrom: sSide.uid, linkedSrcId: sid }, merge: true });
                 }
             }
         }
 
+        // Penghapusan baru dijalankan kalau kondisinya bertahan >= 15 detik (anti salah hapus karena data belum lengkap)
+        {
+            const nowT = Date.now();
+            const seen = __linkDelSeen[pid] || (__linkDelSeen[pid] = new Map());
+            const cur = new Set(deletions.map(x => x.ref.path));
+            Array.from(seen.keys()).forEach(k => { if (!cur.has(k)) seen.delete(k); });
+            deletions.forEach(x => { if (!seen.has(x.ref.path)) seen.set(x.ref.path, nowT); });
+            const ripe = deletions.filter(x => nowT - seen.get(x.ref.path) >= 15000);
+            if (ripe.length < deletions.length) scheduleLinkReconcile(pid, 16000);
+            deletions = ripe;
+        }
         if (deletions.length) {
             let doDelete = true;
             if (deletions.length >= 10) {
@@ -8384,6 +8419,7 @@ async function runLinkReconcile(pid) {
             });
         }
 
+        __linkStatus[pid] = { t: Date.now(), pairs: keys.size, writes: writes.length };
         if (writes.length) {
             const applyW = (b, w) => { if (w.del) b.delete(w.ref); else if (w.upd) b.update(w.ref, w.data); else if (w.merge) b.set(w.ref, w.data, { merge: true }); else b.set(w.ref, w.data); };
             try {
@@ -8406,14 +8442,17 @@ async function runLinkReconcile(pid) {
         }
     } catch (e) {
         console.error('Sinkron akun tertaut error', e);
+        __linkStatus[pid] = { t: Date.now(), err: true };
         __linkFail[pid] = (__linkFail[pid] || 0) + 1;
         if (__linkFail[pid] <= 5) scheduleLinkReconcile(pid, 8000);
     } finally {
         __linkBusy[pid] = false;
+        renderLinkedAccounts();
         if (__linkRerun[pid]) { __linkRerun[pid] = false; scheduleLinkReconcile(pid, 200); }
     }
 }
-window.forceLinkResync = function() { (window.__links || []).forEach(l => { __linkFail[l.uid] = 0; scheduleLinkReconcile(l.uid, 0); }); };
+window.forceLinkResync = function(showToast) {
+    if (showToast === true) Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Menyinkronkan akun tertaut…', timer: 1800, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' }); (window.__links || []).forEach(l => { __linkFail[l.uid] = 0; scheduleLinkReconcile(l.uid, 0); }); };
 
 function renderLinkedAccounts() {
     const el = document.getElementById('linked-accounts-list');
@@ -8424,9 +8463,12 @@ function renderLinkedAccounts() {
       <div class="set-item">
         <div>
           <div class="set-label">${esc(l.nama || 'Pengguna')}</div>
-          <div class="set-sub">${esc(l.email || '')} • tertaut</div>
+          <div class="set-sub">${esc(l.email || '')} • tertaut${linkStatusText(l.uid)}</div>
         </div>
-        <button class="set-action" onclick="window.unlinkAccount('${esc(l.uid)}')">PUTUSKAN</button>
+        <div style="display:flex; gap:6px;">
+          <button class="set-action" onclick="window.forceLinkResync(true)">SINKRON</button>
+          <button class="set-action" onclick="window.unlinkAccount('${esc(l.uid)}')">PUTUSKAN</button>
+        </div>
       </div>`).join('');
 }
 
@@ -10730,6 +10772,7 @@ window.restoreBackupFile = function(evt) {
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
             let total = 0;
+            window.__linkPaused = true; // jeda sinkron akun tertaut selama pemulihan, lalu disinkron sekaligus
             const restoreJobs = [];
             toAdd.forEach(t => restoreJobs.push({ add: true, t }));
             toUpdate.forEach(t => restoreJobs.push({ add: false, t }));
@@ -10738,6 +10781,7 @@ window.restoreBackupFile = function(evt) {
             await fastBatchRun(restoreJobs, 1, (batch, job) => {
                 const t = job.t;
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
+                window.stripLinkMeta(cleanTx); // buang sisa penanda tautan lama dari file backup
                 if (job.add) {
                     cleanTx.createdAt = serverTimestamp();
                     const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
@@ -10748,12 +10792,15 @@ window.restoreBackupFile = function(evt) {
                     batch.set(ref, cleanTx, { merge: true });
                 }
             });
+            window.__linkPaused = false;
+            if (window.forceLinkResync) setTimeout(window.forceLinkResync, 2500); // sinkronkan semua data hasil pulihkan ke akun tertaut
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             const doneHtml = total > 0
                 ? `<b>${total}</b> catatan berhasil disesuaikan/ditambahkan dari file <b>${escapeHTML(file.name)}</b>.`
                 : `Tidak ada catatan baru dari file <b>${escapeHTML(file.name)}</b> — seluruh datanya sudah sama persis dengan yang tersimpan.`;
             Swal.fire({ icon: 'success', title: 'Pemulihan Selesai!', html: doneHtml, background: 'var(--card)', color: 'var(--text)' });
         } catch (err) {
+            window.__linkPaused = false;
             Swal.fire({ icon: 'error', title: 'Pemulihan Gagal', text: err.message, background: 'var(--card)', color: 'var(--text)' });
         }
     };
