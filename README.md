@@ -1685,6 +1685,24 @@ body.global-privacy #xau-idr-gr {
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">💽 Penyimpanan Database Firebase</div>
+      <div class="card-sub">Perkiraan pemakaian &amp; sisa kapasitas Firestore (dihitung dari jumlah dokumen &amp; rata-rata ukuran data). Angka pasti ada di Firebase Console &gt; Usage.</div>
+    </div>
+    <div id="admin-storage-info" style="padding:10px 4px; font-size:11.5px; color:var(--text2); line-height:1.7;">Belum dihitung. Tekan tombol di bawah.</div>
+    <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+      <select id="admin-storage-quota" class="f-input-dark" style="flex:1;" onchange="window.setAdminStorageQuota(this.value)">
+        <option value="1">Kuota 1 GB (paket Spark / gratis)</option>
+        <option value="5">Kuota 5 GB</option>
+        <option value="10">Kuota 10 GB</option>
+        <option value="50">Kuota 50 GB</option>
+        <option value="100">Kuota 100 GB</option>
+      </select>
+    </div>
+    <button class="export-btn" onclick="window.loadAdminStorage()" style="background:var(--gold); color:#000; margin-top:8px;">🔄 HITUNG SISA PENYIMPANAN</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">📲 File Aplikasi (APK)</div>
       <div class="card-sub">Upload APK ke Google Drive / GitHub Releases / hosting lain (gratis), lalu tempel link downloadnya di sini. Orang yang membuka link IB akan melihat tombol download aplikasi.</div>
     </div>
@@ -2408,7 +2426,7 @@ import {
 import { 
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
   addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
+  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, getCountFromServer, deleteField, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -4738,21 +4756,16 @@ window.executeTransfer = async function(txList, targetUid, isSingle) {
     Swal.fire({title: 'Memproses Transfer...', html: `Memindahkan ${txList.length} catatan, mohon tunggu...`, background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
 
     try {
-        const CHUNK_SIZE = 200; // aman di bawah limit 500 operasi per batch (2 operasi per catatan)
-        for (let i = 0; i < txList.length; i += CHUNK_SIZE) {
-            const chunk = txList.slice(i, i + CHUNK_SIZE);
-            const batch = writeBatch(db);
-            chunk.forEach(t => {
-                let payload = { ...t };
-                delete payload.id;
-                payload.createdAt = serverTimestamp();
-                const newRef = doc(collection(db, 'users', targetUid, 'transactions'));
-                batch.set(newRef, payload);
-                const oldRef = doc(db, 'users', currentUser.uid, 'transactions', t.id);
-                batch.delete(oldRef);
-            });
-            await batch.commit();
-        }
+        // TURBO: batch penuh 250 catatan (500 operasi) dan dikirim paralel -> jauh lebih cepat
+        await fastBatchRun(txList, 2, (batch, t) => {
+            let payload = { ...t };
+            delete payload.id;
+            payload.createdAt = serverTimestamp();
+            const newRef = doc(collection(db, 'users', targetUid, 'transactions'));
+            batch.set(newRef, payload);
+            const oldRef = doc(db, 'users', currentUser.uid, 'transactions', t.id);
+            batch.delete(oldRef);
+        });
         Swal.fire({icon:'success', title:'Transfer Berhasil!', text: isSingle ? '1 catatan dipindahkan.' : `${txList.length} catatan dipindahkan.`, background:'var(--card)', color:'var(--text)'});
     } catch(e) {
         Swal.fire({icon:'error', title:'Error Sistem', text: "Gagal: " + e.message, background:'var(--card)', color:'var(--text)'});
@@ -5897,6 +5910,7 @@ function unlockApp() {
         if (window.__isAdmin && typeof window.loadActiveSubscribers === 'function') { window.loadActiveSubscribers(); }
         if (typeof window.attachIBReferral === 'function') { window.attachIBReferral(currentUser); }
         if (window.__isAdmin && typeof window.loadAdminIB === 'function') { window.loadAdminIB(); }
+        if (window.__isAdmin && typeof window.loadAdminStorage === 'function') { window.loadAdminStorage(); }
         if (typeof window.checkSubscriptionStatus === 'function') { window.checkSubscriptionStatus(currentUser.uid); }
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
@@ -7789,16 +7803,90 @@ window.promptFixUserInfo = async function(uid) {
 // ==========================================================================
 // ADMIN: Hapus Akun User Langsung dari Panel (Tanpa Buka Firebase Console)
 // ==========================================================================
+// ==========================================================================
+// ADMIN: Perkiraan sisa penyimpanan database Firestore
+// Firestore tidak punya API resmi untuk membaca sisa kuota, jadi dihitung:
+// jumlah dokumen (count aggregation, murah) x rata-rata ukuran dokumen (sampel).
+// ==========================================================================
+window.setAdminStorageQuota = function(v) { try { localStorage.setItem('admin_storage_quota_gb', String(v)); } catch(e) {} window.loadAdminStorage(); };
+window.loadAdminStorage = async function() {
+    const box = document.getElementById('admin-storage-info');
+    if (!box || !window.__isAdmin) return;
+    const sel = document.getElementById('admin-storage-quota');
+    let quotaGB = 1; try { quotaGB = parseFloat(localStorage.getItem('admin_storage_quota_gb')) || 1; } catch(e) {}
+    if (sel) sel.value = String(quotaGB);
+    box.innerHTML = 'Menghitung penyimpanan...';
+    const sizeOf = (d) => { try { return new Blob([JSON.stringify(d.data())]).size + d.ref.path.length + 32; } catch(e) { return 300; } };
+    const targets = [
+        { label: 'Catatan transaksi', ref: () => collectionGroup(db, 'transactions'), tx: true },
+        { label: 'User', ref: () => collection(db, 'users') },
+        { label: 'Order', ref: () => collection(db, 'orders') },
+        { label: 'Deposit', ref: () => collection(db, 'deposits') },
+        { label: 'Galeri', ref: () => collection(db, 'gallery') },
+        { label: 'Chat CS', ref: () => collection(db, 'support_chats') },
+        { label: 'Arsip terhapus', ref: () => collection(db, 'archived_deleted') },
+        { label: 'Langganan', ref: () => collection(db, 'subscriptionRequests') },
+        { label: 'Kode login cepat', ref: () => collection(db, 'quickCodes') },
+        { label: 'Komisi IB', ref: () => collection(db, 'ibCommissions') }
+    ];
+    try {
+        const results = await Promise.all(targets.map(async (t) => {
+            try {
+                const [cnt, smp] = await Promise.all([
+                    getCountFromServer(t.ref()),
+                    getDocsFromServer(query(t.ref(), limit(t.tx ? 300 : 50)))
+                ]);
+                const n = cnt.data().count;
+                let avg = 400;
+                if (smp.docs.length) avg = smp.docs.reduce((a, d) => a + sizeOf(d), 0) / smp.docs.length;
+                return { label: t.label, n, avg, bytes: n * avg, tx: !!t.tx };
+            } catch (e) { return { label: t.label, n: 0, avg: 0, bytes: 0, err: true, tx: !!t.tx }; }
+        }));
+        const used = results.reduce((a, r) => a + r.bytes, 0) * 1.3; // +30% estimasi overhead indeks Firestore
+        const quota = quotaGB * 1024 * 1024 * 1024;
+        const free = Math.max(0, quota - used);
+        const pct = Math.min(100, (used / quota) * 100);
+        const fmtSize = (b) => { const mb = b / (1024 * 1024); const gb = mb / 1024; return gb.toLocaleString('id-ID', { maximumFractionDigits: 3 }) + ' GB (' + mb.toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' MB)'; };
+        const txR = results.find(r => r.tx);
+        const perTx = (txR && txR.avg > 0 ? txR.avg : 400) * 1.3;
+        const muat = Math.floor(free / perTx);
+        const color = pct > 85 ? 'var(--red2)' : (pct > 60 ? 'var(--gold)' : 'var(--green2)');
+        const rows = results.map(r => '<div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--text3);"><span>' + r.label + '</span><span>' + (r.err ? 'tidak terbaca' : r.n.toLocaleString('id-ID') + ' dok · ~' + (r.bytes / (1024 * 1024)).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' MB') + '</span></div>').join('');
+        box.innerHTML =
+            '<div style="height:10px; background:var(--bg3); border-radius:6px; overflow:hidden; margin-bottom:8px;"><div style="height:100%; width:' + pct.toFixed(1) + '%; background:' + color + ';"></div></div>' +
+            '<div>Terpakai: <b>' + fmtSize(used) + '</b> (' + pct.toFixed(1) + '%)</div>' +
+            '<div>Sisa: <b style="color:' + color + ';">' + fmtSize(free) + '</b> dari ' + quotaGB + ' GB</div>' +
+            '<div>Masih muat sekitar <b>' + muat.toLocaleString('id-ID') + '</b> catatan transaksi lagi</div>' +
+            '<div style="margin-top:8px;">' + rows + '</div>' +
+            '<div style="margin-top:6px; font-size:10px; color:var(--text3);">*Perkiraan (sudah termasuk ±30% overhead indeks). Dihitung ' + new Date().toLocaleString('id-ID') + '</div>';
+    } catch (e) {
+        box.innerHTML = '<span style="color:var(--red2);">Gagal menghitung: ' + (e.message || e) + '</span>';
+    }
+};
+
+// TURBO BATCH: bagi data jadi batch penuh (maks 500 operasi) lalu kirim BANYAK batch sekaligus (paralel)
+// Hasilnya sekitar 5x lebih cepat dibanding commit satu-satu berurutan.
+async function fastBatchRun(items, opsPerItem, applyFn, concurrency) {
+    const perBatch = Math.max(1, Math.floor(500 / Math.max(1, opsPerItem)));
+    const conc = concurrency || 10;
+    const batches = [];
+    for (let i = 0; i < items.length; i += perBatch) batches.push(items.slice(i, i + perBatch));
+    for (let i = 0; i < batches.length; i += conc) {
+        const wave = batches.slice(i, i + conc).map(chunk => {
+            const b = writeBatch(db);
+            chunk.forEach(it => applyFn(b, it));
+            return b.commit();
+        });
+        await Promise.all(wave);
+    }
+    return items.length;
+}
+window.fastBatchRun = fastBatchRun;
+
 async function deleteCollectionInChunks(colRef) {
     const snap = await getDocs(colRef);
     const docs = snap.docs;
-    const CHUNK_SIZE = 400;
-    for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
-        const chunk = docs.slice(i, i + CHUNK_SIZE);
-        const batch = writeBatch(db);
-        chunk.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-    }
+    await fastBatchRun(docs, 1, (batch, d) => batch.delete(d.ref));
     return docs.length;
 }
 
@@ -8132,88 +8220,200 @@ function loadTxLocalBackup(uid) {
 // AKUN TERTAUT: catatan di salah satu akun otomatis disalin ke akun yang tertaut
 // ======================================================================
 window.__links = [];
-const LINK_CORE = ['type','amount','category','wallet','walletTo','note','date','isDeleted','isPaid'];
-const linkSigOf = d => JSON.stringify(LINK_CORE.map(k => d[k] === undefined ? null : d[k]));
-const linkCacheKey = (uid, pid) => 'rhn_linksig_' + uid + '_' + pid;
-function linkLoadCache(uid, pid) { try { return JSON.parse(localStorage.getItem(linkCacheKey(uid, pid)) || '{}'); } catch(e) { return {}; } }
-function linkSaveCache(uid, pid, obj) { try { localStorage.setItem(linkCacheKey(uid, pid), JSON.stringify(obj)); } catch(e) {} }
-const __linkInflight = new Set();
+// ----------------------------------------------------------------------
+// ENGINE SINKRON AKUN TERTAUT v2 (dua arah, berbasis data server, tanpa cache lokal)
+// - Membaca catatan KEDUA akun secara realtime, lalu mencocokkan satu per satu.
+// - Semua field catatan ikut tersinkron (bukan cuma sebagian), termasuk edit, sampah, & hapus permanen.
+// - Aturan 3 arah (base signature): siapa yang berubah, dialah yang menimpa; kalau bentuk bentrok, edit terbaru menang.
+// - Tidak bergantung perangkat tertentu: perangkat mana pun yang terbuka akan menuntaskan sinkron.
+// - Hanya menulis kalau KEDUA sisi sudah terkonfirmasi server (anti salah hapus / anti data basi).
+// ----------------------------------------------------------------------
+const LINK_META = new Set(['id','createdAt','linkedFrom','linkedSrcId','linkedSig','linkedSyncs','linkedLinkId','linkedV','ownerEmail']);
+const LINK_SIGSKIP = new Set(['lastEditedAt','updatedAt']);
+function linkStable(v) {
+    if (v === null || v === undefined) return 'null';
+    if (typeof v === 'object') {
+        if (typeof v.toMillis === 'function') return 'T' + v.toMillis();
+        if (v instanceof Date) return 'T' + v.getTime();
+        if (Array.isArray(v)) return '[' + v.map(linkStable).join(',') + ']';
+        return '{' + Object.keys(v).filter(k => v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + linkStable(v[k])).join(',') + '}';
+    }
+    return JSON.stringify(v);
+}
+function linkFields(d, forSig) {
+    const o = {};
+    Object.keys(d).forEach(k => {
+        if (LINK_META.has(k) || d[k] === undefined) return;
+        if (forSig && LINK_SIGSKIP.has(k)) return;
+        o[k] = d[k];
+    });
+    ['wallet', 'walletTo'].forEach(k => { if (typeof o[k] === 'string' && o[k].toUpperCase().includes('REKENING')) o[k] = 'Bank'; });
+    return o;
+}
+const linkSig = d => linkStable(linkFields(d, true));
 
-const __linkBusy = {}, __linkPending = {};
-window.syncLinkedAccounts = function(uid, allDocs, skipRemoval) {
-    if (!currentUser || currentUser.uid !== uid || !window.__links || !window.__links.length) return;
-    window.__links.forEach(link => runLinkSync(uid, link, allDocs, skipRemoval));
+const __linkState = {};      // pid -> { docs, fromCache, pending, loaded, unsub }
+let __linkMine = null;       // { uid, docs, fromCache, pending }
+const __linkBusy = {}, __linkRerun = {}, __linkTimer = {}, __linkFail = {};
+
+function scheduleLinkReconcile(pid, delay) {
+    clearTimeout(__linkTimer[pid]);
+    __linkTimer[pid] = setTimeout(() => runLinkReconcile(pid), delay == null ? 120 : delay);
+}
+
+window.syncLinkedAccounts = function(uid, allDocs, fromCache, hasPending) {
+    if (!currentUser || currentUser.uid !== uid) return;
+    __linkMine = { uid, docs: allDocs || [], fromCache: !!fromCache, pending: !!hasPending };
+    (window.__links || []).forEach(l => scheduleLinkReconcile(l.uid));
 };
 
-async function runLinkSync(uid, link, allDocs, skipRemoval) {
-    const pid = link.uid;
-    if (__linkBusy[pid]) { __linkPending[pid] = { allDocs, skipRemoval }; return; }
+function attachLinkPartner(pid) {
+    if (__linkState[pid]) return;
+    const st = __linkState[pid] = { docs: [], fromCache: true, pending: false, loaded: false };
+    st.unsub = onSnapshot(collection(db, 'users', pid, 'transactions'), { includeMetadataChanges: true }, snap => {
+        st.docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+        st.fromCache = snap.metadata.fromCache;
+        st.pending = snap.metadata.hasPendingWrites;
+        st.loaded = true;
+        scheduleLinkReconcile(pid);
+    }, err => {
+        console.error('Gagal membaca catatan akun tertaut', err);
+        if (err && err.code === 'permission-denied' && !window.__linkRulesWarned) {
+            window.__linkRulesWarned = true;
+            Swal.fire({ toast: true, position: 'top', icon: 'warning', title: 'Sinkron akun tertaut butuh Firestore Rules terbaru (izin baca akun tertaut).', timer: 7000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' });
+        }
+    });
+}
+function detachLinkPartner(pid) {
+    const st = __linkState[pid];
+    if (st && st.unsub) { try { st.unsub(); } catch(e) {} }
+    delete __linkState[pid];
+}
+
+async function runLinkReconcile(pid) {
+    if (__linkBusy[pid]) { __linkRerun[pid] = true; return; }
+    const uid = currentUser && currentUser.uid; if (!uid) return;
+    const link = (window.__links || []).find(l => l.uid === pid);
+    const st = __linkState[pid];
+    if (!link || !st || !st.loaded || !__linkMine || __linkMine.uid !== uid) return;
+    // Tunggu sampai KEDUA sisi sudah dari server & tidak ada tulisan tertunda -> 0 salah hapus / salah timpa
+    if (__linkMine.fromCache || st.fromCache || __linkMine.pending || st.pending) return;
     __linkBusy[pid] = true;
     try {
-        const cache = linkLoadCache(uid, pid);
-        const ops = [];
-        const present = new Set();
-        const prefix = 'lnk_' + pid + '_';
-        allDocs.forEach(d => {
-            if (!d || !d.id) return;
-            present.add(d.id);
-            const isMirror = !!d.linkedFrom;
-            if (isMirror && d.linkedFrom !== pid) return;
-            const sig = linkSigOf(d);
-            if (cache[d.id] === sig) return;
-            // Perubahan yang barusan datang dari akun tertaut -> cukup dicatat, jangan dipantulkan balik
-            if (isMirror && (d.linkedSig === sig || cache[d.id] === undefined)) { cache[d.id] = sig; return; }
-            const core = {};
-            LINK_CORE.forEach(k => { if (d[k] !== undefined) core[k] = d[k]; });
-            if (isMirror) {
-                ops.push({ id: d.id, sig, ref: doc(db, 'users', pid, 'transactions', d.linkedSrcId),
-                    data: Object.assign(core, { linkedSig: sig, lastEditedAt: new Date().toISOString() }) });
-            } else {
-                ops.push({ id: d.id, sig, ref: doc(db, 'users', pid, 'transactions', 'lnk_' + uid + '_' + d.id),
-                    data: Object.assign(core, { ownerEmail: link.email || '', isDeleted: d.isDeleted === true,
-                        createdAt: d.createdAt || serverTimestamp(), linkedFrom: uid, linkedSrcId: d.id, linkedSig: sig }) });
-            }
+        const lid = String(link.linkId || link.since || 'v1');
+        const mine = new Map(__linkMine.docs.map(d => [d.id, d]));
+        const theirs = new Map(st.docs.map(d => [d.id, d]));
+        const side = {
+            me:   { uid: uid, map: mine,   email: currentUser.email || '' },
+            them: { uid: pid, map: theirs, email: link.email || '' }
+        };
+        const keys = new Map();
+        const addKey = (own, sid) => { if (sid) keys.set(own + ':' + sid, [own, sid]); };
+        mine.forEach(d => { if (!d.linkedFrom) addKey('me', d.id); else if (d.linkedFrom === pid) addKey('them', d.linkedSrcId); });
+        theirs.forEach(d => { if (!d.linkedFrom) addKey('them', d.id); else if (d.linkedFrom === uid) addKey('me', d.linkedSrcId); });
+
+        const writes = [], deletions = [];
+        const txRef = (u, id) => doc(db, 'users', u, 'transactions', id);
+        const newMirrorData = (S, sSide, mSide, sid, sigS, M) => Object.assign(linkFields(S, false), {
+            createdAt: S.createdAt || serverTimestamp(), ownerEmail: (M && M.ownerEmail) || mSide.email,
+            linkedFrom: sSide.uid, linkedSrcId: sid, linkedSig: sigS, linkedV: 2, linkedLinkId: lid
         });
 
-        // Hapus permanen (kosongkan sampah, dll) ikut dicerminkan ke akun tertaut
-        if (!skipRemoval) {
-            let gone = Object.keys(cache).filter(id => !present.has(id));
-            if (gone.length >= 10) {
-                const r = await Swal.fire({ title: 'Hapus di Akun Tertaut Juga?', text: gone.length + ' catatan hilang dari akun ini. Hapus juga di akun tertaut?', icon: 'warning', background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'Ya, Hapus Juga', cancelButtonText: 'Tidak', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)' });
-                if (!r.isConfirmed) { gone.forEach(id => { delete cache[id]; }); gone = []; }
-            }
-            gone.forEach(id => {
-                delete cache[id];
-                const tid = id.startsWith(prefix) ? id.slice(prefix.length) : 'lnk_' + uid + '_' + id;
-                ops.push({ del: true, id, ref: doc(db, 'users', pid, 'transactions', tid) });
-            });
-        }
+        for (const [own, sid] of keys.values()) {
+            const sSide = side[own], mSide = side[own === 'me' ? 'them' : 'me'];
+            const S = sSide.map.get(sid);
+            if (S && S.linkedFrom) continue;
+            const mid = 'lnk_' + sSide.uid + '_' + sid;
+            const M = mSide.map.get(mid);
+            const sRef = txRef(sSide.uid, sid), mRef = txRef(mSide.uid, mid);
+            const flagged = !!(S && S.linkedSyncs && S.linkedSyncs[mSide.uid] === lid);
 
-        for (let i = 0; i < ops.length; i += 400) {
-            const chunk = ops.slice(i, i + 400);
-            try {
-                const batch = writeBatch(db);
-                chunk.forEach(o => { if (o.del) batch.delete(o.ref); else batch.set(o.ref, o.data, { merge: true }); });
-                await batch.commit();
-                chunk.forEach(o => { if (!o.del) cache[o.id] = o.sig; });
-            } catch(e) {
-                console.error('Batch sinkron akun tertaut gagal, coba satu-satu', e);
-                for (const o of chunk) {
-                    try {
-                        if (o.del) await deleteDoc(o.ref); else { await setDoc(o.ref, o.data, { merge: true }); cache[o.id] = o.sig; }
-                    } catch(e2) { console.error('Gagal sinkron akun tertaut', e2); }
+            if (S && M) {
+                const sigS = linkSig(S), sigM = linkSig(M);
+                if (sigS === sigM) {
+                    if (M.linkedSig !== sigS || M.linkedV !== 2 || M.linkedLinkId !== lid || M.linkedFrom !== sSide.uid || M.linkedSrcId !== sid)
+                        writes.push({ ref: mRef, data: { linkedSig: sigS, linkedV: 2, linkedLinkId: lid, linkedFrom: sSide.uid, linkedSrcId: sid }, merge: true });
+                    if (!flagged) writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                    continue;
+                }
+                let dir;
+                if (M.linkedV !== 2) dir = 'S2M';
+                else if (sigM === M.linkedSig) dir = 'S2M';
+                else if (sigS === M.linkedSig) dir = 'M2S';
+                else { const ts = x => Date.parse(x.lastEditedAt || '') || 0; dir = ts(M) > ts(S) ? 'M2S' : 'S2M'; }
+                if (dir === 'S2M') {
+                    writes.push({ ref: mRef, data: newMirrorData(S, sSide, mSide, sid, sigS, M), merge: false });
+                    if (!flagged) writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                } else {
+                    const sd = Object.assign(linkFields(M, false), { createdAt: S.createdAt || serverTimestamp(), linkedSyncs: Object.assign({}, S.linkedSyncs || {}, { [mSide.uid]: lid }) });
+                    if (S.ownerEmail) sd.ownerEmail = S.ownerEmail;
+                    writes.push({ ref: sRef, data: sd, merge: false });
+                    writes.push({ ref: mRef, data: { linkedSig: sigM, linkedV: 2, linkedLinkId: lid }, merge: true });
+                }
+            } else if (S && !M) {
+                if (flagged) {
+                    // Mirror sudah pernah ada lalu dihapus di sisi satunya -> hapus juga aslinya
+                    deletions.push({ kind: 'delS', ref: sRef, flagUid: mSide.uid });
+                } else {
+                    writes.push({ ref: mRef, data: newMirrorData(S, sSide, mSide, sid, linkSig(S), null), merge: false });
+                    writes.push({ ref: sRef, data: { linkedSyncs: { [mSide.uid]: lid } }, merge: true });
+                }
+            } else if (!S && M) {
+                if (M.linkedV !== 2 || M.linkedLinkId === lid) {
+                    // Aslinya sudah dihapus -> hapus salinannya
+                    deletions.push({ kind: 'delM', ref: mRef });
+                } else {
+                    // Sisa dari tautan lama: pertahankan, buat ulang aslinya supaya tidak ada data hilang
+                    const sd = Object.assign(linkFields(M, false), { createdAt: M.createdAt || serverTimestamp(), ownerEmail: sSide.email, linkedSyncs: { [mSide.uid]: lid } });
+                    writes.push({ ref: sRef, data: sd, merge: false });
+                    writes.push({ ref: mRef, data: { linkedSig: linkSig(M), linkedV: 2, linkedLinkId: lid, linkedFrom: sSide.uid, linkedSrcId: sid }, merge: true });
                 }
             }
         }
-        linkSaveCache(uid, pid, cache);
-    } catch(e) {
+
+        if (deletions.length) {
+            let doDelete = true;
+            if (deletions.length >= 10) {
+                const r = await Swal.fire({ title: 'Hapus di Akun Tertaut Juga?', text: deletions.length + ' catatan terhapus di salah satu akun tertaut. Hapus juga di akun satunya?', icon: 'warning', background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'Ya, Hapus Juga', cancelButtonText: 'Tidak, Pertahankan', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', allowOutsideClick: false });
+                doDelete = r.isConfirmed;
+            }
+            deletions.forEach(x => {
+                if (doDelete) writes.push({ ref: x.ref, del: true });
+                else if (x.kind === 'delS') writes.push({ ref: x.ref, upd: true, data: { ['linkedSyncs.' + x.flagUid]: deleteField() } });
+                else writes.push({ ref: x.ref, upd: true, data: { linkedFrom: deleteField(), linkedSrcId: deleteField(), linkedSig: deleteField(), linkedV: deleteField(), linkedLinkId: deleteField() } });
+            });
+        }
+
+        if (writes.length) {
+            const applyW = (b, w) => { if (w.del) b.delete(w.ref); else if (w.upd) b.update(w.ref, w.data); else if (w.merge) b.set(w.ref, w.data, { merge: true }); else b.set(w.ref, w.data); };
+            try {
+                await fastBatchRun(writes, 1, applyW);
+                __linkFail[pid] = 0;
+            } catch (e) {
+                console.error('Batch sinkron akun tertaut gagal, coba satu-satu', e);
+                let denied = false;
+                for (const w of writes) {
+                    try { if (w.del) await deleteDoc(w.ref); else if (w.upd) await updateDoc(w.ref, w.data); else if (w.merge) await setDoc(w.ref, w.data, { merge: true }); else await setDoc(w.ref, w.data); }
+                    catch (e2) { if (e2 && e2.code === 'permission-denied') denied = true; console.error('Gagal sinkron akun tertaut', e2); }
+                }
+                if (denied && !window.__linkRulesWarned) {
+                    window.__linkRulesWarned = true;
+                    Swal.fire({ toast: true, position: 'top', icon: 'warning', title: 'Sinkron akun tertaut ditolak server. Pastikan Firestore Rules sudah diperbarui.', timer: 7000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' });
+                }
+                __linkFail[pid] = (__linkFail[pid] || 0) + 1;
+                if (__linkFail[pid] <= 5) scheduleLinkReconcile(pid, 8000);
+            }
+        }
+    } catch (e) {
         console.error('Sinkron akun tertaut error', e);
+        __linkFail[pid] = (__linkFail[pid] || 0) + 1;
+        if (__linkFail[pid] <= 5) scheduleLinkReconcile(pid, 8000);
     } finally {
         __linkBusy[pid] = false;
-        const pend = __linkPending[pid];
-        if (pend) { delete __linkPending[pid]; runLinkSync(uid, link, pend.allDocs, pend.skipRemoval); }
+        if (__linkRerun[pid]) { __linkRerun[pid] = false; scheduleLinkReconcile(pid, 200); }
     }
 }
+window.forceLinkResync = function() { (window.__links || []).forEach(l => { __linkFail[l.uid] = 0; scheduleLinkReconcile(l.uid, 0); }); };
 
 function renderLinkedAccounts() {
     const el = document.getElementById('linked-accounts-list');
@@ -8234,14 +8434,23 @@ window.listenLinkedAccounts = function(uid) {
     if (window.__unsubLinks) window.__unsubLinks();
     if (window.__unsubLinkReq) window.__unsubLinkReq();
     window.__links = [];
+    Object.keys(__linkState).forEach(detachLinkPartner);
+    __linkMine = null;
     window.__unsubLinks = onSnapshot(collection(db, 'users', uid, 'linked_accounts'), snap => {
         window.__links = snap.docs.map(d => Object.assign({ uid: d.id }, d.data()));
         renderLinkedAccounts();
-        if (typeof txs !== 'undefined') {
-            const all = [].concat(txs || [], deletedTxs || []);
-            window.syncLinkedAccounts(uid, all, true);
-        }
+        const active = new Set(window.__links.map(l => l.uid));
+        Object.keys(__linkState).forEach(pid => { if (!active.has(pid)) detachLinkPartner(pid); });
+        window.__links.forEach(l => { attachLinkPartner(l.uid); scheduleLinkReconcile(l.uid); });
     }, err => console.error('Gagal memuat akun tertaut', err));
+    // Jaring pengaman: cek ulang berkala, saat internet kembali, & saat aplikasi dibuka lagi
+    if (window.__linkSafetyTimer) clearInterval(window.__linkSafetyTimer);
+    window.__linkSafetyTimer = setInterval(() => { if (document.visibilityState !== 'hidden') (window.__links || []).forEach(l => scheduleLinkReconcile(l.uid)); }, 30000);
+    if (!window.__linkSafetyBound) {
+        window.__linkSafetyBound = true;
+        window.addEventListener('online', () => { if (window.forceLinkResync) setTimeout(window.forceLinkResync, 1500); });
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && window.forceLinkResync) window.forceLinkResync(); });
+    }
     window.__unsubLinkReq = onSnapshot(collection(db, 'users', uid, 'link_requests'), snap => {
         snap.docChanges().forEach(ch => {
             if (ch.type === 'removed') return;
@@ -8297,11 +8506,20 @@ window.answerLinkRequest = async function(reqId, r) {
     try {
         const since = new Date().toISOString();
         const myNama = currentUser.displayName || (currentUser.email || '').split('@')[0];
-        const batch = writeBatch(db);
-        batch.set(doc(db, 'users', currentUser.uid, 'linked_accounts', r.fromUid), { nama: r.fromNama || '', email: r.fromEmail || '', since });
-        batch.set(doc(db, 'users', r.fromUid, 'linked_accounts', currentUser.uid), { nama: myNama, email: currentUser.email || '', since });
-        batch.delete(reqRef);
-        await batch.commit();
+        const myLinkDoc = { nama: r.fromNama || '', email: r.fromEmail || '', since, linkId: since };
+        const theirLinkDoc = { nama: myNama, email: currentUser.email || '', since, linkId: since };
+        try {
+            const batch = writeBatch(db);
+            batch.set(doc(db, 'users', currentUser.uid, 'linked_accounts', r.fromUid), myLinkDoc);
+            batch.set(doc(db, 'users', r.fromUid, 'linked_accounts', currentUser.uid), theirLinkDoc);
+            batch.delete(reqRef);
+            await batch.commit();
+        } catch (batchErr) {
+            // Cadangan: tulis satu-satu (sisi partner dulu selagi permintaan masih ada)
+            await setDoc(doc(db, 'users', r.fromUid, 'linked_accounts', currentUser.uid), theirLinkDoc);
+            await setDoc(doc(db, 'users', currentUser.uid, 'linked_accounts', r.fromUid), myLinkDoc);
+            try { await deleteDoc(reqRef); } catch (e) {}
+        }
         Swal.fire({ icon: 'success', title: 'Akun Tertaut!', text: 'Catatan baru kini otomatis tersinkron.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
     } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal Menautkan', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
 };
@@ -8314,7 +8532,7 @@ window.unlinkAccount = async function(pid) {
         batch.delete(doc(db, 'users', currentUser.uid, 'linked_accounts', pid));
         batch.delete(doc(db, 'users', pid, 'linked_accounts', currentUser.uid));
         await batch.commit();
-        try { localStorage.removeItem(linkCacheKey(currentUser.uid, pid)); } catch(e) {}
+        detachLinkPartner(pid);
     } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal Memutuskan', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
 };
 
@@ -8344,7 +8562,7 @@ function listenTransactions(uid) {
         txs = allDocs.filter(t => !t.isDeleted);
         deletedTxs = allDocs.filter(t => t.isDeleted);
         saveTxLocalBackup(uid, txs, deletedTxs);
-        if (window.syncLinkedAccounts) window.syncLinkedAccounts(uid, allDocs, snap.metadata.fromCache);
+        if (window.syncLinkedAccounts) window.syncLinkedAccounts(uid, allDocs, snap.metadata.fromCache, snap.metadata.hasPendingWrites);
         // Badge status ikuti sumber data yang sebenarnya: kalau snapshot ini berasal dari cache
         // lokal (fromCache = true, artinya belum kekonfirmasi server), berarti sedang offline.
         // Kalau sudah dari server, baru dianggap tersinkron. Ini lebih akurat daripada asumsi
@@ -10511,24 +10729,25 @@ window.restoreBackupFile = function(evt) {
         if (!res.isConfirmed) return;
         Swal.fire({ title: 'Memulihkan Data...', background: 'var(--card)', color: 'var(--text)', didOpen: () => { Swal.showLoading(); } });
         try {
-            let batch = writeBatch(db); let opCount = 0; let total = 0;
-            for (const t of toAdd) {
+            let total = 0;
+            const restoreJobs = [];
+            toAdd.forEach(t => restoreJobs.push({ add: true, t }));
+            toUpdate.forEach(t => restoreJobs.push({ add: false, t }));
+            total = restoreJobs.length;
+            // TURBO: 500 operasi per batch, banyak batch dikirim paralel
+            await fastBatchRun(restoreJobs, 1, (batch, job) => {
+                const t = job.t;
                 const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
-                cleanTx.createdAt = serverTimestamp();
-                const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
-                batch.set(ref, cleanTx);
-                opCount++; total++;
-                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
-            }
-            for (const t of toUpdate) {
-                const cleanTx = Object.assign({}, t); delete cleanTx.id; delete cleanTx.createdAt;
-                if (typeof cleanTx.isDeleted !== 'boolean') cleanTx.isDeleted = false;
-                const ref = doc(db, 'users', currentUser.uid, 'transactions', t.id);
-                batch.set(ref, cleanTx, { merge: true });
-                opCount++; total++;
-                if (opCount >= 450) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
-            }
-            if (opCount > 0) await batch.commit();
+                if (job.add) {
+                    cleanTx.createdAt = serverTimestamp();
+                    const ref = doc(collection(db, 'users', currentUser.uid, 'transactions'));
+                    batch.set(ref, cleanTx);
+                } else {
+                    if (typeof cleanTx.isDeleted !== 'boolean') cleanTx.isDeleted = false;
+                    const ref = doc(db, 'users', currentUser.uid, 'transactions', t.id);
+                    batch.set(ref, cleanTx, { merge: true });
+                }
+            });
             if (data.budgets) { window.userBudgets = Object.assign({}, window.userBudgets, data.budgets); await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { budgets: window.userBudgets }, { merge: true }); }
             const doneHtml = total > 0
                 ? `<b>${total}</b> catatan berhasil disesuaikan/ditambahkan dari file <b>${escapeHTML(file.name)}</b>.`
