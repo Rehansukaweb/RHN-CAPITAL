@@ -1007,6 +1007,23 @@ body.global-privacy #xau-idr-gr {
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style id="ai-analis-css">
+#page-ai .ai-wrap{display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:420px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+#page-ai .ai-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+#page-ai .ai-head b{color:var(--gold);font-size:13px;letter-spacing:1px}
+#page-ai .ai-head button{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:10px;padding:6px 10px;font-size:10px;font-weight:800;cursor:pointer}
+#ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ai-m{max-width:88%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.ai-m.u{align-self:flex-end;background:var(--gold);color:#000;border-bottom-right-radius:4px}
+.ai-m.b{align-self:flex-start;background:var(--bg3);color:var(--text);border-bottom-left-radius:4px}
+.ai-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 8px}
+.ai-chips button{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:999px;padding:6px 11px;font-size:11px;cursor:pointer}
+.ai-dots::after{content:'';animation:aidots 1.2s steps(1) infinite}@keyframes aidots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}.ai-m.t{opacity:.75;font-style:italic}
+.ai-in{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
+.ai-in textarea{flex:1;resize:none;background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:12px;padding:10px 12px;font-size:13px;font-family:inherit;max-height:110px}
+.ai-in button{background:var(--gold);color:#000;border:none;border-radius:12px;padding:0 16px;font-weight:800;font-size:12px;cursor:pointer}
+.ai-in button:disabled{opacity:.5}
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- Library QRIS & SweetAlert2 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1385,6 +1402,7 @@ body.global-privacy #xau-idr-gr {
   <button class="nav-btn" onclick="switchPage('riwayat')">RIWAYAT</button>
   <button class="nav-btn" id="nav-admin" onclick="switchPage('admin')" style="display:none; color: var(--gold);">👑 ADMIN</button>
   <button class="nav-btn" id="nav-ib" onclick="switchPage('ib')" style="color: var(--gold);">🤝 IB</button>
+  <button class="nav-btn" id="nav-ai" onclick="switchPage('ai')" style="color: var(--gold);">💼 KONSULTAN</button>
 </div>
 
 <div class="main">
@@ -1730,6 +1748,20 @@ body.global-privacy #xau-idr-gr {
       <div class="card-sub">Percakapan bantuan dari seluruh user terdaftar.</div>
     </div>
     <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar chat...</div></div>
+  </div>
+</div>
+
+<div id="page-ai" class="page">
+  <div class="ai-wrap">
+    <div class="ai-head"><b>💼 RHN CAPITAL CONSULTANT</b><span style="display:flex;gap:6px"><button onclick="window.openSupportWA()">💬 HUBUNGI WA</button><button onclick="aiClearChat()">RESET</button></span></div>
+    <div id="ai-msgs"></div>
+    <div class="ai-chips" id="ai-chips">
+      <button onclick="aiAsk('Analisis kondisi keuangan saya secara keseluruhan')">Kondisi keuangan saya</button>
+      <button onclick="aiAsk('Pengeluaran terbesar saya bulan ini apa dan bagaimana menghematnya?')">Pengeluaran terbesar</button>
+      <button onclick="aiAsk('Bagaimana kondisi hutang dan piutang saya?')">Hutang & piutang</button>
+      <button onclick="aiAsk('Beri saran menabung dan investasi sesuai kondisi saya')">Saran nabung</button>
+    </div>
+    <div class="ai-in"><textarea id="ai-input" rows="1" placeholder="Tanya soal keuangan pribadi atau umum..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend();}"></textarea><button id="ai-send" onclick="aiSend()">KIRIM</button></div>
   </div>
 </div>
 
@@ -9170,7 +9202,7 @@ window.switchPage = function(p) {
   // Kalau tombol yang ditekan adalah halaman yang sedang aktif, tidak perlu render ulang
   // (render ulang yang tidak perlu inilah salah satu sumber "ngedet" saat tombol dipencet berkali-kali).
   if (p === activePage) return;
-  const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin', 'ib']; 
+  const pages = ['dashboard', 'harian', 'mingguan', 'bulanan', 'tahunan', 'riwayat', 'admin', 'ib', 'ai']; 
   const navBtns = document.querySelectorAll('.nav-btn');
   // Hanya sentuh elemen yang benar-benar berubah (halaman lama & baru, tombol lama & baru)
   // alih-alih looping semua .page & semua .nav-btn tiap kali pindah, supaya browser tidak
@@ -9194,6 +9226,151 @@ window.switchPage = function(p) {
   if (window.__spRaf2) cancelAnimationFrame(window.__spRaf2);
   window.__spRaf1 = requestAnimationFrame(() => { window.__spRaf2 = requestAnimationFrame(refreshAll); });
 };
+
+// ===== AI ANALIS KEUANGAN (Gemini) =====
+const AI_WORKER_URL = 'https://floral-night-ca1f.huyrehan.workers.dev';
+let aiHistory = [];
+function aiCloseSession(){
+  window.__aiClosed = true;
+  const inp = document.getElementById('ai-input'), btn = document.getElementById('ai-send');
+  if (inp) inp.disabled = true; if (btn) btn.disabled = true;
+  const m = aiAdd('bot', ''); m.classList.add('t');
+  m.innerHTML = 'Sesi chat ini sudah selesai. Chat akan dihapus otomatis dalam <b id="ai-cd">30</b> detik.<br><button onclick="aiClearChat()" style="margin-top:8px;background:var(--gold);color:#000;border:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:11px;cursor:pointer">🗑️ HAPUS / RESET SEKARANG</button>';
+  const bx = document.getElementById('ai-msgs'); if (bx) bx.scrollTop = bx.scrollHeight;
+  let left = 30;
+  if (window.__aiCdTimer) clearInterval(window.__aiCdTimer);
+  window.__aiCdTimer = setInterval(() => {
+    left--; const el = document.getElementById('ai-cd'); if (el) el.textContent = left;
+    if (left <= 0) window.aiClearChat();
+  }, 1000);
+}
+function aiTyping(){ return 'CS sedang mengetik<span class="ai-dots"></span>'; }
+function aiTypeMs(t){ return Math.max(1800, Math.min(14000, 1200 + String(t).length * 85)); }
+function aiAdd(role, text){
+  const box = document.getElementById('ai-msgs'); if(!box) return null;
+  const d = document.createElement('div'); d.className = 'ai-m ' + (role==='user'?'u':'b'); d.innerHTML = aiFmt(text);
+  box.appendChild(d); box.scrollTop = box.scrollHeight; return d;
+}
+function aiGreet(){
+  if (typeof aiCheckUser === 'function') aiCheckUser();
+  const box = document.getElementById('ai-msgs');
+  if(box && !box.children.length) aiAdd('bot','Halo kak, selamat datang di RHN Capital Consultant. Ada yang bisa aku bantu soal keuangannya hari ini?');
+}
+function aiContext(){
+  const fmt = n => 'Rp' + Math.round(n||0).toLocaleString('id-ID');
+  const all = (txs||[]).filter(t => !t.isDeleted);
+  let c = 'Tanggal hari ini: ' + new Date().toISOString().slice(0,10) + '\n';
+  try {
+    const w = computeWalletsFromArr(all);
+    c += 'SALDO DOMPET: ' + Object.entries(w.wallets).map(([k,v]) => k+'='+fmt(v)).join(', ') + '\n';
+    c += 'Total aset: ' + fmt(w.totalAset) + ' | Saldo hutang: ' + fmt(w.hutangBal) + ' | Saldo piutang: ' + fmt(w.piutangBal) + '\n';
+  } catch(e){}
+  let totInc = 0, totExp = 0; const catAll = {};
+  all.forEach(t => { const a = Number(t.amount)||0; if(t.type==='income') totInc += a; else if(t.type==='expense'){ totExp += a; const k = t.category||'Lainnya'; catAll[k] = (catAll[k]||0)+a; } });
+  c += 'TOTAL SEPANJANG CATATAN: pemasukan ' + fmt(totInc) + ', pengeluaran ' + fmt(totExp) + ', jumlah transaksi ' + all.length + '\n';
+  c += 'KATEGORI PENGELUARAN TERBESAR (sepanjang catatan): ' + Object.entries(catAll).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=>k+' '+fmt(v)).join(', ') + '\n';
+  const now = new Date(), ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const byMonth = {};
+  all.forEach(t => {
+    if(t.type!=='income' && t.type!=='expense') return;
+    const d = new Date(t.date); if(isNaN(d)) return;
+    const k = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    (byMonth[k] = byMonth[k] || {inc:0, exp:0, cats:{}});
+    const a = Number(t.amount)||0;
+    if(t.type==='income') byMonth[k].inc += a; else { byMonth[k].exp += a; const cat = t.category||'Lainnya'; byMonth[k].cats[cat] = (byMonth[k].cats[cat]||0) + a; }
+  });
+  c += 'RINGKASAN PER BULAN (6 terakhir):\n';
+  Object.keys(byMonth).sort().slice(-6).forEach(k => {
+    const m = byMonth[k];
+    c += '- ' + k + ': pemasukan ' + fmt(m.inc) + ', pengeluaran ' + fmt(m.exp) + ', selisih ' + fmt(m.inc-m.exp) + '; kategori pengeluaran: ' + Object.entries(m.cats).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k2,v])=>k2+' '+fmt(v)).join(', ') + '\n';
+  });
+  const bud = window.userBudgets || {};
+  if(Object.keys(bud).length){
+    const cur = (byMonth[ym]||{cats:{}}).cats;
+    c += 'BUDGET BULAN INI (terpakai/batas): ' + Object.entries(bud).map(([k,v]) => k+' '+fmt(cur[k]||0)+'/'+fmt(v)).join(', ') + '\n';
+  }
+  const open = all.filter(t => (t.type==='debt'||t.type==='recv') && !t.isPaid && !t.isKoreksi);
+  if(open.length) c += 'HUTANG/PIUTANG BELUM LUNAS: ' + open.slice(0,20).map(t => (t.type==='debt'?'Hutang ':'Piutang ')+fmt(t.amount)+' ('+(t.note||'-')+', '+String(t.date).slice(0,10)+')').join('; ') + '\n';
+  const recent = all.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,80);
+  c += '80 TRANSAKSI TERAKHIR:\n' + recent.map(t => String(t.date).slice(0,10)+' | '+t.type+' | '+fmt(t.amount)+' | '+(t.category||'-')+' | '+(t.wallet||'-')+' | '+(t.note||'-')).join('\n');
+  return c;
+}
+window.aiAsk = function(q){ document.getElementById('ai-input').value = q; window.aiSend(); };
+window.aiClearChat = function(){ if (window.__aiCdTimer) { clearInterval(window.__aiCdTimer); window.__aiCdTimer = null; } window.__aiClosed = false; const _i = document.getElementById('ai-input'), _b = document.getElementById('ai-send'); if (_i) _i.disabled = false; if (_b) _b.disabled = false; aiHistory = []; const b = document.getElementById('ai-msgs'); if(b){ b.innerHTML=''; aiGreet(); } };
+function aiCheckUser(){
+  const uid = currentUser && currentUser.uid;
+  if (window.__aiUid !== uid) { window.__aiUid = uid; aiHistory = []; const b = document.getElementById('ai-msgs'); if (b) b.innerHTML = ''; }
+}
+window.aiSend = async function(){
+  aiCheckUser(); aiGreet();
+  const inp = document.getElementById('ai-input'), btn = document.getElementById('ai-send');
+  const q = inp.value.trim(); if(!q || btn.disabled) return;
+  inp.value = ''; btn.disabled = true;
+  const ub = aiAdd('user', q);
+  const st = document.createElement('div'); st.style.cssText = 'font-size:9px;opacity:.65;text-align:right;margin-top:3px;font-style:normal'; st.textContent = '✓ Terkirim'; ub.appendChild(st);
+  let wait = null, tTyping = Date.now();
+  const typingReady = new Promise(res => {
+    setTimeout(() => {
+      st.textContent = '✓✓ Dibaca admin'; st.style.opacity = '1'; st.style.fontWeight = '800';
+      setTimeout(() => {
+        wait = aiAdd('bot', ''); wait.classList.add('t'); wait.innerHTML = aiTyping(); tTyping = Date.now();
+        const bx = document.getElementById('ai-msgs'); if (bx) bx.scrollTop = bx.scrollHeight;
+        res();
+      }, 1200 + Math.random() * 1200);
+    }, 2500 + Math.random() * 2500);
+  });
+  const name = (currentUser && (currentUser.displayName || (currentUser.email||'').split('@')[0])) || 'User';
+  const sys = 'Kamu adalah konsultan keuangan dari RHN Capital Consultant yang melayani klien lewat chat, dengan gaya customer service manusia yang ramah dan sigap. Jangan bersikap atau menyebut dirimu sebagai AI, bot, model, atau Gemini, dan jangan pakai istilah teknis soal sistem. Tapi kalau klien benar-benar menanyakan dengan serius apakah kamu manusia atau AI, jawab jujur bahwa kamu asisten virtual RHN Capital, lalu lanjutkan membantu. GAYA BICARA: seperti CS manusia yang sedang chat WhatsApp. Panggil klien "kak" diikuti namanya (contoh "kak Rehan"), pakai "aku" untuk diri sendiri. Bahasa santai, hangat, sopan, tidak kaku, tidak lebay. Pakai kata alami seperti "oke kak", "siap", "wah", "hmm", "nah", "jujur ya kak", "tenang aja". Tunjukkan empati dulu kalau klien lagi stres soal uang atau hutang (misal "aku paham kak, hutang segitu memang bikin kepikiran"), baru kasih solusi. FOKUS UTAMA: selesaikan masalah klien dengan solusi yang jelas, konkret, dan langsung bisa dijalankan. Jangan mengakhiri jawaban dengan pertanyaan atau ajakan ngobrol lagi, jangan memakai kata "btw", dan jangan sering bertanya balik. Bertanya hanya kalau benar-benar butuh info yang tidak ada di data, cukup satu kali, dan tetap beri jawaban sementara yang berguna. Akhiri jawaban dengan pernyataan atau saran, bukan pertanyaan. Kalau masalah klien di luar yang bisa kamu selesaikan lewat data keuangan (masalah akun atau login, langganan atau pembayaran, error aplikasi, keluhan, atau klien minta bicara dengan admin atau orangnya langsung), arahkan klien menghubungi admin RHN Capital lewat WhatsApp dan tulis penanda [[WA]] di baris paling akhir jawaban (penanda itu otomatis berubah jadi tombol WhatsApp; jangan menulis nomor sendiri). Tulis [[WA]] HANYA kalau memang ada masalah nyata yang tidak bisa kamu selesaikan; jangan pernah menulisnya pada ucapan terima kasih, jawaban penutup, atau obrolan biasa. PENUTUP SESI: kalau klien sudah menunjukkan percakapan selesai (mengucapkan terima kasih, oke, siap, sudah cukup, atau pamit) dan tidak ada pertanyaan baru, balas dengan SATU kalimat penutup singkat yang sopan (tanpa pertanyaan dan tanpa menawarkan bantuan lagi), lalu tulis penanda [[SELESAI]] di baris paling akhir. Penanda ini otomatis menutup sesi chat. FORMAT: tulis seperti chat biasa, kalimat pendek-pendek, paragraf pendek 1 sampai 3 kalimat dan pisahkan antar paragraf dengan satu baris kosong (tiap paragraf nanti tampil sebagai bubble chat terpisah). JANGAN pakai bullet, tanda "•", nomor daftar, heading, tabel, rangkuman berformat, atau kalimat template seperti "Berikut analisis", "Kesimpulan:", "Langkah berikutnya:", "Semoga membantu", "Jangan ragu bertanya". Kalau perlu beberapa langkah, ceritakan dengan kalimat biasa ("pertama kak..., habis itu..."). Boleh menebalkan satu atau dua angka paling penting dengan **angka**, selebihnya tidak. Fokus ke poin yang paling penting buat klien, jangan bertele-tele, jangan mengulang pertanyaan klien. Pertanyaan sederhana cukup dijawab 1 sampai 3 kalimat. Pertanyaan yang butuh analisis atau rencana dijawab lebih lengkap tapi tetap dibagi paragraf pendek dan tidak lebih dari sekitar 6 paragraf. Selesaikan jawaban sampai tuntas. ATURAN DATA: semua analisis tentang keuangan pribadi HARUS berdasar DATA KEUANGAN di bawah, yaitu milik klien yang sedang login. Sebut angka nyata dari data itu dan hitung dengan benar. Jangan mengarang angka, transaksi, atau fakta yang tidak ada di data; kalau data kurang, bilang apa adanya dan tanyakan info yang kurang. Kalau klien menyebut info baru di chat (misalnya hutang atau cicilan yang belum tercatat), pakai info itu bersama data yang ada. Saran harus realistis, sesuai kondisi sebenarnya (pemasukan, pengeluaran, saldo, hutang), dan jujur walau kurang enak didengar, tapi tetap suportif. Untuk saran investasi sebutkan risikonya secara wajar. Pertanyaan keuangan umum jawab dari pengetahuan keuangan yang akurat. Nama klien: ' + name + ' (sapa dengan "kak ' + name + '").\n\nDATA KEUANGAN KLIEN:\n' + aiContext();
+  aiHistory.push({role:'user', parts:[{text:q}]});
+  try {
+    let r, j, lastErr = 'unknown';
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        r = await fetch(AI_WORKER_URL, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ systemInstruction:{parts:[{text:sys}]}, contents: aiHistory.slice(-20), generationConfig:{temperature:0.8, maxOutputTokens:8192} })
+        });
+        j = await r.json();
+        if (r.ok && j.candidates && j.candidates[0] && j.candidates[0].content) { lastErr = null; break; }
+        lastErr = (j.error && j.error.message) || ('HTTP ' + r.status);
+      } catch (netErr) { lastErr = netErr.message; }
+      await new Promise(res => setTimeout(res, 1500 * (attempt + 1)));
+    }
+    if (lastErr) lastErr = 'Semua jalur AI lagi penuh atau kena limit harian, coba lagi beberapa menit lagi ya. (' + String(lastErr).slice(0, 90) + ')';
+    if (lastErr) throw new Error(lastErr);
+    const txt = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map(p=>p.text||'').join('').trim() || 'Hmm, aku lagi nggak bisa jawab nih, coba tanya lagi ya.';
+    aiHistory.push({role:'model', parts:[{text:txt}]});
+    const doneChat = /\[\[SELESAI\]\]/.test(txt) || /^(ok(e|ee|ey)?|siap+|sip+|makasih|mks|terima ?kasih|thanks?|thx|mantap)( (ya|ya kak|kak|banyak|bro|min|admin|makasih|sip|oke|siap))*[\s!.]*$/i.test(q);
+    const wantWA = !doneChat && /\[\[WA\]\]/.test(txt);
+    const clean = txt.replace(/\[\[WA\]\]/g, '').replace(/\[\[SELESAI\]\]/g, '').trim();
+    const parts = clean.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+    if (!parts.length) parts.push(clean || txt);
+    await typingReady;
+    const sc = () => { const bx = document.getElementById('ai-msgs'); if (bx) bx.scrollTop = bx.scrollHeight; };
+    const first = aiTypeMs(parts[0]) - (Date.now() - tTyping);
+    if (first > 0) await new Promise(res => setTimeout(res, first));
+    wait.classList.remove('t'); wait.innerHTML = aiFmt(parts[0]); sc();
+    for (let pi = 1; pi < parts.length; pi++) {
+      const typing = aiAdd('bot', ''); typing.classList.add('t'); typing.innerHTML = aiTyping(); sc();
+      await new Promise(res => setTimeout(res, aiTypeMs(parts[pi])));
+      typing.classList.remove('t'); typing.innerHTML = aiFmt(parts[pi]); sc();
+    }
+    if (doneChat) aiCloseSession();
+    if (wantWA) {
+      const wb = aiAdd('bot', ''); wb.innerHTML = '<button onclick="window.openSupportWA()" style="background:var(--green2);color:#000;border:none;border-radius:10px;padding:9px 14px;font-weight:800;font-size:12px;cursor:pointer">💬 Hubungi RHN Capital via WhatsApp</button>'; sc();
+    }
+  } catch(e){
+    aiHistory.pop();
+    await typingReady;
+    wait.classList.remove('t'); wait.innerHTML = aiFmt(e.message);
+  }
+  btn.disabled = !!window.__aiClosed; inp.disabled = !!window.__aiClosed;
+  const box = document.getElementById('ai-msgs'); box.scrollTop = box.scrollHeight;
+};
+const __aiNavObs = new MutationObserver(() => { const p = document.getElementById('page-ai'); if(p && p.classList.contains('active')) aiGreet(); });
+(function(){ const p = document.getElementById('page-ai'); if(p) __aiNavObs.observe(p, {attributes:true, attributeFilter:['class']}); })();
+// ===== END AI ANALIS =====
+
 
 function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { let a = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0; if (t.type === 'income') { inc += a; } else if (t.type === 'expense') { exp += a; } }); return {inc, exp, bal: inc - exp, count: arr.length}; }
 
