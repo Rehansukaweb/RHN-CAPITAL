@@ -9230,6 +9230,8 @@ window.switchPage = function(p) {
 // ===== AI ANALIS KEUANGAN (Gemini) =====
 const AI_WORKER_URL = 'https://floral-night-ca1f.huyrehan.workers.dev';
 let aiHistory = [];
+function aiEsc(t){ return String(t).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function aiFmt(t){ return aiEsc(t).replace(/^\s*[-*]\s+/gm,'• ').replace(/^#{1,6}\s*(.+)$/gm,'<b>$1</b>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n{3,}/g,'\n\n'); }
 function aiCloseSession(){
   window.__aiClosed = true;
   const inp = document.getElementById('ai-input'), btn = document.getElementById('ai-send');
