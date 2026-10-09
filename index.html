@@ -7,6 +7,11 @@
 
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="RHN LOGO.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arus Keuangan">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
 /* ==========================================================================
@@ -11305,6 +11310,19 @@ window.addEventListener('focus', function () {
   function init(){ enable(document.getElementById('week-sel')); enable(document.getElementById('admin-week-sel')); ['year','riwayat'].forEach(function(k){ enable(document.getElementById(k+'-month-sel')); enable(document.getElementById(k+'-week-sel')); }); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
+</script>
+<script>
+// PWA: daftarkan service worker supaya aplikasi bisa dibuka & dipakai full offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').then(function (reg) {
+      navigator.serviceWorker.ready.then(function () {
+        var sw = reg.active || reg.waiting || reg.installing;
+        if (sw) sw.postMessage({ type: 'CACHE_PAGE', url: location.href.split('#')[0] });
+      });
+    }).catch(function (e) { console.warn('SW gagal didaftarkan:', e); });
+  });
+}
 </script>
 </body>
 </html>
