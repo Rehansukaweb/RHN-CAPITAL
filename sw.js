@@ -13,7 +13,7 @@
 // yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
 // ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v11';
+const CACHE_NAME = 'rhn-capital-shell-v12';
 
 // File lokal satu repo (root domain rhncapital.online) yang aman di-cache
 // dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
@@ -50,6 +50,12 @@ const CDN_FILES = [
   'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js',
   // Modul Firebase (WAJIB di-cache: tanpa ini, seluruh skrip login/PIN/data
   // gagal total saat offline karena import modulenya gagal dimuat).
+  // FIX: file HTML sekarang meng-import versi 10.14.1, jadi versi ini WAJIB
+  // ada di daftar (kalau tidak, modul Firebase tidak pernah ke-cache & app mati
+  // total saat offline). Versi 10.12.2 tetap dibiarkan untuk file lama.
+  'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'
