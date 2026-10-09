@@ -1240,24 +1240,35 @@ body.global-privacy #xau-idr-gr {
         <div class="subs-plan-card" data-plan="weekly" onclick="window.pilihPaketLangganan('weekly')">
           <div>
             <div class="sp-name">Mingguan</div>
-            <div class="sp-desc">Aktif 7 hari</div>
+            <div class="sp-desc">Aktif 7 hari • Diskon 50%</div>
           </div>
-          <div class="sp-price">Rp5.000</div>
+          <div><div style="font-size:10px; color:var(--text3); text-decoration:line-through; font-weight:600; text-align:right;">Rp5.000</div><div class="sp-price">Rp2.500</div></div>
         </div>
         <div class="subs-plan-card" data-plan="monthly" onclick="window.pilihPaketLangganan('monthly')">
           <span class="sp-badge">Populer</span>
           <div>
             <div class="sp-name">Bulanan</div>
-            <div class="sp-desc">Aktif 30 hari • setara Rp5.000/minggu</div>
+            <div class="sp-desc">Aktif 30 hari • Diskon 50%</div>
           </div>
-          <div class="sp-price">Rp20.000</div>
+          <div><div style="font-size:10px; color:var(--text3); text-decoration:line-through; font-weight:600; text-align:right;">Rp20.000</div><div class="sp-price">Rp10.000</div></div>
         </div>
         <div class="subs-plan-card" data-plan="yearly" onclick="window.pilihPaketLangganan('yearly')">
           <div>
             <div class="sp-name">Tahunan</div>
-            <div class="sp-desc">Aktif 365 hari • setara Rp5.000/minggu</div>
+            <div class="sp-desc">Aktif 365 hari • Diskon 50%</div>
           </div>
-          <div class="sp-price">Rp260.000</div>
+          <div><div style="font-size:10px; color:var(--text3); text-decoration:line-through; font-weight:600; text-align:right;">Rp198.000</div><div class="sp-price">Rp99.000</div></div>
+        </div>
+        <div class="subs-plan-card" data-plan="custom" onclick="window.pilihPaketLangganan('custom')">
+          <div>
+            <div class="sp-name">Custom Hari</div>
+            <div class="sp-desc">Pilih sendiri jumlah hari • Rp350/hari (diskon 50%)</div>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+              <input type="number" id="subs-custom-days" min="1" max="730" value="14" inputmode="numeric" onclick="event.stopPropagation(); window.pilihPaketLangganan('custom')" oninput="window.hitungCustomHari()" style="width:80px; padding:7px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-weight:800; font-size:13px;">
+              <span style="font-size:11px; color:var(--text3); font-weight:700;">hari (1–730)</span>
+            </div>
+          </div>
+          <div><div style="font-size:10px; color:var(--text3); text-decoration:line-through; font-weight:600; text-align:right;" id="subs-custom-orig">Rp9.800</div><div class="sp-price" id="subs-custom-price">Rp4.900</div></div>
         </div>
       </div>
       <div id="subs-ib-box" style="display:none; margin-bottom:14px;">
@@ -2840,9 +2851,26 @@ window.konfirmasiPembayaranQris = async function() {
 // SISTEM LANGGANAN MEMBER (PAYWALL) — Mingguan/Bulanan/Tahunan
 // ==========================================================================
 window.SUBS_PLANS = {
-    weekly:  { label: 'Mingguan', amount: 5000,   days: 7,   note: 'PAKET MINGGUAN' },
-    monthly: { label: 'Bulanan',  amount: 20000,  days: 30,  note: 'PAKET BULANAN' },
-    yearly:  { label: 'Tahunan',  amount: 260000, days: 365, note: 'PAKET TAHUNAN' }
+    weekly:  { label: 'Mingguan', amount: 2500,   days: 7,   note: 'PAKET MINGGUAN' },
+    monthly: { label: 'Bulanan',  amount: 10000,  days: 30,  note: 'PAKET BULANAN' },
+    yearly:  { label: 'Tahunan',  amount: 99000,  days: 365, note: 'PAKET TAHUNAN' },
+    custom:  { label: 'Custom 14 Hari', amount: 4900, days: 14, note: 'PAKET CUSTOM 14 HARI' }
+};
+window.CUSTOM_PRICE_PER_DAY = 350;   // harga setelah diskon 50% (normal Rp700/hari)
+window.CUSTOM_ORIG_PER_DAY = 700;
+window.hitungCustomHari = function() {
+    const inp = document.getElementById('subs-custom-days');
+    let d = parseInt(inp ? inp.value : 0) || 0;
+    if (d > 730) { d = 730; if (inp) inp.value = 730; }
+    const amt = d * window.CUSTOM_PRICE_PER_DAY;
+    window.SUBS_PLANS.custom = { label: 'Custom ' + d + ' Hari', amount: amt, days: d, note: 'PAKET CUSTOM ' + d + ' HARI' };
+    const pe = document.getElementById('subs-custom-price'), oe = document.getElementById('subs-custom-orig');
+    if (pe) pe.textContent = fmtRupiah(amt);
+    if (oe) oe.textContent = fmtRupiah(d * window.CUSTOM_ORIG_PER_DAY);
+    if (window.__subsSelectedPlan === 'custom') {
+        const btn = document.getElementById('subs-lanjut-btn');
+        if (btn) { btn.disabled = d < 1; btn.textContent = d < 1 ? 'ISI JUMLAH HARI' : 'LANJUT BAYAR ' + fmtRupiah(amt); }
+    }
 };
 window.__subsSelectedPlan = null;
 window.__subsUnsub = null;
@@ -2854,6 +2882,7 @@ window.pilihPaketLangganan = function(planKey) {
     document.querySelectorAll('.subs-plan-card').forEach(el => {
         el.classList.toggle('selected', el.getAttribute('data-plan') === planKey);
     });
+    if (planKey === 'custom') { window.hitungCustomHari(); return; }
     const btn = document.getElementById('subs-lanjut-btn');
     btn.disabled = false;
     btn.textContent = 'LANJUT BAYAR ' + fmtRupiah(window.SUBS_PLANS[planKey].amount);
@@ -3416,7 +3445,7 @@ window.approveSubscriptionRequest = async function(reqId, uid, planKey, days) {
             subscriptionPending: null
         });
         await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
-        if (typeof window.creditIBCommission === 'function') { await window.creditIBCommission(uid, reqId, (window.SUBS_PLANS[planKey] || {}).amount || 0, planKey, days); }
+        if (typeof window.creditIBCommission === 'function') { await window.creditIBCommission(uid, reqId, (planKey === 'custom' ? (Number(days) || 0) * window.CUSTOM_PRICE_PER_DAY : (window.SUBS_PLANS[planKey] || {}).amount || 0), planKey, days); }
 
         Swal.fire({ icon: 'success', title: 'Langganan Dikonfirmasi!', background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
         window.loadAdminSubscriptionRequests();
@@ -3671,7 +3700,7 @@ window.loadActiveSubscribers = async function() {
             const v = d.data();
             const isLifetime = v.subscriptionExpiry === window.LIFETIME_EXPIRY_ISO;
             const until = isLifetime ? 'SEUMUR HIDUP' : new Date(v.subscriptionExpiry).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', lifetime_referral: 'Referral (Seumur Hidup)' };
+            const planLabelMap = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', custom: 'Custom Hari', lifetime_referral: 'Referral (Seumur Hidup)' };
             rows.push(`
               <div class="admin-user-card card" style="margin-bottom:10px; padding:12px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
