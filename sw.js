@@ -1,29 +1,21 @@
 // ==========================================================================
 // RHN CAPITAL - Service Worker (mode offline)
 // Menyimpan shell aplikasi (halaman HTML + ikon) di cache perangkat, supaya
-// saat dibuka tanpa internet (mis. via Appsgeyser web-to-app) yang tampil
-// tetap halaman aplikasinya, bukan error "net::ERR_CONNECTION_ABORTED" /
-// "net::ERR_INTERNET_DISCONNECTED".
+// saat dibuka tanpa internet yang tampil tetap halaman aplikasinya.
 // Data (login, transaksi, saldo) tetap disinkronkan ke Firebase begitu
-// online lagi — itu sudah ditangani terpisah oleh Firestore offline
-// persistence & localStorage di file HTML utama.
-//
-// Daftar file di bawah disamakan dengan isi repo GitHub Rehansukaweb/RHN-CAPITAL
-// (index.html, manifest.json, RHN LOGO.jpg, serta halaman-halaman satelit
-// yang dibuka lewat tombol "HALAMAN RHN CAPITAL / GALERI / JURNAL / ASET / DATA").
+// online lagi — itu ditangani terpisah oleh Firestore offline persistence
+// & localStorage di file HTML utama.
 // ==========================================================================
 
-const CACHE_NAME = 'rhn-capital-shell-v12';
+const CACHE_NAME = 'rhn-capital-shell-v13';
 
-// File lokal satu repo (root domain rhncapital.online) yang aman di-cache
-// dengan fetch biasa (same-origin, tidak butuh CORS khusus). Kalau salah
-// satu belum ada / gagal diambil, dilewati diam-diam — tidak menghentikan
-// proses install Service Worker.
 const SHELL_FILES = [
   './',
   './index.html',
   './RHN LOGO.jpg',
   './manifest.json',
+  './logo_rhn_oval_192.png',
+  './logo_rhn_oval_512.png',
   './latar.html',
   './galeri.html',
   './jurnal.html',
@@ -34,8 +26,6 @@ const SHELL_FILES = [
   './ANALISASAHAM.html'
 ];
 
-// Library CDN yang dipakai app (Chart.js, SweetAlert2, dll) ikut di-cache
-// supaya saat offline app tetap utuh, tidak cuma tampilan kosong.
 const CDN_FILES = [
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
@@ -45,14 +35,7 @@ const CDN_FILES = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
-  // Mesin OCR (Tesseract.js) dipakai fitur verifikasi otomatis bukti bayar QRIS,
-  // supaya bisa dimuat lagi walau lagi offline.
   'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js',
-  // Modul Firebase (WAJIB di-cache: tanpa ini, seluruh skrip login/PIN/data
-  // gagal total saat offline karena import modulenya gagal dimuat).
-  // FIX: file HTML sekarang meng-import versi 10.14.1, jadi versi ini WAJIB
-  // ada di daftar (kalau tidak, modul Firebase tidak pernah ke-cache & app mati
-  // total saat offline). Versi 10.12.2 tetap dibiarkan untuk file lama.
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js',
@@ -64,15 +47,9 @@ const CDN_FILES = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // File lokal: fetch biasa juga (bukan cache.add) supaya satu file yang
-      // gagal (mis. ANALISACRYPTO.html belum pernah dibuka / 404) tidak bikin
-      // seluruh proses precache batal — masing-masing gagal sendiri-sendiri.
-      // FIX: sekarang tiap kegagalan di-log ke console (bukan diam-diam
-      // ditelan), supaya gampang ketahuan lewat DevTools kalau ada file
-      // penting (terutama 3 file Firebase SDK) yang gagal ke-cache saat
-      // instalasi — itu yang bikin app "mati total" pas offline.
+      // Tiap file gagal sendiri-sendiri, tidak membatalkan seluruh precache.
       const cacheOne = (url) =>
-        fetch(url)
+        fetch(url, { cache: 'reload' })
           .then((res) => {
             if (!res || (!res.ok && res.type !== 'opaque')) {
               throw new Error('status ' + (res && res.status));
@@ -82,10 +59,6 @@ self.addEventListener('install', (event) => {
           .catch((err) => console.warn('[SW] Gagal precache:', url, err));
 
       const shell = SHELL_FILES.map(cacheOne);
-      // PENTING: TANPA mode 'no-cors'. Server CDN ini support CORS, jadi pakai
-      // fetch normal supaya responsnya valid (bukan "buram"/opaque) dan bisa
-      // dipakai sebagai modul JavaScript. Response opaque bikin modul Firebase
-      // gagal dipakai walau lagi online (khusus untuk <script type="module">).
       const cdn = CDN_FILES.map(cacheOne);
       return Promise.all([...shell, ...cdn]);
     })
@@ -104,14 +77,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Helper: ambil dari jaringan dulu, simpan ke cache, fallback ke cache kalau offline.
+function networkFirst(req) {
+  return fetch(req)
+    .then((res) => {
+      const clone = res.clone();
+      caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+      return res;
+    })
+    .catch(() => caches.match(req));
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Navigasi ke halaman mana pun di situs ini (index.html, atau salah satu
-  // halaman satelit seperti aset.html/data.html/dll saat dibuka lewat tombol):
-  // coba jaringan dulu, update cache-nya; kalau gagal (offline) fallback ke
-  // versi yang tersimpan terakhir kali berhasil dibuka, atau ke index.html.
+  // Navigasi halaman: jaringan dulu, fallback ke cache / index.
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -127,10 +108,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // File statis lokal (logo, manifest, halaman satelit): cache-first,
-  // fallback ke jaringan.
+  // Manifest & ikon logo: SELALU jaringan dulu supaya perubahan ikon langsung terbaca.
+  if (
+    req.url.includes('manifest.json') ||
+    req.url.includes('logo_rhn_oval') ||
+    req.url.includes('RHN%20LOGO') ||
+    req.url.includes('RHN LOGO')
+  ) {
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // File statis lokal lain (halaman satelit): cache-first, fallback jaringan.
   if (SHELL_FILES.some((f) => {
     const name = f.replace('./', '');
+    if (!name) return false;
     let reqUrlDecoded = req.url;
     try { reqUrlDecoded = decodeURIComponent(req.url); } catch (e) {}
     return req.url.endsWith(name) || reqUrlDecoded.endsWith(name) || req.url.endsWith(encodeURIComponent(name));
@@ -141,59 +133,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Library CDN & modul Firebase: NETWORK-FIRST — saat online selalu ambil
-  // versi asli dari internet (dan cache-nya diperbarui), baru kalau gagal
-  // (offline) fallback ke cache yang tersimpan.
+  // Library CDN & modul Firebase: jaringan dulu, fallback cache.
   if (CDN_FILES.includes(req.url)) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
+    event.respondWith(networkFirst(req));
     return;
   }
 
-  // Font Google Fonts (CSS + file .woff2 aslinya): sama, network-first lalu
-  // cache. File .woff2 URL-nya dinamis (tidak diketahui di awal), makanya
-  // dicek pakai hostname, bukan daftar URL tetap seperti CDN_FILES di atas.
+  // Google Fonts (CSS + woff2): jaringan dulu, fallback cache.
   if (req.url.includes('fonts.googleapis.com') || req.url.includes('fonts.gstatic.com')) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
+    event.respondWith(networkFirst(req));
     return;
   }
 
-  // Fallback khusus: file pendukung Tesseract OCR (worker script, inti WASM,
-  // data bahasa .traineddata) diambil dari CDN dengan URL yang dinamis/tidak
-  // tetap (beda per versi), jadi tidak bisa didaftar satu-satu seperti CDN_FILES
-  // di atas. Dibatasi HANYA ke host CDN yang memang dipakai Tesseract — supaya
-  // trafik lain (mis. Firestore real-time, Google Auth) TIDAK ikut ke-cache,
-  // yang bisa bikin data jadi basi kalau ikut tersangkut aturan ini.
-  // NETWORK-FIRST — begitu berhasil diambil sekali secara online, otomatis
-  // tersimpan di cache supaya fitur scan OCR bukti bayar tetap bisa dipakai
-  // saat offline setelahnya.
+  // File pendukung Tesseract OCR (URL dinamis) — dibatasi ke host CDN tertentu
+  // supaya trafik Firestore / Google Auth TIDAK ikut ke-cache.
   const OCR_SUPPORT_HOSTS = ['tessdata.projectnaptha.com', 'cdn.jsdelivr.net', 'unpkg.com', 'cdnjs.cloudflare.com'];
   let reqHost = '';
   try { reqHost = new URL(req.url).hostname; } catch (e) {}
   if (OCR_SUPPORT_HOSTS.includes(reqHost)) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, clone));
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
+    event.respondWith(networkFirst(req));
   }
 });
