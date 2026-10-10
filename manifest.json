@@ -12,6 +12,8 @@
   "theme_color": "#050505",
   "categories": ["finance", "business"],
   "prefer_related_applications": false,
+  "launch_handler": { "client_mode": "navigate-new" },
+  "capture_links": "none",
   "icons": [
     { "src": "logo_rhn_oval_192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "logo_rhn_oval_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
