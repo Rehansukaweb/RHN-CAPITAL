@@ -972,8 +972,8 @@ body.global-privacy #xau-idr-gr {
 }
 
 .splash-logo-minimal {
-  width: 90px; height: 90px; border-radius: 24px;
-  border: 2px solid var(--gold); padding: 4px;
+  width: 90px; height: 90px; border-radius: 28px; object-fit: cover;
+  border: 2px solid var(--gold); padding: 0; box-sizing: border-box; overflow: hidden;
   opacity: 0; transform: translateY(20px);
   animation: fadeUpItem 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
 }
@@ -2819,8 +2819,8 @@ window.konfirmasiPembayaranQris = async function() {
 
         Swal.fire({
             icon: 'success',
-            title: wroteOffline ? 'Tersimpan di HP!' : 'Terkonfirmasi!',
-            text: wroteOffline ? 'Belum ada internet, data otomatis naik ke server begitu online lagi.' : ('Data Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat masuk ke ' + qrisWallet),
+            title: 'Terkonfirmasi!',
+            text: ('Data Rp ' + parseInt(nominalInput).toLocaleString('id-ID') + ' telah dicatat masuk ke ' + qrisWallet),
             background: 'var(--card)', color: 'var(--text)',
             confirmButtonColor: 'var(--green2)',
             timer: 1500
@@ -2836,7 +2836,7 @@ window.konfirmasiPembayaranQris = async function() {
     } catch(e) {
         if (!navigator.onLine) {
             markPendingOfflineWrite();
-            Swal.fire({ icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false }).then(() => {
+            Swal.fire({ icon: 'success', title: 'Berhasil Disimpan!', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false }).then(() => {
                 document.getElementById("qris-nominal").value = "";
                 document.getElementById("qris-note").value = "";
                 window.setRealLocalTime();
@@ -5096,7 +5096,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCalc();
     const syncSelectUI = (sel, ui) => { let text = sel.options[sel.selectedIndex]?.text; if(!text && sel.options.length > 0) text = sel.options[0].text; ui.querySelector('.sel-text').innerHTML = text || 'Pilih...'; };
     document.querySelectorAll('select.f-input-dark, select.set-select').forEach(sel => { 
-        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
+        sel.style.display = 'none'; let ui = document.createElement('div'); ui.className = sel.className; ui.style.display = 'flex'; ui.style.justifyContent = 'space-between'; ui.style.alignItems = 'center'; ui.style.cursor = 'pointer'; ui.innerHTML = `<span class="sel-text" style="pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%;"></span><span style="font-size:10px; color:var(--text3); pointer-events:none;">▼</span>`; sel.parentNode.insertBefore(ui, sel); syncSelectUI(sel, ui); sel.addEventListener('change', () => syncSelectUI(sel, ui)); const observer = new MutationObserver(() => syncSelectUI(sel, ui)); observer.observe(sel, { childList: true, subtree: true }); ui.addEventListener('click', (e) => { e.stopPropagation(); if (navigator.vibrate) navigator.vibrate(10); if (sel.id === 'f-cat' && sel.options.length <= 1 && typeof curType !== 'undefined' && curType && curType !== 'transfer') { try { window.selType(curType); } catch(_) {} } else if (sel.id === 'pref-cat' && sel.options.length <= 1 && typeof window.updatePrefCategories === 'function') { try { window.updatePrefCategories(false); } catch(_) {} } let html = '<div style="display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto; padding-bottom:12px; scrollbar-width:none;">'; Array.from(sel.options).forEach((opt, idx) => { if(!opt.value && opt.text.toLowerCase().includes('pilih')) return; let isSel = sel.value === opt.value; html += `<button onclick="window.selectCustomOpt('${sel.id}', ${idx})" style="background:${isSel?'var(--bg3)':'var(--bg2)'}; color:var(--text); border:1px solid ${isSel?'var(--gold)':'var(--border)'}; padding:16px; border-radius:12px; font-family:'Plus Jakarta Sans'; text-align:left; font-size:14px; font-weight:600; cursor:pointer; transition:0.2s;">${opt.innerHTML || opt.text}</button>`; }); html += '</div>'; Swal.fire({ title: '<div style="font-size:16px; text-align:left; font-weight:800; color:var(--text); border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 8px;">Pilih Opsi</div>', html: html, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)', position: 'center', padding: '24px 16px 16px 16px', margin:0, width: window.innerWidth <= 768 ? '90%' : '400px', customClass: { popup: 'centered-modal' } }); }); 
     });
     window.selectCustomOpt = function(selId, optIdx) { let sel = document.getElementById(selId); if (sel) { sel.selectedIndex = optIdx; sel.dispatchEvent(new Event('change')); if(sel.onchange) sel.onchange(); } Swal.close(); };
     
@@ -5161,7 +5161,7 @@ window.togglePassVisibility = function(inputId, btn) {
 function reportSaveOutcome(e, successTitle, errorTitle) {
     if (!navigator.onLine) {
         markPendingOfflineWrite();
-        Swal.fire({ position: 'center', icon: 'success', title: successTitle || 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+        Swal.fire({ position: 'center', icon: 'success', title: successTitle || 'Berhasil Disimpan!', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
     } else {
         Swal.fire({ position: 'center', icon: 'error', title: errorTitle || 'Gagal', text: e && e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
     }
@@ -5191,13 +5191,6 @@ async function resolvePendingOfflineWrites() {
         await waitForPendingWrites(db);
     } catch(e) { /* tetap lanjut kasih tau user, datanya tetap akan naik di background */ }
     try { localStorage.removeItem(key); } catch(e) {}
-    Swal.fire({
-        position: 'center', icon: 'success',
-        title: 'Tersinkron ke Server! ✅',
-        text: n === 1 ? 'Transaksi yang kamu simpan/hapus saat offline sudah tersimpan ke database.' : `${n} transaksi yang kamu simpan/hapus saat offline sudah tersimpan ke database.`,
-        showConfirmButton: false, timer: 2000,
-        background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)'
-    });
     refreshAll();
 }
 
@@ -5805,14 +5798,14 @@ onAuthStateChanged(auth, async user => {
     if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = isAdminUser ? 'block' : 'none';
 
     try {
-        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await getDoc(prefRef);
+        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await Promise.race([getDoc(prefRef), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))]);
         if (prefSnap.exists()) { 
             const data = prefSnap.data(); 
             if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } 
             if (data.walletChoice) { window.__walletChoice = data.walletChoice; try { localStorage.setItem('rhn_wallet_choice_' + user.uid, JSON.stringify(data.walletChoice)); } catch (e) {} } else if (data.walletBank) { window.__walletChoice = { Bank: data.walletBank }; }
             if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } 
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
-            if (data.categories) { window.userCats = data.categories; } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
+            if (data.categories) { window.userCats = data.categories; try { localStorage.setItem('rhn_cats_' + user.uid, JSON.stringify(data.categories)); } catch(e) {} } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
             if (data.savingsGoals) { window.savingsGoals = data.savingsGoals; } else { window.savingsGoals = []; }
             if (data.userQrisBase) { window.userQrisBase = data.userQrisBase; } else { window.userQrisBase = ""; }
         } else { 
@@ -5823,7 +5816,7 @@ onAuthStateChanged(auth, async user => {
             window.savingsGoals = [];
             window.userQrisBase = "";
         }
-    } catch(err) { console.error("Gagal sinkron data pengaturan", err); }
+    } catch(err) { console.error("Gagal sinkron data pengaturan", err); try { const __c = JSON.parse(localStorage.getItem('rhn_cats_' + user.uid) || 'null'); if (__c) window.userCats = __c; } catch(e) {} if (!window.userCats) window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
 
     // Kategori (window.userCats) baru pasti lengkap SETELAH baris di atas selesai (async, bisa
     // lambat/dari cache kalau offline). Dropdown kategori di form sudah sempat dirender duluan
@@ -8743,7 +8736,7 @@ async function markTxPaid(id, successTitle, paidVal, field) {
     }
     if (wroteOffline && !navigator.onLine) {
         markPendingOfflineWrite();
-        Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+        Swal.fire({ position: 'center', icon: 'success', title: 'Berhasil Disimpan!', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
     } else {
         if (wroteOffline) markPendingOfflineWrite();
         Swal.fire({icon:'success', title: successTitle, background:'var(--card)', color:'var(--text)', timer:800, showConfirmButton:false});
@@ -8877,7 +8870,7 @@ window.addTx = async function() {
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
       if (wroteOffline) {
-          Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
+          Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
       } else {
           Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
       }
@@ -8890,7 +8883,7 @@ window.addTx = async function() {
           amountInput.value = ''; document.getElementById('f-note').value = '';
           saveBtn.style.opacity = '1'; saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)';
           if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-          Swal.fire({ position: 'center', icon: 'success', title: 'Tersimpan di HP!', text: 'Belum ada internet, data otomatis naik ke server begitu online lagi.', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+          Swal.fire({ position: 'center', icon: 'success', title: 'Berhasil Disimpan!', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
           setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; saveBtn.textContent = 'SIMPAN CATATAN'; }, 1400);
       } else {
           Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false;
@@ -9200,12 +9193,13 @@ window.cancelEdit = function() {
     document.getElementById('cancel-edit-btn').style.display = 'none'; 
 };
 
+(function(){ const __fix = function(){ const s = document.getElementById('f-cat'); if (s && s.options.length <= 1 && typeof curType !== 'undefined' && curType && curType !== 'transfer') { const v = s.value; window.selType(curType); } }; document.addEventListener('mousedown', function(e){ if (e.target && e.target.id === 'f-cat') __fix(); }, true); document.addEventListener('touchstart', function(e){ if (e.target && e.target.id === 'f-cat') __fix(); }, true); document.addEventListener('focusin', function(e){ if (e.target && e.target.id === 'f-cat') __fix(); }, true); })();
 window.selType = function(t) { 
     curType = t; document.getElementById('btn-inc').classList.toggle('active', t === 'income'); document.getElementById('btn-exp').classList.toggle('active', t === 'expense'); 
     const btnDebt = document.getElementById('btn-debt'); if (btnDebt) btnDebt.classList.toggle('active', t === 'debt'); 
     const btnRecv = document.getElementById('btn-recv'); if (btnRecv) btnRecv.classList.toggle('active', t === 'recv'); 
     const btnTransfer = document.getElementById('btn-transfer'); if (btnTransfer) btnTransfer.classList.toggle('active', t === 'transfer'); 
-    const s = document.getElementById('f-cat'); if (s) { s.innerHTML = '<option value="">Pilih kategori...</option>'; if (window.userCats[t]) { window.userCats[t].forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; s.appendChild(o); }); } s.dispatchEvent(new Event('change')); } 
+    const s = document.getElementById('f-cat'); if (s) { s.innerHTML = '<option value="">Pilih kategori...</option>'; { const __cl = (window.userCats && window.userCats[t] && window.userCats[t].length) ? window.userCats[t] : ((window.defaultCATS && window.defaultCATS[t]) || []); __cl.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; s.appendChild(o); }); } s.dispatchEvent(new Event('change')); } 
     const saveBtn = document.getElementById('save-btn'); if (saveBtn) { if (t === 'income') { saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'SIMPAN PEMASUKAN'; } else if (t === 'expense') { saveBtn.style.background = 'var(--red2)'; saveBtn.style.color = '#fff'; saveBtn.textContent = 'SIMPAN PENGELUARAN'; } else if (t === 'debt') { saveBtn.style.background = 'var(--gold)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'CATAT HUTANG'; } else if (t === 'recv') { saveBtn.style.background = 'var(--blue)'; saveBtn.style.color = '#fff'; saveBtn.textContent = 'CATAT PIUTANG'; } else if (t === 'transfer') { saveBtn.style.background = 'var(--text)'; saveBtn.style.color = 'var(--bg)'; saveBtn.textContent = 'LAKUKAN TRANSFER'; } } 
     const catRow = document.getElementById('row-cat'); const walletToRow = document.getElementById('row-wallet-to'); const walletLabel = document.getElementById('label-wallet'); 
     if (t === 'transfer') { if (catRow) catRow.style.display = 'none'; if (walletToRow) walletToRow.style.display = 'block'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA (ASAL)'; } else { if (catRow) catRow.style.display = 'block'; if (walletToRow) walletToRow.style.display = 'none'; if (walletLabel) walletLabel.textContent = 'SUMBER DANA / DOMPET'; } 
@@ -9444,7 +9438,7 @@ ${ctxStr}`;
   aiHistory.push({role:'user', parts:[{text:q}]});
   try {
     let r, j, lastErr = 'unknown';
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 4; attempt++) {
       try {
         const ctl = new AbortController(); const tmo = setTimeout(() => ctl.abort(), 25000);
         try {
@@ -9455,10 +9449,10 @@ ${ctxStr}`;
           j = await r.json();
         } finally { clearTimeout(tmo); }
         if (!alive()) return;
-        if (r.ok && j.candidates && j.candidates[0] && j.candidates[0].content) { lastErr = null; break; }
+        if (r.ok && j.candidates && j.candidates[0] && j.candidates[0].content && (j.candidates[0].content.parts || []).some(p => p && p.text && p.text.trim())) { lastErr = null; break; }
         lastErr = (j.error && j.error.message) || ('HTTP ' + r.status);
       } catch (netErr) { lastErr = netErr.message; }
-      await new Promise(res => setTimeout(res, 1500 * (attempt + 1)));
+      await new Promise(res => setTimeout(res, 1200 * (attempt + 1)));
     }
     if (lastErr) { console.warn('AI error:', lastErr); lastErr = 'Maaf kak, saat ini sedang tidak ada CS yang bertugas. Silakan coba lagi nanti, atau langsung hubungi admin kami lewat WhatsApp ya.'; }
     if (lastErr) throw new Error(lastErr);
