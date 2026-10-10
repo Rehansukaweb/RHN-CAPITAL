@@ -1,10 +1,10 @@
 {
-  "id": "/",
-  "name": "Arus Keuangan | RHN CAPITAL",
+  "id": "./index.html",
+  "name": "RHN CAPITAL - Arus Keuangan",
   "short_name": "RHN Capital",
   "lang": "id",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["standalone"],
   "orientation": "portrait",
@@ -13,7 +13,8 @@
   "categories": ["finance", "business"],
   "prefer_related_applications": false,
   "icons": [
-    { "src": "RHN LOGO.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "any" },
+    { "src": "RHN LOGO.jpg", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "RHN LOGO.jpg", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "RHN LOGO.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "maskable" }
   ]
 }
