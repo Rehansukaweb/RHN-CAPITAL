@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "online.rhncapital.twa",
+        "sha256_cert_fingerprints": ["FC:91:B1:BD:ED:79:F5:6D:03:64:FB:74:18:69:13:4D:8F:E2:3C:DB:AE:10:C0:A4:D9:2C:D2:6E:0B:2B:90:1B"]
+      }
+    }]
