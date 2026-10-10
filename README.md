@@ -204,11 +204,6 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .swal2-backdrop-show { animation: swal2-backdrop-show 0.18s cubic-bezier(0.22, 1, 0.36, 1) !important; }
 .swal2-backdrop-hide { animation: swal2-backdrop-hide 0.14s cubic-bezier(0.4, 0, 1, 1) !important; }
 
-/* Sandi disamarkan lewat CSS (bukan type=password) supaya Chrome tidak memunculkan notifikasi simpan/perbarui sandi */
-.secret-field { -webkit-text-security: disc; text-security: disc; }
-/* Rasa aplikasi native: matikan tarik-untuk-refresh, efek pantul, & menu tekan-lama */
-html, body { overscroll-behavior-y: none; -webkit-touch-callout: none; }
-img { -webkit-user-drag: none; user-select: none; }
 /* HEADER */
 .header-area { padding: 20px 24px; }
 .logo-row { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-top: 10px; }
@@ -1172,7 +1167,7 @@ body.global-privacy #xau-idr-gr {
     <div id="auth-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
 
     <div class="form-row" id="field-quickcode" style="display:none">
-      <input type="text" id="auth-quickcode" class="f-input-dark secret-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="auth-quickcode" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="•••" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
 
     <div class="form-row" id="field-nama" style="display:none"><div class="f-label">Nama</div><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
@@ -1185,11 +1180,11 @@ body.global-privacy #xau-idr-gr {
         <option value="Perempuan">Perempuan</option>
       </select>
     </div>
-    <div class="form-row" id="field-email"><div class="f-label">Email</div><input type="email" id="auth-email" class="f-input-dark" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Email"></div>
+    <div class="form-row" id="field-email"><div class="f-label">Email</div><input type="email" id="auth-email" class="f-input-dark" placeholder="Email"></div>
     <div class="form-row" id="field-pass">
      <div class="f-label">Sandi</div>
      <div class="pass-wrap">
-      <input type="text" id="auth-pass" class="f-input-dark secret-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="auth-pass" class="f-input-dark" placeholder="Sandi" onkeydown="if(event.key==='Enter')doAuth()">
       <button type="button" class="pass-toggle" onclick="togglePassVisibility('auth-pass', this)" tabindex="-1" aria-label="Tampilkan sandi">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.62 21.62 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.61 3.85M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
       </button>
@@ -1228,7 +1223,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="text" id="app-pin" class="f-input-dark secret-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
+       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -2384,6 +2379,22 @@ body.global-privacy #xau-idr-gr {
 </div></div>
 
 <script>
+/* Isolasi sesi: tab browser (website) TIDAK berbagi login dengan app terinstal (standalone) */
+(function(){
+  try {
+    var isApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    window.__IS_APP_MODE = isApp;
+    if (!isApp) {
+      var keys = ['last_uid_rhn','local_pin_rhn'];
+      var g = Storage.prototype.getItem, st = Storage.prototype.setItem, rm = Storage.prototype.removeItem;
+      Storage.prototype.getItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.getItem(k) : g.call(this, k); };
+      Storage.prototype.setItem = function(k,v){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.setItem(k,v) : st.call(this, k, v); };
+      Storage.prototype.removeItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.removeItem(k) : rm.call(this, k); };
+    }
+  } catch(e) {}
+})();
+</script>
+<script>
   const lastUid = localStorage.getItem('last_uid_rhn');
   const localPin = localStorage.getItem('local_pin_rhn');
   window.appUnlocked = false; 
@@ -2469,7 +2480,7 @@ window.toggleRecTime = function() {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { 
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+  getAuth, initializeAuth, browserSessionPersistence, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
   GoogleAuthProvider, signInWithPopup, updateProfile, 
   deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider 
@@ -2491,7 +2502,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig); 
-const auth = getAuth(app); 
+const auth = initializeAuth(app, { persistence: window.__IS_APP_MODE ? [indexedDBLocalPersistence, browserLocalPersistence] : browserSessionPersistence, popupRedirectResolver: browserPopupRedirectResolver }); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
@@ -5153,8 +5164,8 @@ window.doGoogleAuth = async function() {
 window.togglePassVisibility = function(inputId, btn) {
   const inp = document.getElementById(inputId);
   if (!inp) return;
-  const showing = inp.type === 'password' ? false : !inp.classList.contains('secret-field');
-  if (inp.type === 'password') { inp.type = 'text'; } else { inp.classList.toggle('secret-field', showing); }
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
   btn.innerHTML = showing
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.62 21.62 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.61 3.85M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -5491,7 +5502,7 @@ window.setQuickLoginCode = async function() {
         title: 'Atur Kode Login Cepat',
         html:
             '<input id="swal-qcode" class="swal2-input" inputmode="numeric" maxlength="3" placeholder="Kode 3 Digit (mis. 123)" style="text-align:center; letter-spacing:2px; font-size:13px;">' +
-            '<input id="swal-qpass" type="text" class="swal2-input secret-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Sandi Akun (untuk konfirmasi)" style="font-size:13px;">',
+            '<input id="swal-qpass" type="password" class="swal2-input" placeholder="Sandi Akun (untuk konfirmasi)" style="font-size:13px;">',
         background: 'var(--card)', color: 'var(--text)',
         showCancelButton: true,
         confirmButtonColor: 'var(--gold)',
@@ -8158,7 +8169,7 @@ window.deleteMyAccount = async function () {
     const form = await Swal.fire({
         ...sw, icon: 'warning', title: '⚠️ Hapus Akun Permanen?',
         html: '<div style="text-align:left; font-size:12px; color:var(--text2); line-height:1.6;">Yang akan <b style="color:var(--red2);">dihapus permanen</b>: profil, seluruh catatan, catatan rutin, pengaturan &amp; PIN, daftar perangkat, akun tertaut, backup, dan akun login kamu.<br><br>Chat bantuan, arsip catatan terhapus, serta catatan pembayaran langganan, komisi, dan penarikan IB tetap disimpan admin untuk riwayat dan pembukuan (lihat Kebijakan Privasi).<br><br><b>Tidak bisa dibatalkan.</b> Unduh backup dulu bila perlu.<br><br>'
-            + (hasPass ? '<input id="del-acc-pass" type="text" class="swal2-input secret-field" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Sandi akun kamu" style="max-width:100%; width:80%; margin:0 auto 8px; display:block;">' : '<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Kamu akan diminta login Google ulang untuk konfirmasi.</div>')
+            + (hasPass ? '<input id="del-acc-pass" type="password" class="swal2-input" placeholder="Sandi akun kamu" style="max-width:100%; width:80%; margin:0 auto 8px; display:block;">' : '<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Kamu akan diminta login Google ulang untuk konfirmasi.</div>')
             + '<input id="del-acc-confirm" class="swal2-input" placeholder="Ketik HAPUS" style="max-width:100%; width:80%; margin:0 auto; display:block; text-align:center; font-weight:800;"></div>',
         showCancelButton: true, confirmButtonText: 'HAPUS AKUN SAYA', cancelButtonText: 'BATAL', confirmButtonColor: 'var(--red2)', focusConfirm: false,
         preConfirm: () => {
