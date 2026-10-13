@@ -300,9 +300,10 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 /* Kalau baris terakhir cuma nyisa 1 kartu sendirian, lebarkan penuh biar kanannya nggak kosong */
 .wallet-scroll > *:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
 /* Wallet bertambah: grid 6 kolom (tiap kartu = 2 kolom). Sisa 2 kartu di baris terakhir = masing-masing setengah lebar, sisa 1 kartu = penuh */
-#wallet-balances { grid-template-columns: repeat(6, 1fr) !important; }
-#wallet-balances > .w-card { grid-column: span 2; }
-#wallet-balances > .w-card.w-extra { grid-column: 1 / -1; }
+#wallet-balances { grid-template-columns: repeat(2, 1fr) !important; }
+#wallet-balances > .w-card { grid-column: auto; }
+/* kartu wallet terakhir yang ganjil (tanpa pasangan) = 1 baris penuh; 2 blok terakhir (hutang/piutang & tombol tambah) tetap penuh */
+#wallet-balances > .w-card:nth-last-child(3):nth-child(odd) { grid-column: 1 / -1; }
 .w-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -9856,13 +9857,30 @@ window.promptKoreksi = async function(walletName, recordedBal) {
                <div id="swal-koreksi-preview" style="font-size:11px; color:var(--text3); margin-bottom:16px; text-align:left;">Setara: <b style="color:var(--text);">Rp 0</b> &nbsp;(<b style="color:var(--green2);">$0.00</b>)</div>` : `
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
                <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">`;
-    const { value: formValues } = await Swal.fire({
+    window.__koreksiMode = 'koreksi';
+    window.__koreksiSetMode = function(m) {
+        window.__koreksiMode = m;
+        const t = m === 'tambah';
+        const b1 = document.getElementById('swal-mode-koreksi'), b2 = document.getElementById('swal-mode-tambah');
+        if (b1) { b1.style.background = t ? 'var(--bg3)' : 'var(--blue)'; b1.style.color = t ? 'var(--text)' : '#fff'; }
+        if (b2) { b2.style.background = t ? 'var(--green2)' : 'var(--bg3)'; b2.style.color = t ? '#000' : 'var(--text)'; }
+        document.querySelectorAll('.swal2-html-container div').forEach(d => {
+            if (d.children.length) return;
+            if (!d.hasAttribute('data-o')) { if (!/saldo nyata/i.test(d.textContent)) return; d.setAttribute('data-o', d.textContent); }
+            d.textContent = t ? d.getAttribute('data-o').replace(/Masukkan saldo nyata kamu saat ini/i, 'Masukkan saldo yang ditambahkan').replace(/saldo nyata/i, 'saldo yang ditambahkan') : d.getAttribute('data-o');
+        });
+        const ttl = document.querySelector('.swal2-title'); if (ttl) ttl.textContent = (t ? 'Tambah Saldo ' : 'Koreksi Saldo ') + window.walletDisp(walletName);
+        const cb = Swal.getConfirmButton(); if (cb) cb.textContent = t ? 'TAMBAH SALDO' : 'KOREKSI SALDO';
+    };
+    const __kres = await Swal.fire({
         title: `Koreksi Saldo ${window.walletDisp(walletName)}`,
-        html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
+        html: `<div style="display:flex; gap:6px; margin-bottom:12px;"><button type="button" id="swal-mode-koreksi" onclick="window.__koreksiSetMode('koreksi')" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--border2); background:var(--blue); color:#fff; font-size:11px; font-weight:700; cursor:pointer;">KOREKSI SALDO</button><button type="button" id="swal-mode-tambah" onclick="window.__koreksiSetMode('tambah')" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--border2); background:var(--bg3); color:var(--text); font-size:11px; font-weight:700; cursor:pointer;">TAMBAH SALDO</button></div>
+               <div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
                ${isGold ? goldHtml : mt5CentHtml}
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
+        showDenyButton: !!(window.WALLET_PICKABLE && window.WALLET_PICKABLE[walletName]), denyButtonText: '🔁 GANTI LOGO', denyButtonColor: '#555',
         background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--blue)', cancelButtonColor: 'var(--bg3)',
         preConfirm: () => {
             const note = document.getElementById('swal-koreksi-note').value;
@@ -9894,14 +9912,18 @@ window.promptKoreksi = async function(walletName, recordedBal) {
             }
             if (isNaN(amt)) { Swal.showValidationMessage('Nilai saldo tidak valid!'); return false; }
             if (!note) { Swal.showValidationMessage('Keterangan harus diisi biar riwayatnya jelas!'); return false; }
-            return { amt: amt, note: note };
+            if (window.__koreksiMode === 'tambah' && amt <= 0) { Swal.showValidationMessage('Saldo yang ditambahkan harus lebih dari 0!'); return false; }
+            return { amt: amt, note: note, mode: window.__koreksiMode };
         }
     });
+    const formValues = __kres.value;
+    if (__kres.isDenied) { await window.pickWalletChoice(walletName); return; }
 
     if(formValues) {
         const actual = formValues.amt;
         const userNote = formValues.note;
-        const diff = actual - recordedBal;
+        const __tambah = formValues.mode === 'tambah';
+        const diff = __tambah ? actual : actual - recordedBal;
         if(diff === 0) return Swal.fire({icon:'info', title:'Saldo Sudah Sesuai!', background:'var(--card)', color:'var(--text)'});
         
         const isSurplus = diff > 0;
@@ -9917,7 +9939,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
                type: typeStr, amount: amt, category: 'Lainnya', wallet: walletName, note: userNote, date: new Date().toISOString(), ownerEmail: currentUser.email, createdAt: serverTimestamp(), isDeleted: false
             });
             if (!navigator.onLine) markPendingOfflineWrite();
-            Swal.fire({icon:'success', title:'Saldo Terkoreksi!', html:`Ditambahkan catatan <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
+            Swal.fire({icon:'success', title:(__tambah ? 'Saldo Ditambahkan!' : 'Saldo Terkoreksi!'), html:`Ditambahkan catatan <b style="color:${isSurplus?'var(--green2)':'var(--red2)'}">${fmtFull(amt)}</b>`, background:'var(--card)', color:'var(--text)', timer: 1500, showConfirmButton: false});
         } catch(e) {
             reportSaveOutcome(e, 'Saldo Terkoreksi!', 'Gagal');
         }
@@ -10042,12 +10064,21 @@ function renderWalletBalances() {
         let __wch = (name === 'MT5 Trading' && typeof window.getWalletChoice === 'function') ? window.getWalletChoice(name) : '';
         let centLine = (name === 'MT5 Trading' && (!__wch || __wch === 'MT5 Trading')) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
         if (name === 'MT5 Trading' && __wch === 'Emas / Logam Mulia') { const __xp = (typeof xauBasePrice !== 'undefined' && xauBasePrice) ? xauBasePrice : null; const __pg = (__xp && currentUSDRate > 0) ? (__xp * currentUSDRate / 31.1034768) : 0; centLine = `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${__pg > 0 ? (bal / __pg).toFixed(4) : '...'} gram</div>`; }
+        let __usdHtml = getUSD(bal);
+        { const __cw = (window.getCustomWallets ? window.getCustomWallets() : []).find(x => x.name === name);
+          const __ch2 = (window.getWalletChoice ? window.getWalletChoice(name) : '');
+          const __isBase = (window.BASE_WALLETS || []).indexOf(name) >= 0;
+          const __key = __isBase ? (__ch2 || (name === 'MT5 Trading' ? 'MT5 Trading' : '')) : ((__cw && __cw.logo) ? __cw.logo : String(name));
+          const __isMT = /metatrader\s*[45]|\bmt\s*[45]\b|^mt5 trading$/i.test(__key);
+          const __isGold = /emas|logam mulia|\bgold\b|\bxau\b/i.test(__key);
+          if (__isGold) { const __xp2 = (typeof xauBasePrice !== 'undefined' && xauBasePrice) ? xauBasePrice : null; const __pg2 = (__xp2 && currentUSDRate > 0) ? (__xp2 * currentUSDRate / 31.1034768) : 0; __usdHtml = `<span>${getUSD(bal)}</span><span style="margin-left:10px;">${__pg2 > 0 ? (bal / __pg2).toFixed(4) : '...'} gram</span>`; centLine = ''; }
+          else if (__isMT) { __usdHtml = ((bal/currentUSDRate)*100).toFixed(2) + ' USC'; centLine = ''; } }
         return `<div class="w-card${(window.BASE_WALLETS || []).indexOf(name) < 0 ? ' w-extra' : ''}" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
                     <div class="w-row21" style="display:flex; align-items:flex-start; gap:6px;">
-                    ${(typeof window.walletLogo === 'function') ? ((window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<span onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" title="Tap logo untuk ganti" style="cursor:pointer; flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>` : `<span style="flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>`) : ''}
-                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${escapeHTML(window.walletDisp(name))}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:7.5px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:3px 7px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
+                    ${(typeof window.walletLogo === 'function') ? `<span style="flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>` : ''}
+                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${escapeHTML(window.walletDisp(name))}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${__usdHtml}</div>${centLine}</div>
                     </div>
                 </div>` 
     }).join(''); 
