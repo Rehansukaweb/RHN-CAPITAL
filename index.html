@@ -299,6 +299,11 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 .wallet-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
 /* Kalau baris terakhir cuma nyisa 1 kartu sendirian, lebarkan penuh biar kanannya nggak kosong */
 .wallet-scroll > *:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+/* Wallet bertambah: grid 6 kolom (tiap kartu = 2 kolom). Sisa 2 kartu di baris terakhir = masing-masing setengah lebar, sisa 1 kartu = penuh */
+#wallet-balances { grid-template-columns: repeat(6, 1fr) !important; }
+#wallet-balances > .w-card { grid-column: span 2; }
+#wallet-balances > .w-card:nth-last-child(3):nth-child(3n+1) { grid-column: 1 / -1; }
+#wallet-balances > .w-card:nth-last-child(3):nth-child(3n+2), #wallet-balances > .w-card:nth-last-child(4):nth-child(3n+1) { grid-column: span 3; }
 .w-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -4033,9 +4038,80 @@ window.IB_BANKS = [
   { g: 'ewallet', n: 'ShopeePay', bg: '#EE4D2D', fg: '#fff', t: 'ShopeePay' },
   { g: 'ewallet', n: 'LinkAja', bg: '#E82529', fg: '#fff', t: 'LinkAja' },
   { g: 'ewallet', n: 'Sakuku', bg: '#0A5CAE', fg: '#fff', t: 'Sakuku' },
-  { g: 'ewallet', n: 'iSaku', bg: '#E31E24', fg: '#fff', t: 'iSaku' }
+  { g: 'ewallet', n: 'iSaku', bg: '#E31E24', fg: '#fff', t: 'iSaku' },
+  { g: 'ewallet', n: 'Floq', bg: '#6D28D9', fg: '#fff', t: 'Floq' },
+  { g: 'ewallet', n: 'Flip', bg: '#FF7A1A', fg: '#fff', t: 'Flip' }
 ];
-window.WALLET_EXTRA = [{ g: 'trading', n: 'MT5 Trading', bg: '#1F2937', fg: '#fff', t: 'MT5', x: 'mt5' }];
+window.WALLET_EXTRA = [{ g: 'trading', n: 'MT5 Trading', bg: '#1F2937', fg: '#fff', t: 'MT5', x: 'mt5' },
+  { g: 'invest', n: 'Bibit', bg: '#00B14F', fg: '#fff', t: 'Bibit' },
+  { g: 'invest', n: 'Ajaib', bg: '#0A6CFF', fg: '#fff', t: 'Ajaib' },
+  { g: 'invest', n: 'Stockbit', bg: '#00AB6B', fg: '#fff', t: 'Stockbit' },
+  { g: 'invest', n: 'IPOT', bg: '#0B3B8C', fg: '#fff', t: 'IPOT' },
+  { g: 'invest', n: 'Pluang', bg: '#6C2BD9', fg: '#fff', t: 'Pluang' },
+  { g: 'invest', n: 'Bareksa', bg: '#F58220', fg: '#fff', t: 'Bareksa' },
+  { g: 'invest', n: 'Binance', bg: '#F3BA2F', fg: '#1a1200', t: 'Binance' },
+  { g: 'invest', n: 'Indodax', bg: '#0E4DA4', fg: '#fff', t: 'Indodax' },
+  { g: 'invest', n: 'Pintu', bg: '#2563EB', fg: '#fff', t: 'Pintu' },
+  { g: 'invest', n: 'Tokocrypto', bg: '#1D4ED8', fg: '#fff', t: 'Toko' },
+  { g: 'invest', n: 'Emas / Logam Mulia', bg: '#B8860B', fg: '#fff', t: 'Emas' },
+  { g: 'invest', n: 'Reksa Dana', bg: '#0F766E', fg: '#fff', t: 'Reksa' },
+  { g: 'invest', n: 'Saham', bg: '#334155', fg: '#fff', t: 'Saham' },
+  { g: 'invest', n: 'Crypto', bg: '#F7931A', fg: '#fff', t: 'Crypto' }];
+window.WALLET_EXTRA_GROUPS = [['exchange','Crypto Exchange'],['cwallet','Wallet Crypto & DeFi'],['broker','Forex, CFD & Broker'],['prop','Prop Firm'],['sekuritas','Saham & Sekuritas'],['global','Pembayaran Global']];
+window.WALLET_EXTRA = window.WALLET_EXTRA.concat([
+ ['exchange','Bybit','#F7A600','#000','Bybit'],['exchange','OKX','#000000','#fff','OKX'],['exchange','Coinbase','#0052FF','#fff','Coinbase'],['exchange','Kraken','#5741D9','#fff','Kraken'],
+ ['exchange','KuCoin','#23AF91','#fff','KuCoin'],['exchange','Bitget','#00C2D6','#001014','Bitget'],['exchange','Gate.io','#2354E6','#fff','Gate'],['exchange','MEXC','#00B897','#fff','MEXC'],
+ ['exchange','HTX (Huobi)','#1A3C7A','#fff','HTX'],['exchange','Crypto.com','#002D74','#fff','Crypto'],['exchange','Bitfinex','#16B157','#fff','Bitfinex'],['exchange','Bitstamp','#2A8F4A','#fff','Bitstamp'],
+ ['exchange','Gemini','#00DCFA','#001014','Gemini'],['exchange','Upbit','#093687','#fff','Upbit'],['exchange','Bithumb','#F37321','#fff','Bithumb'],['exchange','Reku','#5B2EFF','#fff','Reku'],
+ ['exchange','Triv','#0066FF','#fff','Triv'],['exchange','Luno','#1F6FEB','#fff','Luno'],['exchange','Bitkub','#0AA84F','#fff','Bitkub'],['exchange','Coinhako','#1F2937','#fff','Hako'],
+ ['exchange','Pionex','#0F9D58','#fff','Pionex'],['exchange','Phemex','#C6F23B','#111','Phemex'],['exchange','BingX','#2D5BFF','#fff','BingX'],['exchange','LBank','#1B7AE6','#fff','LBank'],
+ ['exchange','BitMart','#1E2B4A','#fff','BitMart'],['exchange','Bitrue','#1D9BF0','#fff','Bitrue'],['exchange','WhiteBIT','#2F2F2F','#fff','WhiteBIT'],['exchange','Poloniex','#00A878','#fff','Polo'],
+ ['exchange','Deribit','#0F9ED9','#fff','Deribit'],['exchange','BitMEX','#1F2937','#fff','BitMEX'],['exchange','Hyperliquid','#97FCE4','#0b2b26','HL'],['exchange','dYdX','#6966FF','#fff','dYdX'],
+ ['exchange','Bitvavo','#0052FF','#fff','Bitvavo'],['exchange','Bitpanda','#2EC4B6','#06312d','Bitpanda'],['exchange','Coinone','#0062DF','#fff','Coinone'],['exchange','Korbit','#1E3A8A','#fff','Korbit'],
+ ['exchange','WazirX','#3067F0','#fff','WazirX'],['exchange','CoinDCX','#0F2A5F','#fff','DCX'],['exchange','CoinSwitch','#2B6BED','#fff','CSwitch'],['exchange','Bitso','#2C58E8','#fff','Bitso'],
+ ['exchange','OKCoin','#2D6CDF','#fff','OKCoin'],['exchange','Zipmex','#00A99D','#fff','Zipmex'],['exchange','Rekeningku','#0B7285','#fff','Rekening'],['exchange','Nobi','#6D28D9','#fff','Nobi'],
+ ['exchange','Binance TH','#F3BA2F','#1a1200','BinTH'],['exchange','Backpack','#E33E3F','#fff','Backpack'],['exchange','Toobit','#12B886','#fff','Toobit'],['exchange','WEEX','#1C1C1C','#fff','WEEX'],
+ ['exchange','CoinEx','#3DC0A3','#fff','CoinEx'],['exchange','ProBit','#1B3E8E','#fff','ProBit'],['exchange','Bitunix','#0E1726','#fff','Bitunix'],['exchange','BTSE','#0D1B2A','#fff','BTSE'],
+ ['cwallet','MetaMask','#F6851B','#fff','MetaMask'],['cwallet','Trust Wallet','#3375BB','#fff','Trust'],['cwallet','Phantom','#AB9FF2','#1b1340','Phantom'],['cwallet','Ledger','#111111','#fff','Ledger'],
+ ['cwallet','Trezor','#00854D','#fff','Trezor'],['cwallet','Exodus','#7B3FE4','#fff','Exodus'],['cwallet','Coinbase Wallet','#0052FF','#fff','CB Wallet'],['cwallet','OKX Wallet','#000000','#fff','OKX W'],
+ ['cwallet','Bitget Wallet','#00C2D6','#001014','BG Wallet'],['cwallet','SafePal','#2B6BFF','#fff','SafePal'],['cwallet','Rabby','#7084FF','#fff','Rabby'],['cwallet','Atomic Wallet','#1B6EF3','#fff','Atomic'],
+ ['cwallet','Uniswap','#FF007A','#fff','Uniswap'],['cwallet','PancakeSwap','#1FC7D4','#08323a','Pancake'],['cwallet','Tokenpocket','#2980FE','#fff','TokenP'],['cwallet','Keplr','#2C73FF','#fff','Keplr'],
+ ['cwallet','Solflare','#FFD83D','#222','Solflare'],['cwallet','Tonkeeper','#1C93E3','#fff','Tonkeep'],['cwallet','Binance Web3','#F3BA2F','#1a1200','BN Web3'],['cwallet','Bybit Wallet','#F7A600','#000','By Wallet'],
+ ['cwallet','Hyperliquid DEX','#97FCE4','#0b2b26','HL DEX'],['cwallet','Jupiter','#C7F284','#1a2a00','Jupiter'],['cwallet','Raydium','#3A2BD8','#fff','Raydium'],['cwallet','Aave','#B6509E','#fff','Aave'],
+ ['broker','Exness','#FFDE00','#000','Exness'],['broker','XM','#E60012','#fff','XM'],['broker','IC Markets','#0E4C92','#fff','ICM'],['broker','FBS','#00A650','#fff','FBS'],
+ ['broker','HFM (HotForex)','#E52E2E','#fff','HFM'],['broker','Pepperstone','#E5002D','#fff','Pepper'],['broker','OctaFX / Octa','#00A0DC','#fff','Octa'],['broker','FXTM / Forextime','#00AEEF','#fff','FXTM'],
+ ['broker','Tickmill','#003B71','#fff','Tickmill'],['broker','Vantage','#1A1A1A','#fff','Vantage'],['broker','AvaTrade','#00A3E0','#fff','AvaTrade'],['broker','Equiti','#7C3AED','#fff','Equiti'],
+ ['broker','InstaForex','#F58220','#fff','Insta'],['broker','Valetax','#0EA5E9','#fff','Valetax'],['broker','Moneta Markets','#0B5FFF','#fff','Moneta'],['broker','Deriv','#FF444F','#fff','Deriv'],
+ 
+ ['broker','Plus500','#0A5CAE','#fff','Plus500'],['broker','eToro','#13C636','#04290e','eToro'],['broker','XTB','#D4202C','#fff','XTB'],
+ ['broker','FP Markets','#00467F','#fff','FPM'],['broker','Admiral Markets','#004B8D','#fff','Admiral'],['broker','RoboForex','#E31E24','#fff','Robo'],['broker','Alpari','#D41F26','#fff','Alpari'],
+ ['broker','LiteFinance','#2B6BED','#fff','LiteFin'],['broker','JustMarkets','#2DB45A','#fff','JustMkt'],['broker','Axi','#2E3192','#fff','Axi'],['broker','TMGM','#00A9A5','#fff','TMGM'],
+ ['broker','FXPro','#0F2D52','#fff','FxPro'],['broker','BlackBull','#1C1C1C','#fff','BlackBull'],['broker','Fusion Markets','#E4002B','#fff','Fusion'],['broker','FXCM','#D0112B','#fff','FXCM'],
+ ['broker','OANDA','#1B1B1B','#fff','OANDA'],['broker','IG','#D4202C','#fff','IG'],['broker','Saxo','#0A3C6E','#fff','Saxo'],['broker','CMC Markets','#0A2540','#fff','CMC'],
+ ['broker','Capital.com','#1CC47E','#04291a','Capital'],['broker','Libertex','#0A6CFF','#fff','Libertex'],['broker','NAGA','#0F172A','#fff','NAGA'],['broker','Interactive Brokers','#D81222','#fff','IBKR'],
+ ['broker','TradeStation','#0B3D91','#fff','TStation'],['broker','Forex.com','#0072CE','#fff','Forex'],['broker','Weltrade','#0E7490','#fff','Weltrade'],['broker','Exness Cent','#FFDE00','#000','Ex Cent'],
+ ['broker','Doo Prime','#E11D48','#fff','DooPrime'],['broker','VT Markets','#0A66C2','#fff','VT'],['broker','GO Markets','#2563EB','#fff','GO'],['broker','Land-FX','#0D9488','#fff','LandFX'],
+ ['broker','Hantec','#C8102E','#fff','Hantec'],['broker','Orbex','#F59E0B','#fff','Orbex'],['broker','ATFX','#1E40AF','#fff','ATFX'],['broker','Windsor Brokers','#0F766E','#fff','Windsor'],
+ ['broker','Gain Capital','#1D4ED8','#fff','Gain'],['broker','MetaTrader 4','#1565C0','#fff','MT4'],['broker','cTrader','#0F9D8A','#fff','cTrader'],['broker','TradingView','#131722','#fff','TV'],
+ ['prop','FTMO','#1E3A8A','#fff','FTMO'],['prop','FundedNext','#6D28D9','#fff','FNext'],['prop','The5ers','#0F172A','#fff','5ers'],['prop','E8 Funding','#0EA5A4','#fff','E8'],
+ ['prop','Funding Pips','#2563EB','#fff','FPips'],['prop','Alpha Capital','#111827','#fff','Alpha'],['prop','Apex Trader Funding','#E11D48','#fff','Apex'],['prop','TopStep','#0F4C81','#fff','TopStep'],
+ ['prop','Blue Guardian','#1D4ED8','#fff','BlueG'],['prop','FundingTraders','#9333EA','#fff','FTraders'],['prop','Goat Funded','#16A34A','#fff','Goat'],['prop','FXIFY','#7C3AED','#fff','FXIFY'],
+ ['prop','Maven Trading','#0369A1','#fff','Maven'],['prop','Lux Trading Firm','#B45309','#fff','Lux'],['prop','City Traders Imperium','#1E293B','#fff','CTI'],['prop','Audacity Capital','#0D9488','#fff','Audacity'],
+ ['sekuritas','Mirae Asset','#F58220','#fff','Mirae'],['sekuritas','Indo Premier','#0B3B8C','#fff','IndoPrem'],['sekuritas','Mandiri Sekuritas','#00386E','#FDB913','MandiriS'],['sekuritas','BNI Sekuritas','#F37021','#fff','BNI Sek'],
+ ['sekuritas','BRI Danareksa','#00529C','#fff','BRIDanar'],['sekuritas','Gotrade','#7C3AED','#fff','Gotrade'],['sekuritas','Tanamas','#0EA5E9','#fff','Tanamas'],['sekuritas','Treasury','#1D4ED8','#fff','Treasury'],
+ ['sekuritas','Pegadaian','#0B7A3E','#fff','Pegadai'],['sekuritas','Tokopedia Emas','#42B549','#fff','TokEmas'],['sekuritas','Antam','#B8860B','#fff','Antam'],['sekuritas','Robinhood','#00C805','#001a02','Robin'],
+ ['sekuritas','Webull','#0A6CFF','#fff','Webull'],['sekuritas','Moomoo','#FF6B00','#fff','Moomoo'],['sekuritas','Tiger Brokers','#F59E0B','#1a1200','Tiger'],['sekuritas','Fidelity','#2E7D32','#fff','Fidelity'],
+ ['sekuritas','Charles Schwab','#00A0DF','#fff','Schwab'],['sekuritas','E*TRADE','#6B2FBA','#fff','ETRADE'],['sekuritas','Vanguard','#8B1A1A','#fff','Vanguard'],['sekuritas','Samuel Sekuritas','#0F4C81','#fff','Samuel'],
+ ['sekuritas','Phillip Sekuritas','#003A70','#fff','Phillip'],['sekuritas','Henan Putihrai','#0F766E','#fff','HPS'],['sekuritas','Ajaib Kripto','#0A6CFF','#fff','AjKripto'],['sekuritas','Bibit Saham','#00B14F','#fff','BibitSh'],
+ ['global','PayPal','#003087','#fff','PayPal'],['global','Wise','#9FE870','#163300','Wise'],['global','Payoneer','#FF4800','#fff','Payoneer'],['global','Skrill','#862165','#fff','Skrill'],
+ ['global','Neteller','#83BA3B','#13300a','Neteller'],['global','Perfect Money','#D5232B','#fff','PM'],['global','Revolut','#0075EB','#fff','Revolut'],['global','Alipay','#1677FF','#fff','Alipay'],
+ ['global','WeChat Pay','#07C160','#fff','WeChat'],['global','GCash','#007CFF','#fff','GCash'],['global','Google Pay','#4285F4','#fff','GPay'],['global','Apple Pay','#111111','#fff','Pay'],
+ ['global','Cash App','#00D632','#001a08','CashApp'],['global','Venmo','#3D95CE','#fff','Venmo'],['global','Zelle','#6D1ED4','#fff','Zelle'],['global','Stripe','#635BFF','#fff','Stripe'],
+ ['global','Advcash','#2E7D32','#fff','Advcash'],['global','WebMoney','#1A73E8','#fff','WebMoney'],['global','Payeer','#2A84D1','#fff','Payeer'],['global','Western Union','#FFDD00','#111','WU'],
+ ['global','MoneyGram','#E31837','#fff','MoneyGr'],['global','Remitly','#2D6CDF','#fff','Remitly'],['global','Paxum','#1B5E20','#fff','Paxum'],['global','Jenius Pay','#00A6E3','#fff','JeniusPay'],
+ ['global','Payfazz','#3B82F6','#fff','Payfazz'],['global','DOKU','#E4002B','#fff','DOKU'],['global','Kredivo','#F58220','#fff','Kredivo'],['global','Akulaku','#E4002B','#fff','Akulaku'],
+ ['global','Traveloka Pay','#0194F3','#fff','TravPay'],['global','Tokopedia Saldo','#42B549','#fff','Tokped'],['global','Blibli Saldo','#0A8AE0','#fff','Blibli'],['global','Grab Pay','#00B14F','#fff','GrabPay']
+].map(a => ({ g: a[0], n: a[1], bg: a[2], fg: a[3], t: a[4] })));
 window.ibFindAny = function (name) { return window.ibFindBank(name) || window.WALLET_EXTRA.find(b => b.n.toLowerCase() === String(name || '').trim().toLowerCase()) || null; };
 window.ibFindBank = function (name) {
   const k = String(name || '').trim().toLowerCase(); if (!k) return null;
@@ -4061,11 +4137,13 @@ window.ibBankPicker = function (inputId, selected, only, withExtra) {
   const cur = withExtra ? window.ibFindAny(sel) : window.ibFindBank(sel); const curName = cur ? cur.n : '';
   const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n === 'MT5 Trading' ? 'MetaTrader 5' : b.n) + '</div></div>';
   return '<input type="hidden" id="' + inputId + '" value="' + ibEsc(curName) + '">'
-    + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="Cari bank / e-wallet…" autocomplete="off" oninput="window.ibBankFilter(this)">'
+    + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="' + ((withExtra === 'mt5' || withExtra === 'full') ? 'Cari bank / e-wallet / exchange / broker…' : 'Cari bank / e-wallet…') + '" autocomplete="off" oninput="window.ibBankFilter(this)">'
     + '<div class="ib-bp-scroll">'
     + (only === 'bank' ? '' : '<div class="ib-bank-sec">E-Wallet</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'ewallet').map(tile).join('') + '</div>')
     + (only === 'ewallet' ? '' : '<div class="ib-bank-sec">Bank</div><div class="ib-bank-grid">' + list.filter(b => b.g === 'bank').map(tile).join('') + '</div>')
-    + (withExtra ? '<div class="ib-bank-sec">Trading</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.map(tile).join('') + '</div>' : '')
+    + (withExtra ? '<div class="ib-bank-sec">Trading</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.filter(b => b.g === 'trading').map(tile).join('') + '</div>' : '')
+    + ((withExtra === 'mt5' || withExtra === 'full') ? '<div class="ib-bank-sec">Investasi</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.filter(b => b.g === 'invest').map(tile).join('') + '</div>' : '')
+    + ((withExtra === 'mt5' || withExtra === 'full') ? (window.WALLET_EXTRA_GROUPS || []).map(gr => '<div class="ib-bank-sec">' + gr[1] + '</div><div class="ib-bank-grid">' + window.WALLET_EXTRA.filter(b => b.g === gr[0]).map(tile).join('') + '</div>').join('') : '')
     + '<div class="ib-bank-empty">Bank / e-wallet tidak ditemukan.</div></div></div>';
 };
 window.ibBankFilter = function (inp) {
@@ -4117,18 +4195,155 @@ window.pickWalletChoice = async function (name) {
   const only = window.WALLET_PICKABLE[name]; if (!only) return;
   const cur = window.getWalletChoice(name);
   const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
-    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only, only !== 'bank'),
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only, name === 'MT5 Trading' ? 'mt5' : only !== 'bank'),
     showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
     preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
   if (!r.isConfirmed && !r.isDenied) return;
   const map = Object.assign({}, window.getWalletChoices());
   if (r.isDenied) delete map[name]; else map[name] = r.value;
   window.__walletChoice = map;
-  try { localStorage.setItem('rhn_wallet_choice_' + currentUser.uid, JSON.stringify(map)); } catch (e) {}
-  try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { walletChoice: map }, { merge: true }); } catch (e) { console.error('Gagal simpan pilihan dompet', e); }
+  const __ts = Date.now();
+  try { localStorage.setItem('rhn_wallet_choice_' + currentUser.uid, JSON.stringify(map)); localStorage.setItem('rhn_wallet_choice_ts_' + currentUser.uid, String(__ts)); } catch (e) {}
+  try { await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { walletChoice: map, walletChoiceTs: __ts }, { mergeFields: ['walletChoice', 'walletChoiceTs'] }); } catch (e) { console.error('Gagal simpan pilihan dompet', e); }
   if (typeof renderWalletBalances === 'function') { try { renderWalletBalances(); } catch (e) {} }
 };
 window.pickWalletBank = function () { return window.pickWalletChoice('Bank'); };
+window.walletDisp = function (name) {
+  try {
+    const ch = (window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? window.getWalletChoice(name) : '';
+    if (name === 'MT5 Trading') return (!ch || ch === 'MT5 Trading') ? 'MetaTrader 5' : ch;
+    return ch || name;
+  } catch (e) { return name; }
+};
+window.syncWalletOptionLabels = function () {
+  try { document.querySelectorAll('select#f-wallet option, select#f-wallet-to option, select#pref-wallet option, select#qris-wallet option').forEach(o => { if (!o.hasAttribute('data-orig')) o.setAttribute('data-orig', o.textContent); const v = o.value; const pk = window.WALLET_PICKABLE && window.WALLET_PICKABLE[v]; const ch = pk ? window.getWalletChoice(v) : ''; o.textContent = (pk && ch) ? window.walletDisp(v) : o.getAttribute('data-orig'); }); } catch (e) {}
+};
+// ---------- DOMPET CUSTOM (tambah wallet sebanyak yang dibutuhkan, tidak terbatas 6) ----------
+window.BASE_WALLETS = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+window.getCustomWallets = function () {
+  try {
+    const uid = (typeof currentUser !== 'undefined' && currentUser && currentUser.uid) || '';
+    if (Array.isArray(window.__customWallets) && (!uid || window.__customWalletsUid === uid)) return window.__customWallets;
+    const a = JSON.parse(localStorage.getItem('rhn_custom_wallets_' + uid) || '[]');
+    window.__customWallets = Array.isArray(a) ? a.filter(x => x && x.name) : []; window.__customWalletsUid = uid;
+    return window.__customWallets;
+  } catch (e) { return window.__customWallets || []; }
+};
+window.getAllWalletNames = function () { return window.BASE_WALLETS.concat(window.getCustomWallets().map(c => c.name)); };
+window.getWalletListFor = function (arr) {
+  const l = window.BASE_WALLETS.slice();
+  if (typeof txs !== 'undefined' && arr === txs) window.getCustomWallets().forEach(c => { if (l.indexOf(c.name) < 0) l.push(c.name); });
+  (arr || []).forEach(t => { if (!t || t.isDeleted) return; [t.wallet, t.walletTo].forEach(w => { if (w && w !== 'Hutang' && w !== 'Piutang' && l.indexOf(w) < 0) l.push(w); }); });
+  return l;
+};
+window.cwSanitize = function (s) { return String(s || '').replace(/['"\\<>`$&{}]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24); };
+window.cwWalletOptionsHTML = function () {
+  const base = window.BASE_WALLETS.map(w => '<option value="' + w + '">' + ibEsc(w === 'MT5 Trading' ? (window.walletDisp(w) === 'MetaTrader 5' ? 'Saldo MetaTrader 5' : window.walletDisp(w)) : window.walletDisp(w)) + '</option>').join('');
+  return base + window.getCustomWallets().map(c => '<option value="' + ibEsc(c.name) + '">' + ibEsc(c.name) + '</option>').join('');
+};
+window.cwInjectOptions = function () {
+  try {
+    const cws = window.getCustomWallets();
+    ['f-wallet', 'f-wallet-to', 'pref-wallet', 'qris-wallet'].forEach(id => {
+      const el = document.getElementById(id); if (!el) return;
+      const prev = el.value;
+      el.querySelectorAll('option[data-cw]').forEach(o => o.remove());
+      const anchor = (id === 'f-wallet' || id === 'f-wallet-to') ? el.querySelector('option[value="Hutang"]') : null;
+      cws.forEach(c => { const o = document.createElement('option'); o.value = c.name; o.textContent = c.name; o.setAttribute('data-cw', '1'); o.setAttribute('data-orig', c.name); if (anchor) el.insertBefore(o, anchor); else el.appendChild(o); });
+      if (prev && [...el.options].some(o => o.value === prev)) el.value = prev;
+    });
+  } catch (e) {}
+};
+(function () {
+  const _sync = window.syncWalletOptionLabels;
+  window.syncWalletOptionLabels = function () { try { _sync(); } catch (e) {} window.cwInjectOptions(); };
+  const _logo = window.walletLogo;
+  window.walletLogo = function (name, sz) {
+    const c = window.getCustomWallets().find(x => x.name === name);
+    if (c) return window.ibBankLogo(c.logo || c.name, sz || 34);
+    return _logo(name, sz);
+  };
+})();
+window.saveCustomWallets = async function (list) {
+  const ts = Date.now(); const uid = currentUser.uid;
+  window.__customWallets = list; window.__customWalletsUid = uid;
+  try { localStorage.setItem('rhn_custom_wallets_' + uid, JSON.stringify(list)); localStorage.setItem('rhn_custom_wallets_ts_' + uid, String(ts)); } catch (e) {}
+  try { await setDoc(doc(db, 'users', uid, 'settings', 'preferences'), { customWallets: list, customWalletsTs: ts }, { mergeFields: ['customWallets', 'customWalletsTs'] }); } catch (e) { console.error('Gagal simpan dompet custom', e); }
+  window.cwInjectOptions();
+  if (typeof renderWalletBalances === 'function') { try { renderWalletBalances(); } catch (e) {} }
+  if (typeof window.renderAll === 'function') { try { window.renderAll(); } catch (e) {} }
+};
+window.cwNameTaken = function (name, exceptIdx) {
+  const k = name.toLowerCase();
+  const reserved = ['hutang', 'piutang', 'metatrader 5', 'saldo metatrader 5', 'semua dompet'];
+  if (reserved.indexOf(k) > -1) return true;
+  if (window.BASE_WALLETS.some(w => w.toLowerCase() === k)) return true;
+  return window.getCustomWallets().some((c, i) => i !== exceptIdx && c.name.toLowerCase() === k);
+};
+window.addCustomWallet = async function () {
+  if (!currentUser) return;
+  if (window.getCustomWallets().length >= 60) return Swal.fire({ icon: 'info', title: 'Batas tercapai', text: 'Maksimal 60 dompet tambahan.', background: 'var(--card)', color: 'var(--text)' });
+  const r = await ibSwal({ title: '➕ Tambah Wallet', width: 480,
+    html: '<div style="text-align:left;">'
+      + '<div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Nama Wallet</div>'
+      + '<input id="cw-name" class="swal2-input" maxlength="24" placeholder="Contoh: Bybit, Floq, Exness, Tabungan Nikah" style="margin:0 0 10px;width:100%;">'
+      + '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Pilih logo (opsional) — nama otomatis terisi. Bisa ketik nama sendiri.</div>'
+      + window.ibBankPicker('cw-logo', '', undefined, 'full') + '</div>',
+    showCancelButton: true, confirmButtonText: 'TAMBAH', cancelButtonText: 'Batal',
+    didOpen: () => {
+      const root = document.querySelector('.swal2-popup .ib-bp'); const nm = document.getElementById('cw-name'); let auto = '';
+      if (root && nm) root.addEventListener('click', e => { const t = e.target.closest('.ib-bank-tile'); if (!t) return; const v = t.getAttribute('data-bank'); const dn = window.cwSanitize(v === 'MT5 Trading' ? 'MetaTrader 5' : v); if (!nm.value.trim() || nm.value === auto) { nm.value = dn; auto = dn; } });
+    },
+    preConfirm: () => {
+      const logo = (document.getElementById('cw-logo').value || '').trim();
+      const name = window.cwSanitize(document.getElementById('cw-name').value);
+      if (!name) return Swal.showValidationMessage('Isi nama wallet atau pilih salah satu logo');
+      if (window.cwNameTaken(name, -1)) return Swal.showValidationMessage('Nama wallet itu sudah dipakai');
+      return { name, logo: (logo && window.ibFindAny(logo)) ? logo : '' };
+    } });
+  if (!r.isConfirmed || !r.value) return;
+  const list = window.getCustomWallets().slice(); list.push(r.value);
+  await window.saveCustomWallets(list);
+  Swal.fire({ icon: 'success', title: 'Wallet ditambahkan', text: r.value.name + ' sudah muncul di daftar dompet & form catatan.', timer: 1800, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' });
+};
+window.manageCustomWallets = async function () {
+  const list = window.getCustomWallets();
+  if (!list.length) return window.addCustomWallet();
+  const rows = list.map((c, i) => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">'
+    + window.ibBankLogo(c.logo || c.name, 34)
+    + '<div style="flex:1;min-width:0;text-align:left;font-size:12px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + ibEsc(c.name) + '</div>'
+    + '<button onclick="window.cwChangeLogo(' + i + ')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.4);color:var(--gold);border-radius:99px;padding:5px 10px;font-size:9px;font-weight:800;cursor:pointer;">🔁 LOGO</button>'
+    + '<button onclick="window.cwRename(' + i + ')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:99px;padding:5px 10px;font-size:9px;font-weight:800;cursor:pointer;">✏️</button>'
+    + '<button onclick="window.cwDelete(' + i + ')" style="background:rgba(248,113,113,0.12);border:1px solid var(--red2);color:var(--red2);border-radius:99px;padding:5px 10px;font-size:9px;font-weight:800;cursor:pointer;">🗑️</button></div>').join('');
+  const r = await ibSwal({ title: '⚙️ Kelola Wallet', width: 460, html: '<div style="max-height:330px;overflow-y:auto;">' + rows + '</div>', showCancelButton: true, confirmButtonText: '➕ TAMBAH WALLET', cancelButtonText: 'Tutup' });
+  if (r.isConfirmed) window.addCustomWallet();
+};
+window.cwChangeLogo = async function (i) {
+  const list = window.getCustomWallets().slice(); const c = list[i]; if (!c) return;
+  const r = await ibSwal({ title: 'Logo untuk “' + ibEsc(c.name) + '”', width: 480, html: window.ibBankPicker('cw-logo', c.logo || '', undefined, 'full'), showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!c.logo, denyButtonText: 'RESET', denyButtonColor: '#555',
+    preConfirm: () => { const v = (document.getElementById('cw-logo').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+  if (!r.isConfirmed && !r.isDenied) return window.manageCustomWallets();
+  list[i] = { name: c.name, logo: r.isDenied ? '' : r.value };
+  await window.saveCustomWallets(list); window.manageCustomWallets();
+};
+window.cwRename = async function (i) {
+  const list = window.getCustomWallets().slice(); const c = list[i]; if (!c) return;
+  const used = (typeof txs !== 'undefined' ? txs : []).some(t => !t.isDeleted && (t.wallet === c.name || t.walletTo === c.name));
+  if (used) { await Swal.fire({ icon: 'info', title: 'Tidak bisa ganti nama', text: 'Wallet ini sudah punya catatan transaksi. Ganti logonya saja, atau buat wallet baru.', background: 'var(--card)', color: 'var(--text)' }); return window.manageCustomWallets(); }
+  const r = await ibSwal({ title: 'Ganti nama wallet', input: 'text', inputValue: c.name, inputAttributes: { maxlength: 24 }, showCancelButton: true, confirmButtonText: 'SIMPAN',
+    preConfirm: v => { const n = window.cwSanitize(v); if (!n) return Swal.showValidationMessage('Nama tidak boleh kosong'); if (window.cwNameTaken(n, i)) return Swal.showValidationMessage('Nama wallet itu sudah dipakai'); return n; } });
+  if (!r.isConfirmed) return window.manageCustomWallets();
+  list[i] = { name: r.value, logo: c.logo || '' };
+  await window.saveCustomWallets(list); window.manageCustomWallets();
+};
+window.cwDelete = async function (i) {
+  const list = window.getCustomWallets().slice(); const c = list[i]; if (!c) return;
+  const used = (typeof txs !== 'undefined' ? txs : []).some(t => !t.isDeleted && (t.wallet === c.name || t.walletTo === c.name));
+  if (used) { await Swal.fire({ icon: 'warning', title: 'Wallet masih dipakai', text: 'Ada catatan di wallet “' + c.name + '”. Pindahkan / hapus catatannya dulu supaya saldo tidak hilang.', background: 'var(--card)', color: 'var(--text)' }); return window.manageCustomWallets(); }
+  const r = await ibSwal({ icon: 'warning', title: 'Hapus wallet “' + ibEsc(c.name) + '”?', showCancelButton: true, confirmButtonText: 'HAPUS', confirmButtonColor: '#F87171' });
+  if (!r.isConfirmed) return window.manageCustomWallets();
+  list.splice(i, 1); await window.saveCustomWallets(list); window.manageCustomWallets();
+};
 window.daftarJadiIB = async function () {
     if (!currentUser) return;
     const inp = (id, ph, val, extra) => '<input id="' + id + '" class="swal2-input" placeholder="' + ph + '" value="' + ibEsc(val || '') + '" ' + (extra || '') + '>';
@@ -5818,7 +6033,21 @@ onAuthStateChanged(auth, async user => {
         if (prefSnap.exists()) { 
             const data = prefSnap.data(); 
             if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } 
-            if (data.walletChoice) { window.__walletChoice = data.walletChoice; try { localStorage.setItem('rhn_wallet_choice_' + user.uid, JSON.stringify(data.walletChoice)); } catch (e) {} } else if (data.walletBank) { window.__walletChoice = { Bank: data.walletBank }; }
+            try {
+                let __lsMap = null; try { __lsMap = JSON.parse(localStorage.getItem('rhn_wallet_choice_' + user.uid) || 'null'); } catch (e) {}
+                const __lsTs = parseInt(localStorage.getItem('rhn_wallet_choice_ts_' + user.uid) || '0', 10) || 0; const __cTs = data.walletChoiceTs || 0;
+                let __map = data.walletChoice || null;
+                if (__lsMap && Object.keys(__lsMap).length && (!__map || __lsTs > __cTs)) { __map = __lsMap; setDoc(prefRef, { walletChoice: __lsMap, walletChoiceTs: __lsTs || Date.now() }, { mergeFields: ['walletChoice', 'walletChoiceTs'] }).catch(() => {}); }
+                if (!__map && data.walletBank) __map = { Bank: data.walletBank };
+                if (__map) { window.__walletChoice = __map; try { localStorage.setItem('rhn_wallet_choice_' + user.uid, JSON.stringify(__map)); if (__cTs > __lsTs) localStorage.setItem('rhn_wallet_choice_ts_' + user.uid, String(__cTs)); } catch (e) {} }
+            } catch (e) { console.error(e); }
+            try {
+                let __cLs = null; try { __cLs = JSON.parse(localStorage.getItem('rhn_custom_wallets_' + user.uid) || 'null'); } catch (e) {}
+                const __cLsTs = parseInt(localStorage.getItem('rhn_custom_wallets_ts_' + user.uid) || '0', 10) || 0; const __cCTs = data.customWalletsTs || 0;
+                let __cl = Array.isArray(data.customWallets) ? data.customWallets : null;
+                if (Array.isArray(__cLs) && __cLs.length && (!__cl || __cLsTs > __cCTs)) { __cl = __cLs; setDoc(prefRef, { customWallets: __cLs, customWalletsTs: __cLsTs || Date.now() }, { mergeFields: ['customWallets', 'customWalletsTs'] }).catch(() => {}); }
+                if (__cl) { window.__customWallets = __cl.filter(x => x && x.name); window.__customWalletsUid = user.uid; try { localStorage.setItem('rhn_custom_wallets_' + user.uid, JSON.stringify(window.__customWallets)); if (__cCTs > __cLsTs) localStorage.setItem('rhn_custom_wallets_ts_' + user.uid, String(__cCTs)); } catch (e) {} if (typeof window.cwInjectOptions === 'function') window.cwInjectOptions(); }
+            } catch (e) { console.error(e); }
             if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } 
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
             if (data.categories) { window.userCats = data.categories; try { localStorage.setItem('rhn_cats_' + user.uid, JSON.stringify(data.categories)); } catch(e) {} } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
@@ -6227,8 +6456,8 @@ function adminTxCard(t) {
     let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸';
     let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-');
     if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-';
-    let walletBadge = t.wallet ? `<span class="wallet-badge">${escapeHTML(t.wallet)}</span>` : '';
-    if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${escapeHTML(t.wallet || '-')} ➔ ${escapeHTML(t.walletTo || '-')}</span>`;
+    let walletBadge = t.wallet ? `<span class="wallet-badge">${escapeHTML(window.walletDisp(t.wallet))}</span>` : '';
+    if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${escapeHTML(t.wallet ? window.walletDisp(t.wallet) : '-')} ➔ ${escapeHTML(t.walletTo ? window.walletDisp(t.walletTo) : '-')}</span>`;
     let debtWarn = (t.type === 'debt' || t.type === 'recv') && !t.isPaid ? ` <span style="font-size:8px; font-weight:800; color:var(--red2);">· BELUM LUNAS</span>` : '';
 
     return `
@@ -6511,7 +6740,7 @@ window.renderAdminRiwayatChart = function(arr) {
     const activeYr = ysel.dataset.active;
     const yearData = arr.filter(t => (t.date || '').slice(0,4) === activeYr);
 
-    const walletList = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+    const walletList = window.getWalletListFor(arr);
     const incWallet = {}; const expWallet = {};
     walletList.forEach(w => { incWallet[w] = 0; expWallet[w] = 0; });
 
@@ -6533,7 +6762,7 @@ window.renderAdminRiwayatChart = function(arr) {
         }
     });
 
-    const labels = walletList;
+    const labels = walletList.map(w => window.walletDisp(w));
     const incData = walletList.map(w => incWallet[w]);
     const expData = walletList.map(w => expWallet[w]);
 
@@ -6673,6 +6902,7 @@ window.closeAdminDetail = function() {
 // ==========================================================================
 function computeWalletsFromArr(arr) {
     const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 };
+    if (typeof txs !== 'undefined' && arr === txs) window.getCustomWallets().forEach(c => { if (!wallets.hasOwnProperty(c.name)) wallets[c.name] = 0; });
     let hutangBal = 0, piutangBal = 0, totalAset = 0;
     (arr || []).forEach(t => {
         if (t.isDeleted) return;
@@ -6740,7 +6970,7 @@ window.adminAdjustBalance = async function(uid, mode) {
     const { wallets } = computeWalletsFromArr(arr);
     let walletNames = Object.keys(wallets);
     if (!walletNames.length) walletNames = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
-    const walletOpts = walletNames.map(w => `<option value="${w}">${w} (${fmtFull(wallets[w] || 0)})</option>`).join('');
+    const walletOpts = walletNames.map(w => `<option value="${w}">${window.walletDisp(w)} (${fmtFull(wallets[w] || 0)})</option>`).join('');
     const isAdd = mode === 'add';
 
     const { value: formVals } = await Swal.fire({
@@ -7118,7 +7348,7 @@ window.openWalletHistoryScreen = function() {
         txs.forEach(t => { if (t.wallet) wallets.add(t.wallet); if (t.walletTo) wallets.add(t.walletTo); });
         const prevVal = sel.value;
         sel.innerHTML = '<option value="">Semua Dompet</option>' +
-            [...wallets].sort().map(w => `<option value="${w}">${w}</option>`).join('');
+            [...wallets].sort().map(w => `<option value="${w}">${window.walletDisp(w)}</option>`).join('');
         sel.value = [...wallets].includes(prevVal) ? prevVal : '';
     }
 
@@ -7141,7 +7371,7 @@ window.renderWalletHistoryScreen = function(walletFilter) {
     filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const sub = document.getElementById('wallet-hist-sub');
-    if (sub) sub.textContent = walletFilter ? `Dompet: ${walletFilter} · ${filtered.length} catatan` : `Semua dompet · ${filtered.length} catatan`;
+    if (sub) sub.textContent = walletFilter ? `Dompet: ${window.walletDisp(walletFilter)} · ${filtered.length} catatan` : `Semua dompet · ${filtered.length} catatan`;
 
     renderList(body, filtered);
 };
@@ -7159,7 +7389,7 @@ window.__closeSendModalAndScan = function() {
 window.promptSendSaldo = async function() {
     if (!currentUser) return;
     const { wallets } = computeWalletsFromArr(txs);
-    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${window.walletDisp(w)} (${fmtFull(wallets[w])})</option>`).join('');
 
     const { value: formVals } = await Swal.fire({
         title: '🚀 Kirim Saldo',
@@ -7271,7 +7501,7 @@ window.__unsubSentReq = null;
 window.promptRequestSaldo = async function() {
     if (!currentUser) return;
     const { wallets } = computeWalletsFromArr(txs);
-    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w}</option>`).join('');
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${window.walletDisp(w)}</option>`).join('');
 
     const { value: formVals } = await Swal.fire({
         title: '↓ Minta Saldo',
@@ -7560,7 +7790,7 @@ window.approveBalanceRequest = async function(reqId) {
     const r = (window.__incomingReqs || []).find(x => x.id === reqId);
     if (!r) return;
     const { wallets } = computeWalletsFromArr(txs);
-    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${w} (${fmtFull(wallets[w])})</option>`).join('');
+    const walletOpts = Object.keys(wallets).map(w => `<option value="${w}">${window.walletDisp(w)} (${fmtFull(wallets[w])})</option>`).join('');
     const hasFixedAmount = !!r.amount;
 
     const { value: formVals } = await Swal.fire({
@@ -9106,7 +9336,7 @@ window.addGoalProgress = async function(idx) {
     const { wallets } = computeWalletsFromArr(txs);
     let walletNames = Object.keys(wallets);
     if (!walletNames.length) walletNames = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
-    const walletOpts = walletNames.map(w => `<option value="${w}">${w} (${fmtFull(wallets[w] || 0)})</option>`).join('');
+    const walletOpts = walletNames.map(w => `<option value="${w}">${window.walletDisp(w)} (${fmtFull(wallets[w] || 0)})</option>`).join('');
 
     const { value: formVals } = await Swal.fire({
         title: 'Isi Tabungan',
@@ -9535,8 +9765,8 @@ const createTxCard = (t) => {
     let icon = t.type === 'income' ? '↑' : t.type === 'expense' ? '↓' : t.type === 'debt' ? '💳' : t.type === 'transfer' ? '🔄' : '💸'; 
     let sign = (t.type === 'income' || t.type === 'recv') ? '+' : (t.type === 'transfer' ? '' : '-'); 
     if (t.type === 'debt') sign = '-'; if (t.type === 'recv') sign = '-'; 
-    let walletBadge = t.wallet ? `<span class="wallet-badge">${t.wallet}</span>` : ''; 
-    if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${t.wallet} ➔ ${t.walletTo}</span>`; 
+    let walletBadge = t.wallet ? `<span class="wallet-badge">${window.walletDisp(t.wallet)}</span>` : ''; 
+    if (t.type === 'transfer') walletBadge = `<span class="wallet-badge">${window.walletDisp(t.wallet)} ➔ ${window.walletDisp(t.walletTo)}</span>`; 
     
     let debtWarn = ''; 
     if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_debtbadge === 'on') { if ((t.type === 'debt' || t.type === 'recv') && !t.isPaid) { debtWarn = ` <span style="font-size:8px; font-weight:800; color:var(--red2);">· BELUM LUNAS</span>`; } } 
@@ -9577,7 +9807,50 @@ function renderMetrics() { renderSumGrid(document.getElementById('metric-cards')
 
 window.promptKoreksi = async function(walletName, recordedBal) {
     if(!currentUser) return;
-    const isMT5 = /mt5/i.test(walletName);
+    const __kch = (walletName === 'MT5 Trading') ? window.getWalletChoice(walletName) : '';
+    const isGold = walletName === 'MT5 Trading' && __kch === 'Emas / Logam Mulia';
+    const isMT5 = walletName === 'MT5 Trading' && !isGold && (!__kch || __kch === 'MT5 Trading');
+    const __gp = () => (typeof xauBasePrice !== 'undefined' && xauBasePrice && currentUSDRate > 0) ? (xauBasePrice * currentUSDRate / 31.1034768) : 0;
+    window.__xauGramPrice = __gp;
+    window.__koreksiGoldMode = 'gram';
+    window.__koreksiGoldSetMode = function(m) {
+        window.__koreksiGoldMode = m;
+        var gW=document.getElementById('swal-koreksi-gram-wrap'), rW=document.getElementById('swal-koreksi-rp-wrap');
+        var bG=document.getElementById('swal-koreksi-mode-gram'), bR=document.getElementById('swal-koreksi-mode-rp');
+        if(gW) gW.style.display = m==='gram' ? 'block' : 'none';
+        if(rW) rW.style.display = m==='rp' ? 'block' : 'none';
+        if(bG){ bG.style.background = m==='gram' ? 'var(--blue)' : 'var(--bg3)'; bG.style.color = m==='gram' ? '#fff' : 'var(--text)'; }
+        if(bR){ bR.style.background = m==='rp' ? 'var(--blue)' : 'var(--bg3)'; bR.style.color = m==='rp' ? '#fff' : 'var(--text)'; }
+        window.__koreksiGoldUpd();
+    };
+    window.__koreksiGoldUpd = function() {
+        var pg = window.__xauGramPrice ? window.__xauGramPrice() : 0;
+        var el = document.getElementById('swal-koreksi-preview'); if(!el) return;
+        if (window.__koreksiGoldMode === 'rp') {
+            var r = parseFloat((document.getElementById('swal-koreksi-rp')||{}).value);
+            var idr = isNaN(r) ? 0 : r;
+            var gr = (pg > 0) ? idr / pg : 0;
+            el.innerHTML = 'Setara: <b style="color:var(--text);">' + gr.toFixed(4) + ' gram</b> &nbsp;(<b style="color:var(--green2);">' + getUSD(idr) + '</b>)';
+        } else {
+            var g = parseFloat((document.getElementById('swal-koreksi-gram')||{}).value);
+            var idr2 = isNaN(g) ? 0 : g * pg;
+            el.innerHTML = 'Setara: <b style="color:var(--text);">' + fmtFull(idr2) + '</b> &nbsp;(<b style="color:var(--green2);">' + getUSD(idr2) + '</b>)';
+        }
+    };
+    const goldHtml = isGold ? `
+               <div style="display:flex; gap:6px; margin-bottom:12px;">
+                   <button type="button" id="swal-koreksi-mode-gram" onclick="window.__koreksiGoldSetMode('gram')" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--border2); background:var(--blue); color:#fff; font-size:11px; font-weight:700; cursor:pointer;">GRAM</button>
+                   <button type="button" id="swal-koreksi-mode-rp" onclick="window.__koreksiGoldSetMode('rp')" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--border2); background:var(--bg3); color:var(--text); font-size:11px; font-weight:700; cursor:pointer;">RUPIAH</button>
+               </div>
+               <div id="swal-koreksi-gram-wrap">
+                   <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam GRAM):</div>
+                   <input id="swal-koreksi-gram" type="number" step="any" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 2.5 (gram)" oninput="window.__koreksiGoldUpd()">
+               </div>
+               <div id="swal-koreksi-rp-wrap" style="display:none;">
+                   <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam RUPIAH):</div>
+                   <input id="swal-koreksi-rp" type="number" step="any" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 5000000 (Rp)" oninput="window.__koreksiGoldUpd()">
+               </div>
+               <div id="swal-koreksi-preview" style="font-size:11px; color:var(--text3); margin-bottom:16px; text-align:left;">Setara: <b style="color:var(--text);">Rp 0</b> &nbsp;(<b style="color:var(--green2);">$0.00</b>)</div>` : '';
     const mt5CentHtml = isMT5 ? `
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam CENT):</div>
                <input id="swal-koreksi-cent" type="number" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 15000000 (cent)" oninput="(function(){var c=parseFloat(document.getElementById('swal-koreksi-cent').value); var usd=isNaN(c)?0:c/100; var rate=(typeof currentUSDRate==='number'&&currentUSDRate>0)?currentUSDRate:0; var idr=usd*rate; document.getElementById('swal-koreksi-preview').innerHTML = 'Setara: <b style=\\'color:var(--text);\\'>'+fmtFull(idr)+'</b> &nbsp;(<b style=\\'color:var(--green2);\\'>'+getUSD(idr)+'</b>)';})()">
@@ -9585,9 +9858,9 @@ window.promptKoreksi = async function(walletName, recordedBal) {
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
                <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">`;
     const { value: formValues } = await Swal.fire({
-        title: `Koreksi Saldo ${walletName}`,
+        title: `Koreksi Saldo ${window.walletDisp(walletName)}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Saldo Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal)}</b></div>
-               ${mt5CentHtml}
+               ${isGold ? goldHtml : mt5CentHtml}
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Lupa catat jajan kemaren...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
@@ -9595,7 +9868,21 @@ window.promptKoreksi = async function(walletName, recordedBal) {
         preConfirm: () => {
             const note = document.getElementById('swal-koreksi-note').value;
             let amt;
-            if (isMT5) {
+            if (isGold) {
+                if (window.__koreksiGoldMode === 'rp') {
+                    const rVal = document.getElementById('swal-koreksi-rp').value;
+                    const rNum = parseFloat(rVal);
+                    if (!rVal || isNaN(rNum) || rNum < 0) { Swal.showValidationMessage('Saldo asli (rupiah) harus diisi dengan angka!'); return false; }
+                    amt = rNum;
+                } else {
+                const gVal = document.getElementById('swal-koreksi-gram').value;
+                const gNum = parseFloat(gVal);
+                if (!gVal || isNaN(gNum)) { Swal.showValidationMessage('Saldo asli (gram) harus diisi dengan angka!'); return false; }
+                const pg = __gp();
+                if (!pg) { Swal.showValidationMessage('Harga emas belum termuat, tunggu sebentar lalu coba lagi!'); return false; }
+                amt = gNum * pg;
+                }
+            } else if (isMT5) {
                 const centVal = document.getElementById('swal-koreksi-cent').value;
                 const centNum = parseFloat(centVal);
                 if (!centVal || isNaN(centNum)) { Swal.showValidationMessage('Saldo asli (cent) harus diisi dengan angka!'); return false; }
@@ -9661,7 +9948,7 @@ window.promptHutangPiutangMenu = async function(kind, bal) {
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Nominal ' + (isDebt ? 'dibayar' : 'diterima') + ':</div>' +
               '<input id="swal-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:12px;" placeholder="Cth: 50000">' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">' + (isDebt ? 'Dibayar dari dompet:' : 'Masuk ke dompet:') + '</div>' +
-              '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;"><option value="Kas Tunai">Kas Tunai</option><option value="DANA">DANA</option><option value="GoPay">GoPay</option><option value="ShopeePay">ShopeePay</option><option value="MT5 Trading">Saldo MetaTrader 5</option><option value="Bank">Bank</option></select>' +
+              '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;">' + window.cwWalletOptionsHTML() + '</select>' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Keterangan (opsional):</div>' +
               '<input id="swal-hp-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Cicilan ke-1">',
         showCancelButton: true, confirmButtonText: 'SIMPAN', cancelButtonText: 'Batal',
@@ -9741,6 +10028,7 @@ window.promptKoreksiHutangPiutang = async function(kind, recordedBal) {
 
 function renderWalletBalances() { 
     const wallets = { 'Kas Tunai': 0, 'DANA': 0, 'GoPay': 0, 'ShopeePay': 0, 'MT5 Trading': 0, 'Bank': 0 }; 
+    window.getCustomWallets().forEach(c => { if (!wallets.hasOwnProperty(c.name)) wallets[c.name] = 0; });
     let hutangBal = 0; let piutangBal = 0; let totalAset = 0; 
     txs.forEach(t => { 
         let w = t.wallet || 'Kas Tunai'; let wTo = t.walletTo; let tAmt = (typeof t.amount === 'number' && !isNaN(t.amount)) ? t.amount : 0;
@@ -9752,13 +10040,15 @@ function renderWalletBalances() {
     const container = document.getElementById('wallet-balances'); if (!container) return; 
     let html = Object.entries(wallets).filter(([name, bal]) => { if (typeof extraPrefs !== 'undefined' && extraPrefs.ext_hidezero === 'on' && bal === 0) return false; return true; }).map(([name, bal]) => { 
         let pct = (typeof extraPrefs !== 'undefined' && extraPrefs.ext_walletpct === 'on' && totalAset > 0 && bal > 0) ? `<div class="w-pct-badge" style="display:block;">${((bal/totalAset)*100).toFixed(1)}%</div>` : ''; 
-        let centLine = /mt5/i.test((typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) || name) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
+        let __wch = (name === 'MT5 Trading' && typeof window.getWalletChoice === 'function') ? window.getWalletChoice(name) : '';
+        let centLine = (name === 'MT5 Trading' && (!__wch || __wch === 'MT5 Trading')) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
+        if (name === 'MT5 Trading' && __wch === 'Emas / Logam Mulia') { const __xp = (typeof xauBasePrice !== 'undefined' && xauBasePrice) ? xauBasePrice : null; const __pg = (__xp && currentUSDRate > 0) ? (__xp * currentUSDRate / 31.1034768) : 0; centLine = `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${__pg > 0 ? (bal / __pg).toFixed(4) : '...'} gram</div>`; }
         return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
                     <div class="w-row21" style="display:flex; align-items:flex-start; gap:6px;">
                     ${(typeof window.walletLogo === 'function') ? ((window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<span onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" title="Tap logo untuk ganti" style="cursor:pointer; flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>` : `<span style="flex-shrink:0; display:flex;">${window.walletLogo(name, 22)}</span>`) : ''}
-                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${name === 'MT5 Trading' ? 'MetaTrader 5' : name}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:7.5px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:3px 7px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
+                    <div style="min-width:0; flex:1;"><div class="w-label" style="padding-right:12px;" title="${(typeof window.getWalletChoice === 'function' && window.getWalletChoice(name)) ? escapeHTML(window.getWalletChoice(name)) : ''}">${escapeHTML(window.walletDisp(name))}</div><div class="w-val ${bal < 0 ? 'min' : ''}">${fmtFull(bal)}</div><div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(bal)}</div>${centLine}${(window.WALLET_PICKABLE && window.WALLET_PICKABLE[name]) ? `<div onclick="event.stopPropagation(); window.pickWalletChoice('${name}')" style="display:inline-block; margin-top:4px; font-size:7.5px; font-weight:800; line-height:1; white-space:nowrap; color:var(--gold); border:1px solid rgba(251,191,36,0.4); border-radius:99px; padding:3px 7px; cursor:pointer;">🔁 GANTI</div>` : ''}</div>
                     </div>
                 </div>` 
     }).join(''); 
@@ -9777,7 +10067,12 @@ function renderWalletBalances() {
             <div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${getUSD(piutangBal)}</div>
         </div> 
     </div>`; 
+    html += `<div style="grid-column: 1 / -1; display: grid; grid-template-columns: ${window.getCustomWallets().length ? '1fr 1fr' : '1fr'}; gap: inherit;">
+        <div onclick="window.addCustomWallet()" style="cursor:pointer; text-align:center; padding:12px 8px; border:1px dashed rgba(251,191,36,0.55); border-radius:14px; color:var(--gold); font-size:11px; font-weight:800; background:rgba(251,191,36,0.05);">➕ TAMBAH WALLET</div>
+        ${window.getCustomWallets().length ? `<div onclick="window.manageCustomWallets()" style="cursor:pointer; text-align:center; padding:12px 8px; border:1px solid var(--border2); border-radius:14px; color:var(--text2); font-size:11px; font-weight:800; background:var(--bg3);">⚙️ KELOLA (${window.getCustomWallets().length})</div>` : ''}
+    </div>`;
     container.innerHTML = html; 
+    if (typeof window.syncWalletOptionLabels === 'function') window.syncWalletOptionLabels();
 }
 
 window.__chartFilters = {};
@@ -10355,7 +10650,7 @@ window.renderAll = function() {
         applyChartFilterList(document.getElementById('all-body'), yearData, 'riwayat', window.renderAll);
 
         // Chart Pemasukan & Pengeluaran per Dompet (Kas Tunai s/d Bank), termasuk transfer antar dompet
-        const walletList = ['Kas Tunai', 'DANA', 'GoPay', 'ShopeePay', 'MT5 Trading', 'Bank'];
+        const walletList = window.getWalletListFor(txs);
         const incWallet = {}; const expWallet = {};
         walletList.forEach(w => { incWallet[w] = 0; expWallet[w] = 0; });
 
@@ -10380,7 +10675,7 @@ window.renderAll = function() {
             }
         });
 
-        const labels = walletList;
+        const labels = walletList.map(w => window.walletDisp(w));
         const incData = walletList.map(w => incWallet[w]);
         const expData = walletList.map(w => expWallet[w]);
         const hasData = incData.some(v => v > 0) || expData.some(v => v > 0);
