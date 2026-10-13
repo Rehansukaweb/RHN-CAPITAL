@@ -4923,7 +4923,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="number" placeholder="Jumlah 1" value="${t.amount}"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt1" class="swal2-input" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" placeholder="Jumlah 1" value="${String(Math.round(Number(t.amount) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}"></div>
               </div>
             </div>
 
@@ -4939,7 +4939,7 @@ window.splitTx = async function(txId) {
               </div>
               <div class="sp-field">
                 <label>Jumlah</label>
-                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="number" placeholder="Jumlah 2" value="0"></div>
+                <div class="sp-amt-row"><span class="sp-prefix">Rp</span><input id="sp-amt2" class="swal2-input" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" placeholder="Jumlah 2" value="0"></div>
               </div>
             </div>
 
@@ -4960,8 +4960,8 @@ window.splitTx = async function(txId) {
             const a2 = document.getElementById('sp-amt2');
             const sumEl = document.getElementById('sp-sum-val');
             const updateSum = () => {
-                const v1 = parseFloat(a1.value) || 0;
-                const v2 = parseFloat(a2.value) || 0;
+                const v1 = window.__rpNum(a1.value) || 0;
+                const v2 = window.__rpNum(a2.value) || 0;
                 const total = v1 + v2;
                 sumEl.textContent = fmtFull(total);
                 sumEl.style.color = Math.round(total) === Math.round(t.amount) ? 'var(--green2)' : 'var(--red2)';
@@ -4973,10 +4973,10 @@ window.splitTx = async function(txId) {
         preConfirm: () => {
             const note1 = document.getElementById('sp-note1').value.trim();
             const cat1 = document.getElementById('sp-cat1').value;
-            const amt1 = parseFloat(document.getElementById('sp-amt1').value) || 0;
+            const amt1 = window.__rpNum(document.getElementById('sp-amt1').value) || 0;
             const note2 = document.getElementById('sp-note2').value.trim();
             const cat2 = document.getElementById('sp-cat2').value;
-            const amt2 = parseFloat(document.getElementById('sp-amt2').value) || 0;
+            const amt2 = window.__rpNum(document.getElementById('sp-amt2').value) || 0;
             if (!note1 || !note2) { Swal.showValidationMessage('Keterangan bagian 1 & 2 wajib diisi!'); return false; }
             if (!cat1 || !cat2) { Swal.showValidationMessage('Kategori bagian 1 & 2 wajib dipilih!'); return false; }
             if (amt1 <= 0 || amt2 <= 0) { Swal.showValidationMessage('Jumlah bagian 1 & 2 harus lebih dari 0!'); return false; }
@@ -9375,11 +9375,11 @@ window.addGoalProgress = async function(idx) {
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Ambil Dari Dompet</label>
             <select id="swal-g-wallet" class="swal2-input" style="margin:4px 0 12px; width:100%;">${walletOpts}</select>
             <label style="font-size:10px; font-weight:800; color:var(--text3); text-transform:uppercase;">Nominal</label>
-            <input id="swal-g-amt" class="swal2-input" type="number" placeholder="Nominal yang ditabung..." style="margin:4px 0; width:100%;">
+            <input id="swal-g-amt" class="swal2-input" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" placeholder="Nominal yang ditabung..." style="margin:4px 0; width:100%;">
           </div>
         `,
         focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'TAMBAH', showCancelButton: true, cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal',
-        preConfirm: () => { return { wallet: document.getElementById('swal-g-wallet').value, amt: parseFloat(document.getElementById('swal-g-amt').value) } }
+        preConfirm: () => { return { wallet: document.getElementById('swal-g-wallet').value, amt: window.__rpNum(document.getElementById('swal-g-amt').value) } }
     });
 
     if(formVals && formVals.amt && !isNaN(formVals.amt) && formVals.amt > 0) {
@@ -9442,7 +9442,7 @@ function toDatetimeLocalValue(raw) {
 
 window.editTx = function(id) { 
     const t = txs.find(x => x.id === id); if (!t) return; 
-    editId = id; selType(t.type); document.getElementById('f-amount').value = t.amount; 
+    editId = id; selType(t.type); document.getElementById('f-amount').value = String(Math.round(Number(t.amount) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
     setTimeout(() => { if (document.getElementById('f-cat')) { document.getElementById('f-cat').value = t.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } }, 10); 
     if (document.getElementById('f-wallet') && t.wallet) { document.getElementById('f-wallet').value = t.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } 
     if (document.getElementById('f-wallet-to') && t.walletTo) { document.getElementById('f-wallet-to').value = t.walletTo; document.getElementById('f-wallet-to').dispatchEvent(new Event('change')); } 
@@ -9835,6 +9835,9 @@ const createTxCard = (t) => {
 function renderList(container, arr) { container.innerHTML = arr.length ? arr.map(t => createTxCard(t)).join('') : '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Kosong</div>'; }
 function renderMetrics() { renderSumGrid(document.getElementById('metric-cards'), txs, true); }
 
+window.__rpFmt = function(el) { const neg = /^\s*-/.test(el.value); const raw = el.value.replace(/[^0-9]/g, ''); el.value = (neg ? '-' : '') + raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+window.__rpNum = function(v) { return parseFloat(String(v == null ? '' : v).replace(/\./g, '')); };
+window.__rpAttr = 'type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)"';
 window.promptKoreksi = async function(walletName, recordedBal) {
     if(!currentUser) return;
     const __kch = (walletName === 'MT5 Trading') ? window.getWalletChoice(walletName) : '';
@@ -9857,7 +9860,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
         var pg = window.__xauGramPrice ? window.__xauGramPrice() : 0;
         var el = document.getElementById('swal-koreksi-preview'); if(!el) return;
         if (window.__koreksiGoldMode === 'rp') {
-            var r = parseFloat((document.getElementById('swal-koreksi-rp')||{}).value);
+            var r = window.__rpNum((document.getElementById('swal-koreksi-rp')||{}).value);
             var idr = isNaN(r) ? 0 : r;
             var gr = (pg > 0) ? idr / pg : 0;
             el.innerHTML = 'Setara: <b style="color:var(--text);">' + gr.toFixed(4) + ' gram</b> &nbsp;(<b style="color:var(--green2);">' + getUSD(idr) + '</b>)';
@@ -9878,15 +9881,15 @@ window.promptKoreksi = async function(walletName, recordedBal) {
                </div>
                <div id="swal-koreksi-rp-wrap" style="display:none;">
                    <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam RUPIAH):</div>
-                   <input id="swal-koreksi-rp" type="number" step="any" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 5000000 (Rp)" oninput="window.__koreksiGoldUpd()">
+                   <input id="swal-koreksi-rp" type="text" inputmode="numeric" autocomplete="off" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 5000000 (Rp)" oninput="window.__rpFmt(this); window.__koreksiGoldUpd()">
                </div>
                <div id="swal-koreksi-preview" style="font-size:11px; color:var(--text3); margin-bottom:16px; text-align:left;">Setara: <b style="color:var(--text);">Rp 0</b> &nbsp;(<b style="color:var(--green2);">$0.00</b>)</div>` : '';
     const mt5CentHtml = isMT5 ? `
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata (dalam CENT):</div>
-               <input id="swal-koreksi-cent" type="number" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 15000000 (cent)" oninput="(function(){var c=parseFloat(document.getElementById('swal-koreksi-cent').value); var usd=isNaN(c)?0:c/100; var rate=(typeof currentUSDRate==='number'&&currentUSDRate>0)?currentUSDRate:0; var idr=usd*rate; document.getElementById('swal-koreksi-preview').innerHTML = 'Setara: <b style=\\'color:var(--text);\\'>'+fmtFull(idr)+'</b> &nbsp;(<b style=\\'color:var(--green2);\\'>'+getUSD(idr)+'</b>)';})()">
+               <input id="swal-koreksi-cent" type="text" inputmode="numeric" autocomplete="off" class="f-input-dark" style="width:100%; margin-bottom:8px;" placeholder="Cth: 15000000 (cent)" oninput="window.__rpFmt(this); (function(){var c=window.__rpNum(document.getElementById('swal-koreksi-cent').value); var usd=isNaN(c)?0:c/100; var rate=(typeof currentUSDRate==='number'&&currentUSDRate>0)?currentUSDRate:0; var idr=usd*rate; document.getElementById('swal-koreksi-preview').innerHTML = 'Setara: <b style=\\'color:var(--text);\\'>'+fmtFull(idr)+'</b> &nbsp;(<b style=\\'color:var(--green2);\\'>'+getUSD(idr)+'</b>)';})()">
                <div id="swal-koreksi-preview" style="font-size:11px; color:var(--text3); margin-bottom:16px; text-align:left;">Setara: <b style="color:var(--text);">Rp 0</b> &nbsp;(<b style="color:var(--green2);">$0.00</b>)</div>` : `
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan saldo nyata kamu saat ini:</div>
-               <input id="swal-koreksi-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">`;
+               <input id="swal-koreksi-amt" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">`;
     window.__koreksiMode = 'koreksi';
     window.__koreksiSetMode = function(m) {
         window.__koreksiMode = m;
@@ -9917,7 +9920,7 @@ window.promptKoreksi = async function(walletName, recordedBal) {
             let amt;
             if (isGold) {
                 if (window.__koreksiGoldMode === 'rp') {
-                    const rVal = document.getElementById('swal-koreksi-rp').value;
+                    const rVal = document.getElementById('swal-koreksi-rp').value.replace(/\./g, '');
                     const rNum = parseFloat(rVal);
                     if (!rVal || isNaN(rNum) || rNum < 0) { Swal.showValidationMessage('Saldo asli (rupiah) harus diisi dengan angka!'); return false; }
                     amt = rNum;
@@ -9930,13 +9933,13 @@ window.promptKoreksi = async function(walletName, recordedBal) {
                 amt = gNum * pg;
                 }
             } else if (isMT5) {
-                const centVal = document.getElementById('swal-koreksi-cent').value;
+                const centVal = document.getElementById('swal-koreksi-cent').value.replace(/\./g, '');
                 const centNum = parseFloat(centVal);
                 if (!centVal || isNaN(centNum)) { Swal.showValidationMessage('Saldo asli (cent) harus diisi dengan angka!'); return false; }
                 if (typeof currentUSDRate !== 'number' || !currentUSDRate || isNaN(currentUSDRate) || currentUSDRate <= 0) { Swal.showValidationMessage('Kurs USD belum termuat, tunggu sebentar lalu coba lagi!'); return false; }
                 amt = (centNum / 100) * currentUSDRate;
             } else {
-                const amtVal = document.getElementById('swal-koreksi-amt').value;
+                const amtVal = document.getElementById('swal-koreksi-amt').value.replace(/\./g, '');
                 if (!amtVal) { Swal.showValidationMessage('Saldo asli harus diisi!'); return false; }
                 amt = parseFloat(amtVal);
             }
@@ -9997,7 +10000,7 @@ window.promptHutangPiutangMenu = async function(kind, bal) {
         title: isDebt ? 'Bayar Hutang' : 'Terima Bayaran Piutang',
         html: '<div style="font-size:12px; color:var(--text3); margin-bottom:12px;">Sisa ' + label + ': <b style="color:var(--text);">' + fmtFull(sisa) + '</b></div>' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Nominal ' + (isDebt ? 'dibayar' : 'diterima') + ':</div>' +
-              '<input id="swal-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:12px;" placeholder="Cth: 50000">' +
+              '<input id="swal-hp-amt" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" class="f-input-dark" style="width:100%; margin-bottom:12px;" placeholder="Cth: 50000">' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">' + (isDebt ? 'Dibayar dari dompet:' : 'Masuk ke dompet:') + '</div>' +
               '<select id="swal-hp-wallet" class="f-input-dark" style="width:100%; margin-bottom:12px;">' + window.cwWalletOptionsHTML() + '</select>' +
               '<div style="font-size:10px; color:var(--text3); margin-bottom:6px; text-align:left;">Keterangan (opsional):</div>' +
@@ -10005,7 +10008,7 @@ window.promptHutangPiutangMenu = async function(kind, bal) {
         showCancelButton: true, confirmButtonText: 'SIMPAN', cancelButtonText: 'Batal',
         background: 'var(--card)', color: 'var(--text)', confirmButtonColor: isDebt ? 'var(--gold)' : 'var(--blue)', cancelButtonColor: 'var(--bg3)',
         preConfirm: () => {
-            const amt = parseFloat(document.getElementById('swal-hp-amt').value);
+            const amt = window.__rpNum(document.getElementById('swal-hp-amt').value);
             if (!amt || isNaN(amt) || amt <= 0) { Swal.showValidationMessage('Nominal harus diisi!'); return false; }
             if (amt > sisa) { Swal.showValidationMessage('Nominal melebihi sisa ' + label + ' (' + fmtFull(sisa) + ')'); return false; }
             return { amt: amt, wallet: document.getElementById('swal-hp-wallet').value, note: document.getElementById('swal-hp-note').value.trim() };
@@ -10036,14 +10039,14 @@ window.promptKoreksiHutangPiutang = async function(kind, recordedBal) {
         title: `Koreksi Saldo ${label}`,
         html: `<div style="font-size:12px; color:var(--text3); margin-bottom:16px;">Total ${label} Tercatat: <b style="color:var(--text);">${fmtFull(recordedBal || 0)}</b></div>
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Masukkan total ${label} yang sebenarnya saat ini:</div>
-               <input id="swal-koreksi-hp-amt" type="number" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
+               <input id="swal-koreksi-hp-amt" type="text" inputmode="numeric" autocomplete="off" oninput="window.__rpFmt(this)" class="f-input-dark" style="width:100%; margin-bottom:16px;" placeholder="Cth: 150000">
                <div style="font-size:10px; color:var(--text3); margin-bottom:8px; text-align:left;">Tulis Keterangan / Alasan:</div>
                <input id="swal-koreksi-hp-note" type="text" class="f-input-dark" style="width:100%;" placeholder="Contoh: Ada catatan yang kelewat...">`,
         showCancelButton: true, confirmButtonText: 'KOREKSI SALDO', cancelButtonText: 'Batal',
         background: 'var(--card)', color: 'var(--text)', confirmButtonColor: isDebt ? 'var(--gold)' : 'var(--blue)', cancelButtonColor: 'var(--bg3)',
         preConfirm: () => {
             const note = document.getElementById('swal-koreksi-hp-note').value;
-            const amtVal = document.getElementById('swal-koreksi-hp-amt').value;
+            const amtVal = document.getElementById('swal-koreksi-hp-amt').value.replace(/\./g, '');
             if (!amtVal) { Swal.showValidationMessage(`Total ${label} sebenarnya harus diisi!`); return false; }
             const amt = parseFloat(amtVal);
             if (isNaN(amt) || amt < 0) { Swal.showValidationMessage('Nilai tidak valid!'); return false; }
