@@ -9968,7 +9968,7 @@ async function aiRecategorize(onProgress, opts){
     await writeChanges(chs);
     manual[k] = cat; try { localStorage.setItem(manKey, JSON.stringify(manual)); } catch (e) {}
     return chs.length;
-  };  return { total: list.length, changes: changes.filter(c => c.ok), failed, uncertain, uncNotes: uncNotes.slice(0, 15), book, catsOf: cats, applyKey, applyAll, nProposals: proposals.length, allTx, keyOf: bookKey, isCatTx, saveOne: async (t, cat) => { const c = { t, from: t.category || '-', to: cat }; await writeChanges([c]); if (c.ok) { locks[t.id] = cat; try { localStorage.setItem(lockKey, JSON.stringify(locks)); } catch (e) {} } return !!c.ok; } };
+  };  return { total: list.length, changes: changes.filter(c => c.ok), failed, uncertain, uncNotes: uncNotes.slice(0, 15), book, catsOf: cats, applyKey, applyAll, nProposals: proposals.length, allTx, keyOf: bookKey, isCatTx, keyOfNote: (type, note) => type + '|' + aiCatNorm(note), saveNote: async (t, note) => { try { await updateDoc(doc(db, 'users', uid, 'transactions', t.id), { note }); const ok0 = keyOf(t); const cm = manual[ok0]; t.note = note; if (cm) { manual[keyOf(t)] = cm; try { localStorage.setItem(manKey, JSON.stringify(manual)); } catch (e) {} } try { if (typeof window.renderAll === 'function') window.renderAll(); } catch (e) {} return true; } catch (e) { return false; } }, renameKey: async (k, note) => { const ts = allTx.filter(t => isCatTx(t) && keyOf(t) === k); const cm = manual[k]; for (let i = 0; i < ts.length; i += 400) { const sl = ts.slice(i, i + 400); const b = writeBatch(db); sl.forEach(t => b.update(doc(db, 'users', uid, 'transactions', t.id), { note })); await b.commit(); } ts.forEach(t => { t.note = note; }); if (cm) { manual[keyOf(ts[0])] = cm; try { localStorage.setItem(manKey, JSON.stringify(manual)); } catch (e) {} } try { if (typeof window.renderAll === 'function') window.renderAll(); } catch (e) {} return ts.length; }, saveOne: async (t, cat) => { const c = { t, from: t.category || '-', to: cat }; await writeChanges([c]); if (c.ok) { locks[t.id] = cat; try { localStorage.setItem(lockKey, JSON.stringify(locks)); } catch (e) {} } return !!c.ok; } };
 }
 function aiOpenBook(res){
   const old = document.getElementById('ai-book-ov'); if (old) old.remove();
@@ -9979,37 +9979,63 @@ function aiOpenBook(res){
   const stOf = {}; res.book.forEach(r => { stOf[r.k] = r; });
   const cnt = (st) => res.book.filter(r => r.status === st).length;
   const IS = 'background:#1b1b1b;border:1px solid #333;border-radius:8px;color:#eee;padding:6px 9px;font-size:12px';
-  ov.innerHTML = '<div style="background:#101010;border:1px solid #3a3a3a;border-radius:14px;width:100%;max-width:1000px;height:92vh;display:flex;flex-direction:column;color:#eee">'
-    + '<div style="padding:12px 14px;border-bottom:1px solid #2a2a2a;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="color:#fbbf24;font-size:14px">📖 BUKU KATEGORI</b><span id="abk-s" style="font-size:11px;opacity:.85"></span><span style="flex:1"></span>'
-    + '<select id="abk-v" style="' + IS + '"><option value="g">Per keterangan</option><option value="t">Per catatan (semua ' + res.allTx.length + ')</option></select>'
-    + '<input id="abk-q" placeholder="Cari keterangan..." style="' + IS + ';min-width:140px"><select id="abk-f" style="' + IS + '"><option value="all">Semua</option><option value="belum">Belum jelas</option><option value="saran">Perlu diubah</option><option value="diubah">Diubah</option><option value="sesuai">Sesuai</option></select>' + (res.nProposals ? '<button id="abk-a" style="background:#fb923c;color:#000;border:0;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer">TERAPKAN SEMUA SARAN (' + res.nProposals + ')</button>' : '') + '<button id="abk-x" style="background:#fbbf24;color:#000;border:0;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer">TUTUP</button></div>'
-    + '<div style="flex:1;overflow:auto;padding:0 6px 10px"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead id="abk-h" style="position:sticky;top:0;background:#101010;color:#fbbf24;text-align:left"></thead><tbody id="abk-b"></tbody></table></div></div>';
+  const CSS = '<style>#ai-book-ov *{box-sizing:border-box}#ai-book-ov .abk-box{background:#101010;border:1px solid #3a3a3a;border-radius:16px;width:100%;max-width:1000px;height:94vh;height:94dvh;display:flex;flex-direction:column;color:#eee;overflow:hidden}#ai-book-ov .abk-hd{padding:12px;border-bottom:1px solid #2a2a2a;display:flex;flex-direction:column;gap:8px;flex:0 0 auto}#ai-book-ov .abk-ttl{color:#fbbf24;font-size:15px;font-weight:800}#ai-book-ov #abk-s{font-size:11px;line-height:1.55;opacity:.9}#ai-book-ov .abk-in{background:#1b1b1b;border:1px solid #333;border-radius:10px;color:#eee;padding:9px 10px;font-size:13px;font-family:inherit;min-width:0}#ai-book-ov .abk-ctl{display:grid;grid-template-columns:1fr 1fr;gap:8px}#ai-book-ov .abk-ctl>*{width:100%}#ai-book-ov .abk-ctl .full{grid-column:1/-1}#ai-book-ov .abk-btns{display:flex;gap:8px;flex-wrap:wrap}#ai-book-ov .abk-btns button{border:0;border-radius:10px;padding:10px 14px;font-weight:800;font-size:12.5px;cursor:pointer;color:#000;font-family:inherit}#ai-book-ov .abk-wrap{flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;padding:0 6px 10px}#ai-book-ov table{width:100%;border-collapse:collapse;font-size:12px}#ai-book-ov thead th{position:sticky;top:0;z-index:2;background:#101010;color:#fbbf24;text-align:left;padding:9px 5px;font-size:11px;font-weight:800;border-bottom:1px solid #2a2a2a}#ai-book-ov td{padding:8px 5px;vertical-align:top;border-top:1px solid #222}#ai-book-ov .abk-nt{width:100%;background:#1b1b1b;border:1px solid #333;border-radius:8px;color:#eee;padding:6px 7px;font-size:12.5px;font-weight:600;line-height:1.35;font-family:inherit;resize:none;overflow:hidden;display:block}#ai-book-ov .abk-nt:focus{border-color:#fbbf24;outline:none}#ai-book-ov .abk-sm{font-size:10.5px;opacity:.75;margin-top:4px;line-height:1.4;word-break:break-word}#ai-book-ov .abk-t{font-weight:700;font-size:12px;word-break:break-word}#ai-book-ov .abk-sel{width:100%;background:#1b1b1b;border:1px solid #333;border-radius:8px;color:#eee;padding:8px 5px;font-size:12.5px;font-family:inherit}#ai-book-ov .abk-e{padding:24px;text-align:center;opacity:.6;font-size:13px}@media(max-width:699px){#ai-book-ov table{table-layout:fixed}#ai-book-ov .c1{width:38%}#ai-book-ov .c2{width:24%}#ai-book-ov .c3{width:38%}}@media(min-width:700px){#ai-book-ov .abk-hd{flex-direction:row;flex-wrap:wrap;align-items:center}#ai-book-ov .abk-ctl,#ai-book-ov .abk-btns{display:contents}#ai-book-ov .abk-ctl>*{width:auto}#ai-book-ov #abk-v{margin-left:auto}#ai-book-ov #abk-q{min-width:170px}#ai-book-ov table{font-size:13px}#ai-book-ov td{vertical-align:middle}#ai-book-ov .abk-sel{min-width:170px}#ai-book-ov .abk-nt{min-width:150px}}</style>';
+  ov.innerHTML = CSS + '<div class="abk-box">'
+    + '<div class="abk-hd"><div class="abk-ttl">📖 BUKU KATEGORI</div><div id="abk-s"></div>'
+    + '<div class="abk-ctl"><select id="abk-v" class="abk-in full"><option value="g">Per keterangan</option><option value="t">Per catatan (semua ' + res.allTx.length + ')</option></select>'
+    + '<input id="abk-q" class="abk-in" placeholder="Cari keterangan..."><select id="abk-f" class="abk-in"><option value="all">Semua</option><option value="belum">Belum jelas</option><option value="saran">Perlu diubah</option><option value="diubah">Diubah</option><option value="sesuai">Sesuai</option></select></div>'
+    + '<div class="abk-btns">' + (res.nProposals ? '<button id="abk-a" style="background:#fb923c">TERAPKAN SEMUA SARAN (' + res.nProposals + ')</button>' : '') + '<button id="abk-d" style="background:#4ade80">✓ SELESAI</button><button id="abk-x" style="background:#fbbf24">TUTUP</button></div></div>'
+    + '<div class="abk-wrap"><table><colgroup id="abk-cg"></colgroup><thead id="abk-h"></thead><tbody id="abk-b"></tbody></table></div></div>';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:8px;font-family:inherit';
   document.body.appendChild(ov);
-  const tb = ov.querySelector('#abk-b'), th = ov.querySelector('#abk-h'), qi = ov.querySelector('#abk-q'), fi = ov.querySelector('#abk-f'), vi = ov.querySelector('#abk-v'), sm = ov.querySelector('#abk-s');
+  const tb = ov.querySelector('#abk-b'), th = ov.querySelector('#abk-h'), cg = ov.querySelector('#abk-cg'), qi = ov.querySelector('#abk-q'), fi = ov.querySelector('#abk-f'), vi = ov.querySelector('#abk-v'), sm = ov.querySelector('#abk-s');
   const colr = { belum: '#f87171', saran: '#fb923c', diubah: '#fbbf24', sesuai: '#4ade80', lain: '#6b7280' };
-  const stat = () => { sm.innerHTML = res.book.filter(r => !r.lain).length + ' keterangan • ' + res.allTx.length + ' catatan • <span style="color:#f87171">' + cnt('belum') + ' belum jelas</span> • <span style="color:#fb923c">' + cnt('saran') + ' perlu diubah</span> • <span style="color:#fbbf24">' + cnt('diubah') + ' diubah</span> • <span style="color:#4ade80">' + cnt('sesuai') + ' sesuai</span>'; };
-  const selHtml = (type, cur, bad, attr, off) => '<select ' + attr + (off ? ' disabled' : '') + ' style="background:#1b1b1b;border:1px solid ' + (bad ? '#f87171' : '#333') + ';border-radius:7px;color:#eee;padding:5px;font-size:12px;width:100%">' + res.catsOf(type).map(c => '<option value="' + esc(c) + '"' + (c === cur ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + (res.catsOf(type).indexOf(cur) < 0 ? '<option value="" selected>' + esc(cur) + '</option>' : '') + '</select>';
+  const stat = () => { sm.innerHTML = res.book.filter(r => !r.lain).length + ' keterangan • ' + res.allTx.length + ' catatan<br><span style="color:#f87171">' + cnt('belum') + ' belum jelas</span> • <span style="color:#fb923c">' + cnt('saran') + ' perlu diubah</span> • <span style="color:#fbbf24">' + cnt('diubah') + ' diubah</span> • <span style="color:#4ade80">' + cnt('sesuai') + ' sesuai</span>'; };
+  const selHtml = (type, cur, bad, attr, off) => '<select class="abk-sel" ' + attr + (off ? ' disabled' : '') + ' style="border-color:' + (bad ? '#f87171' : '#333') + '">' + res.catsOf(type).map(c => '<option value="' + esc(c) + '"' + (c === cur ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + (res.catsOf(type).indexOf(cur) < 0 ? '<option value="" selected>' + esc(cur) + '</option>' : '') + '</select>';
+  const isDesk = () => window.innerWidth >= 700;
+  const noteHtml = (val, attr, off, st, desk) => '<div style="display:flex;gap:5px;align-items:' + (desk ? 'center' : 'flex-start') + '"><span class="dot" style="color:' + colr[st] + ';font-size:11px;line-height:30px">●</span>' + (desk ? '<input class="abk-nt" value="' + esc(val) + '" ' + attr + (off ? ' disabled' : '') + '>' : '<textarea class="abk-nt" rows="' + Math.min(6, Math.max(1, Math.ceil(String(val || '').length / 15))) + '" ' + attr + (off ? ' disabled' : '') + '>' + esc(val) + '</textarea>') + '</div>';
+  const grow = () => {};
+  let lastDesk = isDesk();
   const draw = () => {
-    const q = qi.value.trim().toLowerCase(), f = fi.value, v = vi.value, out = [];
+    const q = qi.value.trim().toLowerCase(), f = fi.value, v = vi.value, out = [], desk = isDesk(); lastDesk = desk;
+    cg.innerHTML = desk ? '' : '<col class="c1"><col class="c2"><col class="c3">';
     if (v === 'g') {
-      th.innerHTML = '<tr><th style="padding:8px 6px">Keterangan</th><th>Jenis</th><th>Jml</th><th>Total</th><th>Sebelumnya</th><th>Sumber</th><th style="min-width:180px">Kategori sekarang</th></tr>';
+      th.innerHTML = desk ? '<tr><th>Keterangan</th><th>Jenis</th><th>Jml</th><th>Total</th><th>Sebelumnya</th><th>Sumber</th><th>Kategori sekarang</th></tr>' : '<tr><th class="c1">Keterangan</th><th class="c2">Jenis / Total</th><th class="c3">Kategori sekarang</th></tr>';
       res.book.forEach((r, i) => {
         if (f !== 'all' && r.status !== f) return; if (q && String(r.note).toLowerCase().indexOf(q) < 0) return;
-        out.push('<tr style="border-top:1px solid #222"><td style="padding:7px 6px;max-width:260px;word-break:break-word"><span class="dot" style="color:' + colr[r.status] + '">●</span> ' + esc(r.note || '(tanpa keterangan)') + '</td><td>' + esc(r.type) + '</td><td>' + r.count + '</td><td>' + rp(r.total) + '</td><td>' + esc(r.from) + '</td><td class="src" style="opacity:.8">' + (r.sug ? '<b style="color:#fb923c">saran: ' + esc(r.sug) + '</b> (' + esc(r.src) + ')' : esc(r.src)) + '</td><td>' + selHtml(r.type, r.now, r.status === 'belum', 'data-g="' + i + '"', r.lain) + '</td></tr>');
+        const srcTxt = r.sug ? '<b style="color:#fb923c">saran: ' + esc(r.sug) + '</b> (' + esc(r.src) + ')' : esc(r.src);
+        if (desk) out.push('<tr><td>' + noteHtml(r.note || '', 'data-gn="' + i + '"', r.lain, r.status, true) + '</td><td>' + esc(r.type) + '</td><td>' + r.count + '</td><td style="white-space:nowrap">' + rp(r.total) + '</td><td>' + esc(r.from) + '</td><td class="src" style="opacity:.8">' + srcTxt + '</td><td>' + selHtml(r.type, r.now, r.status === 'belum', 'data-g="' + i + '"', r.lain) + '</td></tr>');
+        else out.push('<tr><td>' + noteHtml(r.note || '', 'data-gn="' + i + '"', r.lain, r.status, false) + '<div class="abk-sm src">' + srcTxt + ' • sebelumnya: ' + esc(r.from) + '</div></td><td><div class="abk-t">' + esc(r.type) + '</div><div class="abk-sm">' + rp(r.total) + '<br>' + r.count + ' catatan</div></td><td>' + selHtml(r.type, r.now, r.status === 'belum', 'data-g="' + i + '"', r.lain) + '</td></tr>');
       });
     } else {
-      th.innerHTML = '<tr><th style="padding:8px 6px">Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th><th style="min-width:180px">Kategori sekarang</th></tr>';
+      th.innerHTML = desk ? '<tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>Nominal</th><th>Kategori sekarang</th></tr>' : '<tr><th class="c1">Keterangan</th><th class="c2">Jenis / Nominal</th><th class="c3">Kategori sekarang</th></tr>';
       res.allTx.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).forEach((t) => {
         const r = stOf[res.keyOf(t)] || { status: 'belum' };
         if (f !== 'all' && r.status !== f) return; if (q && String(t.note || '').toLowerCase().indexOf(q) < 0) return;
-        out.push('<tr style="border-top:1px solid #222"><td style="padding:7px 6px;white-space:nowrap">' + esc(String(t.date || '').slice(0, 10)) + '</td><td style="max-width:260px;word-break:break-word"><span class="dot" style="color:' + colr[r.status] + '">●</span> ' + esc(t.note || '(tanpa keterangan)') + '</td><td>' + esc(t.type) + '</td><td>' + rp(t.amount) + '</td><td>' + selHtml(t.type, t.category || '', r.status === 'belum', 'data-t="' + esc(t.id) + '"', !res.isCatTx(t)) + '</td></tr>');
+        const off = !res.isCatTx(t), dt = esc(String(t.date || '').slice(0, 10));
+        if (desk) out.push('<tr><td style="white-space:nowrap">' + dt + '</td><td>' + noteHtml(t.note || '', 'data-tn="' + esc(t.id) + '"', off, r.status, true) + '</td><td>' + esc(t.type) + '</td><td style="white-space:nowrap">' + rp(t.amount) + '</td><td>' + selHtml(t.type, t.category || '', r.status === 'belum', 'data-t="' + esc(t.id) + '"', off) + '</td></tr>');
+        else out.push('<tr><td>' + noteHtml(t.note || '', 'data-tn="' + esc(t.id) + '"', off, r.status, false) + '<div class="abk-sm">' + dt + '</div></td><td><div class="abk-t">' + esc(t.type) + '</div><div class="abk-sm">' + rp(t.amount) + '</div></td><td>' + selHtml(t.type, t.category || '', r.status === 'belum', 'data-t="' + esc(t.id) + '"', off) + '</td></tr>');
       });
     }
-    tb.innerHTML = out.length ? out.join('') : '<tr><td colspan="7" style="padding:18px;text-align:center;opacity:.6">Tidak ada data.</td></tr>';
+    tb.innerHTML = out.length ? out.join('') : '<tr><td colspan="7" class="abk-e">Tidak ada data.</td></tr>';
     stat();
   };
+  window.addEventListener('resize', () => { if (!document.body.contains(ov)) return; if (isDesk() !== lastDesk) draw(); });
   const flash = (sel, ok) => { sel.style.borderColor = ok ? '#4ade80' : '#f87171'; setTimeout(() => { sel.style.borderColor = '#333'; }, 900); };
   tb.addEventListener('change', async (e) => {
+    const nt = e.target;
+    if (nt && nt.classList && nt.classList.contains('abk-nt')) {
+      const val = nt.value.replace(/\s+/g, ' ').trim(), gn = nt.getAttribute('data-gn'), tn = nt.getAttribute('data-tn');
+      let cur = ''; if (gn != null) cur = (res.book[+gn] || {}).note; else { const tt = res.allTx.find(x => String(x.id) === tn); cur = tt ? tt.note : ''; }
+      if (!val) { nt.value = cur || ''; return; } if (val === cur) { nt.value = val; return; }
+      nt.disabled = true;
+      try {
+        if (gn != null) { const r = res.book[+gn]; const oldK = r.k; await res.renameKey(r.k, val); r.note = val; r.k = res.keyOfNote(r.type, val); stOf[r.k] = r; delete stOf[oldK]; }
+        else { const tt = res.allTx.find(x => String(x.id) === tn); const oldK = res.keyOf(tt); const ok = await res.saveNote(tt, val); if (!ok) throw new Error('gagal'); const nk = res.keyOf(tt); if (!stOf[nk] && stOf[oldK]) stOf[nk] = stOf[oldK]; }
+        nt.value = val; flash(nt, true);
+      } catch (err) { nt.value = cur || ''; flash(nt, false); }
+      nt.disabled = false; grow(); return;
+    }
     const sel = e.target; if (!sel || sel.tagName !== 'SELECT' || !sel.value) return;
     const tr = sel.closest('tr'), dot = tr && tr.querySelector('.dot'), srcEl = tr && tr.querySelector('.src');
     const gi = sel.getAttribute('data-g'), ti = sel.getAttribute('data-t'); sel.disabled = true;
@@ -10025,8 +10051,11 @@ function aiOpenBook(res){
     } catch (err) { flash(sel, false); }
     sel.disabled = false; stat();
   });
+  tb.addEventListener('input', (e) => { const x = e.target; if (x && x.tagName === 'TEXTAREA' && x.classList.contains('abk-nt')) { x.style.height = 'auto'; x.style.height = (x.scrollHeight + 2) + 'px'; } });
+  tb.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('abk-nt')) { e.preventDefault(); e.target.blur(); } });
   qi.addEventListener('input', draw); fi.addEventListener('change', draw); vi.addEventListener('change', draw);
   const ab = ov.querySelector('#abk-a'); if (ab) ab.onclick = async () => { ab.disabled = true; ab.textContent = 'Menyimpan...'; try { const n = await res.applyAll(); res.book.forEach(r => { if (r.sug) { r.now = r.sug; r.status = 'diubah'; r.sug = null; } }); ab.textContent = '✓ ' + n + ' catatan diubah'; } catch (e) { ab.textContent = 'Gagal, coba lagi'; ab.disabled = false; } draw(); };
+  ov.querySelector('#abk-d').onclick = () => { try { if (typeof window.renderAll === 'function') window.renderAll(); } catch (e) {} ov.remove(); };
   ov.querySelector('#abk-x').onclick = () => ov.remove(); ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
   draw();
 }
