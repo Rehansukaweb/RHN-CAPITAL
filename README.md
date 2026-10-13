@@ -302,8 +302,7 @@ button, .nav-btn, .t-btn, .p-btn, .theme-btn, .setting-btn, .logout-btn,
 /* Wallet bertambah: grid 6 kolom (tiap kartu = 2 kolom). Sisa 2 kartu di baris terakhir = masing-masing setengah lebar, sisa 1 kartu = penuh */
 #wallet-balances { grid-template-columns: repeat(6, 1fr) !important; }
 #wallet-balances > .w-card { grid-column: span 2; }
-#wallet-balances > .w-card:nth-last-child(3):nth-child(3n+1) { grid-column: 1 / -1; }
-#wallet-balances > .w-card:nth-last-child(3):nth-child(3n+2), #wallet-balances > .w-card:nth-last-child(4):nth-child(3n+1) { grid-column: span 3; }
+#wallet-balances > .w-card.w-extra { grid-column: 1 / -1; }
 .w-card { background: var(--bg3); border: 1px solid var(--border2); border-radius: 16px; padding: 10px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; position: relative; transition: 0.2s; }
 .w-card:hover { border-color: var(--gold); background: var(--bg2); }
 .w-label { font-size: 8px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -10043,7 +10042,7 @@ function renderWalletBalances() {
         let __wch = (name === 'MT5 Trading' && typeof window.getWalletChoice === 'function') ? window.getWalletChoice(name) : '';
         let centLine = (name === 'MT5 Trading' && (!__wch || __wch === 'MT5 Trading')) ? `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${((bal/currentUSDRate)*100).toFixed(2)} cent</div>` : '';
         if (name === 'MT5 Trading' && __wch === 'Emas / Logam Mulia') { const __xp = (typeof xauBasePrice !== 'undefined' && xauBasePrice) ? xauBasePrice : null; const __pg = (__xp && currentUSDRate > 0) ? (__xp * currentUSDRate / 31.1034768) : 0; centLine = `<div class="usd-wallet-val" style="font-size: 8px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 1px;">${__pg > 0 ? (bal / __pg).toFixed(4) : '...'} gram</div>`; }
-        return `<div class="w-card" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
+        return `<div class="w-card${(window.BASE_WALLETS || []).indexOf(name) < 0 ? ' w-extra' : ''}" style="position:relative; cursor:pointer;" onclick="promptKoreksi('${name}', ${bal})" title="Klik untuk Koreksi Saldo">
                     <span style="position:absolute; top:8px; right:${pct ? '42px' : '8px'}; font-size:12px; opacity:0.4;">✏️</span>
                     ${pct}
                     <div class="w-row21" style="display:flex; align-items:flex-start; gap:6px;">
