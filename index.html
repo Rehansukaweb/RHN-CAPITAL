@@ -1713,7 +1713,7 @@ body.global-privacy #xau-idr-gr {
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
-      <div class="card-title" style="font-size:12px; margin:16px 0 4px; color:var(--text3);">🧾 Riwayat Catatan Periode Ini</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:16px 0 4px;"><div class="card-title" style="font-size:12px; margin:0; color:var(--text3);">🧾 Riwayat Catatan Periode Ini</div><button class="admin-detail-btn fix" style="flex:0 0 auto;" onclick="window.adminExtractData()">📋 SALIN / EKSTRAK DATA</button></div>
       <div class="list-wrap" id="admin-detail-list"></div>
     </div>
   </div>
@@ -6909,6 +6909,7 @@ window.showAdminDetail = function(uid, mode) {
         window.__adminRiwayatArr = arr;
         renderAdminRiwayatChart(arr);
     } else {
+        window.__adminExtract = { list: arr };
         title.innerHTML = '📋 Detail Catatan — ' + escapeHTML(label);
         sub.textContent = arr.length + ' catatan ditemukan, diurutkan dari yang terbaru.';
         chartWrap.style.display = 'none';
@@ -6919,6 +6920,62 @@ window.showAdminDetail = function(uid, mode) {
     }
 
     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+window.adminExtractData = async function() {
+    const ex = window.__adminExtract;
+    if (!ex || !ex.list || !ex.list.length) return Swal.fire({ icon: 'info', title: 'Tidak Ada Data', text: 'Buka Detail/Mingguan/Bulanan/Tahunan/Riwayat user dulu.', background: 'var(--card)', color: 'var(--text)' });
+    const list = ex.list;
+    const cats = [...new Set(list.map(t => t.category || '-'))].sort();
+    const tl = { income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer', debt: 'Hutang', recv: 'Piutang' };
+    const sub = (document.getElementById('admin-detail-title') || {}).textContent || '';
+    const r = await Swal.fire({
+        title: '📋 Salin / Ekstrak Data', width: 520, background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'SALIN', cancelButtonText: 'Batal', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', focusConfirm: false,
+        html: '<div style="text-align:left; font-size:11px; color:var(--text3); margin-bottom:8px;">' + list.length + ' catatan pada tampilan saat ini. Pilih kategori (kosong = semua).</div>' +
+            '<div style="max-height:170px; overflow-y:auto; text-align:left; border:1px solid var(--border); border-radius:12px; padding:8px; margin-bottom:10px;">' +
+            cats.map(c => '<label style="display:flex; align-items:center; gap:8px; padding:4px 2px; font-size:12px; color:var(--text);"><input type="checkbox" class="ax-cat" value="' + escapeHTML(c) + '"> ' + escapeHTML(c) + ' <span style="color:var(--text3); font-size:10px;">(' + list.filter(t => (t.category || '-') === c).length + ')</span></label>').join('') + '</div>' +
+            '<select id="ax-type" class="swal2-input" style="margin:0 0 10px; width:100%;"><option value="">Semua Jenis</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option><option value="transfer">Transfer</option><option value="debt">Hutang</option><option value="recv">Piutang</option></select>' +
+            '<select id="ax-fmt" class="swal2-input" style="margin:0 0 10px; width:100%;"><option value="txt">Format Teks (untuk AI)</option><option value="csv">Format CSV</option></select>' +
+            '<textarea id="ax-cmd" class="swal2-textarea" style="margin:0; width:100%;" placeholder="Perintah dari user (opsional) — ditulis di awal sebagai instruksi untuk AI lain"></textarea>',
+        preConfirm: () => ({ cats: [...document.querySelectorAll('.ax-cat:checked')].map(x => x.value), type: document.getElementById('ax-type').value, fmt: document.getElementById('ax-fmt').value, cmd: document.getElementById('ax-cmd').value.trim() })
+    });
+    if (!r.isConfirmed) return;
+    const v = r.value;
+    const out = list.filter(t => (!v.cats.length || v.cats.includes(t.category || '-')) && (!v.type || t.type === v.type));
+    if (!out.length) return Swal.fire({ icon: 'info', title: 'Tidak Ada Hasil', text: 'Tidak ada catatan sesuai pilihan.', background: 'var(--card)', color: 'var(--text)' });
+    const tot = out.reduce((a, t) => a + (Number(t.amount) || 0), 0);
+    const d = t => new Date(t.date).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    let text = '';
+    if (v.fmt === 'csv') {
+        const q = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+        text = 'Tanggal,Jenis,Kategori,Dompet,Nominal,Keterangan\n' + out.map(t => [d(t), tl[t.type] || t.type, t.category || '', t.wallet || '', t.amount, t.note || ''].map(q).join(',')).join('\n');
+    } else {
+        const clean = sub.replace(/\([^)]*@[^)]*\)/g, '').replace(/[^\p{L}\p{N}\s\-—.,()\/]/gu, '').replace(/\s+/g, ' ').trim();
+        const mixed = new Set(out.map(t => t.type)).size > 1;
+        const byCat = {};
+        out.forEach(t => { const c = t.category || '-'; byCat[c] = (byCat[c] || 0) + (Number(t.amount) || 0); });
+        const L = [];
+        if (v.cmd) { L.push('*PERINTAH USER:*', v.cmd, '', 'Tugas: olah/pilih transaksi di bawah sesuai perintah user di atas.', '', '━━━━━━━━━━━━━━'); }
+        L.push('*DATA TRANSAKSI*', 'Periode : ' + clean);
+        if (v.cats.length) L.push('Kategori: ' + v.cats.join(', '));
+        if (v.type) L.push('Jenis   : ' + (tl[v.type] || v.type));
+        L.push('Jumlah  : ' + out.length + ' catatan', 'Total   : ' + fmtFull(tot), '━━━━━━━━━━━━━━', '');
+        out.forEach((t, k) => {
+            L.push((k + 1) + '. ' + d(t) + ' — *' + fmtFull(t.amount) + '*');
+            L.push('    ' + (mixed ? (tl[t.type] || t.type) + ' • ' : '') + (t.category || '-') + ' • ' + (t.wallet || '-') + (t.note ? ' • ' + t.note : ''));
+        });
+        L.push('', '━━━━━━━━━━━━━━', '*RINGKASAN PER KATEGORI*');
+        Object.keys(byCat).forEach(c => L.push('• ' + c + ': ' + fmtFull(byCat[c])));
+        L.push('*TOTAL: ' + fmtFull(tot) + '*');
+        text = L.join('\n');
+    }
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch (e2) {} document.body.removeChild(ta);
+    }
+    Swal.fire({ icon: ok ? 'success' : 'warning', title: ok ? out.length + ' Catatan Disalin!' : 'Salin Manual', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
+        html: ok ? 'Tinggal tempel (paste) ke AI lain.' : '<textarea readonly style="width:100%;height:200px;font-size:11px;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px;">' + escapeHTML(text) + '</textarea>' });
 };
 
 window.closeAdminDetail = function() {
@@ -9551,7 +9608,7 @@ function aiCloseSession(){
   }, 1000);
 }
 function aiTyping(){ return 'CS sedang mengetik<span class="ai-dots"></span>'; }
-function aiTypeMs(t){ return Math.max(1200, Math.min(5000, 700 + String(t).length * 35)); }
+function aiTypeMs(t){ return Math.max(500, Math.min(1800, 300 + String(t).length * 10)); }
 function aiAdd(role, text){
   const box = document.getElementById('ai-msgs'); if(!box) return null;
   const d = document.createElement('div'); d.className = 'ai-m ' + (role==='user'?'u':'b'); d.innerHTML = aiFmt(text);
@@ -9584,7 +9641,7 @@ async function aiContext(){
   const uid = currentUser && currentUser.uid;
   const N = n => Math.round(Number(n) || 0);
   const D = d => String(d || '').slice(0, 10);
-  const row = t => D(t.date) + '|' + t.type + '|' + N(t.amount) + '|' + (t.category || '-') + '|' + (t.wallet || '-') + (t.walletTo ? '>' + t.walletTo : '') + '|' + String(t.note || '-').replace(/[\r\n|]+/g, ' ').slice(0, 80) + (t.isPaid ? '|lunas' : '') + (t.isKoreksi ? '|koreksi' : '');
+  const row = t => D(t.date) + '|' + t.type + '|' + N(t.amount) + '|' + (t.category || '-') + '|' + (t.wallet || '-') + (t.walletTo ? '>' + t.walletTo : '') + '|' + String(t.note || '-').replace(/[\r\n|]+/g, ' ').slice(0, 1200) + (t.isPaid ? '|lunas' : '') + (t.isKoreksi ? '|koreksi' : '');
   const byDate = (a, b) => new Date(b.date) - new Date(a.date);
   const all = (txs || []).filter(t => !t.isDeleted);
   let extra = { arch: [], rec: [], archErr: null, recErr: null };
@@ -9609,22 +9666,33 @@ async function aiContext(){
   c += 'TOTAL SELURUH CATATAN: pemasukan ' + N(totInc) + ', pengeluaran ' + N(totExp) + ', jumlah transaksi aktif ' + all.length + '\n';
   c += 'KATEGORI PENGELUARAN TERBESAR (seluruh catatan): ' + Object.entries(catAll).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([k, v]) => k + ' ' + N(v)).join(', ') + '\n';
   c += 'RINGKASAN PER BULAN (pemasukan/pengeluaran/kategori teratas):\n';
-  Object.keys(byMonth).sort().slice(-36).forEach(k => {
+  Object.keys(byMonth).sort().forEach(k => {
     const m = byMonth[k];
     c += '- ' + k + ': in ' + N(m.inc) + ', out ' + N(m.exp) + ', net ' + N(m.inc - m.exp) + '; ' + Object.entries(m.cats).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k2, v]) => k2 + ' ' + N(v)).join(', ') + '\n';
   });
   const bud = window.userBudgets || {};
   if (Object.keys(bud).length) { const cur = (byMonth[ym] || { cats: {} }).cats; c += 'BUDGET BULAN INI (terpakai/batas): ' + Object.entries(bud).map(([k, v]) => k + ' ' + N(cur[k] || 0) + '/' + N(v)).join(', ') + '\n'; }
-  try { if (window.savingsGoals && window.savingsGoals.length) c += 'TARGET TABUNGAN: ' + JSON.stringify(window.savingsGoals).slice(0, 1500) + '\n'; } catch (e) {}
-  if (extra.rec && extra.rec.length) c += 'TRANSAKSI BERULANG: ' + JSON.stringify(extra.rec.map(r => ({ type: r.type, amount: r.amount, category: r.category, wallet: r.wallet, note: r.note, freq: r.freq || r.recurring || r.interval, next: r.nextDate || r.next }))).slice(0, 1500) + '\n';
+  try { if (window.savingsGoals && window.savingsGoals.length) c += 'TARGET TABUNGAN: ' + JSON.stringify(window.savingsGoals).slice(0, 80000) + '\n'; } catch (e) {}
+  if (extra.rec && extra.rec.length) c += 'TRANSAKSI BERULANG: ' + JSON.stringify(extra.rec.map(r => ({ type: r.type, amount: r.amount, category: r.category, wallet: r.wallet, note: r.note, freq: r.freq || r.recurring || r.interval, next: r.nextDate || r.next }))).slice(0, 80000) + '\n';
   const open = all.filter(t => (t.type === 'debt' || t.type === 'recv') && !t.isPaid && !t.isKoreksi).sort(byDate);
-  c += 'HUTANG/PIUTANG BELUM LUNAS (' + open.length + '):\n' + (open.slice(0, 40).map(row).join('\n') || '(tidak ada)') + '\n';
+  c += 'HUTANG/PIUTANG BELUM LUNAS (' + open.length + '):\n' + (open.map(row).join('\n') || '(tidak ada)') + '\n';
   const recent = all.slice().sort(byDate);
-  c += 'TRANSAKSI AKTIF (' + recent.length + ' total, ditampilkan ' + Math.min(250, recent.length) + ' terbaru; yang lebih lama sudah masuk ringkasan per bulan):\n' + recent.slice(0, 250).map(row).join('\n') + '\n';
+  c += 'TRANSAKSI AKTIF (' + recent.length + ' total, semuanya ditampilkan, urut terbaru ke terlama):\n' + recent.map(row).join('\n') + '\n';
+  try {
+    const bk = {}; const nz = x => String(x || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    all.filter(t => (t.type === 'income' || t.type === 'expense') && !t.isKoreksi).forEach(t => {
+      const k = t.type + '|' + nz(t.note); const r = (bk[k] = bk[k] || { type: t.type, note: String(t.note || '-').replace(/[\r\n|]+/g, ' '), n: 0, tot: 0, cats: {} });
+      r.n++; r.tot += Number(t.amount) || 0; const ct = t.category || '-'; r.cats[ct] = (r.cats[ct] || 0) + 1;
+    });
+    const bl = Object.values(bk).sort((a, b) => b.n - a.n);
+    c += 'BUKU KATEGORI (daftar semua keterangan unik beserta kategorinya, ' + bl.length + ' keterangan; format: jenis|keterangan|jumlah catatan|total Rp|kategori(xjumlah)):\n' + (bl.map(r => r.type + '|' + r.note + '|' + r.n + '|' + N(r.tot) + '|' + Object.entries(r.cats).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + (v > 1 ? 'x' + v : '')).join(' / ')).join('\n') || '(kosong)') + '\n';
+    const ck = window.userCats || window.defaultCATS || {};
+    c += 'DAFTAR KATEGORI TERSEDIA: ' + Object.keys(ck).map(k => k + ': ' + (ck[k] || []).join(', ')).join(' || ') + '\n';
+  } catch (e) {}
   const trash = (deletedTxs || []).slice().sort(byDate);
-  c += 'SAMPAH / DATA YANG SUDAH DIHAPUS milik klien (' + trash.length + ', masih bisa dipulihkan klien sendiri):\n' + (trash.slice(0, 100).map(row).join('\n') || '(kosong)') + '\n';
+  c += 'SAMPAH / DATA YANG SUDAH DIHAPUS milik klien (' + trash.length + ', masih bisa dipulihkan klien sendiri):\n' + (trash.map(row).join('\n') || '(kosong)') + '\n';
   if (extra.archErr) c += 'ARSIP ADMIN (data terhapus permanen milik klien): TIDAK BISA DIAKSES dari akun ini (kode ' + extra.archErr + '). Arahkan klien menghubungi admin lewat WhatsApp untuk arsip.\n';
-  else { const ar = extra.arch.slice().sort(byDate); c += 'ARSIP ADMIN (data terhapus permanen milik klien, hanya admin yang bisa memulihkan) (' + ar.length + '):\n' + (ar.slice(0, 100).map(row).join('\n') || '(kosong)') + '\n'; }
+  else { const ar = extra.arch.slice().sort(byDate); c += 'ARSIP ADMIN (data terhapus permanen milik klien, hanya admin yang bisa memulihkan) (' + ar.length + '):\n' + (ar.map(row).join('\n') || '(kosong)') + '\n'; }
   return c;
 }
 function aiWaCompose(summary){
@@ -10079,8 +10147,8 @@ window.aiSend = async function(){
       const res = await aiRecategorize((a, b) => { if (alive()) w.innerHTML = 'Lagi menyesuaikan kategori (' + a + '/' + b + ')<span class="ai-dots"></span>'; });
       if (!alive()) return;
       w.classList.remove('t');
-      const lines = res.changes.slice(0, 20).map(c => D8(c.t.date) + ' - ' + (c.t.note || '-') + ' - ' + c.from + ' → ' + c.to).join('\n');
-      w.innerHTML = aiFmt(res.changes.length ? ('Beres kak, **' + res.changes.length + '** dari ' + res.total + ' catatan sudah disesuaikan kategorinya dengan keterangan.\n\n' + lines + (res.changes.length > 20 ? '\n...dan ' + (res.changes.length - 20) + ' lainnya.' : '') + (res.failed ? '\n\n' + res.failed + ' catatan gagal disimpan, coba ulangi perintahnya.' : '') + (res.uncertain ? '\n\n' + res.uncertain + ' transaksi tidak dipaksa diubah karena keterangannya belum cukup jelas (daripada salah kategori). Contoh: ' + (res.uncNotes || []).join(', ') : '')) : ('Sudah cek ' + res.total + ' catatan kak, semua kategori sudah sesuai dengan keterangan.' + (res.uncertain ? ' ' + res.uncertain + ' catatan belum cukup jelas, tidak dipaksa diubah. Buka Buku Kategori untuk memilihnya langsung.' : '')));
+      const lines = res.changes.map(c => D8(c.t.date) + ' - ' + (c.t.note || '-') + ' - ' + c.from + ' → ' + c.to).join('\n');
+      w.innerHTML = aiFmt(res.changes.length ? ('Beres kak, **' + res.changes.length + '** dari ' + res.total + ' catatan sudah disesuaikan kategorinya dengan keterangan.\n\n' + lines + '' + (res.failed ? '\n\n' + res.failed + ' catatan gagal disimpan, coba ulangi perintahnya.' : '') + (res.uncertain ? '\n\n' + res.uncertain + ' transaksi tidak dipaksa diubah karena keterangannya belum cukup jelas (daripada salah kategori). Contoh: ' + (res.uncNotes || []).join(', ') : '')) : ('Sudah cek ' + res.total + ' catatan kak, semua kategori sudah sesuai dengan keterangan.' + (res.uncertain ? ' ' + res.uncertain + ' catatan belum cukup jelas, tidak dipaksa diubah. Buka Buku Kategori untuk memilihnya langsung.' : '')));
       if (res.book && res.book.length) { const bb = document.createElement('button'); bb.textContent = '📖 Buka Buku Kategori (' + res.book.length + ' keterangan, ' + res.allTx.length + ' catatan)'; bb.style.cssText = 'display:block;margin-top:10px;background:#fbbf24;color:#000;border:0;border-radius:8px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer'; bb.onclick = () => aiOpenBook(res); w.appendChild(bb); }
     } catch (e) { if (alive()) { w.classList.remove('t'); w.innerHTML = aiFmt('Maaf kak, gagal menyesuaikan kategori: ' + (e.message || e)); } }
     function D8(d){ return String(d || '').slice(0, 10); }
@@ -10096,8 +10164,8 @@ window.aiSend = async function(){
         wait = aiAdd('bot', ''); wait.classList.add('t'); wait.innerHTML = aiTyping(); tTyping = Date.now();
         const bx = document.getElementById('ai-msgs'); if (bx) bx.scrollTop = bx.scrollHeight;
         res();
-      }, 700 + Math.random() * 800);
-    }, 1800 + Math.random() * 1700);
+      }, 250 + Math.random() * 350);
+    }, 500 + Math.random() * 600);
   });
   const name = (currentUser && (currentUser.displayName || (currentUser.email||'').split('@')[0])) || 'User';
   const ctxStr = await aiContext();
@@ -10105,7 +10173,9 @@ window.aiSend = async function(){
 
 GAYA BICARA: seperti CS manusia yang sedang chat WhatsApp. Panggil klien "kak" diikuti namanya (contoh "kak ${name}"), pakai "aku" untuk diri sendiri. Bahasa santai, hangat, sopan, tidak kaku, tidak lebay. Pakai kata alami seperti "oke kak", "siap", "wah", "hmm", "nah", "jujur ya kak", "tenang aja". Tunjukkan empati dulu kalau klien lagi stres soal uang atau hutang, baru kasih solusi. Fokus menyelesaikan masalah klien dengan solusi jelas, konkret, dan langsung bisa dijalankan. Jangan mengakhiri jawaban dengan pertanyaan atau ajakan ngobrol lagi, jangan memakai kata "btw", dan jangan sering bertanya balik; bertanya hanya kalau benar-benar butuh info yang tidak ada di data, cukup satu kali, dan tetap beri jawaban sementara yang berguna. Akhiri dengan pernyataan atau saran, bukan pertanyaan.
 
-FORMAT: tulis seperti chat biasa, kalimat pendek, paragraf pendek 1 sampai 3 kalimat dipisah satu baris kosong (tiap paragraf tampil sebagai bubble terpisah). Jangan pakai bullet, nomor daftar, heading, tabel, atau kalimat template seperti "Berikut analisis", "Kesimpulan:", "Semoga membantu". Kalau perlu beberapa langkah, ceritakan dengan kalimat biasa. Boleh menebalkan satu atau dua angka terpenting dengan **angka**. KECUALI saat klien meminta daftar data (transaksi, sampah, arsip, hutang): tulis satu item per baris dengan format "tanggal - jenis - nominal - catatan", tampilkan maksimal 20 item terbaru dulu dan sebut total jumlahnya, lalu tawarkan sisanya hanya jika diminta. Pertanyaan sederhana cukup 1 sampai 3 kalimat. Pertanyaan yang butuh analisis atau rencana dijawab lebih lengkap tapi maksimal sekitar 6 paragraf. Selesaikan jawaban sampai tuntas.
+FORMAT: tulis seperti chat biasa, kalimat pendek, paragraf pendek 1 sampai 3 kalimat dipisah satu baris kosong (tiap paragraf tampil sebagai bubble terpisah). Jangan pakai bullet, nomor daftar, heading, tabel, atau kalimat template seperti "Berikut analisis", "Kesimpulan:", "Semoga membantu". Kalau perlu beberapa langkah, ceritakan dengan kalimat biasa. Boleh menebalkan satu atau dua angka terpenting dengan **angka**. KECUALI saat klien meminta daftar data (transaksi, sampah, arsip, hutang, buku kategori): tulis satu item per baris dengan format "tanggal - jenis - nominal - catatan" dan tampilkan SEMUA item yang diminta tanpa dipotong, tanpa batas jumlah baris, tanpa merangkum, tanpa menyuruh klien minta sisanya; sebut total jumlahnya di awal. TIDAK ADA batas panjang jawaban: kalau perlu panjang atau data banyak, tulis selengkapnya sampai habis. Pertanyaan sederhana cukup 1 sampai 3 kalimat, pertanyaan yang butuh analisis, rencana, atau data banyak dijawab selengkap yang dibutuhkan. Percakapan mengalir natural dan nyambung dengan obrolan sebelumnya, ikuti arah pembicaraan klien, jangan kaku atau mengulang hal yang sudah dibahas. Selesaikan jawaban sampai tuntas.
+
+BUKU KATEGORI: kamu punya akses penuh ke BUKU KATEGORI klien di bagian data (semua keterangan unik, kategorinya, jumlah catatan, total) beserta daftar kategori yang tersedia. Gunakan untuk menjawab soal kategori, menunjukkan isi buku, mencari keterangan, menemukan kategori yang janggal atau tidak konsisten, dan memberi saran kategori. Kamu tidak bisa mengubah kategori langsung dari jawaban; kalau klien ingin melihat atau mengedit bukunya, tulis penanda [[BUKU]] di baris paling akhir jawaban (otomatis jadi tombol buka Buku Kategori), dan kalau klien minta merapikan kategori otomatis, suruh dia ketik "sesuaikan kategori".
 
 DATA YANG KAMU PEGANG: di bagian DATA KEUANGAN KLIEN di bawah ada seluruh data milik klien yang sedang login: saldo dompet, transaksi aktif, ringkasan per bulan, hutang piutang, budget, target tabungan, transaksi berulang, SAMPAH (data yang dia hapus), dan ARSIP ADMIN (data yang sudah dihapus permanen dan diarsipkan). Gunakan semuanya untuk menjawab, termasuk kalau klien menanyakan atau meminta data yang sudah dihapus atau arsip: tampilkan isinya dari bagian itu. Data sampah bisa dipulihkan klien sendiri lewat menu Pengaturan lalu Tempat Sampah dan Recovery. Data arsip permanen hanya bisa dipulihkan oleh admin, jadi arahkan klien ke admin lewat tombol WhatsApp. Semua angka harus diambil dari data atau dihitung benar dari data; jangan mengarang angka, transaksi, atau fakta yang tidak ada. Kalau data tidak ada atau tidak cukup, bilang apa adanya. Kalau klien menyebut info baru di chat (misal hutang yang belum tercatat), pakai info itu bersama data yang ada. Saran harus realistis sesuai kondisi sebenarnya, jujur walau kurang enak didengar tapi tetap suportif; untuk investasi sebut risikonya secara wajar. Pertanyaan keuangan umum jawab dari pengetahuan yang akurat.
 
@@ -10127,20 +10197,20 @@ DATA KEUANGAN KLIEN:
 ${ctxStr}`;
   aiHistory.push({role:'user', parts:[{text:q}]});
   try {
-    let r, j, lastErr = 'unknown';
-    for (let attempt = 0; attempt < 4; attempt++) {
+    let r, j, lastErr = 'unknown'; let __maxTok = window.__aiMaxTok || 262144;
+    for (let attempt = 0; attempt < 6; attempt++) {
       try {
-        const ctl = new AbortController(); const tmo = setTimeout(() => ctl.abort(), 25000);
+        const ctl = new AbortController(); const tmo = setTimeout(() => ctl.abort(), 720000);
         try {
           r = await fetch(AI_WORKER_URL, {
             method:'POST', headers:{'Content-Type':'application/json'}, signal: ctl.signal,
-            body: JSON.stringify({ systemInstruction:{parts:[{text:sys}]}, contents: aiHistory.slice(-16), generationConfig:{temperature:0.8, maxOutputTokens:4096} })
+            body: JSON.stringify({ systemInstruction:{parts:[{text:sys}]}, contents: aiHistory.slice(-320), generationConfig:{temperature:0.8, maxOutputTokens:__maxTok} })
           });
           j = await r.json();
         } finally { clearTimeout(tmo); }
         if (!alive()) return;
         if (r.ok && j.candidates && j.candidates[0] && j.candidates[0].content && (j.candidates[0].content.parts || []).some(p => p && p.text && p.text.trim())) { lastErr = null; break; }
-        lastErr = (j.error && j.error.message) || ('HTTP ' + r.status);
+        lastErr = (j.error && j.error.message) || ('HTTP ' + r.status); if (r.status === 400 && __maxTok > 8192) { __maxTok = __maxTok > 65536 ? 65536 : 8192; window.__aiMaxTok = __maxTok; }
       } catch (netErr) { lastErr = netErr.message; }
       await new Promise(res => setTimeout(res, 1200 * (attempt + 1)));
     }
@@ -10153,7 +10223,8 @@ ${ctxStr}`;
     const waM = txt.match(/\[\[WA(?::([\s\S]*?))?\]\]/);
     const wantWA = !doneChat && !!waM;
     const waSummary = waM && waM[1] ? waM[1].trim() : '';
-    const clean = txt.replace(/\[\[WA(?::[\s\S]*?)?\]\]/g, '').replace(/\[\[SELESAI\]\]/g, '').trim();
+    const wantBook = /\[\[BUKU\]\]/.test(txt);
+    const clean = txt.replace(/\[\[BUKU\]\]/g, '').replace(/\[\[WA(?::[\s\S]*?)?\]\]/g, '').replace(/\[\[SELESAI\]\]/g, '').trim();
     const parts = clean.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
     if (!parts.length) parts.push(clean || txt);
     await typingReady;
@@ -10170,6 +10241,7 @@ ${ctxStr}`;
       typing.classList.remove('t'); typing.innerHTML = aiFmt(parts[pi]); sc();
     }
     if (doneChat) aiCloseSession();
+    if (wantBook) { const bw = aiAdd('bot', ''); const bb = document.createElement('button'); bb.textContent = '📖 Buka Buku Kategori'; bb.style.cssText = 'background:#fbbf24;color:#000;border:0;border-radius:8px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer'; bb.onclick = () => window.openBukuKategori(); bw.appendChild(bb); sc(); }
     if (wantWA) { aiWaBubble(waSummary); }
   } catch(e){
     if (!alive()) return;
@@ -10639,6 +10711,7 @@ function applyAdminChartFilterList(scopeId, arr, rerenderFn) {
 
     const f = window.__chartFilters[scopeId];
     const sorted = (f ? arr.filter(f.predicate) : arr).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+    window.__adminExtract = { list: sorted };
     const badge = f ? '<div class="chart-filter-badge"><span>🔎 ' + escapeHTML(f.label) + '</span><button type="button" class="chart-filter-clear">✕ Tampilkan Semua</button></div>' : '';
 
     if (!sorted.length) {
