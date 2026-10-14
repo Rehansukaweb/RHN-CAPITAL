@@ -1040,6 +1040,19 @@ body.global-privacy #xau-idr-gr {
   10% { opacity: 1; }
   100% { width: 150px; opacity: 0; }
 }
+
+/* FIX ADMIN: kartu ringkasan Mingguan/Bulanan/Tahunan/Riwayat */
+#admin-detail-sum { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+#admin-detail-sum .m-card { min-width: 0; }
+#admin-detail-sum .m-val { word-break: break-word; }
+@media (max-width: 768px) {
+  #admin-detail-sum { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; padding: 0 !important; }
+  #admin-detail-sum > .m-card:nth-child(3) { grid-column: 1 / -1 !important; }
+  #admin-detail-section { padding-left: 14px !important; padding-right: 14px !important; overflow: hidden; }
+  #admin-detail-section .card-head { padding-right: 0 !important; padding-top: 34px; }
+  #admin-detail-section .card-head > button { top: 0 !important; right: 0 !important; }
+  #admin-detail-section .card-title { font-size: 14px; word-break: break-word; }
+}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1709,7 +1722,7 @@ body.global-privacy #xau-idr-gr {
         <div class="period-bar" id="admin-month-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-week-sel" style="display:none;"></div>
         <div class="period-bar" id="admin-riwayat-year-sel" style="display:none;"></div>
-        <div class="sum-grid" id="admin-detail-sum" style="display:none; grid-template-columns:repeat(3,1fr); margin-bottom:16px;"></div>
+        <div class="sum-grid" id="admin-detail-sum" style="display:none; margin-bottom:16px;"></div>
         <div class="chart-legend" id="admin-detail-chart-legend"></div>
         <div style="height:250px; margin-bottom:8px;"><canvas id="admin-user-chart"></canvas></div>
       </div>
