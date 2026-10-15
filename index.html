@@ -1590,8 +1590,8 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <div class="cat-pie" id="week-pie"></div>
       <div class="export-row">
-        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL📊</button>
       </div>
     </div>
     <div class="chart-wrap">
@@ -1615,8 +1615,8 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <div class="cat-pie" id="month-pie"></div>
       <div class="export-row">
-        <button class="export-btn" onclick="exportPDF()">UNDUH PDF BULANAN 📄</button>
-        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL BULANAN 📊</button>
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL📊</button>
       </div>
     </div>
     <div class="chart-wrap">
@@ -1645,8 +1645,8 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <div class="cat-pie" id="year-pie"></div>
       <div class="export-row">
-        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL📊</button>
       </div>
     </div>
     <div class="chart-wrap">
@@ -1672,8 +1672,8 @@ body.global-privacy #xau-idr-gr {
       </select>
       <input type="text" id="flt-search" class="f-input-dark" placeholder="Cari berdasarkan keterangan atau kategori..." oninput="debouncedRenderAll()">
       <div class="export-row">
-        <button class="export-btn" onclick="exportPDF()">UNDUH PDF MINGGUAN 📄</button>
-        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL MINGGUAN 📊</button>
+        <button class="export-btn" onclick="exportPDF()">UNDUH PDF📄</button>
+        <button class="export-btn" onclick="exportExcel()" style="background:var(--green2); color:#fff;">UNDUH EXCEL📊</button>
       </div>
       <button class="export-btn" onclick="window.promptTransferAll()" style="background:var(--blue); color:#fff; margin-left:8px;">TRANSFER SEMUA 🚀</button>
       
