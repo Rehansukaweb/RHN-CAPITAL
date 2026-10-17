@@ -957,6 +957,14 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 .t-btn.debt.active { background: var(--bg2); color: var(--gold); border: 1px solid var(--gold); }
 .t-btn.recv.active { background: var(--bg2); color: var(--blue); border: 1px solid var(--blue); }
 .t-btn.transfer.active { background: var(--bg2); color: var(--text); border: 1px solid var(--text); }
+/* TOMBOL JENIS CATATAN — grid rapi, tidak keluar card */
+.type-toggle { display: grid !important; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 6px; border-radius: 20px; background: var(--bg3); border: 1px solid var(--border2); box-sizing: border-box; max-width: 100%; overflow: hidden; }
+.type-toggle .t-btn { grid-column: span 2; flex: none; min-width: 0; width: 100%; box-sizing: border-box; padding: 12px 6px; border-radius: 14px; border: 1px solid transparent; font-size: 12px; white-space: nowrap; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.type-toggle .t-btn.debt, .type-toggle .t-btn.recv { grid-column: span 3; }
+.type-toggle .t-btn.income.active { border-color: var(--green2); }
+.type-toggle .t-btn.expense.active { border-color: var(--text3); }
+@media (max-width: 768px) { .type-toggle { width: calc(100% - 32px) !important; margin-left: 16px !important; margin-right: 16px !important; } .type-toggle .t-btn { font-size: 11.5px; padding: 12px 4px; } }
+
 .ri-icon.debt { color: var(--gold); background: rgba(251, 191, 36, 0.15); }
 .ri-icon.recv { color: var(--blue); background: rgba(59, 130, 246, 0.15); }
 .ri-icon.transfer { color: var(--text); background: var(--bg3); }
@@ -1482,12 +1490,12 @@ body.global-privacy #xau-idr-gr {
         <div class="card-title">Tambah Catatan</div>
         <div class="card-sub">Catat pemasukan atau pengeluaran baru</div>
       </div>
-      <div class="type-toggle" style="flex-wrap: wrap; gap: 8px;">
-        <button class="t-btn income active" id="btn-inc" onclick="selType('income')" style="flex-basis: 31%;">+ Pemasukan</button>
-        <button class="t-btn expense" id="btn-exp" onclick="selType('expense')" style="flex-basis: 31%;"> - Pengeluaran</button>
-        <button class="t-btn transfer" id="btn-transfer" onclick="selType('transfer')" style="flex-basis: 31%;">🔄 Transfer</button>
-        <button class="t-btn debt" id="btn-debt" onclick="selType('debt')" style="flex-basis: 48%;">💳 Hutang</button>
-        <button class="t-btn recv" id="btn-recv" onclick="selType('recv')" style="flex-basis: 48%;">💸 Piutang</button>
+      <div class="type-toggle">
+        <button class="t-btn income active" id="btn-inc" onclick="selType('income')">+ Pemasukan</button>
+        <button class="t-btn expense" id="btn-exp" onclick="selType('expense')">− Pengeluaran</button>
+        <button class="t-btn transfer" id="btn-transfer" onclick="selType('transfer')">🔄 Transfer</button>
+        <button class="t-btn debt" id="btn-debt" onclick="selType('debt')">💳 Hutang</button>
+        <button class="t-btn recv" id="btn-recv" onclick="selType('recv')">💸 Piutang</button>
       </div>
       
       <div class="form-row">
