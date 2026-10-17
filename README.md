@@ -2439,7 +2439,10 @@ body.global-privacy #xau-idr-gr {
 /* Isolasi sesi: tab browser (website) TIDAK berbagi login dengan app terinstal (standalone) */
 (function(){
   try {
-    var isApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    var __ua = navigator.userAgent || '';
+    var isWebView = /\bwv\b/.test(__ua) || (/Android/i.test(__ua) && /Version\/[\d.]+/.test(__ua) && /Chrome\//.test(__ua)) || (/(iPhone|iPad|iPod)/i.test(__ua) && !/Safari/i.test(__ua));
+    window.__IS_WEBVIEW = isWebView;
+    var isApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true || isWebView;
     window.__IS_APP_MODE = isApp;
     if (!isApp) {
       var keys = ['last_uid_rhn','local_pin_rhn'];
@@ -2539,7 +2542,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/fireba
 import { 
   getAuth, initializeAuth, browserSessionPersistence, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
   signOut, onAuthStateChanged, sendPasswordResetEmail, 
-  GoogleAuthProvider, signInWithPopup, updateProfile, 
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, updateProfile, 
   deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider 
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
@@ -5405,6 +5408,9 @@ function withTimeout(promise, ms, timeoutMsg) {
 
 window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.querySelector('#auth-screen .auth-box').classList.toggle('mode-register', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('auth-divider').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
 
+// Lanjutkan login Google setelah kembali dari halaman redirect (WebView / popup diblokir)
+try { getRedirectResult(auth).catch(function(e){ try { if (e && e.code && e.code !== 'auth/no-auth-event') showErr(e.message || 'Login Google gagal.'); } catch(_){} }); } catch(_){}
+
 window.doGoogleAuth = async function() {
     const provider = new GoogleAuthProvider();
     hideErr();
@@ -5413,7 +5419,14 @@ window.doGoogleAuth = async function() {
     btn.disabled = true;
     btn.innerHTML = 'Memproses...';
     try {
-        await withTimeout(signInWithPopup(auth, provider), 3000, 'Login Google terlalu lama / macet. Coba lagi ya.');
+        provider.setCustomParameters({ prompt: 'select_account' });
+        if (window.__IS_WEBVIEW) { await signInWithRedirect(auth, provider); return; }
+        try {
+            await withTimeout(signInWithPopup(auth, provider), 3000, 'Login Google terlalu lama / macet. Coba lagi ya.');
+        } catch (pe) {
+            if (pe && (pe.code === 'auth/popup-blocked' || pe.code === 'auth/operation-not-supported-in-this-environment' || /terlalu lama/.test(pe.message || ''))) { await signInWithRedirect(auth, provider); return; }
+            throw pe;
+        }
         // onAuthStateChanged akan lanjut ambil alih & sembunyikan layar auth.
     } catch(e) {
         let msg = e.message || 'Gagal login dengan Google.';
@@ -11684,7 +11697,8 @@ window.exportPDF = function() {
         docPdf.text('Halaman ' + p + ' / ' + totalPages, pageWidth - marginR, pageHeight - 12, { align: 'right' });
     }
 
-    docPdf.save('RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
+    const __pdfName = 'RHN_Capital_Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf';
+    try { window.saveOrShareFile(docPdf.output('blob'), __pdfName, 'application/pdf'); } catch (e) { docPdf.save(__pdfName); }
 };
 
 
@@ -11708,6 +11722,13 @@ function ensureExcelJSLoaded() {
 // jadi utamakan Web Share API (biar bisa langsung Simpan/Buka di Excel),
 // lalu jatuh ke metode unduh biasa sebagai cadangan.
 window.saveOrShareFile = async function(blob, filename, mimeType) {
+    const inWV = !!window.__IS_WEBVIEW;
+    const blobUrl = URL.createObjectURL(blob);
+    const manualDialog = function() {
+        try {
+            Swal.fire({ icon: 'info', title: 'Unduhan Siap', html: 'Jika file belum tersimpan otomatis, ketuk tombol di bawah.<br><br><a href="' + blobUrl + '" download="' + filename + '" target="_blank" rel="noopener" style="display:inline-block;background:var(--gold);color:#000;font-weight:800;padding:12px 22px;border-radius:999px;text-decoration:none;">⬇ UNDUH ' + filename.split('.').pop().toUpperCase() + '</a>', showConfirmButton: true, confirmButtonText: 'Tutup', background: 'var(--card)', color: 'var(--text)' });
+        } catch (e) {}
+    };
     try {
         if (navigator.canShare && navigator.share) {
             const file = new File([blob], filename, { type: mimeType });
@@ -11716,19 +11737,29 @@ window.saveOrShareFile = async function(blob, filename, mimeType) {
                 return true;
             }
         }
-    } catch (e) { /* lanjut ke cara unduh biasa di bawah */ }
+    } catch (e) { if (e && e.name === 'AbortError') return true; }
     try {
         if (window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, filename); return true; }
-        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = url; link.download = filename; link.style.display = 'none';
+        link.href = blobUrl; link.download = filename; link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        // Cadangan WebView: coba lagi pakai data URI (beberapa WebView menolak blob:)
+        if (inWV) {
+            try {
+                const dataUrl = await new Promise(function(res, rej) { const r = new FileReader(); r.onload = function() { res(r.result); }; r.onerror = rej; r.readAsDataURL(new Blob([blob], { type: mimeType || 'application/octet-stream' })); });
+                const l2 = document.createElement('a');
+                l2.href = dataUrl; l2.download = filename; l2.style.display = 'none';
+                document.body.appendChild(l2); l2.click(); document.body.removeChild(l2);
+            } catch (e4) {}
+            manualDialog();
+        }
+        setTimeout(() => URL.revokeObjectURL(blobUrl), inWV ? 120000 : 4000);
         return true;
     } catch (e2) {
-        try { window.open(URL.createObjectURL(blob), '_blank'); } catch (e3) {}
+        try { window.open(blobUrl, '_blank'); } catch (e3) {}
+        manualDialog();
         return false;
     }
 };
@@ -12065,11 +12096,7 @@ window.downloadBackupFile = function() {
         savingsGoals: window.savingsGoals || [], userQrisBase: window.userQrisBase || ''
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url; link.download = 'rhn_capital_backup_' + nowISO().slice(0, 10) + '.json';
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    window.saveOrShareFile(blob, 'rhn_capital_backup_' + nowISO().slice(0, 10) + '.json', 'application/json');
     Swal.fire({ position: 'center', icon: 'success', title: 'File Backup Diunduh!', showConfirmButton: false, timer: 1000, background: 'var(--card)', color: 'var(--text)' });
 };
 
