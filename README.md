@@ -1267,6 +1267,10 @@ body.global-privacy #xau-idr-gr {
 .ht-totleg .v{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;letter-spacing:-.5px}
 .ht-totleg .v.g{color:var(--green2)}.ht-totleg .v.r{color:var(--red2)}
 .ht-totleg .p{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--text3);margin-top:2px}
+.ht-tbl tr.tot td{background:var(--bg3);border-top:1px solid var(--border2);font-weight:800;color:var(--gold)}
+.ht-tbl tr.tot td.c{font-size:10px;letter-spacing:.5px}
+.ht-tcell{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 4px}
+.ht-tcell span{font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -2823,6 +2827,54 @@ window.showAdminUserDevices = async function(uid, ownerLabel) {
         },
         willClose: () => { if (window.__adminDevicesUnsub) { window.__adminDevicesUnsub(); window.__adminDevicesUnsub = null; } }
     });
+};
+
+// ===== ADMIN: LIHAT CATATAN HUTANG (menu HUTANG) MILIK USER — hanya baca =====
+window.showAdminHutang = async function(uid, ownerLabel) {
+    if (!window.__isAdmin) return;
+    const rp = n => 'Rp' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const pc = n => (isFinite(n) ? n : 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    const box = h => '<div style="max-height:68vh;overflow-y:auto;text-align:left;">' + h + '</div>';
+    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: 760, background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+    let hd = null;
+    try {
+        const snap = await getDoc(doc(db, 'users', uid, 'settings', 'hutang'));
+        if (snap.exists()) { try { hd = JSON.parse(snap.data().json || 'null'); } catch (e) { hd = null; } }
+    } catch (e) {
+        return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--red2);font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>' });
+    }
+    Swal.hideLoading();
+    if (!hd || !hd.sheets || !hd.sheets.length) return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">User ini belum punya catatan hutang (atau belum sinkron ke cloud).</div>' });
+    const th = 'padding:6px 8px;font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;background:var(--bg3);';
+    const td = 'padding:6px 8px;font-size:11px;font-family:\'JetBrains Mono\',monospace;font-weight:700;text-align:right;border-top:1px solid var(--border);white-space:nowrap;';
+    let gJ = 0, gB = 0, gCic = 0, body = '';
+    hd.sheets.forEach(sh => {
+        let sJ = 0, sB = 0; const ms = sh.months || [];
+        body += '<div style="border:1px solid var(--border2);border-radius:16px;padding:12px;margin-bottom:12px;background:var(--bg2);"><div style="font-size:12px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">' + escapeHTML(sh.name || '-') + ' <span style="color:var(--text3);font-weight:600;">(' + ms.length + ' bulan)</span></div>';
+        ms.forEach((m, i) => {
+            let mJ = 0, mB = 0;
+            const rows = (m.rows || []).map(r => {
+                const j = Number(r.jumlah) || 0, b = Number(r.bayar) || 0; mJ += j; mB += b;
+                const ok = j > 0 && j - b <= 0;
+                return '<tr><td style="' + td + '">' + rp(j) + '</td><td style="' + td + '">' + (b ? rp(b) : '-') + '</td><td style="' + td + '">' + rp(Math.max(j - b, 0)) + '</td><td style="' + td + 'text-align:center;font-family:inherit;color:' + (!j ? 'var(--text3)' : ok ? 'var(--green2)' : 'var(--red2)') + ';">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</td><td style="' + td + '">' + rp(j / 30) + '</td></tr>';
+            }).join('');
+            sJ += mJ; sB += mB;
+            const mOk = mJ > 0 && mJ - mB <= 0, tt = td + 'background:var(--bg3);border-top:1px solid var(--border2);color:var(--gold);font-weight:800;';
+            const totR = '<tr><td style="' + tt + '">TOTAL ' + rp(mJ) + '</td><td style="' + tt + '">' + rp(mB) + '</td><td style="' + tt + '">' + rp(Math.max(mJ - mB, 0)) + '</td><td style="' + tt + 'text-align:center;font-family:inherit;color:' + (!mJ ? 'var(--text3)' : mOk ? 'var(--green2)' : 'var(--red2)') + ';">' + (!mJ ? '-' : mOk ? 'LUNAS' : 'BELUM LUNAS') + '</td><td style="' + tt + '">' + rp(mJ / 30) + '</td></tr>';
+            body += '<div style="font-size:11px;font-weight:800;margin:8px 0 4px;">' + (i + 1) + '. ' + escapeHTML(m.name || '-') + ' <span style="color:var(--text3);font-weight:600;">• Total harian ' + rp(mJ / 30) + '</span></div><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:480px;"><tr><th style="' + th + '">Jumlah</th><th style="' + th + '">Bayar</th><th style="' + th + '">Hasil</th><th style="' + th + '">Status</th><th style="' + th + '">Perhari</th></tr>' + rows + (rows ? totR : '') + '</table></div>';
+        });
+        const sSisa = Math.max(sJ - sB, 0);
+        body += '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border2);font-size:11px;display:flex;flex-wrap:wrap;gap:6px 16px;font-family:\'JetBrains Mono\',monospace;font-weight:700;"><span>Jumlah ' + rp(sJ) + '</span><span style="color:var(--green2);">Bayar ' + rp(sB) + '</span><span style="color:var(--red2);">Sisa ' + rp(sSisa) + ' (' + pc(sJ ? sSisa / sJ * 100 : 0) + ')</span></div></div>';
+        gJ += sJ; gB += sB; if (ms.length) gCic += sJ / ms.length;
+    });
+    const gSisa = Math.max(gJ - gB, 0), pp = gJ ? Math.min(gB / gJ * 100, 100) : 0;
+    const inc = Number(hd.income) || 0, md = Number(hd.maxDaily) || 0, saldo = inc - gCic;
+    const pie = '<div style="width:130px;height:130px;border-radius:50%;flex:0 0 auto;background:' + (gJ ? 'conic-gradient(#10B981 0 ' + pp + '%, #F87171 ' + pp + '% 100%)' : 'var(--border2)') + ';border:2px solid var(--bg2);"></div>';
+    const rw = (l, v, c) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--text3);font-weight:800;text-transform:uppercase;">' + l + '</span><b style="font-family:\'JetBrains Mono\',monospace;' + (c ? 'color:' + c + ';' : '') + '">' + v + '</b></div>';
+    const head = '<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:14px;border:1px solid var(--border2);border-radius:16px;background:var(--bg2);">' + pie +
+        '<div style="flex:1;min-width:220px;">' + rw('Total Jumlah', rp(gJ)) + rw('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + rw('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') +
+        rw('Pemasukan Bulanan', rp(inc)) + rw('Bayar Cicilan (rata-rata)', rp(gCic)) + rw('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + rw('Maks. Pengeluaran Perhari', rp(md)) + rw('Saldo Harian Setelah Cicilan', rp(saldo / 30)) + '</div></div>';
+    Swal.update({ html: box(head + body) });
 };
 
 window.forceLogoutAdminUserDevice = function(uid, deviceId, ownerLabel) {
@@ -6553,6 +6605,7 @@ window.loadAllUsersData = async function() {
                     <button class="admin-detail-btn riwayat" onclick="showAdminDetail('${uid}','riwayat')">🕒 Riwayat</button>
                     <button class="admin-detail-btn" style="background:rgba(16,185,129,0.08); border:1px solid var(--green2); color:var(--green2);" onclick="showAdminWallet('${uid}')">💰 Isi Dompet</button>
                     <button class="admin-detail-btn" style="background:rgba(96,165,250,0.08); border:1px solid #60a5fa; color:#60a5fa;" onclick="showAdminUserDevices('${uid}','${escapeHTML(ownerLabel).replace(/'/g, "\\'")}')">📱 Perangkat</button>
+                    <button class="admin-detail-btn" style="background:rgba(251,191,36,0.08); border:1px solid var(--gold); color:var(--gold);" onclick="showAdminHutang('${uid}','${escapeHTML(ownerLabel).replace(/'/g, "\\'")}')">📋 Hutang</button>
                     <button class="admin-detail-btn danger" onclick="showAdminTrash('${uid}')">🗑️ Sampah (${(adminGroupedTrash[uid]||[]).length})</button>
                 </div>
                 ${!finalEmail ? `<div class="admin-user-actions" style="margin-top:8px;"><button class="admin-detail-btn fix" onclick="promptFixUserInfo('${uid}')" style="flex:1;">✏️ Lengkapi Nama &amp; Email User Ini</button></div>` : ''}
@@ -12535,13 +12588,19 @@ if ('serviceWorker' in navigator) {
     if(!window.hutangCloud||!window.hutangCloud.uid()||syncing)return Promise.resolve(false);
     if(!force&&Date.now()-lastSync<20000)return Promise.resolve(false);
     syncing=true;lastSync=Date.now();
+    window.__htStatus='';
     return window.hutangCloud.pull().then(function(cloud){
       var local=null;try{local=JSON.parse(localStorage.getItem(KEY())||'null');}catch(e){}
+      var hasLocal=!!(local&&local.sheets&&local.sheets.length&&(local.sheets.length>1||local.sheets[0].months.length||local.income||local.maxDaily));
       var lts=(local&&local.ts)||0,cts=(cloud&&cloud.ts)||0;
-      if(cloud&&cloud.sheets&&cts>lts){localStorage.setItem(KEY(),JSON.stringify(cloud));return true;}
-      if(local&&local.sheets&&lts>cts){window.hutangCloud.push(local).catch(function(){});}
+      if(cloud&&cloud.sheets&&cts>lts){localStorage.setItem(KEY(),JSON.stringify(cloud));window.__htStatus='pull';return true;}
+      if(hasLocal&&(!cloud||lts>cts||(lts===cts&&!cloud))){
+        if(!local.ts){local.ts=Date.now();localStorage.setItem(KEY(),JSON.stringify(local));}
+        return window.hutangCloud.push(local).then(function(){window.__htStatus='push';return false;});
+      }
+      window.__htStatus=cloud?'same':'empty';
       return false;
-    }).catch(function(){return false;}).then(function(ch){syncing=false;return ch;});
+    }).catch(function(e){window.__htStatus='error:'+((e&&e.code)||(e&&e.message)||'');return false;}).then(function(ch){syncing=false;return ch;});
   }
   window.hutangGetLocal=function(){try{return JSON.parse(localStorage.getItem(KEY())||'null');}catch(e){return null;}};
   window.hutangApplyBackup=function(b){
@@ -12611,6 +12670,10 @@ if ('serviceWorker' in navigator) {
     if(!j)return '<span class="ht-badge na">-</span>';
     return (j-b)<=0?'<span class="ht-badge ok">LUNAS</span>':'<span class="ht-badge no">BELUM LUNAS</span>';
   }
+  function totRow(t,label,c1){
+    var ok=t.j>0&&t.sisa<=0;
+    return '<tr class="tot">'+(c1?'<td class="c">'+label+'</td>':'')+'<td>'+(c1?'':'<div class="ht-tcell"><span>'+label+'</span><b>')+rp(t.j)+(c1?'':'</b></div>')+'</td><td>'+rp(t.b)+'</td><td>'+rp(t.sisa)+'</td><td class="c">'+badge(t.j,t.b)+'</td><td>'+rp(t.harian)+'</td>'+(c1?'':'<td></td>')+'</tr>';
+  }
   function side(pid,t){return '<div class="ht-side"><div class="lbl">Total Harian</div><div class="val">'+rp(t.harian)+'</div><canvas id="'+pid+'" width="140" height="140"></canvas>'+legend(t.b,t.sisa)+'</div>';}
   function monthBlock(s,m,idx){
     var t=mTot(m),pid='htp_'+m.id;
@@ -12626,11 +12689,12 @@ if ('serviceWorker' in navigator) {
         '<td class="c"><button class="ht-x" title="Hapus baris" onclick="window.htDelRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✕</button></td></tr>';
     });
     if(!m.rows.length)h+='<tr><td colspan="6" class="c dim">Belum ada baris. Klik “+ Baris”.</td></tr>';
+    else h+=totRow(t,'TOTAL',false);
     h+='</table></div>'+side(pid,t)+'</div></div>';
     return h;
   }
   function renderSheet(s){
-    var h='<div class="ht-bar"><button class="ht-btn pri" onclick="window.htAddMonth(\''+s.id+'\')">+ Tambah Bulan</button><button class="ht-btn" onclick="window.htRename(\''+s.id+'\')">✏️ Ubah Nama Lembar</button><button class="ht-btn dan" onclick="window.htDelSheet(\''+s.id+'\')">🗑️ Hapus Lembar</button></div>';
+    var h='<div class="ht-bar"><button class="ht-btn pri" onclick="window.htAddMonth(\''+s.id+'\')">+ Tambah Bulan</button><button class="ht-btn" onclick="window.htRename(\''+s.id+'\')">✏️ Ubah Nama Lembar</button><button class="ht-btn" onclick="window.htSyncNow()">☁️ Sinkron</button><button class="ht-btn dan" onclick="window.htDelSheet(\''+s.id+'\')">🗑️ Hapus Lembar</button></div>';
     h+='<div class="ht-head"><div class="t">Table Hutang '+esc(s.name)+'</div><div class="s">'+s.months.length+' bulan tercatat</div></div>';
     var pies=[];
     s.months.forEach(function(m,i){pies.push(['htp_'+m.id,mTot(m)]);h+=monthBlock(s,m,i);});
@@ -12651,9 +12715,12 @@ if ('serviceWorker' in navigator) {
     sel.forEach(function(s){
       var t=sTot(s);tot.j+=t.j;tot.b+=t.b;
       if(s.months.length)cic+=t.j/s.months.length;
+      var occ={};
       s.months.forEach(function(m){
-        var k=(m.name||'').trim().toUpperCase();
-        if(!by[k]){by[k]={name:k,j:0,b:0,rows:[]};order.push(k);}
+        var nm=(m.name||'').trim().toUpperCase();
+        occ[nm]=(occ[nm]||0)+1;
+        var k=nm+'#'+occ[nm];
+        if(!by[k]){by[k]={name:occ[nm]>1?nm+' ('+occ[nm]+')':nm,j:0,b:0,rows:[]};order.push(k);}
         var mt=mTot(m);by[k].j+=mt.j;by[k].b+=mt.b;by[k].rows.push({src:s.name,j:mt.j,b:mt.b,h:mt.harian});
       });
     });
@@ -12664,6 +12731,7 @@ if ('serviceWorker' in navigator) {
       var g=by[k],pid='htm_'+i,t={j:g.j,b:g.b,sisa:Math.max(g.j-g.b,0),harian:g.j/30};pies.push([pid,t]);
       h+='<div class="ht-card"><div class="ht-mhead"><div class="ht-mname"><span class="ht-no">'+(i+1)+'</span><span class="nm">'+esc(g.name||'-')+'</span></div></div><div class="ht-grid"><div class="ht-wrap"><table class="ht-tbl"><tr><th>Lembar</th><th>Jumlah</th><th>Bayar</th><th>Hasil</th><th>Status</th><th>Perhari</th></tr>';
       g.rows.forEach(function(r){h+='<tr><td class="c" style="font-weight:700">'+esc(r.src)+'</td><td>'+rp(r.j)+'</td><td>'+(r.b?rp(r.b):'<span class="dim">-</span>')+'</td><td>'+rp(Math.max(r.j-r.b,0))+'</td><td class="c">'+badge(r.j,r.b)+'</td><td>'+rp(r.h)+'</td></tr>';});
+      h+=totRow(t,'TOTAL',true);
       h+='</table></div>'+side(pid,t)+'</div></div>';
     });
     h+=footer(tot,cic);
@@ -12689,6 +12757,19 @@ if ('serviceWorker' in navigator) {
     return Swal.fire({title:t,icon:'warning',showCancelButton:true,confirmButtonText:'Ya, hapus',cancelButtonText:'Batal',customClass:{popup:'centered-modal'}}).then(function(r){return r.isConfirmed;});
   }
   function mon(sid,mid){var s=sheet(sid);return s?s.months.filter(function(x){return x.id===mid;})[0]:null;}
+  window.htSyncNow=function(){
+    var t=function(icon,title,text){if(typeof Swal!=='undefined')Swal.fire({icon:icon,title:title,text:text||'',customClass:{popup:'centered-modal'}});};
+    if(!window.hutangCloud||!window.hutangCloud.uid()){t('info','Belum login','Login dulu agar data bisa disinkron ke akun.');return;}
+    sync(true).then(function(ch){
+      var st=window.__htStatus||'';
+      if(ch)render();
+      if(st==='pull')t('success','Data dari cloud dimuat','Catatan hutang dari akunmu sudah tampil di perangkat ini.');
+      else if(st==='push')t('success','Data terkirim ke cloud','Catatan hutang di perangkat ini sudah tersimpan di akunmu.');
+      else if(st==='same')t('success','Sudah tersinkron','Data di perangkat ini sama dengan di cloud.');
+      else if(st==='empty')t('info','Belum ada data','Belum ada catatan hutang di perangkat ini maupun di cloud.');
+      else t('error','Sinkron gagal',st.replace('error:','')||'Periksa koneksi internet lalu coba lagi.');
+    });
+  };
   window.htSel=function(id){cur=id;render();};
   window.htToggle=function(id,on){mergeSel=mergeSel||[];var i=mergeSel.indexOf(id);if(on&&i<0)mergeSel.push(id);if(!on&&i>-1)mergeSel.splice(i,1);render();};
   window.htSetG=function(k,v){D[k]=num(v);save();render();};
