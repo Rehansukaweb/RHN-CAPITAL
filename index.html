@@ -1451,6 +1451,35 @@ body.global-privacy #xau-idr-gr {
 #page-hutang .ht-tbl:not(.ht-edit) th{padding:9px 5px;font-size:8.5px}
 #page-hutang .ht-tbl:not(.ht-edit) td{padding:7px 5px;font-size:10px}
 }
+/* ===== MOBILE ONLY (tahap 2): kartu ringkasan 3 baris & tabel bulanan lebih pas ===== */
+@media(max-width:900px){
+#page-hutang .ht-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#page-hutang .ht-stats .ht-stat:nth-child(1){grid-column:1/-1;order:1}
+#page-hutang .ht-stats .ht-stat:nth-child(3){order:2}
+#page-hutang .ht-stats .ht-stat:nth-child(4){order:3}
+#page-hutang .ht-stats .ht-stat:nth-child(2){order:4}
+#page-hutang .ht-stats .ht-stat:nth-child(5){order:5}
+#page-hutang .ht-stat{padding:10px 11px}
+#page-hutang .ht-stat .l{font-size:8px;line-height:1.3;min-height:21px;margin-bottom:4px}
+#page-hutang .ht-stats .ht-stat:nth-child(1) .l{min-height:0}
+#page-hutang .ht-stat .v{font-size:12px}
+#page-hutang .ht-tbl.ht-edit th:nth-child(1){width:19%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(2){width:18%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(3){width:21%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(4){width:15%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(5){width:17%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(6){width:10%}
+#page-hutang .ht-tbl.ht-edit th{padding:8px 1px;font-size:7px;letter-spacing:0}
+#page-hutang .ht-tbl.ht-edit td{padding:5px 1px;font-size:7.5px;letter-spacing:-.4px;white-space:nowrap;word-break:normal;overflow-wrap:normal}
+#page-hutang .ht-tbl.ht-edit tr.tot td{padding:7px 1px;font-size:7.5px}
+#page-hutang .ht-tbl.ht-edit td.c{letter-spacing:0}
+#page-hutang .ht-tbl.ht-edit input{padding:5px 3px;font-size:8px;letter-spacing:-.3px}
+#page-hutang .ht-tbl.ht-edit .ht-lunas{padding:3px 1px;font-size:6.5px}
+#page-hutang .ht-tbl.ht-edit .ht-badge{padding:3px 1px;font-size:5.8px;letter-spacing:-.2px;white-space:nowrap;display:inline-block;line-height:1.3}
+#page-hutang .ht-tbl.ht-edit .ht-x{width:18px;height:18px;font-size:8px}
+#page-hutang .ht-tbl.ht-edit .ht-tcell{align-items:flex-start;gap:1px}
+#page-hutang .ht-tbl.ht-edit .ht-tcell span{font-size:6.5px}
+}
 </style>
 </head>
 <body>
