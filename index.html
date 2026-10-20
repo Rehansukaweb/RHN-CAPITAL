@@ -1480,6 +1480,30 @@ body.global-privacy #xau-idr-gr {
 #page-hutang .ht-tbl.ht-edit .ht-tcell{align-items:flex-start;gap:1px}
 #page-hutang .ht-tbl.ht-edit .ht-tcell span{font-size:6.5px}
 }
+/* ===== LAPTOP: pie bulanan di tengah (vertikal) ===== */
+@media(min-width:901px){
+#page-hutang .ht-grid{align-items:center}
+#page-hutang .ht-side{align-self:center}
+}
+/* ===== MOBILE ONLY (tahap 3): tabel gabungan muat pas tanpa geser ===== */
+@media(max-width:900px){
+#page-hutang .ht-tbl:not(.ht-edit){table-layout:fixed;width:100%;min-width:0}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(1){width:14%}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(2){width:20%}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(3){width:18%}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(4){width:19%}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(5){width:15%}
+#page-hutang .ht-tbl:not(.ht-edit) th:nth-child(6){width:14%}
+#page-hutang .ht-tbl:not(.ht-edit) th{padding:8px 1px;font-size:6.8px;letter-spacing:0}
+#page-hutang .ht-tbl:not(.ht-edit) td{padding:7px 1px;font-size:7.3px;letter-spacing:-.4px;white-space:nowrap}
+#page-hutang .ht-tbl:not(.ht-edit) td.c{font-size:7.3px;letter-spacing:0}
+#page-hutang .ht-tbl:not(.ht-edit) tr.tot td{padding:8px 1px;font-size:7.3px}
+#page-hutang .ht-tbl:not(.ht-edit) tr.tot td.c{font-size:7px}
+#page-hutang .ht-tbl:not(.ht-edit) .ht-badge{padding:3px 1px;font-size:5.6px;letter-spacing:-.2px;white-space:nowrap;display:inline-block;gap:0}
+#page-hutang .ht-tbl:not(.ht-edit) .ht-badge::before{display:none}
+#page-hutang .ht-tbl:not(.ht-edit) .ht-pb{min-width:0;height:3px;margin-top:3px}
+#page-hutang .ht-wrap:has(.ht-tbl:not(.ht-edit)){overflow-x:hidden}
+}
 </style>
 </head>
 <body>
