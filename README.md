@@ -1378,6 +1378,79 @@ body.global-privacy #xau-idr-gr {
 #page-hutang .ht-tbl.ht-edit .ht-x{width:26px;height:26px}
 #page-hutang .ht-tbl.ht-edit .ht-tcell{gap:6px;padding:0}
 }
+/* ===== MOBILE ONLY: halaman hutang diperkecil & disesuaikan (laptop >900px tidak berubah) ===== */
+@media(max-width:900px){
+#page-hutang .ht-tabs{gap:6px;margin-bottom:10px}
+#page-hutang .ht-tab{padding:7px 13px;font-size:9.5px}
+#page-hutang .ht-bar{gap:6px;margin-bottom:10px}
+#page-hutang .ht-btn{padding:8px 12px;font-size:9.5px;letter-spacing:.3px}
+#page-hutang .ht-btn.sm{padding:6px 10px;font-size:9px}
+#page-hutang .ht-head{margin:2px 0 12px}
+#page-hutang .ht-head .t{font-size:13px}
+#page-hutang .ht-head .s{font-size:10px}
+#page-hutang .ht-card{padding:10px 8px 10px 11px;border-radius:16px;margin-bottom:12px}
+#page-hutang .ht-mhead{margin-bottom:10px;padding-bottom:9px;gap:8px}
+#page-hutang .ht-no{width:22px;height:22px;font-size:10px}
+#page-hutang .ht-mname{gap:7px;flex:1 1 140px}
+#page-hutang .ht-mname input{font-size:11px;padding:7px 9px;letter-spacing:.6px;border-radius:10px}
+#page-hutang .ht-mname .nm{font-size:11px}
+#page-hutang .ht-grid{grid-template-columns:1fr;gap:10px}
+#page-hutang .ht-wrap{overflow-x:hidden;border-radius:12px}
+#page-hutang .ht-tbl.ht-edit{table-layout:fixed;width:100%;min-width:0;font-size:9px}
+#page-hutang .ht-tbl.ht-edit th:nth-child(1){width:20%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(2){width:23%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(3){width:19%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(4){width:15%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(5){width:16%}
+#page-hutang .ht-tbl.ht-edit th:nth-child(6){width:7%}
+#page-hutang .ht-tbl.ht-edit th{padding:9px 2px;font-size:8px;letter-spacing:.3px}
+#page-hutang .ht-tbl.ht-edit td{padding:6px 2px;font-size:9px;white-space:normal;overflow-wrap:anywhere;word-break:break-all}
+#page-hutang .ht-tbl.ht-edit tr.tot td{padding:8px 2px;font-size:9px}
+#page-hutang .ht-tbl.ht-edit input{min-width:0;width:100%;padding:6px 3px;font-size:9px;border-radius:7px}
+#page-hutang .ht-tbl.ht-edit .ht-paycell{flex-direction:column;align-items:stretch;gap:3px}
+#page-hutang .ht-tbl.ht-edit .ht-paycell input{flex:0 0 auto}
+#page-hutang .ht-tbl.ht-edit .ht-lunas{padding:4px 2px;font-size:7.5px;letter-spacing:0;border-radius:7px}
+#page-hutang .ht-tbl.ht-edit td.rs{min-width:0}
+#page-hutang .ht-tbl.ht-edit .ht-pb{min-width:0;height:3px;margin-top:3px}
+#page-hutang .ht-tbl.ht-edit .ht-badge{padding:3px 3px;font-size:7px;letter-spacing:0;gap:0;white-space:normal;line-height:1.15;text-align:center}
+#page-hutang .ht-tbl.ht-edit .ht-badge::before{display:none}
+#page-hutang .ht-tbl.ht-edit .ht-x{width:20px;height:20px;font-size:9px}
+#page-hutang .ht-tbl.ht-edit .ht-tcell{gap:2px;padding:0;flex-direction:column;align-items:flex-start}
+#page-hutang .ht-tbl.ht-edit .ht-tcell span{font-size:7.5px;letter-spacing:0}
+#page-hutang .ht-side{padding:10px 10px;border-radius:14px}
+#page-hutang .ht-side .lbl{font-size:8px}
+#page-hutang .ht-side .val{font-size:13px;margin:3px 0 8px}
+#page-hutang .ht-side canvas{width:96px!important;height:96px!important}
+#page-hutang .ht-leg{font-size:9px;gap:3px;margin-top:8px}
+#page-hutang .ht-leg i{width:7px;height:7px;margin-right:5px}
+#page-hutang .ht-total{padding:12px}
+#page-hutang .ht-setT{font-size:10px;padding-bottom:9px;margin-bottom:11px}
+#page-hutang .ht-hero{padding:12px;margin-bottom:12px;border-radius:14px}
+#page-hutang .ht-hero .l{font-size:8.5px}
+#page-hutang .ht-hero .v{font-size:19px}
+#page-hutang .ht-hero .s{font-size:9.5px}
+#page-hutang .ht-totbody{gap:14px}
+#page-hutang .ht-totbody canvas{width:120px!important;height:120px!important}
+#page-hutang .ht-totleg{min-width:0;gap:8px;flex:1 1 140px}
+#page-hutang .ht-totleg .it{padding:9px 11px;border-radius:12px}
+#page-hutang .ht-totleg .l{font-size:8px}
+#page-hutang .ht-totleg .v{font-size:12px}
+#page-hutang .ht-totleg .p{font-size:9.5px}
+#page-hutang .ht-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#page-hutang .ht-stat{padding:10px}
+#page-hutang .ht-stat .l{font-size:8px;margin-bottom:5px}
+#page-hutang .ht-stat .v{font-size:12px}
+#page-hutang .ht-set{padding:12px;border-radius:16px}
+#page-hutang .ht-set .st{font-size:10px;padding-bottom:9px}
+#page-hutang .ht-row2{padding:8px 0;gap:8px}
+#page-hutang .ht-row2 span{font-size:9px}
+#page-hutang .ht-row2 b{font-size:11px}
+#page-hutang .ht-row2 input{width:120px;font-size:11px;padding:7px 9px}
+#page-hutang .ht-chk label{padding:7px 11px;font-size:9.5px}
+#page-hutang .ht-tbl:not(.ht-edit){min-width:0;font-size:10px}
+#page-hutang .ht-tbl:not(.ht-edit) th{padding:9px 5px;font-size:8.5px}
+#page-hutang .ht-tbl:not(.ht-edit) td{padding:7px 5px;font-size:10px}
+}
 </style>
 </head>
 <body>
