@@ -1614,7 +1614,7 @@ body.global-privacy #xau-idr-gr {
     </div>
 
     <div class="form-row" id="field-nama" style="display:none"><div class="f-label">Nama</div><input type="text" id="auth-nama" class="f-input-dark" placeholder="Nama Lengkap" onkeydown="if(event.key==='Enter')doAuth()"></div>
-    <div class="form-row" id="field-umur" style="display:none"><div class="f-label">Umur</div><input type="number" id="auth-umur" class="f-input-dark" placeholder="Umur" min="1" max="120" onkeydown="if(event.key==='Enter')doAuth()"></div>
+    <div class="form-row" id="field-umur" style="display:none"><div class="f-label">Umur</div><input type="text" id="auth-umur" class="f-input-dark" placeholder="Umur" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" oninput="this.value=this.value.replace(/\D/g,'').slice(0,2)" onkeydown="if(event.key==='Enter')doAuth()"></div>
     <div class="form-row" id="field-gender" style="display:none">
       <div class="f-label">Jenis Kelamin</div>
       <select id="auth-gender" class="f-input-dark">
@@ -1666,7 +1666,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="password" id="app-pin" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px;" inputmode="numeric" maxlength="6" placeholder="••••••" autofocus>
+       <input type="text" id="app-pin" name="rhn-pin-code" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px; -webkit-text-security: disc; text-security: disc;" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -6081,7 +6081,7 @@ window.doAuth = async function() {
     hideErr(); 
     if (!email || !pass) return showErr('Email dan Sandi tidak boleh kosong.'); 
     if (authMode === 'register' && !nama) return showErr('Nama tidak boleh kosong.'); 
-    if (authMode === 'register' && !umur) return showErr('Umur tidak boleh kosong.'); 
+    if (authMode === 'register' && !umur) return showErr('Umur tidak boleh kosong.'); if (authMode === 'register' && !/^[0-9]{1,2}$/.test(umur)) return showErr('Umur harus berupa angka maksimal 2 digit.'); 
     if (authMode === 'register' && !gender) return showErr('Jenis Kelamin tidak boleh kosong.'); 
     setLoading(true); 
 
@@ -12936,25 +12936,32 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         } catch (e) {}
     }
 
-    function listenTx(uid) {
-        let first = true; const seen = {};
+    const txKnown = {}; let txArmAt = 0, txKnownUid = null;
+    function scanTx() {
         try {
-            unsubs.push(onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc'), limit(5)), function (snap) {
-                if (first) { first = false; return; }
-                const fresh = [];
-                snap.docChanges().forEach(function (ch) {
-                    if (ch.type !== 'added' || !ch.doc.metadata.hasPendingWrites || seen[ch.doc.id]) return;
-                    const t = ch.doc.data(); if (t.isDeleted) return;
-                    seen[ch.doc.id] = 1; fresh.push({ id: ch.doc.id, t: t });
-                });
-                fresh.forEach(function (x) {
-                    const t = x.t, amt = rp(+t.amount || 0), cat = t.category || 'Tanpa kategori', note = t.note ? ' • ' + String(t.note).slice(0, 60) : '';
-                    if (t.type === 'income') show('💰 Pemasukan tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
-                    else if (t.type === 'expense') show('💸 Pengeluaran tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
-                    else show('🔁 Transaksi tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
-                });
-                if (fresh.length) setTimeout(checkBudgets, 1500);
-            }, function () {}));
+            if (!currentUser || !window.appUnlocked || !Array.isArray(txs)) return;
+            if (txKnownUid !== currentUser.uid) { txKnownUid = currentUser.uid; for (const k in txKnown) delete txKnown[k]; txArmAt = Date.now() + 4000; }
+            const armed = Date.now() >= txArmAt, fresh = [];
+            txs.forEach(function (t) {
+                if (!t || !t.id || txKnown[t.id]) return;
+                txKnown[t.id] = 1;
+                if (!armed || t.isDeleted) return;
+                const c = t.createdAt; let ms = null;
+                if (c && typeof c.toMillis === 'function') ms = c.toMillis();
+                else if (typeof c === 'number') ms = c;
+                else if (c && typeof c.seconds === 'number') ms = c.seconds * 1000;
+                if (ms !== null && Date.now() - ms > 300000) return;
+                fresh.push(t);
+            });
+            if (!fresh.length) return;
+            if (fresh.length > 5) { show('🧾 ' + fresh.length + ' transaksi tercatat', 'Beberapa catatan baru masuk ke akunmu.', 'rhn-tx-bulk'); }
+            else fresh.forEach(function (t) {
+                const amt = rp(+t.amount || 0), cat = t.category || 'Tanpa kategori', note = t.note ? ' • ' + String(t.note).slice(0, 60) : '';
+                if (t.type === 'income') show('💰 Pemasukan tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + t.id);
+                else if (t.type === 'expense') show('💸 Pengeluaran tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + t.id);
+                else show('🔁 Transaksi tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + t.id);
+            });
+            setTimeout(checkBudgets, 1500);
         } catch (e) {}
     }
 
@@ -13007,7 +13014,6 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         if (!user) return;
         startedFor = user.uid;
         listenChat(user.uid);
-        listenTx(user.uid);
         let tries = 0;
         const wait = setInterval(function () {
             if (startedFor !== user.uid) { clearInterval(wait); return; }
@@ -13019,6 +13025,7 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         }, 1000);
     });
     setInterval(tick, 60000);
+    setInterval(scanTx, 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
 })();
 
