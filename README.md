@@ -6774,7 +6774,7 @@ window.showDailyWelcome = async function() {
     } else {
         body += '\n↑ Total Pemasukan: +' + rp(inc) + pct(inc) + ' · ' + incN + 'x\n↓ Total Pengeluaran: -' + rp(exp) + pct(exp) + ' · ' + expN + 'x\n🔄 Transfer antar wallet: ' + (trs.length ? trs.length + 'x · ' + rp(trSum) + '\n' + trs.slice(0, 3).map(t => wn(t.wallet) + ' ➔ ' + wn(t.walletTo) + ' ' + rp(Number(t.amount) || 0)).join('\n') + (trs.length > 3 ? '\n+' + (trs.length - 3) + ' lainnya' : '') : 'tidak ada');
     }
-    try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome'); } catch(e) { console.error(e); }
+    try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome', { noIcon: true }); } catch(e) { console.error(e); }
 };
 
 function unlockApp() { 
@@ -6837,6 +6837,8 @@ window.resetPinFromLogin = async function() {
 };
 
 document.getElementById('app-pin').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); if (this.value.length === 6) { window.verifyPin(); } });
+document.getElementById('app-pin').addEventListener('beforeinput', function(e) { if (e.data && /[^0-9]/.test(e.data)) e.preventDefault(); });
+document.getElementById('app-pin').addEventListener('keydown', function(e) { if (e.key && e.key.length === 1 && !/[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey) e.preventDefault(); });
 
 window.loadAllUsersData = async function() {
   if (!currentUser) return;
@@ -12929,10 +12931,10 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     const todayKey = function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     let unsubs = [], startedFor = null;
 
-    async function show(title, body, tag) {
+    async function show(title, body, tag, extra) {
         if (!supported || Notification.permission !== 'granted') return false;
         const opts = { body: body, tag: tag, renotify: false };
-        if (window.RHN_LOGO_DATA) { opts.icon = window.RHN_LOGO_DATA; opts.badge = window.RHN_LOGO_DATA; }
+        if (window.RHN_LOGO_DATA) { opts.badge = window.RHN_LOGO_DATA; }
         try {
             const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
             if (reg && reg.showNotification) { await reg.showNotification(title, opts); return true; }
