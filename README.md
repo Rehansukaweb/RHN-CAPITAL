@@ -6774,7 +6774,7 @@ window.showDailyWelcome = async function() {
     } else {
         body += '\n↑ Total Pemasukan: +' + rp(inc) + pct(inc) + ' · ' + incN + 'x\n↓ Total Pengeluaran: -' + rp(exp) + pct(exp) + ' · ' + expN + 'x\n🔄 Transfer antar wallet: ' + (trs.length ? trs.length + 'x · ' + rp(trSum) + '\n' + trs.slice(0, 3).map(t => wn(t.wallet) + ' ➔ ' + wn(t.walletTo) + ' ' + rp(Number(t.amount) || 0)).join('\n') + (trs.length > 3 ? '\n+' + (trs.length - 3) + ' lainnya' : '') : 'tidak ada');
     }
-    try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome', { noIcon: true }); } catch(e) { console.error(e); }
+    try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome'); } catch(e) { console.error(e); }
 };
 
 function unlockApp() { 
@@ -12934,7 +12934,7 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     async function show(title, body, tag, extra) {
         if (!supported || Notification.permission !== 'granted') return false;
         const opts = { body: body, tag: tag, renotify: false };
-        if (window.RHN_LOGO_DATA) { opts.badge = window.RHN_LOGO_DATA; }
+        if (window.RHN_LOGO_DATA) { opts.icon = window.RHN_LOGO_DATA; opts.badge = window.RHN_LOGO_DATA; }
         try {
             const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
             if (reg && reg.showNotification) { await reg.showNotification(title, opts); return true; }
