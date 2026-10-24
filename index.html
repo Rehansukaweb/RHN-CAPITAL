@@ -12936,6 +12936,28 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         } catch (e) {}
     }
 
+    function listenTx(uid) {
+        let first = true; const seen = {};
+        try {
+            unsubs.push(onSnapshot(query(collection(db, 'users', uid, 'transactions'), orderBy('createdAt', 'desc'), limit(5)), function (snap) {
+                if (first) { first = false; return; }
+                const fresh = [];
+                snap.docChanges().forEach(function (ch) {
+                    if (ch.type !== 'added' || !ch.doc.metadata.hasPendingWrites || seen[ch.doc.id]) return;
+                    const t = ch.doc.data(); if (t.isDeleted) return;
+                    seen[ch.doc.id] = 1; fresh.push({ id: ch.doc.id, t: t });
+                });
+                fresh.forEach(function (x) {
+                    const t = x.t, amt = rp(+t.amount || 0), cat = t.category || 'Tanpa kategori', note = t.note ? ' • ' + String(t.note).slice(0, 60) : '';
+                    if (t.type === 'income') show('💰 Pemasukan tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
+                    else if (t.type === 'expense') show('💸 Pengeluaran tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
+                    else show('🔁 Transaksi tercatat', amt + ' • ' + cat + note, 'rhn-tx-' + x.id);
+                });
+                if (fresh.length) setTimeout(checkBudgets, 1500);
+            }, function () {}));
+        } catch (e) {}
+    }
+
     async function checkBudgets() {
         try {
             const b = window.userBudgets; if (!b || !currentUser || !Array.isArray(txs) || !txs.length) return;
@@ -12967,7 +12989,7 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
 
     async function dailyReminder() {
         try {
-            if (!currentUser || new Date().getHours() < 20 || !Array.isArray(txs)) return;
+            if (!currentUser || !Array.isArray(txs)) return;
             const key = 'rhn_nd_' + currentUser.uid + '_' + todayKey(); if (LS(key)) return;
             if (txs.some(function (t) { return t.date === todayKey(); })) { LS(key, '1'); return; }
             const ok = await show('📝 Jangan lupa catat transaksi', 'Belum ada catatan hari ini. Catat pemasukan & pengeluaranmu sekarang.', 'rhn-daily');
@@ -12985,6 +13007,7 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         if (!user) return;
         startedFor = user.uid;
         listenChat(user.uid);
+        listenTx(user.uid);
         let tries = 0;
         const wait = setInterval(function () {
             if (startedFor !== user.uid) { clearInterval(wait); return; }
