@@ -2345,7 +2345,7 @@ body.global-privacy #xau-idr-gr {
       
       <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 20px; padding: 0 4px; z-index: 3;">
         <div style="display: flex; align-items: flex-start; gap: 4px;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" style="height: 24px;">
+          <svg width="64" height="24" viewBox="0 0 64 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QRIS"><rect x="0.75" y="0.75" width="8.5" height="8.5" rx="1.5" fill="none" stroke="#d91b29" stroke-width="1.5"/><rect x="3.5" y="3.5" width="3" height="3" fill="#d91b29"/><rect x="0.75" y="14.75" width="8.5" height="8.5" rx="1.5" fill="none" stroke="#0c2340" stroke-width="1.5"/><rect x="3.5" y="17.5" width="3" height="3" fill="#0c2340"/><rect x="12.75" y="0.75" width="8.5" height="8.5" rx="1.5" fill="none" stroke="#0c2340" stroke-width="1.5"/><rect x="15.5" y="3.5" width="3" height="3" fill="#0c2340"/><rect x="13" y="15" width="3.5" height="3.5" fill="#d91b29"/><rect x="17.8" y="19.8" width="3.5" height="3.5" fill="#d91b29"/><text x="26" y="17.5" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="15" font-weight="900" fill="#0c2340" letter-spacing="0.2">QRIS</text></svg>
           <svg width="52" height="24" viewBox="0 0 52 32" xmlns="http://www.w3.org/2000/svg">
             <circle cx="14" cy="16" r="14" fill="#f9a51a"/>
             <circle cx="26" cy="16" r="14" fill="#e6222a" opacity="0.85"/>
@@ -12855,6 +12855,149 @@ window.addEventListener('pageshow', function () {
 window.addEventListener('focus', function () {
     requestAnimationFrame(resizeAllCharts);
 });
+
+// ==== NOTIFIKASI APLIKASI RHN (lokal + FCM push) ====
+// Isi kunci VAPID (Firebase Console > Project Settings > Cloud Messaging > Web Push certificates)
+// supaya push saat aplikasi tertutup aktif. Kosong = hanya notifikasi lokal.
+window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0fTBnetnXyRjVb-TXgXgc9y-rKZZwb-vLhJjrxsRCHrTfENF1TZXCBtks';
+(function rhnNotifInit() {
+    if (window.__rhnNotifInit) return; window.__rhnNotifInit = true;
+    const supported = ('Notification' in window);
+    const LS = function (k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+    const rp = function (n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); };
+    const todayKey = function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    let unsubs = [], startedFor = null;
+
+    async function show(title, body, tag) {
+        if (!supported || Notification.permission !== 'granted') return false;
+        const opts = { body: body, tag: tag, renotify: false };
+        if (window.RHN_LOGO_DATA) { opts.icon = window.RHN_LOGO_DATA; opts.badge = window.RHN_LOGO_DATA; }
+        try {
+            const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
+            if (reg && reg.showNotification) { await reg.showNotification(title, opts); return true; }
+            new Notification(title, opts); return true;
+        } catch (e) { try { new Notification(title, opts); return true; } catch (_) { return false; } }
+    }
+    window.rhnNotify = show;
+
+    async function registerPush() {
+        const vapid = window.RHN_VAPID_KEY;
+        if (!vapid || !currentUser || !supported || Notification.permission !== 'granted') return;
+        try {
+            const m = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js');
+            if (!(await m.isSupported())) return;
+            const messaging = m.getMessaging(app);
+            const token = await m.getToken(messaging, { vapidKey: vapid });
+            if (token) {
+                if (window.__currentDeviceId) await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { fcmToken: token, fcmUpdatedAt: serverTimestamp() });
+                window.__rhnFcmToken = token;
+            }
+            m.onMessage(messaging, function (pl) {
+                const n = pl.notification || {}, d = pl.data || {};
+                show(n.title || d.title || 'RHN CAPITAL', n.body || d.body || '', 'rhn-fcm');
+            });
+        } catch (e) { console.warn('FCM:', e); }
+    }
+
+    function showPrompt() {
+        if (!supported || Notification.permission !== 'default' || document.getElementById('rhn-notif-banner')) return;
+        const dis = parseInt(LS('rhn_notif_dismiss') || '0', 10);
+        if (dis && Date.now() - dis < 3 * 86400000) return;
+        const b = document.createElement('div'); b.id = 'rhn-notif-banner';
+        b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);z-index:99998;max-width:420px;margin:0 auto;background:var(--bg2,#14171f);border:1px solid var(--gold,#fbbf24);border-radius:16px;padding:14px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);color:var(--text,#fff);font-family:inherit';
+        b.innerHTML = '<div style="font-size:22px">🔔</div><div style="flex:1;font-size:12px;line-height:1.45"><b>Aktifkan notifikasi?</b><br><span style="opacity:.7">Info balasan CS, budget hampir habis, langganan & pengingat catat transaksi.</span></div>' +
+            '<button id="rhn-nb-yes" style="background:var(--gold,#fbbf24);color:#000;border:0;border-radius:10px;padding:8px 12px;font-weight:800;font-size:11px;font-family:inherit;cursor:pointer">Aktifkan</button>' +
+            '<button id="rhn-nb-no" style="background:transparent;color:inherit;opacity:.6;border:0;font-size:11px;font-family:inherit;cursor:pointer">Nanti</button>';
+        document.body.appendChild(b);
+        document.getElementById('rhn-nb-yes').onclick = async function () {
+            let p = 'denied'; try { p = await Notification.requestPermission(); } catch (e) {}
+            b.remove();
+            if (p === 'granted') { show('Notifikasi aktif 🎉', 'Kamu akan dapat info penting dari RHN CAPITAL.', 'rhn-welcome'); registerPush(); }
+            else LS('rhn_notif_dismiss', String(Date.now()));
+        };
+        document.getElementById('rhn-nb-no').onclick = function () { LS('rhn_notif_dismiss', String(Date.now())); b.remove(); };
+    }
+
+    function listenChat(uid) {
+        if (window.__isAdmin) return;
+        const startedAt = Date.now();
+        try {
+            unsubs.push(onSnapshot(query(collection(db, 'support_chats', uid, 'messages'), orderBy('createdAtLocal', 'desc'), limit(5)), function (snap) {
+                snap.docChanges().forEach(function (ch) {
+                    if (ch.type !== 'added') return;
+                    const m = ch.doc.data(); if (m.sender !== 'admin') return;
+                    const t = typeof m.createdAtLocal === 'number' ? m.createdAtLocal : Date.parse(m.createdAtLocal);
+                    if (!(t > startedAt - 60000)) return;
+                    const el = document.getElementById('cs-chat-body');
+                    if (!document.hidden && el && el.offsetParent !== null) return;
+                    show('💬 Balasan Customer Service', String(m.text || '').slice(0, 120), 'rhn-cs-' + ch.doc.id);
+                });
+            }, function () {}));
+        } catch (e) {}
+    }
+
+    async function checkBudgets() {
+        try {
+            const b = window.userBudgets; if (!b || !currentUser || !Array.isArray(txs) || !txs.length) return;
+            const k = todayKey().slice(0, 7), spent = {};
+            txs.forEach(function (t) { if (t.type === 'expense' && t.date && t.date.slice(0, 7) === k) spent[t.category] = (spent[t.category] || 0) + (+t.amount || 0); });
+            for (const cat in b) {
+                const lim = +b[cat]; if (!lim) continue;
+                const pct = (spent[cat] || 0) / lim * 100, lvl = pct >= 100 ? 100 : (pct >= 80 ? 80 : 0);
+                if (!lvl) continue;
+                const key = 'rhn_nb_' + currentUser.uid + '_' + k + '_' + cat + '_' + lvl;
+                if (LS(key)) continue;
+                const ok = await show(lvl === 100 ? '🚨 Budget ' + cat + ' terlampaui' : '⚠️ Budget ' + cat + ' hampir habis', rp(spent[cat]) + ' dari ' + rp(lim) + ' (' + Math.round(pct) + '%)', 'rhn-budget-' + cat + '-' + lvl);
+                if (ok) LS(key, '1');
+            }
+        } catch (e) {}
+    }
+
+    async function checkSub(uid) {
+        try {
+            const s = await getDoc(doc(db, 'users', uid)); if (!s.exists()) return;
+            const e = s.data().subscriptionExpiry; if (!e || e === window.LIFETIME_EXPIRY_ISO) return;
+            const days = Math.ceil((new Date(e) - Date.now()) / 86400000);
+            if (isNaN(days) || days < 0 || days > 3) return;
+            const key = 'rhn_ns_' + uid + '_' + todayKey(); if (LS(key)) return;
+            const ok = await show('⏳ Langganan hampir habis', days === 0 ? 'Langgananmu berakhir hari ini. Perpanjang agar tetap aktif.' : 'Langgananmu berakhir ' + days + ' hari lagi. Perpanjang agar tetap aktif.', 'rhn-sub');
+            if (ok) LS(key, '1');
+        } catch (e) {}
+    }
+
+    async function dailyReminder() {
+        try {
+            if (!currentUser || new Date().getHours() < 20 || !Array.isArray(txs)) return;
+            const key = 'rhn_nd_' + currentUser.uid + '_' + todayKey(); if (LS(key)) return;
+            if (txs.some(function (t) { return t.date === todayKey(); })) { LS(key, '1'); return; }
+            const ok = await show('📝 Jangan lupa catat transaksi', 'Belum ada catatan hari ini. Catat pemasukan & pengeluaranmu sekarang.', 'rhn-daily');
+            if (ok) LS(key, '1');
+        } catch (e) {}
+    }
+
+    function tick() {
+        if (!window.appUnlocked || !currentUser || window.__isAdmin) return;
+        checkBudgets(); dailyReminder();
+    }
+
+    onAuthStateChanged(auth, function (user) {
+        unsubs.forEach(function (u) { try { u(); } catch (e) {} }); unsubs = []; startedFor = null;
+        if (!user) return;
+        startedFor = user.uid;
+        listenChat(user.uid);
+        let tries = 0;
+        const wait = setInterval(function () {
+            if (startedFor !== user.uid) { clearInterval(wait); return; }
+            if (window.appUnlocked) {
+                clearInterval(wait);
+                setTimeout(showPrompt, 2500);
+                registerPush(); checkSub(user.uid); tick();
+            } else if (++tries > 600) clearInterval(wait);
+        }, 1000);
+    });
+    setInterval(tick, 60000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+})();
 
 </script>
 <div id="cs-chat-screen">
