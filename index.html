@@ -1061,6 +1061,17 @@ body.global-privacy #xau-idr-gr {
   #admin-detail-section .card-head > button { top: 0 !important; right: 0 !important; }
   #admin-detail-section .card-title { font-size: 14px; word-break: break-word; }
 }
+
+/* ===== Animasi Sukses Simpan Catatan (clean) ===== */
+.swal2-popup.sv-pop{background:var(--card)!important;border:1px solid var(--border2,rgba(255,255,255,.08))!important;border-radius:22px!important;padding:28px 36px 26px!important;width:auto!important;min-width:200px;box-shadow:0 20px 50px rgba(0,0,0,.45)!important}
+.sv-pop .swal2-html-container{margin:0!important;padding:0!important;overflow:visible!important}
+.sv-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sv-wrap svg{width:64px;height:64px;display:block}
+.sv-ring{fill:none;stroke:#10b981;stroke-width:3;stroke-linecap:round;stroke-dasharray:151;stroke-dashoffset:151;transform:rotate(-90deg);transform-origin:center;animation:svDraw .5s cubic-bezier(.65,0,.35,1) forwards}
+.sv-check{fill:none;stroke:#10b981;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:svDraw .35s .45s cubic-bezier(.65,0,.35,1) forwards}
+.sv-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.2px;opacity:0;animation:svFade .35s .6s ease forwards}
+@keyframes svDraw{to{stroke-dashoffset:0}}
+@keyframes svFade{to{opacity:1}}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -5814,7 +5825,7 @@ window.togglePassVisibility = function(inputId, btn) {
 function reportSaveOutcome(e, successTitle, errorTitle) {
     if (!navigator.onLine) {
         markPendingOfflineWrite();
-        Swal.fire({ position: 'center', icon: 'success', title: successTitle || 'Berhasil Disimpan!', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+        window.showSaveSuccess((successTitle || 'Berhasil Disimpan').replace(/[!✅]/g,'').trim(), 1300);
     } else {
         Swal.fire({ position: 'center', icon: 'error', title: errorTitle || 'Gagal', text: e && e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
     }
@@ -9438,9 +9449,10 @@ window.delTx = function(id) {
     }).then(async (result) => { 
         if (result.isConfirmed) { 
             try {
-                await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true });
+                const __wp = updateDoc(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true });
+                __wp.catch((e) => { if (navigator.onLine) reportSaveOutcome(e, 'Masuk Tempat Sampah!', 'Gagal'); });
                 if (!navigator.onLine) markPendingOfflineWrite();
-                Swal.fire({ icon: 'success', title: 'Masuk Tempat Sampah!', background:'var(--card)', color:'var(--text)', showConfirmButton:false, timer:800}); 
+                window.showSaveSuccess('Masuk Tempat Sampah', 1300);
             } catch(e) { reportSaveOutcome(e, 'Masuk Tempat Sampah!', 'Gagal'); }
         } 
     }); 
@@ -9515,6 +9527,17 @@ window.payRecv = async function(id) {
     });
 };
 
+window.showSaveSuccess = function(title, ms) {
+    ms = ms || 1300;
+    var t = String(title || 'Catatan Tersimpan').replace(/[<>&]/g, '');
+    Swal.fire({
+        position: 'center', showConfirmButton: false, timer: ms, width: 'auto',
+        background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.45)',
+        customClass: { popup: 'sv-pop' },
+        html: '<div class="sv-wrap"><svg viewBox="0 0 64 64"><circle class="sv-ring" cx="32" cy="32" r="24"/><path class="sv-check" d="M22 33 L29 40 L42 25"/></svg><div class="sv-title">' + t + '</div></div>'
+    });
+    setTimeout(function(){ try { if (Swal.isVisible() && Swal.getPopup().classList.contains('sv-pop')) Swal.close(); } catch(e){} }, ms + 500);
+};
 window.addTx = async function() { 
   if(!currentUser) return; 
   const amountInput = document.getElementById('f-amount'); const catInput = document.getElementById('f-cat'); const noteInput = document.getElementById('f-note'); 
@@ -9575,16 +9598,9 @@ window.addTx = async function() {
       // jadi kalau ditunggu terus (await) tombol bisa macet selamanya waktu offline/sinyal lemot.
       // Solusinya: kasih batas waktu tunggu; kalau lewat, anggap "tersimpan di HP dulu" dan biarkan
       // proses upload jalan di background, otomatis naik ke server begitu online lagi.
+      // Langsung tampil tanpa menunggu server (data sudah masuk cache lokal & list ikut terupdate seketika).
       let wroteOffline = !navigator.onLine;
-      if (!wroteOffline) {
-          const OFFLINE_TIMEOUT_MS = 3000;
-          const timedOut = await Promise.race([
-              writePromise.then(() => false),
-              new Promise(res => setTimeout(() => res(true), OFFLINE_TIMEOUT_MS))
-          ]);
-          if (timedOut) wroteOffline = true;
-      }
-      writePromise.catch(() => {});
+      writePromise.catch((err) => { if (navigator.onLine) Swal.fire({ position: 'center', icon: 'error', title: 'Gagal Menyimpan', text: (err && err.message) || 'Coba lagi.', background: 'var(--card)', color: 'var(--text)' }); });
       if (editId) cancelEdit();
 
       amountInput.value = ''; document.getElementById('f-note').value = ''; 
@@ -9592,14 +9608,10 @@ window.addTx = async function() {
       saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)'; 
       if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
       if (wroteOffline) markPendingOfflineWrite();
-      let titleMsg = 'Berhasil Disimpan!'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
+      let titleMsg = 'Catatan Tersimpan'; if (curType === 'debt') titleMsg = '💳 Hutang Tercatat!'; if (curType === 'recv') titleMsg = '💸 Piutang Tercatat!'; if (curType === 'transfer') titleMsg = '🔄 Transfer Berhasil!'; 
       if (recVal) titleMsg += ' & Rutin Aktif!';
       
-      if (wroteOffline) {
-          Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
-      } else {
-          Swal.fire({ position: 'center', icon: 'success', title: titleMsg, showConfirmButton: false, timer: 800, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); 
-      }
+      window.showSaveSuccess(titleMsg, 1300);
       
       setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; window.setRealLocalTime(); if (appPrefs && appPrefs.type) { selType(appPrefs.type); setTimeout(() => { if (document.getElementById('f-cat') && appPrefs.category) { document.getElementById('f-cat').value = appPrefs.category; document.getElementById('f-cat').dispatchEvent(new Event('change')); } if (document.getElementById('f-wallet') && appPrefs.wallet) { document.getElementById('f-wallet').value = appPrefs.wallet; document.getElementById('f-wallet').dispatchEvent(new Event('change')); } }, 10); } else { selType('income'); } }, wroteOffline ? 1400 : 800);
       const recSelect = document.getElementById('f-recurring'); if(recSelect) { recSelect.value = ''; window.toggleRecTime(); }
@@ -9609,7 +9621,7 @@ window.addTx = async function() {
           amountInput.value = ''; document.getElementById('f-note').value = '';
           saveBtn.style.opacity = '1'; saveBtn.style.background = 'var(--green2)'; saveBtn.style.color = '#000'; saveBtn.textContent = 'TERSIMPAN ✅'; saveBtn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.5)';
           if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
-          Swal.fire({ position: 'center', icon: 'success', title: 'Berhasil Disimpan!', showConfirmButton: false, timer: 1400, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' });
+          window.showSaveSuccess('Berhasil Disimpan!', 1300);
           setTimeout(() => { saveBtn.style.boxShadow = 'none'; saveBtn.disabled = false; saveBtn.textContent = 'SIMPAN CATATAN'; }, 1400);
       } else {
           Swal.fire({ position: 'center', icon: 'error', title: 'Koneksi Terputus / Error', text: e.message, showConfirmButton: true, background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.6)' }); saveBtn.textContent = 'COBA LAGI'; saveBtn.style.opacity = '1'; saveBtn.disabled = false;
@@ -9628,7 +9640,6 @@ window.execBatchDelete = async function() {
     
     Swal.fire({ title: 'Hapus ' + checkboxes.length + ' Catatan?', text: "Data akan dipindah ke Tempat Sampah.", icon: 'warning', showCancelButton: true, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal' }).then(async (result) => { 
         if (result.isConfirmed) { 
-            Swal.fire({title: 'Memproses...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             try {
                 const ids = Array.from(checkboxes).map(cb => cb.value);
                 const CHUNK_SIZE = 400;
@@ -9636,12 +9647,12 @@ window.execBatchDelete = async function() {
                     const chunk = ids.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     chunk.forEach(id => batch.update(doc(db, 'users', currentUser.uid, 'transactions', id), { isDeleted: true }));
-                    await batch.commit();
+                    batch.commit().catch((e) => { if (navigator.onLine) reportSaveOutcome(e, 'Masuk Tempat Sampah', 'Gagal'); });
                 }
                 batchMode = false;
                 document.getElementById('btn-batch-del').style.display = 'none';
                 if (!navigator.onLine) markPendingOfflineWrite();
-                Swal.fire({icon: 'success', title: 'Masuk ke Tempat Sampah!', background:'var(--card)', color:'var(--text)', timer: 800, showConfirmButton: false});
+                window.showSaveSuccess('Masuk Tempat Sampah', 1300);
             } catch(e) { reportSaveOutcome(e, 'Masuk ke Tempat Sampah!', 'Gagal'); }
         } 
     });
