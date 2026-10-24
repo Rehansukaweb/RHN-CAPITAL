@@ -1666,7 +1666,7 @@ body.global-privacy #xau-idr-gr {
     <div class="auth-sub" id="pin-sub">Masukkan 6 digit PIN keamanan</div>
     <div id="pin-err" style="color:var(--red2);font-size:12px;margin-bottom:12px;display:none;"></div>
     <div class="form-row">
-       <input type="text" id="app-pin" name="rhn-pin-code" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px; -webkit-text-security: disc; text-security: disc;" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autofocus>
+       <input type="password" id="app-pin" name="rhn-pin-code" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px; -webkit-text-security: disc; text-security: disc;" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
     
@@ -12934,6 +12934,7 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     async function show(title, body, tag, extra) {
         if (!supported || Notification.permission !== 'granted') return false;
         const opts = { body: body, tag: tag, renotify: false };
+        opts.icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAJ0lEQVR42u3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAIB3A0BAAAGveg7oAAAAAElFTkSuQmCC'; // ikon transparan: kanan kosong, tanpa logo & tanpa huruf avatar
         if (window.RHN_LOGO_DATA) { opts.badge = window.RHN_LOGO_DATA; }
         try {
             const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
