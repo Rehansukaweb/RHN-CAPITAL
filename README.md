@@ -6763,11 +6763,16 @@ window.showDailyWelcome = async function() {
     });
     const rp = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
     const wn = w => w ? (window.walletDisp ? window.walletDisp(w) : w) : '-';
-    let body;
+    // Saldo aset sekarang + modal (= total aset di awal hari, sebelum transaksi hari ini) untuk hitung persen.
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const asetNow = computeWalletsFromArr(txs).totalAset;
+    const modal = computeWalletsFromArr((txs || []).filter(t => { const d = new Date(t.date); return t && !t.isDeleted && !isNaN(d.getTime()) && d.getTime() < startToday; })).totalAset;
+    const pct = v => modal > 0 ? ' (' + (v / modal * 100).toFixed(1).replace('.', ',') + '% dari modal)' : '';
+    let body = '💰 Saldo Aset: ' + rp(asetNow) + '\n🏦 Modal awal hari: ' + (modal > 0 ? rp(modal) : '-');
     if (!todays.length) {
-        body = 'Belum ada transaksi hari ini.';
+        body += '\nBelum ada transaksi hari ini.';
     } else {
-        body = '↑ Pemasukan: +' + rp(inc) + ' (' + incN + 'x)\n↓ Pengeluaran: -' + rp(exp) + ' (' + expN + 'x)\n🔄 Transfer antar wallet: ' + (trs.length ? trs.length + 'x · ' + rp(trSum) + '\n' + trs.slice(0, 3).map(t => wn(t.wallet) + ' ➔ ' + wn(t.walletTo) + ' ' + rp(Number(t.amount) || 0)).join('\n') + (trs.length > 3 ? '\n+' + (trs.length - 3) + ' lainnya' : '') : 'tidak ada');
+        body += '\n↑ Total Pemasukan: +' + rp(inc) + pct(inc) + ' · ' + incN + 'x\n↓ Total Pengeluaran: -' + rp(exp) + pct(exp) + ' · ' + expN + 'x\n🔄 Transfer antar wallet: ' + (trs.length ? trs.length + 'x · ' + rp(trSum) + '\n' + trs.slice(0, 3).map(t => wn(t.wallet) + ' ➔ ' + wn(t.walletTo) + ' ' + rp(Number(t.amount) || 0)).join('\n') + (trs.length > 3 ? '\n+' + (trs.length - 3) + ' lainnya' : '') : 'tidak ada');
     }
     try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome'); } catch(e) { console.error(e); }
 };
