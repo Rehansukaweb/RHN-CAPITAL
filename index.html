@@ -6717,6 +6717,7 @@ window.verifyPin = async function() {
         if (pinInput === localPin || pinInput === window.userCloudPin) { 
             window.appUnlocked = true;
             unlockApp(); 
+            if (window.__armWelcome) window.__armWelcome();
         } else { 
             errEl.textContent = 'PIN Salah!'; errEl.style.display = 'block'; 
             document.getElementById('app-pin').value = ''; 
@@ -6725,6 +6726,50 @@ window.verifyPin = async function() {
             if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
         } 
     } 
+};
+
+// ===== Sapaan selamat datang + ringkasan transaksi hari ini (muncul setelah PIN benar) =====
+window.__welcomePending = false;
+window.__welcomeTimer = null;
+window.__armWelcome = function() {
+    window.__welcomePending = true;
+    if (window.__welcomeTimer) clearTimeout(window.__welcomeTimer);
+    // Cadangan kalau snapshot dari server belum datang (misal offline): tampilkan pakai data yang ada.
+    window.__welcomeTimer = setTimeout(function() { if (window.__welcomePending) window.__fireWelcome(); }, 3000);
+};
+window.__fireWelcome = function() {
+    if (!window.__welcomePending) return;
+    window.__welcomePending = false;
+    if (window.__welcomeTimer) { clearTimeout(window.__welcomeTimer); window.__welcomeTimer = null; }
+    try { window.showDailyWelcome(); } catch(e) { console.error(e); }
+};
+window.showDailyWelcome = async function() {
+    if (!currentUser || !window.appUnlocked || !window.rhnNotify) return;
+    // Notifikasi muncul di bar notifikasi HP/browser (bukan di dalam aplikasi).
+    try { if ('Notification' in window && Notification.permission === 'default') await Notification.requestPermission(); } catch(e) {}
+    const now = new Date();
+    const h = now.getHours();
+    const sapa = h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 18 ? 'Selamat sore' : 'Selamat malam';
+    const full = currentUser.displayName || (currentUser.email || '').split('@')[0] || '';
+    const nama = String(full).trim().split(/\s+/)[0] || '';
+    const todayKey = now.toDateString();
+    const todays = (txs || []).filter(t => { if (!t || t.isDeleted || !t.date) return false; const d = new Date(t.date); return !isNaN(d.getTime()) && d.toDateString() === todayKey; });
+    let inc = 0, exp = 0, incN = 0, expN = 0, trSum = 0; const trs = [];
+    todays.forEach(t => {
+        const a = Number(t.amount) || 0;
+        if (t.type === 'income') { inc += a; incN++; }
+        else if (t.type === 'expense') { exp += a; expN++; }
+        else if (t.type === 'transfer') { trSum += a; trs.push(t); }
+    });
+    const rp = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
+    const wn = w => w ? (window.walletDisp ? window.walletDisp(w) : w) : '-';
+    let body;
+    if (!todays.length) {
+        body = 'Belum ada transaksi hari ini.';
+    } else {
+        body = '↑ Pemasukan: +' + rp(inc) + ' (' + incN + 'x)\n↓ Pengeluaran: -' + rp(exp) + ' (' + expN + 'x)\n🔄 Transfer antar wallet: ' + (trs.length ? trs.length + 'x · ' + rp(trSum) + '\n' + trs.slice(0, 3).map(t => wn(t.wallet) + ' ➔ ' + wn(t.walletTo) + ' ' + rp(Number(t.amount) || 0)).join('\n') + (trs.length > 3 ? '\n+' + (trs.length - 3) + ' lainnya' : '') : 'tidak ada');
+    }
+    try { await window.rhnNotify(sapa + (nama ? ', ' + nama : '') + '! 👋', body, 'rhn-welcome'); } catch(e) { console.error(e); }
 };
 
 function unlockApp() { 
@@ -9523,6 +9568,7 @@ function listenTransactions(uid) {
         // (yang kadang telat/tidak akurat), jadi begitu Firestore beneran konek lagi, langsung ketahuan.
         if (!snap.metadata.fromCache) resolvePendingOfflineWrites();
         refreshAll(); 
+        if (window.__welcomePending && !snap.metadata.fromCache) window.__fireWelcome();
         window.triggerBackupOnTxChange();
     }, err => { 
         console.error(err); 
