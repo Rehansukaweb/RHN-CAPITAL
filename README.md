@@ -3875,6 +3875,7 @@ window.logoutFromSubscribeScreen = async function() {
     });
     if (result.isConfirmed) {
         if (window.__subsUnsub) { window.__subsUnsub(); window.__subsUnsub = null; }
+        if (window.stopLinkedAccounts) window.stopLinkedAccounts();
         localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn');
         window.appUnlocked = false; window.userCloudPin = null;
         const wasOfflineSession = window.__offlineSession || !navigator.onLine;
@@ -6491,6 +6492,7 @@ window.doLogout = function() {
             Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
+            if (window.stopLinkedAccounts) window.stopLinkedAccounts();
             if (currentUser && window.__currentDeviceId) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }); } catch(e) {} }
             txs = []; deletedTxs = []; 
             
@@ -9189,7 +9191,7 @@ function attachLinkPartner(pid) {
         scheduleLinkReconcile(pid);
     }, err => {
         console.error('Gagal membaca catatan akun tertaut', err);
-        if (err && err.code === 'permission-denied' && !window.__linkRulesWarned) {
+        if (err && err.code === 'permission-denied' && auth.currentUser && !window.__linkRulesWarned) {
             window.__linkRulesWarned = true;
             Swal.fire({ toast: true, position: 'top', icon: 'warning', title: 'Sinkron akun tertaut butuh Firestore Rules terbaru (izin baca akun tertaut).', timer: 7000, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' });
         }
@@ -9368,6 +9370,14 @@ function renderLinkedAccounts() {
         </div>
       </div>`).join('');
 }
+
+window.stopLinkedAccounts = function() {
+    if (window.__unsubLinks) { try { window.__unsubLinks(); } catch(e) {} window.__unsubLinks = null; }
+    if (window.__unsubLinkReq) { try { window.__unsubLinkReq(); } catch(e) {} window.__unsubLinkReq = null; }
+    if (window.__linkSafetyTimer) { clearInterval(window.__linkSafetyTimer); window.__linkSafetyTimer = null; }
+    Object.keys(__linkState).forEach(detachLinkPartner);
+    window.__links = []; __linkMine = null; window.__linkRulesWarned = false;
+};
 
 window.listenLinkedAccounts = function(uid) {
     if (window.__unsubLinks) window.__unsubLinks();
