@@ -6768,7 +6768,7 @@ window.showDailyWelcome = async function() {
     const asetNow = computeWalletsFromArr(txs).totalAset;
     const modal = computeWalletsFromArr((txs || []).filter(t => { const d = new Date(t.date); return t && !t.isDeleted && !isNaN(d.getTime()) && d.getTime() < startToday; })).totalAset;
     const pct = v => modal > 0 ? ' (' + (v / modal * 100).toFixed(1).replace('.', ',') + '% dari modal)' : '';
-    let body = '💰 Saldo Aset: ' + rp(asetNow) + '\n🏦 Modal awal hari: ' + (modal > 0 ? rp(modal) : '-');
+    let body = '🏦 Saldo awal: ' + (modal > 0 ? rp(modal) : '-') + '\n💰 Saldo saat ini: ' + rp(asetNow);
     if (!todays.length) {
         body += '\nBelum ada transaksi hari ini.';
     } else {
