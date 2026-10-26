@@ -3150,8 +3150,61 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     if (!window.__isAdmin) return;
     const rp = n => 'Rp' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pc = n => (isFinite(n) ? n : 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-    const box = h => '<div style="max-height:68vh;overflow-y:auto;text-align:left;">' + h + '</div>';
-    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: 760, background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+    if (!document.getElementById('ah-style')) {
+        const st = document.createElement('style'); st.id = 'ah-style';
+        st.textContent = `
+.ah-container.swal2-container{padding:0!important;align-items:stretch!important;}
+.ah-popup.swal2-popup{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100vw!important;max-width:100vw!important;height:100vh!important;height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;border:none!important;display:flex!important;flex-direction:column;justify-content:flex-start!important;overflow:hidden!important;}
+.ah-popup .swal2-title{font-size:15px!important;font-weight:800!important;text-align:left!important;margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 14px) 56px 12px 16px!important;border-bottom:1px solid var(--border2);background:var(--bg2);line-height:1.3;word-break:break-word;flex:0 0 auto;}
+.ah-popup .swal2-close{position:absolute!important;z-index:5;display:flex!important;align-items:center;justify-content:center;top:calc(env(safe-area-inset-top,0px) + 8px)!important;right:10px!important;width:38px!important;height:38px!important;font-size:30px!important;color:var(--text)!important;}
+.ah-popup .swal2-html-container{margin:0!important;padding:0!important;flex:1 1 auto;min-height:0;overflow:hidden!important;text-align:left!important;}
+.ah-popup .swal2-actions,.ah-popup .swal2-loader,.ah-popup .swal2-footer,.ah-popup .swal2-icon,.ah-popup .swal2-validation-message{display:none!important;}
+.ah-scroll{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px calc(env(safe-area-inset-bottom,0px) + 28px);}
+.ah-wrap{max-width:900px;margin:0 auto;}
+.ah-hero{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 14px;border:1px solid var(--border2);border-radius:20px;background:var(--bg2);margin-bottom:14px;}
+.ah-donut{width:168px;height:168px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.ah-donut-in{width:116px;height:116px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ah-donut-in b{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--green2);line-height:1.1;}
+.ah-donut-in span{font-size:9px;font-weight:800;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-top:3px;}
+.ah-legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);}
+.ah-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+.ah-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px;}
+.ah-stat{padding:12px 13px;border:1px solid var(--border2);border-radius:16px;background:var(--bg2);min-width:0;}
+.ah-stat.full{grid-column:1 / -1;}
+.ah-stat .l{font-size:9.5px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;line-height:1.3;margin-bottom:5px;}
+.ah-stat .v{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:14px;white-space:nowrap;letter-spacing:-.3px;}
+.ah-stat.full .v{font-size:19px;}
+.ah-sheet{border:1px solid var(--border2);border-radius:20px;background:var(--bg2);padding:14px 12px;margin-bottom:14px;}
+.ah-sheet-t{font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;word-break:break-word;}
+.ah-sheet-t span{color:var(--text3);font-weight:600;}
+.ah-mh{font-size:12px;font-weight:800;margin:14px 0 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;}
+.ah-mh span{color:var(--text3);font-weight:600;font-size:10.5px;}
+.ah-row{border:1px solid var(--border);border-radius:14px;background:var(--bg3);padding:10px 12px;margin-bottom:8px;}
+.ah-row.tot{border-color:var(--gold);background:rgba(251,191,36,.07);}
+.ah-row-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;}
+.ah-pill{font-size:9.5px;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.4px;}
+.ah-pill.ok{background:rgba(16,185,129,.15);color:var(--green2);}
+.ah-pill.no{background:rgba(248,113,113,.15);color:var(--red2);}
+.ah-pill.nil{background:rgba(136,136,153,.15);color:var(--text3);}
+.ah-pd{font-size:10px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.ah-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.ah-cols div .l{font-size:8.5px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.ah-cols div .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11.5px;white-space:nowrap;}
+.ah-sum{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border2);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.ah-sum .l{font-size:8.5px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:2px;}
+.ah-sum .v{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;white-space:nowrap;}
+@media (min-width:768px){
+ .ah-popup.swal2-popup{position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;width:min(960px,96vw)!important;height:92vh!important;margin:auto!important;border-radius:24px!important;border:1px solid var(--border2)!important;}
+ .ah-container.swal2-container{align-items:center!important;}
+ .ah-hero{flex-direction:row;justify-content:center;gap:32px;}
+ .ah-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+ .ah-stat.full{grid-column:span 2;}
+}
+@media (max-width:360px){ .ah-stat .v{font-size:12.5px;} .ah-cols div .v{font-size:10.5px;} }`;
+        document.head.appendChild(st);
+    }
+    const box = h => '<div class="ah-scroll"><div class="ah-wrap">' + h + '</div></div>';
+    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: '100%', padding: 0, heightAuto: false, background: 'var(--card)', color: 'var(--text)', customClass: { container: 'ah-container', popup: 'ah-popup' }, didOpen: () => Swal.showLoading() });
     let hd = null;
     try {
         const snap = await getDoc(doc(db, 'users', uid, 'settings', 'hutang'));
@@ -3161,35 +3214,36 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     }
     Swal.hideLoading();
     if (!hd || !hd.sheets || !hd.sheets.length) return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">User ini belum punya catatan hutang (atau belum sinkron ke cloud).</div>' });
-    const th = 'padding:6px 8px;font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;background:var(--bg3);';
-    const td = 'padding:6px 8px;font-size:11px;font-family:\'JetBrains Mono\',monospace;font-weight:700;text-align:right;border-top:1px solid var(--border);white-space:nowrap;';
+    const pill = (j, ok) => '<span class="ah-pill ' + (!j ? 'nil' : ok ? 'ok' : 'no') + '">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</span>';
+    const cols = (j, b, h) => '<div class="ah-cols"><div><div class="l">Jumlah</div><div class="v">' + rp(j) + '</div></div><div><div class="l">Bayar</div><div class="v">' + (b ? rp(b) : '-') + '</div></div><div><div class="l">Hasil</div><div class="v">' + rp(h) + '</div></div></div>';
     let gJ = 0, gB = 0, gCic = 0, body = '';
     hd.sheets.forEach(sh => {
         let sJ = 0, sB = 0; const ms = sh.months || [];
-        body += '<div style="border:1px solid var(--border2);border-radius:16px;padding:12px;margin-bottom:12px;background:var(--bg2);"><div style="font-size:12px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">' + escapeHTML(sh.name || '-') + ' <span style="color:var(--text3);font-weight:600;">(' + ms.length + ' bulan)</span></div>';
+        body += '<div class="ah-sheet"><div class="ah-sheet-t">' + escapeHTML(sh.name || '-') + ' <span>(' + ms.length + ' bulan)</span></div>';
         ms.forEach((m, i) => {
             let mJ = 0, mB = 0;
             const rows = (m.rows || []).map(r => {
                 const j = Number(r.jumlah) || 0, b = Number(r.bayar) || 0; mJ += j; mB += b;
                 const ok = j > 0 && j - b <= 0;
-                return '<tr><td style="' + td + '">' + rp(j) + '</td><td style="' + td + '">' + (b ? rp(b) : '-') + '</td><td style="' + td + '">' + rp(Math.max(j - b, 0)) + '</td><td style="' + td + 'text-align:center;font-family:inherit;color:' + (!j ? 'var(--text3)' : ok ? 'var(--green2)' : 'var(--red2)') + ';">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</td><td style="' + td + '">' + rp(j / 30) + '</td></tr>';
+                return '<div class="ah-row"><div class="ah-row-top">' + pill(j, ok) + '<span class="ah-pd">Perhari ' + rp(j / 30) + '</span></div>' + cols(j, b, Math.max(j - b, 0)) + '</div>';
             }).join('');
             sJ += mJ; sB += mB;
-            const mOk = mJ > 0 && mJ - mB <= 0, tt = td + 'background:var(--bg3);border-top:1px solid var(--border2);color:var(--gold);font-weight:800;';
-            const totR = '<tr><td style="' + tt + '">TOTAL ' + rp(mJ) + '</td><td style="' + tt + '">' + rp(mB) + '</td><td style="' + tt + '">' + rp(Math.max(mJ - mB, 0)) + '</td><td style="' + tt + 'text-align:center;font-family:inherit;color:' + (!mJ ? 'var(--text3)' : mOk ? 'var(--green2)' : 'var(--red2)') + ';">' + (!mJ ? '-' : mOk ? 'LUNAS' : 'BELUM LUNAS') + '</td><td style="' + tt + '">' + rp(mJ / 30) + '</td></tr>';
-            body += '<div style="font-size:11px;font-weight:800;margin:8px 0 4px;">' + (i + 1) + '. ' + escapeHTML(m.name || '-') + ' <span style="color:var(--text3);font-weight:600;">• Total harian ' + rp(mJ / 30) + '</span></div><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:480px;"><tr><th style="' + th + '">Jumlah</th><th style="' + th + '">Bayar</th><th style="' + th + '">Hasil</th><th style="' + th + '">Status</th><th style="' + th + '">Perhari</th></tr>' + rows + (rows ? totR : '') + '</table></div>';
+            const mOk = mJ > 0 && mJ - mB <= 0;
+            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL BULAN INI</span>' + pill(mJ, mOk) + '</div>' + cols(mJ, mB, Math.max(mJ - mB, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(mJ / 30) + '</div></div>';
+            body += '<div class="ah-mh"><div>' + (i + 1) + '. ' + escapeHTML(m.name || '-') + '</div><span>Total harian ' + rp(mJ / 30) + '</span></div>' + rows + (rows ? totR : '');
         });
         const sSisa = Math.max(sJ - sB, 0);
-        body += '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border2);font-size:11px;display:flex;flex-wrap:wrap;gap:6px 16px;font-family:\'JetBrains Mono\',monospace;font-weight:700;"><span>Jumlah ' + rp(sJ) + '</span><span style="color:var(--green2);">Bayar ' + rp(sB) + '</span><span style="color:var(--red2);">Sisa ' + rp(sSisa) + ' (' + pc(sJ ? sSisa / sJ * 100 : 0) + ')</span></div></div>';
+        body += '<div class="ah-sum"><div><div class="l">Jumlah</div><div class="v">' + rp(sJ) + '</div></div><div><div class="l">Bayar</div><div class="v" style="color:var(--green2);">' + rp(sB) + '</div></div><div><div class="l">Sisa (' + pc(sJ ? sSisa / sJ * 100 : 0) + ')</div><div class="v" style="color:var(--red2);">' + rp(sSisa) + '</div></div></div></div>';
         gJ += sJ; gB += sB; if (ms.length) gCic += sJ / ms.length;
     });
     const gSisa = Math.max(gJ - gB, 0), pp = gJ ? Math.min(gB / gJ * 100, 100) : 0;
     const inc = Number(hd.income) || 0, md = Number(hd.maxDaily) || 0, saldo = inc - gCic;
-    const pie = '<div style="width:130px;height:130px;border-radius:50%;flex:0 0 auto;background:' + (gJ ? 'conic-gradient(#10B981 0 ' + pp + '%, #F87171 ' + pp + '% 100%)' : 'var(--border2)') + ';border:2px solid var(--bg2);"></div>';
-    const rw = (l, v, c) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--text3);font-weight:800;text-transform:uppercase;">' + l + '</span><b style="font-family:\'JetBrains Mono\',monospace;' + (c ? 'color:' + c + ';' : '') + '">' + v + '</b></div>';
-    const head = '<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:14px;border:1px solid var(--border2);border-radius:16px;background:var(--bg2);">' + pie +
-        '<div style="flex:1;min-width:220px;">' + rw('Total Jumlah', rp(gJ)) + rw('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + rw('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') +
-        rw('Pemasukan Bulanan', rp(inc)) + rw('Bayar Cicilan (rata-rata)', rp(gCic)) + rw('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + rw('Maks. Pengeluaran Perhari', rp(md)) + rw('Saldo Harian Setelah Cicilan', rp(saldo / 30)) + '</div></div>';
+    const donut = '<div class="ah-donut" style="background:' + (gJ ? 'conic-gradient(#10B981 0 ' + pp + '%, #F87171 ' + pp + '% 100%)' : 'var(--border2)') + ';"><div class="ah-donut-in"><b>' + pc(pp).replace(',00', '') + '</b><span>Terbayar</span></div></div>';
+    const legend = '<div class="ah-legend"><span><i style="background:#10B981;"></i>Sudah dibayar</span><span><i style="background:#F87171;"></i>Belum dibayar</span></div>';
+    const st = (l, v, c, full) => '<div class="ah-stat' + (full ? ' full' : '') + '"><div class="l">' + l + '</div><div class="v"' + (c ? ' style="color:' + c + ';"' : '') + '>' + v + '</div></div>';
+    const head = '<div class="ah-hero">' + donut + '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">' + legend + '</div></div>' +
+        '<div class="ah-grid">' + st('Total Jumlah', rp(gJ), '', true) + st('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + st('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') +
+        st('Pemasukan Bulanan', rp(inc)) + st('Bayar Cicilan (rata-rata)', rp(gCic)) + st('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + st('Maks. Pengeluaran Perhari', rp(md)) + st('Saldo Harian Setelah Cicilan', rp(saldo / 30), '', false) + '</div>';
     Swal.update({ html: box(head + body) });
 };
 
