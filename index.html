@@ -7628,7 +7628,7 @@ window.adminExtractData = async function() {
     const tl = { income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer', debt: 'Hutang', recv: 'Piutang' };
     const sub = (document.getElementById('admin-detail-title') || {}).textContent || '';
     const r = await Swal.fire({
-        title: '📋 Salin / Ekstrak Data', width: 520, background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'SALIN', cancelButtonText: 'Batal', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', focusConfirm: false,
+        title: '<div>📋 Salin / Ekstrak Data<button type="button" class="opt-x" aria-label="Tutup" onclick="Swal.close()">&times;</button></div>', customClass: { popup: 'opt-pop' }, width: 520, background: 'var(--card)', color: 'var(--text)', showCancelButton: true, confirmButtonText: 'SALIN', cancelButtonText: 'Batal', confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)', focusConfirm: false,
         html: '<div style="text-align:left; font-size:11px; color:var(--text3); margin-bottom:8px;">' + list.length + ' catatan pada tampilan saat ini. Pilih kategori (kosong = semua).</div>' +
             '<div style="max-height:170px; overflow-y:auto; text-align:left; border:1px solid var(--border); border-radius:12px; padding:8px; margin-bottom:10px;">' +
             cats.map(c => '<label style="display:flex; align-items:center; gap:8px; padding:4px 2px; font-size:12px; color:var(--text);"><input type="checkbox" class="ax-cat" value="' + escapeHTML(c) + '"> ' + escapeHTML(c) + ' <span style="color:var(--text3); font-size:10px;">(' + list.filter(t => (t.category || '-') === c).length + ')</span></label>').join('') + '</div>' +
