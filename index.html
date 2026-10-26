@@ -13433,7 +13433,7 @@ if ('serviceWorker' in navigator) {
   function pbar(j,b){var p=j>0?Math.min(100,Math.max(0,b/j*100)):0;return '<div class="ht-pb" title="Terbayar '+pct(p)+'"><i style="width:'+p.toFixed(1)+'%"></i></div>';}
   function mon(sid,mid){var s=sheet(sid);return s?s.months.filter(function(x){return x.id===mid;})[0]:null;}
   window.htSyncNow=function(){
-    var t=function(icon,title,text){if(typeof Swal!=='undefined')SW(icon==='success'?{icon:icon,title:title,text:text||'',timer:1800,showConfirmButton:false}:{icon:icon,title:title,text:text||''});};
+    var t=function(icon,title,text){if(typeof Swal==='undefined')return;if(icon==='success'&&window.showSaveSuccess){window.showSaveSuccess(title,1800,text||'');return;}SW({icon:icon,title:title,text:text||''});};
     if(!window.hutangCloud||!window.hutangCloud.uid()){t('info','Belum login','Login dulu agar data bisa disinkron ke akun.');return;}
     sync(true).then(function(ch){
       var st=window.__htStatus||'';
