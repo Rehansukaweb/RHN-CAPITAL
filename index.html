@@ -716,7 +716,7 @@ select.f-input-dark option { background: var(--bg2); color: var(--text); font-we
 #subscribe-screen .subs-pay-amount { text-align:center; font-size:22px; font-weight:800; color:var(--text); margin:4px 0 18px; }
 #subscribe-screen .subs-pay-amount span { display:block; font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
 #subscribe-screen .subs-pending-box { text-align:center; background:var(--card); border:1.5px dashed var(--gold); border-radius:18px; padding:28px 18px; }
-#subscribe-screen .subs-pending-box .sp-spin { width:34px; height:34px; margin:0 auto 14px; border-radius:50%; border:3px solid rgba(251,191,36,0.25); border-top-color:var(--gold); animation:subs-spin 0.9s linear infinite; }
+#subscribe-screen .subs-pending-box .sp-spin { margin:0 auto 14px; }
 @keyframes subs-spin { to { transform:rotate(360deg); } }
 #subscribe-screen .subs-active-box { text-align:center; background:var(--card); border:1.5px solid var(--green2); border-radius:18px; padding:24px 18px; }
 #subscribe-screen .subs-logout { display:block; margin:22px auto 0; background:transparent; border:none; color:var(--red2); font-size:10.5px; font-weight:800; text-decoration:underline; cursor:pointer; text-transform:uppercase; letter-spacing:0.4px; }
@@ -1072,6 +1072,14 @@ body.global-privacy #xau-idr-gr {
 .sv-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.2px;opacity:0;animation:svFade .35s .6s ease forwards}
 @keyframes svDraw{to{stroke-dashoffset:0}}
 @keyframes svFade{to{opacity:1}}
+/* Animasi memuat elegan (tiga titik berdenyut bergantian, gaya aplikasi besar) - pengganti spinner berputar untuk semua proses muat database */
+@property --rd1{syntax:'<number>';inherits:false;initial-value:2.5}@property --rd2{syntax:'<number>';inherits:false;initial-value:2.5}@property --rd3{syntax:'<number>';inherits:false;initial-value:2.5}
+.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{width:44px!important;height:12px!important;border:0!important;border-radius:0!important;background-color:transparent!important;background-image:radial-gradient(circle at 7px 50%,#fbbf24 calc(var(--rd1)*1px),transparent calc(var(--rd1)*1px + 1px)),radial-gradient(circle at 22px 50%,#fbbf24 calc(var(--rd2)*1px),transparent calc(var(--rd2)*1px + 1px)),radial-gradient(circle at 37px 50%,#fbbf24 calc(var(--rd3)*1px),transparent calc(var(--rd3)*1px + 1px))!important;background-repeat:no-repeat!important;background-size:100% 100%!important;animation:rhnD1 1.2s ease-in-out infinite,rhnD2 1.2s ease-in-out .16s infinite,rhnD3 1.2s ease-in-out .32s infinite!important;filter:drop-shadow(0 0 5px rgba(251,191,36,.4))}
+.rhn-ld{display:block;margin:8px auto 12px}
+.swal2-container .swal2-popup .swal2-loader{margin:16px auto 10px!important}
+#subscribe-screen .subs-pending-box .sp-spin{margin:0 auto 16px!important}
+@keyframes rhnD1{0%,70%,100%{--rd1:2.5}35%{--rd1:5}}@keyframes rhnD2{0%,70%,100%{--rd2:2.5}35%{--rd2:5}}@keyframes rhnD3{0%,70%,100%{--rd3:2.5}35%{--rd3:5}}
+@media (prefers-reduced-motion:reduce){.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{animation-duration:3s!important}}
 /* Samakan semua dialog (konfirmasi, loading, info, error, daftar admin) dengan gaya popup berhasil */
 .swal2-popup{background:var(--card);border:1px solid var(--border2,rgba(255,255,255,.08))!important;border-radius:22px!important;box-shadow:0 20px 50px rgba(0,0,0,.45)!important;padding:26px 28px 24px!important;font-family:inherit}
 .swal2-popup.swal2-icon-show{width:min(360px,92vw)!important}
@@ -2140,7 +2148,7 @@ body.global-privacy #xau-idr-gr {
       <button class="export-btn" onclick="window.createReferralCode()" style="background:var(--blue); color:#fff;">➕ BUAT KODE BARU</button>
       <button class="export-btn" onclick="window.loadReferralCodes()" style="background:var(--gold); color:#000; margin-left:8px;">🔄 MUAT DAFTAR KODE</button>
     </div>
-    <div id="admin-referral-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat kode referral...</div></div>
+    <div id="admin-referral-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat kode referral...</div></div>
   </div>
 
   <div class="card">
@@ -2151,7 +2159,7 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <button class="export-btn" onclick="window.loadActiveSubscribers()" style="background:var(--gold); color:#000;">🔄 MUAT DAFTAR MEMBER AKTIF</button>
     </div>
-    <div id="admin-active-members-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat member aktif...</div></div>
+    <div id="admin-active-members-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat member aktif...</div></div>
   </div>
 
   <div class="card">
@@ -2162,7 +2170,7 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <button class="export-btn" onclick="window.loadAdminSubscriptionRequests()" style="background:var(--gold); color:#000;">🔄 MUAT PERMINTAAN LANGGANAN</button>
     </div>
-    <div id="admin-subscription-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat permintaan langganan...</div></div>
+    <div id="admin-subscription-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat permintaan langganan...</div></div>
   </div>
 
   <div class="card">
@@ -2188,7 +2196,7 @@ body.global-privacy #xau-idr-gr {
       <div class="card-title" style="color: var(--gold);">📲 File Aplikasi (APK)</div>
       <div class="card-sub">Upload APK ke Google Drive / GitHub Releases / hosting lain (gratis), lalu tempel link downloadnya di sini. Orang yang membuka link IB akan melihat tombol download aplikasi.</div>
     </div>
-    <div id="admin-apk-info" style="padding:10px 4px; font-size:11.5px; color:var(--text2); line-height:1.6;">Memuat info APK...</div>
+    <div id="admin-apk-info" style="padding:10px 4px; font-size:11.5px; color:var(--text2); line-height:1.6;"><i class=rhn-ld></i>Memuat info APK...</div>
     <input type="text" id="admin-apk-url" class="f-input-dark" placeholder="Tempel link download APK (https://...)" style="margin-top:8px;">
     <div id="admin-apk-progress" style="font-size:11px; color:var(--gold); margin-top:8px;"></div>
     <button class="export-btn" id="admin-apk-btn" onclick="window.uploadApkAdmin()" style="background:var(--gold); color:#000; margin-top:8px;">💾 SIMPAN LINK APK</button>
@@ -2202,7 +2210,7 @@ body.global-privacy #xau-idr-gr {
     <div class="filter-bar">
       <button class="export-btn" onclick="window.loadAdminIB()" style="background:var(--gold); color:#000;">🔄 MUAT DATA IB</button>
     </div>
-    <div id="admin-ib-root"><div class="ib-empty">Memuat data IB...</div></div>
+    <div id="admin-ib-root"><div class="ib-empty"><i class=rhn-ld></i>Memuat data IB...</div></div>
   </div>
 
   
@@ -2211,7 +2219,7 @@ body.global-privacy #xau-idr-gr {
       <div class="card-title" style="color: var(--gold);">💬 Customer Service — Chat Masuk</div>
       <div class="card-sub">Percakapan bantuan dari seluruh user terdaftar.</div>
     </div>
-    <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar chat...</div></div>
+    <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat daftar chat...</div></div>
   </div>
 </div>
 
@@ -2234,7 +2242,7 @@ body.global-privacy #xau-idr-gr {
 </div>
 
 <div id="page-ib" class="page">
-  <div id="ib-root"><div class="ib-empty">Memuat dashboard IB...</div></div>
+  <div id="ib-root"><div class="ib-empty"><i class=rhn-ld></i>Memuat dashboard IB...</div></div>
 </div>
 
 <div id="page-wallet" class="page">
@@ -2288,7 +2296,7 @@ body.global-privacy #xau-idr-gr {
   <div class="set-group">
     <div class="set-title">🎟️ LANGGANAN MEMBER</div>
     <div class="set-item" id="settings-subs-status">
-      <div><div class="set-label">Status Langganan</div><div class="set-sub">Memuat status...</div></div>
+      <div><div class="set-label">Status Langganan</div><div class="set-sub"><i class=rhn-ld></i>Memuat status...</div></div>
       <span class="subs-status-pill pending">● MEMUAT</span>
     </div>
     <button class="set-action" style="width:100%; margin-top:12px; background:var(--gold); color:#000; border:none;" onclick="window.bukaLayarLangganan()">PERPANJANG / LIHAT PAKET</button>
@@ -2450,7 +2458,7 @@ body.global-privacy #xau-idr-gr {
     <div class="set-item">
       <div>
         <div class="set-label">IB Saat Ini</div>
-        <div class="set-sub" id="settings-ib-name">Memuat...</div>
+        <div class="set-sub" id="settings-ib-name"><i class=rhn-ld></i>Memuat...</div>
       </div>
       <span id="settings-ib-code" style="font-weight:800; letter-spacing:1px; color:var(--gold); font-size:13px;">-</span>
     </div>
@@ -2841,9 +2849,9 @@ body.global-privacy #xau-idr-gr {
     if (!isApp) {
       var keys = ['last_uid_rhn','local_pin_rhn'];
       var g = Storage.prototype.getItem, st = Storage.prototype.setItem, rm = Storage.prototype.removeItem;
-      Storage.prototype.getItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.getItem(k) : g.call(this, k); };
-      Storage.prototype.setItem = function(k,v){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.setItem(k,v) : st.call(this, k, v); };
-      Storage.prototype.removeItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? window.sessionStorage.removeItem(k) : rm.call(this, k); };
+      Storage.prototype.getItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? g.call(this, 'web_' + k) : g.call(this, k); };
+      Storage.prototype.setItem = function(k,v){ return (this === window.localStorage && keys.indexOf(k) > -1) ? st.call(this, 'web_' + k, v) : st.call(this, k, v); };
+      Storage.prototype.removeItem = function(k){ return (this === window.localStorage && keys.indexOf(k) > -1) ? rm.call(this, 'web_' + k) : rm.call(this, k); };
     }
   } catch(e) {}
 })();
@@ -2955,8 +2963,8 @@ const firebaseConfig = {
   appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" 
 };
 
-const app = initializeApp(firebaseConfig); 
-const auth = initializeAuth(app, { persistence: window.__IS_APP_MODE ? [indexedDBLocalPersistence, browserLocalPersistence] : browserSessionPersistence, popupRedirectResolver: browserPopupRedirectResolver }); 
+const app = window.__IS_APP_MODE ? initializeApp(firebaseConfig) : initializeApp(firebaseConfig, 'web-browser'); 
+const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence], popupRedirectResolver: browserPopupRedirectResolver }); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
@@ -3084,7 +3092,7 @@ window.manageDevices = async function() {
     if (window.__manageDevicesUnsub) { window.__manageDevicesUnsub(); window.__manageDevicesUnsub = null; }
     Swal.fire({
         title: '🔴 Perangkat Aktif (Live)',
-        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat...</div>',
+        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat...</div>',
         showConfirmButton: false,
         background: 'var(--card)', color: 'var(--text)',
         didOpen: () => {
@@ -3109,7 +3117,7 @@ window.forceLogoutDevice = function(deviceId) {
                 await updateDoc(doc(db, 'users', currentUser.uid, 'devices', deviceId), { active: false, forceLogoutAt: serverTimestamp() });
                 window.showSaveSuccess('Berhasil', 900);
                 manageDevices();
-            } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }); }
         }
     });
 };
@@ -3120,7 +3128,7 @@ window.showAdminUserDevices = async function(uid, ownerLabel) {
     if (window.__adminDevicesUnsub) { window.__adminDevicesUnsub(); window.__adminDevicesUnsub = null; }
     Swal.fire({
         title: `🔴 Perangkat (Live): ${ownerLabel}`,
-        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Memuat...</div>',
+        html: '<div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat...</div>',
         showConfirmButton: false,
         background: 'var(--card)', color: 'var(--text)',
         didOpen: () => {
@@ -3143,7 +3151,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const rp = n => 'Rp' + (Number(n) || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pc = n => (isFinite(n) ? n : 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
     const box = h => '<div style="max-height:68vh;overflow-y:auto;text-align:left;">' + h + '</div>';
-    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: 760, background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: 760, background: 'var(--card)', color: 'var(--text)', didOpen: () => Swal.showLoading() });
     let hd = null;
     try {
         const snap = await getDoc(doc(db, 'users', uid, 'settings', 'hutang'));
@@ -3193,7 +3201,7 @@ window.forceLogoutAdminUserDevice = function(uid, deviceId, ownerLabel) {
                 await updateDoc(doc(db, 'users', uid, 'devices', deviceId), { active: false, forceLogoutAt: serverTimestamp() });
                 window.showSaveSuccess('Berhasil', 900);
                 showAdminUserDevices(uid, ownerLabel);
-            } catch (e) { Swal.fire('Error', e.message, 'error'); }
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }); }
         }
     });
 };
@@ -3958,7 +3966,7 @@ window.bukaLayarLangganan = function() {
 window.loadAdminSubscriptionRequests = async function() {
     const listEl = document.getElementById('admin-subscription-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat permintaan langganan...</div>';
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat permintaan langganan...</div>';
 
     try {
         const q = query(collection(db, 'subscriptionRequests'), where('status', '==', 'pending'));
@@ -4151,7 +4159,7 @@ window.createReferralCode = async function() {
 window.loadReferralCodes = async function() {
     const listEl = document.getElementById('admin-referral-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat kode referral...</div>';
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat kode referral...</div>';
 
     try {
         const snap = await getDocs(collection(db, 'referralCodes'));
@@ -4197,7 +4205,7 @@ window.toggleReferralUsersList = async function(code) {
         return;
     }
     box.style.display = 'block';
-    box.innerHTML = '<div style="padding:10px; text-align:center; color:var(--text3); font-size:10.5px;">Memuat daftar pemakai...</div>';
+    box.innerHTML = '<div style="padding:10px; text-align:center; color:var(--text3); font-size:10.5px;"><i class=rhn-ld></i>Memuat daftar pemakai...</div>';
     try {
         const entry = (window.__referralCodeUsers || []).find(c => c.code === code);
         const uids = entry ? entry.usedBy : [];
@@ -4254,7 +4262,7 @@ window.deleteReferralCode = async function(code) {
 window.loadActiveSubscribers = async function() {
     const listEl = document.getElementById('admin-active-members-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Memuat daftar member aktif...</div>';
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat daftar member aktif...</div>';
 
     try {
         const q = query(collection(db, 'users'), where('subscriptionExpiry', '>', new Date().toISOString()));
@@ -4523,7 +4531,7 @@ window.renderIBPage = async function () {
     const el = document.getElementById('ib-root'); if (!el || !currentUser) return;
     if (window.__ibUid !== currentUser.uid) { ibStopListeners(); window.__myIB = undefined; window.__ibUid = currentUser.uid; window.__ib = { me: null, clients: [], comms: [], wds: [] }; }
     if (window.__myIB === undefined) {
-        el.innerHTML = '<div class="ib-empty">Memuat dashboard IB...</div>';
+        el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat dashboard IB...</div>';
         try {
             const q = await getDocs(query(collection(db, 'ibs'), where('uid', '==', currentUser.uid), limit(1)));
             window.__myIB = q.empty ? null : q.docs[0].data();
@@ -5062,7 +5070,7 @@ window.ibTarik = async function () {
 window.loadAdminIB = async function () {
     if (!window.__isAdmin) return;
     const el = document.getElementById('admin-ib-root'); if (!el) return;
-    el.innerHTML = '<div class="ib-empty">Memuat data IB...</div>';
+    el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat data IB...</div>';
     try {
         const [a, b, c, d] = await Promise.all(['ibs', 'ibClients', 'ibCommissions', 'ibWithdrawals'].map(n => getDocs(collection(db, n))));
         const map = s => s.docs.map(x => Object.assign({ id: x.id }, x.data()));
@@ -5699,7 +5707,7 @@ function renderXauPrice(price) {
 function applyXauPrice(newPrice) {
     if (!newPrice) return;
     xauBasePrice = newPrice + XAU_PIP_ADJUST;
-    if (xauDisplayPrice === null) xauDisplayPrice = xauBasePrice;
+    xauDisplayPrice = xauBasePrice; renderXauPrice(xauDisplayPrice);
     const dot = document.getElementById('xau-live-dot');
     if (dot) {
         dot.style.background = 'var(--green2)';
@@ -5710,8 +5718,8 @@ function xauTick() {
     if (xauBasePrice === null) return;
     // Gerakan tick realistis ±0.30 sekitar harga asli terakhir, jalan tiap detik —
     // termasuk saat Sabtu/Minggu walau feed asli tidak update (pasar forex tutup).
-    const jitter = (Math.random() - 0.5) * 0.6;
-    xauDisplayPrice = xauBasePrice + jitter;
+    // Tanpa jitter/simulasi: harga tampil persis sesuai data API.
+    xauDisplayPrice = xauBasePrice;
     renderXauPrice(xauDisplayPrice);
 }
 async function fetchLiveXAU() {
@@ -6303,9 +6311,9 @@ window.setQuickLoginCode = async function() {
 };
 
 window.doResetPassword = async function() { const email = document.getElementById('auth-email').value.trim(); hideErr(); if (!email) { return showErr('Masukkan email kamu dulu di kolom atas untuk reset sandi.'); } setLoading(true); document.getElementById('auth-submit-btn').textContent = 'MENGIRIM...'; try { await withTimeout(sendPasswordResetEmail(auth, email), 3000, 'Pengiriman email terlalu lama / macet. Coba lagi.'); window.showSaveSuccess('Email Terkirim!', 1800, 'Cek <b>Inbox</b> atau folder <b>SPAM</b> email kamu.'); } catch(e) { showErr(e.message); } setLoading(false); document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'MASUK' : 'DAFTAR'; };
-window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); window.showSaveSuccess('Terkirim!', 1800, `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`); } catch(e) { Swal.fire('Gagal', e.message, 'error'); } };
+window.reqResetPasswordViaSettings = async function() { if (!currentUser) return; try { await sendPasswordResetEmail(auth, currentUser.email); window.showSaveSuccess('Terkirim!', 1800, `Link reset sandi telah dikirim ke <b>${currentUser.email}</b>`); } catch(e) { Swal.fire({ icon: 'error', title: 'Gagal', text: e.message, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }); } };
 window.clearLocalCache = function() { Swal.fire({ title: 'Bersihkan Cache?', text: "Data inti di cloud aman, hanya mereset preferensi hp ini.", icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', cancelButtonText: 'Batal', background: 'var(--card)', color: 'var(--text)' }).then((res) => { if (res.isConfirmed) { let tempLastUid = localStorage.getItem('last_uid_rhn'); localStorage.clear(); if (tempLastUid) localStorage.setItem('last_uid_rhn', tempLastUid); window.showSaveSuccess('Bersih!', 800); setTimeout(() => location.reload(), 800); } }); };
-window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); window.showSaveSuccess('Data Diformat!', 1000); } catch(e) { Swal.fire('Error', e.message, 'error'); } } }); };
+window.deleteAllData = async function() { if (!currentUser) return; Swal.fire({ title: 'Verifikasi PIN Keamanan', text: 'Masukkan 6 digit PIN untuk format total akun:', input: 'password', inputAttributes: { inputmode: 'numeric', maxlength: 6, autofocus: true, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;' }, icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--red2)', cancelButtonColor: 'var(--bg3)', confirmButtonText: 'HAPUS SEMUA', background: 'var(--card)', color: 'var(--text)' }).then(async (res) => { if (res.isConfirmed) { if (res.value !== window.userCloudPin && res.value !== localStorage.getItem('local_pin_rhn')) return Swal.fire({icon: 'error', title: 'PIN Salah!', background:'var(--card)', color:'var(--text)'}); Swal.fire({title: 'Menghapus...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}}); try { await deleteCollectionInChunks(collection(db, 'users', currentUser.uid, 'transactions')); window.showSaveSuccess('Data Diformat!', 1000); } catch(e) { Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }); } } }); };
 
 window.manageCategories = async function() {
     const { value: type } = await Swal.fire({
@@ -6384,7 +6392,7 @@ window.manageRecurring = async function() {
         });
         html += '</div>';
         Swal.fire({title: 'Jadwal Rutin Aktif', html: html, showConfirmButton: false, background:'var(--card)', color:'var(--text)'});
-    } catch(e) { Swal.fire('Error', e.message, 'error'); }
+    } catch(e) { Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' }); }
 };
 
 window.stopRecurring = function(id) {
@@ -6472,6 +6480,8 @@ function forceResetToAuthScreen() {
     const authBtn = document.getElementById('auth-submit-btn'); if (authBtn) authBtn.textContent = 'MASUK';
     const appPinEl = document.getElementById('app-pin'); if (appPinEl) appPinEl.value = '';
     if (unsubListener) { unsubListener(); unsubListener = null; }
+    window.__txListenUid = null; window.__prefPre = null;
+    try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
     txs = []; deletedTxs = [];
 }
@@ -6491,6 +6501,7 @@ window.doLogout = function() {
         if (result.isConfirmed) {
             Swal.fire({title: 'Keluar...', background:'var(--card)', color:'var(--text)', didOpen: () => {Swal.showLoading()}});
             if (unsubListener) { unsubListener(); unsubListener = null; } 
+            window.__txListenUid = null;
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
             if (window.stopLinkedAccounts) window.stopLinkedAccounts();
             if (currentUser && window.__currentDeviceId) { try { await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { active: false }); } catch(e) {} }
@@ -6509,10 +6520,21 @@ window.doLogout = function() {
     });
 };
 
+try { if (localStorage.getItem('rhn_admin_cache') === '1' && localStorage.getItem('last_uid_rhn')) { const __n0 = document.getElementById('nav-admin'); if (__n0) __n0.style.display = 'inline-block'; } } catch(e) {}
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
     window.__isAdmin = (user.email === "rehantop245@gmail.com");
+    // FAST: tombol admin langsung tampil/hilang di detik pertama (tanpa nunggu server) + simpan cache
+    try {
+        const __navAdm = document.getElementById('nav-admin'); if (__navAdm) __navAdm.style.display = window.__isAdmin ? 'inline-block' : 'none';
+        const __admGrp = document.getElementById('admin-settings-group'); if (__admGrp) __admGrp.style.display = window.__isAdmin ? 'block' : 'none';
+        if (window.__isAdmin) localStorage.setItem('rhn_admin_cache', '1'); else localStorage.removeItem('rhn_admin_cache');
+    } catch(e) {}
+    // FAST: angka langsung tampil dari salinan lokal, lalu listener server & pengaturan mulai paralel (di belakang layar PIN)
+    try { const __b = loadTxLocalBackup(user.uid); if (__b && !txs.length) { txs = (__b.txs || []).filter(t => !t.isDeleted); deletedTxs = __b.deletedTxs || []; refreshAll(); } } catch(e) {}
+    try { window.__prefPre = getDoc(doc(db, 'users', user.uid, 'settings', 'preferences')).catch(() => null); } catch(e) {}
+    try { listenTransactions(user.uid); } catch(e) { console.error(e); }
     document.getElementById('auth-screen').style.display = 'none'; // FIX: Pastikan halaman login tertutup sempurna
     document.getElementById('app-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'flex';
@@ -6554,14 +6576,14 @@ onAuthStateChanged(auth, async user => {
     } catch(err) { console.error(err); setLoading(false); }
     if(window.resetIdle) window.resetIdle();
     
-    try {
+    (async () => { try {
         await setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
         const txRef = collection(db, 'users', user.uid, 'transactions');
         const txSnap = await getDocs(txRef);
         const promises = [];
         txSnap.forEach(d => { if (!d.data().ownerEmail) { promises.push(updateDoc(d.ref, { ownerEmail: user.email })); } });
         if (promises.length > 0) { await Promise.all(promises); }
-    } catch(e) { console.error("Gagal sinkron email lama", e); }
+    } catch(e) { console.error("Gagal sinkron email lama", e); } })();
 
     registerDeviceSession(user);
     
@@ -6573,7 +6595,7 @@ onAuthStateChanged(auth, async user => {
     if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = isAdminUser ? 'block' : 'none';
 
     try {
-        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await Promise.race([getDoc(prefRef), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))]);
+        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await Promise.race([(window.__prefPre || getDoc(prefRef)), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))]);
         if (prefSnap.exists()) { 
             const data = prefSnap.data(); 
             if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } 
@@ -6613,7 +6635,7 @@ onAuthStateChanged(auth, async user => {
     // pindah tab manual. Refresh ulang dropdown-nya di sini begitu window.userCats final.
     if (typeof selType === 'function') { try { selType(typeof curType !== 'undefined' && curType ? curType : 'income'); } catch(e) {} }
 
-    try {
+    (async () => { try {
         const recSnap = await getDocs(collection(db, 'users', user.uid, 'recurring_txs'));
         const todayStr = nowISO().slice(0,10);
         const nowTimeStr = new Date().toTimeString().slice(0,5);
@@ -6638,7 +6660,7 @@ onAuthStateChanged(auth, async user => {
                 await updateDoc(d.ref, { nextRun: nextD.toISOString().slice(0,10) });
             }
         });
-    } catch(err) { console.error("Gagal memproses catatan rutin", err); }
+    } catch(err) { console.error("Gagal memproses catatan rutin", err); } })();
 
     window.isAppLoading = true;
     ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip', 'ext_autobackup'].forEach(id => { if (document.getElementById(id) && extraPrefs[id]) { document.getElementById(id).value = extraPrefs[id]; document.getElementById(id).dispatchEvent(new Event('change')); } });
@@ -6666,6 +6688,8 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('auth-submit-btn').textContent = 'MASUK'; 
 
     if (unsubListener) { unsubListener(); unsubListener = null; } 
+    window.__txListenUid = null; window.__prefPre = null;
+    try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     txs = []; deletedTxs = [];
   }
 });
@@ -7533,7 +7557,8 @@ window.adminExtractData = async function() {
         const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select();
         try { ok = document.execCommand('copy'); } catch (e2) {} document.body.removeChild(ta);
     }
-    Swal.fire({ icon: ok ? 'success' : 'warning', title: ok ? out.length + ' Catatan Disalin!' : 'Salin Manual', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
+    if (ok) { window.showSaveSuccess(out.length + ' Catatan Disalin!', 1800, 'Tinggal tempel (paste) ke AI lain.'); return; }
+    Swal.fire({ icon: 'warning', title: 'Salin Manual', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
         html: ok ? 'Tinggal tempel (paste) ke AI lain.' : '<textarea readonly style="width:100%;height:200px;font-size:11px;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px;">' + escapeHTML(text) + '</textarea>' });
 };
 
@@ -8575,7 +8600,7 @@ window.closeCSChat = function() {
 window.subscribeCSMessages = function(uid) {
     if (window.__unsubCSMessages) { window.__unsubCSMessages(); window.__unsubCSMessages = null; }
     const body = document.getElementById('cs-chat-body');
-    if (body) body.innerHTML = '<div style="text-align:center; color:var(--text3); font-size:11px; padding:20px;">Memuat pesan...</div>';
+    if (body) body.innerHTML = '<div style="text-align:center; color:var(--text3); font-size:11px; padding:20px;"><i class=rhn-ld></i>Memuat pesan...</div>';
     try {
         window.__unsubCSMessages = onSnapshot(
             query(collection(db, 'support_chats', uid, 'messages'), orderBy('createdAtLocal', 'asc')),
@@ -9539,14 +9564,16 @@ window.unlinkAccount = async function(pid) {
 
 function listenTransactions(uid) { 
     window.listenLinkedAccounts(uid);
+    if (unsubListener && window.__txListenUid === uid) return; // FAST: listener sudah jalan, jangan dibuat ulang
     if (unsubListener) unsubListener(); 
+    window.__txListenUid = uid;
     window.__txBackupBaseline = false; 
 
-    // Kalau lagi offline, tampilkan dulu salinan terakhir yang tersimpan lokal biar catatan
+    // Tampilkan dulu salinan terakhir yang tersimpan lokal biar catatan/angka
     // langsung muncul (tidak nol dulu) sambil menunggu Firestore siap.
-    if (!navigator.onLine) {
+    if (true) {
         const backup = loadTxLocalBackup(uid);
-        if (backup) {
+        if (backup && !txs.length) {
             txs = (backup.txs || []).filter(t => !t.isDeleted);
             deletedTxs = backup.deletedTxs || [];
             refreshAll();
@@ -9694,8 +9721,8 @@ window.payRecv = async function(id) {
 
 window.showSaveSuccess = function(title, ms, sub) {
 ms = ms || 1300;
-var t = String(title || 'Catatan Tersimpan').replace(/[<>&]/g, '');
-var u = sub ? String(sub).replace(/<[^>]*>/g, '').replace(/[<>&]/g, '') : '';
+var t = String(title || 'Catatan Tersimpan').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+var u = sub ? String(sub).replace(/<[^>]*>/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
 var pr = Swal.fire({
 position: 'center', showConfirmButton: false, timer: ms, width: 'auto',
 background: 'var(--card)', color: 'var(--text)', backdrop: 'rgba(0,0,0,0.45)',
@@ -12649,16 +12676,54 @@ window.exportExcel = async function() {
 // ===== JEMBATAN SINKRON CLOUD UNTUK MENU HUTANG (users/{uid}/settings/hutang) =====
 window.hutangCloud = {
     uid: function() { return currentUser ? currentUser.uid : null; },
-    pull: async function() {
-        if (!currentUser) return null;
-        const snap = await getDoc(doc(db, 'users', currentUser.uid, 'settings', 'hutang'));
+    // UID akun-akun yang tertaut dengan akun ini (data hutang ikut disinkronkan ke sana)
+    links: function() {
+        const me = currentUser ? currentUser.uid : null;
+        return (window.__links || []).map(function(l) { return l.uid; }).filter(function(u, i, arr) { return u && u !== me && arr.indexOf(u) === i; });
+    },
+    readDoc: async function(uid) {
+        const snap = await getDoc(doc(db, 'users', uid, 'settings', 'hutang'));
         if (!snap.exists()) return null;
         const d = snap.data();
         try { const o = JSON.parse(d.json || 'null'); if (o) o.ts = Number(d.ts) || Number(o.ts) || 0; return o; } catch (e) { return null; }
     },
+    writeDoc: async function(uid, obj) {
+        await setDoc(doc(db, 'users', uid, 'settings', 'hutang'), { json: JSON.stringify(obj), ts: Number(obj.ts) || Date.now(), updatedAt: serverTimestamp() });
+    },
+    pull: async function() {
+        if (!currentUser) return null;
+        const hc = window.hutangCloud, me = currentUser.uid, ids = hc.links();
+        const st = window.__htLink = { n: ids.length, ok: 0, err: 0, msg: '' };
+        const own = await hc.readDoc(me);
+        let best = own, bestUid = me;
+        const seen = {};
+        for (let i = 0; i < ids.length; i++) {
+            try {
+                const o = await hc.readDoc(ids[i]);
+                seen[ids[i]] = o ? (o.ts || 0) : -1;
+                st.ok++;
+                if (o && o.sheets && (!best || (o.ts || 0) > (best.ts || 0))) { best = o; bestUid = ids[i]; }
+            } catch (e) { st.err++; st.msg = (e && (e.code || e.message)) || ''; console.error('Hutang: gagal baca akun tertaut', e); }
+        }
+        // Samakan akun sendiri & semua akun tertaut yang datanya lebih lama dengan data terbaru
+        if (best && best.sheets) {
+            const bts = best.ts || 0;
+            if (bestUid !== me && (!own || (own.ts || 0) < bts)) { try { await hc.writeDoc(me, best); } catch (e) {} }
+            for (let i = 0; i < ids.length; i++) {
+                if (seen[ids[i]] === undefined || ids[i] === bestUid || seen[ids[i]] >= bts) continue;
+                try { await hc.writeDoc(ids[i], best); } catch (e) { st.err++; st.msg = (e && (e.code || e.message)) || ''; console.error('Hutang: gagal kirim ke akun tertaut', e); }
+            }
+        }
+        return best;
+    },
     push: async function(obj) {
         if (!currentUser || !obj) return false;
-        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'hutang'), { json: JSON.stringify(obj), ts: Number(obj.ts) || Date.now(), updatedAt: serverTimestamp() });
+        const hc = window.hutangCloud, ids = hc.links();
+        const st = window.__htLink = { n: ids.length, ok: 0, err: 0, msg: '' };
+        await hc.writeDoc(currentUser.uid, obj);
+        for (let i = 0; i < ids.length; i++) {
+            try { await hc.writeDoc(ids[i], obj); st.ok++; } catch (e) { st.err++; st.msg = (e && (e.code || e.message)) || ''; console.error('Hutang: gagal kirim ke akun tertaut', e); }
+        }
         clearTimeout(window.__hutangBackupDebounce);
         window.__hutangBackupDebounce = setTimeout(() => { try { if (!extraPrefs || extraPrefs.ext_autobackup !== 'off') window.performCloudBackup(true); } catch (e) {} }, 4000);
         return true;
@@ -13435,14 +13500,18 @@ if ('serviceWorker' in navigator) {
   window.htSyncNow=function(){
     var t=function(icon,title,text){if(typeof Swal==='undefined')return;if(icon==='success'&&window.showSaveSuccess){window.showSaveSuccess(title,1800,text||'');return;}SW({icon:icon,title:title,text:text||''});};
     if(!window.hutangCloud||!window.hutangCloud.uid()){t('info','Belum login','Login dulu agar data bisa disinkron ke akun.');return;}
+    if(syncing){t('info','Sedang menyinkron','Tunggu sebentar, proses sinkron sebelumnya belum selesai.');return;}
     sync(true).then(function(ch){
-      var st=window.__htStatus||'';
+      var st=window.__htStatus||'',lk=window.__htLink||{n:0,ok:0,err:0,msg:''};
       if(ch)render();
-      if(st==='pull')t('success','Data dari cloud dimuat','Catatan hutang dari akunmu sudah tampil di perangkat ini.');
-      else if(st==='push')t('success','Data terkirim ke cloud','Catatan hutang di perangkat ini sudah tersimpan di akunmu.');
-      else if(st==='same')t('success','Sudah tersinkron','Data di perangkat ini sama dengan di cloud.');
-      else if(st==='empty')t('info','Belum ada data','Belum ada catatan hutang di perangkat ini maupun di cloud.');
-      else t('error','Sinkron gagal',st.replace('error:','')||'Periksa koneksi internet lalu coba lagi.');
+      if(st.indexOf('error:')===0){t('error','Sinkron gagal',st.replace('error:','')||'Periksa koneksi internet lalu coba lagi.');return;}
+      if(!lk.n){t('info','Belum ada akun tertaut','Tautkan akun dulu di Pengaturan > Akun Tertaut. Data hutang tetap tersimpan di cloud akunmu.');return;}
+      if(lk.err&&!lk.ok){t('error','Sinkron akun tertaut gagal',lk.msg==='permission-denied'?'Server menolak akses. Perbarui Firestore Rules agar akun tertaut boleh membaca & menulis data hutang.':(lk.msg||'Periksa koneksi internet lalu coba lagi.'));return;}
+      if(lk.err){t('warning','Sebagian akun tertaut gagal',lk.ok+' akun berhasil, '+lk.err+' akun gagal'+(lk.msg==='permission-denied'?' (akses ditolak, cek Firestore Rules).':'.'));return;}
+      if(st==='pull')t('success','Data hutang diperbarui','Data terbaru dari akun tertaut sudah dimuat dan disamakan di '+(lk.n+1)+' akun.');
+      else if(st==='push')t('success','Tersinkron ke akun tertaut','Data hutang sudah dikirim ke '+lk.n+' akun tertaut.');
+      else if(st==='same')t('success','Sudah tersinkron','Data hutang sama di akunmu dan '+lk.n+' akun tertaut.');
+      else t('info','Belum ada data','Belum ada catatan hutang di perangkat ini maupun di akun tertaut.');
     });
   };
   window.htSel=function(id){cur=id;if(id!=='__merge')setTotSel([id]);render();};
@@ -13914,6 +13983,7 @@ if ('serviceWorker' in navigator) {
     var p=document.getElementById('page-hutang');if(!p)return;
     new MutationObserver(function(){if(p.classList.contains('active')){render();sync(false).then(function(ch){if(ch&&p.classList.contains('active')&&!document.activeElement.closest('#hutang-root'))render();});}}).observe(p,{attributes:true,attributeFilter:['class']});
     if(p.classList.contains('active'))render();
+    setInterval(function(){if(!p.classList.contains('active')||document.visibilityState==='hidden'||!window.hutangCloud||!window.hutangCloud.links().length)return;sync(false).then(function(ch){if(ch&&p.classList.contains('active')&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#hutang-root')))render();});},30000);
     var tries=0,iv=setInterval(function(){tries++;if(window.hutangCloud&&window.hutangCloud.uid()){clearInterval(iv);sync(true).then(function(ch){if(ch&&p.classList.contains('active'))render();});}else if(tries>60)clearInterval(iv);},1000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
