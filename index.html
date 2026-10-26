@@ -3200,7 +3200,34 @@ window.showAdminHutang = async function(uid, ownerLabel) {
  .ah-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
  .ah-stat.full{grid-column:span 2;}
 }
-@media (max-width:360px){ .ah-stat .v{font-size:12.5px;} .ah-cols div .v{font-size:10.5px;} }`;
+@media (max-width:360px){ .ah-stat .v{font-size:12.5px;} .ah-cols div .v{font-size:10.5px;} }
+/* ===== RAPIHKAN HEADER RINGKASAN & BARIS HUTANG (admin) ===== */
+.ah-hero{gap:12px;padding:20px 14px 16px;}
+.ah-donut{width:176px;height:176px;}
+.ah-donut-in{width:128px;height:128px;}
+.ah-donut-in b{font-size:24px;}
+.ah-legend{gap:18px;}
+.ah-grid{gap:10px;align-items:stretch;}
+.ah-stat{display:flex;flex-direction:column;justify-content:space-between;padding:13px 14px;border-radius:16px;}
+.ah-stat .l{min-height:2.6em;display:flex;align-items:flex-start;margin-bottom:6px;}
+.ah-stat .v{font-size:clamp(11.5px,3.5vw,14px);overflow:hidden;text-overflow:ellipsis;}
+.ah-stat.full{grid-column:1 / -1;}
+.ah-stat.full .l{min-height:0;}
+.ah-stat.full .v{font-size:clamp(18px,5.6vw,22px);}
+.ah-stat.last{grid-column:1 / -1;}
+.ah-stat.last .l{min-height:0;}
+.ah-mh{font-size:13px;margin:18px 0 10px;padding:0 2px;align-items:center;}
+.ah-mh span{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;}
+.ah-row{padding:11px 12px;margin-bottom:9px;}
+.ah-cols{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+.ah-cols div{min-width:0;}
+.ah-cols div .l{white-space:nowrap;}
+.ah-cols div .v{font-size:clamp(8.5px,2.75vw,11.5px);letter-spacing:-.4px;overflow:hidden;text-overflow:clip;}
+.ah-row.tot .ah-cols div .v{font-size:clamp(8.5px,2.7vw,11.5px);}
+.ah-row-top .ah-pd{text-align:right;white-space:nowrap;}
+.ah-sum{gap:6px;}
+.ah-sum .v{font-size:clamp(8.5px,2.75vw,11px);letter-spacing:-.4px;}
+@media (min-width:768px){.ah-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.ah-stat.full{grid-column:span 2;}.ah-stat.last{grid-column:1 / -1;}.ah-stat .v{font-size:14px;}.ah-cols div .v,.ah-sum .v{font-size:11.5px;letter-spacing:0;}}`;
         document.head.appendChild(st);
     }
     const box = h => '<div class="ah-scroll"><div class="ah-wrap">' + h + '</div></div>';
@@ -3217,7 +3244,40 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const pill = (j, ok) => '<span class="ah-pill ' + (!j ? 'nil' : ok ? 'ok' : 'no') + '">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</span>';
     const cols = (j, b, h) => '<div class="ah-cols"><div><div class="l">Jumlah</div><div class="v">' + rp(j) + '</div></div><div><div class="l">Bayar</div><div class="v">' + (b ? rp(b) : '-') + '</div></div><div><div class="l">Hasil</div><div class="v">' + rp(h) + '</div></div></div>';
     let gJ = 0, gB = 0, gCic = 0, body = '';
-    hd.sheets.forEach(sh => {
+    const mergeMode = hd.viewMode === 'merge';
+    if (mergeMode) {
+        const selIds = Array.isArray(hd.mergeSel) ? hd.mergeSel : hd.sheets.map(x => x.id);
+        const sel = hd.sheets.filter(x => selIds.indexOf(x.id) > -1);
+        const by = {}, order = [];
+        body += '<div class="ah-sheet"><div class="ah-sheet-t">🔗 Gabungan <span>(' + sel.map(x => escapeHTML(x.name || '-')).join(', ') + ')</span></div>';
+        sel.forEach(sh => {
+            const ms = sh.months || []; let sJ = 0;
+            const occ = {};
+            ms.forEach(m => {
+                const nm = String(m.name || '').trim().toUpperCase();
+                occ[nm] = (occ[nm] || 0) + 1;
+                const k = nm + '#' + occ[nm];
+                if (!by[k]) { by[k] = { name: occ[nm] > 1 ? nm + ' (' + occ[nm] + ')' : nm, j: 0, b: 0, rows: [] }; order.push(k); }
+                let mj = 0, mb = 0; (m.rows || []).forEach(r => { mj += Number(r.jumlah) || 0; mb += Number(r.bayar) || 0; });
+                by[k].j += mj; by[k].b += mb; by[k].rows.push({ src: sh.name || '-', j: mj, b: mb });
+                sJ += mj;
+            });
+            gJ += sJ; gB += ms.reduce((t, m) => t + (m.rows || []).reduce((q, r) => q + (Number(r.bayar) || 0), 0), 0);
+            if (ms.length) gCic += sJ / ms.length;
+        });
+        if (!sel.length) body += '<div style="padding:16px;text-align:center;color:var(--text3);font-size:11px;">Belum ada lembar yang dipilih untuk digabung.</div>';
+        order.forEach((k, i) => {
+            const g = by[k];
+            const rows = g.rows.map(r => {
+                const ok = r.j > 0 && r.j - r.b <= 0;
+                return '<div class="ah-row"><div class="ah-row-top"><span style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="font-size:10.5px;font-weight:800;word-break:break-word;">' + escapeHTML(r.src) + '</span>' + pill(r.j, ok) + '</span><span class="ah-pd">Perhari ' + rp(r.j / 30) + '</span></div>' + cols(r.j, r.b, Math.max(r.j - r.b, 0)) + '</div>';
+            }).join('');
+            const gOk = g.j > 0 && g.j - g.b <= 0;
+            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL</span>' + pill(g.j, gOk) + '</div>' + cols(g.j, g.b, Math.max(g.j - g.b, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(g.j / 30) + '</div></div>';
+            body += '<div class="ah-mh"><div>' + (i + 1) + '. ' + escapeHTML(g.name || '-') + '</div><span>Total harian ' + rp(g.j / 30) + '</span></div>' + rows + totR;
+        });
+        body += '</div>';
+    } else hd.sheets.forEach(sh => {
         let sJ = 0, sB = 0; const ms = sh.months || [];
         body += '<div class="ah-sheet"><div class="ah-sheet-t">' + escapeHTML(sh.name || '-') + ' <span>(' + ms.length + ' bulan)</span></div>';
         ms.forEach((m, i) => {
@@ -3243,7 +3303,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const st = (l, v, c, full) => '<div class="ah-stat' + (full ? ' full' : '') + '"><div class="l">' + l + '</div><div class="v"' + (c ? ' style="color:' + c + ';"' : '') + '>' + v + '</div></div>';
     const head = '<div class="ah-hero">' + donut + '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">' + legend + '</div></div>' +
         '<div class="ah-grid">' + st('Total Jumlah', rp(gJ), '', true) + st('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + st('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') +
-        st('Pemasukan Bulanan', rp(inc)) + st('Bayar Cicilan (rata-rata)', rp(gCic)) + st('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + st('Maks. Pengeluaran Perhari', rp(md)) + st('Saldo Harian Setelah Cicilan', rp(saldo / 30), '', false) + '</div>';
+        st('Pemasukan Bulanan', rp(inc)) + st('Bayar Cicilan (rata-rata)', rp(gCic)) + st('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + st('Maks. Pengeluaran Perhari', rp(md)) + st('Saldo Harian Setelah Cicilan', rp(saldo / 30), '', false).replace('class="ah-stat"','class="ah-stat last"') + '</div>';
     Swal.update({ html: box(head + body) });
 };
 
@@ -13333,6 +13393,7 @@ if ('serviceWorker' in navigator) {
   function load(){
     try{D=JSON.parse(localStorage.getItem(KEY())||'null');}catch(e){D=null;}
     if(!D||!D.sheets||!D.sheets.length){D={income:0,maxDaily:0,sheets:[{id:gid(),name:'RHN CAPITAL',months:[]}]};}
+    if(cur===''&&D.viewMode==='merge'){cur='__merge';if(!mergeSel&&Array.isArray(D.mergeSel))mergeSel=D.mergeSel.slice();}
     if(cur!=='__merge'&&!D.sheets.some(function(s){return s.id===cur;}))cur=D.sheets[0].id;
   }
   var pushT=null,lastSync=0,syncing=false;
@@ -13522,6 +13583,7 @@ if ('serviceWorker' in navigator) {
     var root=document.getElementById('hutang-root');if(!root)return;
     var y=window.pageYOffset;
     load();killCharts();
+    try{var vm=(cur==='__merge')?'merge':'sheet',ms=(cur==='__merge'&&mergeSel)?mergeSel.slice():null;if(D.viewMode!==vm||(ms&&JSON.stringify(D.mergeSel||null)!==JSON.stringify(ms))){D.viewMode=vm;if(ms)D.mergeSel=ms;save();}}catch(e){}
     var r=cur==='__merge'?renderMerge():renderSheet(sheet(cur));
     root.innerHTML=tabs()+r.html;
     r.pies.forEach(function(p){pie(p[0],p[1].b,p[1].sisa);});
@@ -13568,8 +13630,8 @@ if ('serviceWorker' in navigator) {
       else t('info','Belum ada data','Belum ada catatan hutang di perangkat ini maupun di akun tertaut.');
     });
   };
-  window.htSel=function(id){cur=id;if(id!=='__merge')setTotSel([id]);render();};
-  window.htToggle=function(id,on){mergeSel=mergeSel||[];var i=mergeSel.indexOf(id);if(on&&i<0)mergeSel.push(id);if(!on&&i>-1)mergeSel.splice(i,1);refreshDash();render();};
+  window.htSel=function(id){cur=id;if(id!=='__merge')setTotSel([id]);D.viewMode=(id==='__merge')?'merge':'sheet';if(id==='__merge'&&mergeSel)D.mergeSel=mergeSel.slice();save();render();};
+  window.htToggle=function(id,on){mergeSel=mergeSel||[];var i=mergeSel.indexOf(id);if(on&&i<0)mergeSel.push(id);if(!on&&i>-1)mergeSel.splice(i,1);D.mergeSel=mergeSel.slice();save();refreshDash();render();};
   window.htSetG=function(k,v){D[k]=num(v);save();render();};
   window.htAddSheet=function(){ask('Nama lembar hutang baru','').then(function(v){if(!v||!v.trim())return;var s={id:gid(),name:v.trim().toUpperCase(),months:[]};D.sheets.push(s);cur=s.id;mergeSel=null;setTotSel(null);save();render();});};
   window.htRename=function(id){var s=sheet(id);ask('Ubah nama lembar',s.name).then(function(v){if(!v||!v.trim())return;s.name=v.trim().toUpperCase();save();render();});};
