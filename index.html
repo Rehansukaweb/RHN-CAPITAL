@@ -1072,14 +1072,14 @@ body.global-privacy #xau-idr-gr {
 .sv-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.2px;opacity:0;animation:svFade .35s .6s ease forwards}
 @keyframes svDraw{to{stroke-dashoffset:0}}
 @keyframes svFade{to{opacity:1}}
-/* Animasi memuat elegan (tiga titik berdenyut bergantian, gaya aplikasi besar) - pengganti spinner berputar untuk semua proses muat database */
-@property --rd1{syntax:'<number>';inherits:false;initial-value:2.5}@property --rd2{syntax:'<number>';inherits:false;initial-value:2.5}@property --rd3{syntax:'<number>';inherits:false;initial-value:2.5}
-.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{width:44px!important;height:12px!important;border:0!important;border-radius:0!important;background-color:transparent!important;background-image:radial-gradient(circle at 7px 50%,#fbbf24 calc(var(--rd1)*1px),transparent calc(var(--rd1)*1px + 1px)),radial-gradient(circle at 22px 50%,#fbbf24 calc(var(--rd2)*1px),transparent calc(var(--rd2)*1px + 1px)),radial-gradient(circle at 37px 50%,#fbbf24 calc(var(--rd3)*1px),transparent calc(var(--rd3)*1px + 1px))!important;background-repeat:no-repeat!important;background-size:100% 100%!important;animation:rhnD1 1.2s ease-in-out infinite,rhnD2 1.2s ease-in-out .16s infinite,rhnD3 1.2s ease-in-out .32s infinite!important;filter:drop-shadow(0 0 5px rgba(251,191,36,.4))}
-.rhn-ld{display:block;margin:8px auto 12px}
-.swal2-container .swal2-popup .swal2-loader{margin:16px auto 10px!important}
+/* Animasi memuat: bar progres emas dengan kilau menyapu (gaya aplikasi finansial) */
+.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{position:relative!important;display:block!important;width:140px!important;height:5px!important;border:0!important;border-radius:99px!important;overflow:hidden!important;-webkit-mask:none!important;mask:none!important;box-shadow:none!important;filter:none!important;animation:none!important;transform:none!important;background:linear-gradient(90deg,rgba(251,191,36,.10),rgba(251,191,36,.18),rgba(251,191,36,.10))!important}
+.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before{content:"";position:absolute;top:0;bottom:0;left:0;width:42%;border-radius:99px;background:linear-gradient(90deg,rgba(251,191,36,0),#f59e0b 35%,#fbbf24 70%,#fff3c4);box-shadow:0 0 12px 1px rgba(251,191,36,.65);animation:rhnBar 1.35s cubic-bezier(.65,.05,.35,1) infinite}
+.rhn-ld{width:84px!important;height:4px!important;margin:10px auto 14px}
+.swal2-container .swal2-popup .swal2-loader{margin:24px auto 16px!important}
 #subscribe-screen .subs-pending-box .sp-spin{margin:0 auto 16px!important}
-@keyframes rhnD1{0%,70%,100%{--rd1:2.5}35%{--rd1:5}}@keyframes rhnD2{0%,70%,100%{--rd2:2.5}35%{--rd2:5}}@keyframes rhnD3{0%,70%,100%{--rd3:2.5}35%{--rd3:5}}
-@media (prefers-reduced-motion:reduce){.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{animation-duration:3s!important}}
+@keyframes rhnBar{0%{transform:translateX(-105%)}100%{transform:translateX(245%)}}
+@media (prefers-reduced-motion:reduce){.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before{animation-duration:3s!important}}
 /* Samakan semua dialog (konfirmasi, loading, info, error, daftar admin) dengan gaya popup berhasil */
 .swal2-popup{background:var(--card);border:1px solid var(--border2,rgba(255,255,255,.08))!important;border-radius:22px!important;box-shadow:0 20px 50px rgba(0,0,0,.45)!important;padding:26px 28px 24px!important;font-family:inherit}
 .swal2-popup.swal2-icon-show{width:min(360px,92vw)!important}
@@ -14110,7 +14110,7 @@ if ('serviceWorker' in navigator) {
 </script>
 <style id="opt-pop-style">
 .opt-x{display:none;}
-@media (max-width:767px){
+
 .swal2-popup.opt-pop{width:min(360px,92vw)!important;max-width:92vw!important;height:58vh!important;height:58dvh!important;max-height:calc(100dvh - 40px)!important;margin:auto!important;padding:0!important;border-radius:22px!important;border:1px solid var(--border2)!important;overflow:hidden!important;display:flex!important;flex-direction:column;justify-content:flex-start;box-sizing:border-box;}
 .opt-pop .swal2-title{margin:0!important;padding:18px 60px 12px 18px!important;border-bottom:1px solid var(--border2);background:var(--bg2);flex:0 0 auto;text-align:left!important;}
 .opt-pop .swal2-title>div{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0!important;}
@@ -14118,7 +14118,15 @@ if ('serviceWorker' in navigator) {
 .opt-pop .swal2-html-container{flex:1 1 auto;min-height:0;margin:0!important;padding:14px 16px!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;max-width:100%;}
 .opt-pop .swal2-html-container>div{max-height:none!important;overflow:visible!important;padding-bottom:0!important;gap:10px!important;}
 .opt-pop .swal2-html-container>div>button{margin:0!important;width:100%;box-sizing:border-box;}
-}
+
+
+.opt-pop .swal2-title{font-size:15px!important;font-weight:800!important;line-height:1.3;word-break:break-word;}
+.opt-pop .swal2-actions{flex:0 0 auto;width:100%;box-sizing:border-box;margin:0!important;padding:12px 16px!important;border-top:1px solid var(--border2);background:var(--bg2);}
+.opt-pop .swal2-validation-message{margin:0;}
+.opt-pop .swal2-close{display:flex!important;align-items:center;justify-content:center;position:absolute!important;z-index:5;top:10px!important;right:10px!important;width:38px!important;height:38px!important;font-size:28px!important;color:var(--text)!important;background:var(--bg2)!important;border:1px solid var(--border2)!important;border-radius:50%!important;line-height:1!important;padding:0!important;margin:0!important;}
+.opt-pop .rhn-fs-x{position:absolute;z-index:5;top:10px;right:10px;width:38px;height:38px;border:1px solid var(--border2);border-radius:50%;background:var(--bg2);color:var(--text);font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.opt-pop div[style*="max-height"]{max-height:none!important;}
+
 </style>
 <style id="rhn-fs-style">
 @media (max-width:767px){
@@ -14144,23 +14152,36 @@ if ('serviceWorker' in navigator) {
 (function(){
   var mq=window.matchMedia('(max-width:767px)');
   function apply(pop){
-    pop.classList.add('rhn-fs');
-    if(pop.parentElement)pop.parentElement.classList.add('rhn-fsc');
+    pop.classList.remove('rhn-fs');
+    if(pop.parentElement)pop.parentElement.classList.remove('rhn-fsc');
+    pop.classList.add('opt-pop');
     var sc=pop.querySelector('.swal2-close');
     var vis=sc&&getComputedStyle(sc).display!=='none';
-    if(!vis&&!pop.querySelector('.rhn-fs-x')){
+    if(!vis&&!pop.querySelector('.opt-x')&&!pop.querySelector('.rhn-fs-x')){
       var b=document.createElement('button');b.type='button';b.className='rhn-fs-x';b.setAttribute('aria-label','Tutup');b.innerHTML='&times;';
       b.onclick=function(){try{Swal.close();}catch(e){}};pop.appendChild(b);
     }
   }
   function check(pop){
-    if(!mq.matches)return;
+    if(!mq.matches){
+      if(pop.classList.contains('ah-popup')||pop.classList.contains('swal2-toast')||pop.classList.contains('sv-pop')||pop.classList.contains('swal2-loading'))return;
+      if(pop.classList.contains('opt-pop')||pop.offsetHeight>window.innerHeight*0.5){
+        pop.classList.add('opt-pop');
+        var sc2=pop.querySelector('.swal2-close');
+        var vis2=sc2&&getComputedStyle(sc2).display!=='none';
+        if(!vis2&&!pop.querySelector('.opt-x')&&!pop.querySelector('.rhn-fs-x')){
+          var b2=document.createElement('button');b2.type='button';b2.className='rhn-fs-x';b2.setAttribute('aria-label','Tutup');b2.innerHTML='&times;';
+          b2.onclick=function(){try{Swal.close();}catch(e){}};pop.appendChild(b2);
+        }
+      }
+      return;
+    }
     if(pop.classList.contains('ah-popup')||pop.classList.contains('swal2-toast')||pop.classList.contains('sv-pop')||pop.classList.contains('opt-pop'))return;
     if(pop.classList.contains('swal2-loading'))return;
     var big=pop.offsetHeight>window.innerHeight*0.5||pop.classList.contains('rhn-fs');
     if(big){
       if(pop.classList.contains('rhn-edge')){pop.classList.remove('rhn-edge');if(pop.parentElement)pop.parentElement.classList.remove('rhn-edgec');}
-      if(!pop.classList.contains('rhn-fs'))apply(pop);
+      apply(pop);
     }else if(!pop.classList.contains('rhn-edge')){
       pop.classList.add('rhn-edge');if(pop.parentElement)pop.parentElement.classList.add('rhn-edgec');
     }
