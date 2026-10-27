@@ -14266,6 +14266,8 @@ if ('serviceWorker' in navigator) {
   window.rhnForceNumeric=function(inp){
     if(!inp)return;
     inp.setAttribute('inputmode','none');inp.readOnly=true;inp.dataset.kp='1';
+    if(inp.dataset.gkp){delete inp.dataset.gkp;}
+    if(window.rhnGkpHide)window.rhnGkpHide();
     inp.setAttribute('autocomplete','one-time-code');
   };
   // Popup PIN (SweetAlert): paksa angka murni lewat keypad sendiri
@@ -14278,6 +14280,7 @@ if ('serviceWorker' in navigator) {
       var kp=window.rhnBuildKeypad(inp);
       if(kp)inp.parentNode.insertBefore(kp,inp.nextSibling);
       inp.focus=function(){};
+      [60,200,500].forEach(function(t){setTimeout(function(){if(window.rhnGkpHide)window.rhnGkpHide();},t);});
       var hc=(popup||document).querySelector('.swal2-html-container');
       var top0=function(){if(hc)hc.scrollTop=0;};
       top0();[0,50,150,350,700].forEach(function(t){setTimeout(top0,t);});
@@ -14406,6 +14409,7 @@ if ('serviceWorker' in navigator) {
     document.body.classList.remove('rhn-kp-open');
     document.documentElement.style.setProperty('--kp-h','0px');
   }
+  window.rhnGkpHide=hide;
   document.addEventListener('focusin',function(e){
     var el=e.target;
     if(el&&el.tagName==='INPUT'&&!el.dataset.gkp)prep(el);
