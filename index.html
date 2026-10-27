@@ -1092,6 +1092,12 @@ body.global-privacy #xau-idr-gr {
 .swal2-popup .swal2-actions{margin-top:18px!important;gap:8px}
 .swal2-popup .swal2-styled{border-radius:12px!important;font-weight:700!important;font-size:13px!important;padding:10px 20px!important;box-shadow:none!important}
 .swal2-container.swal2-backdrop-show{background:rgba(0,0,0,.45)!important}
+body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-shown .swal2-container{background:transparent!important;}
+.swal2-popup.swal2-toast{width:auto!important;min-width:0!important;max-width:min(92vw,420px)!important;padding:10px 16px!important;border-radius:16px!important;display:flex!important;align-items:center!important;gap:0;box-shadow:0 10px 30px rgba(0,0,0,.45)!important;}
+.swal2-popup.swal2-toast .swal2-icon{font-size:12px!important;width:2em!important;height:2em!important;min-width:2em!important;margin:0 10px 0 0!important;}
+.swal2-popup.swal2-toast .swal2-title{font-size:13px!important;font-weight:700!important;margin:0!important;padding:0!important;text-align:left;line-height:1.35;}
+.swal2-popup.swal2-toast .swal2-html-container{margin:0 0 0 8px!important;padding:0!important;font-size:12px!important;}
+
 /* Animasi Buat QRIS Dinamis - RHN CAPITAL (v5 gold emblem) */
 .rc-ov{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;animation:rcIn .3s ease forwards}
 .rc-ov.out{animation:rcOut .4s ease forwards}
@@ -9590,7 +9596,7 @@ async function runLinkReconcile(pid) {
     }
 }
 window.forceLinkResync = function(showToast) {
-    if (showToast === true) Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Menyinkronkan akun tertaut…', timer: 1800, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' }); (window.__links || []).forEach(l => { __linkFail[l.uid] = 0; scheduleLinkReconcile(l.uid, 0); }); };
+    if (showToast === true) Swal.fire({ toast: true, position: 'top', icon: 'info', title: 'Menyinkronkan akun tertaut…', timer: 1800, showConfirmButton: false, background: 'var(--card)', color: 'var(--text)' }); (window.__links || []).forEach(l => { __linkFail[l.uid] = 0; scheduleLinkReconcile(l.uid, 0); }); if (showToast === true) { try { if (window.htSyncQuiet) window.htSyncQuiet(); } catch(e) {} } };
 
 function renderLinkedAccounts() {
     const el = document.getElementById('linked-accounts-list');
@@ -13662,7 +13668,9 @@ if ('serviceWorker' in navigator) {
   }
   function pbar(j,b){var p=j>0?Math.min(100,Math.max(0,b/j*100)):0;return '<div class="ht-pb" title="Terbayar '+pct(p)+'"><i style="width:'+p.toFixed(1)+'%"></i></div>';}
   function mon(sid,mid){var s=sheet(sid);return s?s.months.filter(function(x){return x.id===mid;})[0]:null;}
+  window.htSyncQuiet=function(){try{if(syncing||!window.hutangCloud||!window.hutangCloud.uid())return;sync(true).then(function(ch){if(ch)render();});}catch(e){}};
   window.htSyncNow=function(){
+    try{if(window.forceLinkResync)window.forceLinkResync(false);}catch(e){}
     var t=function(icon,title,text){if(typeof Swal==='undefined')return;if(icon==='success'&&window.showSaveSuccess){window.showSaveSuccess(title,1800,text||'');return;}SW({icon:icon,title:title,text:text||''});};
     if(!window.hutangCloud||!window.hutangCloud.uid()){t('info','Belum login','Login dulu agar data bisa disinkron ke akun.');return;}
     if(syncing){t('info','Sedang menyinkron','Tunggu sebentar, proses sinkron sebelumnya belum selesai.');return;}
