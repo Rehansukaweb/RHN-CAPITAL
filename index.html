@@ -1678,6 +1678,53 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-leg{font-weight:600}
 #page-hutang .ht-empty{border-style:dashed;font-weight:500}
 </style>
+<style id="hutang-mobile-readable">
+/* ===== KHUSUS HP: tabel Hutang jadi susunan kartu, tulisan besar & lega, tidak ada yang terpotong. Desktop/laptop tidak terpengaruh. ===== */
+@media(max-width:900px){
+#page-hutang .ht-card{padding:16px 14px !important}
+#page-hutang .ht-wrap{overflow-x:visible !important;border:0 !important;background:transparent !important;border-radius:0 !important}
+#page-hutang .ht-wrap .ht-tbl,#page-hutang .ht-wrap .ht-tbl tbody{display:block !important;width:100% !important;min-width:0 !important;table-layout:auto !important}
+#page-hutang .ht-wrap .ht-tbl tr:first-child:has(th){display:none !important}
+#page-hutang .ht-wrap .ht-tbl tr{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px;padding:14px 12px !important;margin:0 0 10px;border:1px solid var(--hl);border-radius:14px;background:var(--bg2)}
+#page-hutang .ht-wrap .ht-tbl tr.tot{border-color:var(--ha);background:var(--bg3);margin-bottom:0}
+#page-hutang .ht-wrap .ht-tbl td{display:block !important;min-width:0 !important;padding:0 !important;border:0 !important;background:transparent !important;text-align:left !important;font-size:13.5px !important;line-height:1.35;letter-spacing:0 !important;white-space:normal !important;word-break:break-word;font-weight:600}
+#page-hutang .ht-wrap .ht-tbl td::before{display:block;margin-bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+#page-hutang .ht-wrap .ht-tbl td:empty{display:none !important}
+#page-hutang .ht-wrap .ht-tbl td[colspan]{grid-column:1/-1;text-align:center !important;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text3)}
+#page-hutang .ht-wrap .ht-tbl td[colspan]::before{display:none}
+#page-hutang .ht-wrap .ht-tbl .ht-badge{font-size:10px !important;padding:5px 11px !important;letter-spacing:.8px !important;display:inline-flex !important;gap:6px !important}
+#page-hutang .ht-wrap .ht-tbl .ht-badge::before{display:inline-block !important}
+#page-hutang .ht-wrap .ht-tbl .ht-pb{min-width:0 !important;height:4px !important;margin-top:7px !important}
+/* --- Tabel Gabungan: Lembar | Jumlah | Bayar | Hasil | Status | Perhari --- */
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(1){grid-column:1/-1;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px !important;font-weight:700;letter-spacing:1.2px !important;text-transform:uppercase;padding-bottom:10px !important;border-bottom:1px solid var(--hl) !important}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(1)::before{display:none}
+#page-hutang .ht-tbl:not(.ht-edit) tr.tot td:nth-child(1){color:var(--ha)}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(2)::before{content:"Jumlah"}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(3)::before{content:"Bayar"}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(4)::before{content:"Hasil (Sisa)"}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(5)::before{content:"Status"}
+#page-hutang .ht-tbl:not(.ht-edit) td:nth-child(6)::before{content:"Perhari"}
+/* --- Tabel per lembar (bisa diedit): Jumlah | Bayar | Hasil | Status | Perhari | Hapus --- */
+#page-hutang .ht-tbl.ht-edit td:nth-child(1),#page-hutang .ht-tbl.ht-edit td:nth-child(2){grid-column:1/-1}
+#page-hutang .ht-tbl.ht-edit td:nth-child(1)::before{content:"Jumlah"}
+#page-hutang .ht-tbl.ht-edit td:nth-child(2)::before{content:"Bayar"}
+#page-hutang .ht-tbl.ht-edit td:nth-child(3)::before{content:"Hasil (Sisa)"}
+#page-hutang .ht-tbl.ht-edit td:nth-child(4)::before{content:"Status"}
+#page-hutang .ht-tbl.ht-edit td:nth-child(5)::before{content:"Perhari"}
+#page-hutang .ht-tbl.ht-edit td:nth-child(6){text-align:right !important;align-self:end}
+#page-hutang .ht-tbl.ht-edit td:nth-child(6)::before{display:none}
+#page-hutang .ht-tbl.ht-edit tr.tot td:nth-child(1){grid-column:1/-1}
+#page-hutang .ht-tbl.ht-edit tr.tot td:nth-child(1)::before{display:none}
+#page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell{font-size:14px;padding:0}
+#page-hutang .ht-tbl.ht-edit input{width:100% !important;min-width:0 !important;font-size:15px !important;font-weight:600 !important;text-align:left !important;padding:11px 12px !important;border:1px solid var(--hl) !important;border-radius:10px !important;background:var(--bg) !important}
+#page-hutang .ht-tbl.ht-edit input:focus{border-color:var(--ha) !important}
+#page-hutang .ht-tbl.ht-edit .ht-paycell{gap:8px}
+#page-hutang .ht-tbl.ht-edit .ht-paycell input{min-width:0 !important;flex:1 1 auto}
+#page-hutang .ht-tbl.ht-edit .ht-lunas{padding:11px 14px !important;font-size:10.5px !important}
+#page-hutang .ht-tbl.ht-edit .ht-x{width:36px;height:36px;font-size:13px}
+#page-hutang .ht-tbl.ht-edit td.rs{min-width:0 !important}
+}
+</style>
 <style id="hide-scrollbar-style">
 /* Semua penggeser (scrollbar) di seluruh aplikasi disembunyikan: halaman, popup, opsi/dropdown, tabel. Geser tetap berfungsi normal. */
 *,*::before,*::after{scrollbar-width:none !important;-ms-overflow-style:none !important;}
