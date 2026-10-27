@@ -1613,13 +1613,11 @@ body.rhn-kp-open .swal2-container{padding-bottom:var(--kp-h,0px)!important;}
 body.rhn-kp-open .swal2-popup.opt-pop{height:auto!important;max-height:calc(100dvh - var(--kp-h,0px) - 20px)!important;}
 </style>
 <style id="auth-mobile-style">
-/* Login (Masuk / Daftar / Kode): khusus HP, tanpa bingkai, isi menempel penuh ke layar. Desktop tidak terpengaruh. */
+/* Login (Masuk / Daftar / Kode): khusus HP, bingkai/kartu besar dihilangkan, konten mepet ke layar. Desktop tidak terpengaruh. */
 @media (max-width:768px){
-#auth-screen{padding:0 !important;justify-content:safe center;background:radial-gradient(120% 55% at 50% 0%,rgba(251,191,36,.10),transparent 60%),radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.25),transparent 60%),radial-gradient(1px 1px at 82% 12%,rgba(255,255,255,.18),transparent 60%),radial-gradient(1px 1px at 68% 78%,rgba(255,255,255,.2),transparent 60%),radial-gradient(1px 1px at 25% 88%,rgba(255,255,255,.15),transparent 60%),radial-gradient(1px 1px at 92% 55%,rgba(255,255,255,.16),transparent 60%),var(--bg) !important;}
-#auth-screen .auth-box{width:100% !important;max-width:none !important;min-height:100%;box-sizing:border-box;justify-content:center;background:transparent !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;padding:34px 22px calc(28px + env(safe-area-inset-bottom,0px)) !important;}
+#auth-screen{padding:max(20px, env(safe-area-inset-top)) 0 max(20px, env(safe-area-inset-bottom)) 0 !important;}
+#auth-screen .auth-box{width:100% !important;max-width:none !important;background:transparent !important;border:none !important;border-radius:0 !important;box-shadow:none !important;padding:8px 0 16px !important;margin:0 !important;}
 #auth-screen .form-row{padding-left:0 !important;padding-right:0 !important;}
-#auth-screen .auth-title{font-size:22px;}
-#auth-screen .auth-tabs{margin-bottom:22px;}
 }
 </style>
 </head>
