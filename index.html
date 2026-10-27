@@ -14148,7 +14148,7 @@ if ('serviceWorker' in navigator) {
 .opt-pop .swal2-title{margin:0!important;padding:18px 60px 12px 18px!important;border-bottom:1px solid var(--border2);background:var(--bg2);flex:0 0 auto;text-align:left!important;}
 .opt-pop .swal2-title>div{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0!important;}
 .opt-pop .opt-x{display:flex;align-items:center;justify-content:center;position:absolute;z-index:5;top:10px;right:10px;width:38px;height:38px;padding:0;border:1px solid var(--border2);border-radius:50%;background:var(--bg2);color:var(--text);font-size:26px;line-height:1;cursor:pointer;}
-.opt-pop .swal2-html-container{flex:1 1 auto;min-height:0;margin:0!important;padding:14px 16px!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;max-width:100%;}
+.opt-pop .swal2-html-container{display:flex!important;flex-direction:column;flex:1 1 auto;min-height:0;margin:0!important;padding:14px 16px!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;max-width:100%;}
 .opt-pop .swal2-html-container>div{max-height:none!important;overflow:visible!important;padding-bottom:0!important;gap:10px!important;}
 .opt-pop .swal2-html-container>div>button{margin:0!important;width:100%;box-sizing:border-box;}
 
@@ -14161,6 +14161,7 @@ if ('serviceWorker' in navigator) {
 .opt-pop div[style*="max-height"]{max-height:none!important;}
 
 .swal2-popup.opt-pop .swal2-actions{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px;box-sizing:border-box;margin:0!important;padding:14px 16px!important;min-height:0!important;height:auto!important;flex:0 0 auto;}.swal2-popup.opt-pop .swal2-actions button{margin:0!important;align-self:center;}
+.opt-pop .swal2-html-container::before,.opt-pop .swal2-html-container::after{content:"";flex:1 0 0;}
 </style>
 <style id="rhn-fs-style">
 @media (max-width:767px){
