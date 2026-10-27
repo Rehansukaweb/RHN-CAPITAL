@@ -1596,6 +1596,93 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-wrap:has(.ht-tbl:not(.ht-edit)){overflow-x:hidden}
 }
 </style>
+<style id="hutang-elegant">
+/* ===== TAMPILAN HUTANG: ELEGAN, KALEM, PROFESIONAL (override visual saja) ===== */
+#page-hutang{--ha:color-mix(in srgb,var(--gold) 58%,var(--text2));--hg:color-mix(in srgb,var(--green2) 70%,var(--text2));--hr:color-mix(in srgb,var(--red2) 68%,var(--text2));--hl:color-mix(in srgb,var(--border2) 70%,transparent);letter-spacing:.1px}
+#page-hutang .ht-tabs{gap:6px;padding:4px;margin-bottom:18px;border:1px solid var(--hl);border-radius:14px;background:var(--bg2);width:max-content;max-width:100%}
+#page-hutang .ht-tab{padding:9px 16px;font-size:10.5px;font-weight:600;letter-spacing:.8px;border:0;border-radius:10px;color:var(--text3);background:transparent}
+#page-hutang .ht-tab:hover{color:var(--text)}
+#page-hutang .ht-tab.active{background:var(--bg3);color:var(--text);box-shadow:inset 0 0 0 1px var(--hl)}
+#page-hutang .ht-tab.merge{color:var(--ha);border:0}
+#page-hutang .ht-tab.merge.active{background:var(--bg3);color:var(--ha);box-shadow:inset 0 0 0 1px var(--ha)}
+#page-hutang .ht-tab.add{border:1px dashed var(--hl)}
+#page-hutang .ht-bar{gap:6px;margin-bottom:18px}
+#page-hutang .ht-btn{padding:9px 14px;font-size:10.5px;font-weight:600;letter-spacing:.6px;border-radius:10px;border:1px solid var(--hl);background:transparent;color:var(--text2);box-shadow:none}
+#page-hutang .ht-btn:hover{border-color:var(--ha);color:var(--text);background:var(--bg2)}
+#page-hutang .ht-btn.pri{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:700}
+#page-hutang .ht-btn.pri:hover{background:var(--text);color:var(--bg);opacity:.9}
+#page-hutang .ht-btn.dan{color:var(--hr)}
+#page-hutang .ht-btn.dan:hover{background:rgba(199,125,125,.1);border-color:var(--hr);color:var(--hr)}
+#page-hutang .ht-btn.pdf,#page-hutang .ht-btn.xls{color:var(--text2);border-color:var(--hl)}
+#page-hutang .ht-btn.pdf:hover,#page-hutang .ht-btn.xls:hover{background:var(--bg2);color:var(--text);border-color:var(--ha)}
+#page-hutang .ht-btn.sm{padding:6px 10px;font-size:9.5px}
+#page-hutang .ht-head{margin:2px 0 20px;text-align:left;padding-bottom:14px;border-bottom:1px solid var(--hl)}
+#page-hutang .ht-head .t{font-size:15px;font-weight:700;letter-spacing:1.2px}
+#page-hutang .ht-head .s{font-size:11px;letter-spacing:.4px;margin-top:4px}
+#page-hutang .ht-card,#page-hutang .ht-stat,#page-hutang .ht-set{background:var(--card);border:1px solid var(--hl);border-radius:16px;box-shadow:none;padding:18px}
+#page-hutang .ht-card::before,#page-hutang .ht-stat::before{display:none}
+#page-hutang .ht-mhead{border-bottom:1px solid var(--hl);padding-bottom:14px;margin-bottom:16px}
+#page-hutang .ht-no{width:26px;height:26px;background:transparent;color:var(--ha);border:1px solid var(--ha);box-shadow:none;font-size:11px;font-weight:600}
+#page-hutang .ht-mname input{background:transparent;border:1px solid transparent;color:var(--text);font-size:13px;font-weight:700;letter-spacing:1.2px;padding:8px 10px;border-radius:10px}
+#page-hutang .ht-mname input:hover{border-color:var(--hl)}
+#page-hutang .ht-mname input:focus{border-color:var(--ha);box-shadow:none;background:var(--bg2)}
+#page-hutang .ht-mname .nm{color:var(--text);font-weight:700}
+#page-hutang .ht-wrap{border:1px solid var(--hl);border-radius:12px;background:transparent;box-shadow:none}
+#page-hutang .ht-tbl th{background:var(--bg2);background-image:none;color:var(--text3);font-size:9px;font-weight:600;letter-spacing:1.2px;padding:12px 10px;border-bottom:1px solid var(--hl)}
+#page-hutang .ht-tbl td{font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--hl);color:var(--text)}
+#page-hutang .ht-tbl tr:not(.tot):nth-child(even) td{background:transparent}
+#page-hutang .ht-tbl tr:not(.tot):hover td{background:var(--bg2)}
+#page-hutang .ht-tbl td.rs.r{color:var(--hr)}
+#page-hutang .ht-tbl td.rs.g{color:var(--hg)}
+#page-hutang .ht-tbl tr.tot td{background:var(--bg2);background-image:none;border-top:1px solid var(--ha);color:var(--text);font-weight:700;font-size:12px;padding:12px 10px}
+#page-hutang .ht-tbl tr.tot td.c{color:var(--ha);font-size:9.5px;font-weight:700;letter-spacing:1.2px}
+#page-hutang .ht-tcell span{color:var(--ha);font-weight:700;letter-spacing:1.2px;font-size:9.5px}
+#page-hutang .ht-tbl input{background:transparent;border:1px solid transparent;border-radius:8px;font-weight:500;padding:7px 9px}
+#page-hutang .ht-tbl input:hover{border-color:var(--hl)}
+#page-hutang .ht-tbl input:focus{border-color:var(--ha);background:var(--bg2);box-shadow:none}
+#page-hutang .ht-lunas{padding:7px 10px;border-radius:8px;border:1px solid var(--hl);background:transparent;color:var(--hg);font-weight:600;letter-spacing:.8px;font-size:9.5px}
+#page-hutang .ht-lunas:hover:not([disabled]){background:rgba(95,169,138,.12);color:var(--hg);border-color:var(--hg);box-shadow:none}
+#page-hutang .ht-badge{padding:4px 10px;font-size:9px;font-weight:600;letter-spacing:.9px;border-radius:8px;background:transparent}
+#page-hutang .ht-badge.ok{color:var(--hg);border-color:color-mix(in srgb,var(--hg) 40%,transparent);background:color-mix(in srgb,var(--hg) 8%,transparent)}
+#page-hutang .ht-badge.no{color:var(--hr);border-color:color-mix(in srgb,var(--hr) 40%,transparent);background:color-mix(in srgb,var(--hr) 8%,transparent)}
+#page-hutang .ht-badge.na{color:var(--text3);border-color:var(--hl)}
+#page-hutang .ht-pb{height:3px;background:var(--hl)}
+#page-hutang .ht-pb i{background:var(--hg)}
+#page-hutang .ht-x{width:26px;height:26px;border:1px solid var(--hl);color:var(--text3);font-weight:600;font-size:11px}
+#page-hutang .ht-x:hover{background:rgba(199,125,125,.12);color:var(--hr);border-color:var(--hr)}
+#page-hutang .ht-side{background:var(--bg2);background-image:none;border:1px solid var(--hl);border-radius:14px}
+#page-hutang .ht-side .lbl,#page-hutang .ht-stat .l,#page-hutang .ht-totleg .l{font-weight:600;letter-spacing:1.2px}
+#page-hutang .ht-side .val,#page-hutang .ht-stat .v,#page-hutang .ht-totleg .v{font-weight:600;letter-spacing:0}
+#page-hutang .ht-stat .v.g,#page-hutang .ht-totleg .v.g,#page-hutang .ht-row2 b.g{color:var(--hg)}
+#page-hutang .ht-stat .v.r,#page-hutang .ht-totleg .v.r,#page-hutang .ht-row2 b.r{color:var(--hr)}
+#page-hutang .ht-stat .v.y{color:var(--ha)}
+#page-hutang .ht-set .st,#page-hutang .ht-setT{color:var(--ha);font-weight:700;letter-spacing:1.3px;border-bottom:1px solid var(--hl)}
+#page-hutang .ht-row2{border-bottom:1px solid var(--hl)}
+#page-hutang .ht-row2 span{font-weight:600;letter-spacing:.9px}
+#page-hutang .ht-row2 b{font-weight:600}
+#page-hutang .ht-row2 input{background:transparent;border:1px solid var(--hl);border-radius:10px;font-weight:500}
+#page-hutang .ht-row2 input:focus{border-color:var(--ha);box-shadow:none;background:var(--bg2)}
+#page-hutang .ht-chk{gap:6px}
+#page-hutang .ht-chk label{padding:8px 12px;border-radius:10px;border:1px solid var(--hl);background:transparent;font-weight:600;letter-spacing:.7px;font-size:10.5px}
+#page-hutang .ht-chk label:has(input:checked){border-color:var(--ha);color:var(--text);background:var(--bg2)}
+#page-hutang .ht-chk input{accent-color:#B89B5E}
+#page-hutang .ht-totleg .it,#page-hutang .ht-brk .it{background:var(--bg2);border:1px solid var(--hl);border-radius:12px}
+#page-hutang .ht-brk .n{font-weight:600;letter-spacing:.8px}
+#page-hutang .ht-brk .a{color:var(--hr);font-weight:600}
+#page-hutang .ht-brk .a.g{color:var(--hg)}
+#page-hutang .ht-hero{background:var(--bg2);background-image:none;border:1px solid var(--hl);border-left:3px solid var(--hr);border-radius:14px;text-align:left;padding:18px 20px}
+#page-hutang .ht-hero.ok{border-left-color:var(--hg);background:var(--bg2)}
+#page-hutang .ht-hero .l{font-weight:600;letter-spacing:1.3px}
+#page-hutang .ht-hero .v{font-size:24px;font-weight:600;letter-spacing:-.5px;color:var(--hr)}
+#page-hutang .ht-hero.ok .v{color:var(--hg)}
+#page-hutang .ht-leg{font-weight:600}
+#page-hutang .ht-empty{border-style:dashed;font-weight:500}
+</style>
+<style id="hide-scrollbar-style">
+/* Semua penggeser (scrollbar) di seluruh aplikasi disembunyikan: halaman, popup, opsi/dropdown, tabel. Geser tetap berfungsi normal. */
+*,*::before,*::after{scrollbar-width:none !important;-ms-overflow-style:none !important;}
+*::-webkit-scrollbar,*::-webkit-scrollbar-track,*::-webkit-scrollbar-thumb{width:0 !important;height:0 !important;display:none !important;background:transparent !important;}
+</style>
 <style id="rhn-keypad-style">
 .rhn-kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:280px;margin:14px auto 0;-webkit-user-select:none;user-select:none;}
 .rhn-kp button{height:46px;border:1px solid var(--border2,#333);border-radius:16px;background:var(--bg3,#222);color:var(--text,#fff);font-size:22px;font-weight:600;font-family:inherit;cursor:pointer;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .08s,background .12s;}
@@ -13497,7 +13584,7 @@ if ('serviceWorker' in navigator) {
   function mTot(m){var j=0,b=0;m.rows.forEach(function(r){j+=r.jumlah||0;b+=r.bayar||0;});return{j:j,b:b,sisa:Math.max(j-b,0),harian:j/30};}
   function sTot(s){var j=0,b=0;s.months.forEach(function(m){var t=mTot(m);j+=t.j;b+=t.b;});return{j:j,b:b,sisa:Math.max(j-b,0)};}
   function killCharts(){charts.forEach(function(c){try{c.destroy();}catch(e){}});charts=[];}
-  var C_PAID='#10B981',C_SISA='#F87171';
+  var C_PAID='#5FA98A',C_SISA='#C77D7D';
   function css(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#222228';}
   function pie(id,paid,sisa){
     var el=document.getElementById(id);if(!el||typeof Chart==='undefined')return;
@@ -13731,8 +13818,6 @@ if ('serviceWorker' in navigator) {
   function tglNow(){return new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});}
   function fnameOf(M,ext){return 'RHN_Capital_Hutang_'+M.title.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,40)+'_'+new Date().toISOString().slice(0,10)+'.'+ext;}
   function saveFile(blob,name,mime){
-    var mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
-    if(mobile&&typeof window.saveOrShareFile==='function')return window.saveOrShareFile(blob,name,mime);
     try{
       var url=URL.createObjectURL(blob),a=document.createElement('a');
       a.href=url;a.download=name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
