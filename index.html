@@ -1620,7 +1620,11 @@ body.rhn-kp-open .swal2-popup.opt-pop{height:auto!important;max-height:calc(100d
 #auth-screen .form-row{padding-left:0 !important;padding-right:0 !important;}
 #pin-screen{padding:max(20px, env(safe-area-inset-top)) 0 max(20px, env(safe-area-inset-bottom)) 0 !important;overflow-y:auto;}
 #pin-screen .auth-box{width:100% !important;max-width:none !important;background:transparent !important;border:none !important;border-radius:0 !important;box-shadow:none !important;padding:8px 0 16px !important;margin:0 !important;}
-#pin-screen .form-row{padding-left:0 !important;padding-right:0 !important;}
+#pin-screen .form-row{padding-left:0 !important;padding-right:0 !important;max-width:280px !important;width:100% !important;margin-left:auto !important;margin-right:auto !important;box-sizing:border-box;}
+#pin-screen #app-pin{width:100% !important;box-sizing:border-box;}
+#pin-screen .auth-box>div:last-child{padding:0 20px !important;margin-top:28px !important;gap:12px !important;box-sizing:border-box;}
+#pin-screen .auth-box>div:last-child button{flex:1 1 0;background:var(--bg3,#1c1c20) !important;border:1px solid var(--border2,#333) !important;border-radius:14px !important;color:var(--text2,#cbd5e1) !important;font-size:11px !important;letter-spacing:.5px;text-decoration:none !important;padding:13px 10px !important;}
+#pin-screen .auth-box>div:last-child button:active{transform:scale(.97);}
 }
 </style>
 </head>
@@ -5628,6 +5632,10 @@ window.splitTx = async function(txId) {
         background: 'var(--card)', color: 'var(--text)',
         confirmButtonColor: 'var(--gold)', cancelButtonColor: 'var(--bg3)',
         didOpen: () => {
+            try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch(e) {}
+            const spHc = Swal.getHtmlContainer();
+            const spTop = () => { if (spHc) spHc.scrollTop = 0; };
+            spTop(); [0, 50, 150, 350, 700].forEach(ms => setTimeout(spTop, ms));
             const a1 = document.getElementById('sp-amt1');
             const a2 = document.getElementById('sp-amt2');
             const sumEl = document.getElementById('sp-sum-val');
