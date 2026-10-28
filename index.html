@@ -1757,17 +1757,22 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-sumin select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--hl);border-radius:11px;background:var(--bg);color:var(--text);font-size:12px;font-weight:600}
 #page-hutang .ht-sumin select:focus{outline:none;border-color:var(--ha)}
 #page-hutang .ht-sumin input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--hl);border-radius:11px;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+#page-hutang .ht-sumin label>span{min-height:2.8em !important;display:flex !important;align-items:flex-end !important}
+#page-hutang .ht-sumin label.full>span{min-height:0 !important}
 #page-hutang .ht-sumin input:focus{outline:none;border-color:var(--ha)}
-#page-hutang .ht-sumg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#page-hutang .ht-sumg{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 #page-hutang .ht-sumg .it{border:1px solid var(--hl);border-radius:13px;background:var(--bg2);padding:12px 14px;min-width:0}
 #page-hutang .ht-sumg .it.full{grid-column:1/-1}
 #page-hutang .ht-sumg .l{font-size:9px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--text3);line-height:1.35}
 #page-hutang .ht-sumg .v{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;margin:6px 0 3px;color:var(--text);white-space:nowrap;letter-spacing:-.2px}
 #page-hutang .ht-sumg .v.g{color:var(--hg)}#page-hutang .ht-sumg .v.r{color:var(--hr)}#page-hutang .ht-sumg .v.y{color:var(--ha)}
 #page-hutang .ht-sumg .n{font-size:10px;color:var(--text3);line-height:1.35}
-@media(min-width:760px){#page-hutang .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}#page-hutang .ht-sumg .it.full{grid-column:auto}}
+@media(min-width:760px){#page-hutang .ht-sumin label>span{min-height:0 !important}#page-hutang .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}#page-hutang .ht-sumg .it.full{grid-column:auto}}
 </style>
 <style id="admin-summary-style">
+.ah-sumgrid{grid-template-columns:minmax(0,1fr) !important}
+.ah-sumgrid .ah-stat .l{min-height:0 !important}
+@media(min-width:768px){.ah-sumgrid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}}
 .ah-sumttl{font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin:18px 2px 4px;padding-top:14px;border-top:1px solid var(--border2)}
 .ah-sumsub{font-size:11px;color:var(--text3);margin:0 2px 12px}
 .ah-sumhero{border:1px solid var(--border2);border-left:3px solid var(--green2);border-radius:16px;background:var(--bg2);padding:15px 16px;margin-bottom:12px}
@@ -3554,7 +3559,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
         '<div class="ah-grid">' + st('Total Jumlah', rp(gJ), '', true) + st('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + st('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') + '</div>' +
         '<div class="ah-sumttl">Ringkasan Keuangan Bulanan</div><div class="ah-sumsub">Dihitung dari ' + nSel + ' lembar yang dipilih</div>' +
         '<div class="ah-sumhero' + (saldoM < 0 ? ' neg' : '') + '"><div class="l">Saldo Bersih Bulanan</div><div class="v">' + rp(saldoM) + '</div><div class="s">Pemasukan ' + rp(inc) + ' − cicilan ' + rp(cicM) + ' (' + cicLbl + ')</div></div>' +
-        '<div class="ah-grid">' +
+        '<div class="ah-grid ah-sumgrid">' +
         sc('Cicilan Bulanan', rp(cicM), '', cicLbl) +
         sc('Cicilan Harian', rp(cicHari), '', 'cicilan bulanan ÷ 30 hari') +
         sc('Beban Cicilan', inc > 0 ? pc(rasio) : '-', rasioCol, inc > 0 ? rasioTxt + ' · dari pemasukan' : 'pemasukan belum diisi') +
