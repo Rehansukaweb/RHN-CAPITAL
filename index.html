@@ -11930,8 +11930,8 @@ window.__catPieBuild = function(arr, kind) {
         map[k] = (map[k] || 0) + a; total += a;
     });
     let items = Object.keys(map).map(k => ({ name: k, val: map[k] })).sort((a, b) => b.val - a.val);
-    if (items.length > 7) { const rest = items.slice(6).reduce((s, x) => s + x.val, 0); items = items.slice(0, 6).concat([{ name: 'Lainnya (gabungan)', val: rest, other: true }]); }
-    items.forEach((it, i) => { it.color = it.other ? '#6B7280' : window.__CATPIE_COLORS[i % window.__CATPIE_COLORS.length]; it.pct = total > 0 ? it.val / total * 100 : 0; });
+    /* semua kategori ditampilkan, tanpa penggabungan, urut terbesar ke terkecil */
+    items.forEach((it, i) => { it.color = i < window.__CATPIE_COLORS.length ? window.__CATPIE_COLORS[i] : 'hsl(' + ((i - window.__CATPIE_COLORS.length) * 47 + 20) % 360 + ',65%,58%)'; it.pct = total > 0 ? it.val / total * 100 : 0; });
     return { items, total };
 };
 window.renderCatPie = function(id, arr) {
