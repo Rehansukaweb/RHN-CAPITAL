@@ -1708,7 +1708,37 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell{display:flex !important;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
 #page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell span{font-size:7.6px !important;letter-spacing:.9px !important}
 #page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell b{font-size:9.4px !important;letter-spacing:-.1px}
+
+#page-hutang .ht-wrap:has(.ht-tbl.ht-edit)::before{content:"Dalam Rupiah (Rp)";display:block;padding:9px 10px 0;font-size:8.5px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--text3)}
+#page-hutang .ht-tbl.ht-edit{table-layout:fixed !important;width:100% !important;min-width:0 !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(1){width:17% !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(2){width:21% !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(3){width:17% !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(4){width:16% !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(5){width:19% !important}
+#page-hutang .ht-tbl.ht-edit th:nth-child(6){width:10% !important}
+#page-hutang .ht-tbl.ht-edit th{padding:9px 2px !important;font-size:7.4px !important;letter-spacing:.2px !important;text-align:center !important}
+#page-hutang .ht-tbl.ht-edit td{padding:12px 3px !important;font-size:9px !important;letter-spacing:-.1px !important;text-align:center !important;white-space:nowrap !important;word-break:normal !important;overflow-wrap:normal !important;vertical-align:middle}
+#page-hutang .ht-tbl.ht-edit td.rs{font-size:9.2px !important}
+#page-hutang .ht-tbl.ht-edit input{font-size:11px !important;text-align:center !important;padding:8px 4px !important;letter-spacing:0 !important;border-radius:9px !important}
+#page-hutang .ht-tbl.ht-edit .ht-paycell{flex-direction:column !important;align-items:stretch !important;gap:6px !important}
+#page-hutang .ht-tbl.ht-edit .ht-paycell input{flex:0 0 auto !important}
+#page-hutang .ht-tbl.ht-edit .ht-lunas{padding:7px 2px !important;font-size:8.5px !important;letter-spacing:.2px !important;border-radius:9px !important;width:100%}
+#page-hutang .ht-tbl.ht-edit .ht-badge{white-space:normal !important;text-align:center;line-height:1.2 !important;font-size:7px !important;font-weight:700 !important;letter-spacing:.3px !important;padding:4px 6px !important;border-radius:8px !important;display:inline-block !important;max-width:100%}
+#page-hutang .ht-tbl.ht-edit .ht-badge::before{display:none !important}
+#page-hutang .ht-tbl.ht-edit .ht-pb{width:80% !important;margin:6px auto 0 !important;height:3px !important}
+#page-hutang .ht-tbl.ht-edit .ht-x{width:24px !important;height:24px !important;font-size:10px !important}
 }
+</style>
+<style id="hutang-donut-style">
+/* Donat Hutang disamakan dengan donat dasbor admin (lihat utang user) */
+.ht-donut{width:168px;height:168px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin:0 auto;max-width:100%}
+.ht-donut.big{width:176px;height:176px}
+.ht-donut-in{width:116px;height:116px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ht-donut.big .ht-donut-in{width:128px;height:128px}
+.ht-donut-in b{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--green2);line-height:1.1}
+.ht-donut.big .ht-donut-in b{font-size:24px}
+.ht-donut-in span{font-size:9px;font-weight:800;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-top:3px}
 </style>
 <style id="hide-scrollbar-style">
 /* Semua penggeser (scrollbar) di seluruh aplikasi disembunyikan: halaman, popup, opsi/dropdown, tabel. Geser tetap berfungsi normal. */
@@ -13616,12 +13646,15 @@ if ('serviceWorker' in navigator) {
   function mTot(m){var j=0,b=0;m.rows.forEach(function(r){j+=r.jumlah||0;b+=r.bayar||0;});return{j:j,b:b,sisa:Math.max(j-b,0),harian:j/30};}
   function sTot(s){var j=0,b=0;s.months.forEach(function(m){var t=mTot(m);j+=t.j;b+=t.b;});return{j:j,b:b,sisa:Math.max(j-b,0)};}
   function killCharts(){charts.forEach(function(c){try{c.destroy();}catch(e){}});charts=[];}
-  var C_PAID='#5FA98A',C_SISA='#C77D7D';
+  var C_PAID='#10B981',C_SISA='#F87171';
   function css(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#222228';}
   function pie(id,paid,sisa){
-    var el=document.getElementById(id);if(!el||typeof Chart==='undefined')return;
-    var has=(paid+sisa)>0;
-    charts.push(new Chart(el,{type:'pie',data:{labels:['Terbayar','Sisa'],datasets:[{data:has?[paid,sisa]:[1],backgroundColor:has?[C_PAID,C_SISA]:[css('--border2')],borderColor:css('--bg2'),borderWidth:has?2:0}]},options:{responsive:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:has,callbacks:{label:function(c){return ' '+c.label+': '+rp(c.parsed);}}}}}}));
+    var el=document.getElementById(id);if(!el)return;
+    var t=paid+sisa,has=t>0,pp=has?Math.min(paid/t*100,100):0;
+    var d=document.createElement('div');d.id=id;d.className='ht-donut'+(id==='htp_total'?' big':'');
+    d.style.background=has?'conic-gradient('+C_PAID+' 0 '+pp+'%, '+C_SISA+' '+pp+'% 100%)':'var(--border2)';
+    d.innerHTML='<div class="ht-donut-in"><b>'+pct(pp).replace(',00','')+'</b><span>Terbayar</span></div>';
+    el.parentNode.replaceChild(d,el);
   }
   function legend(paid,sisa){
     var t=paid+sisa,pp=t?paid/t*100:0;
@@ -13762,7 +13795,7 @@ if ('serviceWorker' in navigator) {
     root.innerHTML=tabs()+r.html;
     r.pies.forEach(function(p){pie(p[0],p[1].b,p[1].sisa);});
     try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl:not(.ht-edit) td').forEach(function(td){var w=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});}}catch(e){}
-    try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl.ht-edit tr.tot').forEach(function(tr){var c=tr.children;if(c.length<2)return;var b1=c[0].querySelector('b'),c2=c[1];if(b1&&c2&&b1.textContent===c2.textContent){c2.textContent='';}[b1,c2].forEach(function(el){if(!el)return;var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});});}}catch(e){}
+    try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl.ht-edit tr.tot').forEach(function(tr){var c=tr.children;if(c.length<2)return;var b1=c[0].querySelector('b'),c2=c[1];if(b1&&c2&&b1.textContent===c2.textContent){c2.textContent='';}root.querySelectorAll('.ht-tbl.ht-edit td').forEach(function(td){var w2=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n2;while((n2=w2.nextNode())){var v2=n2.nodeValue;if(/^Rp[\d.,]+$/.test(v2)){n2.nodeValue=v2.replace(/^Rp/,'').replace(/,00$/,'');}}});[b1,c2].forEach(function(el){if(!el)return;var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});});}}catch(e){}
     window.scrollTo(0,y);
     return true;
   }
