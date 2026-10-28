@@ -1740,6 +1740,45 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 .ht-donut.big .ht-donut-in b{font-size:24px}
 .ht-donut-in span{font-size:9px;font-weight:800;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-top:3px}
 </style>
+<style id="hutang-summary-style">
+/* Ringkasan Keuangan Bulanan (tampilan baru, ringkas & jelas) */
+#page-hutang .ht-sum{padding:18px}
+#page-hutang .ht-sum .ht-sumsub{font-size:11px;color:var(--text3);margin:-4px 0 14px;letter-spacing:.2px}
+#page-hutang .ht-sumhero{border:1px solid var(--hl);border-left:3px solid var(--hg);border-radius:14px;background:var(--bg2);padding:16px 18px;margin-bottom:12px}
+#page-hutang .ht-sumhero.neg{border-left-color:var(--hr)}
+#page-hutang .ht-sumhero .l{font-size:9.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3)}
+#page-hutang .ht-sumhero .v{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;letter-spacing:-.5px;margin:6px 0 4px;color:var(--hg)}
+#page-hutang .ht-sumhero.neg .v{color:var(--hr)}
+#page-hutang .ht-sumhero .s{font-size:11px;color:var(--text3)}
+#page-hutang .ht-sumin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+#page-hutang .ht-sumin label{display:block;min-width:0}
+#page-hutang .ht-sumin label span{display:block;font-size:9.5px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+#page-hutang .ht-sumin label.full{grid-column:1/-1}
+#page-hutang .ht-sumin select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--hl);border-radius:11px;background:var(--bg);color:var(--text);font-size:12px;font-weight:600}
+#page-hutang .ht-sumin select:focus{outline:none;border-color:var(--ha)}
+#page-hutang .ht-sumin input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--hl);border-radius:11px;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+#page-hutang .ht-sumin input:focus{outline:none;border-color:var(--ha)}
+#page-hutang .ht-sumg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#page-hutang .ht-sumg .it{border:1px solid var(--hl);border-radius:13px;background:var(--bg2);padding:12px 14px;min-width:0}
+#page-hutang .ht-sumg .it.full{grid-column:1/-1}
+#page-hutang .ht-sumg .l{font-size:9px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--text3);line-height:1.35}
+#page-hutang .ht-sumg .v{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;margin:6px 0 3px;color:var(--text);white-space:nowrap;letter-spacing:-.2px}
+#page-hutang .ht-sumg .v.g{color:var(--hg)}#page-hutang .ht-sumg .v.r{color:var(--hr)}#page-hutang .ht-sumg .v.y{color:var(--ha)}
+#page-hutang .ht-sumg .n{font-size:10px;color:var(--text3);line-height:1.35}
+@media(min-width:760px){#page-hutang .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}#page-hutang .ht-sumg .it.full{grid-column:auto}}
+</style>
+<style id="admin-summary-style">
+.ah-sumttl{font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin:18px 2px 4px;padding-top:14px;border-top:1px solid var(--border2)}
+.ah-sumsub{font-size:11px;color:var(--text3);margin:0 2px 12px}
+.ah-sumhero{border:1px solid var(--border2);border-left:3px solid var(--green2);border-radius:16px;background:var(--bg2);padding:15px 16px;margin-bottom:12px}
+.ah-sumhero.neg{border-left-color:var(--red2)}
+.ah-sumhero .l{font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
+.ah-sumhero .v{font-family:'JetBrains Mono',monospace;font-size:clamp(18px,6vw,24px);font-weight:800;color:var(--green2);margin:6px 0 4px;letter-spacing:-.4px}
+.ah-sumhero.neg .v{color:var(--red2)}
+.ah-sumhero .s{font-size:11px;color:var(--text3)}
+.ah-stat .n{font-size:10px;color:var(--text3);line-height:1.35;margin-top:4px;font-weight:600}
+.ah-stat .v{white-space:normal;word-break:break-word}
+</style>
 <style id="hide-scrollbar-style">
 /* Semua penggeser (scrollbar) di seluruh aplikasi disembunyikan: halaman, popup, opsi/dropdown, tabel. Geser tetap berfungsi normal. */
 *,*::before,*::after{scrollbar-width:none !important;-ms-overflow-style:none !important;}
@@ -3500,9 +3539,31 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const donut = '<div class="ah-donut" style="background:' + (gJ ? 'conic-gradient(#10B981 0 ' + pp + '%, #F87171 ' + pp + '% 100%)' : 'var(--border2)') + ';"><div class="ah-donut-in"><b>' + pc(pp).replace(',00', '') + '</b><span>Terbayar</span></div></div>';
     const legend = '<div class="ah-legend"><span><i style="background:#10B981;"></i>Sudah dibayar</span><span><i style="background:#F87171;"></i>Belum dibayar</span></div>';
     const st = (l, v, c, full) => '<div class="ah-stat' + (full ? ' full' : '') + '"><div class="l">' + l + '</div><div class="v"' + (c ? ' style="color:' + c + ';"' : '') + '>' + v + '</div></div>';
+    const selSheets = mergeMode ? hd.sheets.filter(x => (Array.isArray(hd.mergeSel) ? hd.mergeSel : hd.sheets.map(y => y.id)).indexOf(x.id) > -1) : ((Array.isArray(hd.totSel) && hd.sheets.some(x => hd.totSel.indexOf(x.id) > -1)) ? hd.sheets.filter(x => hd.totSel.indexOf(x.id) > -1) : hd.sheets);
+    const nSel = selSheets.length;
+    const ciA = window.rhnCicInfo ? window.rhnCicInfo(selSheets, hd.cicMonth) : null;
+    const cicM = ciA ? ciA.cic : gCic, cicLbl = ciA ? ciA.label : 'rata-rata per bulan', saldoM = inc - cicM;
+    const hari = saldoM / 30, pendHari = inc / 30, cicHari = cicM / 30, rasio = inc > 0 ? cicM / inc * 100 : 0;
+    const mdPct = (pendHari > 0 && md > 0) ? md / pendHari * 100 : null, sisaBlnMax = md > 0 ? saldoM - md * 30 : null;
+    const rasioTxt = inc > 0 ? (rasio <= 30 ? 'Sehat' : (rasio <= 50 ? 'Waspada' : 'Berat')) : '';
+    const rasioCol = inc > 0 ? (rasio <= 30 ? 'var(--green2)' : (rasio <= 50 ? 'var(--gold)' : 'var(--red2)')) : '';
+    const lunasBln = (cicM > 0 && gSisa > 0) ? Math.ceil(gSisa / cicM) + ' bulan' : (gJ > 0 && gSisa <= 0 ? 'Sudah lunas' : '-');
+    const hariNote = md > 0 ? (hari >= md ? 'Cukup untuk batas harian ' + rp(md) : 'Di bawah batas harian ' + rp(md)) : 'Batas pengeluaran harian belum diisi';
+    const sc = (l, v, c, n, full) => '<div class="ah-stat' + (full ? ' last' : '') + '"><div class="l">' + l + '</div><div class="v"' + (c ? ' style="color:' + c + ';"' : '') + '>' + v + '</div><div class="n">' + n + '</div></div>';
     const head = '<div class="ah-hero">' + donut + '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">' + legend + '</div></div>' +
-        '<div class="ah-grid">' + st('Total Jumlah', rp(gJ), '', true) + st('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + st('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') +
-        st('Pemasukan Bulanan', rp(inc)) + st('Bayar Cicilan (rata-rata)', rp(gCic)) + st('Saldo Bersih Bulanan', rp(saldo), saldo < 0 ? 'var(--red2)' : 'var(--green2)') + st('Maks. Pengeluaran Perhari', rp(md)) + st('Saldo Harian Setelah Cicilan', rp(saldo / 30), '', false).replace('class="ah-stat"','class="ah-stat last"') + '</div>';
+        '<div class="ah-grid">' + st('Total Jumlah', rp(gJ), '', true) + st('Sudah Dibayar (' + pc(pp) + ')', rp(gB), 'var(--green2)') + st('Belum Dibayar (' + pc(gJ ? 100 - pp : 0) + ')', rp(gSisa), 'var(--red2)') + '</div>' +
+        '<div class="ah-sumttl">Ringkasan Keuangan Bulanan</div><div class="ah-sumsub">Dihitung dari ' + nSel + ' lembar yang dipilih</div>' +
+        '<div class="ah-sumhero' + (saldoM < 0 ? ' neg' : '') + '"><div class="l">Saldo Bersih Bulanan</div><div class="v">' + rp(saldoM) + '</div><div class="s">Pemasukan ' + rp(inc) + ' − cicilan ' + rp(cicM) + ' (' + cicLbl + ')</div></div>' +
+        '<div class="ah-grid">' +
+        sc('Cicilan Bulanan', rp(cicM), '', cicLbl) +
+        sc('Cicilan Harian', rp(cicHari), '', 'cicilan bulanan ÷ 30 hari') +
+        sc('Beban Cicilan', inc > 0 ? pc(rasio) : '-', rasioCol, inc > 0 ? rasioTxt + ' · dari pemasukan' : 'pemasukan belum diisi') +
+        sc('Pendapatan Harian', rp(pendHari), '', 'pemasukan bulanan ÷ 30 hari') +
+        sc('Saldo Harian Setelah Cicilan', rp(hari), hari < 0 ? 'var(--red2)' : 'var(--green2)', hariNote + (mdPct !== null ? '<br>Batas harian = ' + pc(mdPct) + ' dari pendapatan harian' : '')) +
+        sc('Batas Pengeluaran Harian', mdPct !== null ? pc(mdPct) : '-', '', mdPct !== null ? rp(md) + ' dari pendapatan harian ' + rp(pendHari) : 'pemasukan / batas harian belum diisi') +
+        sc('Sisa Bulanan Jika Pakai Batas Harian', sisaBlnMax !== null ? rp(sisaBlnMax) : '-', sisaBlnMax !== null ? (sisaBlnMax < 0 ? 'var(--red2)' : 'var(--green2)') : '', sisaBlnMax !== null ? 'saldo bulanan − (batas harian × 30)' : 'batas pengeluaran harian belum diisi') +
+        sc('Sisa Hutang', rp(gSisa), 'var(--red2)', pc(gJ ? 100 - pp : 0) + ' belum dibayar') +
+        sc('Perkiraan Lunas', lunasBln, '', 'jika cicilan bulanan dibayar rutin', true) + '</div>';
     Swal.update({ html: box(head + body) });
 };
 
@@ -13696,7 +13757,44 @@ if ('serviceWorker' in navigator) {
     h+='</div></div>';
     return h;
   }
+  var MONTHS_ID=['JANUARI','FEBRUARI','MARET','APRIL','MEI','JUNI','JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER'];
+  function cicInfo(sheets,pref){
+    var by={},order=[];
+    sheets.forEach(function(s){var occ={};(s.months||[]).forEach(function(m){var nm=String(m.name||'').trim().toUpperCase();occ[nm]=(occ[nm]||0)+1;var k=nm+'#'+occ[nm];if(!by[k]){by[k]={k:k,base:nm,name:occ[nm]>1?nm+' ('+occ[nm]+')':nm,j:0,b:0};order.push(k);}var t=mTot(m);by[k].j+=t.j;by[k].b+=t.b;});});
+    var list=order.map(function(k){return by[k];});
+    var avg=0;sheets.forEach(function(s){var ms=s.months||[];if(ms.length){var j=0;ms.forEach(function(m){j+=mTot(m).j;});avg+=j/ms.length;}});
+    var res={list:list,avg:avg,cic:0,label:'-',pick:null};
+    if(!list.length)return res;
+    if(pref==='avg'){res.cic=avg;res.label='rata-rata semua bulan';return res;}
+    var pick=null;
+    if(pref&&pref!=='auto'&&by[pref])pick=by[pref];
+    if(!pick){
+      var cm=MONTHS_ID[new Date().getMonth()],i;
+      for(i=0;i<list.length;i++){if(list[i].base===cm){pick=list[i];break;}}
+      if(!pick){for(i=0;i<list.length;i++){if(list[i].j-list[i].b>0){pick=list[i];break;}}}
+      if(!pick)pick=list[list.length-1];
+    }
+    res.pick=pick;res.cic=pick.j;res.label='tagihan bulan '+pick.name;return res;
+  }
+  window.rhnCicInfo=cicInfo;
+  window.htFmtInput=function(el){
+    try{
+      var v=el.value,pos=el.selectionStart==null?v.length:el.selectionStart;
+      var before=v.slice(0,pos).replace(/[^\d,]/g,'').length;
+      var clean=v.replace(/[^\d,]/g,''),ci=clean.indexOf(',');
+      var ip=ci<0?clean:clean.slice(0,ci),dp=ci<0?null:clean.slice(ci+1).replace(/,/g,'').slice(0,2);
+      ip=ip.replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+      var out=dp===null?ip:ip+','+dp;
+      if(out===v)return;
+      el.value=out;
+      var cnt=0,np=0;
+      for(;np<out.length&&cnt<before;np++){if(/[\d,]/.test(out.charAt(np)))cnt++;}
+      el.setSelectionRange(np,np);
+    }catch(e){}
+  };
+  window.htSetCicMonth=function(v){D.cicMonth=v||'auto';save();render();};
   function footer(tot,cic){
+    var ci=cicInfo(selIds().map(sheet).filter(Boolean),D.cicMonth);cic=ci.cic;
     var inc=D.income||0,saldo=inc-cic,hari=saldo/30,ps=tot.j?tot.sisa/tot.j*100:0,pb=tot.j?100-ps:0;
     var h=totalPie(tot)+'<div class="ht-stats">'+
       '<div class="ht-stat"><div class="l">Total Jumlah</div><div class="v">'+rp(tot.j)+'</div></div>'+
@@ -13704,13 +13802,29 @@ if ('serviceWorker' in navigator) {
       '<div class="ht-stat"><div class="l">Sisa Hutang Masih Ada (Total Hasil)</div><div class="v r">'+rp(tot.sisa)+'</div></div>'+
       '<div class="ht-stat"><div class="l">Total Presentase Sisa Hutang</div><div class="v r">'+pct(ps)+'</div></div>'+
       '<div class="ht-stat"><div class="l">Terbayarkan</div><div class="v g">'+pct(pb)+'</div></div></div>';
-    h+='<div class="ht-set"><div class="st">Ringkasan Keuangan Bulanan</div>'+
-      '<div class="ht-row2"><span>Pemasukan Bulanan</span><input inputmode="decimal" value="'+inpVal(D.income)+'" placeholder="0" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetG(\'income\',this.value)"></div>'+
-      '<div class="ht-row2"><span>Bayar Cicilan</span><b>'+rp(cic)+'</b></div>'+
-      '<div class="ht-row2"><span>Saldo Bersih Bulanan</span><b class="'+(saldo<0?'r':'g')+'">'+rp(saldo)+'</b></div>'+
-      '<div class="ht-row2"><span>Maksimal Pengeluaran Perhari</span><input inputmode="decimal" value="'+inpVal(D.maxDaily)+'" placeholder="0" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetG(\'maxDaily\',this.value)"></div>'+
-      '<div class="ht-row2"><span>Saldo Bersih Harian Setelah Cicilan</span><b class="'+(hari<0?'r':'g')+'">'+rp(hari)+'</b></div>'+
-      '<div class="ht-row2"><span>Persentase Hutang</span><b class="r">'+pct(ps)+'</b></div></div>';
+    var nSel=selIds().length,rasio=inc>0?cic/inc*100:0,md=D.maxDaily||0;
+    var pendHari=inc/30,cicHari=cic/30,mdPct=(pendHari>0&&md>0)?md/pendHari*100:null,sisaBlnMax=md>0?saldo-md*30:null;
+    var rasioTxt=inc>0?(rasio<=30?'Sehat':(rasio<=50?'Waspada':'Berat')):'';
+    var rasioCls=inc>0?(rasio<=30?'g':(rasio<=50?'y':'r')):'';
+    var lunasBln=(cic>0&&tot.sisa>0)?Math.ceil(tot.sisa/cic)+' bulan':(tot.j>0&&tot.sisa<=0?'Sudah lunas':'-');
+    var hariNote=md>0?(hari>=md?'Cukup untuk batas harian '+rp(md):'Di bawah batas harian '+rp(md)):'Isi batas pengeluaran harian di atas';
+    var card=function(l,v,cls,n,full){return '<div class="it'+(full?' full':'')+'"><div class="l">'+l+'</div><div class="v'+(cls?' '+cls:'')+'">'+v+'</div><div class="n">'+n+'</div></div>';};
+    h+='<div class="ht-set ht-sum"><div class="st">Ringkasan Keuangan Bulanan</div>'+
+      '<div class="ht-sumsub">Dihitung dari '+nSel+' lembar yang dipilih</div>'+
+      '<div class="ht-sumhero '+(saldo<0?'neg':'pos')+'"><div class="l">Saldo Bersih Bulanan</div><div class="v">'+rp(saldo)+'</div><div class="s">Pemasukan '+rp(inc)+' − cicilan '+rp(cic)+' ('+ci.label+')</div></div>'+
+      '<div class="ht-sumin"><label><span>Pemasukan Bulanan</span><input inputmode="decimal" value="'+inpVal(D.income)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetG(\'income\',this.value)"></label>'+
+      '<label><span>Maks. Pengeluaran Perhari</span><input inputmode="decimal" value="'+inpVal(D.maxDaily)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetG(\'maxDaily\',this.value)"></label>'+'<label class="full"><span>Cicilan Dihitung Dari</span><select onchange="window.htSetCicMonth(this.value)">'+'<option value="auto"'+((!D.cicMonth||D.cicMonth==="auto")?' selected':'')+'>Otomatis — bulan ini ('+MONTHS_ID[new Date().getMonth()]+')</option>'+ci.list.map(function(x){return '<option value="'+esc(x.k)+'"'+(D.cicMonth===x.k?' selected':'')+'>'+esc(x.name)+' — '+rp(x.j)+'</option>';}).join('')+'<option value="avg"'+(D.cicMonth==='avg'?' selected':'')+'>Rata-rata semua bulan</option></select></label>'+'</div>'+
+      '<div class="ht-sumg">'+
+        card('Cicilan Bulanan',rp(cic),'',ci.label)+
+        card('Cicilan Harian',rp(cicHari),'','cicilan bulanan ÷ 30 hari')+
+        card('Beban Cicilan',inc>0?pct(rasio):'-',rasioCls,inc>0?rasioTxt+' · dari pemasukan':'isi pemasukan dulu')+
+        card('Pendapatan Harian',rp(pendHari),'','pemasukan bulanan ÷ 30 hari')+
+        card('Saldo Harian Setelah Cicilan',rp(hari),hari<0?'r':'g',hariNote+(mdPct!==null?'<br>Batas harian = '+pct(mdPct)+' dari pendapatan harian':''))+
+        card('Batas Pengeluaran Harian',mdPct!==null?pct(mdPct):'-','',mdPct!==null?rp(md)+' dari pendapatan harian '+rp(pendHari):'isi pemasukan & batas harian')+
+        card('Sisa Bulanan Jika Pakai Batas Harian',sisaBlnMax!==null?rp(sisaBlnMax):'-',sisaBlnMax!==null?(sisaBlnMax<0?'r':'g'):'',sisaBlnMax!==null?'saldo bulanan − (batas harian × 30)':'isi batas pengeluaran harian')+
+        card('Sisa Hutang',rp(tot.sisa),'r',pct(ps)+' belum dibayar')+
+        card('Perkiraan Lunas',lunasBln,'','jika cicilan bulanan dibayar rutin',true)+
+      '</div></div>';
     return h;
   }
   function badge(j,b){
@@ -13730,8 +13844,8 @@ if ('serviceWorker' in navigator) {
       '<div class="ht-grid"><div class="ht-wrap"><table class="ht-tbl ht-edit"><tr><th>Jumlah</th><th>Bayar</th><th>Hasil</th><th>Status</th><th>Perhari</th><th></th></tr>';
     m.rows.forEach(function(r){
       var sisa=Math.max((r.jumlah||0)-(r.bayar||0),0);
-      h+='<tr><td><input inputmode="decimal" value="'+inpVal(r.jumlah)+'" placeholder="0" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'jumlah\',this.value)"></td>'+
-        '<td><div class="ht-paycell"><input inputmode="decimal" value="'+inpVal(r.bayar)+'" placeholder="0" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'bayar\',this.value)"><button class="ht-lunas" title="Langsung lunas (Bayar = Jumlah)" '+((r.jumlah>0&&sisa<=0)?'disabled':'')+' onmousedown="event.preventDefault()" onclick="window.htLunas(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✓ Lunas</button></div></td>'+
+      h+='<tr><td><input inputmode="decimal" value="'+inpVal(r.jumlah)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'jumlah\',this.value)"></td>'+
+        '<td><div class="ht-paycell"><input inputmode="decimal" value="'+inpVal(r.bayar)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'bayar\',this.value)"><button class="ht-lunas" title="Langsung lunas (Bayar = Jumlah)" '+((r.jumlah>0&&sisa<=0)?'disabled':'')+' onmousedown="event.preventDefault()" onclick="window.htLunas(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✓ Lunas</button></div></td>'+
         '<td class="rs '+(sisa>0?'r':((r.jumlah||0)>0?'g':'dim'))+'"><div>'+rp(sisa)+'</div>'+pbar(r.jumlah||0,r.bayar||0)+'</td><td class="c">'+badge(r.jumlah||0,r.bayar||0)+'</td><td class="dim">'+rp((r.jumlah||0)/30)+'</td>'+
         '<td class="c"><button class="ht-x" title="Hapus baris" onclick="window.htDelRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✕</button></td></tr>';
     });
@@ -13746,7 +13860,9 @@ if ('serviceWorker' in navigator) {
     var pies=[];
     s.months.forEach(function(m,i){pies.push(['htp_'+m.id,mTot(m)]);h+=monthBlock(s,m,i);});
     if(!s.months.length)h+='<div class="ht-card ht-empty">Belum ada bulan. Klik “+ Tambah Bulan”.</div>';
-    var cic=s.months.length?sTot(s).j/s.months.length:0,st=sTot(s);
+    var st={j:0,b:0,sisa:0},cic=0;
+    selIds().forEach(function(id){var sh=sheet(id);if(!sh)return;var t=sTot(sh);st.j+=t.j;st.b+=t.b;if(sh.months.length)cic+=t.j/sh.months.length;});
+    st.sisa=Math.max(st.j-st.b,0);
     h+=footer(st,cic);
     pies.push(['htp_total',panelTot()]);
     return{html:h,pies:pies};
@@ -13924,6 +14040,7 @@ if ('serviceWorker' in navigator) {
       s0.months.forEach(function(m){groups.push({name:(m.name||'-').toUpperCase(),rows:m.rows.map(function(r,i){return{src:'Cicilan '+(i+1),j:r.jumlah||0,b:r.bayar||0};})});});
     }
     tot.sisa=Math.max(tot.j-tot.b,0);
+    cic=cicInfo(sel,D.cicMonth).cic;
     var inc=D.income||0;
     return{merge:merge,title:title,groups:groups,tot:tot,cic:cic,inc:inc,maxDaily:D.maxDaily||0,saldo:inc-cic,hari:(inc-cic)/30,
       sheets:sel.map(function(s){var t=sTot(s);return{name:s.name,j:t.j,b:t.b,sisa:t.sisa};})};
@@ -14001,7 +14118,7 @@ if ('serviceWorker' in navigator) {
       y=doc.lastAutoTable.finalY+22;
     });
     bar('RINGKASAN KEUANGAN BULANAN');
-    var sm=[['Pemasukan Bulanan',rp(M.inc)],['Bayar Cicilan (rata-rata per bulan)',rp(M.cic)],['Saldo Bersih Bulanan',rp(M.saldo)],['Maksimal Pengeluaran Perhari',rp(M.maxDaily)],['Saldo Bersih Harian Setelah Cicilan',rp(M.hari)],['Persentase Sisa Hutang',pct(ps)]];
+    var sm=[['Pemasukan Bulanan',rp(M.inc)],['Bayar Cicilan (sesuai tagihan bulan)',rp(M.cic)],['Saldo Bersih Bulanan',rp(M.saldo)],['Maksimal Pengeluaran Perhari',rp(M.maxDaily)],['Saldo Bersih Harian Setelah Cicilan',rp(M.hari)],['Persentase Sisa Hutang',pct(ps)]];
     doc.autoTable(Object.assign({},base,{startY:y,body:sm,alternateRowStyles:{fillColor:[249,250,251]},columnStyles:{0:{fontStyle:'bold',textColor:[75,85,99],cellWidth:cW/2},1:{halign:'right',fontStyle:'bold'}}}));
     var np=doc.internal.getNumberOfPages();
     for(var i=1;i<=np;i++){
@@ -14128,7 +14245,7 @@ if ('serviceWorker' in navigator) {
       w2.mergeCells(q,1,q,5);c=w2.getCell(q,1);c.value='RINGKASAN KEUANGAN BULANAN';c.font={name:'Calibri',size:12,bold:true,color:{argb:'FF92400E'}};c.alignment={vertical:'middle',indent:1};
       for(k=1;k<=5;k++){w2.getCell(q,k).fill=F('FFFEF3C7');w2.getCell(q,k).border={bottom:GOLDB};}
       w2.getRow(q).height=26;q++;
-      [['Pemasukan Bulanan',M.inc,NUM],['Bayar Cicilan (rata-rata per bulan)',M.cic,NUM],['Saldo Bersih Bulanan',M.saldo,NUM],['Maksimal Pengeluaran Perhari',M.maxDaily,NUM],['Saldo Bersih Harian Setelah Cicilan',M.hari,NUM],['Persentase Sisa Hutang',ps,'0.00%']].forEach(function(x,i){
+      [['Pemasukan Bulanan',M.inc,NUM],['Bayar Cicilan (sesuai tagihan bulan)',M.cic,NUM],['Saldo Bersih Bulanan',M.saldo,NUM],['Maksimal Pengeluaran Perhari',M.maxDaily,NUM],['Saldo Bersih Harian Setelah Cicilan',M.hari,NUM],['Persentase Sisa Hutang',ps,'0.00%']].forEach(function(x,i){
         w2.mergeCells(q,2,q,3);
         var a1=w2.getCell(q,1),b1=w2.getCell(q,2);a1.value=x[0];b1.value=x[1];b1.numFmt=x[2];
         a1.font={name:'Calibri',size:11,bold:true,color:{argb:'FF4B5563'}};b1.font={name:'Calibri',size:11,bold:true,color:{argb:'FF111827'}};
