@@ -1701,6 +1701,11 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-tbl:not(.ht-edit) .ht-badge{white-space:normal !important;text-align:center;line-height:1.2 !important;font-size:6.8px !important;font-weight:700 !important;letter-spacing:.3px !important;padding:4px 5px !important;border-radius:7px !important;display:inline-block !important;max-width:100%}
 #page-hutang .ht-tbl:not(.ht-edit) .ht-badge::before{display:none !important}
 #page-hutang .ht-tbl:not(.ht-edit) .ht-pb{margin:5px 0 0 auto !important;width:100%;height:3px !important}
+#page-hutang .ht-tbl.ht-edit tr.tot td{font-size:9px !important;padding:12px 4px !important;overflow:visible}
+#page-hutang .ht-tbl.ht-edit tr.tot td:nth-child(1){padding-left:8px !important}
+#page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell{display:flex !important;flex-direction:column;align-items:flex-end;gap:4px}
+#page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell span{font-size:7.6px !important;letter-spacing:.9px !important}
+#page-hutang .ht-tbl.ht-edit tr.tot .ht-tcell b{font-size:9.4px !important;letter-spacing:-.1px}
 }
 </style>
 <style id="hide-scrollbar-style">
@@ -13755,6 +13760,7 @@ if ('serviceWorker' in navigator) {
     root.innerHTML=tabs()+r.html;
     r.pies.forEach(function(p){pie(p[0],p[1].b,p[1].sisa);});
     try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl:not(.ht-edit) td').forEach(function(td){var w=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});}}catch(e){}
+    try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl.ht-edit tr.tot').forEach(function(tr){var c=tr.children;if(c.length<2)return;var b1=c[0].querySelector('b'),c2=c[1];if(b1&&c2&&b1.textContent===c2.textContent){c2.textContent='';}[b1,c2].forEach(function(el){if(!el)return;var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});});}}catch(e){}
     window.scrollTo(0,y);
     return true;
   }
