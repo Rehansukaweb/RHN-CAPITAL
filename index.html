@@ -146,7 +146,7 @@ button:disabled:hover, .nav-btn:disabled:hover, .t-btn:disabled:hover, .p-btn:di
 }
 @keyframes activePulse { 0% { transform: scale(0.96); } 100% { transform: scale(1); } }
 
-.m-card, .w-card { animation: cardIn 0.09s cubic-bezier(0.22, 1, 0.36, 1); }
+.m-card, .w-card { animation: none; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Transisi antar halaman langsung terasa seperti sekali pencet, tanpa jeda */
@@ -3203,8 +3203,8 @@ import {
 
 import { 
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
-  addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, limit,
-  serverTimestamp, getDoc, setDoc, collectionGroup, getDocs, getDocsFromServer, getCountFromServer, deleteField, writeBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
+  addDoc as __fsAddDoc, updateDoc as __fsUpdateDoc, deleteDoc as __fsDeleteDoc, onSnapshot, query, orderBy, where, limit,
+  serverTimestamp, getDoc, setDoc as __fsSetDoc, collectionGroup, getDocs, getDocsFromServer, getCountFromServer, deleteField, writeBatch as __fsWriteBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -3219,6 +3219,30 @@ const firebaseConfig = {
 const app = window.__IS_APP_MODE ? initializeApp(firebaseConfig) : initializeApp(firebaseConfig, 'web-browser'); 
 const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence], popupRedirectResolver: browserPopupRedirectResolver }); 
 const db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+
+// ==== MODE OFFLINE: semua tulis data (simpan/ubah/hapus) langsung tersimpan di cache lokal Firestore ====
+// Saat offline, Promise write Firestore baru selesai kalau server sudah konfirmasi, jadi `await` bisa
+// menggantung selamanya (contoh: Target Tabungan, ganti logo wallet). Pembungkus ini membuat write
+// langsung dianggap selesai begitu masuk cache lokal, lalu otomatis naik ke server saat online lagi.
+// Saat online perilakunya sama persis seperti aslinya.
+function __offlineSafe(p) {
+    try { p.catch(function () {}); } catch (e) {}
+    if (navigator.onLine) return p;
+    return Promise.race([p, new Promise(function (res) { setTimeout(function () { res(undefined); }, 700); })]);
+}
+const setDoc = function () { return __offlineSafe(__fsSetDoc.apply(null, arguments)); };
+const updateDoc = function () { return __offlineSafe(__fsUpdateDoc.apply(null, arguments)); };
+const deleteDoc = function () { return __offlineSafe(__fsDeleteDoc.apply(null, arguments)); };
+const addDoc = function (colRef, data) {
+    const ref = doc(colRef);
+    return __offlineSafe(__fsSetDoc(ref, data)).then(function () { return ref; });
+};
+const writeBatch = function (d) {
+    const b = __fsWriteBatch(d);
+    const origCommit = b.commit.bind(b);
+    b.commit = function () { return __offlineSafe(origCommit()); };
+    return b;
+};
 
 // ==== DETEKSI & MANAJEMEN PERANGKAT AKTIF ====
 function parseDeviceUA() {
@@ -5136,7 +5160,7 @@ window.pickWalletChoice = async function (name) {
   const only = window.WALLET_PICKABLE[name]; if (!only) return;
   const cur = window.getWalletChoice(name);
   const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
-    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, only === 'all' ? undefined : only, name === 'MT5 Trading' ? 'mt5' : only !== 'bank'),
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, undefined, 'full'),
     showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
     preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
   if (!r.isConfirmed && !r.isDenied) return;
@@ -6814,6 +6838,7 @@ window.updatePrefCategories = function(resetCat = true) {
 
 window.savePreferencesData = async function() {
     if(!currentUser) return;
+    try { localStorage.setItem('rhn_savings_goals_' + currentUser.uid, JSON.stringify(window.savingsGoals || [])); } catch(eLs) {}
     try {
         await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { 
             categories: window.userCats,
@@ -7014,17 +7039,17 @@ onAuthStateChanged(auth, async user => {
             if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } 
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
             if (data.categories) { window.userCats = data.categories; try { localStorage.setItem('rhn_cats_' + user.uid, JSON.stringify(data.categories)); } catch(e) {} } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
-            if (data.savingsGoals) { window.savingsGoals = data.savingsGoals; } else { window.savingsGoals = []; }
+            if (data.savingsGoals) { window.savingsGoals = data.savingsGoals; try { localStorage.setItem('rhn_savings_goals_' + user.uid, JSON.stringify(data.savingsGoals)); } catch(e) {} } else { let __sg = []; try { __sg = JSON.parse(localStorage.getItem('rhn_savings_goals_' + user.uid) || '[]') || []; } catch(e) {} window.savingsGoals = Array.isArray(__sg) ? __sg : []; }
             if (data.userQrisBase) { window.userQrisBase = data.userQrisBase; } else { window.userQrisBase = ""; } if (window.refreshQrisStatus) window.refreshQrisStatus();
         } else { 
             const savedPrefs = localStorage.getItem('rhn_prefs_' + user.uid); if(savedPrefs) appPrefs = JSON.parse(savedPrefs); 
             const savedExtraPrefs = localStorage.getItem('rhn_extra_prefs_v2_' + user.uid); if(savedExtraPrefs) extraPrefs = JSON.parse(savedExtraPrefs); 
             window.userBudgets = {};
             window.userCats = JSON.parse(JSON.stringify(window.defaultCATS));
-            window.savingsGoals = [];
+            { let __sg2 = []; try { __sg2 = JSON.parse(localStorage.getItem('rhn_savings_goals_' + user.uid) || '[]') || []; } catch(e) {} window.savingsGoals = Array.isArray(__sg2) ? __sg2 : []; }
             window.userQrisBase = "";
         }
-    } catch(err) { console.error("Gagal sinkron data pengaturan", err); try { const __c = JSON.parse(localStorage.getItem('rhn_cats_' + user.uid) || 'null'); if (__c) window.userCats = __c; } catch(e) {} if (!window.userCats) window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
+    } catch(err) { console.error("Gagal sinkron data pengaturan", err); try { const __c = JSON.parse(localStorage.getItem('rhn_cats_' + user.uid) || 'null'); if (__c) window.userCats = __c; } catch(e) {} if (!window.userCats) window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); try { const __sg3 = JSON.parse(localStorage.getItem('rhn_savings_goals_' + user.uid) || 'null'); if (Array.isArray(__sg3) && (!window.savingsGoals || !window.savingsGoals.length)) window.savingsGoals = __sg3; } catch(e) {} }
 
     // Kategori (window.userCats) baru pasti lengkap SETELAH baris di atas selesai (async, bisa
     // lambat/dari cache kalau offline). Dropdown kategori di form sudah sempat dirender duluan
@@ -10410,7 +10435,7 @@ window.renderSavings = function() {
         html += `
         <div class="w-card" style="flex: 1 1 300px; padding:16px; background:var(--bg2); border:1px solid var(--border); cursor:default;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <div style="font-weight:800; font-size:12px; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                <div style="font-weight:800; font-size:12px; color:var(--gold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${window.escapeHTML ? window.escapeHTML(String(g.name)) : g.name}</div>
                 <button onclick="editGoal(${idx})" style="background:none; border:none; color:var(--text3); cursor:pointer; font-size:12px;">⚙️</button>
             </div>
             <div style="font-size:16px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-bottom:2px; color:var(--text);">${fmtFull(g.current)}</div>
@@ -10489,7 +10514,7 @@ window.editGoal = async function(idx) {
         if (res.isConfirmed) {
             const { value: formValues } = await Swal.fire({
                 title: 'Edit Target',
-                html: `<input id="swal-g-name-edit" class="f-input-dark" value="${window.savingsGoals[idx].name}" style="margin-bottom:12px;">
+                html: `<input id="swal-g-name-edit" class="f-input-dark" value="${window.escapeHTML ? window.escapeHTML(String(window.savingsGoals[idx].name)) : window.savingsGoals[idx].name}" style="margin-bottom:12px;">
                        <input id="swal-g-target-edit" type="number" class="f-input-dark" value="${window.savingsGoals[idx].target}">`,
                 focusConfirm: false, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)',
                 preConfirm: () => { return { name: document.getElementById('swal-g-name-edit').value, target: parseFloat(document.getElementById('swal-g-target-edit').value) } }
@@ -11423,8 +11448,10 @@ function calcSum(arr) { let inc = 0, exp = 0; arr.forEach(t => { let a = (typeof
 
 window.__setH = function(el, h) {
     if (!el) return false;
-    if (el.__lh === h && el.__lc === el.firstChild && el.__ln === el.childNodes.length) return false;
-    el.innerHTML = h; el.__lh = h; el.__lc = el.firstChild; el.__ln = el.childNodes.length; return true;
+    // id gradient logo dibuat acak tiap render -> normalkan dulu supaya HTML yang sebenarnya sama tidak dirender ulang (penyebab kedip)
+    const hn = String(h).replace(/(id="|url\(#)g[a-z0-9]{6}/g, '$1g');
+    if (el.__lh === hn && el.__lc === el.firstChild && el.__ln === el.childNodes.length) return false;
+    el.innerHTML = h; el.__lh = hn; el.__lc = el.firstChild; el.__ln = el.childNodes.length; return true;
 };
 function renderSumGrid(el, arr, isDash = false) { 
     const s = calcSum(arr); const ts = calcSum(txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString())); const pct = s.inc > 0 ? Math.min(100, Math.round((s.exp / s.inc) * 100)) : 0; 
