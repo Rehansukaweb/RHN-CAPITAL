@@ -1919,6 +1919,7 @@ body.rhn-kp-open .swal2-popup.opt-pop{height:auto!important;max-height:calc(100d
        <input type="password" id="app-pin" name="rhn-pin-code" class="f-input-dark" style="text-align:center; letter-spacing: 12px; font-size: 24px; padding: 12px; -webkit-text-security: disc; text-security: disc;" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autofocus>
     </div>
     <button class="auth-btn" id="pin-submit-btn" onclick="verifyPin()" style="display:none;">BUKA APLIKASI</button>
+    <button id="bio-btn" onclick="event.stopPropagation(); rhnBioUnlock(true)" style="display:none; margin:14px auto 0; background:var(--bg3,#1c1c20); border:1px solid var(--gold,#fbbf24); color:var(--gold,#fbbf24); border-radius:14px; padding:11px 18px; font-size:12px; font-weight:800; cursor:pointer;">👆 BUKA DENGAN SIDIK JARI</button>
     
     <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 24px;">
       <button style="background:transparent; border:none; color:var(--text3); font-size:10px; cursor:pointer; font-weight:700; text-transform:uppercase; text-decoration:underline;" onclick="event.stopPropagation(); resetAccount()">Ganti Akun</button>
@@ -2813,6 +2814,13 @@ body.rhn-kp-open .swal2-popup.opt-pop{height:auto!important;max-height:calc(100d
         <div class="set-sub">Ganti 6 digit PIN tanpa perlu keluar (logout)</div>
       </div>
       <button class="set-action" onclick="changePinInApp()">GANTI PIN</button>
+    </div>
+    <div class="set-item">
+      <div>
+        <div class="set-label">Sidik Jari / Biometrik</div>
+        <div class="set-sub" id="bio-set-sub">Buka aplikasi dengan sidik jari atau face unlock</div>
+      </div>
+      <button class="set-action" id="bio-set-btn" onclick="rhnBioToggle()">AKTIFKAN</button>
     </div>
     <div class="set-item">
       <div>
@@ -14769,6 +14777,110 @@ if ('serviceWorker' in navigator) {
   }).observe(document.documentElement,{childList:true,subtree:true});
   scan(document.documentElement);
   document.addEventListener('DOMContentLoaded',function(){scan(document.documentElement);});
+})();
+</script>
+<script>
+/* ===== BUKA APLIKASI DENGAN SIDIK JARI (WebAuthn, tersimpan lokal per perangkat) ===== */
+(function(){
+  var K = function(u){ return 'rhn_bio_' + u; }, ASK = function(u){ return 'rhn_bio_asked_' + u; };
+  var uid = function(){ try { return localStorage.getItem('last_uid_rhn'); } catch(e){ return null; } };
+  var rnd = function(n){ var a = new Uint8Array(n); crypto.getRandomValues(a); return a; };
+  var b64 = function(buf){ var b = new Uint8Array(buf), s=''; for (var i=0;i<b.length;i++) s += String.fromCharCode(b[i]); return btoa(s); };
+  var unb64 = function(t){ var s = atob(t), a = new Uint8Array(s.length); for (var i=0;i<s.length;i++) a[i] = s.charCodeAt(i); return a; };
+  var SW = function(o){ o.background = 'var(--card)'; o.color = 'var(--text)'; if (!o.confirmButtonColor) o.confirmButtonColor = '#fbbf24'; return window.Swal ? Swal.fire(o) : Promise.resolve({}); };
+  var supported = async function(){
+    try {
+      if (!window.isSecureContext || !window.PublicKeyCredential || !navigator.credentials) return false;
+      return !!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+    } catch(e){ return false; }
+  };
+  var enabled = function(){ var u = uid(); try { return !!(u && localStorage.getItem(K(u))); } catch(e){ return false; } };
+  var inVerify = function(){ var m = window.pinMode; return !(m === 'setup' || m === 'setup_offline'); };
+
+  function refresh(){
+    var b = document.getElementById('bio-set-btn'), t = document.getElementById('bio-set-sub'), on = enabled();
+    if (b) b.textContent = on ? 'MATIKAN' : 'AKTIFKAN';
+    if (t) t.textContent = on ? 'Aktif: buka aplikasi cukup dengan sidik jari di perangkat ini' : 'Buka aplikasi dengan sidik jari atau face unlock';
+    var bb = document.getElementById('bio-btn'), ps = document.getElementById('pin-screen');
+    if (bb) bb.style.display = (on && inVerify() && ps && ps.style.display !== 'none') ? 'block' : 'none';
+  }
+  window.rhnBioRefresh = refresh;
+
+  window.rhnBioEnable = async function(){
+    var u = uid(); if (!u) return false;
+    if (location.protocol === 'file:') {
+      SW({ icon:'info', title:'Buka Lewat Website', text:'Sidik jari tidak bisa dipakai kalau file dibuka dari komputer (alamat C:/...). Upload file ke hosting HTTPS (misalnya Cloudflare Pages atau GitHub Pages), lalu buka lewat alamat websitenya.' });
+      return false;
+    }
+    if (!(await supported())) {
+      SW({ icon:'info', title:'Belum Didukung', text:'Perangkat atau browser ini belum mendukung sidik jari, atau halaman tidak dibuka lewat HTTPS. Pastikan sidik jari sudah terdaftar di pengaturan HP.' });
+      return false;
+    }
+    try {
+      var rp = { name:'RHN Capital' }; if (location.hostname) rp.id = location.hostname;
+      var c = await navigator.credentials.create({ publicKey: {
+        challenge: rnd(32), rp: rp,
+        user: { id: new TextEncoder().encode(u).slice(0,64), name: 'rhn-' + u.slice(0,8), displayName: 'RHN Capital' },
+        pubKeyCredParams: [{type:'public-key', alg:-7}, {type:'public-key', alg:-257}],
+        authenticatorSelection: { authenticatorAttachment:'platform', userVerification:'required', residentKey:'discouraged' },
+        timeout: 60000, attestation: 'none'
+      }});
+      if (!c) return false;
+      localStorage.setItem(K(u), b64(c.rawId));
+      refresh();
+      if (window.showSaveSuccess) window.showSaveSuccess('Sidik Jari Aktif!', 1200);
+      return true;
+    } catch(e){
+      if (!e || e.name !== 'NotAllowedError') SW({ icon:'error', title:'Gagal Mengaktifkan', text:'Sidik jari tidak berhasil didaftarkan. Coba lagi.' });
+      return false;
+    }
+  };
+  window.rhnBioDisable = function(){ var u = uid(); if (u) localStorage.removeItem(K(u)); refresh(); if (window.showSaveSuccess) window.showSaveSuccess('Sidik Jari Dimatikan', 1000); };
+  window.rhnBioToggle = function(){ if (enabled()) window.rhnBioDisable(); else window.rhnBioEnable(); };
+
+  window.rhnBioUnlock = async function(manual){
+    var u = uid(), id = u && localStorage.getItem(K(u)); if (!id || window.appUnlocked) return;
+    if (window.__bioBusy) return; window.__bioBusy = true;
+    try {
+      var o = { challenge: rnd(32), allowCredentials: [{ type:'public-key', id: unb64(id), transports:['internal'] }], userVerification:'required', timeout:60000 };
+      if (location.hostname) o.rpId = location.hostname;
+      var a = await navigator.credentials.get({ publicKey: o });
+      if (!a) return;
+      var pin = localStorage.getItem('local_pin_rhn') || window.userCloudPin;
+      if (!pin) { localStorage.removeItem(K(u)); refresh(); SW({ icon:'info', title:'Masukkan PIN Dulu', text:'PIN di perangkat ini sudah direset. Masukkan PIN sekali, lalu aktifkan sidik jari lagi di Pengaturan.' }); return; }
+      var inp = document.getElementById('app-pin'); if (inp) inp.value = pin;
+      await window.verifyPin();
+    } catch(e){
+      if (manual && e && e.name !== 'NotAllowedError') SW({ icon:'error', title:'Sidik Jari Gagal', text:'Gunakan PIN untuk membuka aplikasi.' });
+    } finally { window.__bioBusy = false; }
+  };
+
+  // tampil / auto-prompt saat layar PIN muncul
+  document.addEventListener('DOMContentLoaded', function(){
+    refresh();
+    var ps = document.getElementById('pin-screen'); if (!ps) return;
+    var was = ps.style.display !== 'none';
+    new MutationObserver(function(){
+      var now = ps.style.display !== 'none';
+      if (now && !was) { setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.rhnBioUnlock(false); }, 700); }
+      else refresh();
+      was = now;
+    }).observe(ps, { attributes:true, attributeFilter:['style'] });
+    if (was) setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.rhnBioUnlock(false); }, 1200);
+
+    // tawaran sekali setelah berhasil masuk
+    var app = document.getElementById('app-screen');
+    if (app) new MutationObserver(function(){
+      if (app.style.display !== 'block') return;
+      var u = uid(); if (!u || enabled() || localStorage.getItem(ASK(u))) return;
+      localStorage.setItem(ASK(u), '1');
+      setTimeout(async function(){
+        if (!(await supported())) return;
+        var r = await SW({ icon:'question', title:'Aktifkan Sidik Jari?', text:'Lain kali buka aplikasi cukup dengan sidik jari, tanpa ketik PIN.', showCancelButton:true, confirmButtonText:'Aktifkan', cancelButtonText:'Nanti' });
+        if (r && r.isConfirmed) window.rhnBioEnable();
+      }, 2500);
+    }).observe(app, { attributes:true, attributeFilter:['style'] });
+  });
 })();
 </script>
 </body>
