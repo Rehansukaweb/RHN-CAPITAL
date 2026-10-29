@@ -11207,10 +11207,34 @@ function aiErrInfo(kind){
   };
   const x = M[kind] || M.unknown; return { label: x[0], msg: x[1] };
 }
+function aiRetrySec(j){
+  try {
+    var t = '', d = j && j.error && j.error.details;
+    if (d) for (var i = 0; i < d.length; i++) if (d[i] && d[i].retryDelay) t = d[i].retryDelay;
+    var m = String(t).match(/([\d.]+)s/);
+    if (!m) m = String((j && j.error && j.error.message) || '').match(/retry in ([\d.]+)s/i);
+    return m ? Math.max(5, Math.ceil(parseFloat(m[1]))) : 0;
+  } catch(e){ return 0; }
+}
+function aiFmtWait(n){ n = Math.max(0, n); return n >= 60 ? Math.floor(n / 60) + ' menit ' + (n % 60) + ' detik' : n + ' detik'; }
+function aiLimitCountdown(el, sec){
+  window.__aiLimitUntil = Date.now() + sec * 1000;
+  if (window.__aiLimTimer) clearInterval(window.__aiLimTimer);
+  el.innerHTML = 'Maaf kak, limit penggunaan konsultan sedang habis. Mohon tunggu <b class="ai-lim-cd"></b> lagi, limit akan kembali otomatis dan setelah itu kakak bisa kirim pesan lagi.';
+  var tick = function(){
+    var left = Math.ceil((window.__aiLimitUntil - Date.now()) / 1000), c = el.querySelector('.ai-lim-cd');
+    if (!document.body.contains(el)) { clearInterval(window.__aiLimTimer); return; }
+    if (left <= 0) { clearInterval(window.__aiLimTimer); window.__aiLimitUntil = 0; el.innerHTML = 'Limit sudah kembali kak, silakan kirim pesan lagi.'; }
+    else if (c) c.textContent = aiFmtWait(left);
+    var bx = document.getElementById('ai-msgs'); if (bx && left <= 0) bx.scrollTop = bx.scrollHeight;
+  };
+  tick(); window.__aiLimTimer = setInterval(tick, 500);
+}
 window.aiSend = async function(){
   aiCheckUser(); aiGreet();
   const inp = document.getElementById('ai-input'), btn = document.getElementById('ai-send');
   const q = inp.value.trim(); if(!q || btn.disabled) return;
+  if (window.__aiLimitUntil && Date.now() < window.__aiLimitUntil) { const lw = aiAdd('bot', ''); lw.classList.add('t'); lw.innerHTML = 'Limit masih habis kak, tunggu <b>' + aiFmtWait(Math.ceil((window.__aiLimitUntil - Date.now()) / 1000)) + '</b> lagi ya.'; const bx0 = document.getElementById('ai-msgs'); if (bx0) bx0.scrollTop = bx0.scrollHeight; return; }
   const mySess = window.__aiSession, alive = () => mySess === window.__aiSession;
   inp.value = ''; btn.disabled = true;
   const ub = aiAdd('user', q);
@@ -11277,7 +11301,7 @@ DATA KEUANGAN KLIEN:
 ${ctxStr}`;
   aiHistory.push({role:'user', parts:[{text:q}]});
   try {
-    let r, j, lastErr = 'unknown', lastKind = 'unknown'; let __maxTok = window.__aiMaxTok || 4096; const __t0 = Date.now(), __LIMIT = 45000;
+    let r, j, lastErr = 'unknown', lastKind = 'unknown', __retry = 0; let __maxTok = window.__aiMaxTok || 4096; const __t0 = Date.now(), __LIMIT = 45000;
     const __models = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
     if (navigator.onLine === false) { lastKind = 'offline'; }
     else for (let attempt = 0; attempt < 2; attempt++) {
@@ -11297,14 +11321,14 @@ ${ctxStr}`;
         const c0 = j && j.candidates && j.candidates[0];
         if (r.ok && c0 && c0.content && (c0.content.parts || []).some(p => p && p.text && p.text.trim())) { lastErr = null; break; }
         lastErr = (j && j.error && j.error.message) || ('HTTP ' + r.status);
-        if (r.status === 429) lastKind = 'limit';
+        if (r.status === 429) { lastKind = 'limit'; __retry = aiRetrySec(j) || 60; }
         else if (r.status >= 500) lastKind = 'overload';
         else if (r.status === 401 || r.status === 403) lastKind = 'auth';
         else if ((j && j.promptFeedback && j.promptFeedback.blockReason) || (c0 && /SAFETY|PROHIBITED|BLOCK/i.test(String(c0.finishReason || '')))) lastKind = 'blocked';
         else if (r.ok) lastKind = 'empty';
         else lastKind = 'unknown';
         if (r.status === 400 && __maxTok > 8192) { __maxTok = __maxTok > 65536 ? 65536 : 8192; window.__aiMaxTok = __maxTok; }
-        if (lastKind === 'blocked' || lastKind === 'auth') break;
+        if (lastKind === 'blocked' || lastKind === 'auth' || lastKind === 'limit') break;
       } catch (netErr) {
         if (!alive()) return;
         lastErr = netErr && netErr.message;
@@ -11314,7 +11338,7 @@ ${ctxStr}`;
       }
       await new Promise(res => setTimeout(res, Math.min(400 * Math.pow(2, attempt) + (lastKind === 'limit' ? 1200 : 0), 4000)));
     }
-    if (lastErr) { console.warn('AI error:', lastKind, lastErr); const __ei = aiErrInfo(lastKind); const __er = new Error(__ei.msg); __er.kind = lastKind; __er.label = __ei.label; throw __er; }
+    if (lastErr) { console.warn('AI error:', lastKind, lastErr); const __ei = aiErrInfo(lastKind); const __er = new Error(__ei.msg); __er.kind = lastKind; __er.label = __ei.label; __er.retry = __retry; throw __er; }
     const txt = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map(p=>p.text||'').join('').trim() || 'Hmm, aku lagi nggak bisa jawab nih, coba tanya lagi ya.';
     if (!alive()) return;
     aiHistory.push({role:'model', parts:[{text:txt}]});
@@ -11349,8 +11373,10 @@ ${ctxStr}`;
     aiHistory.pop();
     await typingReady;
     if (!alive()) return;
-    wait.classList.remove('t'); wait.innerHTML = aiFmt(e.message);
-    aiWaBubble('Saya sedang chat dengan konsultan tapi pesan tidak terbalas karena kendala server (' + (e.label || 'kendala teknis di server') + '). Pertanyaan terakhir saya: ' + q);
+    wait.classList.remove('t');
+    if (e.kind === 'limit') { aiLimitCountdown(wait, e.retry || 60); }
+    else { wait.innerHTML = aiFmt(e.message);
+    aiWaBubble('Saya sedang chat dengan konsultan tapi pesan tidak terbalas karena kendala server (' + (e.label || 'kendala teknis di server') + '). Pertanyaan terakhir saya: ' + q); }
   }
   if (!alive()) return;
   btn.disabled = !!window.__aiClosed; inp.disabled = !!window.__aiClosed;
