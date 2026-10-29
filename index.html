@@ -11990,7 +11990,7 @@ window.__weekChipsHTML = function(weeks, active, clickFn) {
 // ==========================================================================
 window.__catPieData = window.__catPieData || {};
 window.__catPieKind = window.__catPieKind || {};
-window.__CATPIE_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#84CC16', '#06B6D4'];
+window.__CATPIE_COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#84CC16', '#06B6D4', '#A855F7', '#EAB308', '#0EA5E9', '#F43F5E', '#22C55E', '#64748B'];
 window.__catPieBuild = function(arr, kind) {
     const map = {}; let total = 0;
     (arr || []).forEach(t => {
@@ -12000,7 +12000,6 @@ window.__catPieBuild = function(arr, kind) {
         map[k] = (map[k] || 0) + a; total += a;
     });
     let items = Object.keys(map).map(k => ({ name: k, val: map[k] })).sort((a, b) => b.val - a.val);
-    if (items.length > 7) { const rest = items.slice(6).reduce((s, x) => s + x.val, 0); items = items.slice(0, 6).concat([{ name: 'Lainnya (gabungan)', val: rest, other: true }]); }
     items.forEach((it, i) => { it.color = it.other ? '#6B7280' : window.__CATPIE_COLORS[i % window.__CATPIE_COLORS.length]; it.pct = total > 0 ? it.val / total * 100 : 0; });
     return { items, total };
 };
@@ -14375,6 +14374,7 @@ if ('serviceWorker' in navigator) {
     var same=function(){SW({icon:'info',title:'Hutang Sudah Sesuai!'});};
     var noMonth=function(){SW({icon:'info',title:'Belum ada bulan',text:'Tambahkan bulan dulu sebelum menambah hutang lewat koreksi.'});};
     var pinSheet=function(sh){cur=sh.id;mergeSel=null;try{D.viewMode='sheet';delete D.mergeSel;}catch(e){}setTotSel([sh.id]);};
+    var pinMerge=function(){var ids=D.sheets.map(function(x){return x.id;});cur='__merge';mergeSel=ids.slice();try{D.viewMode='merge';D.mergeSel=ids.slice();}catch(e){}setTotSel(null);};
     var perLembar=function(sid,pre){
       var s=sheet(sid);if(!s)return;
       pinSheet(s);
@@ -14404,7 +14404,7 @@ if ('serviceWorker' in navigator) {
         if(v.amt===null||v.amt===undefined){
           var tg=D.sheets[D.sheets.length-1];
           (tg.koreksi=tg.koreksi||[]).push({t:Date.now(),diff:0,note:'[Gabungan] '+v.note});
-          setTotSel(null);
+          pinMerge();
           return doneNoAmt('Gabungan');
         }
         var diff=v.amt-cur0;
@@ -14420,7 +14420,7 @@ if ('serviceWorker' in navigator) {
           D.sheets.forEach(function(s){if(per[s.id]>0)logs.push([s,-per[s.id]]);});
         }
         logs.forEach(function(l){(l[0].koreksi=l[0].koreksi||[]).push({t:Date.now(),diff:l[1],note:'[Gabungan] '+v.note});});
-        setTotSel(null);
+        pinMerge();
         done('Gabungan',v.amt);
       };
       if(pre)return run(pre);
