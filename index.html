@@ -7210,6 +7210,7 @@ function unlockApp() {
     if (currentUser) {
         const name = currentUser.displayName || currentUser.email.split('@')[0]; 
         document.getElementById('user-name').textContent = name; 
+        try { localStorage.setItem('rhn_dispname_' + currentUser.uid, name); } catch (e) {}
         
         const avatarEl = document.getElementById('user-avatar');
         if (avatarEl) {
@@ -7231,7 +7232,21 @@ function unlockApp() {
         listenTransactions(currentUser.uid); 
         setTimeout(() => { window.checkAutoBackup(); window.updateBackupInfoLabel(); }, 1500);
     } else {
-        document.getElementById('user-name').textContent = 'Memuat...';
+        // Auth Firebase belum selesai: langsung tampilkan nama & data terakhir dari penyimpanan lokal
+        // supaya layar tidak kosong (Rp 0 / "Memuat...") sambil menunggu koneksi.
+        let __nm = '', __lu = null;
+        try { __lu = localStorage.getItem('last_uid_rhn'); if (__lu) __nm = localStorage.getItem('rhn_dispname_' + __lu) || ''; } catch (e) {}
+        document.getElementById('user-name').textContent = __nm || 'Memuat...';
+        if (__nm) { const av = document.getElementById('user-avatar'); if (av) { av.style.fontWeight = '800'; av.style.fontSize = '16px'; av.textContent = __nm.charAt(0).toUpperCase(); } }
+        try {
+            if (__lu && !txs.length) {
+                const bk = loadTxLocalBackup(__lu);
+                if (bk && Array.isArray(bk.txs) && bk.txs.length) {
+                    txs = bk.txs.filter(t => !t.isDeleted); deletedTxs = bk.deletedTxs || []; window.__prePaintUid = __lu;
+                    refreshAll();
+                }
+            }
+        } catch (e) { console.error(e); }
     }
 
     document.getElementById('app-pin').value = ''; 
@@ -9968,6 +9983,8 @@ function listenTransactions(uid) {
     if (unsubListener && window.__txListenUid === uid) return; // FAST: listener sudah jalan, jangan dibuat ulang
     if (unsubListener) unsubListener(); 
     window.__txListenUid = uid; window.__txSnapSeen = null;
+    if (window.__prePaintUid && window.__prePaintUid !== uid) { txs = []; deletedTxs = []; }
+    window.__prePaintUid = null;
     window.__txBackupBaseline = false; 
 
     // Tampilkan dulu salinan terakhir yang tersimpan lokal biar catatan/angka
