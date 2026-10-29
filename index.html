@@ -6970,7 +6970,10 @@ onAuthStateChanged(auth, async user => {
     (async () => { try {
         await setDoc(doc(db, 'users', user.uid), { email: user.email, nama: user.displayName || user.email.split('@')[0] }, { merge: true });
         const txRef = collection(db, 'users', user.uid, 'transactions');
-        const txSnap = await getDocs(txRef);
+        const __ofk = 'rhn_owner_fix_' + user.uid; let __ofv = 0; try { __ofv = parseInt(localStorage.getItem(__ofk) || '0', 10) || 0; } catch (e) {}
+        const __ofRun = (Date.now() - __ofv) > 604800000;
+        const txSnap = __ofRun ? await getDocs(txRef) : { forEach: function () {} };
+        if (__ofRun) { try { localStorage.setItem(__ofk, String(Date.now())); } catch (e) {} }
         const promises = [];
         txSnap.forEach(d => { if (!d.data().ownerEmail) { promises.push(updateDoc(d.ref, { ownerEmail: user.email })); } });
         if (promises.length > 0) { await Promise.all(promises); }
@@ -9580,6 +9583,13 @@ window.confirmDeleteUser = async function(uid) {
 function saveTxLocalBackup(uid, allTxs, allDeleted) {
     try { localStorage.setItem('rhn_tx_backup_' + uid, JSON.stringify({ txs: allTxs, deletedTxs: allDeleted, savedAt: Date.now() })); } catch(e) {}
 }
+window.__flushTxBackup = function() {
+    const p = window.__txBkPend; clearTimeout(window.__txBkT); if (!p) return; window.__txBkPend = null;
+    try { if (typeof currentUser !== 'undefined' && currentUser && currentUser.uid === p[0]) saveTxLocalBackup(p[0], p[1], p[2]); } catch (e) {}
+};
+window.__saveTxBackupLazy = function(uid, a, b) { window.__txBkPend = [uid, a, b]; clearTimeout(window.__txBkT); window.__txBkT = setTimeout(window.__flushTxBackup, 800); };
+window.addEventListener('pagehide', function() { window.__flushTxBackup(); });
+document.addEventListener('visibilitychange', function() { if (document.hidden) window.__flushTxBackup(); });
 function loadTxLocalBackup(uid) {
     try { return JSON.parse(localStorage.getItem('rhn_tx_backup_' + uid) || 'null'); } catch(e) { return null; }
 }
@@ -9957,7 +9967,7 @@ function listenTransactions(uid) {
     window.listenLinkedAccounts(uid);
     if (unsubListener && window.__txListenUid === uid) return; // FAST: listener sudah jalan, jangan dibuat ulang
     if (unsubListener) unsubListener(); 
-    window.__txListenUid = uid;
+    window.__txListenUid = uid; window.__txSnapSeen = null;
     window.__txBackupBaseline = false; 
 
     // Tampilkan dulu salinan terakhir yang tersimpan lokal biar catatan/angka
@@ -9978,9 +9988,11 @@ function listenTransactions(uid) {
             if (data.walletTo && data.walletTo.toUpperCase().includes('REKENING')) data.walletTo = 'Bank'; 
             return {id: d.id, ...data}; 
         }); 
+        const __metaOnly = (window.__txSnapSeen === uid) && snap.docChanges().length === 0;
+        window.__txSnapSeen = uid;
         txs = allDocs.filter(t => !t.isDeleted);
         deletedTxs = allDocs.filter(t => t.isDeleted);
-        saveTxLocalBackup(uid, txs, deletedTxs);
+        if (!__metaOnly) window.__saveTxBackupLazy(uid, txs, deletedTxs);
         if (window.syncLinkedAccounts) window.syncLinkedAccounts(uid, allDocs, snap.metadata.fromCache, snap.metadata.hasPendingWrites);
         // Badge status ikuti sumber data yang sebenarnya: kalau snapshot ini berasal dari cache
         // lokal (fromCache = true, artinya belum kekonfirmasi server), berarti sedang offline.
@@ -9992,7 +10004,7 @@ function listenTransactions(uid) {
         // munculkan notifikasi "Tersinkron ke Server!". Tidak cuma andalkan event 'online' browser
         // (yang kadang telat/tidak akurat), jadi begitu Firestore beneran konek lagi, langsung ketahuan.
         if (!snap.metadata.fromCache) resolvePendingOfflineWrites();
-        refreshAll(); 
+        if (!__metaOnly) refreshAll(); 
         if (window.__welcomePending && !snap.metadata.fromCache) window.__fireWelcome();
         window.triggerBackupOnTxChange();
     }, err => { 
@@ -13384,6 +13396,16 @@ window.refreshAll = function() {
         if (typeof window.loadAdminCSList === 'function') window.loadAdminCSList();
     }
 };
+
+(function() {
+    const orig = window.refreshAll; let last = 0, tm = null;
+    window.refreshAll = function() {
+        const n = Date.now();
+        if (n - last >= 80) { last = n; if (tm) { clearTimeout(tm); tm = null; } return orig(); }
+        if (tm) return;
+        tm = setTimeout(function() { tm = null; last = Date.now(); orig(); }, 80 - (n - last));
+    };
+})();
 
 window.setRealLocalTime = function() {
     const d = new Date();
