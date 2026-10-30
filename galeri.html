@@ -290,6 +290,66 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 }
 #normal-header .header-center{display:flex!important}
 #normal-header .header-logo{width:34px;height:34px}
+/* ===== ALBUM / BARU DIHAPUS ===== */
+.only-d{display:inline}
+.gal-count,.xa-top,.xa-title,.xa-sec,.xa-list{display:none}
+.xm-nav{display:none}
+.trash-back{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-bottom:14px}
+.trash-actions{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.trash-btn{padding:11px 16px;border-radius:14px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:700;cursor:pointer}
+.trash-btn.danger{color:var(--red)}
+.trash-btn:active{transform:scale(.97)}
+.trash-days{position:absolute;left:8px;bottom:8px;z-index:2;font-size:10px;font-weight:700;padding:3px 7px;border-radius:8px;background:rgba(0,0,0,.72);color:#fff;pointer-events:none}
+@media(max-width:959px){
+ .bottom-nav{display:none!important}
+ .xm-nav{display:flex;position:fixed;left:12px;right:12px;bottom:calc(14px + var(--safe-b));gap:10px;align-items:center;z-index:120}
+ .xm-pill{flex:1;display:flex;align-items:center;gap:2px;padding:6px;height:68px;border-radius:34px;background:#1b1b1d;border:1px solid #2a2a2d;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+ .xm-item{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:#cfcfd2;border-radius:28px;font-size:12px;font-weight:500;cursor:pointer}
+ .xm-item .ico{width:26px;height:26px;stroke-width:1.7}
+ .xm-item.active{background:#38383b;color:#34d26b}
+ .xm-circle{width:68px;height:68px;flex:0 0 68px;border-radius:50%;background:#1b1b1d;border:1px solid #2a2a2d;color:#e9e9ec;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+ .xm-circle .ico{width:26px;height:26px;stroke-width:1.7}
+ .xm-circle.active{color:#34d26b}
+ .xm-item:active,.xm-circle:active{transform:scale(.95)}
+ body.pg-album #normal-header{display:none}
+ body.pg-album .main-content{padding-top:max(18px,env(safe-area-inset-top))}
+ #page-album .xa-top{display:flex;align-items:center;justify-content:space-between;padding:0 7px 0 7px}
+ .xa-logo{width:34px;height:34px;border-radius:11px;object-fit:cover;box-shadow:0 0 0 1px var(--gold-line)}
+ .xa-pill{display:flex;align-items:center;justify-content:space-between;gap:2px;height:50px;padding:0 10px;border-radius:25px;background:#1d1d1f;border:1px solid #2a2a2d}
+ .xa-pill button{width:46px;height:46px;display:grid;place-items:center;background:none;border:0;color:#e9e9ec;cursor:pointer;border-radius:50%}
+ .xa-pill .ico{width:25px;height:25px;stroke-width:1.6}
+ .xa-pill button:active{background:rgba(255,255,255,.1)}
+ #page-album .xa-title{display:block;font-family:var(--font-ui);font-size:38px;font-weight:400;letter-spacing:.3px;margin:24px 7px 22px;color:#f4f4f5;line-height:1.1}
+ .xa-grid{display:grid;grid-template-columns:repeat(3,1fr);column-gap:12px;row-gap:14px;padding:0 7px}
+ .xa-tile{cursor:pointer;min-width:0}
+ .xa-cover{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:#000;border:1px solid #232326}
+ .xa-cover img{width:100%;height:100%;object-fit:cover;display:block}
+ .xa-cover .xa-heart{position:absolute;left:8px;bottom:8px;width:24px;height:24px;fill:#ff4d5e;stroke:#ff4d5e}
+ .xa-name{margin-top:9px;font-size:16px;font-weight:400;color:#9a9a9f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .xa-num{margin-top:2px;font-size:13px;color:#5f5f64}
+ .xa-tile:active .xa-cover{transform:scale(.97)}
+ #page-album .xa-sec{display:block;margin:38px 7px 16px;font-size:15px;font-weight:700;color:#a3a3a8}
+ #page-album .xa-list{display:block;margin:30px 7px 0;background:#1b1b1d;border-radius:24px;overflow:hidden}
+ .xa-row{width:100%;display:flex;align-items:center;gap:16px;padding:0 18px;height:64px;background:none;border:0;color:#f0f0f2;font-size:17px;font-weight:400;text-align:left;cursor:pointer}
+ .xa-row .ico{width:24px;height:24px;stroke-width:1.6;color:#e9e9ec}
+ .xa-row-t{flex:1}
+ .xa-row-n{color:#77777c;font-size:15px}
+ .xa-row .xa-chev{width:18px;height:18px;color:#77777c}
+ /* halaman Foto: grid rapat 4 kolom ala galeri HP */
+ #page-galeri .eyebrow,#page-galeri .page-sub,#page-galeri .media-filter-tabs,.only-d{display:none}
+ #page-galeri .page-head{margin:6px 0 4px}
+ #page-galeri .page-main-title{font-family:var(--font-ui);font-size:28px;font-weight:400;letter-spacing:.3px}
+ #page-galeri .gal-count{display:block;color:#8d8d92;font-size:13px;margin-top:3px}
+ #page-galeri .main-gallery-wrap,#main-gallery-grid{grid-template-columns:repeat(4,1fr);gap:2px;margin:0 calc(var(--pad) * -1)}
+ #main-gallery-grid .album-card{aspect-ratio:1;border-radius:0;border:0}
+ #main-gallery-grid .album-caption{display:none}
+ #main-gallery-grid .video-badge,#main-gallery-grid .fav-badge{top:auto;bottom:5px;right:5px;width:20px;height:20px;border-radius:7px}
+ #main-gallery-grid .video-badge~.fav-badge{right:29px}
+ #main-gallery-grid .empty-state{margin:0 var(--pad)}
+ #trash-grid{grid-template-columns:repeat(4,1fr);gap:2px;margin:0 calc(var(--pad) * -1)}
+ #trash-grid .album-card{aspect-ratio:1;border-radius:0;border:0}
+ #trash-grid .album-caption{display:none}
+}
 /* ===== SPLASH (sama dengan Arus Keuangan) ===== */
 #splash-screen{background:#050505!important}
 #splash-screen.splash-exit{animation:splashSlideUpOut .8s cubic-bezier(.8,0,.2,1) forwards}
@@ -375,6 +435,9 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></symbol>
 <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></symbol>
 <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 010-8 5 5 0 019.5-1A4.5 4.5 0 0117 18H7z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+<symbol id="i-album" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
 </defs></svg>
 <div class="app-wrapper">
@@ -486,7 +549,7 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
       <div id="page-galeri" class="page active">
         <div class="page-head">
           <div class="eyebrow">Koleksi Pribadi</div>
-          <h1 class="page-main-title">Semua Foto</h1>
+          <h1 class="page-main-title" id="gal-title">Semua<span class="only-d"> Foto</span></h1><div class="gal-count" id="gal-count"></div>
           <p class="page-sub">Foto dan video Anda, tertata rapi di satu tempat.</p>
         </div>
 
@@ -498,6 +561,38 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
         </div>
 
         <div class="album-grid" id="main-gallery-grid"></div>
+      </div>
+
+      <div id="page-album" class="page">
+        <div class="xa-top">
+          <img class="xa-logo" src="RHN LOGO.jpg" alt="" onerror="this.onerror=null;this.src=window.RHN_FALLBACK_LOGO;">
+          <div class="xa-pill">
+            <button onclick="switchPage('tambah')" aria-label="Upload"><svg class="ico"><use href="#i-plus"/></svg></button>
+            <button onclick="switchPage('galeri');enterSelectMode()" aria-label="Pilih"><svg class="ico"><use href="#i-select"/></svg></button>
+            <button onclick="switchPage('pengaturan')" aria-label="Setelan"><svg class="ico"><use href="#i-gear"/></svg></button>
+          </div>
+        </div>
+        <h1 class="xa-title">Album</h1>
+        <div class="xa-grid" id="xa-grid-main"></div>
+        <div class="xa-sec" id="xa-sec-other">Album Lainnya</div>
+        <div class="xa-grid" id="xa-grid-other"></div>
+        <div class="xa-list">
+          <button class="xa-row" onclick="switchPage('sampah')"><svg class="ico"><use href="#i-trash"/></svg><span class="xa-row-t">Baru Dihapus</span><span class="xa-row-n" id="xa-trash-count"></span><svg class="ico xa-chev"><use href="#i-next"/></svg></button>
+        </div>
+      </div>
+
+      <div id="page-sampah" class="page">
+        <div class="page-head">
+          <button class="trash-back" onclick="trashBack()" aria-label="Kembali"><svg class="ico"><use href="#i-back"/></svg></button>
+          <div class="eyebrow">Koleksi Pribadi</div>
+          <h1 class="page-main-title">Baru Dihapus</h1>
+          <p class="page-sub" id="trash-sub">Item di sini dihapus permanen otomatis setelah 30 hari.</p>
+        </div>
+        <div class="trash-actions">
+          <button class="trash-btn" onclick="pulihkanSemuaSampah()">Pulihkan Semua</button>
+          <button class="trash-btn danger" onclick="kosongkanSampah()">Kosongkan</button>
+        </div>
+        <div class="album-grid" id="trash-grid"></div>
       </div>
 
       <div id="page-tambah" class="page">
@@ -557,6 +652,7 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
           <div>
             <div class="set-label">Zona Sensitif</div>
             <div class="panel list">
+              <button class="menu-btn" onclick="switchPage('sampah')"><span class="mi"><svg class="ico"><use href="#i-trash"/></svg></span><span class="mt"><b>Baru Dihapus</b><small>Pulihkan media yang terhapus (disimpan 30 hari)</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn danger" onclick="mintaHapusSemuaFoto()"><span class="mi"><svg class="ico"><use href="#i-trash"/></svg></span><span class="mt"><b>Hapus Semua Media</b><small>Menghapus seluruh isi galeri secara permanen</small></span></button>
               <button class="menu-btn danger" onclick="konfirmasiAksi('Yakin ingin keluar dari galeri?', doLogout)"><span class="mi"><svg class="ico"><use href="#i-logout"/></svg></span><span class="mt"><b>Keluar Akun</b><small>Akhiri sesi di perangkat ini</small></span></button>
             </div>
@@ -576,6 +672,15 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
       <button class="nav-btn nav-item" data-page="pengaturan"><svg class="ico"><use href="#i-sliders"/></svg><span class="label">Setelan</span></button>
     </nav>
   </div>
+
+  <nav class="xm-nav">
+    <div class="xm-pill">
+      <button class="nav-btn xm-item active" data-page="galeri"><svg class="ico"><use href="#i-gallery"/></svg><span>Foto</span></button>
+      <button class="nav-btn xm-item" data-page="album"><svg class="ico"><use href="#i-album"/></svg><span>Album</span></button>
+      <button class="nav-btn xm-item" data-page="pengaturan"><svg class="ico"><use href="#i-sliders"/></svg><span>Setelan</span></button>
+    </div>
+    <button class="nav-btn xm-circle" data-page="tambah" aria-label="Upload"><svg class="ico"><use href="#i-upload"/></svg></button>
+  </nav>
 
   <div id="photo-viewer">
     <div class="viewer-header">
@@ -715,6 +820,9 @@ const yieldUI = () => new Promise(r => setTimeout(r, 0));
 
 let selectMode = false;
 let selectedIds = new Set();
+let trashPhotos = [];
+let purgingTrash = false;
+const TRASH_DAYS = 30;
 let pressTimer = null;
 let longPressFired = false;
 let toastTimer = null;
@@ -756,6 +864,25 @@ async function commitSetBatches(items, onProgress) {
     done += chunk.length;
     if (onProgress) onProgress(done, items.length);
   }));
+}
+
+async function commitSoftBatches(refs, restore) {
+  const now = Date.now();
+  for (let i = 0; i < refs.length; i += BATCH_CHUNK_SIZE) {
+    const batch = writeBatch(db);
+    refs.slice(i, i + BATCH_CHUNK_SIZE).forEach(ref => batch.set(ref, { deletedAt: restore ? deleteField() : now }, { merge: true }));
+    await batch.commit();
+  }
+}
+
+function purgeExpiredTrash() {
+  if (purgingTrash || !currentUser) return;
+  const limit = Date.now() - TRASH_DAYS * 86400000;
+  const exp = trashPhotos.filter(x => x.deletedAt < limit);
+  if (!exp.length) return;
+  purgingTrash = true;
+  trashPhotos = trashPhotos.filter(x => x.deletedAt >= limit);
+  commitDeleteBatches(exp.map(x => doc(db, 'users', currentUser.uid, 'photos', x.id))).catch(() => {}).finally(() => { purgingTrash = false; });
 }
 
 async function commitDeleteBatches(refs, onProgress) {
@@ -819,6 +946,10 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
   }, { passive: false });
 });
 
+document.querySelectorAll('.xm-nav .nav-btn').forEach(btn => {
+  btn.addEventListener('pointerup', (e) => { e.preventDefault(); switchPage(btn.dataset.page); }, { passive: false });
+});
+
 window.switchPage = function(p) {
   if (selectMode) exitSelectMode();
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
@@ -829,6 +960,9 @@ window.switchPage = function(p) {
     if (el.dataset.page === p) el.classList.add('active');
   });
 
+  document.body.classList.toggle('pg-album', p === 'album' || p === 'sampah');
+  if (p === 'album') refreshAlbumPage();
+  if (p === 'sampah') renderTrash();
   document.getElementById('header-gallery-stats').classList.toggle('show', p === 'galeri' && photos.length > 0);
   document.getElementById('btn-upload').style.display = (p === 'tambah') ? 'block' : 'none';
 
@@ -1090,7 +1224,10 @@ function precacheThumbs() {
 function listenPhotos() {
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
-    photos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    photos = allDocs.filter(x => !x.deletedAt);
+    trashPhotos = allDocs.filter(x => !!x.deletedAt);
+    purgeExpiredTrash();
     if (bulkMode) return;
 
     if (selectMode) {
@@ -1104,6 +1241,8 @@ function listenPhotos() {
 
     renderGallery();
     precacheThumbs();
+    if (document.getElementById('page-sampah').classList.contains('active')) renderTrash();
+    if (document.getElementById('page-album').classList.contains('active')) refreshAlbumPage();
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -1808,7 +1947,16 @@ function hitungTotalUkuranMB(list) {
   return (totalBytes / (1024 * 1024)).toFixed(1);
 }
 
+const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function photoDate(p) {
+  try { if (p.createdAt && p.createdAt.toDate) return p.createdAt.toDate(); } catch (e) {}
+  return new Date();
+}
+function monthKey(p) { const d = photoDate(p); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function monthLabel(k) { const [y, m] = k.split('-'); return BULAN[+m - 1] + ' ' + y; }
+
 function filteredPhotos() {
+  if (mediaFilter.indexOf('m:') === 0) { const k = mediaFilter.slice(2); return photos.filter(p => monthKey(p) === k); }
   if (mediaFilter === 'image') return photos.filter(p => !isVideoItem(p));
   if (mediaFilter === 'video') return photos.filter(p => isVideoItem(p));
   if (mediaFilter === 'favorite') return photos.filter(p => !!p.favorite);
@@ -1834,7 +1982,114 @@ function updateFilterCounts() {
   document.getElementById('count-image').textContent = totalImg ? `(${totalImg})` : '';
   document.getElementById('count-video').textContent = totalVid ? `(${totalVid})` : '';
   document.getElementById('count-favorite').textContent = totalFav ? `(${totalFav})` : '';
+  const names = { image: 'Foto', video: 'Video', favorite: 'Favorit' };
+  const tEl = document.getElementById('gal-title');
+  if (mediaFilter === 'all') tEl.innerHTML = 'Semua<span class="only-d"> Foto</span>';
+  else tEl.textContent = names[mediaFilter] || monthLabel(mediaFilter.slice(2));
+  const fl = filteredPhotos();
+  const fv = fl.filter(p => isVideoItem(p)).length;
+  document.getElementById('gal-count').textContent = `${fl.length - fv} Foto, ${fv} Video`;
+  if (document.getElementById('page-album').classList.contains('active')) refreshAlbumPage();
 }
+
+function albumTileHtml(name, list, filter, heart) {
+  const cov = list[0] ? `<img src="${getThumbSrc(list[0])}" alt="" loading="lazy" decoding="async">` : '';
+  const h = heart ? '<svg class="ico xa-heart"><use href="#i-heart"/></svg>' : '';
+  return `<div class="xa-tile" onclick="bukaAlbum('${filter}')"><div class="xa-cover">${cov}${h}</div><div class="xa-name">${name}</div><div class="xa-num">${list.length}</div></div>`;
+}
+
+window.refreshAlbumPage = function() {
+  const img = photos.filter(p => !isVideoItem(p));
+  const vid = photos.filter(p => isVideoItem(p));
+  const fav = photos.filter(p => !!p.favorite);
+  document.getElementById('xa-grid-main').innerHTML =
+    albumTileHtml('Semua', photos, 'all') + albumTileHtml('Favorit', fav, 'favorite', true) + albumTileHtml('Foto', img, 'image') + albumTileHtml('Video', vid, 'video');
+  const months = new Map();
+  photos.forEach(p => { const k = monthKey(p); if (!months.has(k)) months.set(k, []); months.get(k).push(p); });
+  const keys = Array.from(months.keys()).sort().reverse();
+  document.getElementById('xa-grid-other').innerHTML = keys.map(k => albumTileHtml(monthLabel(k), months.get(k), 'm:' + k)).join('');
+  document.getElementById('xa-sec-other').style.display = keys.length ? '' : 'none';
+  document.getElementById('xa-trash-count').textContent = trashPhotos.length || '';
+};
+
+window.bukaAlbum = function(f) {
+  if (mediaFilter !== f) setMediaFilter(f);
+  switchPage('galeri');
+};
+
+window.trashBack = function() {
+  switchPage(window.matchMedia('(max-width:959px)').matches ? 'album' : 'pengaturan');
+};
+
+function sisaHari(p) { return Math.max(1, Math.ceil((p.deletedAt + TRASH_DAYS * 86400000 - Date.now()) / 86400000)); }
+
+window.renderTrash = function() {
+  const grid = document.getElementById('trash-grid');
+  const list = trashPhotos.slice().sort((a, b) => b.deletedAt - a.deletedAt);
+  document.getElementById('trash-sub').textContent = list.length ? `${list.length} item • dihapus permanen otomatis setelah ${TRASH_DAYS} hari.` : `Item di sini dihapus permanen otomatis setelah ${TRASH_DAYS} hari.`;
+  document.querySelector('.trash-actions').style.display = list.length ? 'flex' : 'none';
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state"><span class="emoji">${svgIcon('trash')}</span><div class="title">Kosong</div><div class="sub">Media yang kamu hapus akan muncul di sini selama ${TRASH_DAYS} hari.</div></div>`;
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  list.forEach(p => {
+    const c = document.createElement('div');
+    c.className = 'album-card';
+    const im = document.createElement('img');
+    im.className = 'album-cover loaded'; im.loading = 'lazy'; im.decoding = 'async'; im.src = getThumbSrc(p);
+    c.appendChild(im);
+    const cap = document.createElement('div'); cap.className = 'album-caption'; cap.textContent = p.title || ''; c.appendChild(cap);
+    const d = document.createElement('div'); d.className = 'trash-days'; d.textContent = sisaHari(p) + ' hari'; c.appendChild(d);
+    c.addEventListener('click', () => bukaItemSampah(p.id));
+    frag.appendChild(c);
+  });
+  grid.innerHTML = '';
+  grid.appendChild(frag);
+};
+
+window.bukaItemSampah = async function(id) {
+  const p = trashPhotos.find(x => x.id === id);
+  if (!p) return;
+  const r = await customSwal.fire({
+    imageUrl: getThumbSrc(p), imageHeight: 220,
+    title: p.title || (isVideoItem(p) ? 'Video' : 'Foto'),
+    text: `Dihapus permanen otomatis dalam ${sisaHari(p)} hari.`,
+    showDenyButton: true, showCancelButton: true,
+    confirmButtonText: '<span style="color:#000;font-weight:800;">Pulihkan</span>', confirmButtonColor: '#FBBF24',
+    denyButtonText: 'Hapus Permanen', denyButtonColor: '#F87171',
+    cancelButtonText: 'Tutup', background: 'var(--card)', color: 'var(--text)'
+  });
+  if (r.isConfirmed) pulihkanSampah([id]);
+  else if (r.isDenied) hapusPermanenSampah([id]);
+};
+
+async function pulihkanSampah(ids) {
+  const set = new Set(ids);
+  const refs = trashPhotos.filter(x => set.has(x.id)).map(x => doc(db, 'users', currentUser.uid, 'photos', x.id));
+  trashPhotos = trashPhotos.filter(x => !set.has(x.id));
+  renderTrash();
+  showMiniToast(ids.length + ' item dipulihkan');
+  try { await commitSoftBatches(refs, true); } catch (e) { customSwal.fire({ icon: 'error', title: 'Gagal memulihkan', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' }); }
+}
+
+async function hapusPermanenSampah(ids) {
+  const set = new Set(ids);
+  const refs = trashPhotos.filter(x => set.has(x.id)).map(x => doc(db, 'users', currentUser.uid, 'photos', x.id));
+  trashPhotos = trashPhotos.filter(x => !set.has(x.id));
+  renderTrash();
+  showMiniToast('Dihapus permanen');
+  try { await commitDeleteBatches(refs); } catch (e) { customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' }); }
+}
+
+window.pulihkanSemuaSampah = function() {
+  if (!trashPhotos.length) return;
+  konfirmasiAksi(`Pulihkan ${trashPhotos.length} item?`, () => pulihkanSampah(trashPhotos.map(x => x.id)));
+};
+window.kosongkanSampah = function() {
+  if (!trashPhotos.length) return;
+  konfirmasiAksi(`Hapus permanen ${trashPhotos.length} item? Tidak bisa dibatalkan.`, () => hapusPermanenSampah(trashPhotos.map(x => x.id)));
+};
 
 function hideScrollTopBtn() {
   document.getElementById('scroll-top-btn').classList.remove('show');
@@ -2123,13 +2378,14 @@ window.changePinInApp = async function() {
   }
 };
 
-async function eksekusiHapusBatch(ids, onProgress) {
+async function eksekusiHapusBatch(ids, onProgress, permanent) {
   const idSet = new Set(ids);
   
   const targets = photos.filter(p => idSet.has(p.id));
   const refs = targets.map(p => doc(db, 'users', currentUser.uid, 'photos', p.id));
 
   photos = photos.filter(p => !idSet.has(p.id));
+  if (!permanent) targets.forEach(t => trashPhotos.push({ ...t, deletedAt: Date.now() }));
   
   idSet.forEach(id => {
     const node = photoNodes.get(id);
@@ -2148,10 +2404,11 @@ async function eksekusiHapusBatch(ids, onProgress) {
     renderGallery();
   }
 
-  await commitDeleteBatches(refs, onProgress);
+  if (permanent) await commitDeleteBatches(refs, onProgress);
+  else await commitSoftBatches(refs);
 }
 
-async function mintaPinLaluHapus(ids, judulProses) {
+async function mintaPinLaluHapus(ids, judulProses, permanent) {
   const { value: pin } = await customSwal.fire({
     title: 'Masukkan PIN Untuk Konfirmasi',
     text: 'Demi keamanan, masukkan PIN 6 digit kamu untuk melanjutkan penghapusan.',
@@ -2180,9 +2437,9 @@ async function mintaPinLaluHapus(ids, judulProses) {
   const total = ids.length;
   eksekusiHapusBatch(ids, (done, totalCount) => {
     // progress commit database berjalan diam-diam di background
-  });
+  }, permanent);
 
-  customSwal.fire({ icon: 'success', title: `${total} Foto Terhapus`, background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
+  customSwal.fire({ icon: 'success', title: permanent ? `${total} Foto Terhapus` : `${total} Dipindahkan ke Baru Dihapus`, background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
   if (selectMode) exitSelectMode();
 }
 
@@ -2202,7 +2459,7 @@ window.mintaHapusSemuaFoto = function() {
     cancelButtonText: 'Batal',
     background: 'var(--card)', color: 'var(--text)'
   }).then((result) => {
-    if (result.isConfirmed) mintaPinLaluHapus(photos.map(p => p.id), 'Menghapus database...');
+    if (result.isConfirmed) mintaPinLaluHapus(photos.map(p => p.id), 'Menghapus database...', true);
   });
 };
 
@@ -2211,7 +2468,7 @@ window.handleBulkDelete = function() {
   const jumlah = selectedIds.size;
   customSwal.fire({
     title: `Hapus ${jumlah} Foto?`,
-    text: 'Tindakan ini permanen dan tidak bisa dibatalkan.',
+    text: `Akan dipindahkan ke Baru Dihapus dan bisa dipulihkan dalam ${TRASH_DAYS} hari.`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#F87171',
@@ -2565,7 +2822,7 @@ window.aksiUnduh = async function() {
 };
 
 window.aksiHapus = function() {
-  konfirmasiAksi('Yakin hapus media ini permanen?', () => {
+  konfirmasiAksi('Pindahkan media ini ke Baru Dihapus?', () => {
     const nodeId = currentViewPhotoId;
     const foto = photos.find(p => p.id === nodeId);
     if (!foto) return;
@@ -2574,6 +2831,7 @@ window.aksiHapus = function() {
     const idxBefore = listBefore.findIndex(p => p.id === nodeId);
 
     photos = photos.filter(p => p.id !== nodeId);
+    trashPhotos.push({ ...foto, deletedAt: Date.now() });
     const node = photoNodes.get(nodeId);
     if (node) {
       node.remove();
@@ -2588,10 +2846,10 @@ window.aksiHapus = function() {
     } else {
       renderGallery();
     }
-    showMiniToast('Berhasil dihapus');
+    showMiniToast('Dipindahkan ke Baru Dihapus');
 
-    deleteDoc(doc(db, 'users', currentUser.uid, 'photos', nodeId)).catch((e) => {
-      customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: 'Foto sudah hilang dari layar, tapi gagal dihapus dari server. Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
+    commitSoftBatches([doc(db, 'users', currentUser.uid, 'photos', nodeId)]).catch((e) => {
+      customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: 'Foto sudah hilang dari layar, tapi gagal dipindahkan di server. Periksa internet.', background: 'var(--card)', color: 'var(--text)' });
     });
 
     const listAfter = filteredPhotos();
