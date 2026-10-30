@@ -124,7 +124,13 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 @media(min-width:960px){#normal-header .header-center{visibility:hidden}}
 .photo-count-badge{font-size:11px;font-weight:600;color:var(--text2);padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--border);white-space:nowrap}
 .badge-size{color:var(--gold)}
-@media(max-width:480px){.photo-count-badge{font-size:10px;padding:6px 9px}}
+@media(max-width:560px){
+ #normal-header{gap:8px}
+ #normal-header .header-title{display:none}
+ #normal-header .header-right{gap:6px;min-width:0}
+ .photo-count-badge{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;white-space:normal;line-height:1.25;font-size:10px;padding:5px 10px;border-radius:14px;min-width:0}
+ .photo-count-badge .badge-size{display:block}
+}
 .download-all-btn,.sel-icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.14s;flex-shrink:0}
 .download-all-btn:hover,.sel-icon-btn:hover{border-color:var(--gold-line);color:var(--gold)}
 .download-all-btn:active,.sel-icon-btn:active{transform:scale(.9)}
@@ -258,7 +264,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .viewer-icon-btn:active{transform:scale(.9);background:rgba(255,255,255,.18)}
 .viewer-title{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viewer-content{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:72px 16px 118px}
-#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .14s}
+#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1);will-change:transform}
 #viewer-img.loaded{opacity:1}
 #viewer-img.zoomed{transform:scale(3);cursor:zoom-out}
 #viewer-video{max-width:100%;max-height:100%;object-fit:contain;display:none;border-radius:12px}
@@ -1697,7 +1703,7 @@ function formatKapasitas(mb) {
 function badgeKapasitasHtml() {
   const vid = photos.filter(p => isVideoItem(p)).length;
   const img = photos.length - vid;
-  return `${img} foto • ${vid} video <span class="badge-size">• ${formatKapasitas(hitungTotalUkuranMB())}</span>`;
+  return `<span>${img} foto • ${vid} video</span> <span class="badge-size">• ${formatKapasitas(hitungTotalUkuranMB())}</span>`;
 }
 
 function hitungTotalUkuranMB(list) {
@@ -2293,22 +2299,31 @@ window.bukaViewer = function(id) {
   const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
-  img.src = ''; 
   img.alt = foto.title || 'foto';
-  img.classList.remove('loaded', 'zoomed');
+  img.classList.remove('zoomed');
   video.pause();
-  video.src = '';
 
+  const token = ++viewerToken;
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
     video.src = getFullSrc(foto);
     video.load();
   } else {
+    video.removeAttribute('src');
     video.style.display = 'none';
     img.style.display = 'block';
-    img.src = getFullSrc(foto);
+    /* Gambar lama tetap tampil sampai gambar baru siap di-decode, lalu ditukar seketika (tanpa hitam). */
+    const full = getFullSrc(foto);
+    const swap = () => { if (token === viewerToken) { img.src = full; img.classList.add('loaded'); } };
+    const ready = viewerPreload.get(full);
+    if (ready && ready.complete && ready.naturalWidth) swap();
+    else {
+      const loader = ready || preloadViewerImage(full);
+      (loader.decode ? loader.decode() : Promise.resolve()).then(swap).catch(swap);
+    }
   }
+  preloadViewerNeighbors(id);
 
   updateFavButtonUI(foto);
 
@@ -2316,6 +2331,28 @@ window.bukaViewer = function(id) {
   document.body.style.overflow = 'hidden';
   updateViewerNavButtons();
 };
+
+let viewerToken = 0;
+const viewerPreload = new Map();
+function preloadViewerImage(src) {
+  let im = viewerPreload.get(src);
+  if (im) return im;
+  im = new Image();
+  im.decoding = 'async';
+  im.src = src;
+  viewerPreload.set(src, im);
+  if (viewerPreload.size > 14) viewerPreload.delete(viewerPreload.keys().next().value);
+  return im;
+}
+function preloadViewerNeighbors(id) {
+  const list = filteredPhotos();
+  const i = list.findIndex(p => p.id === id);
+  if (i === -1 || list.length < 2) return;
+  [1, -1, 2, -2, 3].forEach(d => {
+    const n = list[(i + d + list.length) % list.length];
+    if (n && !isVideoItem(n)) { const im = preloadViewerImage(getFullSrc(n)); if (im.decode) im.decode().catch(() => {}); }
+  });
+}
 
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
@@ -2499,6 +2536,11 @@ window.aksiHapus = function() {
     bukaViewer(listAfter[nextIdx].id);
   });
 };
+</script>
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
 </script>
 </body>
 </html>
