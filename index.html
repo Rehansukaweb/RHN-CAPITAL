@@ -1994,6 +1994,7 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
 
     <div id="subs-step-pay" style="display:none;">
       <div class="subs-pay-amount"><span id="subs-pay-plan-label">PAKET MINGGUAN</span><span id="subs-pay-amount-num">Rp0</span></div>
+      <div id="subs-auto-status" style="display:none; background:rgba(16,185,129,0.10); border:1px solid var(--green2); border-radius:14px; padding:12px 14px; margin-bottom:14px; font-size:11px; line-height:1.6; color:var(--text2);"></div>
 
       <div style="display:flex; flex-direction:column; align-items:center; background:#ffffff; color:#000000; border-radius:24px; padding:24px 20px 20px; margin-bottom:16px; box-shadow:0 10px 30px rgba(0,0,0,0.15); position:relative; overflow:hidden; width:100%; max-width:380px; margin-left:auto; margin-right:auto; box-sizing:border-box; border:1px solid #e2e8f0;">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:16px;">
@@ -3884,6 +3885,57 @@ window.pilihPaketLangganan = function(planKey) {
     btn.textContent = 'LANJUT BAYAR ' + fmtRupiah(window.SUBS_PLANS[planKey].amount);
 };
 
+// ==== VERIFIKASI OTOMATIS VIA NOTIFIKASI GOPAY (kode unik + webhook) ====
+// Tiap tagihan diberi kode unik 1-99 (nominal jadi mis. 10.037). Dokumen 'awaiting' dibuat di
+// subscriptionRequests; webhook server (Cloudflare Worker) mencocokkan nominal notifikasi GoPay
+// lalu mengaktifkan langganan otomatis. Kalau gagal/tidak terdeteksi, alur screenshot lama tetap jalan.
+window.GP_AWAIT_TTL_MS = 25 * 60 * 1000;
+window.__subsAwait = null;
+window.__subsSiapkanTagihan = function(planKey, plan) {
+    const uid = currentUser ? currentUser.uid : null;
+    const now = Date.now();
+    const a = window.__subsAwait;
+    if (a && a.uid === uid && a.plan === planKey && a.base === plan.amount && (now - a.ts) < window.GP_AWAIT_TTL_MS) return a;
+    const kode = 1 + Math.floor(Math.random() * 99);
+    const rec = { uid: uid, plan: planKey, base: plan.amount, kode: kode, payAmount: plan.amount + kode, ts: now, id: null };
+    window.__subsAwait = rec;
+    if (currentUser) {
+        try {
+            Promise.resolve(addDoc(collection(db, 'subscriptionRequests'), {
+                uid: currentUser.uid,
+                email: currentUser.email || null,
+                nama: currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : '-'),
+                plan: planKey,
+                planLabel: plan.label,
+                amount: plan.amount,
+                payAmount: rec.payAmount,
+                days: plan.days,
+                ibCode: window.__subsIBCode || null,
+                status: 'awaiting',
+                via: 'gopay-notif',
+                createdAt: serverTimestamp()
+            })).then(function(r) { if (r && r.id) rec.id = r.id; }).catch(function(e) { console.warn('Tagihan otomatis tidak terdaftar (fallback ke screenshot):', e); });
+        } catch (e) { console.warn('Tagihan otomatis gagal dibuat:', e); }
+    }
+    return rec;
+};
+
+// Dipanggil dari listener status langganan saat webhook menulis lastAutoPayment di dokumen user
+window.__handleAutoPayment = function(uid, lap) {
+    try {
+        if (!uid || !lap || !lap.requestId) return;
+        const key = 'rhn_gp_done_' + uid;
+        if (localStorage.getItem(key) === lap.requestId) return;
+        localStorage.setItem(key, lap.requestId);
+        if (typeof window.creditIBCommission === 'function') { window.creditIBCommission(uid, lap.requestId, lap.baseAmount, lap.plan, lap.days); }
+        const baru = lap.at && (Date.now() - new Date(lap.at).getTime()) < 10 * 60 * 1000;
+        if (baru) {
+            window.__subsAwait = null;
+            window.showSaveSuccess('Pembayaran Terdeteksi! \ud83c\udf89', 2200, 'Langganan kamu sudah aktif otomatis. Selamat menikmati fitur lengkap RHN CAPITAL!');
+        }
+    } catch (e) { console.error('Gagal memproses pembayaran otomatis:', e); }
+};
+
 window.lanjutBayarLangganan = function() {
     if (!window.__subsSelectedPlan) return;
     const plan = window.SUBS_PLANS[window.__subsSelectedPlan];
@@ -3891,12 +3943,18 @@ window.lanjutBayarLangganan = function() {
     document.getElementById('subs-step-plans').style.display = 'none';
     document.getElementById('subs-step-pay').style.display = 'block';
     document.getElementById('subs-pay-plan-label').textContent = plan.note;
-    document.getElementById('subs-pay-amount-num').textContent = fmtRupiah(plan.amount);
+    const tagihan = window.__subsSiapkanTagihan(window.__subsSelectedPlan, plan);
+    document.getElementById('subs-pay-amount-num').textContent = fmtRupiah(tagihan.payAmount);
+    const autoEl = document.getElementById('subs-auto-status');
+    if (autoEl) {
+        autoEl.style.display = 'block';
+        autoEl.innerHTML = '\u26a1 <b>Bayar TEPAT ' + fmtRupiah(tagihan.payAmount) + '</b> (sudah termasuk kode unik ' + fmtRupiah(tagihan.kode) + '). Pembayaran terdeteksi otomatis &amp; langganan langsung aktif. Kalau lewat 1 menit belum aktif, upload screenshot di bawah lalu tekan "SAYA SUDAH BAYAR".';
+    }
 
     const currentBase = QRIS_STATIS_ASLI;
     let qrisTanpaCrc = currentBase.slice(0, -4);
     let qrisBase = qrisTanpaCrc.slice(0, -4);
-    let nomStr = String(plan.amount);
+    let nomStr = String(tagihan.payAmount);
     let nomLen = nomStr.length.toString().padStart(2, '0');
     let tagNominal = "54" + nomLen + nomStr;
     let qrisBaruTanpaCrc = qrisBase + tagNominal + "6304";
@@ -4196,7 +4254,7 @@ window.konfirmasiBayarLangganan = async function() {
 
     let aiResult = null, aiError = null, aiTechnicalDetail = null;
     try {
-        aiResult = await verifyPaymentScreenshotWithAI(window.__subsScreenshotData.base64, window.__subsScreenshotData.mime, plan.amount);
+        aiResult = await verifyPaymentScreenshotWithAI(window.__subsScreenshotData.base64, window.__subsScreenshotData.mime, (window.__subsAwait && window.__subsAwait.payAmount) || plan.amount);
     } catch (e) {
         aiError = e.message;
         aiTechnicalDetail = e.technicalDetail || null;
@@ -4213,6 +4271,8 @@ window.konfirmasiBayarLangganan = async function() {
             amount: plan.amount,
             days: plan.days,
             ibCode: window.__subsIBCode || null,
+            payAmount: (window.__subsAwait && window.__subsAwait.payAmount) || null,
+            awaitReqId: (window.__subsAwait && window.__subsAwait.id) || null,
             status: 'pending',
             autoVerified: !!(aiResult && aiResult.valid),
             aiAnalysis: aiResult ? {
@@ -4235,7 +4295,9 @@ window.konfirmasiBayarLangganan = async function() {
             const nowD = new Date();
             const base = (existingExpiry && new Date(existingExpiry).getTime() > nowD.getTime()) ? new Date(existingExpiry) : nowD;
             const newExpiry = new Date(base.getTime() + plan.days * 86400000);
-            await updateDoc(userRef, {
+            const _lap = userSnap.exists() ? userSnap.data().lastAutoPayment : null;
+            const sudahAktifOtomatis = !!(_lap && window.__subsAwait && window.__subsAwait.id && _lap.requestId === window.__subsAwait.id);
+            if (!sudahAktifOtomatis) await updateDoc(userRef, {
                 subscriptionExpiry: newExpiry.toISOString(),
                 subscriptionStatus: 'active',
                 subscriptionPlan: window.__subsSelectedPlan,
@@ -4330,6 +4392,7 @@ window.checkSubscriptionStatus = function(uid) {
         const expiryStr = data.subscriptionExpiry || null;
         const isActive = expiryStr && new Date(expiryStr).getTime() > Date.now();
         window.__subsIsActive = !!isActive;
+        if (data.lastAutoPayment) window.__handleAutoPayment(uid, data.lastAutoPayment);
 
         renderSubsStatusWidgets(data, isActive);
 
