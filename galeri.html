@@ -1838,12 +1838,23 @@ window.optimizeAllVideos = async function() {
   }
 };
 
+function alasanUploadGagal(e, file) {
+  let m = (e && e.message) || '';
+  const mb = file ? Math.round(file.size / 1048576) : 0;
+  try { const j = JSON.parse(m.replace(/^[^{]*/, '')); if (j && j.error && j.error.message) m = j.error.message; } catch (x) {}
+  if (/too large|maximum is|file size/i.test(m)) return `ukuran file (${mb} MB) melebihi batas Cloudinary (paket gratis maks. 100 MB per video).`;
+  if (/timeout|timed out|processing|eager/i.test(m)) return 'Cloudinary gagal memproses video panjang (timeout).';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'koneksi terputus saat mengupload file besar (' + mb + ' MB). Jaga layar tetap menyala & koneksi stabil.';
+  return (m || 'tidak diketahui').slice(0, 160);
+}
+
 async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const total = filesToUpload.length;
   let completed = 0;
   let failed = 0;
   const pendingDocs = [];
   const gagalKaliIni = [];
+  window.__lastUploadReason = '';
 
   customSwal.fire({
     title: `Mengupload 0/${total}...`,
@@ -1860,6 +1871,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
       pendingDocs.push(result);
     } catch (e) {
       console.error('Gagal upload salah satu foto:', e);
+      if (!window.__lastUploadReason) window.__lastUploadReason = alasanUploadGagal(e, file);
       failed++;
       gagalKaliIni.push({ file, originalIndex });
     } finally {
@@ -1878,7 +1890,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   failedFiles = gagalKaliIni;
   if (failed > 0) {
     showRetryBar(failed);
-    customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload. Tekan "Coba Lagi" untuk mengulang yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
+    customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload. ${window.__lastUploadReason ? 'Penyebab: ' + window.__lastUploadReason + ' ' : ''}Tekan "Coba Lagi" untuk mengulang yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
   } else {
     hideRetryBar();
     customSwal.fire({ icon: 'success', title: 'Upload Sukses', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
