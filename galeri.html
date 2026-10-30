@@ -405,6 +405,8 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 #pin-screen .link-btn{flex:1 1 0;background:#1c1c20;border:1px solid #333;border-radius:14px;color:#cbd5e1;font-size:11px;letter-spacing:.5px;padding:13px 10px}
 #pin-screen .link-btn:active{transform:scale(.97)}
 }
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake-error{animation:pinShake .4s}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -501,13 +503,14 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
     </div>
   </div>
 
-  <div id="pin-screen" class="screen-layer" style="display:none;">
+  <div id="pin-screen" class="screen-layer" style="display:none;" onclick="document.getElementById('app-pin').focus()" ontouchstart="document.getElementById('app-pin').focus()">
     <div class="auth-shell pin-shell">
       <div class="auth-box">
         <img src="RHN LOGO.jpg" onerror="this.onerror=null;this.src=window.RHN_FALLBACK_LOGO;">
         <div class="auth-title" id="pin-title">Masukkan PIN</div>
-        <div class="auth-sub">Keamanan 6 Digit Media</div>
-        <input type="password" id="app-pin" class="f-input-dark pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••••">
+        <div class="auth-sub" id="pin-sub">Keamanan 6 Digit Media</div>
+        <div id="pin-err" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none;"></div>
+        <input type="password" id="app-pin" name="rhn-pin-code" class="f-input-dark pin-input" style="-webkit-text-security:disc;text-security:disc;" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" autofocus>
         <div class="pin-links">
           <button class="link-btn" onclick="konfirmasiAksi('Keluar akun?', doLogout)">Ganti Akun</button>
           <button class="link-btn" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)">Ganti PIN</button>
@@ -1148,10 +1151,23 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-document.getElementById('app-pin').addEventListener('input', async function() {
-  this.value = this.value.replace(/[^0-9]/g, '');
-
-  if (this.value.length === 6) {
+(function(){
+  const pinEl = document.getElementById('app-pin');
+  const errEl = document.getElementById('pin-err');
+  const showErr = (m) => { errEl.textContent = m; errEl.style.display = 'block'; };
+  window.forceFocusPin = () => {
+    if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
+    const splash = document.getElementById('splash-screen');
+    if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
+    if (pinEl && document.getElementById('pin-screen').style.display !== 'none') { pinEl.focus(); try { pinEl.click(); } catch (e) {} }
+  };
+  window.__pinFocusTimer = setInterval(window.forceFocusPin, 200);
+  pinEl.addEventListener('beforeinput', function(e){ if (e.data && /[^0-9]/.test(e.data)) e.preventDefault(); });
+  pinEl.addEventListener('keydown', function(e){ if (e.key && e.key.length === 1 && !/[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey) e.preventDefault(); });
+  pinEl.addEventListener('input', async function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    errEl.style.display = 'none';
+    if (this.value.length !== 6) return;
     if (window.pinMode === 'setup') {
       try {
         const hash = await hashPin(this.value);
@@ -1160,7 +1176,7 @@ document.getElementById('app-pin').addEventListener('input', async function() {
         window.userCloudPinLegacy = null;
         unlockApp();
       } catch (e) {
-        customSwal.fire({ icon: 'error', title: 'Gagal menyimpan PIN', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+        showErr('Gagal menyimpan PIN ke server.');
         this.value = '';
       }
     } else {
@@ -1168,24 +1184,24 @@ document.getElementById('app-pin').addEventListener('input', async function() {
       const cocok = window.userCloudPinHash
         ? hash === window.userCloudPinHash
         : this.value === window.userCloudPinLegacy;
-
       if (cocok) {
         if (!window.userCloudPinHash && window.userCloudPinLegacy) {
           try {
             await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
             window.userCloudPinHash = hash;
-          } catch (e) { /* diam-diam gagal, tidak masalah, akan dicoba lagi lain kali */ }
+          } catch (e) { /* diam-diam gagal */ }
         }
         unlockApp();
       } else {
-        customSwal.fire({ icon: 'error', title: 'PIN Salah', background: 'var(--card)', color: 'var(--text)', showConfirmButton: false, timer: 1200 });
-        this.classList.add('shake');
-        setTimeout(() => this.classList.remove('shake'), 500);
+        showErr('PIN Salah!');
         this.value = '';
+        this.classList.add('shake-error');
+        setTimeout(() => this.classList.remove('shake-error'), 400);
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
       }
     }
-  }
-});
+  });
+})();
 
 function unlockApp() {
   const pinScrn = document.getElementById('pin-screen');
