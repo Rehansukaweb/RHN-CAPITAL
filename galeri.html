@@ -24,7 +24,7 @@ button,input,textarea{font-family:inherit}
 --font-ui:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;--font-display:'Fraunces',Georgia,serif;
 --side:0px;--pad:clamp(16px,4vw,40px);--safe-b:env(safe-area-inset-bottom,0px)}
 @media(min-width:960px){:root{--side:272px}}
-html{scroll-behavior:smooth;touch-action:manipulation}
+html{scroll-behavior:auto!important;touch-action:manipulation}
 body{background:var(--body-bg) radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat fixed;color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
 .ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sr-only{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
@@ -124,13 +124,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 @media(min-width:960px){#normal-header .header-center{visibility:hidden}}
 .photo-count-badge{font-size:11px;font-weight:600;color:var(--text2);padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--border);white-space:nowrap}
 .badge-size{color:var(--gold)}
-@media(max-width:560px){
- #normal-header{gap:8px}
- #normal-header .header-title{display:none}
- #normal-header .header-right{gap:6px;min-width:0}
- .photo-count-badge{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;white-space:normal;line-height:1.25;font-size:10px;padding:5px 10px;border-radius:14px;min-width:0}
- .photo-count-badge .badge-size{display:block}
-}
+@media(max-width:480px){.photo-count-badge{font-size:10px;padding:6px 9px}}
 .download-all-btn,.sel-icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.14s;flex-shrink:0}
 .download-all-btn:hover,.sel-icon-btn:hover{border-color:var(--gold-line);color:var(--gold)}
 .download-all-btn:active,.sel-icon-btn:active{transform:scale(.9)}
@@ -159,7 +153,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 
 .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 @media(min-width:768px){.album-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}}
-.album-card{position:relative;cursor:pointer;aspect-ratio:4/5;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:18px;isolation:isolate;content-visibility:auto;contain-intrinsic-size:160px 200px;transition:transform .14s var(--ease-smooth),border-color .14s,box-shadow .14s;touch-action:pan-y}
+.album-card{position:relative;cursor:pointer;aspect-ratio:4/5;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:18px;isolation:isolate;transition:transform .14s var(--ease-smooth),border-color .14s,box-shadow .14s;touch-action:pan-y}
 @media(hover:hover){.album-card:hover{transform:translateY(-4px);border-color:var(--gold-line);box-shadow:0 16px 36px rgba(0,0,0,.6)}.album-card:hover .album-cover{transform:scale(1.05)}.album-caption{opacity:0;transform:translateY(6px)}.album-card:hover .album-caption{opacity:1;transform:none}}
 .album-card:active{transform:scale(.98)}
 .album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .14s var(--ease-smooth),opacity .14s}
@@ -264,7 +258,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .viewer-icon-btn:active{transform:scale(.9);background:rgba(255,255,255,.18)}
 .viewer-title{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viewer-content{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:72px 16px 118px}
-#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1);will-change:transform}
+#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .14s}
 #viewer-img.loaded{opacity:1}
 #viewer-img.zoomed{transform:scale(3);cursor:zoom-out}
 #viewer-video{max-width:100%;max-height:100%;object-fit:contain;display:none;border-radius:12px}
@@ -547,7 +541,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
@@ -650,6 +644,8 @@ let selectedFiles = [];
 let failedFiles = [];
 let lastUploadTitle = '';
 let isBusy = false;
+let bulkMode = false;
+const yieldUI = () => new Promise(r => setTimeout(r, 0));
 
 let selectMode = false;
 let selectedIds = new Set();
@@ -896,9 +892,13 @@ onAuthStateChanged(auth, async user => {
     }
 
     let secSnap;
+    const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
-      secSnap = await getDoc(doc(db, 'users', user.uid, 'settings', 'security'));
-    } catch (e) {
+      secSnap = navigator.onLine ? await getDoc(secRef) : await getDocFromCache(secRef);
+    } catch (e0) {
+      try { secSnap = await getDocFromCache(secRef); } catch (e) { secSnap = null; }
+    }
+    if (!secSnap) {
       customSwal.fire({ icon: 'error', title: 'Koneksi bermasalah', text: 'Tidak bisa memuat data keamanan. Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
       return;
     }
@@ -1013,10 +1013,19 @@ function renderSkeleton() {
   container.innerHTML = Array(9).fill('<div class="album-card skeleton-box"></div>').join('');
 }
 
+const sentThumbs = new Set();
+function precacheThumbs() {
+  if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+  const urls = [];
+  photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
+  if (urls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls });
+}
+
 function listenPhotos() {
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snap) => {
     photos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (bulkMode) return;
 
     if (selectMode) {
       let changed = false;
@@ -1028,6 +1037,7 @@ function listenPhotos() {
     }
 
     renderGallery();
+    precacheThumbs();
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -1330,7 +1340,8 @@ window.migrateLegacyPhotos = async function() {
   });
 
   try {
-    await runWithConcurrency(legacy, 20, async (p) => {
+    bulkMode = true;
+    await runWithConcurrency(legacy, 3, async (p) => {
       try {
         await migrateLegacyPhoto(p);
       } catch (e) {
@@ -1339,6 +1350,7 @@ window.migrateLegacyPhotos = async function() {
       } finally {
         done++;
         customSwal.update({ title: `Migrasi ${done}/${total}...` });
+        await yieldUI();
       }
     });
 
@@ -1351,6 +1363,8 @@ window.migrateLegacyPhotos = async function() {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'Migrasi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
+    bulkMode = false;
+    renderGallery();
     isBusy = false;
   }
 };
@@ -1392,7 +1406,8 @@ window.optimizeAllPhotosToWebP = async function() {
   });
 
   try {
-    await runWithConcurrency(target, 8, async (p) => {
+    bulkMode = true;
+    await runWithConcurrency(target, 3, async (p) => {
       try {
         await optimizeSinglePhotoToWebP(p);
       } catch (e) {
@@ -1401,6 +1416,7 @@ window.optimizeAllPhotosToWebP = async function() {
       } finally {
         done++;
         customSwal.update({ title: `Konversi WebP ${done}/${total}...` });
+        await yieldUI();
       }
     });
 
@@ -1413,6 +1429,8 @@ window.optimizeAllPhotosToWebP = async function() {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'Konversi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
+    bulkMode = false;
+    renderGallery();
     isBusy = false;
   }
 };
@@ -1508,7 +1526,8 @@ window.hdkanSemuaFoto = async function() {
   });
 
   /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = Math.max(6, Math.min(16, (navigator.hardwareConcurrency || 4) * 2));
+  const conc = 2;
+  bulkMode = true;
 
   try {
     await runWithConcurrency(target, conc, async (p) => {
@@ -1516,13 +1535,14 @@ window.hdkanSemuaFoto = async function() {
         const r = await hdkanSatuFoto(p);
         if (r.upgraded) upgraded++;
         pending.push({ ref: r.ref, data: r.data });
-        if (pending.length >= 100) flush();
+        if (pending.length >= 20) await flush();
       } catch (e) {
         console.error('Gagal HD-kan foto', p.id, e);
         failed++;
       } finally {
         done++;
         customSwal.update({ title: `HD-kan ${done}/${total}...` });
+        await yieldUI();
       }
     });
     await flush();
@@ -1537,6 +1557,8 @@ window.hdkanSemuaFoto = async function() {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'HD Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
+    bulkMode = false;
+    renderGallery();
     isBusy = false;
   }
 };
@@ -1564,7 +1586,8 @@ window.optimizeAllVideos = async function() {
   });
 
   try {
-    await runWithConcurrency(target, 4, async (p) => {
+    bulkMode = true;
+    await runWithConcurrency(target, 1, async (p) => {
       try {
         const berhasil = await optimizeSingleVideo(p);
         if (berhasil) optimized++;
@@ -1574,6 +1597,7 @@ window.optimizeAllVideos = async function() {
       } finally {
         done++;
         customSwal.update({ title: `Optimasi video ${done}/${total}...` });
+        await yieldUI();
       }
     });
 
@@ -1587,6 +1611,8 @@ window.optimizeAllVideos = async function() {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'Optimasi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
+    bulkMode = false;
+    renderGallery();
     isBusy = false;
   }
 };
@@ -1703,7 +1729,7 @@ function formatKapasitas(mb) {
 function badgeKapasitasHtml() {
   const vid = photos.filter(p => isVideoItem(p)).length;
   const img = photos.length - vid;
-  return `<span>${img} foto • ${vid} video</span> <span class="badge-size">• ${formatKapasitas(hitungTotalUkuranMB())}</span>`;
+  return `${img} foto • ${vid} video <span class="badge-size">• ${formatKapasitas(hitungTotalUkuranMB())}</span>`;
 }
 
 function hitungTotalUkuranMB(list) {
@@ -1748,7 +1774,10 @@ function hideScrollTopBtn() {
   document.getElementById('scroll-top-btn').classList.remove('show');
 }
 window.scrollToTop = function() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  hideScrollTopBtn();
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  window.scrollTo(0, 0);
 };
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
@@ -2299,31 +2328,22 @@ window.bukaViewer = function(id) {
   const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
+  img.src = ''; 
   img.alt = foto.title || 'foto';
-  img.classList.remove('zoomed');
+  img.classList.remove('loaded', 'zoomed');
   video.pause();
+  video.src = '';
 
-  const token = ++viewerToken;
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
     video.src = getFullSrc(foto);
     video.load();
   } else {
-    video.removeAttribute('src');
     video.style.display = 'none';
     img.style.display = 'block';
-    /* Gambar lama tetap tampil sampai gambar baru siap di-decode, lalu ditukar seketika (tanpa hitam). */
-    const full = getFullSrc(foto);
-    const swap = () => { if (token === viewerToken) { img.src = full; img.classList.add('loaded'); } };
-    const ready = viewerPreload.get(full);
-    if (ready && ready.complete && ready.naturalWidth) swap();
-    else {
-      const loader = ready || preloadViewerImage(full);
-      (loader.decode ? loader.decode() : Promise.resolve()).then(swap).catch(swap);
-    }
+    img.src = getFullSrc(foto);
   }
-  preloadViewerNeighbors(id);
 
   updateFavButtonUI(foto);
 
@@ -2331,28 +2351,6 @@ window.bukaViewer = function(id) {
   document.body.style.overflow = 'hidden';
   updateViewerNavButtons();
 };
-
-let viewerToken = 0;
-const viewerPreload = new Map();
-function preloadViewerImage(src) {
-  let im = viewerPreload.get(src);
-  if (im) return im;
-  im = new Image();
-  im.decoding = 'async';
-  im.src = src;
-  viewerPreload.set(src, im);
-  if (viewerPreload.size > 14) viewerPreload.delete(viewerPreload.keys().next().value);
-  return im;
-}
-function preloadViewerNeighbors(id) {
-  const list = filteredPhotos();
-  const i = list.findIndex(p => p.id === id);
-  if (i === -1 || list.length < 2) return;
-  [1, -1, 2, -2, 3].forEach(d => {
-    const n = list[(i + d + list.length) % list.length];
-    if (n && !isVideoItem(n)) { const im = preloadViewerImage(getFullSrc(n)); if (im.decode) im.decode().catch(() => {}); }
-  });
-}
 
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
@@ -2538,8 +2536,12 @@ window.aksiHapus = function() {
 };
 </script>
 <script>
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sww.js').then(function () { return navigator.serviceWorker.ready; }).then(function (reg) {
+      if (reg.active) reg.active.postMessage({ type: 'CACHE_URLS', urls: [location.href.split('#')[0], new URL('RHN LOGO.jpg', location.href).href] });
+    }).catch(function () {});
+  });
 }
 </script>
 </body>
