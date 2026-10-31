@@ -674,15 +674,18 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
               <span class="retry-bar-text" id="retry-bar-text">Beberapa file gagal diupload.</span>
               <button class="retry-bar-btn" onclick="retryFailedUploads()">Coba Lagi</button>
             </div>
-            <label class="dropzone" for="f-img-file">
+            <label class="dropzone" for="f-img-file" onclick="if(window.showOpenFilePicker){event.preventDefault();pilihFileCepat('f-img-file');}">
               <span class="dz-icon"><svg class="ico"><use href="#i-upload"/></svg></span>
               <span class="dz-title">Pilih foto atau video</span>
               <span class="dz-sub">Bisa memilih banyak file sekaligus · maks. 100MB per file</span>
             </label>
             <input type="file" id="f-img-file" class="sr-only" accept="image/*,video/*" multiple>
             <input type="file" id="f-img-file-all" class="sr-only" multiple>
-            <button type="button" class="dz-all-btn" onclick="document.getElementById('f-img-file-all').click()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Semua dari Penyimpanan (tanpa batas)</button>
-            <div class="dz-sub" style="text-align:center;margin-top:6px">Di layar yang terbuka: titik tiga &rarr; &ldquo;Pilih semua&rdquo;. Bisa dilakukan berkali-kali, file akan ditambahkan.</div>
+            <button type="button" class="dz-all-btn" onclick="pilihFileCepat('f-img-file-all')" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Semua dari Penyimpanan (tanpa batas)</button>
+            <input type="file" id="f-img-folder" class="sr-only" webkitdirectory multiple>
+            <button type="button" class="dz-all-btn" onclick="pilihFolderCepat()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Satu Folder (paling cepat untuk ribuan file, di laptop)</button>
+            <div id="pilih-status" class="dz-sub" style="display:none;text-align:center;margin-top:10px;color:var(--gold);font-weight:600"></div>
+            <div class="dz-sub" style="text-align:center;margin-top:6px">Di layar yang terbuka: titik tiga &rarr; &ldquo;Pilih semua&rdquo;. Bisa dilakukan berkali-kali, file akan ditambahkan. <span style="opacity:.5">[pilih-file v4]</span></div>
             <div id="file-preview-list"></div>
           </div>
           <div class="panel">
@@ -926,7 +929,7 @@ async function runWithConcurrency(items, limit, worker) {
 }
 
 const BATCH_CHUNK_SIZE = 500;
-const UPLOAD_CONCURRENCY_CAP = 1000;
+const UPLOAD_CONCURRENCY_CAP = 24;
 
 async function commitSetBatches(items, onProgress) {
   const chunks = [];
@@ -1388,25 +1391,34 @@ function listenPhotos() {
   });
 }
 
-function tambahFiles(dipilih) {
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function tambahFiles(dipilih) {
+  const st = document.getElementById('pilih-status');
+  st.style.display = 'block';
+  st.textContent = `Membaca ${dipilih.length} file...`;
+  await tick();
+
   const ditolak = [];
   const kunci = f => f.name + '|' + f.size + '|' + f.lastModified;
   const sudah = new Set(selectedFiles.map(kunci));
 
-  dipilih.forEach(f => {
+  for (let i = 0; i < dipilih.length; i++) {
+    const f = dipilih[i];
     const tipeOk = ALLOWED_TYPE_PREFIX.some(prefix => f.type.startsWith(prefix));
     const ukuranOk = f.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
     if (!tipeOk || !ukuranOk) {
       ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : 'lebih dari 1 GB' });
-      return;
+    } else {
+      const k = kunci(f);
+      if (!sudah.has(k)) { sudah.add(k); selectedFiles.push(f); }
     }
-    if (sudah.has(kunci(f))) return;
-    sudah.add(kunci(f));
-    selectedFiles.push(f);
-  });
+    if ((i + 1) % 500 === 0) { st.textContent = `Membaca ${i + 1}/${dipilih.length} file...`; await tick(); }
+  }
 
   hideRetryBar();
   renderFilePreview();
+  st.textContent = `${selectedFiles.length} file siap disimpan. Tekan SIMPAN KE GALERI.`;
+  setTimeout(() => { if (st.textContent.indexOf('siap disimpan') > -1) st.style.display = 'none'; }, 6000);
 
   if (ditolak.length) {
     const MAX_TAMPIL = 5;
@@ -1421,19 +1433,66 @@ function tambahFiles(dipilih) {
   }
 }
 
-['f-img-file', 'f-img-file-all'].forEach(id => {
+/* ===== PEMILIH CEPAT (Chrome/Edge laptop): tidak lewat <input file>, jadi ribuan file terbaca dalam hitungan detik ===== */
+const EKSTENSI_MEDIA = /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp|mp4|mov|m4v|webm|3gp|mkv)$/i;
+async function bacaHandles(handles) {
+  const st = document.getElementById('pilih-status');
+  st.style.display = 'block';
+  const out = [];
+  for (let i = 0; i < handles.length; i += 200) {
+    const bagian = await Promise.all(handles.slice(i, i + 200).map(h => h.getFile().catch(() => null)));
+    bagian.forEach(f => { if (f) out.push(f); });
+    st.textContent = `Membaca ${Math.min(i + 200, handles.length)}/${handles.length} file...`;
+    await tick();
+  }
+  return out;
+}
+function pickerCepatTidakAda() {
+  customSwal.fire({ icon: 'info', title: 'Tidak Tersedia di Perangkat Ini', text: 'Pemilih cepat hanya ada di Chrome/Edge versi laptop. Di HP, pakai tombol "Pilih Semua dari Penyimpanan".', background: 'var(--card)', color: 'var(--text)' });
+}
+window.pilihFileCepat = async function(fallbackId) {
+  if (!window.showOpenFilePicker) { if (fallbackId) return document.getElementById(fallbackId).click(); return pickerCepatTidakAda(); }
+  try {
+    const hs = await showOpenFilePicker({ multiple: true, types: [{ description: 'Foto & Video', accept: { 'image/*': [], 'video/*': [] } }] });
+    tambahFiles(await bacaHandles(hs));
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    console.warn('Pemilih cepat gagal, pakai pemilih biasa', e);
+    if (fallbackId) document.getElementById(fallbackId).click();
+  }
+};
+window.pilihFolderCepat = async function() {
+  if (!window.showDirectoryPicker) return document.getElementById('f-img-folder').click();
+  try {
+    const dir = await window.showDirectoryPicker();
+    const st = document.getElementById('pilih-status');
+    st.style.display = 'block'; st.textContent = 'Memindai folder...';
+    await tick();
+    const hs = [];
+    const walk = async (d) => { for await (const [name, h] of d.entries()) { if (h.kind === 'file') { if (EKSTENSI_MEDIA.test(name)) hs.push(h); } else await walk(h); } };
+    await walk(dir);
+    if (!hs.length) { st.style.display = 'none'; return customSwal.fire({ icon: 'info', title: 'Folder Kosong', text: 'Tidak ada foto/video di folder itu.', background: 'var(--card)', color: 'var(--text)' }); }
+    tambahFiles(await bacaHandles(hs));
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    console.warn('Pilih folder cepat gagal', e);
+    customSwal.fire({ icon: 'warning', title: 'Folder Tidak Bisa Dibuka', text: 'Chrome menolak folder sistem (Downloads/Documents langsung). Pilih sub-folder di dalamnya, atau pakai tombol lain.', background: 'var(--card)', color: 'var(--text)' });
+  }
+};
+
+['f-img-file', 'f-img-file-all', 'f-img-folder'].forEach(id => {
   document.getElementById(id).addEventListener('change', function() {
-    tambahFiles(Array.from(this.files));
+    const daftarFile = Array.from(this.files);
     this.value = '';
+    if (daftarFile.length) tambahFiles(daftarFile);
   });
 });
 
-const PREVIEW_MAX = 48;
-let previewUrls = [];
+const PREVIEW_MAX = 24;
+let previewToken = 0;
 function renderFilePreview() {
   const wrap = document.getElementById('file-preview-list');
-  previewUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch (e) {} });
-  previewUrls = [];
+  const token = ++previewToken;
   if (!selectedFiles.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
   wrap.style.display = 'grid';
   const tampil = selectedFiles.slice(0, PREVIEW_MAX);
@@ -1442,22 +1501,32 @@ function renderFilePreview() {
     `<span><b style="color:var(--text)">${selectedFiles.length}</b> file dipilih (${selectedFiles.length - nVid} foto, ${nVid} video)` +
     (selectedFiles.length > PREVIEW_MAX ? ` &middot; pratinjau ${PREVIEW_MAX} pertama` : '') + `</span>` +
     `<button type="button" onclick="kosongkanPilihan()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:6px 10px;cursor:pointer">Kosongkan</button></div>`;
-  wrap.innerHTML = ringkas + tampil.map((f, i) => {
-    if (f.type.startsWith('video/')) {
-      return `
-      <div class="preview-thumb">
-        <div class="preview-video-icon">${svgIcon('video')}</div>
-        <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
-      </div>`;
-    }
-    const url = URL.createObjectURL(f);
-    previewUrls.push(url);
-    return `
-    <div class="preview-thumb">
-      <img src="${url}" alt="pratinjau ${i + 1}" loading="lazy" decoding="async">
+  wrap.innerHTML = ringkas + tampil.map((f, i) => `
+    <div class="preview-thumb" data-pi="${i}" style="background:var(--card)">
+      ${f.type.startsWith('video/') ? `<div class="preview-video-icon">${svgIcon('video')}</div>` : ''}
       <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
-    </div>`;
-  }).join('');
+    </div>`).join('');
+
+  /* thumbnail kecil (160px) dibuat bertahap di latar, tidak memuat foto ukuran asli */
+  (async () => {
+    for (let i = 0; i < tampil.length; i++) {
+      if (token !== previewToken) return;
+      const f = tampil[i];
+      if (f.type.startsWith('video/')) continue;
+      try {
+        const bmp = await createImageBitmap(f, { resizeWidth: 160, resizeQuality: 'low' });
+        if (token !== previewToken) { try { bmp.close(); } catch (e) {} return; }
+        const cv = document.createElement('canvas');
+        cv.width = bmp.width; cv.height = bmp.height;
+        cv.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        cv.getContext('2d').drawImage(bmp, 0, 0);
+        try { bmp.close(); } catch (e) {}
+        const slot = wrap.querySelector(`.preview-thumb[data-pi="${i}"]`);
+        if (slot) slot.insertBefore(cv, slot.firstChild);
+      } catch (e) { /* format tak bisa dipratinjau: biarkan kotak kosong */ }
+      if (i % 4 === 3) await tick();
+    }
+  })();
 }
 
 window.kosongkanPilihan = function() {
@@ -2260,6 +2329,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const samples = [];
   const refreshPill = (force) => {
     const now = Date.now();
+    if (!force && now - lastPaint < 250) return;   /* jangan hitung ulang ribuan file di setiap event progres */
     const sumLoaded = loaded.reduce((a, b) => a + b, 0);
     if (sumLoaded > lastSum) { lastSum = sumLoaded; lastGrow = now; }
     samples.push({ t: now, s: sumLoaded });
@@ -2308,7 +2378,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
       completed++;
       loaded[i] = sizes[i];
       stage[i] = 'selesai';
-      refreshPill(true);
+      refreshPill();
     }
   });
 
