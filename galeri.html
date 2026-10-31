@@ -706,6 +706,13 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
             </div>
           </div>
           <div>
+            <div class="set-label">Penyimpanan &amp; Kualitas</div>
+            <div class="panel list">
+              <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+            </div>
+          </div>
+          <div>
             <div class="set-label">Keamanan</div>
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)"><span class="mi"><svg class="ico"><use href="#i-lock"/></svg></span><span class="mt"><b>Ganti PIN</b><small>Perbarui PIN 6 digit galeri Anda</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
@@ -1892,6 +1899,87 @@ async function optimizeSingleVideo(p) {
 }
 
 const HD_TARGET_LONG_SIDE = 3840; /* 4K UHD (mentok aman di semua HP/browser) */
+/* ===== PINDAH KE PENYIMPANAN BARU: salin media dari akun lama ke akun Cloudinary utama (CLOUDINARY_ACCOUNTS[0]) ===== */
+async function uploadRemoteToCloudinary(srcUrl, isVideo) {
+  const acc = CLOUDINARY_ACCOUNTS[0];
+  const rt = isVideo ? 'video' : 'image';
+  const form = new FormData();
+  form.append('file', srcUrl);
+  form.append('upload_preset', acc.uploadPreset);
+  form.append('folder', `users/${currentUser.uid}/media`);
+  const resp = await fetch(`https://api.cloudinary.com/v1_1/${acc.cloudName}/${rt}/upload`, { method: 'POST', body: form });
+  if (!resp.ok) throw new Error('Upload URL gagal: ' + (await resp.text()));
+  const d = await resp.json();
+  return { publicId: d.public_id, resourceType: rt, format: d.format, size: d.bytes, cloudName: acc.cloudName };
+}
+
+async function pindahSatuMedia(p) {
+  const isVideo = isVideoItem(p);
+  const src = p.publicId ? getDownloadSrc(p) : (p.fullURL || p.url || p.thumbURL);
+  let meta;
+  try {
+    meta = await uploadRemoteToCloudinary(src, isVideo);   /* cepat: Cloudinary yang menarik file langsung */
+  } catch (e) {
+    console.warn('Upload via URL gagal, coba unduh lalu upload:', p.id, e);
+    const resp = await fetch(src);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    meta = await uploadToCloudinary(blob, p.title || (isVideo ? 'video.mp4' : 'foto.jpg'), isVideo);
+  }
+  const data = { ...meta };
+  if (!p.publicId) Object.assign(data, { thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField() });
+  await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), data, { merge: true });
+}
+
+window.pindahKePenyimpananBaru = async function() {
+  if (isBusy) return;
+  const baru = CLOUDINARY_ACCOUNTS[0].cloudName;
+  const target = photos.filter(p => !p.storagePath && ((p.publicId && cldName(p) !== baru) || (!p.publicId && (p.fullURL || p.url || p.thumbURL))));
+  const dilewati = photos.filter(p => p.storagePath).length;
+
+  if (!target.length) {
+    return customSwal.fire({ icon: 'info', title: 'Sudah Semua di Penyimpanan Baru', text: dilewati ? `${dilewati} video besar (>100MB) tetap di Firebase Storage.` : 'Tidak ada media yang perlu dipindah.', background: 'var(--card)', color: 'var(--text)' });
+  }
+
+  isBusy = true;
+  const total = target.length;
+  let done = 0, failed = 0;
+
+  customSwal.fire({
+    title: `Memindah 0/${total}...`,
+    text: 'Mohon jangan tutup halaman ini dulu.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    bulkMode = true;
+    await runWithConcurrency(target, 3, async (p) => {
+      try { await pindahSatuMedia(p); }
+      catch (e) { console.error('Gagal pindah', p.id, e); failed++; }
+      finally {
+        done++;
+        customSwal.update({ title: `Memindah ${done}/${total}...` });
+        await yieldUI();
+      }
+    });
+    customSwal.fire({
+      icon: failed ? 'warning' : 'success',
+      title: failed ? 'Selesai Dengan Peringatan' : 'Pemindahan Selesai',
+      text: `${total - failed} berhasil dipindah ke penyimpanan baru, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : '') + (dilewati ? ` ${dilewati} video besar (>100MB) dilewati.` : ''),
+      background: 'var(--card)', color: 'var(--text)'
+    });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Pemindahan Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    bulkMode = false;
+    renderGallery();
+    isBusy = false;
+  }
+};
+
 async function hdkanSatuFoto(p) {
   const resp = await fetch(getFullSrc(p));
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
