@@ -680,6 +680,9 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
               <span class="dz-sub">Bisa memilih banyak file sekaligus · maks. 100MB per file</span>
             </label>
             <input type="file" id="f-img-file" class="sr-only" accept="image/*,video/*" multiple>
+            <input type="file" id="f-img-file-all" class="sr-only" multiple>
+            <button type="button" class="dz-all-btn" onclick="document.getElementById('f-img-file-all').click()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Semua dari Penyimpanan (tanpa batas)</button>
+            <div class="dz-sub" style="text-align:center;margin-top:6px">Di layar yang terbuka: titik tiga &rarr; &ldquo;Pilih semua&rdquo;. Bisa dilakukan berkali-kali, file akan ditambahkan.</div>
             <div id="file-preview-list"></div>
           </div>
           <div class="panel">
@@ -1387,25 +1390,30 @@ function listenPhotos() {
   });
 }
 
-document.getElementById('f-img-file').addEventListener('change', function() {
-  const dipilih = Array.from(this.files);
-  const validFiles = [];
+function tambahFiles(dipilih) {
   const ditolak = [];
+  const kunci = f => f.name + '|' + f.size + '|' + f.lastModified;
+  const sudah = new Set(selectedFiles.map(kunci));
 
   dipilih.forEach(f => {
     const tipeOk = ALLOWED_TYPE_PREFIX.some(prefix => f.type.startsWith(prefix));
     const ukuranOk = f.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
-    if (tipeOk && ukuranOk) validFiles.push(f);
-    else ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : `lebih dari 1 GB` });
+    if (!tipeOk || !ukuranOk) {
+      ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : 'lebih dari 1 GB' });
+      return;
+    }
+    if (sudah.has(kunci(f))) return;
+    sudah.add(kunci(f));
+    selectedFiles.push(f);
   });
 
-  selectedFiles = validFiles;
   hideRetryBar();
   renderFilePreview();
 
   if (ditolak.length) {
-    const daftar = ditolak.slice(0, 5).map(d => `• ${d.name} (${d.alasan})`).join('<br>');
-    const lebih = ditolak.length > 5 ? `<br>+${ditolak.length - 5} file lainnya` : '';
+    const MAX_TAMPIL = 5;
+    const daftar = ditolak.slice(0, MAX_TAMPIL).map(d => `• ${d.name} (${d.alasan})`).join('<br>');
+    const lebih = ditolak.length > MAX_TAMPIL ? `<br>+${ditolak.length - MAX_TAMPIL} file lainnya` : '';
     customSwal.fire({
       icon: 'warning',
       title: `${ditolak.length} File Dilewati`,
@@ -1413,6 +1421,13 @@ document.getElementById('f-img-file').addEventListener('change', function() {
       background: 'var(--card)', color: 'var(--text)'
     });
   }
+}
+
+['f-img-file', 'f-img-file-all'].forEach(id => {
+  document.getElementById(id).addEventListener('change', function() {
+    tambahFiles(Array.from(this.files));
+    this.value = '';
+  });
 });
 
 function renderFilePreview() {
@@ -1439,9 +1454,6 @@ function renderFilePreview() {
 
 window.removeSelectedFile = function(i) {
   selectedFiles.splice(i, 1);
-  const dt = new DataTransfer();
-  selectedFiles.forEach(f => dt.items.add(f));
-  document.getElementById('f-img-file').files = dt.files;
   renderFilePreview();
 };
 
