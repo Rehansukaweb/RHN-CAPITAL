@@ -674,12 +674,18 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
               <span class="retry-bar-text" id="retry-bar-text">Beberapa file gagal diupload.</span>
               <button class="retry-bar-btn" onclick="retryFailedUploads()">Coba Lagi</button>
             </div>
-            <label class="dropzone" for="f-img-file">
+            <label class="dropzone" for="f-img-file" onclick="if(window.showOpenFilePicker){event.preventDefault();pilihFileCepat('f-img-file');}">
               <span class="dz-icon"><svg class="ico"><use href="#i-upload"/></svg></span>
               <span class="dz-title">Pilih foto atau video</span>
               <span class="dz-sub">Bisa memilih banyak file sekaligus · maks. 100MB per file</span>
             </label>
             <input type="file" id="f-img-file" class="sr-only" accept="image/*,video/*" multiple>
+            <input type="file" id="f-img-file-all" class="sr-only" multiple>
+            <button type="button" class="dz-all-btn" onclick="pilihFileCepat('f-img-file-all')" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Semua dari Penyimpanan (tanpa batas)</button>
+            <input type="file" id="f-img-folder" class="sr-only" webkitdirectory multiple>
+            <button type="button" class="dz-all-btn" onclick="pilihFolderCepat()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Satu Folder (paling cepat untuk ribuan file, di laptop)</button>
+            <div id="pilih-status" class="dz-sub" style="display:none;text-align:center;margin-top:10px;color:var(--gold);font-weight:600"></div>
+            <div class="dz-sub" style="text-align:center;margin-top:6px">Di layar yang terbuka: titik tiga &rarr; &ldquo;Pilih semua&rdquo;. Bisa dilakukan berkali-kali, file akan ditambahkan. <span style="opacity:.5">[pilih-file v4]</span></div>
             <div id="file-preview-list"></div>
           </div>
           <div class="panel">
@@ -703,12 +709,10 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
             </div>
           </div>
           <div>
-            <div class="set-label">Optimasi Penyimpanan</div>
+            <div class="set-label">Penyimpanan &amp; Kualitas</div>
             <div class="panel list">
-              <button class="menu-btn" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (Cloudinary, lebih hemat & cepat)?', migrateLegacyPhotos)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Migrasikan Foto Lama</b><small>Pindahkan ke penyimpanan baru yang lebih cepat</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Ubah semua foto (lama & baru) menjadi format WebP hemat ruang, target di bawah 100KB per foto? Video tidak akan diubah.', optimizeAllPhotosToWebP)"><span class="mi"><svg class="ico"><use href="#i-compress"/></svg></span><span class="mt"><b>Konversi Semua Foto ke WebP (≤100KB)</b><small>Hemat ruang tanpa mengorbankan ketajaman</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Optimalkan semua video agar ukurannya lebih kecil tanpa menurunkan kualitas tampilan?', optimizeAllVideos)"><span class="mi"><svg class="ico"><use href="#i-video"/></svg></span><span class="mt"><b>Optimalkan Ukuran Semua Video</b><small>Perkecil ukuran, kualitas tetap terjaga</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto yang ada ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -838,15 +842,18 @@ function cldThumbUrl(p) {
   }
   return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_320,h_320,c_fill,q_auto,f_auto/${p.publicId}`;
 }
+/* HD instan: Cloudinary memperbesar foto kecil (sisi panjang < 3840px) ke 4K saat dikirim; foto yang sudah besar tidak diubah */
+const HD_TF = 'if_w_lt_3840_and_h_lt_3840,c_fit,w_3840,h_3840/if_end';
+function hdPrefix(p) { return (p && p.hd >= 3840 && p.resourceType !== 'video') ? HD_TF + '/' : ''; }
 function cldFullUrl(p) {
   if (p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/${(p.format && !/^(mp4|webm)$/i.test(p.format)) ? 'f_mp4,vc_h264,q_auto:best/' : ''}${p.publicId}.${(p.format && !/^(mp4|webm)$/i.test(p.format)) ? 'mp4' : (p.format || 'mp4')}`;
   }
-  return `https://res.cloudinary.com/${cldName(p)}/image/upload/q_auto:best,f_auto/${p.publicId}`;
+  return `https://res.cloudinary.com/${cldName(p)}/image/upload/${hdPrefix(p)}q_auto:best,f_auto/${p.publicId}`;
 }
 function getDownloadSrc(p) {
   if (p.publicId && p.format && (p.resourceType !== 'video' || /^(mp4|webm)$/i.test(p.format))) {
-    return `https://res.cloudinary.com/${cldName(p)}/${p.resourceType === 'video' ? 'video' : 'image'}/upload/${p.publicId}.${p.format}`;
+    return `https://res.cloudinary.com/${cldName(p)}/${p.resourceType === 'video' ? 'video' : 'image'}/upload/${hdPrefix(p)}${p.publicId}.${p.format}`;
   }
   return getFullSrc(p);
 }
@@ -925,7 +932,7 @@ async function runWithConcurrency(items, limit, worker) {
 }
 
 const BATCH_CHUNK_SIZE = 500;
-const UPLOAD_CONCURRENCY_CAP = 1000;
+const UPLOAD_CONCURRENCY_CAP = 24;
 
 async function commitSetBatches(items, onProgress) {
   const chunks = [];
@@ -1387,25 +1394,39 @@ function listenPhotos() {
   });
 }
 
-document.getElementById('f-img-file').addEventListener('change', function() {
-  const dipilih = Array.from(this.files);
-  const validFiles = [];
-  const ditolak = [];
+const tick = () => new Promise(r => setTimeout(r, 0));
+async function tambahFiles(dipilih) {
+  const st = document.getElementById('pilih-status');
+  st.style.display = 'block';
+  st.textContent = `Membaca ${dipilih.length} file...`;
+  await tick();
 
-  dipilih.forEach(f => {
+  const ditolak = [];
+  const kunci = f => f.name + '|' + f.size + '|' + f.lastModified;
+  const sudah = new Set(selectedFiles.map(kunci));
+
+  for (let i = 0; i < dipilih.length; i++) {
+    const f = dipilih[i];
     const tipeOk = ALLOWED_TYPE_PREFIX.some(prefix => f.type.startsWith(prefix));
     const ukuranOk = f.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
-    if (tipeOk && ukuranOk) validFiles.push(f);
-    else ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : `lebih dari 1 GB` });
-  });
+    if (!tipeOk || !ukuranOk) {
+      ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : 'lebih dari 1 GB' });
+    } else {
+      const k = kunci(f);
+      if (!sudah.has(k)) { sudah.add(k); selectedFiles.push(f); }
+    }
+    if ((i + 1) % 500 === 0) { st.textContent = `Membaca ${i + 1}/${dipilih.length} file...`; await tick(); }
+  }
 
-  selectedFiles = validFiles;
   hideRetryBar();
   renderFilePreview();
+  st.textContent = `${selectedFiles.length} file siap disimpan. Tekan SIMPAN KE GALERI.`;
+  setTimeout(() => { if (st.textContent.indexOf('siap disimpan') > -1) st.style.display = 'none'; }, 6000);
 
   if (ditolak.length) {
-    const daftar = ditolak.slice(0, 5).map(d => `• ${d.name} (${d.alasan})`).join('<br>');
-    const lebih = ditolak.length > 5 ? `<br>+${ditolak.length - 5} file lainnya` : '';
+    const MAX_TAMPIL = 5;
+    const daftar = ditolak.slice(0, MAX_TAMPIL).map(d => `• ${d.name} (${d.alasan})`).join('<br>');
+    const lebih = ditolak.length > MAX_TAMPIL ? `<br>+${ditolak.length - MAX_TAMPIL} file lainnya` : '';
     customSwal.fire({
       icon: 'warning',
       title: `${ditolak.length} File Dilewati`,
@@ -1413,35 +1434,111 @@ document.getElementById('f-img-file').addEventListener('change', function() {
       background: 'var(--card)', color: 'var(--text)'
     });
   }
+}
+
+/* ===== PEMILIH CEPAT (Chrome/Edge laptop): tidak lewat <input file>, jadi ribuan file terbaca dalam hitungan detik ===== */
+const EKSTENSI_MEDIA = /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp|mp4|mov|m4v|webm|3gp|mkv)$/i;
+async function bacaHandles(handles) {
+  const st = document.getElementById('pilih-status');
+  st.style.display = 'block';
+  const out = [];
+  for (let i = 0; i < handles.length; i += 200) {
+    const bagian = await Promise.all(handles.slice(i, i + 200).map(h => h.getFile().catch(() => null)));
+    bagian.forEach(f => { if (f) out.push(f); });
+    st.textContent = `Membaca ${Math.min(i + 200, handles.length)}/${handles.length} file...`;
+    await tick();
+  }
+  return out;
+}
+function pickerCepatTidakAda() {
+  customSwal.fire({ icon: 'info', title: 'Tidak Tersedia di Perangkat Ini', text: 'Pemilih cepat hanya ada di Chrome/Edge versi laptop. Di HP, pakai tombol "Pilih Semua dari Penyimpanan".', background: 'var(--card)', color: 'var(--text)' });
+}
+window.pilihFileCepat = async function(fallbackId) {
+  if (!window.showOpenFilePicker) { if (fallbackId) return document.getElementById(fallbackId).click(); return pickerCepatTidakAda(); }
+  try {
+    const hs = await showOpenFilePicker({ multiple: true, types: [{ description: 'Foto & Video', accept: { 'image/*': [], 'video/*': [] } }] });
+    tambahFiles(await bacaHandles(hs));
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    console.warn('Pemilih cepat gagal, pakai pemilih biasa', e);
+    if (fallbackId) document.getElementById(fallbackId).click();
+  }
+};
+window.pilihFolderCepat = async function() {
+  if (!window.showDirectoryPicker) return document.getElementById('f-img-folder').click();
+  try {
+    const dir = await window.showDirectoryPicker();
+    const st = document.getElementById('pilih-status');
+    st.style.display = 'block'; st.textContent = 'Memindai folder...';
+    await tick();
+    const hs = [];
+    const walk = async (d) => { for await (const [name, h] of d.entries()) { if (h.kind === 'file') { if (EKSTENSI_MEDIA.test(name)) hs.push(h); } else await walk(h); } };
+    await walk(dir);
+    if (!hs.length) { st.style.display = 'none'; return customSwal.fire({ icon: 'info', title: 'Folder Kosong', text: 'Tidak ada foto/video di folder itu.', background: 'var(--card)', color: 'var(--text)' }); }
+    tambahFiles(await bacaHandles(hs));
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    console.warn('Pilih folder cepat gagal', e);
+    customSwal.fire({ icon: 'warning', title: 'Folder Tidak Bisa Dibuka', text: 'Chrome menolak folder sistem (Downloads/Documents langsung). Pilih sub-folder di dalamnya, atau pakai tombol lain.', background: 'var(--card)', color: 'var(--text)' });
+  }
+};
+
+['f-img-file', 'f-img-file-all', 'f-img-folder'].forEach(id => {
+  document.getElementById(id).addEventListener('change', function() {
+    const daftarFile = Array.from(this.files);
+    this.value = '';
+    if (daftarFile.length) tambahFiles(daftarFile);
+  });
 });
 
+const PREVIEW_MAX = 24;
+let previewToken = 0;
 function renderFilePreview() {
   const wrap = document.getElementById('file-preview-list');
+  const token = ++previewToken;
   if (!selectedFiles.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
   wrap.style.display = 'grid';
-  wrap.innerHTML = selectedFiles.map((f, i) => {
-    const isVid = f.type.startsWith('video/');
-    if (isVid) {
-      return `
-      <div class="preview-thumb">
-        <div class="preview-video-icon">${svgIcon('video')}</div>
-        <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
-      </div>`;
-    }
-    const url = URL.createObjectURL(f);
-    return `
-    <div class="preview-thumb">
-      <img src="${url}" alt="pratinjau ${i + 1}" loading="lazy">
+  const tampil = selectedFiles.slice(0, PREVIEW_MAX);
+  const nVid = selectedFiles.reduce((n, f) => n + (f.type.startsWith('video/') ? 1 : 0), 0);
+  const ringkas = `<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--text2)">` +
+    `<span><b style="color:var(--text)">${selectedFiles.length}</b> file dipilih (${selectedFiles.length - nVid} foto, ${nVid} video)` +
+    (selectedFiles.length > PREVIEW_MAX ? ` &middot; pratinjau ${PREVIEW_MAX} pertama` : '') + `</span>` +
+    `<button type="button" onclick="kosongkanPilihan()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:6px 10px;cursor:pointer">Kosongkan</button></div>`;
+  wrap.innerHTML = ringkas + tampil.map((f, i) => `
+    <div class="preview-thumb" data-pi="${i}" style="background:var(--card)">
+      ${f.type.startsWith('video/') ? `<div class="preview-video-icon">${svgIcon('video')}</div>` : ''}
       <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
-    </div>`;
-  }).join('');
+    </div>`).join('');
+
+  /* thumbnail kecil (160px) dibuat bertahap di latar, tidak memuat foto ukuran asli */
+  (async () => {
+    for (let i = 0; i < tampil.length; i++) {
+      if (token !== previewToken) return;
+      const f = tampil[i];
+      if (f.type.startsWith('video/')) continue;
+      try {
+        const bmp = await createImageBitmap(f, { resizeWidth: 160, resizeQuality: 'low' });
+        if (token !== previewToken) { try { bmp.close(); } catch (e) {} return; }
+        const cv = document.createElement('canvas');
+        cv.width = bmp.width; cv.height = bmp.height;
+        cv.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        cv.getContext('2d').drawImage(bmp, 0, 0);
+        try { bmp.close(); } catch (e) {}
+        const slot = wrap.querySelector(`.preview-thumb[data-pi="${i}"]`);
+        if (slot) slot.insertBefore(cv, slot.firstChild);
+      } catch (e) { /* format tak bisa dipratinjau: biarkan kotak kosong */ }
+      if (i % 4 === 3) await tick();
+    }
+  })();
 }
+
+window.kosongkanPilihan = function() {
+  selectedFiles = [];
+  renderFilePreview();
+};
 
 window.removeSelectedFile = function(i) {
   selectedFiles.splice(i, 1);
-  const dt = new DataTransfer();
-  selectedFiles.forEach(f => dt.items.add(f));
-  document.getElementById('f-img-file').files = dt.files;
   renderFilePreview();
 };
 
@@ -1889,6 +1986,158 @@ async function optimizeSingleVideo(p) {
 }
 
 const HD_TARGET_LONG_SIDE = 3840; /* 4K UHD (mentok aman di semua HP/browser) */
+/* ===== PINDAH KE PENYIMPANAN BARU: salin media dari akun lama ke akun Cloudinary utama (CLOUDINARY_ACCOUNTS[0]) ===== */
+async function uploadRemoteToCloudinary(srcUrl, isVideo) {
+  const acc = CLOUDINARY_ACCOUNTS[0];
+  const rt = isVideo ? 'video' : 'image';
+  const form = new FormData();
+  form.append('file', srcUrl);
+  form.append('upload_preset', acc.uploadPreset);
+  form.append('folder', `users/${currentUser.uid}/media`);
+  const resp = await fetch(`https://api.cloudinary.com/v1_1/${acc.cloudName}/${rt}/upload`, { method: 'POST', body: form });
+  if (!resp.ok) throw new Error('Upload URL gagal: ' + (await resp.text()));
+  const d = await resp.json();
+  return { publicId: d.public_id, resourceType: rt, format: d.format, size: d.bytes, cloudName: acc.cloudName };
+}
+
+async function pindahSatuMedia(p) {
+  const isVideo = isVideoItem(p);
+  const src = p.publicId ? getDownloadSrc(p) : (p.fullURL || p.url || p.thumbURL);
+  let meta;
+  try {
+    meta = await uploadRemoteToCloudinary(src, isVideo);   /* cepat: Cloudinary yang menarik file langsung */
+  } catch (e) {
+    console.warn('Upload via URL gagal, coba unduh lalu upload:', p.id, e);
+    const resp = await fetch(src);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    meta = await uploadToCloudinary(blob, p.title || (isVideo ? 'video.mp4' : 'foto.jpg'), isVideo);
+  }
+  const data = { ...meta };
+  if (!p.publicId) Object.assign(data, { thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField() });
+  return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data };
+}
+
+/* Folder "Auto upload mapping" di akun Cloudinary BARU (harus sama persis dengan yang dibuat di dashboard) */
+const MAP_FOLDER_IMG = 'lama';
+const MAP_FOLDER_VID = 'lamavideo';
+
+function petakanKeAkunBaru(p) {
+  const baru = CLOUDINARY_ACCOUNTS[0].cloudName;
+  return { ...p, cloudName: baru, publicId: (isVideoItem(p) ? MAP_FOLDER_VID : MAP_FOLDER_IMG) + '/' + p.publicId };
+}
+
+async function cekMappingBerfungsi(p) {
+  const url = cldThumbUrl(petakanKeAkunBaru(p));
+  try {
+    const r = await fetch(url, { cache: 'no-store' });
+    return { ok: r.ok, status: r.status, err: r.headers.get('x-cld-error') || '', url };
+  } catch (e) { return { ok: false, status: 0, err: String(e && e.message || e), url }; }
+}
+
+window.pindahKePenyimpananBaru = async function() {
+  if (isBusy) return;
+  const baru = CLOUDINARY_ACCOUNTS[0].cloudName;
+  const belumPindah = photos.filter(p => !p.storagePath && ((p.publicId && cldName(p) !== baru) || (!p.publicId && (p.fullURL || p.url || p.thumbURL))));
+  const dilewati = photos.filter(p => p.storagePath).length;
+
+  if (!belumPindah.length) {
+    return customSwal.fire({ icon: 'info', title: 'Sudah Semua di Penyimpanan Baru', text: dilewati ? `${dilewati} video besar (>100MB) tetap di Firebase Storage.` : 'Tidak ada media yang perlu dipindah.', background: 'var(--card)', color: 'var(--text)' });
+  }
+
+  /* Media di akun Cloudinary lama → pindah INSTAN (cukup ganti alamat, file ditarik otomatis oleh Cloudinary baru).
+     Media lama dari Firebase → tetap diupload (tidak bisa instan). */
+  const instan = belumPindah.filter(p => p.publicId && cldName(p) === CLOUDINARY_CLOUD_NAME);
+  const upload = belumPindah.filter(p => !instan.includes(p));
+
+  isBusy = true;
+  let failed = 0, berhasilInstan = 0, berhasilUpload = 0;
+
+  customSwal.fire({
+    title: 'Memindahkan...',
+    text: 'Mohon tunggu sebentar.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+
+  try {
+    bulkMode = true;
+
+    /* ---- TAHAP 1: INSTAN (hanya ubah data, tanpa upload) ---- */
+    if (instan.length) {
+      const contohGambar = instan.find(p => !isVideoItem(p));
+      const contohVideo = instan.find(p => isVideoItem(p));
+      const [hasilG, hasilV] = await Promise.all([
+        contohGambar ? cekMappingBerfungsi(contohGambar) : null,
+        contohVideo ? cekMappingBerfungsi(contohVideo) : null
+      ]);
+      const lap = (nama, h) => h ? `${nama}: ${h.ok ? 'OK' : 'GAGAL (status ' + h.status + (h.err ? ', ' + h.err : '') + ')'}` + (h.ok ? '' : ` &ndash; <a href="${h.url}" target="_blank" rel="noopener" style="color:var(--gold)">buka tes</a>`) : `${nama}: tidak ada contoh`;
+      if ((hasilG && !hasilG.ok) || (hasilV && !hasilV.ok)) {
+        await customSwal.fire({
+          icon: 'warning',
+          title: 'Auto Upload Mapping Belum Siap',
+          html: 'Untuk pindah instan, buat dulu 2 mapping di Cloudinary akun baru (<b>' + baru + '</b>):<br><br>' +
+                'Settings &rarr; Upload &rarr; <b>Auto upload mapping</b><br>' +
+                '1) Folder <b>' + MAP_FOLDER_IMG + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/image/upload/</code><br>' +
+                '2) Folder <b>' + MAP_FOLDER_VID + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/video/upload/</code><br><br>' +
+                '<b>Hasil tes:</b><br>' + lap('Foto', hasilG) + '<br>' + lap('Video', hasilV) + '<br><br>' +
+                'Tidak ada data yang diubah. Setelah dibuat, jalankan lagi.',
+          background: 'var(--card)', color: 'var(--text)'
+        });
+        return;
+      }
+      customSwal.update({ title: `Memindahkan ${instan.length} media secara instan...` });
+      const items = instan.map(p => {
+        const m = petakanKeAkunBaru(p);
+        return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: { cloudName: m.cloudName, publicId: m.publicId } };
+      });
+      try { await commitSetBatches(items); berhasilInstan = items.length; }
+      catch (e) { console.error('Gagal simpan batch pindah instan', e); failed += items.length; }
+    }
+
+    /* ---- TAHAP 2: upload untuk media lama Firebase / akun lain ---- */
+    if (upload.length) {
+      let done = 0, lastUi = 0;
+      let pending = [];
+      const flush = async () => {
+        if (!pending.length) return;
+        const chunk = pending; pending = [];
+        try { await commitSetBatches(chunk); berhasilUpload += chunk.length; } catch (e) { console.error('Gagal simpan batch', e); failed += chunk.length; }
+      };
+      await runWithConcurrency(upload, 40, async (p) => {
+        try {
+          let r;
+          try { r = await pindahSatuMedia(p); }
+          catch (e1) { await new Promise(res => setTimeout(res, 800)); r = await pindahSatuMedia(p); }
+          pending.push(r);
+          if (pending.length >= 100) await flush();
+        } catch (e) { console.error('Gagal pindah', p.id, e); failed++; }
+        finally {
+          done++;
+          const now = performance.now();
+          if (now - lastUi > 200 || done === upload.length) { lastUi = now; customSwal.update({ title: `Mengupload ${done}/${upload.length}...` }); }
+        }
+      });
+      await flush();
+    }
+
+    customSwal.fire({
+      icon: failed ? 'warning' : 'success',
+      title: failed ? 'Selesai Dengan Peringatan' : 'Pemindahan Selesai',
+      text: `${berhasilInstan} dipindah instan, ${berhasilUpload} diupload, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : '') + (dilewati ? ` ${dilewati} video besar (>100MB) dilewati.` : '') + (berhasilInstan ? ' Jangan hapus akun lama dulu: file disalin otomatis saat pertama kali dibuka.' : ''),
+      background: 'var(--card)', color: 'var(--text)'
+    });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Pemindahan Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    bulkMode = false;
+    renderGallery();
+    isBusy = false;
+  }
+};
+
 async function hdkanSatuFoto(p) {
   const resp = await fetch(getFullSrc(p));
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -1935,63 +2184,33 @@ async function hdkanSatuFoto(p) {
 
 window.hdkanSemuaFoto = async function() {
   if (isBusy) return;
-  const target = photos.filter(p => !isVideoItem(p) && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
+  const target = photos.filter(p => !isVideoItem(p) && p.publicId && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
+  const tanpaCloud = photos.filter(p => !isVideoItem(p) && !p.publicId).length;
 
   if (!target.length) {
-    return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: tanpaCloud ? `${tanpaCloud} foto lama (Firebase) belum bisa di-HD-kan. Jalankan "Pindah ke Penyimpanan Baru" dulu.` : 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)' });
   }
 
   isBusy = true;
-  const total = target.length;
-  let done = 0, failed = 0, upgraded = 0;
-  let pending = [];
-  const flush = async () => {
-    if (!pending.length) return;
-    const chunk = pending; pending = [];
-    try { await commitSetBatches(chunk); } catch (e) { console.error('Gagal simpan batch HD', e); failed += chunk.length; }
-  };
-
-  customSwal.fire({
-    title: `HD-kan 0/${total}...`,
-    text: 'Mohon jangan tutup halaman ini dulu.',
-    allowOutsideClick: false, allowEscapeKey: false,
-    background: 'var(--card)', color: 'var(--text)',
-    didOpen: () => customSwal.showLoading()
-  });
-
-  /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = 2;
-  bulkMode = true;
+  customSwal.fire({ title: `HD-kan ${target.length} foto...`, allowOutsideClick: false, allowEscapeKey: false, background: 'var(--card)', color: 'var(--text)', didOpen: () => customSwal.showLoading() });
 
   try {
-    await runWithConcurrency(target, conc, async (p) => {
-      try {
-        const r = await hdkanSatuFoto(p);
-        if (r.upgraded) upgraded++;
-        pending.push({ ref: r.ref, data: r.data });
-        if (pending.length >= 20) await flush();
-      } catch (e) {
-        console.error('Gagal HD-kan foto', p.id, e);
-        failed++;
-      } finally {
-        done++;
-        customSwal.update({ title: `HD-kan ${done}/${total}...` });
-        await yieldUI();
-      }
-    });
-    await flush();
-
-    customSwal.fire({
-      icon: failed > 0 ? 'warning' : 'success',
-      title: 'HD Selesai',
-      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : ''),
-      background: 'var(--card)', color: 'var(--text)'
-    });
+    /* tes dulu 1 foto: pastikan Cloudinary menerima transformasi HD (tidak ada data diubah kalau gagal) */
+    const c = target[0];
+    const testUrl = `https://res.cloudinary.com/${cldName(c)}/image/upload/${HD_TF}/w_64,c_limit/${c.publicId}`;
+    let ok = false, kode = 0;
+    try { const r = await fetch(testUrl, { cache: 'no-store' }); ok = r.ok; kode = r.status; } catch (e) { kode = 0; }
+    if (!ok) {
+      return customSwal.fire({ icon: 'error', title: 'HD Tidak Bisa Diterapkan', html: `Cloudinary menolak transformasi HD (status ${kode}). Tidak ada data yang diubah.<br><br><a href="${testUrl}" target="_blank" rel="noopener" style="color:var(--gold)">buka tes</a>`, background: 'var(--card)', color: 'var(--text)' });
+    }
+    /* tandai semua foto sebagai HD: hanya ubah data (batch), tanpa unduh/upload ulang */
+    const items = target.map(p => ({ ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: { hd: HD_TARGET_LONG_SIDE } }));
+    await commitSetBatches(items);
+    customSwal.fire({ icon: 'success', title: 'HD Selesai', text: `${items.length} foto sekarang tampil HD (4K) saat dibuka dan diunduh.` + (tanpaCloud ? ` ${tanpaCloud} foto lama (Firebase) dilewati: jalankan "Pindah ke Penyimpanan Baru" dulu.` : ''), background: 'var(--card)', color: 'var(--text)' });
   } catch (e) {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'HD Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
-    bulkMode = false;
     renderGallery();
     isBusy = false;
   }
@@ -2083,6 +2302,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const samples = [];
   const refreshPill = (force) => {
     const now = Date.now();
+    if (!force && now - lastPaint < 250) return;   /* jangan hitung ulang ribuan file di setiap event progres */
     const sumLoaded = loaded.reduce((a, b) => a + b, 0);
     if (sumLoaded > lastSum) { lastSum = sumLoaded; lastGrow = now; }
     samples.push({ t: now, s: sumLoaded });
@@ -2118,6 +2338,10 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
     try {
       const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total, (b, st) => { if (st === 'sent') stage[i] = 'proses'; else { stage[i] = 'upload'; loaded[i] = Math.min(b, sizes[i]); } refreshPill(); });
       pendingDocs.push(result);
+      if (pendingDocs.length >= 50) {   /* masuk galeri bertahap, tidak menunggu semua selesai */
+        const chunk = pendingDocs.splice(0);
+        try { await commitSetBatches(chunk); } catch (e2) { console.error('Simpan bertahap gagal, dicoba lagi di akhir', e2); pendingDocs.unshift(...chunk); }
+      }
     } catch (e) {
       console.error('Gagal upload salah satu foto:', e);
       if (!window.__lastUploadReason) window.__lastUploadReason = alasanUploadGagal(e, file);
@@ -2127,7 +2351,7 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
       completed++;
       loaded[i] = sizes[i];
       stage[i] = 'selesai';
-      refreshPill(true);
+      refreshPill();
     }
   });
 
