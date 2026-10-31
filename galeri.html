@@ -855,6 +855,9 @@ function getDownloadSrc(p) {
   return getFullSrc(p);
 }
 function getThumbSrc(p) { return p.publicId ? cldThumbUrl(p) : (p.thumbURL || p.url); }
+/* BUKA APLIKASI CEPAT: thumbnail sesi terakhir langsung diunduh sejak detik pertama, sebelum login & data selesai dimuat */
+window.__warmImgs = [];
+try { JSON.parse(localStorage.getItem('rhn_warm') || '[]').forEach(u => { const i = new Image(); i.decoding = 'async'; i.src = u; window.__warmImgs.push(i); }); } catch (e) {}
 function getFullSrc(p) { return p.publicId ? cldFullUrl(p) : (p.fullURL || p.thumbURL || p.url); }
 function isVideoItem(p) { return p.resourceType === 'video'; }
 
@@ -1368,6 +1371,7 @@ function listenPhotos() {
   onSnapshot(q, (snap) => {
     const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     photos = allDocs.filter(x => !x.deletedAt);
+    try { localStorage.setItem('rhn_warm', JSON.stringify(photos.slice(0, 60).map(getThumbSrc).filter(u => /^https:/.test(u)))); } catch (e) {}
     trashPhotos = allDocs.filter(x => !!x.deletedAt);
     purgeExpiredTrash();
     if (bulkMode) return;
@@ -2098,7 +2102,7 @@ async function hdkanSatuFoto(p) {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bmp, 0, 0, w, h);
-      out = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.98 });
+      out = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
       canvas.width = canvas.height = 0;
     } else {
       const canvas = document.createElement('canvas');
@@ -2107,7 +2111,7 @@ async function hdkanSatuFoto(p) {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bmp, 0, 0, w, h);
-      out = await new Promise((res, rej) => canvas.toBlob(x => x ? res(x) : rej(new Error('encode gagal')), 'image/jpeg', 0.98));
+      out = await new Promise((res, rej) => canvas.toBlob(x => x ? res(x) : rej(new Error('encode gagal')), 'image/jpeg', 0.92));
       canvas.width = canvas.height = 0;
     }
   } finally { try { bmp.close(); } catch (e) {} }
@@ -2147,7 +2151,7 @@ window.hdkanSemuaFoto = async function() {
   });
 
   /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = 2;
+  const conc = 6;
   bulkMode = true;
 
   try {
@@ -2790,7 +2794,7 @@ function updateSelectionUI() {
 
 /* ===== THUMBNAIL PREFETCH: muat & decode semua thumbnail dari posisi layar keluar, jadi saat scroll cepat sudah siap ===== */
 const thumbDone = new Set();
-const THUMB_CONC = 10;
+const THUMB_CONC = 16;
 let thumbActive = 0, thumbPending = 0, thumbFocusIdx = 0, thumbDir = 1, thumbLastY = 0, thumbTick = false, thumbPumpQueued = false;
 
 function thumbRadius() {
@@ -3303,11 +3307,15 @@ window.aksiFavorit = async function() {
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
+const VIEW_PX = (() => { try { const s = Math.max(screen.width, screen.height) * Math.min(window.devicePixelRatio || 1, 2); return Math.min(2560, Math.max(1280, Math.ceil(s / 320) * 320)); } catch (e) { return 1920; } })();
 const viewCache = new Map();
 let viewToken = 0;
 
-function getViewSrc(p) { return getFullSrc(p); } /* kualitas & resolusi penuh, tidak dikurangi */
+function getViewSrc(p) {
+  /* ukuran sesuai layar + WebP: jauh lebih ringan & cepat; file asli resolusi penuh tetap dipakai saat zoom & unduh */
+  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},q_auto:good,f_webp/${p.publicId}`;
+  return getFullSrc(p);
+}
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_900,c_limit,q_auto/${p.publicId}.jpg`;
