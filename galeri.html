@@ -842,15 +842,18 @@ function cldThumbUrl(p) {
   }
   return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_320,h_320,c_fill,q_auto,f_auto/${p.publicId}`;
 }
+/* HD instan: Cloudinary memperbesar foto kecil (sisi panjang < 3840px) ke 4K saat dikirim; foto yang sudah besar tidak diubah */
+const HD_TF = 'if_w_lt_3840_and_h_lt_3840,c_fit,w_3840,h_3840/if_end';
+function hdPrefix(p) { return (p && p.hd >= 3840 && p.resourceType !== 'video') ? HD_TF + '/' : ''; }
 function cldFullUrl(p) {
   if (p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/${(p.format && !/^(mp4|webm)$/i.test(p.format)) ? 'f_mp4,vc_h264,q_auto:best/' : ''}${p.publicId}.${(p.format && !/^(mp4|webm)$/i.test(p.format)) ? 'mp4' : (p.format || 'mp4')}`;
   }
-  return `https://res.cloudinary.com/${cldName(p)}/image/upload/q_auto:best,f_auto/${p.publicId}`;
+  return `https://res.cloudinary.com/${cldName(p)}/image/upload/${hdPrefix(p)}q_auto:best,f_auto/${p.publicId}`;
 }
 function getDownloadSrc(p) {
   if (p.publicId && p.format && (p.resourceType !== 'video' || /^(mp4|webm)$/i.test(p.format))) {
-    return `https://res.cloudinary.com/${cldName(p)}/${p.resourceType === 'video' ? 'video' : 'image'}/upload/${p.publicId}.${p.format}`;
+    return `https://res.cloudinary.com/${cldName(p)}/${p.resourceType === 'video' ? 'video' : 'image'}/upload/${hdPrefix(p)}${p.publicId}.${p.format}`;
   }
   return getFullSrc(p);
 }
@@ -2181,63 +2184,33 @@ async function hdkanSatuFoto(p) {
 
 window.hdkanSemuaFoto = async function() {
   if (isBusy) return;
-  const target = photos.filter(p => !isVideoItem(p) && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
+  const target = photos.filter(p => !isVideoItem(p) && p.publicId && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
+  const tanpaCloud = photos.filter(p => !isVideoItem(p) && !p.publicId).length;
 
   if (!target.length) {
-    return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+    return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: tanpaCloud ? `${tanpaCloud} foto lama (Firebase) belum bisa di-HD-kan. Jalankan "Pindah ke Penyimpanan Baru" dulu.` : 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)' });
   }
 
   isBusy = true;
-  const total = target.length;
-  let done = 0, failed = 0, upgraded = 0;
-  let pending = [];
-  const flush = async () => {
-    if (!pending.length) return;
-    const chunk = pending; pending = [];
-    try { await commitSetBatches(chunk); } catch (e) { console.error('Gagal simpan batch HD', e); failed += chunk.length; }
-  };
-
-  customSwal.fire({
-    title: `HD-kan 0/${total}...`,
-    text: 'Mohon jangan tutup halaman ini dulu.',
-    allowOutsideClick: false, allowEscapeKey: false,
-    background: 'var(--card)', color: 'var(--text)',
-    didOpen: () => customSwal.showLoading()
-  });
-
-  /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = 2;
-  bulkMode = true;
+  customSwal.fire({ title: `HD-kan ${target.length} foto...`, allowOutsideClick: false, allowEscapeKey: false, background: 'var(--card)', color: 'var(--text)', didOpen: () => customSwal.showLoading() });
 
   try {
-    await runWithConcurrency(target, conc, async (p) => {
-      try {
-        const r = await hdkanSatuFoto(p);
-        if (r.upgraded) upgraded++;
-        pending.push({ ref: r.ref, data: r.data });
-        if (pending.length >= 20) await flush();
-      } catch (e) {
-        console.error('Gagal HD-kan foto', p.id, e);
-        failed++;
-      } finally {
-        done++;
-        customSwal.update({ title: `HD-kan ${done}/${total}...` });
-        await yieldUI();
-      }
-    });
-    await flush();
-
-    customSwal.fire({
-      icon: failed > 0 ? 'warning' : 'success',
-      title: 'HD Selesai',
-      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : ''),
-      background: 'var(--card)', color: 'var(--text)'
-    });
+    /* tes dulu 1 foto: pastikan Cloudinary menerima transformasi HD (tidak ada data diubah kalau gagal) */
+    const c = target[0];
+    const testUrl = `https://res.cloudinary.com/${cldName(c)}/image/upload/${HD_TF}/w_64,c_limit/${c.publicId}`;
+    let ok = false, kode = 0;
+    try { const r = await fetch(testUrl, { cache: 'no-store' }); ok = r.ok; kode = r.status; } catch (e) { kode = 0; }
+    if (!ok) {
+      return customSwal.fire({ icon: 'error', title: 'HD Tidak Bisa Diterapkan', html: `Cloudinary menolak transformasi HD (status ${kode}). Tidak ada data yang diubah.<br><br><a href="${testUrl}" target="_blank" rel="noopener" style="color:var(--gold)">buka tes</a>`, background: 'var(--card)', color: 'var(--text)' });
+    }
+    /* tandai semua foto sebagai HD: hanya ubah data (batch), tanpa unduh/upload ulang */
+    const items = target.map(p => ({ ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: { hd: HD_TARGET_LONG_SIDE } }));
+    await commitSetBatches(items);
+    customSwal.fire({ icon: 'success', title: 'HD Selesai', text: `${items.length} foto sekarang tampil HD (4K) saat dibuka dan diunduh.` + (tanpaCloud ? ` ${tanpaCloud} foto lama (Firebase) dilewati: jalankan "Pindah ke Penyimpanan Baru" dulu.` : ''), background: 'var(--card)', color: 'var(--text)' });
   } catch (e) {
     console.error(e);
     customSwal.fire({ icon: 'error', title: 'HD Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
-    bulkMode = false;
     renderGallery();
     isBusy = false;
   }
