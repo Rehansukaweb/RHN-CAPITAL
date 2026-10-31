@@ -813,6 +813,7 @@ window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const storage = getStorage(app);
+try { storage.maxUploadRetryTime = 60000; storage.maxOperationRetryTime = 30000; } catch (e) {}
 analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
@@ -1473,7 +1474,10 @@ function xhrPost(url, form, onProgress) {
   return new Promise((resolve, reject) => {
     const x = new XMLHttpRequest();
     x.open('POST', url);
-    if (onProgress && x.upload) x.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded); };
+    if (onProgress && x.upload) {
+      x.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded); };
+      x.upload.onload = () => onProgress(null, 'sent');
+    }
     x.onload = () => {
       const t = x.responseText || '';
       const r = { ok: x.status >= 200 && x.status < 300, status: x.status,
@@ -1516,7 +1520,6 @@ async function uploadBigVideoToStorage(file, onProgress) {
   const id = uid4();
   const ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp4';
   const path = `users/${currentUser.uid}/media/${id}.${ext}`;
-  const thumbPromise = videoThumbBlob(file).catch(() => null);
   const task = uploadBytesResumable(sRef(storage, path), file, { contentType: file.type || 'video/mp4' });
   await new Promise((res, rej) => {
     task.on('state_changed', (sn) => { if (onProgress) onProgress(sn.bytesTransferred); }, rej, res);
@@ -1524,7 +1527,7 @@ async function uploadBigVideoToStorage(file, onProgress) {
   const fullURL = await getDownloadURL(task.snapshot.ref);
   let thumbURL = '', thumbPath = '';
   try {
-    const tb = await thumbPromise;
+    const tb = await videoThumbBlob(file);
     if (tb) {
       thumbPath = `users/${currentUser.uid}/media/${id}_thumb.jpg`;
       await uploadBytes(sRef(storage, thumbPath), tb, { contentType: 'image/jpeg' });
@@ -1946,6 +1949,11 @@ function alasanUploadGagal(e, file) {
   let m = (e && e.message) || '';
   const mb = file ? Math.round(file.size / 1048576) : 0;
   try { const j = JSON.parse(m.replace(/^[^{]*/, '')); if (j && j.error && j.error.message) m = j.error.message; } catch (x) {}
+  const kode = (e && e.code) || '';
+  if (kode === 'storage/unauthorized' || kode === 'storage/unauthenticated') return 'ditolak Firebase Storage (' + kode + '). Cek Rules Storage & login.';
+  if (kode === 'storage/retry-limit-exceeded') return 'server Firebase Storage tidak merespons (retry-limit). Cek koneksi / Storage belum aktif.';
+  if (kode === 'storage/quota-exceeded') return 'kuota Firebase Storage habis.';
+  if (kode.indexOf('storage/') === 0) return 'Firebase Storage: ' + kode;
   if (/too large|maximum is|file size/i.test(m)) return `ukuran file (${mb} MB) melebihi batas penyimpanan.`;
   if (/timeout|timed out|processing|eager/i.test(m)) return 'Cloudinary gagal memproses video panjang (timeout).';
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'koneksi terputus saat mengupload file besar (' + mb + ' MB). Jaga layar tetap menyala & koneksi stabil.';
@@ -1963,21 +1971,40 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const sizes = filesToUpload.map(f => f.size || 1);
   const loaded = new Array(total).fill(0);
   const sumSizes = sizes.reduce((a, b) => a + b, 0);
-  let lastPaint = 0;
+  const stage = new Array(total).fill('upload');
+  const t0 = Date.now();
+  let lastPaint = 0, ema = 0, sT = t0, sL = 0;
   const refreshPill = (force) => {
     const now = Date.now();
+    const sumLoaded = loaded.reduce((a, b) => a + b, 0);
+    if (now - sT >= 700) {
+      const inst = (sumLoaded - sL) / ((now - sT) / 1000);
+      ema = ema ? ema * 0.6 + inst * 0.4 : inst;
+      sT = now; sL = sumLoaded;
+    }
     if (!force && now - lastPaint < 100) return;
     lastPaint = now;
-    const sumLoaded = loaded.reduce((a, b) => a + b, 0);
-    setUploadPill({ text: `Mengupload ${completed}/${total} • ${fmtMB(sumLoaded)} / ${fmtMB(sumSizes)}`, pct: sumLoaded / sumSizes * 100 });
+    const serverBusy = completed < total && sumLoaded >= sumSizes * 0.999 && stage.some(x => x === 'proses');
+    let text;
+    if (sumLoaded === 0 && now - t0 > 5000) {
+      text = `Menyambung ke server... ${fmtDur(now - t0)} (belum ada data terkirim)`;
+    } else if (serverBusy) {
+      text = `Terkirim 100% • server memproses video (${fmtDur(now - t0)})...`;
+    } else {
+      const sisa = ema > 0 ? ' • sisa ' + fmtDur((sumSizes - sumLoaded) / ema * 1000) : '';
+      const spd = ema > 0 ? ' • ' + (ema / 1048576).toFixed(1) + ' MB/s' : '';
+      text = `Mengupload ${completed}/${total} • ${fmtMB(sumLoaded)} / ${fmtMB(sumSizes)}${spd}${sisa}`;
+    }
+    setUploadPill({ text, pct: sumLoaded / sumSizes * 100 });
   };
   refreshPill(true);
+  const tick = setInterval(() => refreshPill(true), 1000);
 
   const concurrency = Math.min(UPLOAD_CONCURRENCY_CAP, Math.max(8, total));
   await runWithConcurrency(filesToUpload, concurrency, async (file, i) => {
     const originalIndex = indexOffsetMap ? indexOffsetMap[i] : i;
     try {
-      const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total, (b) => { loaded[i] = Math.min(b, sizes[i]); refreshPill(); });
+      const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total, (b, st) => { if (st === 'sent') stage[i] = 'proses'; else { stage[i] = 'upload'; loaded[i] = Math.min(b, sizes[i]); } refreshPill(); });
       pendingDocs.push(result);
     } catch (e) {
       console.error('Gagal upload salah satu foto:', e);
@@ -1987,10 +2014,14 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
     } finally {
       completed++;
       loaded[i] = sizes[i];
+      stage[i] = 'selesai';
       refreshPill(true);
     }
   });
 
+  clearInterval(tick);
+  const durMs = Date.now() - t0;
+  console.log(`[UPLOAD] ${total} file, ${fmtMB(sumSizes)} dalam ${fmtDur(durMs)} (rata-rata ${(sumSizes / 1048576 / (durMs / 1000)).toFixed(2)} MB/s)`);
   if (pendingDocs.length) {
     setUploadPill({ text: 'Menyimpan ke Galeri...', pct: 100 });
     await commitSetBatches(pendingDocs, (done, totalDocs) => {
@@ -2005,13 +2036,18 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
     customSwal.fire({ icon: 'warning', title: 'Selesai Dengan Peringatan', text: `${total - failed} berhasil, ${failed} gagal diupload. ${window.__lastUploadReason ? 'Penyebab: ' + window.__lastUploadReason + ' ' : ''}Tekan "Coba Lagi" untuk mengulang yang gagal.`, background: 'var(--card)', color: 'var(--text)' });
   } else {
     hideRetryBar();
-    setUploadPill({ text: 'Upload selesai ✓', pct: 100, hideAfter: 2200 });
+    setUploadPill({ text: `Selesai ✓ ${fmtMB(sumSizes)} dalam ${fmtDur(durMs)} • rata-rata ${(sumSizes / 1048576 / (durMs / 1000)).toFixed(1)} MB/s`, pct: 100, hideAfter: 6000 });
   }
 
   return { failed };
 }
 
 let isUploadingBg = false;
+let _wake = null;
+async function acquireWake() { try { if (navigator.wakeLock && !_wake) _wake = await navigator.wakeLock.request('screen'); } catch (e) { _wake = null; } }
+function releaseWake() { try { if (_wake) { _wake.release(); } } catch (e) {} _wake = null; }
+document.addEventListener('visibilitychange', () => { if (isUploadingBg && document.visibilityState === 'visible') { _wake = null; acquireWake(); } });
+function fmtDur(ms) { const s = Math.round(ms / 1000); return s >= 60 ? Math.floor(s / 60) + 'm ' + (s % 60) + 's' : s + 's'; }
 const warnLeave = (e) => { e.preventDefault(); e.returnValue = ''; };
 window.tambahFotoBaru = async function() {
   if (isBusy || isUploadingBg) return;
@@ -2032,6 +2068,7 @@ window.tambahFotoBaru = async function() {
   renderFilePreview();
   switchPage('galeri');
   window.addEventListener('beforeunload', warnLeave);
+  acquireWake();
 
   try {
     await jalankanUpload(filesSnapshot, customTitle);
@@ -2042,6 +2079,7 @@ window.tambahFotoBaru = async function() {
     customSwal.fire({ icon: 'error', title: 'Upload Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
     window.removeEventListener('beforeunload', warnLeave);
+    releaseWake();
     isUploadingBg = false;
     uploadBtn.disabled = false;
   }
@@ -2051,6 +2089,7 @@ window.retryFailedUploads = async function() {
   if (isBusy || isUploadingBg || !failedFiles.length) return;
   isUploadingBg = true;
   window.addEventListener('beforeunload', warnLeave);
+  acquireWake();
   const uploadBtn = document.getElementById('btn-upload');
   uploadBtn.disabled = true;
 
@@ -2071,6 +2110,7 @@ window.retryFailedUploads = async function() {
     customSwal.fire({ icon: 'error', title: 'Coba Lagi Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
     window.removeEventListener('beforeunload', warnLeave);
+    releaseWake();
     isUploadingBg = false;
     uploadBtn.disabled = false;
   }
