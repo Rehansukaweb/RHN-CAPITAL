@@ -419,6 +419,11 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 #upload-pill .up-bar{height:5px;border-radius:99px;background:var(--bg-input);overflow:hidden}
 #upload-pill .up-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:99px;transition:width .12s linear}
 </style>
+<style>
+#photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
+#photo-viewer #viewer-video{background:#000}
+#photo-viewer #viewer-content{will-change:contents}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -813,6 +818,7 @@ window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const storage = getStorage(app);
+try { storage.maxUploadRetryTime = 60000; storage.maxOperationRetryTime = 30000; } catch (e) {}
 analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
@@ -1519,7 +1525,6 @@ async function uploadBigVideoToStorage(file, onProgress) {
   const id = uid4();
   const ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp4';
   const path = `users/${currentUser.uid}/media/${id}.${ext}`;
-  const thumbPromise = videoThumbBlob(file).catch(() => null);
   const task = uploadBytesResumable(sRef(storage, path), file, { contentType: file.type || 'video/mp4' });
   await new Promise((res, rej) => {
     task.on('state_changed', (sn) => { if (onProgress) onProgress(sn.bytesTransferred); }, rej, res);
@@ -1527,7 +1532,7 @@ async function uploadBigVideoToStorage(file, onProgress) {
   const fullURL = await getDownloadURL(task.snapshot.ref);
   let thumbURL = '', thumbPath = '';
   try {
-    const tb = await thumbPromise;
+    const tb = await videoThumbBlob(file);
     if (tb) {
       thumbPath = `users/${currentUser.uid}/media/${id}_thumb.jpg`;
       await uploadBytes(sRef(storage, thumbPath), tb, { contentType: 'image/jpeg' });
@@ -1949,6 +1954,11 @@ function alasanUploadGagal(e, file) {
   let m = (e && e.message) || '';
   const mb = file ? Math.round(file.size / 1048576) : 0;
   try { const j = JSON.parse(m.replace(/^[^{]*/, '')); if (j && j.error && j.error.message) m = j.error.message; } catch (x) {}
+  const kode = (e && e.code) || '';
+  if (kode === 'storage/unauthorized' || kode === 'storage/unauthenticated') return 'ditolak Firebase Storage (' + kode + '). Cek Rules Storage & login.';
+  if (kode === 'storage/retry-limit-exceeded') return 'server Firebase Storage tidak merespons (retry-limit). Cek koneksi / Storage belum aktif.';
+  if (kode === 'storage/quota-exceeded') return 'kuota Firebase Storage habis.';
+  if (kode.indexOf('storage/') === 0) return 'Firebase Storage: ' + kode;
   if (/too large|maximum is|file size/i.test(m)) return `ukuran file (${mb} MB) melebihi batas penyimpanan.`;
   if (/timeout|timed out|processing|eager/i.test(m)) return 'Cloudinary gagal memproses video panjang (timeout).';
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'koneksi terputus saat mengupload file besar (' + mb + ' MB). Jaga layar tetap menyala & koneksi stabil.';
@@ -1981,7 +1991,9 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
     lastPaint = now;
     const serverBusy = completed < total && sumLoaded >= sumSizes * 0.999 && stage.some(x => x === 'proses');
     let text;
-    if (serverBusy) {
+    if (sumLoaded === 0 && now - t0 > 5000) {
+      text = `Menyambung ke server... ${fmtDur(now - t0)} (belum ada data terkirim)`;
+    } else if (serverBusy) {
       text = `Terkirim 100% • server memproses video (${fmtDur(now - t0)})...`;
     } else {
       const sisa = ema > 0 ? ' • sisa ' + fmtDur((sumSizes - sumLoaded) / ema * 1000) : '';
@@ -2440,7 +2452,7 @@ function createCardNode(p) {
   check.className = 'select-check';
   card.appendChild(check);
 
-  card.addEventListener('pointerdown', () => startPress(p.id));
+  card.addEventListener('pointerdown', () => { startPress(p.id); try { warmViewer(p.id); } catch (e) {} });
   card.addEventListener('pointerup', cancelPress);
   card.addEventListener('pointerleave', cancelPress);
   card.addEventListener('pointercancel', cancelPress);
@@ -2820,13 +2832,66 @@ window.aksiFavorit = async function() {
   }
 };
 
-window.bukaViewer = function(id) {
+/* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
+const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
+const viewCache = new Map();
+let viewToken = 0;
+
+function getViewSrc(p) {
+  if (p.publicId && p.resourceType !== 'video') {
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto,f_auto/${p.publicId}`;
+  }
+  return getFullSrc(p);
+}
+function getPosterSrc(p) {
+  if (p.publicId && p.resourceType === 'video') {
+    return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_900,c_limit,q_auto/${p.publicId}.jpg`;
+  }
+  return getThumbSrc(p);
+}
+function preloadView(p) {
+  if (!p) return null;
+  const hit = viewCache.get(p.id);
+  if (hit) { viewCache.delete(p.id); viewCache.set(p.id, hit); return hit; }
+  const im = new Image();
+  im.decoding = 'async';
+  const entry = { im, ready: false, src: isVideoItem(p) ? getPosterSrc(p) : getViewSrc(p) };
+  im.src = entry.src;
+  entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
+    .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
+  viewCache.set(p.id, entry);
+  if (viewCache.size > 16) viewCache.delete(viewCache.keys().next().value);
+  return entry;
+}
+window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
+
+function preloadNeighbors(list, idx, dir) {
+  const order = dir >= 0 ? [1, -1, 2, 3, -2] : [-1, 1, -2, -3, 2];
+  order.forEach((o, k) => {
+    const q = list[(idx + o + list.length) % list.length];
+    if (q) setTimeout(() => preloadView(q), k * 60);
+  });
+}
+
+function viewerActiveEl() {
+  const v = document.getElementById('viewer-video');
+  return v.style.display === 'block' ? v : document.getElementById('viewer-img');
+}
+function slideIn(dir) {
+  try {
+    const el = viewerActiveEl();
+    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 170, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  } catch (e) {}
+}
+
+window.bukaViewer = function(id, dir) {
   const list = filteredPhotos();
   const idx = list.findIndex(p => p.id === id);
   if (idx === -1) return;
   const foto = list[idx];
 
   currentViewPhotoId = id;
+  const token = ++viewToken;
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
@@ -2834,21 +2899,33 @@ window.bukaViewer = function(id) {
   const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
   document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
 
-  img.src = ''; 
   img.alt = foto.title || 'foto';
-  img.classList.remove('loaded', 'zoomed');
-  video.pause();
-  video.src = '';
+  img.classList.remove('zoomed');
+  img.style.transform = ''; img.style.transition = '';
+  video.style.transform = ''; video.style.transition = '';
+
+  /* hentikan unduhan video sebelumnya supaya tidak menghabiskan bandwidth */
+  try { video.pause(); video.removeAttribute('src'); video.removeAttribute('poster'); video.load(); } catch (e) {}
+
+  const entry = preloadView(foto);
 
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
+    video.preload = 'auto';
+    video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
   } else {
     video.style.display = 'none';
     img.style.display = 'block';
-    img.src = getFullSrc(foto);
+    if (entry.ready) {
+      img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
+    } else {
+      img.src = getThumbSrc(foto);               /* placeholder instan (sudah ada di cache grid) */
+      entry.promise.then(() => { if (token === viewToken && entry.ready) img.src = entry.src; });
+    }
+    img.classList.add('loaded');
   }
 
   updateFavButtonUI(foto);
@@ -2857,6 +2934,10 @@ window.bukaViewer = function(id) {
   if (!document.body.classList.contains('viewer-open')) { window.__vScrollY = window.scrollY; document.body.style.top = (-window.__vScrollY) + 'px'; }
   document.body.classList.add('viewer-open');
   updateViewerNavButtons();
+
+  if (dir) slideIn(dir);
+  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
+  if (isVideoItem(foto)) after(); else entry.promise.then(after);
 };
 
 window.tutupViewer = function() {
@@ -2867,13 +2948,13 @@ window.tutupViewer = function() {
     window.scrollTo(0, window.__vScrollY || 0);
   }
   
+  viewToken++;
   setTimeout(() => {
+    if (document.getElementById('photo-viewer').classList.contains('show')) return;
     const img = document.getElementById('viewer-img');
     const video = document.getElementById('viewer-video');
-    img.src = '';
-    img.classList.remove('loaded', 'zoomed');
-    video.pause();
-    video.src = '';
+    img.classList.remove('zoomed');
+    try { video.pause(); video.removeAttribute('src'); video.removeAttribute('poster'); video.load(); } catch (e) {}
     currentViewPhotoId = null;
   }, 250); 
 };
@@ -2886,7 +2967,7 @@ window.viewerNavigate = function(dir) {
   let newIdx = idx + dir;
   if (newIdx < 0) newIdx = list.length - 1;
   if (newIdx >= list.length) newIdx = 0;
-  bukaViewer(list[newIdx].id);
+  bukaViewer(list[newIdx].id, dir);
 };
 
 function updateViewerNavButtons() {
@@ -2897,18 +2978,44 @@ function updateViewerNavButtons() {
 
 (function setupViewerSwipe() {
   const content = document.getElementById('viewer-content');
-  let startX = 0, startY = 0;
+  let startX = 0, startY = 0, startT = 0, tracking = false, lockX = false, dxNow = 0;
   content.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    tracking = e.touches.length === 1; lockX = false; dxNow = 0;
+    if (!tracking) return;
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY; startT = Date.now();
+    const v = document.getElementById('viewer-video');
+    if (v.style.display === 'block') {          /* jangan geser saat menyentuh kontrol/seekbar video */
+      const r = v.getBoundingClientRect();
+      if (startY > r.bottom - 72) tracking = false;
+    }
+  }, { passive: true });
+  content.addEventListener('touchmove', (e) => {
+    if (!tracking || e.touches.length !== 1) return;
+    const img = document.getElementById('viewer-img');
+    if (img.classList.contains('zoomed')) return;
+    const dx = e.touches[0].clientX - startX, dy = e.touches[0].clientY - startY;
+    if (!lockX) { if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) lockX = true; else return; }
+    dxNow = dx;
+    const el = viewerActiveEl();
+    el.style.transition = 'none';
+    el.style.transform = `translateX(${dx * 0.9}px)`;
   }, { passive: true });
   content.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
     const img = document.getElementById('viewer-img');
     if (img.classList.contains('zoomed')) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+    const el = viewerActiveEl();
+    const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);
+    const pindah = lockX && Math.abs(dx) > Math.abs(dy) && (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25));
+    if (pindah) {
+      el.style.transition = 'none'; el.style.transform = '';
       viewerNavigate(dx < 0 ? 1 : -1);
+    } else if (lockX) {
+      el.style.transition = 'transform .16s ease-out'; el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 180);
     }
   }, { passive: true });
 })();
@@ -2927,6 +3034,11 @@ window.toggleZoom = function(e) {
   if (img.classList.contains('zoomed')) {
     img.classList.remove('zoomed');
   } else {
+    const foto = photos.find(p => p.id === currentViewPhotoId);
+    if (foto && foto.publicId && !isVideoItem(foto)) {
+      const full = getFullSrc(foto);
+      if (img.src !== full) { const hi = new Image(); hi.onload = () => { if (currentViewPhotoId === foto.id) img.src = full; }; hi.src = full; }
+    }
     const rect = img.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
