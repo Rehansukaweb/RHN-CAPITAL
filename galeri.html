@@ -620,7 +620,7 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
           <div class="panel">
             <label class="field-label" for="f-img-title">JUDUL / NAMA FILE</label>
             <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
-            <div class="upload-hint">Upload otomatis mengubah setiap foto ke format WebP hemat ruang dan mengompres pintar hingga ukuran ≤ 100KB (target ≤ 50KB) sebelum dikirim ke server. Foto tetap tajam. Video dioptimalkan otomatis oleh server (ukuran mengecil, kualitas tampilan dijaga). Maks. 100MB per file.</div>
+            <div class="upload-hint">Upload otomatis mengubah setiap foto ke format WebP hemat ruang dan mengompres pintar hingga ukuran ≤ 100KB (target ≤ 50KB) sebelum dikirim ke server. Foto tetap tajam. Video dioptimalkan otomatis oleh server (ukuran mengecil, kualitas tampilan dijaga). Maks. 1 GB per file.</div>
           </div>
         </div>
       </div>
@@ -716,6 +716,8 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg",
@@ -723,7 +725,8 @@ const firebaseConfig = {
   projectId: "rhn-capital",
   storageBucket: "rhn-capital.firebasestorage.app",
   messagingSenderId: "74905216682",
-  appId: "1:74905216682:web:4687a5b0bd7bcac09292d3"
+  appId: "1:74905216682:web:4687a5b0bd7bcac09292d3",
+  measurementId: "G-R40Q1TCLYH"
 };
 
 const CLOUDINARY_CLOUD_NAME = "cishyrxo";
@@ -753,7 +756,8 @@ function isQuotaError(status, text) {
     /limit|quota|exceed|storage|credit|plan|disabled|suspend|full/i.test(text || '');
 }
 
-const MAX_FILE_SIZE_MB = Infinity;
+const MAX_FILE_SIZE_MB = 1024;            /* batas per file: 1 GB */
+const CLOUDINARY_MAX_BYTES = 95 * 1024 * 1024; /* di atas ini → simpan ke Firebase Storage */
 const ALLOWED_TYPE_PREFIX = ['image/', 'video/'];
 
 const IMG_TARGET_IDEAL_BYTES = 50 * 1024;
@@ -800,6 +804,8 @@ window.RHN_FALLBACK_LOGO = "data:image/svg+xml;utf8," + encodeURIComponent(
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const storage = getStorage(app);
+analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
 try {
@@ -885,7 +891,14 @@ function purgeExpiredTrash() {
   if (!exp.length) return;
   purgingTrash = true;
   trashPhotos = trashPhotos.filter(x => x.deletedAt >= limit);
+  hapusFileStorage(exp);
   commitDeleteBatches(exp.map(x => doc(db, 'users', currentUser.uid, 'photos', x.id))).catch(() => {}).finally(() => { purgingTrash = false; });
+}
+
+function hapusFileStorage(items) {
+  (items || []).forEach(x => {
+    [x.storagePath, x.thumbPath].forEach(pth => { if (pth) deleteObject(sRef(storage, pth)).catch(() => {}); });
+  });
 }
 
 async function commitDeleteBatches(refs, onProgress) {
@@ -1170,10 +1183,9 @@ onAuthStateChanged(auth, async user => {
     if (this.value.length !== 6) return;
     if (window.pinMode === 'setup') {
       try {
-        const hash = await hashPin(this.value);
-        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
-        window.userCloudPinHash = hash;
-        window.userCloudPinLegacy = null;
+        await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: this.value }, { merge: true });
+        window.userCloudPinHash = null;
+        window.userCloudPinLegacy = this.value;
         unlockApp();
       } catch (e) {
         showErr('Gagal menyimpan PIN ke server.');
@@ -1181,16 +1193,10 @@ onAuthStateChanged(auth, async user => {
       }
     } else {
       const hash = await hashPin(this.value);
-      const cocok = window.userCloudPinHash
-        ? hash === window.userCloudPinHash
-        : this.value === window.userCloudPinLegacy;
+      const cocok = window.userCloudPinLegacy
+        ? this.value === window.userCloudPinLegacy
+        : hash === window.userCloudPinHash;
       if (cocok) {
-        if (!window.userCloudPinHash && window.userCloudPinLegacy) {
-          try {
-            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
-            window.userCloudPinHash = hash;
-          } catch (e) { /* diam-diam gagal */ }
-        }
         unlockApp();
       } else {
         showErr('PIN Salah!');
@@ -1274,7 +1280,7 @@ document.getElementById('f-img-file').addEventListener('change', function() {
     const tipeOk = ALLOWED_TYPE_PREFIX.some(prefix => f.type.startsWith(prefix));
     const ukuranOk = f.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
     if (tipeOk && ukuranOk) validFiles.push(f);
-    else ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : `lebih dari ${MAX_FILE_SIZE_MB}MB` });
+    else ditolak.push({ name: f.name, alasan: !tipeOk ? 'tipe file tidak didukung' : `lebih dari 1 GB` });
   });
 
   selectedFiles = validFiles;
@@ -1434,6 +1440,54 @@ function uid4() {
   return Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
 }
 
+function videoThumbBlob(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.src = url;
+    const done = (blob) => { try { URL.revokeObjectURL(url); } catch (e) {} v.removeAttribute('src'); resolve(blob); };
+    const draw = () => {
+      try {
+        const w = v.videoWidth || 320, h = v.videoHeight || 320;
+        const sc = 320 / Math.max(w, h);
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * sc)); c.height = Math.max(1, Math.round(h * sc));
+        const x = c.getContext('2d');
+        x.fillStyle = '#111'; x.fillRect(0, 0, c.width, c.height);
+        try { x.drawImage(v, 0, 0, c.width, c.height); } catch (e) {}
+        c.toBlob(b => done(b), 'image/jpeg', 0.8);
+      } catch (e) { done(null); }
+    };
+    v.addEventListener('loadeddata', () => { try { v.currentTime = Math.min(0.5, (v.duration || 1) / 2); } catch (e) { draw(); } });
+    v.addEventListener('seeked', draw);
+    v.addEventListener('error', () => done(null));
+    setTimeout(() => done(null), 15000);
+  });
+}
+
+/* VIDEO BESAR (>95MB): simpan ke Firebase Storage (batas 1 GB per file) */
+async function uploadBigVideoToStorage(file, onProgress) {
+  const id = uid4();
+  const ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp4';
+  const path = `users/${currentUser.uid}/media/${id}.${ext}`;
+  const task = uploadBytesResumable(sRef(storage, path), file, { contentType: file.type || 'video/mp4' });
+  await new Promise((res, rej) => {
+    task.on('state_changed', (sn) => { if (onProgress) onProgress(Math.round(sn.bytesTransferred / sn.totalBytes * 100)); }, rej, res);
+  });
+  const fullURL = await getDownloadURL(task.snapshot.ref);
+  let thumbURL = '', thumbPath = '';
+  try {
+    const tb = await videoThumbBlob(file);
+    if (tb) {
+      thumbPath = `users/${currentUser.uid}/media/${id}_thumb.jpg`;
+      await uploadBytes(sRef(storage, thumbPath), tb, { contentType: 'image/jpeg' });
+      thumbURL = await getDownloadURL(sRef(storage, thumbPath));
+    }
+  } catch (e) { console.warn('Thumbnail video gagal', e); }
+  if (!thumbURL) thumbURL = 'data:image/svg+xml;utf8,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><rect width='100%' height='100%' fill='#16161a'/><polygon points='130,105 130,215 220,160' fill='#FBBF24'/></svg>");
+  return { resourceType: 'video', format: ext, size: file.size, url: fullURL, fullURL, thumbURL, storagePath: path, thumbPath };
+}
+
 async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo) {
   const resourceType = isVideo ? 'video' : 'image';
   let lastErr = null;
@@ -1512,7 +1566,9 @@ async function uploadSinglePhoto(file, customTitle, index, total) {
   const toUpload = file; /* HD: foto & video diupload kualitas asli, tanpa kompresi */
   const filenameHint = file.name || (isVideo ? 'video.mp4' : 'foto.jpg');
 
-  const meta = await uploadToCloudinary(toUpload, filenameHint, isVideo);
+  const meta = (isVideo && file.size > CLOUDINARY_MAX_BYTES)
+    ? await uploadBigVideoToStorage(file, (pct) => { try { customSwal.update({ title: `Mengupload video besar ${pct}%...` }); } catch (e) {} })
+    : await uploadToCloudinary(toUpload, filenameHint, isVideo);
 
   const baseTitle = customTitle ? (total > 1 ? `${customTitle} ${index + 1}` : customTitle) : file.name.replace(/\.[^/.]+$/, '');
   const title = baseTitle;
@@ -1541,7 +1597,7 @@ async function migrateLegacyPhoto(p) {
 
 window.migrateLegacyPhotos = async function() {
   if (isBusy) return;
-  const legacy = photos.filter(p => !p.publicId && (p.url || p.thumbURL));
+  const legacy = photos.filter(p => !p.publicId && !p.storagePath && (p.url || p.thumbURL));
 
   if (!legacy.length) {
     return customSwal.fire({ icon: 'info', title: 'Tidak Ada Foto Lama', text: 'Semua foto sudah pakai penyimpanan baru.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
@@ -1786,7 +1842,7 @@ window.hdkanSemuaFoto = async function() {
 
 window.optimizeAllVideos = async function() {
   if (isBusy) return;
-  const target = photos.filter(p => isVideoItem(p));
+  const target = photos.filter(p => isVideoItem(p) && p.publicId);
 
   if (!target.length) {
     return customSwal.fire({ icon: 'info', title: 'Tidak Ada Video', text: 'Belum ada video di galeri.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
@@ -1842,7 +1898,7 @@ function alasanUploadGagal(e, file) {
   let m = (e && e.message) || '';
   const mb = file ? Math.round(file.size / 1048576) : 0;
   try { const j = JSON.parse(m.replace(/^[^{]*/, '')); if (j && j.error && j.error.message) m = j.error.message; } catch (x) {}
-  if (/too large|maximum is|file size/i.test(m)) return `ukuran file (${mb} MB) melebihi batas Cloudinary (paket gratis maks. 100 MB per video).`;
+  if (/too large|maximum is|file size/i.test(m)) return `ukuran file (${mb} MB) melebihi batas penyimpanan.`;
   if (/timeout|timed out|processing|eager/i.test(m)) return 'Cloudinary gagal memproses video panjang (timeout).';
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'koneksi terputus saat mengupload file besar (' + mb + ' MB). Jaga layar tetap menyala & koneksi stabil.';
   return (m || 'tidak diketahui').slice(0, 160);
@@ -2104,6 +2160,7 @@ async function pulihkanSampah(ids) {
 async function hapusPermanenSampah(ids) {
   const set = new Set(ids);
   const refs = trashPhotos.filter(x => set.has(x.id)).map(x => doc(db, 'users', currentUser.uid, 'photos', x.id));
+  hapusFileStorage(trashPhotos.filter(x => set.has(x.id)));
   trashPhotos = trashPhotos.filter(x => !set.has(x.id));
   renderTrash();
   showMiniToast('Dihapus permanen');
@@ -2395,10 +2452,9 @@ window.changePinInApp = async function() {
   });
   if (newPin) {
     try {
-      const hash = await hashPin(newPin);
-      await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pinHash: hash, pin: deleteField() }, { merge: true });
-      window.userCloudPinHash = hash;
-      window.userCloudPinLegacy = null;
+      await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true });
+      window.userCloudPinHash = null;
+      window.userCloudPinLegacy = newPin;
       customSwal.fire({ icon: 'success', title: 'PIN diubah', background: 'var(--card)', color: 'var(--text)', timer: 1500, showConfirmButton: false });
     } catch (e) {
       customSwal.fire({ icon: 'error', title: 'Gagal mengubah PIN', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
@@ -2432,7 +2488,7 @@ async function eksekusiHapusBatch(ids, onProgress, permanent) {
     renderGallery();
   }
 
-  if (permanent) await commitDeleteBatches(refs, onProgress);
+  if (permanent) { hapusFileStorage(targets); await commitDeleteBatches(refs, onProgress); }
   else await commitSoftBatches(refs);
 }
 
@@ -2455,7 +2511,7 @@ async function mintaPinLaluHapus(ids, judulProses, permanent) {
   if (!pin) return;
 
   const hash = await hashPin(pin);
-  const cocok = window.userCloudPinHash ? hash === window.userCloudPinHash : pin === window.userCloudPinLegacy;
+  const cocok = window.userCloudPinLegacy ? pin === window.userCloudPinLegacy : hash === window.userCloudPinHash;
 
   if (!cocok) {
     customSwal.fire({ icon: 'error', title: 'PIN Salah', text: 'Foto tidak jadi dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
