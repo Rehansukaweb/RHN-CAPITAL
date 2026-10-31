@@ -706,15 +706,6 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
             </div>
           </div>
           <div>
-            <div class="set-label">Optimasi Penyimpanan</div>
-            <div class="panel list">
-              <button class="menu-btn" onclick="konfirmasiAksi('Migrasikan semua foto lama ke penyimpanan baru (Cloudinary, lebih hemat & cepat)?', migrateLegacyPhotos)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Migrasikan Foto Lama</b><small>Pindahkan ke penyimpanan baru yang lebih cepat</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Ubah semua foto (lama & baru) menjadi format WebP hemat ruang, target di bawah 100KB per foto? Video tidak akan diubah.', optimizeAllPhotosToWebP)"><span class="mi"><svg class="ico"><use href="#i-compress"/></svg></span><span class="mt"><b>Konversi Semua Foto ke WebP (≤100KB)</b><small>Hemat ruang tanpa mengorbankan ketajaman</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Optimalkan semua video agar ukurannya lebih kecil tanpa menurunkan kualitas tampilan?', optimizeAllVideos)"><span class="mi"><svg class="ico"><use href="#i-video"/></svg></span><span class="mt"><b>Optimalkan Ukuran Semua Video</b><small>Perkecil ukuran, kualitas tetap terjaga</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto yang ada ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-            </div>
-          </div>
-          <div>
             <div class="set-label">Keamanan</div>
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Ganti PIN keamanan?', changePinInApp)"><span class="mi"><svg class="ico"><use href="#i-lock"/></svg></span><span class="mt"><b>Ganti PIN</b><small>Perbarui PIN 6 digit galeri Anda</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
@@ -804,7 +795,7 @@ const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned";
    Saat satu akun penuh/kuota habis, upload otomatis pindah ke akun berikutnya.
    Contoh: { cloudName: "akun_kedua", uploadPreset: "rhn_unsigned" } ======= */
 const CLOUDINARY_ACCOUNTS = [
-  { cloudName: CLOUDINARY_CLOUD_NAME, uploadPreset: CLOUDINARY_UPLOAD_PRESET }
+  { cloudName: "vmwzgshx", uploadPreset: "rhn_unsigned" } /* satu-satunya akun upload */
   // , { cloudName: "akun_kedua", uploadPreset: "rhn_unsigned" }
   // , { cloudName: "akun_ketiga", uploadPreset: "rhn_unsigned" }
 ];
