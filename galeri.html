@@ -1428,13 +1428,22 @@ function tambahFiles(dipilih) {
   });
 });
 
+const PREVIEW_MAX = 48;
+let previewUrls = [];
 function renderFilePreview() {
   const wrap = document.getElementById('file-preview-list');
+  previewUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch (e) {} });
+  previewUrls = [];
   if (!selectedFiles.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
   wrap.style.display = 'grid';
-  wrap.innerHTML = selectedFiles.map((f, i) => {
-    const isVid = f.type.startsWith('video/');
-    if (isVid) {
+  const tampil = selectedFiles.slice(0, PREVIEW_MAX);
+  const nVid = selectedFiles.reduce((n, f) => n + (f.type.startsWith('video/') ? 1 : 0), 0);
+  const ringkas = `<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--text2)">` +
+    `<span><b style="color:var(--text)">${selectedFiles.length}</b> file dipilih (${selectedFiles.length - nVid} foto, ${nVid} video)` +
+    (selectedFiles.length > PREVIEW_MAX ? ` &middot; pratinjau ${PREVIEW_MAX} pertama` : '') + `</span>` +
+    `<button type="button" onclick="kosongkanPilihan()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:6px 10px;cursor:pointer">Kosongkan</button></div>`;
+  wrap.innerHTML = ringkas + tampil.map((f, i) => {
+    if (f.type.startsWith('video/')) {
       return `
       <div class="preview-thumb">
         <div class="preview-video-icon">${svgIcon('video')}</div>
@@ -1442,13 +1451,19 @@ function renderFilePreview() {
       </div>`;
     }
     const url = URL.createObjectURL(f);
+    previewUrls.push(url);
     return `
     <div class="preview-thumb">
-      <img src="${url}" alt="pratinjau ${i + 1}" loading="lazy">
+      <img src="${url}" alt="pratinjau ${i + 1}" loading="lazy" decoding="async">
       <button type="button" class="preview-remove" onclick="removeSelectedFile(${i})">✕</button>
     </div>`;
   }).join('');
 }
+
+window.kosongkanPilihan = function() {
+  selectedFiles = [];
+  renderFilePreview();
+};
 
 window.removeSelectedFile = function(i) {
   selectedFiles.splice(i, 1);
@@ -1941,10 +1956,11 @@ function petakanKeAkunBaru(p) {
 }
 
 async function cekMappingBerfungsi(p) {
+  const url = cldThumbUrl(petakanKeAkunBaru(p));
   try {
-    const r = await fetch(cldThumbUrl(petakanKeAkunBaru(p)), { cache: 'no-store' });
-    return r.ok;
-  } catch (e) { return false; }
+    const r = await fetch(url, { cache: 'no-store' });
+    return { ok: r.ok, status: r.status, err: r.headers.get('x-cld-error') || '', url };
+  } catch (e) { return { ok: false, status: 0, err: String(e && e.message || e), url }; }
 }
 
 window.pindahKePenyimpananBaru = async function() {
@@ -1980,11 +1996,12 @@ window.pindahKePenyimpananBaru = async function() {
     if (instan.length) {
       const contohGambar = instan.find(p => !isVideoItem(p));
       const contohVideo = instan.find(p => isVideoItem(p));
-      const [okG, okV] = await Promise.all([
-        contohGambar ? cekMappingBerfungsi(contohGambar) : true,
-        contohVideo ? cekMappingBerfungsi(contohVideo) : true
+      const [hasilG, hasilV] = await Promise.all([
+        contohGambar ? cekMappingBerfungsi(contohGambar) : null,
+        contohVideo ? cekMappingBerfungsi(contohVideo) : null
       ]);
-      if (!okG || !okV) {
+      const lap = (nama, h) => h ? `${nama}: ${h.ok ? 'OK' : 'GAGAL (status ' + h.status + (h.err ? ', ' + h.err : '') + ')'}` + (h.ok ? '' : ` &ndash; <a href="${h.url}" target="_blank" rel="noopener" style="color:var(--gold)">buka tes</a>`) : `${nama}: tidak ada contoh`;
+      if ((hasilG && !hasilG.ok) || (hasilV && !hasilV.ok)) {
         await customSwal.fire({
           icon: 'warning',
           title: 'Auto Upload Mapping Belum Siap',
@@ -1992,6 +2009,7 @@ window.pindahKePenyimpananBaru = async function() {
                 'Settings &rarr; Upload &rarr; <b>Auto upload mapping</b><br>' +
                 '1) Folder <b>' + MAP_FOLDER_IMG + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/image/upload/</code><br>' +
                 '2) Folder <b>' + MAP_FOLDER_VID + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/video/upload/</code><br><br>' +
+                '<b>Hasil tes:</b><br>' + lap('Foto', hasilG) + '<br>' + lap('Video', hasilV) + '<br><br>' +
                 'Tidak ada data yang diubah. Setelah dibuat, jalankan lagi.',
           background: 'var(--card)', color: 'var(--text)'
         });
@@ -2277,6 +2295,10 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
     try {
       const result = await uploadSinglePhoto(file, customTitle, originalIndex, indexOffsetMap ? indexOffsetMap.total : total, (b, st) => { if (st === 'sent') stage[i] = 'proses'; else { stage[i] = 'upload'; loaded[i] = Math.min(b, sizes[i]); } refreshPill(); });
       pendingDocs.push(result);
+      if (pendingDocs.length >= 50) {   /* masuk galeri bertahap, tidak menunggu semua selesai */
+        const chunk = pendingDocs.splice(0);
+        try { await commitSetBatches(chunk); } catch (e2) { console.error('Simpan bertahap gagal, dicoba lagi di akhir', e2); pendingDocs.unshift(...chunk); }
+      }
     } catch (e) {
       console.error('Gagal upload salah satu foto:', e);
       if (!window.__lastUploadReason) window.__lastUploadReason = alasanUploadGagal(e, file);
