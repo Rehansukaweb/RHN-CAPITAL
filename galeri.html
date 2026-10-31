@@ -805,7 +805,7 @@ const CLOUDINARY_UPLOAD_PRESET = "rhn_unsigned";
    Saat satu akun penuh/kuota habis, upload otomatis pindah ke akun berikutnya.
    Contoh: { cloudName: "akun_kedua", uploadPreset: "rhn_unsigned" } ======= */
 const CLOUDINARY_ACCOUNTS = [
-  { cloudName: "vmwzgshx", uploadPreset: "rhn_unsigned" } /* satu-satunya akun upload */
+  { cloudName: CLOUDINARY_CLOUD_NAME, uploadPreset: CLOUDINARY_UPLOAD_PRESET }
   // , { cloudName: "akun_kedua", uploadPreset: "rhn_unsigned" }
   // , { cloudName: "akun_ketiga", uploadPreset: "rhn_unsigned" }
 ];
