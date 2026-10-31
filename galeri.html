@@ -1928,26 +1928,46 @@ async function pindahSatuMedia(p) {
   }
   const data = { ...meta };
   if (!p.publicId) Object.assign(data, { thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField() });
-  await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), data, { merge: true });
+  return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data };
+}
+
+/* Folder "Auto upload mapping" di akun Cloudinary BARU (harus sama persis dengan yang dibuat di dashboard) */
+const MAP_FOLDER_IMG = 'lama';
+const MAP_FOLDER_VID = 'lamavideo';
+
+function petakanKeAkunBaru(p) {
+  const baru = CLOUDINARY_ACCOUNTS[0].cloudName;
+  return { ...p, cloudName: baru, publicId: (isVideoItem(p) ? MAP_FOLDER_VID : MAP_FOLDER_IMG) + '/' + p.publicId };
+}
+
+async function cekMappingBerfungsi(p) {
+  try {
+    const r = await fetch(cldThumbUrl(petakanKeAkunBaru(p)), { cache: 'no-store' });
+    return r.ok;
+  } catch (e) { return false; }
 }
 
 window.pindahKePenyimpananBaru = async function() {
   if (isBusy) return;
   const baru = CLOUDINARY_ACCOUNTS[0].cloudName;
-  const target = photos.filter(p => !p.storagePath && ((p.publicId && cldName(p) !== baru) || (!p.publicId && (p.fullURL || p.url || p.thumbURL))));
+  const belumPindah = photos.filter(p => !p.storagePath && ((p.publicId && cldName(p) !== baru) || (!p.publicId && (p.fullURL || p.url || p.thumbURL))));
   const dilewati = photos.filter(p => p.storagePath).length;
 
-  if (!target.length) {
+  if (!belumPindah.length) {
     return customSwal.fire({ icon: 'info', title: 'Sudah Semua di Penyimpanan Baru', text: dilewati ? `${dilewati} video besar (>100MB) tetap di Firebase Storage.` : 'Tidak ada media yang perlu dipindah.', background: 'var(--card)', color: 'var(--text)' });
   }
 
+  /* Media di akun Cloudinary lama → pindah INSTAN (cukup ganti alamat, file ditarik otomatis oleh Cloudinary baru).
+     Media lama dari Firebase → tetap diupload (tidak bisa instan). */
+  const instan = belumPindah.filter(p => p.publicId && cldName(p) === CLOUDINARY_CLOUD_NAME);
+  const upload = belumPindah.filter(p => !instan.includes(p));
+
   isBusy = true;
-  const total = target.length;
-  let done = 0, failed = 0;
+  let failed = 0, berhasilInstan = 0, berhasilUpload = 0;
 
   customSwal.fire({
-    title: `Memindah 0/${total}...`,
-    text: 'Mohon jangan tutup halaman ini dulu.',
+    title: 'Memindahkan...',
+    text: 'Mohon tunggu sebentar.',
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
     didOpen: () => customSwal.showLoading()
@@ -1955,19 +1975,67 @@ window.pindahKePenyimpananBaru = async function() {
 
   try {
     bulkMode = true;
-    await runWithConcurrency(target, 3, async (p) => {
-      try { await pindahSatuMedia(p); }
-      catch (e) { console.error('Gagal pindah', p.id, e); failed++; }
-      finally {
-        done++;
-        customSwal.update({ title: `Memindah ${done}/${total}...` });
-        await yieldUI();
+
+    /* ---- TAHAP 1: INSTAN (hanya ubah data, tanpa upload) ---- */
+    if (instan.length) {
+      const contohGambar = instan.find(p => !isVideoItem(p));
+      const contohVideo = instan.find(p => isVideoItem(p));
+      const [okG, okV] = await Promise.all([
+        contohGambar ? cekMappingBerfungsi(contohGambar) : true,
+        contohVideo ? cekMappingBerfungsi(contohVideo) : true
+      ]);
+      if (!okG || !okV) {
+        await customSwal.fire({
+          icon: 'warning',
+          title: 'Auto Upload Mapping Belum Siap',
+          html: 'Untuk pindah instan, buat dulu 2 mapping di Cloudinary akun baru (<b>' + baru + '</b>):<br><br>' +
+                'Settings &rarr; Upload &rarr; <b>Auto upload mapping</b><br>' +
+                '1) Folder <b>' + MAP_FOLDER_IMG + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/image/upload/</code><br>' +
+                '2) Folder <b>' + MAP_FOLDER_VID + '</b> &rarr; URL prefix<br><code>https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/video/upload/</code><br><br>' +
+                'Tidak ada data yang diubah. Setelah dibuat, jalankan lagi.',
+          background: 'var(--card)', color: 'var(--text)'
+        });
+        return;
       }
-    });
+      customSwal.update({ title: `Memindahkan ${instan.length} media secara instan...` });
+      const items = instan.map(p => {
+        const m = petakanKeAkunBaru(p);
+        return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: { cloudName: m.cloudName, publicId: m.publicId } };
+      });
+      try { await commitSetBatches(items); berhasilInstan = items.length; }
+      catch (e) { console.error('Gagal simpan batch pindah instan', e); failed += items.length; }
+    }
+
+    /* ---- TAHAP 2: upload untuk media lama Firebase / akun lain ---- */
+    if (upload.length) {
+      let done = 0, lastUi = 0;
+      let pending = [];
+      const flush = async () => {
+        if (!pending.length) return;
+        const chunk = pending; pending = [];
+        try { await commitSetBatches(chunk); berhasilUpload += chunk.length; } catch (e) { console.error('Gagal simpan batch', e); failed += chunk.length; }
+      };
+      await runWithConcurrency(upload, 40, async (p) => {
+        try {
+          let r;
+          try { r = await pindahSatuMedia(p); }
+          catch (e1) { await new Promise(res => setTimeout(res, 800)); r = await pindahSatuMedia(p); }
+          pending.push(r);
+          if (pending.length >= 100) await flush();
+        } catch (e) { console.error('Gagal pindah', p.id, e); failed++; }
+        finally {
+          done++;
+          const now = performance.now();
+          if (now - lastUi > 200 || done === upload.length) { lastUi = now; customSwal.update({ title: `Mengupload ${done}/${upload.length}...` }); }
+        }
+      });
+      await flush();
+    }
+
     customSwal.fire({
       icon: failed ? 'warning' : 'success',
       title: failed ? 'Selesai Dengan Peringatan' : 'Pemindahan Selesai',
-      text: `${total - failed} berhasil dipindah ke penyimpanan baru, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : '') + (dilewati ? ` ${dilewati} video besar (>100MB) dilewati.` : ''),
+      text: `${berhasilInstan} dipindah instan, ${berhasilUpload} diupload, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : '') + (dilewati ? ` ${dilewati} video besar (>100MB) dilewati.` : '') + (berhasilInstan ? ' Jangan hapus akun lama dulu: file disalin otomatis saat pertama kali dibuka.' : ''),
       background: 'var(--card)', color: 'var(--text)'
     });
   } catch (e) {
