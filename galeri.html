@@ -2413,17 +2413,17 @@ window.unduhCacheSemua = async function() {
     didOpen: () => customSwal.showLoading()
   });
   try {
-    await runWithConcurrency(urls, 12, async (u) => {
+    await runWithConcurrency(urls, 1000, async (u) => {
       try {
         let r;
-        try { r = await fetch(u); } catch (e1) { await new Promise(res => setTimeout(res, 600)); r = await fetch(u); }
+        try { r = await fetch(u, { cache: 'force-cache' }); } catch (e1) { r = await fetch(u, { cache: 'force-cache' }); }
         if (!r.ok) throw new Error('HTTP ' + r.status);
         await r.blob();
       } catch (e) { gagal++; }
       finally {
         done++;
         const now = performance.now();
-        if (now - lastUi > 200 || done === total) { lastUi = now; customSwal.update({ title: `Unduh cache ${done}/${total}...` }); }
+        if (now - lastUi > 500 || done === total) { lastUi = now; customSwal.update({ title: `Unduh cache ${done}/${total}...` }); }
       }
     });
     urls.forEach((u) => { sentBerat.add(u); sentThumbs.add(u); });
