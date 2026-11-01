@@ -3906,7 +3906,9 @@ function updateViewerNavButtons() {
       const dirNav = dx < 0 ? 1 : -1;
       busyCommit = true;
       applyDrag(-dirNav * content.clientWidth, true);
-      setTimeout(() => { if (!document.getElementById('photo-viewer').classList.contains('show')) { clearDrag(); busyCommit = false; return; } clearDrag(); window.__noSlide = true; viewerNavigate(dirNav); busyCommit = false; }, 100);
+      setTimeout(() => { if (!document.getElementById('photo-viewer').classList.contains('show')) { clearDrag(); busyCommit = false; return; } const sd = document.getElementById(dirNav > 0 ? 'viewer-img-next' : 'viewer-img-prev'), ai = document.getElementById('viewer-img');
+    if (ai.style.display !== 'none' && sd.getAttribute('src') && sd.complete && sd.naturalWidth > 0) { ai.decoding = 'sync'; ai.src = sd.src; }   /* isi foto baru saat masih di luar layar: foto lama tidak muncul lagi */
+    clearDrag(); window.__noSlide = true; viewerNavigate(dirNav); busyCommit = false; }, 100);
     } else if (lockX) {
       resetEl();
     }
