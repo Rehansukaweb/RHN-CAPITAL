@@ -24,10 +24,8 @@ button,input,textarea{font-family:inherit}
 --font-ui:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;--font-display:'Fraunces',Georgia,serif;
 --side:0px;--pad:clamp(16px,4vw,40px);--safe-b:env(safe-area-inset-bottom,0px)}
 @media(min-width:960px){:root{--side:272px}}
-html{scroll-behavior:auto!important;touch-action:manipulation;overscroll-behavior-y:none}
-body{overscroll-behavior-y:none}
-body{background:var(--body-bg);color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat;pointer-events:none;z-index:-1;transform:translateZ(0)}
+html{scroll-behavior:auto!important;touch-action:manipulation}
+body{background:var(--body-bg) radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat fixed;color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
 .ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sr-only{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
 body.swal2-shown{padding-right:0!important}
@@ -83,19 +81,19 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .aside-list li{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}
 .aside-list .ico-box{width:36px;height:36px;border-radius:11px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center}
 .auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px}
-.auth-tab{flex:1;padding:12px 0;font-size:13px;font-weight:700;cursor:pointer;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text2);transition:.03s var(--ease-smooth)}
+.auth-tab{flex:1;padding:12px 0;font-size:13px;font-weight:700;cursor:pointer;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text2);transition:.14s var(--ease-smooth)}
 .auth-tab.active{color:var(--text);border-bottom-color:var(--gold)}
 .input-wrap{position:relative;margin-bottom:12px}
-.f-input-dark{width:100%;height:52px;padding:0 16px;border-radius:14px;border:1px solid var(--border);background-color:var(--bg-input)!important;color:var(--text)!important;outline:none;font-size:14px;font-weight:500;margin-bottom:12px;transition:border-color .03s,box-shadow .03s}
+.f-input-dark{width:100%;height:52px;padding:0 16px;border-radius:14px;border:1px solid var(--border);background-color:var(--bg-input)!important;color:var(--text)!important;outline:none;font-size:14px;font-weight:500;margin-bottom:12px;transition:border-color .14s,box-shadow .14s}
 .input-wrap .f-input-dark{margin-bottom:0;padding-right:48px}
 .f-input-dark::placeholder{color:#5d5d6b}
 .f-input-dark:focus{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
-.field-hint{font-size:12px;color:var(--red);margin:-2px 0 12px 2px;min-height:16px;opacity:0;transition:opacity .03s}
+.field-hint{font-size:12px;color:var(--red);margin:-2px 0 12px 2px;min-height:16px;opacity:0;transition:opacity .14s}
 .field-hint.show{opacity:1}
-.toggle-eye{position:absolute;right:4px;top:0;bottom:0;width:44px;background:none;border:0;color:var(--text2);cursor:pointer;display:grid;place-items:center;transition:color .03s,transform .03s}
+.toggle-eye{position:absolute;right:4px;top:0;bottom:0;width:44px;background:none;border:0;color:var(--text2);cursor:pointer;display:grid;place-items:center;transition:color .14s,transform .14s}
 .toggle-eye:active{transform:scale(.88)}
 .toggle-eye.is-visible{color:var(--gold)}
-.submit-btn{width:100%;height:52px;background:var(--gold);color:#000;border:0;border-radius:14px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.1em;transition:filter .03s,transform .03s,opacity .03s;box-shadow:0 10px 26px rgba(251,191,36,.18)}
+.submit-btn{width:100%;height:52px;background:var(--gold);color:#000;border:0;border-radius:14px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.1em;transition:filter .14s,transform .14s,opacity .14s;box-shadow:0 10px 26px rgba(251,191,36,.18)}
 .submit-btn:hover{filter:brightness(1.08)}
 .submit-btn:active{transform:scale(.98)}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
@@ -107,7 +105,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .pin-shell .auth-box>img{margin-inline:auto}
 .pin-input{text-align:center;letter-spacing:.7em;padding-left:.7em;font-size:26px;font-weight:800;height:64px}
 .pin-links{display:flex;justify-content:space-between;margin-top:18px}
-.link-btn{background:none;border:0;color:var(--text2);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:color .03s}
+.link-btn{background:none;border:0;color:var(--text2);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:color .14s}
 .link-btn:hover{color:var(--gold)}
 
 /* HEADER */
@@ -115,7 +113,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 #selection-header{display:none;grid-template-columns:auto 1fr auto;background:rgba(18,18,21,.94);border-bottom-color:var(--gold-line)}
 .header-left{grid-column:1;display:flex;align-items:center}
 .header-center{grid-column:2;display:flex;align-items:center;gap:10px}
-.header-right{grid-column:3;display:flex;align-items:center;justify-content:flex-end;gap:8px;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .03s,transform .03s}
+.header-right{grid-column:3;display:flex;align-items:center;justify-content:flex-end;gap:8px;opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .14s,transform .14s}
 .header-right.show{opacity:1;transform:none;pointer-events:auto}
 #normal-header .header-left{display:none}
 #normal-header .header-center{grid-column:1}
@@ -127,7 +125,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .photo-count-badge{font-size:11px;font-weight:600;color:var(--text2);padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--border);white-space:nowrap}
 .badge-size{color:var(--gold)}
 @media(max-width:480px){.photo-count-badge{font-size:10px;padding:6px 9px}}
-.download-all-btn,.sel-icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.03s;flex-shrink:0}
+.download-all-btn,.sel-icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.14s;flex-shrink:0}
 .download-all-btn:hover,.sel-icon-btn:hover{border-color:var(--gold-line);color:var(--gold)}
 .download-all-btn:active,.sel-icon-btn:active{transform:scale(.9)}
 .sel-icon-btn.danger{color:var(--red)}
@@ -147,7 +145,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .page-sub{color:var(--text2);margin-top:8px;max-width:56ch}
 .media-filter-tabs{display:flex;gap:4px;padding:5px;margin-bottom:24px;background:var(--card);border:1px solid var(--border);border-radius:999px;width:max-content;max-width:100%;overflow-x:auto;scrollbar-width:none}
 .media-filter-tabs::-webkit-scrollbar{display:none}
-.media-filter-tab{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;border:0;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.03s}
+.media-filter-tab{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;border:0;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.14s}
 .media-filter-tab .ico{width:15px;height:15px}
 .media-filter-tab:active{transform:scale(.96)}
 .media-filter-tab.active{background:var(--gold-soft);color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold-line)}
@@ -155,18 +153,18 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 
 .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 @media(min-width:768px){.album-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}}
-.album-card{position:relative;cursor:pointer;aspect-ratio:4/5;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:18px;isolation:isolate;transition:transform .03s var(--ease-smooth),border-color .03s,box-shadow .03s;touch-action:pan-y}
+.album-card{position:relative;cursor:pointer;aspect-ratio:4/5;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:18px;isolation:isolate;transition:transform .14s var(--ease-smooth),border-color .14s,box-shadow .14s;touch-action:pan-y}
 @media(hover:hover){.album-card:hover{transform:translateY(-4px);border-color:var(--gold-line);box-shadow:0 16px 36px rgba(0,0,0,.6)}.album-card:hover .album-cover{transform:scale(1.05)}.album-caption{opacity:0;transform:translateY(6px)}.album-card:hover .album-caption{opacity:1;transform:none}}
 .album-card:active{transform:scale(.98)}
-.album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .03s var(--ease-smooth),opacity .03s}
+.album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .14s var(--ease-smooth),opacity .14s}
 .album-cover.loaded{opacity:1}
-.album-caption{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 11px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:2;pointer-events:none;transition:.03s}
+.album-caption{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 11px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:2;pointer-events:none;transition:.14s}
 .video-badge,.fav-badge{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:9px;background:rgba(0,0,0,.72);display:grid;place-items:center;z-index:2;color:#fff;pointer-events:none}
 .video-badge .ico,.fav-badge .ico{width:13px;height:13px}
 .fav-badge{color:var(--gold)}
 .fav-badge .ico{fill:currentColor}
 .video-badge~.fav-badge{right:42px}
-.select-check{position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;transition:.03s var(--ease-smooth);z-index:3}
+.select-check{position:absolute;top:10px;left:10px;width:24px;height:24px;border-radius:8px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;transition:.14s var(--ease-smooth);z-index:3}
 .select-mode-active .select-check{display:flex}
 .select-check.checked{background:var(--gold);border-color:var(--gold);transform:scale(1.08)}
 .select-check.checked::after{content:'';width:6px;height:11px;border-right:2.5px solid #000;border-bottom:2.5px solid #000;transform:rotate(45deg) translate(-1px,-1px)}
@@ -183,7 +181,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 /* DOCK / SIDEBAR */
 .bottom-nav{position:fixed;left:50%;bottom:calc(14px + var(--safe-b));transform:translateX(-50%);width:min(calc(100% - 28px),400px);display:flex;gap:4px;padding:6px;background:rgba(18,18,21,.84);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(255,255,255,.09);border-radius:26px;box-shadow:0 20px 44px rgba(0,0,0,.65);z-index:50}
 .nav-brand{display:none}
-.nav-item{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 10px;border-radius:20px;border:1px solid transparent;background:none;color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;transition:.03s var(--ease-smooth)}
+.nav-item{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 10px;border-radius:20px;border:1px solid transparent;background:none;color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;transition:.14s var(--ease-smooth)}
 .nav-item .label{display:none}
 .nav-item:active{transform:scale(.94)}
 .nav-item.active{flex:1.7;background:var(--gold-soft);border-color:var(--gold-line);color:var(--gold)}
@@ -210,7 +208,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .upload-layout{display:grid;gap:18px;grid-template-columns:1fr}
 @media(min-width:900px){.upload-layout{grid-template-columns:1.5fr 1fr;align-items:start}}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:22px}
-.dropzone{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:44px 20px;border:1.5px dashed var(--gold-line);border-radius:20px;background:linear-gradient(180deg,var(--gold-soft),transparent);cursor:pointer;transition:.03s}
+.dropzone{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:44px 20px;border:1.5px dashed var(--gold-line);border-radius:20px;background:linear-gradient(180deg,var(--gold-soft),transparent);cursor:pointer;transition:.14s}
 .dropzone:hover{border-color:var(--gold);background:var(--gold-soft)}
 .dz-icon{width:56px;height:56px;border-radius:18px;background:var(--gold);color:#000;display:grid;place-items:center;margin-bottom:10px}
 .dz-icon .ico{width:26px;height:26px}
@@ -221,7 +219,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .preview-thumb img{width:100%;height:100%;object-fit:cover}
 .preview-video-icon{width:100%;height:100%;display:grid;place-items:center;background:var(--bg-input);color:var(--gold)}
 .preview-video-icon .ico{width:26px;height:26px}
-.preview-remove{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.75);color:#fff;border:0;font-size:11px;cursor:pointer;display:grid;place-items:center;transition:.03s}
+.preview-remove{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.75);color:#fff;border:0;font-size:11px;cursor:pointer;display:grid;place-items:center;transition:.14s}
 .preview-remove:hover{background:var(--red)}
 .field-label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--text2);margin-bottom:8px}
 .upload-hint{font-size:12px;color:var(--text2);line-height:1.7;padding:14px;border-radius:14px;background:var(--bg-input);border-left:2px solid var(--gold)}
@@ -240,7 +238,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .settings-wrap{max-width:760px;display:grid;gap:26px}
 .set-label{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);margin:0 6px 10px}
 .panel.list{padding:6px}
-.menu-btn{width:100%;display:flex;align-items:center;gap:14px;padding:14px;background:none;color:var(--text);border:0;border-radius:18px;text-align:left;cursor:pointer;transition:background .03s}
+.menu-btn{width:100%;display:flex;align-items:center;gap:14px;padding:14px;background:none;color:var(--text);border:0;border-radius:18px;text-align:left;cursor:pointer;transition:background .14s}
 .menu-btn:hover{background:var(--bg-input)}
 .menu-btn:active{transform:scale(.99)}
 .menu-btn .mi{width:42px;height:42px;border-radius:13px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;flex-shrink:0}
@@ -253,10 +251,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .menu-btn.danger .mi{background:rgba(248,113,113,.12);color:var(--red)}
 
 /* VIEWER */
-#photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:99999;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .03s}
+#photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:99999;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .14s}
 #photo-viewer.show{opacity:1;pointer-events:auto}
 .viewer-header{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:14px;padding:max(14px,env(safe-area-inset-top)) var(--pad) 40px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent)}
-.viewer-icon-btn{flex-shrink:0;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(10px);transition:.03s}
+.viewer-icon-btn{flex-shrink:0;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(10px);transition:.14s}
 .viewer-icon-btn:active{transform:scale(.9);background:rgba(255,255,255,.18)}
 .card-date{position:absolute;left:5px;bottom:5px;z-index:2;max-width:calc(100% - 10px);font-size:9px;line-height:1.25;font-weight:700;padding:2px 5px;border-radius:6px;background:rgba(0,0,0,.68);color:#fff;pointer-events:none;white-space:nowrap}
 .card-date b{display:block;font-weight:700}
@@ -264,18 +262,18 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .viewer-date{display:block;font-size:11px;font-weight:500;color:#a3a3a8;margin-top:1px}
 .viewer-title{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viewer-content{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:72px 16px 118px}
-#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .03s cubic-bezier(.2,.8,.2,1),opacity .03s}
+#viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .14s}
 #viewer-img.loaded{opacity:1}
 #viewer-img.zoomed{transform:scale(3);cursor:zoom-out}
 #viewer-video{max-width:100%;max-height:100%;object-fit:contain;display:none;border-radius:12px}
-.viewer-nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(18,18,21,.7);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2;transition:.03s}
+.viewer-nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(18,18,21,.7);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2;transition:.14s}
 .viewer-nav-btn:hover{border-color:var(--gold-line);color:var(--gold)}
 .viewer-nav-btn:active{transform:translateY(-50%) scale(.9)}
 .viewer-nav-prev{left:var(--pad)}
 .viewer-nav-next{right:var(--pad)}
 .viewer-nav-btn.hidden-nav{opacity:0;pointer-events:none}
 .viewer-footer{position:absolute;bottom:max(20px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:2px;padding:6px;background:rgba(18,18,21,.85);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);border-radius:24px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
-.viewer-action-btn{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:none;border:0;border-radius:18px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:.03s}
+.viewer-action-btn{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:none;border:0;border-radius:18px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:.14s}
 .viewer-action-btn .ico{width:22px;height:22px}
 .viewer-action-btn:active{transform:scale(.94);background:rgba(255,255,255,.1)}
 .viewer-action-btn.danger{color:var(--red)}
@@ -380,7 +378,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 #photo-viewer #viewer-img{will-change:transform;touch-action:none}
 #photo-viewer .viewer-nav-btn{display:none!important}
 #photo-viewer .viewer-footer{position:relative;flex:0 0 auto;left:auto;bottom:auto;transform:none;margin:8px auto max(14px,calc(env(safe-area-inset-bottom) + 8px));backdrop-filter:none;-webkit-backdrop-filter:none;background:#121215;box-shadow:none}
-body.viewer-open{overflow:hidden!important}
+body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 /* ===== LOGIN & PIN (HP saja, laptop tetap seperti semula) ===== */
 @media(max-width:899px){
 #auth-screen{background:radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.25),transparent 60%),radial-gradient(1px 1px at 82% 12%,rgba(255,255,255,.18),transparent 60%),radial-gradient(1px 1px at 68% 78%,rgba(255,255,255,.2),transparent 60%),radial-gradient(1px 1px at 25% 88%,rgba(255,255,255,.15),transparent 60%),radial-gradient(1px 1px at 92% 55%,rgba(255,255,255,.16),transparent 60%),var(--bg)!important;padding:40px 16px;justify-content:safe center}
@@ -426,13 +424,9 @@ body.viewer-open{overflow:hidden!important}
 #upload-pill .up-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:99px;transition:width .12s linear}
 </style>
 <style>
-#photo-viewer #viewer-img{opacity:1!important;transition:transform .03s cubic-bezier(.2,.8,.2,1)}
+#photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
 #photo-viewer #viewer-video{background:#000}
-#photo-viewer{transition:none!important}
-#photo-viewer .viewer-icon-btn,#photo-viewer .viewer-action-btn{transition:transform .02s ease-out,background-color .02s ease!important}
-#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 190px 238px}
-#photo-viewer #viewer-img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
-#photo-viewer #viewer-content{contain:layout paint}
+#photo-viewer #viewer-content{will-change:contents}
 </style>
 <style>
 /* pindah halaman instan: tanpa fade/slide, galeri disimpan (tidak dibongkar) saat tidak aktif */
@@ -440,7 +434,7 @@ body.viewer-open{overflow:hidden!important}
 #page-galeri:not(.active){display:block;content-visibility:hidden;height:0;margin:0;padding:0;overflow:hidden}
 button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* thumbnail: muncul seketika begitu siap (tanpa fade), placeholder abu bukan hitam */
-.album-cover{transition:transform .03s var(--ease-smooth)!important}
+.album-cover{transition:transform .14s var(--ease-smooth)!important}
 #main-gallery-grid .album-card{background:#24242b}
 </style>
 <style>
@@ -461,7 +455,7 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 .pin-dots i{display:block;width:10px;height:10px;border-radius:50%;background:#7c7c8c;transition:background .1s,transform .1s}
 .pin-dots i.on{background:#FBBF24;transform:scale(1.15)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0}
-.pin-key{height:54px;border-radius:18px;background:#18181c;border:1px solid #2a2a31;color:#fff;font-family:var(--font-ui);font-size:30px;font-weight:400;display:grid;place-items:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .02s,background .02s}
+.pin-key{height:54px;border-radius:18px;background:#18181c;border:1px solid #2a2a31;color:#fff;font-family:var(--font-ui);font-size:30px;font-weight:400;display:grid;place-items:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .08s,background .08s}
 .pin-key:active{transform:scale(.94);background:#25252b}
 .pin-key-del{background:transparent;border-color:transparent}
 .pin-key-del:active{background:#18181c}
@@ -471,9 +465,6 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 #pin-screen .link-btn:active{transform:scale(.97)}
 @media(max-height:700px){#pin-screen .auth-box>img{width:56px;height:56px;margin-bottom:14px}#pin-screen .auth-sub{margin-bottom:14px}.pin-key{height:46px;font-size:26px}#pin-screen .pin-links{margin-top:16px}}
 </style>
-<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-<link rel="dns-prefetch" href="https://res.cloudinary.com">
-<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <style>
 /* performa: blur latar (backdrop-filter) sangat berat di HP saat scroll/viewer, diganti warna pekat */
 .mobile-header{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(0,0,0,.94)!important}
@@ -481,31 +472,10 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 .viewer-icon-btn,.viewer-nav-btn,.viewer-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .album-card{contain:layout style}
 html{-webkit-tap-highlight-color:transparent}
-#main-gallery-grid .album-cover{opacity:1!important}
-
-.card-date{white-space:pre!important}
-/* saat viewer terbuka, galeri di belakangnya tidak digambar sama sekali (geser foto jadi jauh lebih ringan) */
-body.viewer-open .main-content,body.viewer-open .mobile-header,body.viewer-open .bottom-nav{visibility:hidden}
-body.viewer-open #photo-viewer{visibility:visible}
 @media (hover:hover) and (pointer:fine){
 #photo-viewer .viewer-nav-btn{display:grid!important;width:52px;height:52px;background:rgba(18,18,21,.92);z-index:5}
 #photo-viewer #viewer-content{cursor:grab}
 }
-</style>
-<style>
-/* TOMBOL SMOOTH & RAMAH: respons langsung terasa, gerak lembut dan sedikit membal */
-button,[onclick]:not(.album-card):not(.xa-tile):not(#viewer-img),.nav-btn,.xa-row,.menu-btn,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone,.xm-item,.xm-circle,.nav-item{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .02s ease-out,background-color .02s ease,color .02s ease,opacity .02s ease!important}
-.xa-tile{transition:transform .02s ease-out}
-button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scroll-top-btn):active,.xa-tile:active,.album-card:active{transform:scale(.95)}
-@media(hover:hover){
- .menu-btn:hover,.trash-btn:hover,.media-filter-tab:hover:not(.active){transform:translateY(-1px)}
- .submit-btn:hover{box-shadow:0 12px 30px rgba(251,191,36,.28)}
-}
-.swal2-popup{animation-duration:.28s!important}
-.mini-toast,.floating-cancel-btn,.scroll-top-btn,#upload-pill{transition:opacity .22s ease,transform .26s cubic-bezier(.34,1.3,.64,1)!important}
-.page.active{animation:none!important}
-@keyframes pageSoft{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.fade-in,.fade-out{animation-duration:.2s!important}
 </style>
 </head>
 <body>
@@ -756,7 +726,6 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Unduh semua foto HD ke cache perangkat supaya tampil, geser, unduh, dan kirim WA instan? Butuh data dan ruang besar, biarkan layar menyala.', unduhCacheSemua)"><span class="mi"><svg class="ico"><use href="#i-download"/></svg></span><span class="mt"><b>Unduh Cache</b><small>Simpan semua foto HD ke perangkat agar tampil instan</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -828,7 +797,7 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, getFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
@@ -880,12 +849,11 @@ const IS_STANDALONE_APP = (window.matchMedia && window.matchMedia('(display-mode
   || window.navigator.standalone === true
   || document.referrer.includes('android-app://');
 
-const THUMB_W = (window.innerWidth < 960) ? 240 : 320; /* thumbnail kecil = ukuran file ~5-10KB, tampil jauh lebih cepat */
 function cldThumbUrl(p) {
   if (p.resourceType === 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_${THUMB_W},h_${THUMB_W},c_fill,q_auto:eco/${p.publicId}.jpg`;
+    return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_320,h_320,c_fill,q_auto/${p.publicId}.jpg`;
   }
-  return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_${THUMB_W},h_${THUMB_W},c_fill,q_auto:eco,f_auto/${p.publicId}`;
+  return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_320,h_320,c_fill,q_auto,f_auto/${p.publicId}`;
 }
 function cldFullUrl(p) {
   if (p.resourceType === 'video') {
@@ -925,11 +893,10 @@ analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
 try {
-  db = initializeFirestore(app, { localCache: persistentLocalCache({ cacheSizeBytes: -1 }), experimentalAutoDetectLongPolling: true });   /* -1 = cache tanpa batas */
+  db = initializeFirestore(app, { localCache: persistentLocalCache(), experimentalAutoDetectLongPolling: true });
 } catch (e) {
   console.warn("Persistent cache tidak tersedia, memakai cache memori.", e);
-  try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); }
-  catch (e2) { db = getFirestore(app); }   /* pengaman: aplikasi tetap terbuka walau inisialisasi gagal */
+  db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 }
 
 let currentUser = null;
@@ -1168,9 +1135,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 const customSwal = Swal.mixin({
   scrollbarPadding: false,
-  heightAuto: false,
-  showClass: { popup: 'swal2-show', backdrop: 'swal2-backdrop-show', icon: 'swal2-icon-show' },
-  hideClass: { popup: 'swal2-hide', backdrop: 'swal2-backdrop-hide', icon: 'swal2-icon-hide' }
+  heightAuto: false
 });
 
 window.konfirmasiAksi = function(pesan, callback) {
@@ -1198,14 +1163,14 @@ window.showMiniToast = function(msg, duration = 1600) {
 };
 
 document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
-  btn.addEventListener('pointerdown', (e) => {
+  btn.addEventListener('pointerup', (e) => {
     e.preventDefault();
     switchPage(btn.dataset.page);
   }, { passive: false });
 });
 
 document.querySelectorAll('.xm-nav .nav-btn').forEach(btn => {
-  btn.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(btn.dataset.page); }, { passive: false });
+  btn.addEventListener('pointerup', (e) => { e.preventDefault(); switchPage(btn.dataset.page); }, { passive: false });
 });
 
 const pageScroll = {};
@@ -1422,7 +1387,6 @@ onAuthStateChanged(auth, async user => {
   const errEl = document.getElementById('pin-err');
   const showErr = (m) => { errEl.textContent = m; errEl.style.display = 'block'; };
   window.forceFocusPin = () => {
-    if (document.getElementById('pin-screen').style.display === 'none') return;
     if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
     const splash = document.getElementById('splash-screen');
     if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
@@ -1533,43 +1497,17 @@ function renderSkeleton() {
 }
 
 const sentThumbs = new Set();
-/* CADANGAN PENUH: setelah thumbnail, semua foto (HD) dan video (poster + file) ikut disimpan ke cache perangkat lewat service worker; berhenti otomatis kalau penyimpanan hampir penuh */
-const sentBerat = new Set();
-let beratJalan = false;
-function precacheBerat() {
-  if (beratJalan || !navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
-  beratJalan = true;
-  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
-  const foto = [], mid = [], video = [], asli = [];
-  const tambah = (u, dest) => { if (u && !sentBerat.has(u)) { sentBerat.add(u); dest.push(u); } };
-  photos.slice(0, 500).forEach((p) => {
-    if (isVideoItem(p)) { tambah(getPosterSrc(p), video); }
-    else { tambah(getMidSrc(p), mid); tambah(getViewSrc(p), foto); }   /* menengah + HD 500 foto terbaru: klik langsung tampil dari cache */
-  });
-  const urls = foto.concat(mid, video, asli);
-  const kirim = async () => {
-    if (!urls.length) { beratJalan = false; return; }
-    if (!navigator.onLine || !navigator.serviceWorker.controller) { beratJalan = false; urls.forEach((u) => sentBerat.delete(u)); return; }
-    try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.quota && e.usage / e.quota > 0.98) { beratJalan = false; return; } } } catch (x) {}
-    if (document.hidden || document.body.classList.contains('viewer-open') || Date.now() - (window.lastScrollT || 0) < 2000) { setTimeout(kirim, 3000); return; }
-    const bag = urls.splice(0, 12);
-    try { navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
-    setTimeout(kirim, 1200);
-  };
-  setTimeout(kirim, 4000);   /* thumbnail didahulukan */
-}
 function precacheThumbs() {
   if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
   const urls = [];
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
-  precacheBerat();
   if (!urls.length) return;
   const kirim = () => {
-    const bag = urls.splice(0, 400);
+    const bag = urls.splice(0, 24);
     try { if (bag.length && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
-    if (urls.length) setTimeout(kirim, 150);
+    if (urls.length) setTimeout(kirim, 1500);
   };
-  setTimeout(kirim, 800);
+  setTimeout(kirim, 2500);
 }
 
 let unsubPhotos = null;
@@ -1583,9 +1521,8 @@ function processPhotoDocs(raw) {
 
   if (selectMode) {
     let changed = false;
-    const idsAda = new Set(photos.map(p => p.id));
     selectedIds.forEach(id => {
-      if (!idsAda.has(id)) { selectedIds.delete(id); changed = true; }
+      if (!photos.find(p => p.id === id)) { selectedIds.delete(id); changed = true; }
     });
     if (selectedIds.size === 0) { exitSelectMode(); return; }
     if (changed) updateSelectionUI();
@@ -1600,17 +1537,9 @@ function processPhotoDocs(raw) {
 function listenPhotos() {
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
   if (unsubPhotos) { try { unsubPhotos(); } catch (e) {} unsubPhotos = null; }
-  const snapObj = new Map();   /* objek foto yang tidak berubah dipakai ulang: tidak perlu membaca ulang ribuan dokumen tiap update */
   unsubPhotos = onSnapshot(q, (snap) => {
-    const berubah = new Set(); snap.docChanges().forEach((c) => berubah.add(c.doc.id));
-    lastSnapDocs = snap.docs.map((d) => {
-      let o = snapObj.get(d.id);
-      if (!o || berubah.has(d.id)) { o = { id: d.id, ...d.data() }; snapObj.set(d.id, o); }
-      return o;
-    });
-    if (snapObj.size > lastSnapDocs.length) { const ada = new Set(lastSnapDocs.map(x => x.id)); snapObj.forEach((v, k) => { if (!ada.has(k)) snapObj.delete(k); }); }
-    clearTimeout(window.__snapTimer);
-    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 60);   /* gabungkan snapshot beruntun jadi satu render */
+    lastSnapDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    processPhotoDocs(lastSnapDocs);
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -2385,71 +2314,6 @@ window.hdkanSemuaFoto = async function() {
   }
 };
 
-/* ===== UNDUH CACHE: semua foto (thumbnail, menengah, HD, file asli) + poster video disimpan ke cache perangkat ===== */
-window.unduhCacheSemua = async function() {
-  if (isBusy) return;
-  if (!photos.length) {
-    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada foto untuk di-cache.', background: 'var(--card)', color: 'var(--text)', timer: 1600, showConfirmButton: false });
-  }
-  isBusy = true;
-  const t1 = [], t2 = [], t3 = [], t4 = [], ada = new Set();
-  const tambahU = (arr, u) => { if (u && !ada.has(u)) { ada.add(u); arr.push(u); } };
-  photos.forEach((p) => {
-    tambahU(t1, getThumbSrc(p));
-    if (isVideoItem(p)) { tambahU(t2, getPosterSrc(p)); }
-    else { tambahU(t2, getMidSrc(p)); tambahU(t3, getViewSrc(p)); tambahU(t4, getDownloadSrc(p)); }
-  });
-  const urls = t1.concat(t2, t3, t4);
-  const total = urls.length;
-  let done = 0, gagal = 0, lastUi = 0;
-  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
-  acquireWake();
-  window.addEventListener('beforeunload', warnLeave);
-  customSwal.fire({
-    title: `Unduh cache 0/${total}...`,
-    text: 'Mohon jangan tutup halaman dan biarkan layar menyala.',
-    allowOutsideClick: false, allowEscapeKey: false,
-    background: 'var(--card)', color: 'var(--text)',
-    didOpen: () => customSwal.showLoading()
-  });
-  try {
-    await runWithConcurrency(urls, 1000, async (u) => {
-      try {
-        let r;
-        try { r = await fetch(u, { cache: 'force-cache' }); } catch (e1) { r = await fetch(u, { cache: 'force-cache' }); }
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        await r.blob();
-      } catch (e) { gagal++; }
-      finally {
-        done++;
-        const now = performance.now();
-        if (now - lastUi > 500 || done === total) { lastUi = now; customSwal.update({ title: `Unduh cache ${done}/${total}...` }); }
-      }
-    });
-    urls.forEach((u) => { sentBerat.add(u); sentThumbs.add(u); });
-    try {
-      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        for (let i = 0; i < urls.length; i += 200) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: urls.slice(i, i + 200) });
-      }
-    } catch (e) {}
-    let pakai = '';
-    try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.usage) pakai = ' Penyimpanan terpakai ' + formatKapasitas(e.usage / 1048576) + '.'; } } catch (e) {}
-    customSwal.fire({
-      icon: gagal ? 'warning' : 'success',
-      title: gagal ? 'Cache Selesai Dengan Peringatan' : 'Cache Selesai',
-      text: `${total - gagal} dari ${total} file tersimpan di perangkat, ${gagal} gagal.` + (gagal ? ' Jalankan lagi untuk yang gagal.' : '') + pakai + ' Video hanya posternya yang di-cache.',
-      background: 'var(--card)', color: 'var(--text)'
-    });
-  } catch (e) {
-    console.error(e);
-    customSwal.fire({ icon: 'error', title: 'Unduh Cache Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
-  } finally {
-    window.removeEventListener('beforeunload', warnLeave);
-    releaseWake();
-    isBusy = false;
-  }
-};
-
 window.optimizeAllVideos = async function() {
   if (isBusy) return;
   const target = photos.filter(p => isVideoItem(p) && p.publicId);
@@ -2744,10 +2608,8 @@ window.setMediaFilter = function(f) {
   document.querySelectorAll('.media-filter-tab').forEach(el => {
     el.classList.toggle('active', el.dataset.filter === f);
   });
-  requestAnimationFrame(() => {
-    renderGallery();
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  });
+  renderGallery();
+  window.scrollTo({ top: 0, behavior: 'auto' });
 };
 
 function updateFilterCounts() {
@@ -2894,15 +2756,9 @@ function hideScrollTopBtn() {
 }
 window.scrollToTop = function() {
   hideScrollTopBtn();
-  const de = document.documentElement;
-  const old = de.style.scrollBehavior;
-  de.style.scrollBehavior = 'auto';
-  thumbFocusIdx = 0; thumbLastY = 0; thumbDir = -1;
-  de.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
   window.scrollTo(0, 0);
-  de.style.scrollBehavior = old;
-  scheduleThumbPump();
 };
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
@@ -3055,108 +2911,27 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
     thumbLoadNow(tp, 0);
   });
 }, { rootMargin: '1100px 0px' }) : null;
-/* STABIL & SELALU CEPAT: thumbnail dekat layar (±3000px) selalu terpasang; yang sangat jauh dilepas dari memori (tetap di cache browser) lalu dipasang lagi otomatis saat didekati.
-   Jadi memori tidak menumpuk walau galeri dibuka berjam-jam. */
-let lastScrollT = 0;
-window.addEventListener('scroll', () => { lastScrollT = Date.now(); window.lastScrollT = lastScrollT; }, { passive: true });
-function bgPump() {}
-const thumbIO3 = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
-  es.forEach((en) => {
-    if (!en.isIntersecting) return;
-    const img = en.target.__img;
-    if (img && !img.getAttribute('src') && img.dataset.src) {
-      try { img.fetchPriority = 'high'; } catch (e) {}
-      img.src = img.dataset.src;
-    }
-  });
-}, { rootMargin: '8000px 0px' }) : null;
-/* zona luas (9000px = 3x lipat): dimuat prioritas rendah supaya tidak menyaingi gambar yang sedang terlihat */
-const thumbIOFar = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
-  es.forEach((en) => {
-    if (!en.isIntersecting) return;
-    const img = en.target.__img;
-    if (img && !img.getAttribute('src') && img.dataset.src) {
-      try { img.fetchPriority = 'low'; } catch (e) {}
-      img.src = img.dataset.src;
-    }
-  });
-}, { rootMargin: '100000px 0px' }) : null;
 function attachThumb(card, img, url) {
-  img.decoding = 'async';
-  if (window.__eagerThumbs == null) window.__eagerThumbs = 0;
-  if (window.__eagerThumbs < 1000) { window.__eagerThumbs++; img.loading = 'eager'; try { img.fetchPriority = 'high'; } catch (e) {} }
-  else { img.loading = 'eager'; try { img.fetchPriority = 'low'; } catch (e) {} }
-  img.dataset.src = url;
-  img.onload = () => { if (img.getAttribute('src')) img.classList.add('loaded'); };
-  img.onerror = () => {
-    if (!img.getAttribute('src')) return;
-    if (!img.__r) { img.__r = 1; setTimeout(() => { if (img.getAttribute('src')) img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
-  };
-  card.__img = img;
-  if (window.__eagerThumbs <= 1000) img.src = url;
-  if (img.complete && img.naturalWidth) img.classList.add('loaded');
-  if (thumbIO3) thumbIO3.observe(card);
+  if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
+  card.__tp = { img, url };
+  thumbPending++;
+  if (thumbIO) thumbIO.observe(card);
+  scheduleThumbPump();
 }
-/* JENDELA 1000 GAMBAR: ±500 thumbnail di sekitar posisi layar selalu terpasang; di luar ±700 dilepas supaya stabil */
-const WIN_HALF = 500, WIN_KEEP = 700;
-function windowThumbs() {
-  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
-  if (!n) return;
-  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
-  const lo = Math.max(0, f - WIN_HALF), hi = Math.min(n - 1, f + WIN_HALF);
-  for (let i = lo; i <= hi; i++) {
-    const im = kids[i].__img;
-    if (im && !im.getAttribute('src') && im.dataset.src) {
-      try { im.fetchPriority = Math.abs(i - f) < 80 ? 'high' : 'low'; } catch (e) {}
-      im.src = im.dataset.src;
-    }
-    if (im && i - f < 120 && f - i < 120 && im.getAttribute('src') && !im.__dec && im.decode) { im.__dec = 1; im.decode().catch(() => {}); }   /* decode lebih dulu: scroll tidak menunggu */
-  }
-}
-function sweepFarThumbs() {
-  if (document.hidden || document.body.classList.contains('viewer-open')) return;
-  if (Date.now() - lastScrollT < 1500) return;
-  const pg = document.getElementById('page-galeri');
-  if (!pg || !pg.classList.contains('active')) return;
-  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
-  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
-  for (let i = 0; i < n; i++) {
-    if (i >= f - WIN_KEEP && i <= f + WIN_KEEP) { i = Math.min(n, f + WIN_KEEP); continue; }
-    const im = kids[i].__img;
-    if (im && im.getAttribute('src')) { im.removeAttribute('src'); im.classList.remove('loaded'); }
-  }
-}
-setInterval(sweepFarThumbs, 8000);
-/* segar kembali: setelah app lama di latar / ditinggal, buang cache berat & sambung ulang data */
-let hiddenAt = 0;
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { hiddenAt = Date.now(); return; }
-  if (!hiddenAt || !currentUser) return;
-  const lama = Date.now() - hiddenAt; hiddenAt = 0;
-  if (lama < 60000) return;
-  try { sentThumbs.clear(); } catch (e) {}
-  if (document.getElementById('app-screen').style.display !== 'none') { try { listenPhotos(); } catch (e) {} }
-});
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
-  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); windowThumbs(); pumpThumbs(); bgPump(); });
+  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); pumpThumbs(); });
 }
 function updateThumbFocus() {
   const c = document.getElementById('main-gallery-grid');
   const first = c && c.firstElementChild;
   const pg = document.getElementById('page-galeri');
   if (!first || !pg || !pg.classList.contains('active')) return;
-  if (!window.__thumbGeo || window.__thumbGeoW !== window.innerWidth) {
-    const cs = getComputedStyle(c);
-    const cols0 = Math.max(1, cs.gridTemplateColumns.split(' ').length);
-    const gap0 = parseFloat(cs.rowGap) || 0;
-    const h0 = first.offsetHeight;
-    if (h0 > 0) { window.__thumbGeo = { cols: cols0, rowH: h0 + gap0 }; window.__thumbGeoW = window.innerWidth; }
-    else window.__thumbGeo = { cols: cols0, rowH: 100 + gap0 };
-  }
-  const cols = window.__thumbGeo.cols;
-  const rowH = window.__thumbGeo.rowH;
+  const cs = getComputedStyle(c);
+  const cols = Math.max(1, cs.gridTemplateColumns.split(' ').length);
+  const gap = parseFloat(cs.rowGap) || 0;
+  const rowH = (first.offsetHeight || 100) + gap;
   const top = c.getBoundingClientRect().top + window.scrollY;
   const mid = window.scrollY + window.innerHeight / 2;
   const row = Math.max(0, Math.floor((mid - top) / rowH));
@@ -3206,7 +2981,6 @@ window.addEventListener('scroll', () => {
     if (Math.abs(y - thumbLastY) > 2) thumbDir = y >= thumbLastY ? 1 : -1;
     thumbLastY = y;
     updateThumbFocus();
-    windowThumbs();
     pumpThumbs();
   });
 }, { passive: true });
@@ -3220,20 +2994,21 @@ function createCardNode(p) {
   img.className = 'album-cover';
   img.decoding = 'async';
   img.alt = p.title || (isVideoItem(p) ? 'video' : 'foto');
+  img.addEventListener('load', () => img.classList.add('loaded'));
   attachThumb(card, img, getThumbSrc(p));
 
   card.appendChild(img);
 
-  if (MQ_DESKTOP.matches) {
-    const cap = document.createElement('div');
-    cap.className = 'album-caption';
-    cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
-    card.appendChild(cap);
-  }
+  const cap = document.createElement('div');
+  cap.className = 'album-caption';
+  cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
+  card.appendChild(cap);
 
   const tgl = document.createElement('div');
   tgl.className = 'card-date';
-  tgl.textContent = fmtTgl(p) + '\n' + fmtJam(p);
+  tgl.innerHTML = '<b></b><span></span>';
+  tgl.firstChild.textContent = fmtTgl(p);
+  tgl.lastChild.textContent = fmtJam(p);
   card.appendChild(tgl);
 
   if (isVideoItem(p)) {
@@ -3254,38 +3029,15 @@ function createCardNode(p) {
   check.className = 'select-check';
   card.appendChild(check);
 
+  card.addEventListener('pointerdown', () => { startPress(p.id); clearTimeout(card.__wt); card.__wt = setTimeout(() => { try { warmViewer(p.id); } catch (e) {} }, 160); });
+  const stopWarm = () => clearTimeout(card.__wt);
+  card.addEventListener('pointerup', () => { cancelPress(); });
+  card.addEventListener('pointerleave', () => { cancelPress(); stopWarm(); });
+  card.addEventListener('pointercancel', () => { cancelPress(); stopWarm(); });
+  card.addEventListener('click', () => handleCardClick(p.id));
+
   return card;
 }
-
-/* satu set listener untuk semua kartu (bukan 5 listener x 6000 kartu) */
-const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
-(function setupGridDelegation() {
-  const grid = document.getElementById('main-gallery-grid');
-  let warmT = null;
-  const cardOf = (e) => { const c = e.target && e.target.closest ? e.target.closest('.album-card') : null; return (c && c.dataset.id) ? c : null; };
-  grid.addEventListener('pointerdown', (e) => {
-    const c = cardOf(e); if (!c) return;
-    const id = c.dataset.id;
-    startPress(id);
-    clearTimeout(warmT);
-    try { warmViewer(id); } catch (x) {}
-  });
-  grid.addEventListener('pointerover', (e) => {
-    if (e.pointerType !== 'mouse') return;
-    const c = cardOf(e); if (!c || c.contains(e.relatedTarget)) return;
-    const id = c.dataset.id;
-    clearTimeout(warmT);
-    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 40);
-  });
-  grid.addEventListener('pointerup', () => { cancelPress(); });
-  grid.addEventListener('pointercancel', () => { cancelPress(); clearTimeout(warmT); });
-  grid.addEventListener('pointerout', (e) => {
-    const c = cardOf(e);
-    if (c && !c.contains(e.relatedTarget)) { cancelPress(); clearTimeout(warmT); }
-  });
-  grid.addEventListener('click', (e) => { const c = cardOf(e); if (c) handleCardClick(c.dataset.id); });
-  grid.addEventListener('load', (e) => { if (e.target && e.target.classList && e.target.classList.contains('album-cover')) e.target.classList.add('loaded'); }, true);
-})();
 
 function syncFavBadge(node, p) {
   if (!node) return;
@@ -3352,11 +3104,6 @@ function renderGallery() {
   while (newLeadingCount < list.length && !photoNodes.has(list[newLeadingCount].id)) {
     newLeadingCount++;
   }
-  /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
-  const KARTU_PER_FRAME = 500;
-  let sisaKartu = false;
-  if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
-  let kartuDibuat = newLeadingCount;
 
   if (newLeadingCount > 0) {
     const fragment = document.createDocumentFragment();
@@ -3375,8 +3122,6 @@ function renderGallery() {
     const p = list[i];
     let node = photoNodes.get(p.id);
     if (!node) {
-      if (kartuDibuat >= KARTU_PER_FRAME) { sisaKartu = true; break; }
-      kartuDibuat++;
       node = createCardNode(p);
       photoNodes.set(p.id, node);
       if (selectedIds.has(p.id)) setCardSelected(p.id, true);
@@ -3392,10 +3137,6 @@ function renderGallery() {
   if (selectMode) {
     container.classList.add('select-mode-active');
     updateSelectionUI();
-  }
-  if (sisaKartu && !window.__galRenderQueued) {
-    window.__galRenderQueued = true;
-    requestAnimationFrame(() => { window.__galRenderQueued = false; renderGallery(); });
   }
   scheduleThumbPump();
 }
@@ -3688,28 +3429,16 @@ window.aksiFavorit = async function() {
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = 2048;
-const IS_HP = (window.innerWidth < 960);   /* HP: memori terbatas, jaga tetap stabil */
+const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
 const viewCache = new Map();
 let viewToken = 0;
-const midCache = new Map();
-function midOf(p, hi) {
-  let m = midCache.get(p.id);
-  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m); while (midCache.size > 60) midCache.delete(midCache.keys().next().value); }
-  return m;
-}
-function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
 
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_80,f_webp/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1920,h_1920,q_auto:good,f_auto/${p.publicId}`;
   }
   return getFullSrc(p);
-}
-function getMidSrc(p) {
-  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1280,h_1280,q_80,f_webp/${p.publicId}`;
-  return getThumbSrc(p);
 }
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
@@ -3717,73 +3446,28 @@ function getPosterSrc(p) {
   }
   return getThumbSrc(p);
 }
-function preloadView(p, hi) {
+function preloadView(p) {
   if (!p) return null;
   const hit = viewCache.get(p.id);
   if (hit) { viewCache.delete(p.id); viewCache.set(p.id, hit); return hit; }
   const im = new Image();
   im.decoding = 'async';
-  try { im.fetchPriority = hi ? 'high' : 'low'; } catch (e) {}
   const entry = { im, ready: false, src: isVideoItem(p) ? getPosterSrc(p) : getViewSrc(p) };
   im.src = entry.src;
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  while (viewCache.size > 14) viewCache.delete(viewCache.keys().next().value);
-  
+  if (viewCache.size > 12) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
-window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p, true); if (!isVideoItem(p)) midOf(p, true); } };
+window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
-/* siapkan foto yang sedang terlihat di layar saat scroll berhenti, supaya klik langsung tajam */
-(function setupIdlePrefetch() {
-  let t = 0, wait = 0; const keep = [];
-  function sample() {
-    if (document.hidden || document.body.classList.contains('viewer-open')) return;
-    const pg = document.getElementById('page-galeri');
-    if (!pg || !pg.classList.contains('active')) return;
-    if (navigator.connection && navigator.connection.saveData) return;
-    let sibuk = false;
-    [0.1, 0.3, 0.5, 0.7, 0.9].forEach((fy) => [0.125, 0.375, 0.625, 0.875].forEach((fx) => {
-      const el0 = document.elementFromPoint(window.innerWidth * fx, window.innerHeight * fy);
-      const c0 = el0 && el0.closest ? el0.closest('.album-card') : null;
-      const im0 = c0 && c0.__img;
-      if (im0 && !(im0.complete && im0.naturalWidth)) sibuk = true;
-    }));
-    if (sibuk && wait < 30) { wait++; setTimeout(sample, 400); return; }   /* thumbnail yang terlihat didahulukan, baru HD disiapkan */
-    wait = 0;
-    const W = window.innerWidth, H = window.innerHeight, seen = new Set();
-    [0.2, 0.4, 0.6, 0.8].forEach((fy) => [0.125, 0.375, 0.625, 0.875].forEach((fx) => {
-      const el = document.elementFromPoint(W * fx, H * fy);
-      const c = el && el.closest ? el.closest('.album-card') : null;
-      if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
-      seen.add(c.dataset.id);
-      const p = photos.find(x => x.id === c.dataset.id);
-      if (!p || isVideoItem(p)) return;
-      midOf(p);
-      preloadView(p);
-    }));
-    while (keep.length > 6) keep.shift();
-  }
-  window.addEventListener('scroll', () => { wait = 0; clearTimeout(t); t = setTimeout(() => { (window.requestIdleCallback || setTimeout)(sample); }, 120); }, { passive: true });
-  setTimeout(sample, 1200);
-})();
-
-/* batalkan unduhan foto lama yang belum selesai supaya tidak menghalangi unduhan foto yang baru diklik */
-function vTimer(fn, ms) { (window.__vTimers = window.__vTimers || []).push(setTimeout(fn, ms)); }
-function vClearTimers() { (window.__vTimers || []).forEach(clearTimeout); window.__vTimers = []; }
-function abortStale(keep) {
-  viewCache.forEach((e, id) => {
-    if (e.ready || (keep && keep.has(id))) return;
-    try { e.im.src = ''; } catch (x) {}
-    viewCache.delete(id);
-  });
-}
 function preloadNeighbors(list, idx, dir) {
-  const o = dir >= 0 ? 1 : -1;
-  const a = list[(idx + o + list.length) % list.length], b = list[(idx - o + list.length) % list.length];
-  if (a) vTimer(() => preloadView(a), 0);
-  if (b && !isVideoItem(b)) vTimer(() => preloadView(b), 40);
+  const order = dir >= 0 ? [1, 2, -1, 3] : [-1, -2, 1, -3];
+  order.forEach((o, k) => {
+    const q = list[(idx + o + list.length) % list.length];
+    if (q) setTimeout(() => preloadView(q), k * 40);
+  });
 }
 
 function viewerActiveEl() {
@@ -3793,7 +3477,7 @@ function viewerActiveEl() {
 function slideIn(dir) {
   try {
     const el = viewerActiveEl();
-    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 60, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 170, easing: 'cubic-bezier(.2,.8,.2,1)' });
   } catch (e) {}
 }
 
@@ -3805,23 +3489,19 @@ window.bukaViewer = function(id, dir) {
 
   currentViewPhotoId = id;
   const token = ++viewToken;
-  vClearTimers();
-  abortStale(new Set([foto.id, list[(idx + 1) % list.length].id, list[(idx - 1 + list.length) % list.length].id]));
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
 
-  const sejenis = list.filter(x => isVideoItem(x) === isVideoItem(foto));
-  const urutan = sejenis.findIndex(x => x.id === foto.id) + 1;
+  const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
   const judulEl = document.getElementById('viewer-title-text');
-  judulEl.textContent = (isVideoItem(foto) ? 'Video ' : 'Gambar ') + urutan + ' dari ' + sejenis.length;
+  judulEl.textContent = (foto.title || '') + posisi;
   const tglEl = document.createElement('small');
   tglEl.className = 'viewer-date';
   tglEl.textContent = fmtTgl(foto) + ' • ' + fmtJam(foto);
   judulEl.appendChild(tglEl);
 
   img.alt = foto.title || 'foto';
-  img.decoding = 'async';
   img.classList.remove('zoomed');
   img.style.transform = ''; img.style.transition = '';
   video.style.transform = ''; video.style.transition = '';
@@ -3829,7 +3509,7 @@ window.bukaViewer = function(id, dir) {
   /* hentikan unduhan video sebelumnya supaya tidak menghabiskan bandwidth */
   try { video.pause(); video.removeAttribute('src'); video.removeAttribute('poster'); video.load(); } catch (e) {}
 
-  const entry = preloadView(foto, true);
+  const entry = preloadView(foto);
 
   if (isVideoItem(foto)) {
     img.style.display = 'none';
@@ -3856,16 +3536,11 @@ window.bukaViewer = function(id, dir) {
     video.style.display = 'none';
     img.style.display = 'block';
     if (entry.ready) {
-      img.decoding = 'sync';
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
-      img.decoding = 'sync';
-      const mm = midOf(foto, true);
-      img.src = midReady(mm) ? mm.src : getThumbSrc(foto);   /* tahap tengah 1280px bila sudah ada, kalau belum thumbnail dulu */
-      if (!midReady(mm)) mm.addEventListener('load', () => { if (token === viewToken && !entry.ready && img.src !== entry.src) img.src = mm.src; }, { once: true });
+      img.src = getThumbSrc(foto);               /* placeholder instan (sudah ada di cache grid) */
       entry.promise.then(() => {
         if (token !== viewToken) return;
-        img.decoding = 'async';
         if (entry.ready) img.src = entry.src;
         else { viewCache.delete(foto.id); img.src = getViewSrc(foto); }   /* preload gagal: biarkan browser memuat langsung */
       });
@@ -3876,48 +3551,31 @@ window.bukaViewer = function(id, dir) {
   updateFavButtonUI(foto);
 
   viewer.classList.add('show');
-  if (!document.body.classList.contains('viewer-open')) { try { pauseGrid(); } catch (e) {} window.__vScrollY = window.scrollY; document.body.style.top = (-window.__vScrollY) + 'px'; }
+  if (!document.body.classList.contains('viewer-open')) { window.__vScrollY = window.scrollY; document.body.style.top = (-window.__vScrollY) + 'px'; }
   document.body.classList.add('viewer-open');
   updateViewerNavButtons();
 
-  if (dir && !window.__noSlide) slideIn(dir);
-  window.__noSlide = false;
-  const after = () => { if (token === viewToken) { preloadNeighbors(list, idx, dir || 1); } };
+  if (dir) slideIn(dir);
+  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
+  /* siapkan file di memori agar tombol WA & Unduh langsung merespons */
+  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 2500));
 };
-
-function pauseGrid() {
-  const kids = document.getElementById('main-gallery-grid').children;
-  for (let i = 0; i < kids.length; i++) {
-    const im = kids[i].__img;
-    if (im && im.getAttribute('src') && !(im.complete && im.naturalWidth)) { im.dataset.pz = '1'; im.removeAttribute('src'); }
-  }
-}
-function resumeGrid() {
-  const kids = document.getElementById('main-gallery-grid').children;
-  for (let i = 0; i < kids.length; i++) {
-    const im = kids[i].__img;
-    if (im && im.dataset.pz) { delete im.dataset.pz; if (im.dataset.src) im.src = im.dataset.src; }
-  }
-}
 
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
   if (document.body.classList.contains('viewer-open')) {
     document.body.classList.remove('viewer-open');
-    try { resumeGrid(); } catch (e) {}
     document.body.style.top = '';
     window.scrollTo(0, window.__vScrollY || 0);
   }
   
   viewToken++;
-  vClearTimers(); abortStale(null);
   setTimeout(() => {
     if (document.getElementById('photo-viewer').classList.contains('show')) return;
     const img = document.getElementById('viewer-img');
     const video = document.getElementById('viewer-video');
     img.classList.remove('zoomed');
-    try { img.removeAttribute('src'); } catch (e) {}
     try { video.pause(); video.removeAttribute('src'); video.removeAttribute('poster'); video.load(); } catch (e) {}
     currentViewPhotoId = null;
   }, 250); 
@@ -3945,18 +3603,14 @@ function updateViewerNavButtons() {
   let startX = 0, startY = 0, startT = 0, tracking = false, lockX = false, dxNow = 0;
   let panTx0 = 0, panTy0 = 0;
   function zoomedNow() { return document.getElementById('viewer-img').classList.contains('zoomed'); }
-  let resetT = 0;
   function resetEl() {
     const el = viewerActiveEl();
-    el.style.transition = 'transform .03s ease-out'; el.style.transform = '';
-    clearTimeout(resetT);
-    resetT = setTimeout(() => { if (!tracking) el.style.transition = ''; }, 180);
+    el.style.transition = 'transform .16s ease-out'; el.style.transform = '';
+    setTimeout(() => { el.style.transition = ''; }, 180);
   }
   content.addEventListener('touchstart', (e) => {
     tracking = e.touches.length === 1; lockX = false; dxNow = 0;
     if (!tracking) return;
-    clearTimeout(resetT);
-    try { viewerActiveEl().getAnimations().forEach(a => a.cancel()); } catch (x) {}
     startX = e.touches[0].clientX; startY = e.touches[0].clientY; startT = Date.now();
     const zs = window.__zoomState;
     if (zoomedNow() && zs) { panTx0 = zs.tx; panTy0 = zs.ty; }
@@ -3984,7 +3638,7 @@ function updateViewerNavButtons() {
     dxNow = dx;
     const el = viewerActiveEl();
     el.style.transition = 'none';
-    el.style.transform = `translate3d(${dx * 0.9}px,0,0)`;
+    el.style.transform = `translateX(${dx * 0.9}px)`;
   }, { passive: true });
   content.addEventListener('touchend', (e) => {
     if (!tracking) return;
@@ -4001,7 +3655,7 @@ function updateViewerNavButtons() {
     const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);
     const pindah = lockX && Math.abs(dx) > Math.abs(dy) && (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25));
     if (pindah) {
-      el.style.transition = 'none'; el.style.transform = ''; void el.offsetWidth;
+      el.style.transition = 'none'; el.style.transform = '';
       viewerNavigate(dx < 0 ? 1 : -1);
     } else if (lockX) {
       resetEl();
@@ -4044,8 +3698,8 @@ function updateViewerNavButtons() {
     window.__mouseDragT = Date.now();
     window.__lastPanT = Date.now();
     const el = viewerActiveEl();
-    if (Math.abs(dx) > 80) { el.style.transition = 'none'; el.style.transform = ''; void el.offsetWidth; viewerNavigate(dx < 0 ? 1 : -1); }
-    else { el.style.transition = 'transform .03s ease-out'; el.style.transform = ''; setTimeout(() => { el.style.transition = ''; }, 180); }
+    if (Math.abs(dx) > 80) { el.style.transition = 'none'; el.style.transform = ''; viewerNavigate(dx < 0 ? 1 : -1); }
+    else { el.style.transition = 'transform .16s ease-out'; el.style.transform = ''; setTimeout(() => { el.style.transition = ''; }, 180); }
   }
   window.addEventListener('pointerup', end);
   window.addEventListener('pointercancel', end);
@@ -4139,8 +3793,8 @@ function ambilBlobMedia(foto, timeoutMs) {
   })();
   if (!isVideoItem(foto)) {                      /* video besar tidak disimpan di memori */
     mediaBlobCache.set(foto.id, p);
-    while (mediaBlobCache.size > 1) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
     p.catch(() => { if (mediaBlobCache.get(foto.id) === p) mediaBlobCache.delete(foto.id); });
+    while (mediaBlobCache.size > 4) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
   }
   return p;
 }
@@ -4165,28 +3819,42 @@ window.aksiKirimWA = async function() {
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
   if (!aksiMulai()) return;
-  const bukaWA = () => {
-    const teks = (foto.title ? foto.title + '\n' : '') + getDownloadSrc(foto);
-    window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank');
-  };
   try {
     if (!mediaBlobCache.has(foto.id)) showMiniToast('Menyiapkan media...', 2500);
     const blob = await ambilBlobMedia(foto, 90000);
     const { mime, ext } = infoFileMedia(foto, blob);
     const filename = `${namaFileBersih(foto.title, 'Koleksi_RHN')}.${ext}`;
     const file = new File([blob], filename, { type: mime });
+
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file] });
       } catch (e) {
         if (e && e.name === 'AbortError') return;
-        bukaWA();
+        /* izin sentuhan kedaluwarsa setelah mengunduh: minta ketuk sekali lagi (share dipanggil langsung dari ketukan itu) */
+        let gagalShare = null;
+        const r = await customSwal.fire({
+          icon: 'question', title: 'Siap Dikirim',
+          text: 'Media sudah siap. Ketuk tombol di bawah untuk memilih WhatsApp.',
+          showCancelButton: true, confirmButtonText: '<span style="color:#000; font-weight:800;">Kirim Sekarang</span>', cancelButtonText: 'Batal',
+          background: 'var(--card)', color: 'var(--text)',
+          preConfirm: () => navigator.share({ files: [file] }).then(() => true, (err) => { if (!(err && err.name === 'AbortError')) gagalShare = err; return true; })
+        });
+        if (r.isConfirmed && gagalShare) {
+          await simpanSatuFileKePerangkat(blob, filename, mime);
+          showMiniToast('Berbagi gagal. File diunduh, kirim dari Galeri HP.', 3200);
+        }
       }
     } else {
-      bukaWA();
+      await simpanSatuFileKePerangkat(blob, filename, mime);
+      customSwal.fire({
+        icon: 'info', title: 'Bagikan Manual',
+        text: 'Peramban ini tidak mendukung pengiriman file langsung ke WhatsApp. File telah diunduh, silakan kirim dari Galeri HP Anda.',
+        background: 'var(--card)', color: 'var(--text)'
+      });
     }
   } catch (e) {
-    bukaWA();
+    customSwal.fire({ icon: 'error', title: 'Gagal Menyiapkan Media', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
   } finally {
     aksiSelesai();
   }
@@ -4262,92 +3930,12 @@ window.aksiHapus = function() {
     bukaViewer(listAfter[nextIdx].id);
   });
 };
-
-/* ===== PEMBUNUH BUG: error / hang / macet langsung dipulihkan otomatis ===== */
-(function bugKiller() {
-  let lastFix = 0, busySince = 0;
-  function pulihkan() {
-    const now = Date.now();
-    if (now - lastFix < 1500) return;
-    lastFix = now;
-    try { if (!isUploadingBg) isBusy = false; } catch (e) {}
-    try { aksiSelesai(); } catch (e) {}
-    try { if (bulkMode && !(window.Swal && Swal.isVisible())) { bulkMode = false; renderGallery(); } } catch (e) {}
-    try {
-      const v = document.getElementById('photo-viewer');
-      if (!v.classList.contains('show') && document.body.classList.contains('viewer-open')) {
-        document.body.classList.remove('viewer-open'); document.body.style.top = '';
-      }
-    } catch (e) {}
-  }
-  window.addEventListener('error', pulihkan);
-  window.addEventListener('unhandledrejection', (e) => { pulihkan(); });
-  /* deteksi hang: kalau layar sempat membeku >3 detik, bersihkan keadaan macet */
-  let beat = Date.now();
-  setInterval(() => {
-    const now = Date.now();
-    if (now - beat > 3000 && !document.hidden) pulihkan();
-    beat = now;
-    /* kunci sibuk yang menggantung >3 menit tanpa proses nyata dilepas */
-    try {
-      if (isBusy && !isUploadingBg && !(window.Swal && Swal.isVisible())) { if (!busySince) busySince = now; else if (now - busySince > 180000) { isBusy = false; busySince = 0; } }
-      else busySince = 0;
-    } catch (e) {}
-  }, 1000);
-})();
-
-/* ===== PERISAI: thumbnail macet, viewer macet, dan koneksi kembali dipulihkan otomatis tanpa menunggu user ===== */
-(function perisai() {
-  const mulai = new WeakMap();
-  function cekThumb() {
-    if (document.hidden || document.body.classList.contains('viewer-open')) return;
-    const pg = document.getElementById('page-galeri');
-    if (!pg || !pg.classList.contains('active')) return;
-    const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
-    if (!n) return;
-    const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
-    const lo = Math.max(0, f - 150), hi = Math.min(n - 1, f + 150), now = Date.now();
-    for (let i = lo; i <= hi; i++) {
-      const im = kids[i].__img;
-      if (!im) continue;
-      if (!im.getAttribute('src') || (im.complete && im.naturalWidth)) { mulai.delete(im); continue; }
-      const t = mulai.get(im);
-      if (!t) { mulai.set(im, now); continue; }
-      if (now - t > 7000) {
-        mulai.delete(im);
-        const u = im.dataset.src;
-        if (u) { im.removeAttribute('src'); im.src = u + (u.indexOf('?') > -1 ? '&' : '?') + 'r=2'; }
-      }
-    }
-  }
-  let vMacet = 0;
-  function cekViewer() {
-    const v = document.getElementById('photo-viewer');
-    if (!v.classList.contains('show') || !currentViewPhotoId) { vMacet = 0; return; }
-    const img = document.getElementById('viewer-img');
-    if (img.style.display === 'none' || (img.complete && img.naturalWidth)) { vMacet = 0; return; }
-    if (++vMacet >= 3) {
-      vMacet = 0;
-      const foto = photos.find(p => p.id === currentViewPhotoId);
-      if (foto) { viewCache.delete(foto.id); img.src = getViewSrc(foto); }
-    }
-  }
-  setInterval(() => { try { cekThumb(); cekViewer(); } catch (e) {} }, 2000);
-  window.addEventListener('online', () => { try { cekThumb(); scheduleThumbPump(); } catch (e) {} });
-})();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('sww.js').then(function () { return navigator.serviceWorker.ready; }).then(function (reg) {
-      if (reg.active) reg.active.postMessage({ type: 'CACHE_URLS', urls: [location.href.split('#')[0], new URL('RHN LOGO.jpg', location.href).href,
-        'https://cdn.jsdelivr.net/npm/sweetalert2@11',
-        'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
-        'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js',
-        'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js',
-        'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js',
-        'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js',
-        'https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'] });
+      if (reg.active) reg.active.postMessage({ type: 'CACHE_URLS', urls: [location.href.split('#')[0], new URL('RHN LOGO.jpg', location.href).href] });
     }).catch(function () {});
   });
 }
