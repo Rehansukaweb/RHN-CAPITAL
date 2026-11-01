@@ -158,6 +158,9 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .album-card:active{transform:scale(.98)}
 .album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .14s var(--ease-smooth),opacity .14s}
 .album-cover.loaded{opacity:1}
+@media (hover:hover) and (pointer:fine){#photo-viewer .viewer-nav-btn{display:grid!important}#viewer-content{cursor:grab}#viewer-content:active{cursor:grabbing}}
+#viewer-img,#viewer-video{will-change:transform}
+#photo-viewer{overscroll-behavior:contain}
 @keyframes shimmerThumb{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .album-card:has(> .album-cover:not(.loaded)){background:linear-gradient(110deg,var(--card) 30%,rgba(255,255,255,.07) 50%,var(--card) 70%);background-size:200% 100%;animation:shimmerThumb 1.4s linear infinite}
 .album-caption{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 11px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:2;pointer-events:none;transition:.14s}
@@ -354,7 +357,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 }
 /* ===== SPLASH (sama dengan Arus Keuangan) ===== */
 #splash-screen{background:#050505!important}
-#splash-screen.splash-exit{animation:splashSlideUpOut .8s cubic-bezier(.8,0,.2,1) forwards}
+#splash-screen.splash-exit{animation:splashSlideUpOut .35s cubic-bezier(.8,0,.2,1) forwards}
 @keyframes splashSlideUpOut{to{transform:translateY(-100%);opacity:0;visibility:hidden}}
 #splash-screen .splash-logo-wrap{width:auto;height:auto;display:block;opacity:1;transform:none;animation:none}
 #splash-screen .splash-logo-wrap::before{display:none}
@@ -993,13 +996,18 @@ async function commitDeleteBatches(refs, onProgress) {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
+  let minDone = false, hidden = false;
+  window.__hideSplash = function(paksa) {
+    if (hidden || (!paksa && (!minDone || !window.__authReady))) return;
+    hidden = true;
     const splash = document.getElementById('splash-screen');
     if (splash) {
       splash.classList.add('splash-exit');
-      setTimeout(() => { splash.style.display = 'none'; }, 800);
+      setTimeout(() => { splash.style.display = 'none'; }, 350);
     }
-  }, 2500);
+  };
+  setTimeout(function() { minDone = true; window.__hideSplash(); }, 600);      /* tampil singkat, lalu langsung masuk begitu login siap */
+  setTimeout(function() { window.__hideSplash(true); }, 4000);                 /* pengaman */
 });
 
 const customSwal = Swal.mixin({
@@ -1179,8 +1187,11 @@ window.doLogout = async function() {
 };
 
 onAuthStateChanged(auth, async user => {
+  window.__authReady = true; if (window.__hideSplash) window.__hideSplash();
   if (user) {
     currentUser = user;
+    /* PRA-MUAT: data galeri & thumbnail mulai diambil sekarang (selagi PIN diketik), jadi begitu PIN benar gambar langsung ada */
+    if (!window.__photosUnsub) { try { listenPhotos(); } catch (e) { console.error(e); } }
     const authScrn = document.getElementById('auth-screen');
     if (authScrn.style.display !== 'none') {
       authScrn.classList.add('fade-out');
@@ -1224,6 +1235,7 @@ onAuthStateChanged(auth, async user => {
 
   } else {
     currentUser = null;
+    if (window.__photosUnsub) { try { window.__photosUnsub(); } catch (e) {} window.__photosUnsub = null; }
     photos = [];
     photoNodes.clear();
     selectMode = false;
@@ -1347,9 +1359,10 @@ function unlockApp() {
     appScrn.classList.add('fade-in');
 
     document.getElementById('app-pin').value = '';
-    renderSkeleton();
-    listenPhotos();
+    if (window.__photosUnsub && photos.length) { renderGallery(); }
+    else { renderSkeleton(); listenPhotos(); }
     switchPage('galeri');
+    scheduleThumbPump();
 
     setTimeout(() => appScrn.classList.remove('fade-in'), 140);
   }, 120);
@@ -1369,8 +1382,9 @@ function precacheThumbs() {
 }
 
 function listenPhotos() {
+  if (window.__photosUnsub) return;   /* sudah mendengarkan (dimulai lebih awal, sebelum PIN) */
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
-  onSnapshot(q, (snap) => {
+  window.__photosUnsub = onSnapshot(q, (snap) => {
     const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     photos = allDocs.filter(x => !x.deletedAt);
     cacheSemuaThumb();
@@ -2870,7 +2884,9 @@ function updateSelectionUI() {
 
 /* ===== THUMBNAIL PREFETCH: muat & decode semua thumbnail dari posisi layar keluar, jadi saat scroll cepat sudah siap ===== */
 const thumbDone = new Set();
-const THUMB_CONC = 40;
+/* MODE HP: lebih ringan di CPU, memori, baterai & kuota */
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+const THUMB_CONC = IS_MOBILE ? 10 : 40;
 let thumbActive = 0, thumbPending = 0, thumbFocusIdx = 0, thumbDir = 1, thumbLastY = 0, thumbTick = false, thumbPumpQueued = false;
 
 function thumbRadius() {
@@ -2925,7 +2941,11 @@ function cacheSemuaThumb() {
   clearTimeout(thumbBgTimer);
   thumbBgTimer = setTimeout(async () => {
     while (!thumbCacheReady) await new Promise(r => setTimeout(r, 200));
-    const pakai = new Set(photos.map(getThumbSrc).filter(Boolean));
+    /* HP: jangan simpan massal di latar belakang kalau kuota/jaringan seluler/hemat data; batasi jumlah yang disimpan */
+    const net = navigator.connection;
+    const hemat = IS_MOBILE && net && (net.saveData || net.type === 'cellular' || /(^|-)(2g|3g)$/.test(net.effectiveType || ''));
+    if (hemat) return;
+    const pakai = new Set(photos.slice(0, IS_MOBILE ? 500 : photos.length).map(getThumbSrc).filter(Boolean));
     const db0 = thumbDBh || await thumbDBp;
     if (db0) {
       Array.from(thumbBlobMap.keys()).forEach(k => {
@@ -2933,7 +2953,7 @@ function cacheSemuaThumb() {
       });
     }
     const todo = Array.from(pakai).filter(u => /^https:/.test(u) && !thumbBlobMap.has(u));
-    if (todo.length) await runWithConcurrency(todo, 24, cacheThumb);
+    if (todo.length) await runWithConcurrency(todo, IS_MOBILE ? 4 : 24, cacheThumb);
   }, 1500);
 }
 
@@ -2959,13 +2979,28 @@ function loadThumbOnce(src, ms) {
     im.src = src;
   });
 }
-async function loadThumbRobust(url) {
+function loadThumbRobust(url) {
+  /* TANPA MENUNGGU: URL utama jalan langsung; cadangan ikut dijalankan paralel (tiap 0,6 dtk) atau seketika kalau yang sebelumnya gagal. Yang pertama berhasil langsung dipakai. */
   const kandidat = [url, ...thumbFallbacks(url)];
-  for (let i = 0; i < kandidat.length; i++) {
-    const c = kandidat[i];
-    if (await loadThumbOnce(c, 3000)) return c;   /* maks 3 detik per percobaan, langsung pindah ke cadangan */
-  }
-  return null;
+  return new Promise(res => {
+    let selesai = false, aktif = 0, idx = 0;
+    const timers = [];
+    const stop = (v) => { if (selesai) return; selesai = true; timers.forEach(clearTimeout); res(v); };
+    const jalan = () => {
+      if (selesai || idx >= kandidat.length) return;
+      const c = kandidat[idx++];
+      aktif++;
+      loadThumbOnce(c, 8000).then(ok => {
+        aktif--;
+        if (selesai) return;
+        if (ok) return stop(c);
+        if (idx < kandidat.length) jalan();                 /* gagal -> langsung cadangan berikutnya, tanpa jeda */
+        else if (aktif === 0) stop(null);
+      });
+    };
+    jalan();
+    for (let i = 1; i < kandidat.length; i++) timers.push(setTimeout(jalan, i * (IS_MOBILE ? 1500 : 600)));
+  });
 }
 
 function attachThumb(card, img, url) {
@@ -3022,7 +3057,7 @@ function pumpThumbs() {
       } else {
         /* gagal total: jangan dibiarkan kosong, coba lagi otomatis (jeda makin lama) sampai berhasil */
         tp.tries = (tp.tries || 0) + 1;
-        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, Math.min(3000, 400 * tp.tries));
+        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, (tp.tries <= 2 ? 0 : Math.min(1500, 200 * tp.tries)));
       }
       pumpThumbs();
     };
@@ -3511,11 +3546,27 @@ function preloadView(p) {
 }
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
+/* video tetangga disiapkan lebih dulu (buffer awal) supaya saat digeser langsung jalan */
+const videoPre = new Map();
+function preloadVideo(p) {
+  if (!p || !isVideoItem(p) || videoPre.has(p.id)) return;
+  const v = document.createElement('video');
+  v.preload = 'auto'; v.muted = true; v.playsInline = true;
+  v.src = getFullSrc(p);
+  try { v.load(); } catch (e) {}
+  videoPre.set(p.id, v);
+  const maks = IS_MOBILE ? 1 : 3;
+  while (videoPre.size > maks) {
+    const k = videoPre.keys().next().value, old = videoPre.get(k);
+    videoPre.delete(k);
+    try { old.removeAttribute('src'); old.load(); } catch (e) {}
+  }
+}
 function preloadNeighbors(list, idx, dir) {
   const order = dir >= 0 ? [1, 2, -1, 3, 4, -2, 5] : [-1, -2, 1, -3, -4, 2, -5];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
-    if (q) setTimeout(() => preloadView(q), k * 40);
+    if (q) setTimeout(() => { preloadView(q); if (k < 3) preloadVideo(q); }, k * 40);
   });
 }
 
@@ -3562,6 +3613,10 @@ window.bukaViewer = function(id, dir) {
     video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
+    /* PUTAR OTOMATIS saat dibuka / digeser (tanpa menekan putar). Kalau browser menolak bersuara, putar tanpa suara. */
+    video.autoplay = true;
+    const pm = video.play();
+    if (pm && pm.catch) pm.catch(err => { if (err && err.name === 'NotAllowedError' && token === viewToken) { video.muted = true; video.play().catch(() => {}); } });
   } else {
     video.style.display = 'none';
     img.style.display = 'block';
@@ -3697,6 +3752,55 @@ function updateViewerNavButtons() {
     if (zoomedNow()) { document.getElementById('viewer-img').style.transition = ''; return; }
     if (lockX) resetEl();
   }, { passive: true });
+})();
+
+/* LAPTOP: geser pakai mouse (drag), trackpad dua jari (kiri/kanan), dan tombol panah */
+(function setupViewerMouse() {
+  const content = document.getElementById('viewer-content');
+  let down = false, sx = 0, sy = 0, st = 0, lock = false, dx = 0, lastWheel = 0;
+  const zoomed = () => document.getElementById('viewer-img').classList.contains('zoomed');
+  content.addEventListener('dragstart', (e) => e.preventDefault());
+  content.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || zoomed()) return;
+    const v = document.getElementById('viewer-video');
+    if (v.style.display === 'block') { const r = v.getBoundingClientRect(); if (e.clientY > r.bottom - 72) return; }   /* jangan ganggu seekbar/kontrol video */
+    down = true; lock = false; dx = 0; sx = e.clientX; sy = e.clientY; st = Date.now();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!down) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (!lock) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my)) lock = true; else return; }
+    dx = mx;
+    window.__lastPanT = Date.now();
+    const el = viewerActiveEl();
+    el.style.transition = 'none';
+    el.style.transform = `translateX(${dx * 0.9}px)`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!down) return;
+    down = false;
+    if (!lock) return;
+    window.__lastPanT = Date.now();
+    const el = viewerActiveEl();
+    const speed = Math.abs(dx) / Math.max(1, Date.now() - st);
+    if (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25)) {
+      el.style.transition = 'none'; el.style.transform = '';
+      viewerNavigate(dx < 0 ? 1 : -1);
+    } else {
+      el.style.transition = 'transform .16s ease-out'; el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 180);
+    }
+  });
+  content.addEventListener('wheel', (e) => {
+    if (!document.getElementById('photo-viewer').classList.contains('show') || zoomed()) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastWheel < 450) return;
+      lastWheel = now;
+      viewerNavigate(e.deltaX > 0 ? 1 : -1);
+    }
+  }, { passive: false });
 })();
 
 document.addEventListener('keydown', (e) => {
