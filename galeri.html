@@ -827,7 +827,7 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
@@ -924,7 +924,7 @@ analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
 try {
-  db = initializeFirestore(app, { localCache: persistentLocalCache(), experimentalAutoDetectLongPolling: true });
+  db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager(), cacheSizeBytes: CACHE_SIZE_UNLIMITED }), experimentalAutoDetectLongPolling: true });
 } catch (e) {
   console.warn("Persistent cache tidak tersedia, memakai cache memori.", e);
   db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
@@ -1572,10 +1572,17 @@ function processPhotoDocs(raw) {
 function listenPhotos() {
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
   if (unsubPhotos) { try { unsubPhotos(); } catch (e) {} unsubPhotos = null; }
+  const snapObj = new Map();   /* objek foto yang tidak berubah dipakai ulang: tidak perlu membaca ulang ribuan dokumen tiap update */
   unsubPhotos = onSnapshot(q, (snap) => {
-    lastSnapDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const berubah = new Set(); snap.docChanges().forEach((c) => berubah.add(c.doc.id));
+    lastSnapDocs = snap.docs.map((d) => {
+      let o = snapObj.get(d.id);
+      if (!o || berubah.has(d.id)) { o = { id: d.id, ...d.data() }; snapObj.set(d.id, o); }
+      return o;
+    });
+    if (snapObj.size > lastSnapDocs.length) { const ada = new Set(lastSnapDocs.map(x => x.id)); snapObj.forEach((v, k) => { if (!ada.has(k)) snapObj.delete(k); }); }
     clearTimeout(window.__snapTimer);
-    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 40);   /* gabungkan snapshot beruntun jadi satu render */
+    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 16);   /* gabungkan snapshot beruntun jadi satu render */
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
