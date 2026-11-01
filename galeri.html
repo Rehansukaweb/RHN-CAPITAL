@@ -475,9 +475,14 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 .viewer-icon-btn,.viewer-nav-btn,.viewer-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .album-card{contain:layout style}
 html{-webkit-tap-highlight-color:transparent}
+#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 260px}
 @media(max-width:959px){
-#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 25vw}
+#main-gallery-grid .album-card{contain-intrinsic-size:auto 25vw}
 }
+.card-date{white-space:pre!important}
+/* saat viewer terbuka, galeri di belakangnya tidak digambar sama sekali (geser foto jadi jauh lebih ringan) */
+body.viewer-open .main-content,body.viewer-open .mobile-header,body.viewer-open .bottom-nav{visibility:hidden}
+body.viewer-open #photo-viewer{visibility:visible}
 @media (hover:hover) and (pointer:fine){
 #photo-viewer .viewer-nav-btn{display:grid!important;width:52px;height:52px;background:rgba(18,18,21,.92);z-index:5}
 #photo-viewer #viewer-content{cursor:grab}
@@ -2765,9 +2770,14 @@ function hideScrollTopBtn() {
 }
 window.scrollToTop = function() {
   hideScrollTopBtn();
-  document.documentElement.scrollTop = 0;
+  const de = document.documentElement;
+  const old = de.style.scrollBehavior;
+  de.style.scrollBehavior = 'auto';
+  thumbFocusIdx = 0; thumbLastY = 0; thumbDir = -1;
+  de.scrollTop = 0;
   document.body.scrollTop = 0;
   window.scrollTo(0, 0);
+  de.style.scrollBehavior = old;
 };
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
@@ -2937,10 +2947,16 @@ function updateThumbFocus() {
   const first = c && c.firstElementChild;
   const pg = document.getElementById('page-galeri');
   if (!first || !pg || !pg.classList.contains('active')) return;
-  const cs = getComputedStyle(c);
-  const cols = Math.max(1, cs.gridTemplateColumns.split(' ').length);
-  const gap = parseFloat(cs.rowGap) || 0;
-  const rowH = (first.offsetHeight || 100) + gap;
+  if (!window.__thumbGeo || window.__thumbGeoW !== window.innerWidth) {
+    const cs = getComputedStyle(c);
+    const cols0 = Math.max(1, cs.gridTemplateColumns.split(' ').length);
+    const gap0 = parseFloat(cs.rowGap) || 0;
+    const h0 = first.offsetHeight;
+    if (h0 > 0) { window.__thumbGeo = { cols: cols0, rowH: h0 + gap0 }; window.__thumbGeoW = window.innerWidth; }
+    else window.__thumbGeo = { cols: cols0, rowH: 100 + gap0 };
+  }
+  const cols = window.__thumbGeo.cols;
+  const rowH = window.__thumbGeo.rowH;
   const top = c.getBoundingClientRect().top + window.scrollY;
   const mid = window.scrollY + window.innerHeight / 2;
   const row = Math.max(0, Math.floor((mid - top) / rowH));
@@ -3003,21 +3019,20 @@ function createCardNode(p) {
   img.className = 'album-cover';
   img.decoding = 'async';
   img.alt = p.title || (isVideoItem(p) ? 'video' : 'foto');
-  img.addEventListener('load', () => img.classList.add('loaded'));
   attachThumb(card, img, getThumbSrc(p));
 
   card.appendChild(img);
 
-  const cap = document.createElement('div');
-  cap.className = 'album-caption';
-  cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
-  card.appendChild(cap);
+  if (MQ_DESKTOP.matches) {
+    const cap = document.createElement('div');
+    cap.className = 'album-caption';
+    cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
+    card.appendChild(cap);
+  }
 
   const tgl = document.createElement('div');
   tgl.className = 'card-date';
-  tgl.innerHTML = '<b></b><span></span>';
-  tgl.firstChild.textContent = fmtTgl(p);
-  tgl.lastChild.textContent = fmtJam(p);
+  tgl.textContent = fmtTgl(p) + '\n' + fmtJam(p);
   card.appendChild(tgl);
 
   if (isVideoItem(p)) {
@@ -3038,15 +3053,31 @@ function createCardNode(p) {
   check.className = 'select-check';
   card.appendChild(check);
 
-  card.addEventListener('pointerdown', () => { startPress(p.id); clearTimeout(card.__wt); card.__wt = setTimeout(() => { try { warmViewer(p.id); } catch (e) {} }, 160); });
-  const stopWarm = () => clearTimeout(card.__wt);
-  card.addEventListener('pointerup', () => { cancelPress(); });
-  card.addEventListener('pointerleave', () => { cancelPress(); stopWarm(); });
-  card.addEventListener('pointercancel', () => { cancelPress(); stopWarm(); });
-  card.addEventListener('click', () => handleCardClick(p.id));
-
   return card;
 }
+
+/* satu set listener untuk semua kartu (bukan 5 listener x 6000 kartu) */
+const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
+(function setupGridDelegation() {
+  const grid = document.getElementById('main-gallery-grid');
+  let warmT = null;
+  const cardOf = (e) => { const c = e.target && e.target.closest ? e.target.closest('.album-card') : null; return (c && c.dataset.id) ? c : null; };
+  grid.addEventListener('pointerdown', (e) => {
+    const c = cardOf(e); if (!c) return;
+    const id = c.dataset.id;
+    startPress(id);
+    clearTimeout(warmT);
+    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 160);
+  });
+  grid.addEventListener('pointerup', () => { cancelPress(); });
+  grid.addEventListener('pointercancel', () => { cancelPress(); clearTimeout(warmT); });
+  grid.addEventListener('pointerout', (e) => {
+    const c = cardOf(e);
+    if (c && !c.contains(e.relatedTarget)) { cancelPress(); clearTimeout(warmT); }
+  });
+  grid.addEventListener('click', (e) => { const c = cardOf(e); if (c) handleCardClick(c.dataset.id); });
+  grid.addEventListener('load', (e) => { if (e.target && e.target.classList && e.target.classList.contains('album-cover')) e.target.classList.add('loaded'); }, true);
+})();
 
 function syncFavBadge(node, p) {
   if (!node) return;
@@ -3114,7 +3145,7 @@ function renderGallery() {
     newLeadingCount++;
   }
   /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
-  const KARTU_PER_FRAME = 240;
+  const KARTU_PER_FRAME = 1000000;
   let sisaKartu = false;
   if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
   let kartuDibuat = newLeadingCount;
@@ -3513,9 +3544,10 @@ window.bukaViewer = function(id, dir) {
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
 
-  const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
+  const sejenis = list.filter(x => isVideoItem(x) === isVideoItem(foto));
+  const urutan = sejenis.findIndex(x => x.id === foto.id) + 1;
   const judulEl = document.getElementById('viewer-title-text');
-  judulEl.textContent = (foto.title || '') + posisi;
+  judulEl.textContent = (isVideoItem(foto) ? 'Video ' : 'Gambar ') + urutan + ' dari ' + sejenis.length;
   const tglEl = document.createElement('small');
   tglEl.className = 'viewer-date';
   tglEl.textContent = fmtTgl(foto) + ' • ' + fmtJam(foto);
@@ -3839,42 +3871,28 @@ window.aksiKirimWA = async function() {
   const foto = photos.find(p => p.id === currentViewPhotoId);
   if (!foto) return;
   if (!aksiMulai()) return;
+  const bukaWA = () => {
+    const teks = (foto.title ? foto.title + '\n' : '') + getDownloadSrc(foto);
+    window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank');
+  };
   try {
     if (!mediaBlobCache.has(foto.id)) showMiniToast('Menyiapkan media...', 2500);
     const blob = await ambilBlobMedia(foto, 90000);
     const { mime, ext } = infoFileMedia(foto, blob);
     const filename = `${namaFileBersih(foto.title, 'Koleksi_RHN')}.${ext}`;
     const file = new File([blob], filename, { type: mime });
-
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file] });
       } catch (e) {
         if (e && e.name === 'AbortError') return;
-        /* izin sentuhan kedaluwarsa setelah mengunduh: minta ketuk sekali lagi (share dipanggil langsung dari ketukan itu) */
-        let gagalShare = null;
-        const r = await customSwal.fire({
-          icon: 'question', title: 'Siap Dikirim',
-          text: 'Media sudah siap. Ketuk tombol di bawah untuk memilih WhatsApp.',
-          showCancelButton: true, confirmButtonText: '<span style="color:#000; font-weight:800;">Kirim Sekarang</span>', cancelButtonText: 'Batal',
-          background: 'var(--card)', color: 'var(--text)',
-          preConfirm: () => navigator.share({ files: [file] }).then(() => true, (err) => { if (!(err && err.name === 'AbortError')) gagalShare = err; return true; })
-        });
-        if (r.isConfirmed && gagalShare) {
-          await simpanSatuFileKePerangkat(blob, filename, mime);
-          showMiniToast('Berbagi gagal. File diunduh, kirim dari Galeri HP.', 3200);
-        }
+        bukaWA();
       }
     } else {
-      await simpanSatuFileKePerangkat(blob, filename, mime);
-      customSwal.fire({
-        icon: 'info', title: 'Bagikan Manual',
-        text: 'Peramban ini tidak mendukung pengiriman file langsung ke WhatsApp. File telah diunduh, silakan kirim dari Galeri HP Anda.',
-        background: 'var(--card)', color: 'var(--text)'
-      });
+      bukaWA();
     }
   } catch (e) {
-    customSwal.fire({ icon: 'error', title: 'Gagal Menyiapkan Media', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+    bukaWA();
   } finally {
     aksiSelesai();
   }
