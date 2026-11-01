@@ -488,220 +488,8 @@ body.viewer-open #photo-viewer{visibility:visible}
 #photo-viewer #viewer-content{cursor:grab}
 }
 </style>
-<style>
-/* ===== FILE EXPLORER (Windows 11) — tampilan baru halaman Galeri ===== */
-body.pg-galeri{overflow:hidden;background:#fff}
-body.pg-galeri #app-screen{padding-left:0}
-body.pg-galeri .mobile-header,body.pg-galeri .bottom-nav,body.pg-galeri .xm-nav,body.pg-galeri .floating-cancel-btn,body.pg-galeri .scroll-top-btn{display:none!important}
-body.pg-galeri #page-galeri.active{position:fixed;inset:0;z-index:60;display:block;margin:0;padding:0;background:#fff}
-#page-galeri>.page-head,#page-galeri>.media-filter-tabs{display:none!important}
-.xp{--c-chrome:#f3f6fb;--c-title:#dfe5ee;--c-line:#e5e5e5;--c-text:#1a1a1a;--c-mute:#605e5c;--c-hover:#eaf2fb;--c-sel:#cce4fb;--c-blue:#0f6cbd;
- --w-stat:89px;--w-date:162px;--w-type:136px;--w-size:90px;--cols:minmax(120px,1fr) var(--w-stat) var(--w-date) var(--w-type) var(--w-size);
- position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;color:var(--c-text);font:12px/1.35 'Segoe UI Variable Text','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;cursor:default;-webkit-font-smoothing:auto;overflow:hidden}
-.xp *{box-sizing:border-box}
-.xp button{background:none;border:0;color:inherit;font:inherit;cursor:default;padding:0;margin:0}
-.xp .xi{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.xp .xf{width:16px;height:16px;flex-shrink:0}
-.xp .xi.xs{width:10px;height:10px}
-/* judul / tab */
-.xp-title{height:36px;background:var(--c-title);display:flex;align-items:flex-end;padding:0 0 0 12px;flex-shrink:0;position:relative}
-.xp-tab{display:flex;align-items:center;gap:10px;height:32px;width:240px;max-width:62%;padding:0 6px 0 12px;background:var(--c-chrome);border-radius:8px 8px 0 0}
-.xp-tab>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.xp-tab-x,.xp-newtab{width:28px;height:28px;display:grid!important;place-items:center;border-radius:6px;flex-shrink:0}
-.xp-newtab{margin:0 0 2px 4px}
-.xp-tab-x:hover,.xp-newtab:hover,.xp-win button:hover{background:rgba(0,0,0,.07)}
-.xp-win{margin-left:auto;display:flex;align-self:flex-start;height:32px}
-.xp-win button{width:46px;height:32px;display:grid!important;place-items:center}
-.xp-win button.cl:hover{background:#c42b1c;color:#fff}
-/* alamat */
-.xp-addr{display:flex;align-items:center;gap:4px;padding:6px 12px;background:var(--c-chrome);flex-shrink:0}
-.xp-ib{width:32px;height:32px;display:grid!important;place-items:center;border-radius:4px;color:#333;flex-shrink:0}
-.xp-ib:hover:not(:disabled){background:rgba(0,0,0,.06)}
-.xp-ib:disabled{color:#b3b3b3}
-.xp-ib-nav{display:none!important}
-.xp-crumb{flex:1;min-width:0;height:32px;margin-left:6px;background:#fff;border:1px solid #dfe2e7;border-radius:4px;display:flex;align-items:center;padding:0 4px 0 8px;overflow:hidden;white-space:nowrap;gap:2px}
-.xp-crumb .xi{color:#6b6b6b}
-.xp-cr{height:24px;padding:0 6px;border-radius:4px;display:flex!important;align-items:center;max-width:220px}
-.xp-cr span{overflow:hidden;text-overflow:ellipsis}
-.xp-cr:hover,.xp-cr.xp-drop{background:#e8eef6}
-.xp-search{width:290px;flex:0 1 290px;height:32px;margin-left:6px;background:#fff;border:1px solid #dfe2e7;border-bottom-color:#8b8b8b;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:8px;color:#555}
-.xp-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;color:var(--c-text);user-select:text}
-.xp-search input::placeholder{color:#6b6b6b}
-/* toolbar */
-.xp-tool{display:flex;align-items:center;gap:2px;padding:0 12px;height:46px;background:#fff;border-bottom:1px solid var(--c-line);flex-shrink:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-.xp-tool::-webkit-scrollbar{display:none}
-.xp-tb{height:34px;min-width:34px;padding:0 8px;display:flex!important;align-items:center;justify-content:center;gap:6px;border-radius:4px;flex-shrink:0;white-space:nowrap;color:#1f1f1f}
-.xp-tb .xi{width:18px;height:18px}
-.xp-tb .xi.xs{width:10px;height:10px}
-.xp-tb:hover:not(:disabled){background:#f0f0f0}
-.xp-tb:disabled{color:#b6b6b6}
-.xp-tb-r{margin-left:auto}
-.xp-sep{width:1px;height:20px;background:#d6d6d6;margin:0 6px;flex-shrink:0}
-/* badan */
-.xp-body{flex:1;display:flex;min-height:0;position:relative}
-.xp-nav{width:168px;flex-shrink:0;overflow:auto;padding:6px 4px;background:#fff;scrollbar-width:thin}
-.xp-ni{display:flex!important;align-items:center;gap:6px;width:100%;height:32px;padding:0 8px 0 calc(4px + var(--ind,0px));border-radius:4px;position:relative;text-align:left;white-space:nowrap}
-.xp-ni:hover{background:#f0f0f0}
-.xp-ni.act{background:#e4eefa}
-.xp-ni.act::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--c-blue)}
-.xp-ni.xp-drop{background:var(--c-sel)}
-.xp-ni>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.xp-ni em{font-style:normal;color:var(--c-mute);font-size:11px}
-.xp-tg{width:16px;height:16px;display:grid;place-items:center;flex-shrink:0;color:#6b6b6b;border-radius:3px}
-.xp-tg .xi{width:10px;height:10px;transition:transform .1s}
-.xp-tg.op .xi{transform:rotate(90deg)}
-.xp-tg:hover{background:rgba(0,0,0,.07)}
-.xp-nsep{height:1px;background:var(--c-line);margin:6px 8px}
-.xp-main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
-.xp-list{flex:1;overflow:auto;padding:0 6px 8px;position:relative;scrollbar-width:thin}
-.xp-cols{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:var(--cols);height:28px;background:#fff;align-items:stretch}
-.xp-ch{position:relative;display:flex;align-items:center;padding:0 8px;border-right:1px solid #ececec;overflow:hidden;white-space:nowrap;color:#1a1a1a}
-.xp-ch:hover{background:#f3f3f3}
-.xp-ch.nm{padding-left:6px;gap:6px}
-.xp-ch.nm span{margin-left:22px}
-.xp-ch.sorted::before{content:'';position:absolute;top:2px;left:50%;width:5px;height:5px;border-left:1.2px solid #6b6b6b;border-top:1.2px solid #6b6b6b;transform:translateX(-50%) rotate(45deg)}
-.xp-ch.sorted.desc::before{transform:translateX(-50%) rotate(225deg);top:0}
-.xp-ch.sz{justify-content:flex-start}
-.xp-row,.xp-frow{position:relative;display:grid;grid-template-columns:var(--cols);align-items:center;height:32px;border-radius:4px}
-.xp-cell{padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
-.xp-c-name{display:flex;align-items:center;gap:6px;padding-left:6px}
-.xp-name{overflow:hidden;text-overflow:ellipsis;margin-left:2px}
-.xp-c-size{text-align:right}
-.xp-sync{color:#0f6cbd}
-.xp-row:hover,.xp-frow:hover{background:var(--c-hover)}
-.xp-row.selected,.xp-frow.selected{background:var(--c-sel)}
-.xp-row.xp-drop,.xp-frow.xp-drop{background:var(--c-sel);outline:1px dashed var(--c-blue);outline-offset:-1px}
-.xp-chk,.xp-row .select-check{position:static!important;display:flex!important;align-items:center;justify-content:center;flex-shrink:0;width:14px;height:14px;border:1px solid #6b6b6b;border-radius:3px;background:#fff;opacity:0;transform:none!important;transition:none!important;box-shadow:none}
-.xp-row:hover .select-check,.xp-row.selected .select-check,.xp-frow:hover .xp-chk,.xp-frow.selected .xp-chk,.xp-sel-any .xp-chk,.xp-sel-any .select-check,.xp-cols:hover .xp-chk{opacity:1}
-.xp-chk.checked,.xp-row .select-check.checked{background:var(--c-blue);border-color:var(--c-blue)}
-.xp-chk.checked::after,.xp-row .select-check.checked::after{content:'';width:4px;height:8px;border:solid #fff;border-width:0 1.6px 1.6px 0;transform:rotate(45deg) translate(-1px,-1px)}
-.xp-rn{width:100%;height:22px;border:1px solid var(--c-blue);outline:0;padding:0 4px;font:inherit;background:#fff;color:#000;user-select:text;-webkit-user-select:text;border-radius:2px}
-.xp-empty{display:none;padding:28px 12px;text-align:center;color:#6b6b6b}
-.xp-empty.show{display:block}
-.xp .empty-state{display:none!important}
-.xp .video-badge{display:none!important}
-.xp .xp-row .fav-badge{position:absolute!important;top:50%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%);right:calc(var(--w-date) + var(--w-type) + var(--w-size) + 8px)!important;width:14px!important;height:14px!important;background:none!important;color:#e0a100!important;border-radius:0!important}
-.xp .xp-row .fav-badge .ico{width:13px;height:13px}
-/* override grid lama */
-#page-galeri #xp-list #main-gallery-grid{display:block;margin:0;gap:0;grid-template-columns:none}
-#page-galeri #xp-list #main-gallery-grid .album-card.xp-row{aspect-ratio:auto;height:32px;border:0;border-radius:4px;background:transparent;overflow:visible;transform:none!important;box-shadow:none!important;content-visibility:auto;contain-intrinsic-size:auto 32px;contain:layout style}
-#page-galeri #xp-list #main-gallery-grid .album-card.xp-row:hover{background:var(--c-hover)}
-#page-galeri #xp-list #main-gallery-grid .album-card.xp-row.selected{background:var(--c-sel)}
-#page-galeri #xp-list #main-gallery-grid .album-card.xp-row.xp-drop{background:var(--c-sel)}
-#page-galeri #xp-list #main-gallery-grid .album-card.skeleton-box{height:32px;aspect-ratio:auto;border:0;border-radius:4px;margin:2px 0;background:linear-gradient(100deg,#f1f1f1 30%,#e6e6e6 50%,#f1f1f1 70%);background-size:250% 100%}
-#page-galeri #xp-list #main-gallery-grid .album-card.xp-row:active{transform:none}
-/* panel detail */
-.xp-det{display:none;width:300px;flex-shrink:0;border-left:1px solid #ececec;background:#fff;overflow:auto}
-.xp.det-on .xp-det{display:block}
-.xp-dprev{height:218px;background:#f6f6f6;display:grid;place-items:center;overflow:hidden}
-.xp-dprev .xf{width:84px;height:84px}
-.xp-dprev img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-.xp-dtitle{padding:22px 16px 14px;font-size:16px;font-weight:600;line-height:1.3;word-break:break-word}
-.xp-dcard{margin:0 16px;padding:14px;border:1px solid #e3e3e3;border-radius:8px;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.4}
-.xp-dcard .xi{width:18px;height:18px;margin-top:1px;color:#555}
-.xp-dtab{margin:0 16px;display:grid;grid-template-columns:96px 1fr;gap:8px 10px;font-size:12px}
-.xp-dtab b{font-weight:400;color:var(--c-mute)}
-.xp-dtab span{word-break:break-word}
-/* status bar */
-.xp-stat{height:28px;display:flex;align-items:center;gap:20px;padding:0 12px;flex-shrink:0;background:#fff;white-space:nowrap}
-.xp-views{margin-left:auto;display:flex;gap:2px}
-.xp-vb{width:28px;height:24px;display:grid!important;place-items:center;border-radius:4px;border:1px solid transparent!important}
-.xp-vb:hover{background:#eee}
-.xp-vb.act{background:#fff;border-color:#8a8a8a!important}
-/* menu */
-.xp-menu{position:fixed;z-index:99000;min-width:220px;background:#fdfdfd;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:4px;font:12px 'Segoe UI Variable Text','Segoe UI',system-ui,sans-serif;color:#1a1a1a}
-.xp-mi{display:flex;align-items:center;gap:10px;width:100%;height:32px;padding:0 10px;border:0;background:none;border-radius:4px;font:inherit;color:inherit;text-align:left;cursor:default}
-.xp-mi:hover:not(:disabled){background:#eee}
-.xp-mi:disabled{color:#b0b0b0}
-.xp-mi .xi{width:16px;height:16px}
-.xp-mi .ck{width:16px;display:grid;place-items:center;flex-shrink:0}
-.xp-mi span{flex:1}
-.xp-mi kbd{font:inherit;color:#777}
-.xp-msep{height:1px;background:#e5e5e5;margin:4px 6px}
-.xp-scrim{display:none}
-/* tampilan ikon besar */
-.xp.v-icons .xp-cols{display:none}
-.xp.v-icons #xp-folders,.xp.v-icons #page-galeri #xp-list #main-gallery-grid,.xp.v-icons #xp-list #main-gallery-grid{display:flex!important;flex-wrap:wrap;gap:4px;padding-top:8px}
-.xp.v-icons #xp-folders{padding-top:8px}
-.xp.v-icons .xp-frow,.xp.v-icons #page-galeri #xp-list #main-gallery-grid .album-card.xp-row{display:flex!important;flex-direction:column;align-items:center;width:96px;height:auto!important;min-height:92px;padding:8px 4px;contain-intrinsic-size:auto 96px}
-.xp.v-icons .xp-c-stat,.xp.v-icons .xp-c-date,.xp.v-icons .xp-c-type,.xp.v-icons .xp-c-size{display:none}
-.xp.v-icons .xp-c-name{flex-direction:column;gap:4px;padding:0;width:100%}
-.xp.v-icons .xp-c-name .xf{width:48px;height:48px}
-.xp.v-icons .xp-name{white-space:normal;word-break:break-word;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0}
-.xp.v-icons .xp-chk,.xp.v-icons .xp-row .select-check{position:absolute!important;top:6px;left:6px}
-.xp.v-icons .xp-row .fav-badge{right:8px!important;top:10px!important}
-/* responsif */
-@media(max-width:1100px){.xp.det-on .xp-det{position:absolute;right:0;top:0;bottom:0;z-index:6;box-shadow:-8px 0 24px rgba(0,0,0,.14)}}
-@media(max-width:900px){
- .xp-ib-nav{display:grid!important}
- .xp-nav{position:absolute;left:0;top:0;bottom:0;z-index:7;width:236px;box-shadow:8px 0 24px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .16s}
- .xp.nav-on .xp-nav{transform:none}
- .xp.nav-on .xp-scrim{display:block;position:absolute;inset:0;z-index:6;background:rgba(0,0,0,.2)}
- .xp-search{width:190px;flex-basis:190px}
-}
-@media(max-width:760px){
- .xp{--w-stat:0px;--w-type:0px;--w-date:112px;--w-size:70px;--cols:minmax(100px,1fr) var(--w-date) var(--w-size)}
- .xp-c-stat,.xp-c-type,.xp-ch[data-k="stat"],.xp-ch[data-k="type"]{display:none!important}
- .xp-win{display:none}
- .xp-tab{max-width:70%}
- .xp-addr{padding:6px 8px;gap:2px}
- .xp-ib{width:30px}
- .xp-search{flex:0 1 120px;width:120px;margin-left:4px}
- .xp-tool{padding:0 8px}
- .xp-tb .lb{display:none}
- .xp-dprev{height:160px}
- .xp-list{padding:0 2px 8px}
- .xp-c-date{font-size:11px;padding:0 4px}
- .xp-ch{padding:0 4px}
- .xp .xp-row .fav-badge{right:calc(var(--w-date) + var(--w-size) + 6px)!important}
-}
-@media(max-width:480px){.xp-det{width:100%}.xp-search{flex-basis:96px;width:96px}}
-</style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<symbol id="x-folder" viewBox="0 0 32 32"><path d="M2 7.5A2.5 2.5 0 014.5 5h7.2c.7 0 1.3.3 1.8.8L15.7 8h11.8A2.5 2.5 0 0130 10.5v14a2.5 2.5 0 01-2.5 2.5h-23A2.5 2.5 0 012 24.5z" fill="#e3a21a"/><path d="M2 12.5A2.5 2.5 0 014.5 10h23a2.5 2.5 0 012.5 2.5v12a2.5 2.5 0 01-2.5 2.5h-23A2.5 2.5 0 012 24.5z" fill="#ffd45f"/></symbol>
-<symbol id="x-file-img" viewBox="0 0 32 32"><path d="M7 3h12l7 7v17a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" fill="#fff" stroke="#aeb7c2" stroke-width="1.3"/><path d="M19 3v5a2 2 0 002 2h5" fill="#e6ebf1" stroke="#aeb7c2" stroke-width="1.3"/><rect x="9" y="14" width="14" height="11" rx="1.5" fill="#3b8fe0"/><path d="M10 24l4-5 3 3.5 2-2 4 3.5z" fill="#fff" opacity=".92"/><circle cx="20" cy="17.5" r="1.5" fill="#fff"/></symbol>
-<symbol id="x-file-vid" viewBox="0 0 32 32"><path d="M7 3h12l7 7v17a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" fill="#fff" stroke="#aeb7c2" stroke-width="1.3"/><path d="M19 3v5a2 2 0 002 2h5" fill="#e6ebf1" stroke="#aeb7c2" stroke-width="1.3"/><rect x="9" y="14" width="14" height="11" rx="1.5" fill="#7a5ad6"/><path d="M14.5 17.2v5.6l5-2.8z" fill="#fff"/></symbol>
-<symbol id="x-sync" viewBox="0 0 24 24"><g fill="none" stroke="#0f6cbd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 00-14-4M4 4.5V9h4.5"/><path d="M4 13a8 8 0 0014 4M20 19.5V15h-4.5"/></g></symbol>
-<symbol id="x-home" viewBox="0 0 24 24"><path d="M12 3l9 8h-2.5v9h-4.5v-6h-4v6H5.5v-9H3z" fill="#e8742a"/></symbol>
-<symbol id="x-gal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="#2f7fe0"/><path d="M4 19l5-6 3.5 4 2.5-3 5 5z" fill="#fff" opacity=".92"/><circle cx="16.5" cy="9" r="1.8" fill="#fff"/></symbol>
-<symbol id="x-cloud" viewBox="0 0 24 24"><path d="M7 19a4.5 4.5 0 010-9 5.5 5.5 0 0110.5-1.2A4.8 4.8 0 0117.5 19z" fill="#2f7fe0"/></symbol>
-<symbol id="x-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.3l1.1-6.2L3 9.7l6.2-.9z" fill="#f5b50a"/></symbol>
-<symbol id="x-vids" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="#7a5ad6"/><path d="M10 8.5v7l6-3.5z" fill="#fff"/></symbol>
-<symbol id="x-bin" viewBox="0 0 24 24"><path d="M5 7h14l-1.2 13a1.5 1.5 0 01-1.5 1.4H7.7A1.5 1.5 0 016.2 20z" fill="#9aa3ad"/><rect x="4" y="4.5" width="16" height="2.5" rx="1" fill="#6f7882"/><path d="M9 3h6v2H9z" fill="#6f7882"/></symbol>
-<symbol id="x-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="#5a6470" stroke-width="2"/><path d="M12 2.5l1.6 2.3 2.7-.7.9 2.7 2.7.9-.7 2.7L21.5 12l-2.3 1.6.7 2.7-2.7.9-.9 2.7-2.7-.7L12 21.5l-1.6-2.3-2.7.7-.9-2.7-2.7-.9.7-2.7L2.5 12l2.3-1.6-.7-2.7 2.7-.9.9-2.7 2.7.7z" fill="none" stroke="#5a6470" stroke-width="1.6" stroke-linejoin="round"/></symbol>
-<symbol id="x-upl" viewBox="0 0 24 24"><g fill="none" stroke="#2f7fe0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></g></symbol>
-<symbol id="x-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-<symbol id="x-min" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
-<symbol id="x-max" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1.5"/></symbol>
-<symbol id="x-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-<symbol id="x-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
-<symbol id="x-fwd" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-<symbol id="x-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
-<symbol id="x-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.6-5.9M20 4v5h-5"/></symbol>
-<symbol id="x-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></symbol>
-<symbol id="x-new" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
-<symbol id="x-cut" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M7.6 16L18 3M16.4 16L6 3"/></symbol>
-<symbol id="x-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 00-2-2H6a2 2 0 00-2 2v11a2 2 0 002 2h2"/></symbol>
-<symbol id="x-paste" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 4v2h6V4"/></symbol>
-<symbol id="x-rename" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M12 4v16M9 4h6M9 20h6"/></symbol>
-<symbol id="x-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2v-6a2 2 0 00-2-2h-1"/></symbol>
-<symbol id="x-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
-<symbol id="x-sort" viewBox="0 0 24 24"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></symbol>
-<symbol id="x-view" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></symbol>
-<symbol id="x-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
-<symbol id="x-details" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></symbol>
-<symbol id="x-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
-<symbol id="x-chevd" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-<symbol id="x-list" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
-<symbol id="x-icons" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></symbol>
-<symbol id="x-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
-<symbol id="x-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
-<symbol id="x-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z"/></symbol>
-<symbol id="x-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></symbol>
-<symbol id="x-open" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></symbol>
-</defs></svg>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-gallery" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="1.6"/><path d="M21 15l-5-5L5 21"/></symbol>
 <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4l4 4M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></symbol>
@@ -867,60 +655,7 @@ body.pg-galeri #page-galeri.active{position:fixed;inset:0;z-index:60;display:blo
           <button class="media-filter-tab" data-filter="favorite" onclick="setMediaFilter('favorite')"><svg class="ico"><use href="#i-heart"/></svg>Favorit <span class="tab-count" id="count-favorite"></span></button>
         </div>
 
-<div class="xp" id="xp">
-          <div class="xp-title">
-            <div class="xp-tab"><svg class="xf"><use href="#x-folder"/></svg><span id="xp-tab-title">RHN GALLERY</span><button class="xp-tab-x" aria-label="Close tab"><svg class="xi"><use href="#x-close"/></svg></button></div>
-            <button class="xp-newtab" onclick="xpGo(null)" aria-label="New tab"><svg class="xi"><use href="#x-plus"/></svg></button>
-            <div class="xp-win"><button aria-label="Minimize"><svg class="xi"><use href="#x-min"/></svg></button><button onclick="xpWin('max')" aria-label="Maximize"><svg class="xi"><use href="#x-max"/></svg></button><button class="cl" aria-label="Close"><svg class="xi"><use href="#x-close"/></svg></button></div>
-          </div>
-          <div class="xp-addr">
-            <button class="xp-ib xp-ib-nav" onclick="xpToggleNav()" aria-label="Navigation pane"><svg class="xi"><use href="#x-list"/></svg></button>
-            <button class="xp-ib" id="xp-back" onclick="xpBack()" aria-label="Back"><svg class="xi"><use href="#x-back"/></svg></button>
-            <button class="xp-ib" id="xp-fwd" onclick="xpForward()" aria-label="Forward"><svg class="xi"><use href="#x-fwd"/></svg></button>
-            <button class="xp-ib" id="xp-up" onclick="xpUp()" aria-label="Up"><svg class="xi"><use href="#x-up"/></svg></button>
-            <button class="xp-ib" onclick="xpRefresh()" aria-label="Refresh"><svg class="xi"><use href="#x-refresh"/></svg></button>
-            <div class="xp-crumb" id="xp-crumb"></div>
-            <label class="xp-search"><input id="xp-q" type="text" placeholder="Search RHN GALLERY" autocomplete="off" oninput="xpSearch(this.value)"><svg class="xi"><use href="#x-search"/></svg></label>
-          </div>
-          <div class="xp-tool">
-            <button class="xp-tb" onclick="xpMenuNew(event)"><svg class="xi"><use href="#x-new"/></svg><span>New</span><svg class="xi xs"><use href="#x-chevd"/></svg></button>
-            <i class="xp-sep"></i>
-            <button class="xp-tb" id="xp-b-cut" onclick="xpCut()" aria-label="Cut" disabled><svg class="xi"><use href="#x-cut"/></svg></button>
-            <button class="xp-tb" id="xp-b-copy" onclick="xpCopy()" aria-label="Copy" disabled><svg class="xi"><use href="#x-copy"/></svg></button>
-            <button class="xp-tb" id="xp-b-paste" onclick="xpPaste()" aria-label="Paste" disabled><svg class="xi"><use href="#x-paste"/></svg></button>
-            <button class="xp-tb" id="xp-b-rename" onclick="xpRename()" aria-label="Rename" disabled><svg class="xi"><use href="#x-rename"/></svg></button>
-            <button class="xp-tb" id="xp-b-share" onclick="xpShare()" aria-label="Share" disabled><svg class="xi"><use href="#x-share"/></svg></button>
-            <button class="xp-tb" id="xp-b-del" onclick="xpDelete()" aria-label="Delete" disabled><svg class="xi"><use href="#x-trash"/></svg></button>
-            <i class="xp-sep"></i>
-            <button class="xp-tb" onclick="xpMenuSort(event)"><svg class="xi"><use href="#x-sort"/></svg><span class="lb">Sort</span><svg class="xi xs"><use href="#x-chevd"/></svg></button>
-            <button class="xp-tb" onclick="xpMenuView(event)"><svg class="xi"><use href="#x-view"/></svg><span class="lb">View</span><svg class="xi xs"><use href="#x-chevd"/></svg></button>
-            <button class="xp-tb" onclick="xpMenuMore(event)" aria-label="See more"><svg class="xi"><use href="#x-more"/></svg></button>
-            <button class="xp-tb xp-tb-r" onclick="xpToggleDetails()"><svg class="xi"><use href="#x-details"/></svg><span class="lb">Details</span></button>
-          </div>
-          <div class="xp-body">
-            <nav class="xp-nav" id="xp-nav"></nav>
-            <div class="xp-scrim" onclick="xpToggleNav(false)"></div>
-            <div class="xp-main">
-              <div class="xp-list" id="xp-list">
-                <div class="xp-cols" id="xp-cols">
-                  <div class="xp-ch nm" data-k="name"><i class="xp-chk" id="xp-chk-all"></i><span>Name</span></div>
-                  <div class="xp-ch" data-k="stat">Status</div>
-                  <div class="xp-ch" data-k="date">Date modified</div>
-                  <div class="xp-ch" data-k="type">Type</div>
-                  <div class="xp-ch sz" data-k="size">Size</div>
-                </div>
-                <div id="xp-folders"></div>
-                <div class="album-grid" id="main-gallery-grid"></div>
-                <div class="xp-empty" id="xp-empty">This folder is empty.</div>
-              </div>
-            </div>
-            <aside class="xp-det" id="xp-det"></aside>
-          </div>
-          <div class="xp-stat">
-            <span id="xp-st-items">0 items</span><span id="xp-st-sel"></span>
-            <div class="xp-views"><button class="xp-vb act" id="xp-v-details" onclick="xpSetView('details')" aria-label="Details"><svg class="xi"><use href="#x-list"/></svg></button><button class="xp-vb" id="xp-v-icons" onclick="xpSetView('icons')" aria-label="Large icons"><svg class="xi"><use href="#x-icons"/></svg></button></div>
-          </div>
-        </div>
+        <div class="album-grid" id="main-gallery-grid"></div>
       </div>
 
       <div id="page-album" class="page">
@@ -980,8 +715,6 @@ body.pg-galeri #page-galeri.active{position:fixed;inset:0;z-index:60;display:blo
           <div class="panel">
             <label class="field-label" for="f-img-title">JUDUL / NAMA FILE</label>
             <input type="text" id="f-img-title" class="f-input-dark" placeholder="Judul / Nama File (Opsional)">
-            <label class="field-label" for="f-upload-folder" style="margin-top:14px">SIMPAN KE FOLDER</label>
-            <select id="f-upload-folder" class="f-input-dark" style="width:100%;appearance:auto"><option value="">RHN GALLERY</option></select>
             <div class="upload-hint">Upload otomatis mengubah setiap foto ke format WebP hemat ruang dan mengompres pintar hingga ukuran ≤ 100KB (target ≤ 50KB) sebelum dikirim ke server. Foto tetap tajam. Video dioptimalkan otomatis oleh server (ukuran mengecil, kualitas tampilan dijaga). Maks. 1 GB per file.</div>
           </div>
         </div>
@@ -1199,9 +932,6 @@ let longPressFired = false;
 let toastTimer = null;
 
 let mediaFilter = 'all';
-let folders = [], folderIds = new Set(), currentFolderId = null, searchQ = '', sortKey = 'name', sortDir = 1;
-let selFolders = new Set(), unsubFolders = null, uploadFolderTarget = null;
-const XP = { flat: false, hist: [], fwd: [], clip: null, renaming: null, pendingRename: null, drag: null, view: 'details', det: window.innerWidth >= 1100, openRoot: true, open: new Set(), lastSel: null, menu: null };
 const svgIcon = (id) => `<svg class="ico" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 
 async function runWithConcurrency(items, limit, worker) {
@@ -1275,8 +1005,6 @@ function applyPendingOps(docs) {
     if (o.state === 'trash') c.deletedAt = o.at || Date.now();
     else if (o.state === 'live') delete c.deletedAt;
     if (typeof o.fav === 'boolean') c.favorite = o.fav;
-    if (o.folder !== undefined) c.folderId = o.folder;
-    if (typeof o.title === 'string') c.title = o.title;
     out.push(c);
   }
   return out;
@@ -1313,8 +1041,6 @@ async function syncPendingOnce() {
       if (op.state === 'trash') data.deletedAt = op.at || Date.now();
       else if (op.state === 'live') data.deletedAt = deleteField();
       if (typeof op.fav === 'boolean') data.favorite = op.fav;
-      if (op.folder !== undefined) data.folderId = (op.folder === null) ? deleteField() : op.folder;
-      if (typeof op.title === 'string') data.title = op.title;
       if (Object.keys(data).length) batch.set(ref, data, { merge: true });
     });
     try {
@@ -1474,9 +1200,6 @@ window.switchPage = function(p) {
   });
 
   document.body.classList.toggle('pg-album', p === 'album' || p === 'sampah');
-  document.body.classList.toggle('pg-galeri', p === 'galeri');
-  if (p === 'tambah') xpFillUploadFolders();
-  if (p === 'galeri') xpRenderChrome();
   if (p === 'album') refreshAlbumPage();
   if (p === 'sampah') renderTrash();
   document.getElementById('header-gallery-stats').classList.toggle('show', p === 'galeri' && photos.length > 0);
@@ -1593,7 +1316,6 @@ window.doLogout = async function() {
   try {
     try { await Promise.race([syncPending().then(() => waitForPendingWrites(db)), new Promise(r => setTimeout(r, 8000))]); } catch (e0) {}
     if (unsubPhotos) { try { unsubPhotos(); } catch (e1) {} unsubPhotos = null; }
-    if (unsubFolders) { try { unsubFolders(); } catch (e1) {} unsubFolders = null; }
     await signOut(auth);
   } catch (e) {
     customSwal.fire({ icon: 'error', title: 'Gagal keluar', text: mapAuthError(e.code), background: 'var(--card)', color: 'var(--text)' });
@@ -1775,7 +1497,6 @@ function unlockApp() {
     document.getElementById('app-pin').value = '';
     renderSkeleton();
     listenPhotos();
-    listenFolders();
     switchPage('galeri');
 
     setTimeout(() => appScrn.classList.remove('fade-in'), 140);
@@ -1789,7 +1510,6 @@ function renderSkeleton() {
 
 const sentThumbs = new Set();
 function precacheThumbs() {
-  return;   /* tampilan file explorer tidak memakai thumbnail di daftar */
   if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
   const urls = [];
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
@@ -2195,7 +1915,7 @@ async function uploadSinglePhoto(file, customTitle, index, total, onProgress) {
 
   return {
     ref: doc(db, 'users', currentUser.uid, 'photos', id),
-    data: { title, ...meta, createdAt: serverTimestamp(), ...(uploadFolderTarget ? { folderId: uploadFolderTarget } : {}) }
+    data: { title, ...meta, createdAt: serverTimestamp() }
   };
 }
 
@@ -2789,7 +2509,6 @@ const warnLeave = (e) => { e.preventDefault(); e.returnValue = ''; };
 window.tambahFotoBaru = async function() {
   if (isBusy || isUploadingBg) return;
   const customTitle = document.getElementById('f-img-title').value.trim();
-  uploadFolderTarget = (document.getElementById('f-upload-folder') || {}).value || null;
   if (!selectedFiles.length) return customSwal.fire({ icon: 'warning', title: 'Kosong', text: 'Pilih foto/video dulu!', background: 'var(--card)', color: 'var(--text)' });
 
   isUploadingBg = true;
@@ -2889,15 +2608,11 @@ function monthKey(p) { const d = photoDate(p); return d.getFullYear() + '-' + St
 function monthLabel(k) { const [y, m] = k.split('-'); return BULAN[+m - 1] + ' ' + y; }
 
 function filteredPhotos() {
-  let l;
-  if (searchQ) { const q = searchQ.toLowerCase(); l = photos.filter(p => xpFileName(p).toLowerCase().indexOf(q) !== -1); }
-  else if (mediaFilter.indexOf('m:') === 0) { const k = mediaFilter.slice(2); l = photos.filter(p => monthKey(p) === k); }
-  else if (mediaFilter === 'image') l = photos.filter(p => !isVideoItem(p));
-  else if (mediaFilter === 'video') l = photos.filter(p => isVideoItem(p));
-  else if (mediaFilter === 'favorite') l = photos.filter(p => !!p.favorite);
-  else if (XP.flat) l = photos;
-  else l = photos.filter(p => xpFolderOf(p) === currentFolderId);
-  return xpSortPhotos(l);
+  if (mediaFilter.indexOf('m:') === 0) { const k = mediaFilter.slice(2); return photos.filter(p => monthKey(p) === k); }
+  if (mediaFilter === 'image') return photos.filter(p => !isVideoItem(p));
+  if (mediaFilter === 'video') return photos.filter(p => isVideoItem(p));
+  if (mediaFilter === 'favorite') return photos.filter(p => !!p.favorite);
+  return photos;
 }
 
 window.setMediaFilter = function(f) {
@@ -2969,7 +2684,7 @@ window.bukaAlbum = function(f) {
 };
 
 window.trashBack = function() {
-  switchPage('galeri');
+  switchPage(window.matchMedia('(max-width:959px)').matches ? 'album' : 'pengaturan');
 };
 
 function sisaHari(p) { return Math.max(1, Math.ceil((p.deletedAt + TRASH_DAYS * 86400000 - Date.now()) / 86400000)); }
@@ -3132,7 +2847,6 @@ window.exitSelectMode = function() {
   document.getElementById('main-gallery-grid').classList.remove('select-mode-active');
   document.getElementById('floating-cancel-btn').classList.remove('show');
   document.getElementById('header-gallery-stats').classList.toggle('show', photos.length > 0);
-  xpUpdateSel();
 };
 
 function setCardSelected(id, selected) {
@@ -3167,7 +2881,6 @@ window.toggleSelectAll = function() {
 };
 
 function updateSelectionUI() {
-  xpUpdateSel();
   const count = selectedIds.size;
   document.getElementById('sel-count-text').textContent = `${count} dipilih`;
   const visible = filteredPhotos();
@@ -3294,17 +3007,47 @@ window.addEventListener('scroll', () => {
 
 function createCardNode(p) {
   const card = document.createElement('div');
-  card.className = 'album-card xp-row';
+  card.className = 'album-card';
   card.dataset.id = p.id;
-  if (!XP_TOUCH) card.draggable = true;
-  card.innerHTML = `<span class="xp-cell xp-c-name"><i class="select-check"></i><svg class="xf" aria-hidden="true"><use href="#x-file-${isVideoItem(p) ? 'vid' : 'img'}"/></svg><span class="xp-name"></span></span><span class="xp-cell xp-c-stat"><svg class="xf xp-sync" aria-hidden="true"><use href="#x-sync"/></svg></span><span class="xp-cell xp-c-date"></span><span class="xp-cell xp-c-type"></span><span class="xp-cell xp-c-size"></span>`;
-  xpSyncRow(card, p);
+
+  const img = document.createElement('img');
+  img.className = 'album-cover';
+  img.decoding = 'async';
+  img.alt = p.title || (isVideoItem(p) ? 'video' : 'foto');
+  attachThumb(card, img, getThumbSrc(p));
+
+  card.appendChild(img);
+
+  if (MQ_DESKTOP.matches) {
+    const cap = document.createElement('div');
+    cap.className = 'album-caption';
+    cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
+    card.appendChild(cap);
+  }
+
+  const tgl = document.createElement('div');
+  tgl.className = 'card-date';
+  tgl.textContent = fmtTgl(p) + '\n' + fmtJam(p);
+  card.appendChild(tgl);
+
+  if (isVideoItem(p)) {
+    const badge = document.createElement('div');
+    badge.className = 'video-badge';
+    badge.innerHTML = svgIcon('play');
+    card.appendChild(badge);
+  }
+
   if (p.favorite) {
     const fav = document.createElement('div');
     fav.className = 'fav-badge';
     fav.innerHTML = svgIcon('heart');
     card.appendChild(fav);
   }
+
+  const check = document.createElement('div');
+  check.className = 'select-check';
+  card.appendChild(check);
+
   return card;
 }
 
@@ -3317,7 +3060,7 @@ const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
   grid.addEventListener('pointerdown', (e) => {
     const c = cardOf(e); if (!c) return;
     const id = c.dataset.id;
-    if (e.pointerType !== 'mouse') startPress(id);
+    startPress(id);
     clearTimeout(warmT);
     warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 160);
   });
@@ -3327,13 +3070,12 @@ const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
     const c = cardOf(e);
     if (c && !c.contains(e.relatedTarget)) { cancelPress(); clearTimeout(warmT); }
   });
-  grid.addEventListener('click', (e) => { const c = cardOf(e); if (c) xpRowClick(c.dataset.id, e); });
+  grid.addEventListener('click', (e) => { const c = cardOf(e); if (c) handleCardClick(c.dataset.id); });
   grid.addEventListener('load', (e) => { if (e.target && e.target.classList && e.target.classList.contains('album-cover')) e.target.classList.add('loaded'); }, true);
 })();
 
 function syncFavBadge(node, p) {
   if (!node) return;
-  xpSyncRow(node, p);
   const b = node.querySelector('.fav-badge');
   if (p.favorite && !b) {
     const fav = document.createElement('div');
@@ -3350,7 +3092,6 @@ function renderGallery() {
   const isGaleriActive = document.getElementById('page-galeri').classList.contains('active');
 
   updateFilterCounts();
-  xpRenderChrome();
   const list = filteredPhotos();
 
   if (photos.length === 0) {
@@ -3515,14 +3256,14 @@ async function mintaPinLaluHapus(ids, judulProses, permanent) {
     }
   });
 
-  if (!pin) return false;
+  if (!pin) return;
 
   const hash = await hashPin(pin);
   const cocok = window.userCloudPinLegacy ? pin === window.userCloudPinLegacy : hash === window.userCloudPinHash;
 
   if (!cocok) {
     customSwal.fire({ icon: 'error', title: 'PIN Salah', text: 'Foto tidak jadi dihapus.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
-    return false;
+    return;
   }
 
   const total = ids.length;
@@ -3534,7 +3275,6 @@ async function mintaPinLaluHapus(ids, judulProses, permanent) {
 
   customSwal.fire({ icon: 'success', title: permanent ? `${total} Foto Terhapus` : `${total} Dipindahkan ke Baru Dihapus`, background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
   if (selectMode) exitSelectMode();
-  return true;
 }
 
 window.mintaHapusSemuaFoto = function() {
@@ -4236,716 +3976,6 @@ window.aksiHapus = function() {
     bukaViewer(listAfter[nextIdx].id);
   });
 };
-
-/* ======================= FILE EXPLORER (tampilan galeri ala Windows 11) ======================= */
-const XP_ROOT_NAME = 'RHN GALLERY';
-const XP_TOUCH = window.matchMedia('(hover:none),(pointer:coarse)').matches;
-const xpEl = (id) => document.getElementById(id);
-const xpEsc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const xpIc = (id, cls) => `<svg class="${cls || 'xi'}" aria-hidden="true"><use href="#x-${id}"/></svg>`;
-const XP_COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-const xpZ = (n) => String(n).padStart(2, '0');
-function xpFmtDate(d) { return xpZ(d.getDate()) + '/' + xpZ(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + xpZ(d.getHours()) + '.' + xpZ(d.getMinutes()); }
-function xpExt(p) {
-  let e = String(p.format || '').toLowerCase();
-  if (!e) { try { const m = String(p.url || p.thumbURL || '').split('?')[0].match(/\.([a-z0-9]{2,5})$/i); if (m) e = m[1].toLowerCase(); } catch (x) {} }
-  if (!e) e = isVideoItem(p) ? 'mp4' : 'webp';
-  return e;
-}
-function xpFileName(p) { return (p.title || 'Untitled') + '.' + xpExt(p); }
-function xpTypeOf(p) { const e = xpExt(p).toUpperCase(); return isVideoItem(p) ? e + ' Video File' : 'WPS ' + e + ' Picture file'; }
-function xpSizeStr(b) { if (!b) return ''; return Math.max(1, Math.ceil(b / 1024)).toLocaleString('id-ID') + ' KB'; }
-function xpFolderOf(p) { return (p.folderId && folderIds.has(p.folderId)) ? p.folderId : null; }
-function xpParentOf(f) { return (f.parentId && folderIds.has(f.parentId)) ? f.parentId : null; }
-function xpFolderDate(f) { if (f.mod) return new Date(f.mod); try { if (f.createdAt && f.createdAt.toDate) return f.createdAt.toDate(); } catch (e) {} return new Date(); }
-function xpIsDesc(id, anc) { let g = 0; while (id && g++ < 60) { if (id === anc) return true; const f = folders.find(x => x.id === id); if (!f) return false; id = xpParentOf(f); } return false; }
-let _xpPm = null, _xpPmSrc = null;
-function xpPhoto(id) { if (_xpPmSrc !== photos || !_xpPm || _xpPm.size !== photos.length) { _xpPm = new Map(photos.map(p => [p.id, p])); _xpPmSrc = photos; } return _xpPm.get(id); }
-function xpIsFolderMode() { return mediaFilter === 'all' && !XP.flat; }
-
-function xpSortPhotos(l) {
-  const dir = sortDir;
-  const a = l.slice();
-  if (sortKey === 'date') a.sort((x, y) => (photoDate(x) - photoDate(y)) * dir || XP_COLLATOR.compare(xpFileName(x), xpFileName(y)));
-  else if (sortKey === 'size') a.sort((x, y) => ((x.size || 0) - (y.size || 0)) * dir || XP_COLLATOR.compare(xpFileName(x), xpFileName(y)));
-  else if (sortKey === 'type') a.sort((x, y) => XP_COLLATOR.compare(xpTypeOf(x), xpTypeOf(y)) * dir || XP_COLLATOR.compare(xpFileName(x), xpFileName(y)));
-  else a.sort((x, y) => XP_COLLATOR.compare(xpFileName(x), xpFileName(y)) * dir);
-  return a;
-}
-function xpSortFolders(l) {
-  const a = l.slice();
-  if (sortKey === 'date') a.sort((x, y) => (xpFolderDate(x) - xpFolderDate(y)) * sortDir || XP_COLLATOR.compare(x.name || '', y.name || ''));
-  else if (sortKey === 'name') a.sort((x, y) => XP_COLLATOR.compare(x.name || '', y.name || '') * sortDir);
-  else a.sort((x, y) => XP_COLLATOR.compare(x.name || '', y.name || ''));
-  return a;
-}
-function xpVisibleFolders() {
-  let l = [];
-  if (searchQ) { const q = searchQ.toLowerCase(); l = folders.filter(f => (f.name || '').toLowerCase().indexOf(q) !== -1); }
-  else if (xpIsFolderMode()) l = folders.filter(f => xpParentOf(f) === currentFolderId);
-  return xpSortFolders(l);
-}
-
-/* ---------- baris file ---------- */
-function xpSyncRow(node, p) {
-  if (!node) return;
-  const sig = (p.title || '') + '|' + (p.format || '') + '|' + (p.size || '') + '|' + (p.createdAt && p.createdAt.seconds || '');
-  if (node.__xs === sig) return;
-  node.__xs = sig;
-  const q = (s) => node.querySelector(s);
-  q('.xp-name').textContent = xpFileName(p);
-  q('.xp-c-date').textContent = xpFmtDate(photoDate(p));
-  q('.xp-c-type').textContent = xpTypeOf(p);
-  q('.xp-c-size').textContent = xpSizeStr(p.size);
-  node.title = xpFileName(p);
-}
-
-/* ---------- pilihan (selection) ---------- */
-function xpClearSel() { selectedIds.clear(); selFolders.clear(); }
-function xpPaintFolderSel() {
-  document.querySelectorAll('#xp-folders .xp-frow').forEach(n => {
-    const s = selFolders.has(n.dataset.fid);
-    n.classList.toggle('selected', s);
-    const c = n.querySelector('.xp-chk'); if (c) c.classList.toggle('checked', s);
-  });
-}
-function xpPaintSel() {
-  photoNodes.forEach((n, id) => { const s = selectedIds.has(id); if (n.classList.contains('selected') !== s) setCardSelected(id, s); });
-  xpPaintFolderSel();
-}
-function xpOrderList() {
-  const fo = Array.from(document.querySelectorAll('#xp-folders .xp-frow')).map(n => ({ t: 'f', id: n.dataset.fid }));
-  return fo.concat(filteredPhotos().map(p => ({ t: 'p', id: p.id })));
-}
-function xpSelOnly(t, id) { xpClearSel(); (t === 'f' ? selFolders : selectedIds).add(id); XP.lastSel = { t, id }; xpPaintSel(); xpUpdateSel(); }
-function xpToggleSel(t, id) { const s = (t === 'f' ? selFolders : selectedIds); if (s.has(id)) s.delete(id); else s.add(id); XP.lastSel = { t, id }; xpPaintSel(); xpUpdateSel(); }
-function xpRangeSel(t, id) {
-  const ord = xpOrderList();
-  const b = ord.findIndex(x => x.t === t && x.id === id); if (b < 0) return;
-  let a = XP.lastSel ? ord.findIndex(x => x.t === XP.lastSel.t && x.id === XP.lastSel.id) : 0; if (a < 0) a = 0;
-  const lo = Math.min(a, b), hi = Math.max(a, b);
-  xpClearSel();
-  for (let i = lo; i <= hi; i++) (ord[i].t === 'f' ? selFolders : selectedIds).add(ord[i].id);
-  xpPaintSel(); xpUpdateSel();
-}
-function xpSelCount() { return selFolders.size + selectedIds.size; }
-window.xpSelectAll = function(e) {
-  if (e && e.stopPropagation) e.stopPropagation();
-  const ord = xpOrderList();
-  if (ord.length && xpSelCount() === ord.length) { xpClearSel(); if (selectMode) exitSelectMode(); }
-  else { xpClearSel(); ord.forEach(x => (x.t === 'f' ? selFolders : selectedIds).add(x.id)); }
-  xpPaintSel(); xpUpdateSel();
-};
-window.xpSelectNone = function() { xpClearSel(); if (selectMode) exitSelectMode(); xpPaintSel(); xpUpdateSel(); };
-window.xpInvertSel = function() {
-  const ord = xpOrderList(); const f = new Set(selFolders), p = new Set(selectedIds);
-  xpClearSel();
-  ord.forEach(x => { if (x.t === 'f') { if (!f.has(x.id)) selFolders.add(x.id); } else if (!p.has(x.id)) selectedIds.add(x.id); });
-  xpPaintSel(); xpUpdateSel();
-};
-
-/* ---------- render chrome (folder, alamat, navigasi, status, detail) ---------- */
-let xpRaf = 0;
-function xpRenderChrome() { if (xpRaf) return; xpRaf = requestAnimationFrame(() => { xpRaf = 0; xpRenderAll(); }); }
-function xpRenderAll() { xpRenderFolders(); xpRenderCrumb(); xpRenderNav(); xpRenderCols(); xpUpdateSel(); }
-
-function xpRenderFolders() {
-  if (XP.renaming && XP.renaming.type === 'f') return;
-  const box = xpEl('xp-folders'); if (!box) return;
-  selFolders.forEach(id => { if (!folderIds.has(id)) selFolders.delete(id); });
-  const list = xpVisibleFolders();
-  box.innerHTML = list.map(f => {
-    const s = selFolders.has(f.id);
-    return `<div class="xp-frow${s ? ' selected' : ''}" data-fid="${xpEsc(f.id)}"${XP_TOUCH ? '' : ' draggable="true"'}><span class="xp-cell xp-c-name"><i class="xp-chk${s ? ' checked' : ''}"></i>${xpIc('folder', 'xf')}<span class="xp-name">${xpEsc(f.name)}</span></span><span class="xp-cell xp-c-stat">${xpIc('sync', 'xf xp-sync')}</span><span class="xp-cell xp-c-date">${xpFmtDate(xpFolderDate(f))}</span><span class="xp-cell xp-c-type">File folder</span><span class="xp-cell xp-c-size"></span></div>`;
-  }).join('');
-  if (XP.pendingRename && folderIds.has(XP.pendingRename)) {
-    const id = XP.pendingRename; XP.pendingRename = null;
-    if (list.some(f => f.id === id)) { xpClearSel(); selFolders.add(id); xpPaintSel(); xpStartRename('f', id); }
-  }
-}
-
-function xpViewName() {
-  if (xpIsFolderMode()) return null;
-  if (XP.flat) return 'Gallery';
-  if (mediaFilter === 'favorite') return 'Favorites';
-  if (mediaFilter === 'image') return 'Pictures';
-  if (mediaFilter === 'video') return 'Videos';
-  if (mediaFilter.indexOf('m:') === 0) return monthLabel(mediaFilter.slice(2));
-  return 'Gallery';
-}
-function xpCurName() {
-  const v = xpViewName(); if (v) return v;
-  if (!currentFolderId) return XP_ROOT_NAME;
-  const f = folders.find(x => x.id === currentFolderId); return f ? f.name : XP_ROOT_NAME;
-}
-function xpRenderCrumb() {
-  const cr = xpEl('xp-crumb'); if (!cr) return;
-  const chev = xpIc('chev', 'xi xs');
-  let h = `<span class="xp-cr-ic">${xpIc('cloud', 'xf')}</span><button class="xp-cr" data-root="1"><span>RHN - Personal</span></button>${chev}`;
-  const v = xpViewName();
-  if (v) h += `<button class="xp-cr" data-view="1"><span>${xpEsc(v)}</span></button>${chev}`;
-  else {
-    h += `<button class="xp-cr" data-root="1"><span>${XP_ROOT_NAME}</span></button>${chev}`;
-    const chain = []; let id = currentFolderId, g = 0;
-    while (id && g++ < 60) { const f = folders.find(x => x.id === id); if (!f) break; chain.unshift(f); id = xpParentOf(f); }
-    chain.forEach(f => { h += `<button class="xp-cr" data-fid="${xpEsc(f.id)}"><span>${xpEsc(f.name)}</span></button>${chev}`; });
-  }
-  cr.innerHTML = h;
-  cr.scrollLeft = cr.scrollWidth;
-  const name = xpCurName();
-  xpEl('xp-tab-title').textContent = name;
-  const q = xpEl('xp-q'); if (q) q.placeholder = 'Search ' + name;
-  xpEl('xp-back').disabled = !XP.hist.length;
-  xpEl('xp-fwd').disabled = !XP.fwd.length;
-  xpEl('xp-up').disabled = xpIsFolderMode() && !currentFolderId && !searchQ;
-}
-
-function xpNavItem(o) {
-  const attrs = (o.fid != null ? ` data-fid="${xpEsc(o.fid)}"` : '') + (o.act ? ` data-act="${o.act}"` : '') + (o.drop ? ' data-drop="1"' : '');
-  const tg = o.tg ? `<span class="xp-tg${o.open ? ' op' : ''}" data-tg="${o.tg}">${xpIc('chev', 'xi xs')}</span>` : '<span class="xp-tg"></span>';
-  return `<button class="xp-ni${o.on ? ' act' : ''}" style="--ind:${(o.ind || 0) * 14}px"${attrs}>${tg}${xpIc(o.icon, 'xf')}<span>${xpEsc(o.label)}</span>${o.count ? `<em>${o.count}</em>` : ''}</button>`;
-}
-function xpFolderTreeHtml(parent, ind) {
-  const kids = folders.filter(f => xpParentOf(f) === parent).sort((a, b) => XP_COLLATOR.compare(a.name || '', b.name || ''));
-  let h = '';
-  kids.forEach(f => {
-    const has = folders.some(x => xpParentOf(x) === f.id);
-    const open = XP.open.has(f.id);
-    h += xpNavItem({ fid: f.id, drop: 1, icon: 'folder', label: f.name, ind, tg: has ? f.id : '', open, on: xpIsFolderMode() && currentFolderId === f.id && !searchQ, act: 'fold' });
-    if (has && open) h += xpFolderTreeHtml(f.id, ind + 1);
-  });
-  return h;
-}
-function xpRenderNav() {
-  const nav = xpEl('xp-nav'); if (!nav) return;
-  const fm = xpIsFolderMode();
-  if (fm && currentFolderId) { let id = currentFolderId, g = 0; while (id && g++ < 60) { const f = folders.find(x => x.id === id); if (!f) break; id = xpParentOf(f); if (id) XP.open.add(id); } }
-  const hasKids = folders.some(f => !xpParentOf(f));
-  let h = '';
-  h += xpNavItem({ act: 'home', drop: 1, icon: 'home', label: 'Home', on: fm && !currentFolderId && !searchQ });
-  h += xpNavItem({ act: 'flat', icon: 'gal', label: 'Gallery', on: XP.flat });
-  h += xpNavItem({ act: 'root', fid: '', drop: 1, icon: 'cloud', label: 'RHN - Personal', tg: hasKids ? 'root' : '', open: XP.openRoot });
-  if (XP.openRoot) h += xpFolderTreeHtml(null, 1);
-  h += '<div class="xp-nsep"></div>';
-  h += xpNavItem({ act: 'favorite', icon: 'star', label: 'Favorites', on: !XP.flat && mediaFilter === 'favorite' });
-  h += xpNavItem({ act: 'image', icon: 'gal', label: 'Pictures', on: !XP.flat && mediaFilter === 'image' });
-  h += xpNavItem({ act: 'video', icon: 'vids', label: 'Videos', on: !XP.flat && mediaFilter === 'video' });
-  h += xpNavItem({ act: 'trash', icon: 'bin', label: 'Recycle Bin', count: trashPhotos.length || '' });
-  h += '<div class="xp-nsep"></div>';
-  h += xpNavItem({ act: 'upload', icon: 'upl', label: 'Upload' });
-  h += xpNavItem({ act: 'settings', icon: 'gear', label: 'Settings' });
-  const top = nav.scrollTop;
-  nav.innerHTML = h;
-  nav.scrollTop = top;
-}
-function xpRenderCols() {
-  document.querySelectorAll('#xp-cols .xp-ch').forEach(c => {
-    const on = c.dataset.k === sortKey;
-    c.classList.toggle('sorted', on);
-    c.classList.toggle('desc', on && sortDir < 0);
-  });
-  xpEl('xp').classList.toggle('v-icons', XP.view === 'icons');
-  xpEl('xp').classList.toggle('det-on', !!XP.det);
-  xpEl('xp-v-details').classList.toggle('act', XP.view !== 'icons');
-  xpEl('xp-v-icons').classList.toggle('act', XP.view === 'icons');
-}
-
-function xpUpdateSel() {
-  const nf = selFolders.size, np = selectedIds.size, n = nf + np;
-  const vf = xpVisibleFolders().length, vp = filteredPhotos().length;
-  xpEl('xp-st-items').textContent = (vf + vp) + ((vf + vp) === 1 ? ' item' : ' items');
-  let s = '';
-  if (n) {
-    s = n + (n === 1 ? ' item selected' : ' items selected');
-    if (!nf) { let tot = 0; selectedIds.forEach(id => { const p = xpPhoto(id); if (p) tot += p.size || 0; }); if (tot) s += '   ' + xpSizeStr(tot); }
-  }
-  xpEl('xp-st-sel').textContent = s;
-  xpEl('xp-list').classList.toggle('xp-sel-any', n > 0);
-  xpEl('xp-chk-all').classList.toggle('checked', n > 0 && n === vf + vp);
-  const dis = (id, v) => { const b = xpEl(id); if (b) b.disabled = v; };
-  dis('xp-b-cut', n === 0); dis('xp-b-copy', n === 0); dis('xp-b-del', n === 0);
-  dis('xp-b-rename', n !== 1); dis('xp-b-share', !(np === 1 && nf === 0));
-  dis('xp-b-paste', !XP.clip);
-  const emp = xpEl('xp-empty');
-  const skel = !!xpEl('main-gallery-grid').querySelector('.skeleton-box');
-  emp.classList.toggle('show', !skel && vf + vp === 0);
-  emp.textContent = searchQ ? 'No items match your search.' : 'This folder is empty.';
-  xpEl('xp-list').classList.toggle('xp-has-f', vf > 0);
-  xpRenderDetails();
-}
-
-function xpRenderDetails() {
-  const box = xpEl('xp-det'); if (!box || !XP.det) return;
-  const nf = selFolders.size, np = selectedIds.size, n = nf + np;
-  const vf = xpVisibleFolders().length, vp = filteredPhotos().length;
-  const sig = n + '|' + (n ? Array.from(selFolders).join(',') + '/' + Array.from(selectedIds).join(',') : xpCurName() + '|' + (vf + vp));
-  if (box.dataset.sig === sig) return;
-  box.dataset.sig = sig;
-  const row = (a, b) => `<b>${a}</b><span>${xpEsc(b)}</span>`;
-  let h = '';
-  if (n === 0) {
-    const c = vf + vp;
-    h = `<div class="xp-dprev">${xpIc('folder', 'xf')}</div><div class="xp-dtitle">${xpEsc(xpCurName())} (${c} ${c === 1 ? 'item' : 'items'})</div><div class="xp-dcard">${xpIc('info')}<span>Select a single file to get more information and share your cloud content.</span></div>`;
-  } else if (np === 1 && nf === 0) {
-    const p = xpPhoto(Array.from(selectedIds)[0]);
-    if (p) {
-      const prev = isVideoItem(p) ? xpIc('file-vid', 'xf') : `<img src="${xpEsc(getThumbSrc(p))}" alt="">`;
-      h = `<div class="xp-dprev">${prev}</div><div class="xp-dtitle">${xpEsc(xpFileName(p))}</div><div class="xp-dtab">${row('Type', xpTypeOf(p))}${row('Size', xpSizeStr(p.size) || '-')}${row('Date modified', xpFmtDate(photoDate(p)))}${row('Location', (() => { const fid = xpFolderOf(p); const f = fid && folders.find(x => x.id === fid); return f ? f.name : XP_ROOT_NAME; })())}</div>`;
-    }
-  } else if (nf === 1 && np === 0) {
-    const f = folders.find(x => x.id === Array.from(selFolders)[0]);
-    if (f) {
-      const c = photos.filter(p => xpFolderOf(p) === f.id).length + folders.filter(x => xpParentOf(x) === f.id).length;
-      h = `<div class="xp-dprev">${xpIc('folder', 'xf')}</div><div class="xp-dtitle">${xpEsc(f.name)}</div><div class="xp-dtab">${row('Type', 'File folder')}${row('Date modified', xpFmtDate(xpFolderDate(f)))}${row('Items', c + (c === 1 ? ' item' : ' items'))}</div>`;
-    }
-  } else {
-    let tot = 0; selectedIds.forEach(id => { const p = xpPhoto(id); if (p) tot += p.size || 0; });
-    h = `<div class="xp-dprev">${xpIc('folder', 'xf')}</div><div class="xp-dtitle">${n} items selected</div>${tot ? `<div class="xp-dtab">${row('Size', xpSizeStr(tot))}</div>` : ''}`;
-  }
-  box.innerHTML = h;
-}
-
-/* ---------- navigasi ---------- */
-function xpSnap() { return { mf: mediaFilter, fid: currentFolderId, flat: XP.flat }; }
-function xpApply(s) {
-  mediaFilter = s.mf; currentFolderId = s.fid; XP.flat = s.flat;
-  searchQ = ''; const q = xpEl('xp-q'); if (q) q.value = '';
-  if (selectMode) exitSelectMode();
-  xpClearSel(); XP.renaming = null;
-  document.querySelectorAll('.media-filter-tab').forEach(el => el.classList.toggle('active', el.dataset.filter === mediaFilter));
-  renderGallery();
-  xpEl('xp-list').scrollTop = 0;
-  xpRenderChrome();
-}
-function xpNavTo(s, push) { if (push !== false) { XP.hist.push(xpSnap()); XP.fwd.length = 0; } xpApply(s); xpToggleNav(false); }
-window.xpGo = function(fid) { xpNavTo({ mf: 'all', fid: fid || null, flat: false }); };
-window.xpGoView = function(v) {
-  if (v === 'flat') xpNavTo({ mf: 'all', fid: null, flat: true });
-  else xpNavTo({ mf: v, fid: null, flat: false });
-};
-window.xpBack = function() { if (!XP.hist.length) return; XP.fwd.push(xpSnap()); xpApply(XP.hist.pop()); };
-window.xpForward = function() { if (!XP.fwd.length) return; XP.hist.push(xpSnap()); xpApply(XP.fwd.pop()); };
-window.xpUp = function() {
-  if (searchQ) { xpNavTo({ mf: 'all', fid: currentFolderId, flat: false }); return; }
-  if (!xpIsFolderMode()) { xpGo(null); return; }
-  if (!currentFolderId) return;
-  const f = folders.find(x => x.id === currentFolderId);
-  xpGo(f ? xpParentOf(f) : null);
-};
-window.xpRefresh = function() { try { if (lastSnapDocs) processPhotoDocs(lastSnapDocs); } catch (e) {} renderGallery(); xpRenderChrome(); };
-window.xpToggleNav = function(force) { xpEl('xp').classList.toggle('nav-on', typeof force === 'boolean' ? force : !xpEl('xp').classList.contains('nav-on')); };
-window.xpToggleDetails = function() { XP.det = !XP.det; xpEl('xp-det').dataset.sig = ''; xpRenderCols(); xpRenderDetails(); };
-window.xpSetView = function(v) { XP.view = v; xpRenderCols(); };
-window.xpWin = function(k) { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
-window.xpSearch = function(v) {
-  searchQ = String(v || '').trim();
-  if (selectMode) exitSelectMode();
-  xpClearSel(); renderGallery(); xpRenderChrome();
-};
-window.xpSort = function(k) {
-  if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = (k === 'date' || k === 'size') ? -1 : 1; }
-  renderGallery(); xpRenderChrome();
-};
-window.xpSortDir = function(d) { sortDir = d; renderGallery(); xpRenderChrome(); };
-window.xpSortKey = function(k) { if (sortKey !== k) { sortKey = k; sortDir = (k === 'date' || k === 'size') ? -1 : 1; } renderGallery(); xpRenderChrome(); };
-
-/* ---------- menu (New / Sort / View / More / klik kanan) ---------- */
-function xpCloseMenu() { if (XP.menu) { XP.menu.remove(); XP.menu = null; } }
-function xpShowMenu(x, y, items) {
-  xpCloseMenu();
-  const m = document.createElement('div'); m.className = 'xp-menu';
-  items.forEach(it => {
-    if (it.sep) { const s = document.createElement('div'); s.className = 'xp-msep'; m.appendChild(s); return; }
-    const b = document.createElement('button'); b.className = 'xp-mi'; b.disabled = !!it.disabled;
-    b.innerHTML = `<span class="ck">${it.check ? xpIc('check') : (it.icon ? xpIc(it.icon) : '')}</span><span>${xpEsc(it.label)}</span>${it.kbd ? `<kbd>${it.kbd}</kbd>` : ''}`;
-    b.addEventListener('click', (e) => { e.stopPropagation(); xpCloseMenu(); if (it.act) it.act(); });
-    m.appendChild(b);
-  });
-  document.body.appendChild(m);
-  const r = m.getBoundingClientRect();
-  m.style.left = Math.max(4, Math.min(x, window.innerWidth - r.width - 4)) + 'px';
-  m.style.top = Math.max(4, Math.min(y, window.innerHeight - r.height - 4)) + 'px';
-  XP.menu = m;
-}
-function xpMenuAt(e, items) { const r = e.currentTarget.getBoundingClientRect(); e.stopPropagation(); xpShowMenu(r.left, r.bottom + 2, items); }
-window.xpMenuNew = function(e) {
-  xpMenuAt(e, [
-    { label: 'Folder', icon: 'new', act: () => xpNewFolder() },
-    { sep: 1 },
-    { label: 'Upload files', icon: 'share', act: () => xpUploadHere() }
-  ]);
-};
-window.xpMenuSort = function(e) {
-  xpMenuAt(e, [
-    { label: 'Name', check: sortKey === 'name', act: () => xpSortKey('name') },
-    { label: 'Date modified', check: sortKey === 'date', act: () => xpSortKey('date') },
-    { label: 'Type', check: sortKey === 'type', act: () => xpSortKey('type') },
-    { label: 'Size', check: sortKey === 'size', act: () => xpSortKey('size') },
-    { sep: 1 },
-    { label: 'Ascending', check: sortDir > 0, act: () => xpSortDir(1) },
-    { label: 'Descending', check: sortDir < 0, act: () => xpSortDir(-1) }
-  ]);
-};
-window.xpMenuView = function(e) {
-  xpMenuAt(e, [
-    { label: 'Details', check: XP.view !== 'icons', act: () => xpSetView('details') },
-    { label: 'Large icons', check: XP.view === 'icons', act: () => xpSetView('icons') }
-  ]);
-};
-window.xpMenuMore = function(e) {
-  xpMenuAt(e, [
-    { label: 'Select all', icon: 'check', kbd: 'Ctrl+A', act: () => xpSelectAll() },
-    { label: 'Select none', act: () => xpSelectNone() },
-    { label: 'Invert selection', act: () => xpInvertSel() },
-    { sep: 1 },
-    { label: xpSelCount() ? 'Download selected' : 'Download all', icon: 'download', act: () => (selectedIds.size ? xpDownload() : konfirmasiAksi('Unduh semua foto/video yang sedang tampil langsung ke galeri HP kamu?', downloadAllPhotos)) },
-    { label: 'Add / remove Favorites', icon: 'heart', disabled: !selectedIds.size, act: () => xpFavorite() },
-    { sep: 1 },
-    { label: 'Recycle Bin', icon: 'trash', act: () => switchPage('sampah') },
-    { label: 'Settings', act: () => switchPage('pengaturan') }
-  ]);
-};
-document.addEventListener('click', () => xpCloseMenu());
-window.addEventListener('blur', () => xpCloseMenu());
-window.addEventListener('resize', () => xpCloseMenu());
-xpEl('xp-list').addEventListener('scroll', () => xpCloseMenu(), { passive: true });
-
-/* ---------- folder: buat, ubah nama, hapus ---------- */
-function xpUniqueName(base, parent, exceptId) {
-  const sib = new Set(folders.filter(f => xpParentOf(f) === (parent || null) && f.id !== exceptId).map(f => (f.name || '').toLowerCase()));
-  if (!sib.has(base.toLowerCase())) return base;
-  let i = 2; while (sib.has((base + ' (' + i + ')').toLowerCase())) i++;
-  return base + ' (' + i + ')';
-}
-window.xpNewFolder = function() {
-  if (!currentUser) return;
-  if (!xpIsFolderMode() || searchQ) { XP.hist.push(xpSnap()); XP.fwd.length = 0; xpApply({ mf: 'all', fid: null, flat: false }); }
-  const parent = currentFolderId || null;
-  const id = uid4();
-  XP.pendingRename = id;
-  setDoc(doc(db, 'users', currentUser.uid, 'folders', id), { name: xpUniqueName('New folder', parent), parentId: parent, mod: Date.now(), createdAt: serverTimestamp() })
-    .catch((e) => { XP.pendingRename = null; showMiniToast('Gagal membuat folder'); console.error(e); });
-};
-window.xpUploadHere = function() { switchPage('tambah'); };
-function xpStartRename(t, id) {
-  xpCloseMenu();
-  const node = t === 'f' ? document.querySelector(`#xp-folders .xp-frow[data-fid="${CSS.escape(id)}"]`) : photoNodes.get(id);
-  if (!node) return;
-  const span = node.querySelector('.xp-name'); if (!span) return;
-  let cur, ext = '';
-  if (t === 'f') { const f = folders.find(x => x.id === id); if (!f) return; cur = f.name || ''; }
-  else { const p = xpPhoto(id); if (!p) return; cur = xpFileName(p); ext = '.' + xpExt(p); }
-  const inp = document.createElement('input'); inp.className = 'xp-rn'; inp.type = 'text'; inp.value = cur; inp.spellcheck = false;
-  span.textContent = ''; span.appendChild(inp);
-  XP.renaming = { t, type: t, id };
-  let done = false;
-  const finish = (ok) => {
-    if (done) return; done = true; XP.renaming = null;
-    const val = inp.value.trim();
-    if (ok && val && val !== cur) xpCommitRename(t, id, val, ext);
-    else { if (t === 'f') { span.textContent = cur; } else { node.__xs = null; xpSyncRow(node, xpPhoto(id) || {}); } }
-    xpRenderChrome();
-  };
-  inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); finish(true); } else if (e.key === 'Escape') { e.preventDefault(); finish(false); } });
-  inp.addEventListener('blur', () => finish(true));
-  ['click', 'dblclick', 'pointerdown', 'contextmenu', 'dragstart'].forEach(ev => inp.addEventListener(ev, (e) => e.stopPropagation()));
-  inp.focus();
-  const end = ext && cur.toLowerCase().endsWith(ext.toLowerCase()) ? cur.length - ext.length : cur.length;
-  try { inp.setSelectionRange(0, end); } catch (e) {}
-}
-function xpCommitRename(t, id, val, ext) {
-  if (t === 'f') {
-    const f = folders.find(x => x.id === id); if (!f) return;
-    const nm = xpUniqueName(val.replace(/[\\/:*?"<>|]/g, ''), xpParentOf(f), id) || f.name;
-    f.name = nm; f.mod = Date.now();
-    setDoc(doc(db, 'users', currentUser.uid, 'folders', id), { name: nm, mod: f.mod }, { merge: true }).catch(() => showMiniToast('Gagal mengubah nama folder'));
-  } else {
-    const p = xpPhoto(id); if (!p) return;
-    let ti = val; if (ext && ti.toLowerCase().endsWith(ext.toLowerCase())) ti = ti.slice(0, ti.length - ext.length);
-    ti = ti.trim(); if (!ti) return;
-    p.title = ti;
-    const node = photoNodes.get(id); if (node) { node.__xs = null; xpSyncRow(node, p); }
-    queueOp(id, { title: ti });
-    laporSyncPending().catch(() => {});
-    if (sortKey === 'name') renderGallery();
-  }
-}
-window.xpRename = function() {
-  if (xpSelCount() !== 1) return;
-  if (selFolders.size) xpStartRename('f', Array.from(selFolders)[0]); else xpStartRename('p', Array.from(selectedIds)[0]);
-};
-function xpDescendants(ids) {
-  const all = new Set(ids); let grow = true;
-  while (grow) { grow = false; folders.forEach(f => { if (!all.has(f.id) && all.has(xpParentOf(f))) { all.add(f.id); grow = true; } }); }
-  return all;
-}
-window.xpDelete = async function() {
-  const fIds = Array.from(selFolders), pIds = Array.from(selectedIds);
-  if (!fIds.length && !pIds.length) return;
-  if (!fIds.length) { handleBulkDelete(); return; }
-  const allF = xpDescendants(fIds);
-  const files = new Set(pIds);
-  photos.forEach(p => { const k = xpFolderOf(p); if (k && allF.has(k)) files.add(p.id); });
-  const r = await customSwal.fire({
-    title: `Hapus ${fIds.length} folder?`,
-    text: files.size ? `${files.size} file di dalamnya dipindahkan ke Baru Dihapus (bisa dipulihkan ${TRASH_DAYS} hari).` : 'Folder kosong akan dihapus.',
-    icon: 'warning', showCancelButton: true, confirmButtonColor: '#F87171', cancelButtonColor: '#222228',
-    confirmButtonText: '<span style="color:#000; font-weight:800;">Ya, Lanjutkan</span>', cancelButtonText: 'Batal',
-    background: 'var(--card)', color: 'var(--text)'
-  });
-  if (!r.isConfirmed) return;
-  if (files.size) { const ok = await mintaPinLaluHapus(Array.from(files), '', false); if (!ok) return; }
-  const b = writeBatch(db);
-  allF.forEach(id => b.delete(doc(db, 'users', currentUser.uid, 'folders', id)));
-  b.commit().catch(() => showMiniToast('Gagal menghapus folder di server'));
-  folders = folders.filter(f => !allF.has(f.id)); folderIds = new Set(folders.map(f => f.id));
-  if (currentFolderId && !folderIds.has(currentFolderId)) currentFolderId = null;
-  xpClearSel(); renderGallery(); xpRenderChrome();
-};
-
-/* ---------- potong / salin / tempel / pindah ---------- */
-window.xpCut = function() { if (!xpSelCount()) return; XP.clip = { mode: 'cut', files: Array.from(selectedIds), folders: Array.from(selFolders) }; xpUpdateSel(); showMiniToast('Dipotong — buka folder tujuan lalu Paste'); };
-window.xpCopy = function() { if (!xpSelCount()) return; XP.clip = { mode: 'copy', files: Array.from(selectedIds), folders: [] }; xpUpdateSel(); showMiniToast(selFolders.size ? 'File disalin (folder tidak bisa disalin)' : 'Disalin — buka folder tujuan lalu Paste'); };
-function xpMoveItems(files, flds, target) {
-  target = target || null; let moved = 0;
-  flds.forEach(fid => {
-    const f = folders.find(x => x.id === fid); if (!f) return;
-    if (fid === target || xpIsDesc(target, fid) || xpParentOf(f) === target) return;
-    f.parentId = target; f.mod = Date.now(); moved++;
-    setDoc(doc(db, 'users', currentUser.uid, 'folders', fid), { parentId: target, mod: f.mod }, { merge: true }).catch(() => showMiniToast('Gagal memindahkan folder'));
-  });
-  let fm = 0;
-  files.forEach(id => {
-    const p = xpPhoto(id); if (!p || xpFolderOf(p) === target) return;
-    p.folderId = target; queueOp(id, { folder: target }); moved++; fm++;
-  });
-  if (fm) laporSyncPending().catch(() => {});
-  xpClearSel(); if (selectMode) exitSelectMode();
-  renderGallery(); xpRenderChrome();
-  showMiniToast(moved ? moved + (moved === 1 ? ' item dipindahkan' : ' item dipindahkan') : 'Sudah berada di folder itu');
-}
-window.xpPaste = function() {
-  const c = XP.clip; if (!c) return;
-  if (!xpIsFolderMode() || searchQ) { showMiniToast('Buka sebuah folder dulu untuk Paste'); return; }
-  const target = currentFolderId || null;
-  if (c.mode === 'cut') { xpMoveItems(c.files, c.folders, target); XP.clip = null; xpUpdateSel(); return; }
-  const items = []; let skip = 0;
-  c.files.forEach(id => {
-    const p = xpPhoto(id); if (!p || !p.publicId) { skip++; return; }
-    const { id: _i, deletedAt: _d, createdAt: _c, favorite: _f, folderId: _fo, ...rest } = p;
-    const data = { ...rest, createdAt: serverTimestamp() };
-    if (target) data.folderId = target;
-    if (xpFolderOf(p) === target) data.title = (p.title || 'Untitled') + ' - Copy';
-    items.push({ ref: doc(db, 'users', currentUser.uid, 'photos', uid4()), data });
-  });
-  if (items.length) commitSetBatches(items).then(() => showMiniToast(items.length + ' file disalin')).catch(() => showMiniToast('Gagal menyalin'));
-  else showMiniToast(skip ? 'File ini tidak bisa disalin' : 'Tidak ada yang disalin');
-};
-window.xpShare = async function() {
-  if (selectedIds.size !== 1 || selFolders.size) return;
-  const p = xpPhoto(Array.from(selectedIds)[0]); if (!p) return;
-  const url = getFullSrc(p), t = xpFileName(p);
-  try { if (navigator.share) { await navigator.share({ title: t, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-  try { await navigator.clipboard.writeText(url); showMiniToast('Link disalin'); } catch (e) { showMiniToast('Gagal membagikan'); }
-};
-window.xpDownload = function() { if (selectedIds.size) handleBulkDownload(); };
-window.xpFavorite = function() {
-  const ids = Array.from(selectedIds); if (!ids.length) return;
-  const anyOff = ids.some(id => { const p = xpPhoto(id); return p && !p.favorite; });
-  ids.forEach(id => { const p = xpPhoto(id); if (!p) return; p.favorite = anyOff; queueOp(id, { fav: anyOff }); syncFavBadge(photoNodes.get(id), p); });
-  laporSyncPending().catch(() => {});
-  showMiniToast(anyOff ? 'Ditambahkan ke Favorit' : 'Dihapus dari Favorit');
-  if (mediaFilter === 'favorite') renderGallery(); else updateFilterCounts();
-};
-window.xpOpenSel = function() {
-  if (selFolders.size === 1 && !selectedIds.size) { xpGo(Array.from(selFolders)[0]); return; }
-  const ord = filteredPhotos().filter(p => selectedIds.has(p.id));
-  if (ord.length) bukaViewer(ord[0].id);
-};
-
-/* ---------- klik, klik-ganda, klik kanan, drag & drop ---------- */
-window.xpRowClick = function(id, e) {
-  if (e && e.target && e.target.closest && e.target.closest('.xp-rn')) return;
-  if (XP_TOUCH || selectMode) { handleCardClick(id); return; }
-  if (e.target.closest && e.target.closest('.select-check')) { xpToggleSel('p', id); return; }
-  if (e.ctrlKey || e.metaKey) xpToggleSel('p', id);
-  else if (e.shiftKey) xpRangeSel('p', id);
-  else xpSelOnly('p', id);
-};
-(function setupXpEvents() {
-  const list = xpEl('xp-list'), grid = xpEl('main-gallery-grid'), fbox = xpEl('xp-folders');
-  const fRow = (e) => e.target.closest ? e.target.closest('.xp-frow') : null;
-  const pRow = (e) => { const c = e.target.closest ? e.target.closest('.album-card') : null; return (c && c.dataset.id) ? c : null; };
-  grid.addEventListener('dblclick', (e) => { const c = pRow(e); if (c && !XP_TOUCH && !e.target.closest('.xp-rn')) bukaViewer(c.dataset.id); });
-  let ft = null, fLong = false;
-  fbox.addEventListener('pointerdown', (e) => {
-    const r = fRow(e); if (!r || e.pointerType === 'mouse') return;
-    fLong = false; clearTimeout(ft);
-    ft = setTimeout(() => { fLong = true; if (navigator.vibrate) navigator.vibrate(18); xpToggleSel('f', r.dataset.fid); }, 450);
-  });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => fbox.addEventListener(ev, () => clearTimeout(ft)));
-  fbox.addEventListener('click', (e) => {
-    const r = fRow(e); if (!r || e.target.closest('.xp-rn')) return;
-    const id = r.dataset.fid;
-    if (fLong) { fLong = false; return; }
-    if (XP_TOUCH) { if (xpSelCount()) xpToggleSel('f', id); else xpGo(id); return; }
-    if (e.target.closest('.xp-chk')) { xpToggleSel('f', id); return; }
-    if (e.ctrlKey || e.metaKey) xpToggleSel('f', id);
-    else if (e.shiftKey) xpRangeSel('f', id);
-    else xpSelOnly('f', id);
-  });
-  fbox.addEventListener('dblclick', (e) => { const r = fRow(e); if (r && !XP_TOUCH && !e.target.closest('.xp-rn')) xpGo(r.dataset.fid); });
-  list.addEventListener('click', (e) => {
-    if (e.target.closest('.xp-frow,.album-card,.xp-cols')) return;
-    if (xpSelCount()) { if (selectMode) exitSelectMode(); xpClearSel(); xpPaintSel(); xpUpdateSel(); }
-  });
-  xpEl('xp-cols').addEventListener('click', (e) => {
-    if (e.target.closest('.xp-chk')) { xpSelectAll(e); return; }
-    const ch = e.target.closest('.xp-ch'); if (!ch || ch.dataset.k === 'stat') return;
-    xpSort(ch.dataset.k);
-  });
-  /* klik kanan */
-  list.addEventListener('contextmenu', (e) => {
-    if (XP_TOUCH) return;
-    e.preventDefault();
-    const fr = fRow(e), pr = pRow(e);
-    if (fr) { if (!selFolders.has(fr.dataset.fid)) xpSelOnly('f', fr.dataset.fid); }
-    else if (pr) { if (!selectedIds.has(pr.dataset.id)) xpSelOnly('p', pr.dataset.id); }
-    else if (xpSelCount()) { xpClearSel(); xpPaintSel(); xpUpdateSel(); }
-    const n = xpSelCount();
-    if (n) {
-      xpShowMenu(e.clientX, e.clientY, [
-        { label: 'Open', icon: 'open', act: () => xpOpenSel() },
-        { sep: 1 },
-        { label: 'Cut', icon: 'cut', kbd: 'Ctrl+X', act: () => xpCut() },
-        { label: 'Copy', icon: 'copy', kbd: 'Ctrl+C', act: () => xpCopy() },
-        { label: 'Rename', icon: 'rename', kbd: 'F2', disabled: n !== 1, act: () => xpRename() },
-        { label: 'Delete', icon: 'trash', kbd: 'Del', act: () => xpDelete() },
-        { sep: 1 },
-        { label: 'Add / remove Favorites', icon: 'heart', disabled: !selectedIds.size, act: () => xpFavorite() },
-        { label: 'Download', icon: 'download', disabled: !selectedIds.size, act: () => xpDownload() },
-        { label: 'Share', icon: 'share', disabled: !(selectedIds.size === 1 && !selFolders.size), act: () => xpShare() }
-      ]);
-    } else {
-      xpShowMenu(e.clientX, e.clientY, [
-        { label: 'New folder', icon: 'new', act: () => xpNewFolder() },
-        { label: 'Upload files', icon: 'share', act: () => xpUploadHere() },
-        { sep: 1 },
-        { label: 'Paste', icon: 'paste', kbd: 'Ctrl+V', disabled: !XP.clip, act: () => xpPaste() },
-        { label: 'Select all', icon: 'check', kbd: 'Ctrl+A', act: () => xpSelectAll() },
-        { sep: 1 },
-        { label: 'Refresh', icon: 'refresh', act: () => xpRefresh() }
-      ]);
-    }
-  });
-  /* drag & drop */
-  const dropTarget = (e) => {
-    const fr = fRow(e); if (fr) return { el: fr, fid: fr.dataset.fid };
-    const ni = e.target.closest ? e.target.closest('.xp-ni[data-drop]') : null;
-    if (ni) { const a = ni.dataset.act; return { el: ni, fid: (a === 'home' || a === 'root') ? null : ni.dataset.fid }; }
-    return null;
-  };
-  const clearDrop = () => document.querySelectorAll('.xp-drop').forEach(n => n.classList.remove('xp-drop'));
-  document.addEventListener('dragstart', (e) => {
-    const fr = fRow(e), pr = pRow(e); if (!fr && !pr) return;
-    if (fr) { if (!selFolders.has(fr.dataset.fid)) xpSelOnly('f', fr.dataset.fid); }
-    else if (!selectedIds.has(pr.dataset.id)) xpSelOnly('p', pr.dataset.id);
-    XP.drag = { files: Array.from(selectedIds), folders: Array.from(selFolders) };
-    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'rhn'); } catch (x) {}
-  });
-  document.addEventListener('dragend', () => { XP.drag = null; clearDrop(); });
-  document.addEventListener('dragover', (e) => {
-    if (!xpEl('page-galeri').classList.contains('active')) return;
-    const inside = e.target.closest && e.target.closest('#xp');
-    if (!inside) return;
-    const hasFiles = e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') !== -1;
-    if (XP.drag) {
-      const t = dropTarget(e); clearDrop();
-      if (t && !(t.fid && XP.drag.folders.indexOf(t.fid) !== -1)) { e.preventDefault(); t.el.classList.add('xp-drop'); }
-    } else if (hasFiles) { e.preventDefault(); }
-  });
-  document.addEventListener('drop', (e) => {
-    if (!xpEl('page-galeri').classList.contains('active')) return;
-    const inside = e.target.closest && e.target.closest('#xp');
-    if (!inside) return;
-    clearDrop();
-    if (XP.drag) {
-      const t = dropTarget(e); const d = XP.drag; XP.drag = null;
-      if (t) { e.preventDefault(); if (!(t.fid && d.folders.indexOf(t.fid) !== -1)) xpMoveItems(d.files, d.folders, t.fid); }
-      return;
-    }
-    const fl = e.dataTransfer && e.dataTransfer.files;
-    if (fl && fl.length) {
-      e.preventDefault();
-      xpFillUploadFolders();
-      const sel = xpEl('f-upload-folder'); if (sel) sel.value = (xpIsFolderMode() && currentFolderId) ? currentFolderId : '';
-      tambahFiles(Array.from(fl));
-      if (selectedFiles.length) tambahFotoBaru();
-    }
-  });
-  /* klik di nav & breadcrumb */
-  xpEl('xp-nav').addEventListener('click', (e) => {
-    const tg = e.target.closest('.xp-tg[data-tg]');
-    if (tg) { const k = tg.dataset.tg; if (k === 'root') XP.openRoot = !XP.openRoot; else if (XP.open.has(k)) XP.open.delete(k); else XP.open.add(k); xpRenderNav(); return; }
-    const ni = e.target.closest('.xp-ni'); if (!ni) return;
-    const a = ni.dataset.act;
-    if (a === 'home' || a === 'root') xpGo(null);
-    else if (a === 'fold') xpGo(ni.dataset.fid);
-    else if (a === 'flat') xpGoView('flat');
-    else if (a === 'favorite' || a === 'image' || a === 'video') xpGoView(a);
-    else if (a === 'trash') { xpToggleNav(false); switchPage('sampah'); }
-    else if (a === 'upload') { xpToggleNav(false); switchPage('tambah'); }
-    else if (a === 'settings') { xpToggleNav(false); switchPage('pengaturan'); }
-  });
-  xpEl('xp-crumb').addEventListener('click', (e) => {
-    const b = e.target.closest('.xp-cr'); if (!b) return;
-    if (b.dataset.root) xpGo(null); else if (b.dataset.fid) xpGo(b.dataset.fid);
-  });
-  /* keyboard */
-  document.addEventListener('keydown', (e) => {
-    if (!xpEl('page-galeri').classList.contains('active')) return;
-    if (document.body.classList.contains('viewer-open') || document.querySelector('.swal2-container')) return;
-    const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-    const k = e.key, c = e.ctrlKey || e.metaKey;
-    if (k === 'Delete') { e.preventDefault(); xpDelete(); }
-    else if (k === 'F2') { e.preventDefault(); xpRename(); }
-    else if (k === 'F5') { e.preventDefault(); xpRefresh(); }
-    else if (c && (k === 'a' || k === 'A')) { e.preventDefault(); xpSelectAll(); }
-    else if (c && (k === 'x' || k === 'X')) { e.preventDefault(); xpCut(); }
-    else if (c && (k === 'c' || k === 'C')) { e.preventDefault(); xpCopy(); }
-    else if (c && (k === 'v' || k === 'V')) { e.preventDefault(); xpPaste(); }
-    else if (c && e.shiftKey && (k === 'n' || k === 'N')) { e.preventDefault(); xpNewFolder(); }
-    else if (k === 'Enter') { e.preventDefault(); xpOpenSel(); }
-    else if (k === 'Backspace' || (e.altKey && k === 'ArrowLeft')) { e.preventDefault(); xpBack(); }
-    else if (e.altKey && k === 'ArrowRight') { e.preventDefault(); xpForward(); }
-    else if (e.altKey && k === 'ArrowUp') { e.preventDefault(); xpUp(); }
-    else if (k === 'Escape') { if (XP.menu) xpCloseMenu(); else { xpClearSel(); if (selectMode) exitSelectMode(); xpPaintSel(); xpUpdateSel(); } }
-  });
-})();
-
-/* ---------- data folder (Firestore) ---------- */
-function listenFolders() {
-  if (unsubFolders) { try { unsubFolders(); } catch (e) {} unsubFolders = null; }
-  folders = []; folderIds = new Set();
-  unsubFolders = onSnapshot(collection(db, 'users', currentUser.uid, 'folders'), (snap) => {
-    folders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    folderIds = new Set(folders.map(f => f.id));
-    if (currentFolderId && !folderIds.has(currentFolderId)) currentFolderId = null;
-    renderGallery();
-    xpRenderChrome();
-  }, (err) => { console.error(err); });
-}
-function xpFolderPath(id) {
-  const names = []; let g = 0;
-  while (id && g++ < 60) { const f = folders.find(x => x.id === id); if (!f) break; names.unshift(f.name || ''); id = xpParentOf(f); }
-  return names.join(' \u203A ');
-}
-function xpFillUploadFolders() {
-  const sel = xpEl('f-upload-folder'); if (!sel) return;
-  const opts = folders.map(f => ({ id: f.id, path: xpFolderPath(f.id) })).sort((a, b) => XP_COLLATOR.compare(a.path, b.path));
-  sel.innerHTML = `<option value="">${XP_ROOT_NAME}</option>` + opts.map(o => `<option value="${xpEsc(o.id)}">${xpEsc(XP_ROOT_NAME + ' \u203A ' + o.path)}</option>`).join('');
-  sel.value = (xpIsFolderMode() && currentFolderId) ? currentFolderId : '';
-}
 </script>
 <script>
 if ('serviceWorker' in navigator) {
