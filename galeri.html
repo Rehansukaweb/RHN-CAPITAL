@@ -427,7 +427,7 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 <style>
 #photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
 #photo-viewer #viewer-video{background:#000}
-#photo-viewer #viewer-content{will-change:contents}
+#photo-viewer #viewer-content{contain:layout paint}
 </style>
 <style>
 /* pindah halaman instan: tanpa fade/slide, galeri disimpan (tidak dibongkar) saat tidak aktif */
@@ -3575,14 +3575,14 @@ window.aksiFavorit = async function() {
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
+const VIEW_PX = window.innerWidth > 900 ? 1440 : 960;
 const viewCache = new Map();
 let viewToken = 0;
 
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1920,h_1920,q_auto:good,f_auto/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto,f_auto/${p.publicId}`;
   }
   return getFullSrc(p);
 }
@@ -3607,16 +3607,16 @@ function preloadView(p) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > 60) viewCache.delete(viewCache.keys().next().value);
+  if (viewCache.size > 4) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1, -1, 2] : [-1, 1, -2];
+  const order = dir >= 0 ? [1] : [-1];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
-    if (q) setTimeout(() => preloadView(q), k * 40);
+    if (q) setTimeout(() => preloadView(q), 400);
   });
 }
 
@@ -3627,7 +3627,7 @@ function viewerActiveEl() {
 function slideIn(dir) {
   try {
     const el = viewerActiveEl();
-    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 170, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 110, easing: 'cubic-bezier(.2,.8,.2,1)' });
   } catch (e) {}
 }
 
@@ -3653,6 +3653,7 @@ window.bukaViewer = function(id, dir) {
   judulEl.appendChild(tglEl);
 
   img.alt = foto.title || 'foto';
+  img.decoding = 'async';
   img.classList.remove('zoomed');
   img.style.transform = ''; img.style.transition = '';
   video.style.transform = ''; video.style.transition = '';
@@ -3665,7 +3666,7 @@ window.bukaViewer = function(id, dir) {
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
-    video.preload = 'auto';
+    video.preload = 'metadata';
     video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
@@ -3689,7 +3690,7 @@ window.bukaViewer = function(id, dir) {
     if (entry.ready) {
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
-      img.src = getMidSrc(foto);                 /* placeholder jernih 900px, bukan thumbnail kecil */
+      img.src = getThumbSrc(foto);               /* thumbnail sudah ada di cache grid: muncul instan */
       entry.promise.then(() => {
         if (token !== viewToken) return;
         if (entry.ready) img.src = entry.src;
@@ -3697,18 +3698,6 @@ window.bukaViewer = function(id, dir) {
       });
     }
     img.classList.add('loaded');
-    /* langsung HD: setelah versi 1920px tampil, ganti mulus ke file asli resolusi penuh (tanpa kedip) */
-    if (foto.publicId) {
-      const hdUrl = getDownloadSrc(foto);
-      const naik = () => {
-        if (token !== viewToken) return;
-        const hi = new Image(); hi.decoding = 'async'; hi.src = hdUrl;
-        const pasang = () => { if (token === viewToken && img.src !== hdUrl) img.src = hdUrl; };
-        (hi.decode ? hi.decode() : new Promise((res, rej) => { hi.onload = res; hi.onerror = rej; })).then(pasang, () => {});
-      };
-      /* HD asli baru dimuat kalau berhenti ±0,5 detik di foto ini: geser cepat tidak terbebani decode gambar besar */
-      entry.promise.then(() => setTimeout(naik, 500));
-    }
   }
 
   updateFavButtonUI(foto);
@@ -3719,10 +3708,8 @@ window.bukaViewer = function(id, dir) {
   updateViewerNavButtons();
 
   if (dir) slideIn(dir);
-  const after = () => { setTimeout(() => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); }, 250); };
+  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
-  /* siapkan file di memori agar tombol WA & Unduh langsung merespons */
-  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 5000));
 };
 
 window.tutupViewer = function() {
@@ -3765,7 +3752,7 @@ function updateViewerNavButtons() {
 (function setupViewerSwipe() {
   const content = document.getElementById('viewer-content');
   let startX = 0, startY = 0, startT = 0, tracking = false, lockX = false, dxNow = 0;
-  let panTx0 = 0, panTy0 = 0;
+  let panTx0 = 0, panTy0 = 0, rafT = 0;
   function zoomedNow() { return document.getElementById('viewer-img').classList.contains('zoomed'); }
   function resetEl() {
     const el = viewerActiveEl();
@@ -3800,9 +3787,13 @@ function updateViewerNavButtons() {
     }
     if (!lockX) { if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) lockX = true; else return; }
     dxNow = dx;
-    const el = viewerActiveEl();
-    el.style.transition = 'none';
-    el.style.transform = `translateX(${dx * 0.9}px)`;
+    if (rafT) return;
+    rafT = requestAnimationFrame(() => {
+      rafT = 0;
+      const el = viewerActiveEl();
+      el.style.transition = 'none';
+      el.style.transform = `translate3d(${dxNow * 0.9}px,0,0)`;
+    });
   }, { passive: true });
   content.addEventListener('touchend', (e) => {
     if (!tracking) return;
@@ -3818,6 +3809,7 @@ function updateViewerNavButtons() {
     const el = viewerActiveEl();
     const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);
     const pindah = lockX && Math.abs(dx) > Math.abs(dy) && (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25));
+    if (rafT) { cancelAnimationFrame(rafT); rafT = 0; }
     if (pindah) {
       el.style.transition = 'none'; el.style.transform = '';
       viewerNavigate(dx < 0 ? 1 : -1);
