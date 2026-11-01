@@ -486,6 +486,14 @@ body.viewer-open #photo-viewer{visibility:visible}
 #photo-viewer #viewer-content{cursor:grab}
 }
 </style>
+<style>
+/* ANTI NGELEK: semua tombol/elemen klik merespons seketika */
+button,[onclick],.nav-btn,.xa-tile,.xa-row,.menu-btn,.album-card,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition-duration:0s!important;transition-delay:0s!important}
+button:active,[onclick]:active,.pin-key:active,.xa-tile:active{transition:none!important}
+.swal2-popup,.swal2-container,.swal2-backdrop-show,.swal2-show,.swal2-hide,.swal2-icon,.swal2-icon *,.swal2-success-line-tip,.swal2-success-line-long,.swal2-success-circular-line-left,.swal2-success-circular-line-right,.swal2-success-fix,.swal2-x-mark-line-left,.swal2-x-mark-line-right{animation:none!important;transition:none!important}
+.mini-toast,.floating-cancel-btn,.scroll-top-btn,#upload-pill{transition:none!important}
+.fade-in,.fade-out{animation-duration:.01s!important}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -1144,7 +1152,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
 const customSwal = Swal.mixin({
   scrollbarPadding: false,
-  heightAuto: false
+  heightAuto: false,
+  showClass: { popup: '', backdrop: '', icon: '' },
+  hideClass: { popup: '', backdrop: '', icon: '' }
 });
 
 window.konfirmasiAksi = function(pesan, callback) {
@@ -2620,8 +2630,10 @@ window.setMediaFilter = function(f) {
   document.querySelectorAll('.media-filter-tab').forEach(el => {
     el.classList.toggle('active', el.dataset.filter === f);
   });
-  renderGallery();
-  window.scrollTo({ top: 0, behavior: 'auto' });
+  requestAnimationFrame(() => {
+    renderGallery();
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  });
 };
 
 function updateFilterCounts() {
@@ -2928,20 +2940,17 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
     thumbLoadNow(tp, 0);
   });
 }, { rootMargin: '1100px 0px' }) : null;
-/* SEMUA thumbnail harus terlihat: yang masuk/dekat layar dimuat prioritas tinggi, sisanya dimuat terus di latar mulai dari yang terdekat posisi scroll (tidak pernah dibatalkan) */
+/* Cepat: src dipasang langsung & browser memuat yang dekat layar (native lazy, prioritas ke yang terlihat).
+   Sisa thumbnail yang jauh dimuat pelan-pelan HANYA saat layar diam (3 sekaligus, terdekat dulu), jadi semua akhirnya terisi tanpa memperlambat scroll. */
 const thumbPendSet = new Set();
-let bgActive = 0;
-const BG_CONC = 10;
-function loadThumbImg(img, bg) {
-  if (img.getAttribute('src') || !img.dataset.src) return;
-  thumbPendSet.delete(img);
-  if (bg) img.__bg = 1;
-  try { img.fetchPriority = bg ? 'low' : 'high'; } catch (e) {}
-  img.src = img.dataset.src;
-}
-function bgDone(img) { if (img.__bg) { img.__bg = 0; bgActive--; bgPump(); } }
+let bgActive = 0, lastScrollT = 0, bgTimer = null;
+const BG_CONC = 3;
+window.addEventListener('scroll', () => { lastScrollT = Date.now(); }, { passive: true });
+function bgDone(img) { if (img.__bg) { img.__bg = 0; bgActive--; } thumbPendSet.delete(img); bgPump(); }
 function bgPump() {
+  clearTimeout(bgTimer);
   if (!thumbPendSet.size) return;
+  if (Date.now() - lastScrollT < 350) { bgTimer = setTimeout(bgPump, 400); return; }
   const c = document.getElementById('main-gallery-grid');
   const kids = c.children, n = kids.length;
   if (!n) return;
@@ -2955,30 +2964,24 @@ function bgPump() {
       if (a >= n && b < 0) break;
     }
     if (!pick) { thumbPendSet.clear(); return; }
-    bgActive++;
-    loadThumbImg(pick, true);
+    thumbPendSet.delete(pick);
+    if (pick.complete && pick.naturalWidth) continue;
+    pick.__bg = 1; bgActive++;
+    pick.loading = 'eager';
   }
 }
-const thumbIO2 = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
-  es.forEach((en) => {
-    if (!en.isIntersecting) return;
-    const img = en.target.__img;
-    thumbIO2.unobserve(en.target);
-    if (img) loadThumbImg(img, false);
-  });
-}, { rootMargin: '1500px 0px' }) : null;
 function attachThumb(card, img, url) {
   img.decoding = 'async';
-  img.dataset.src = url;
+  img.loading = 'lazy';
   img.onload = () => { img.classList.add('loaded'); bgDone(img); };
   img.onerror = () => {
     bgDone(img);
     if (!img.__r) { img.__r = 1; setTimeout(() => { img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
   };
   card.__img = img;
-  thumbPendSet.add(img);
-  if (thumbIO2) thumbIO2.observe(card);
-  scheduleThumbPump();
+  img.src = url;
+  if (img.complete && img.naturalWidth) img.classList.add('loaded');
+  else { thumbPendSet.add(img); clearTimeout(bgTimer); bgTimer = setTimeout(bgPump, 600); }
 }
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
