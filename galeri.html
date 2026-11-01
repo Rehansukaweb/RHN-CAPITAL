@@ -2802,6 +2802,7 @@ window.scrollToTop = function() {
   document.body.scrollTop = 0;
   window.scrollTo(0, 0);
   de.style.scrollBehavior = old;
+  scheduleThumbPump();
 };
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
@@ -3033,10 +3034,9 @@ document.addEventListener('visibilitychange', () => {
   if (!hiddenAt || !currentUser) return;
   const lama = Date.now() - hiddenAt; hiddenAt = 0;
   if (lama < 60000) return;
-  try { viewCache.clear(); mediaBlobCache.clear(); sentThumbs.clear(); } catch (e) {}
+  try { sentThumbs.clear(); } catch (e) {}
   if (document.getElementById('app-screen').style.display !== 'none') { try { listenPhotos(); } catch (e) {} }
 });
-setInterval(() => { try { if (!document.body.classList.contains('viewer-open')) { viewCache.clear(); mediaBlobCache.clear(); } } catch (e) {} }, 3600000);
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
@@ -3595,7 +3595,7 @@ let viewToken = 0;
 const midCache = new Map();
 function midOf(p, hi) {
   let m = midCache.get(p.id);
-  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m); if (midCache.size > (IS_HP ? 8 : 16)) midCache.delete(midCache.keys().next().value); }
+  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m);  }
   return m;
 }
 function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
@@ -3603,12 +3603,12 @@ function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto:good,f_auto/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_80,f_webp/${p.publicId}`;
   }
   return getFullSrc(p);
 }
 function getMidSrc(p) {
-  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1280,h_1280,q_auto:good,f_auto/${p.publicId}`;
+  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1280,h_1280,q_80,f_webp/${p.publicId}`;
   return getThumbSrc(p);
 }
 function getPosterSrc(p) {
@@ -3629,7 +3629,7 @@ function preloadView(p, hi) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > (IS_HP ? 5 : 8)) viewCache.delete(viewCache.keys().next().value);
+  
   return entry;
 }
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p, true); if (!isVideoItem(p)) midOf(p, true); } };
@@ -3651,7 +3651,7 @@ window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (
       const p = photos.find(x => x.id === c.dataset.id);
       if (!p || isVideoItem(p)) return;
       midOf(p);
-      if (fx === 0.5) preloadView(p);
+      preloadView(p);
     }));
     while (keep.length > 6) keep.shift();
   }
@@ -4030,7 +4030,6 @@ function ambilBlobMedia(foto, timeoutMs) {
   if (!isVideoItem(foto)) {                      /* video besar tidak disimpan di memori */
     mediaBlobCache.set(foto.id, p);
     p.catch(() => { if (mediaBlobCache.get(foto.id) === p) mediaBlobCache.delete(foto.id); });
-    while (mediaBlobCache.size > 8) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
   }
   return p;
 }
