@@ -1541,9 +1541,9 @@ function precacheBerat() {
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
   const foto = [], mid = [], video = [], asli = [];
   const tambah = (u, dest) => { if (u && !sentBerat.has(u)) { sentBerat.add(u); dest.push(u); } };
-  photos.concat(trashPhotos || []).forEach((p) => {
-    if (isVideoItem(p)) { tambah(getPosterSrc(p), video); tambah(getFullSrc(p), video); }
-    else { tambah(getViewSrc(p), foto); tambah(getMidSrc(p), mid); tambah(getDownloadSrc(p), asli); }   /* HD, menengah, dan file asli penuh */
+  photos.slice(0, 20).forEach((p) => {
+    if (isVideoItem(p)) { tambah(getPosterSrc(p), video); }
+    else { tambah(getMidSrc(p), mid); }   /* hanya ukuran menengah: ringan & cukup untuk tampil instan */
   });
   const urls = foto.concat(mid, video, asli);
   const kirim = async () => {
@@ -1551,9 +1551,9 @@ function precacheBerat() {
     if (!navigator.onLine || !navigator.serviceWorker.controller) { beratJalan = false; urls.forEach((u) => sentBerat.delete(u)); return; }
     try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.quota && e.usage / e.quota > 0.98) { beratJalan = false; return; } } } catch (x) {}
     if (document.hidden || document.body.classList.contains('viewer-open') || Date.now() - (window.lastScrollT || 0) < 2000) { setTimeout(kirim, 3000); return; }
-    const bag = urls.splice(0, 24);
+    const bag = urls.splice(0, 4);
     try { navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
-    setTimeout(kirim, 1000);
+    setTimeout(kirim, 3000);
   };
   setTimeout(kirim, 20000);   /* thumbnail didahulukan */
 }
@@ -1564,9 +1564,9 @@ function precacheThumbs() {
   precacheBerat();
   if (!urls.length) return;
   const kirim = () => {
-    const bag = urls.splice(0, 200);
+    const bag = urls.splice(0, 60);
     try { if (bag.length && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
-    if (urls.length) setTimeout(kirim, 300);
+    if (urls.length) setTimeout(kirim, 600);
   };
   setTimeout(kirim, 800);
 }
@@ -1609,7 +1609,7 @@ function listenPhotos() {
     });
     if (snapObj.size > lastSnapDocs.length) { const ada = new Set(lastSnapDocs.map(x => x.id)); snapObj.forEach((v, k) => { if (!ada.has(k)) snapObj.delete(k); }); }
     clearTimeout(window.__snapTimer);
-    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 16);   /* gabungkan snapshot beruntun jadi satu render */
+    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 500);   /* gabungkan snapshot beruntun jadi satu render */
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -3003,7 +3003,7 @@ const thumbIO3 = ('IntersectionObserver' in window) ? new IntersectionObserver((
       img.src = img.dataset.src;
     }
   });
-}, { rootMargin: '6000px 0px' }) : null;
+}, { rootMargin: '600px 0px' }) : null;
 /* zona luas (9000px = 3x lipat): dimuat prioritas rendah supaya tidak menyaingi gambar yang sedang terlihat */
 const thumbIOFar = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
   es.forEach((en) => {
@@ -3018,7 +3018,7 @@ const thumbIOFar = ('IntersectionObserver' in window) ? new IntersectionObserver
 function attachThumb(card, img, url) {
   img.decoding = 'async';
   if (window.__eagerThumbs == null) window.__eagerThumbs = 0;
-  if (window.__eagerThumbs < 60) { window.__eagerThumbs++; img.loading = 'eager'; try { img.fetchPriority = 'high'; } catch (e) {} }
+  if (window.__eagerThumbs < 15) { window.__eagerThumbs++; img.loading = 'eager'; try { img.fetchPriority = 'high'; } catch (e) {} }
   else { img.loading = 'eager'; try { img.fetchPriority = 'low'; } catch (e) {} }
   img.dataset.src = url;
   img.onload = () => { if (img.getAttribute('src')) img.classList.add('loaded'); };
@@ -3027,12 +3027,12 @@ function attachThumb(card, img, url) {
     if (!img.__r) { img.__r = 1; setTimeout(() => { if (img.getAttribute('src')) img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
   };
   card.__img = img;
-  if (window.__eagerThumbs <= 60) img.src = url;
+  if (window.__eagerThumbs <= 15) img.src = url;
   if (img.complete && img.naturalWidth) img.classList.add('loaded');
   if (thumbIO3) thumbIO3.observe(card);
 }
 /* JENDELA 1000 GAMBAR: ±500 thumbnail di sekitar posisi layar selalu terpasang; di luar ±700 dilepas supaya stabil */
-const WIN_HALF = 1000, WIN_KEEP = 1200;
+const WIN_HALF = 20, WIN_KEEP = 35;
 function windowThumbs() {
   const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
   if (!n) return;
@@ -3047,7 +3047,6 @@ function windowThumbs() {
   }
 }
 function sweepFarThumbs() {
-  return;   /* semua thumbnail tetap terpasang, tidak dilepas */
   if (document.hidden || document.body.classList.contains('viewer-open')) return;
   if (Date.now() - lastScrollT < 1500) return;
   const pg = document.getElementById('page-galeri');
@@ -3060,7 +3059,7 @@ function sweepFarThumbs() {
     if (im && im.getAttribute('src')) { im.removeAttribute('src'); im.classList.remove('loaded'); }
   }
 }
-setInterval(sweepFarThumbs, 4000);
+setInterval(sweepFarThumbs, 8000);
 /* segar kembali: setelah app lama di latar / ditinggal, buang cache berat & sambung ulang data */
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
@@ -3287,7 +3286,7 @@ function renderGallery() {
     newLeadingCount++;
   }
   /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
-  const KARTU_PER_FRAME = 2000;
+  const KARTU_PER_FRAME = 30;
   let sisaKartu = false;
   if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
   let kartuDibuat = newLeadingCount;
@@ -3629,7 +3628,7 @@ let viewToken = 0;
 const midCache = new Map();
 function midOf(p, hi) {
   let m = midCache.get(p.id);
-  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m);  }
+  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m); while (midCache.size > 5) midCache.delete(midCache.keys().next().value); }
   return m;
 }
 function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
@@ -3663,6 +3662,7 @@ function preloadView(p, hi) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
+  while (viewCache.size > 4) viewCache.delete(viewCache.keys().next().value);
   
   return entry;
 }
@@ -3686,7 +3686,7 @@ window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (
     if (sibuk && wait < 30) { wait++; setTimeout(sample, 400); return; }   /* thumbnail yang terlihat didahulukan, baru HD disiapkan */
     wait = 0;
     const W = window.innerWidth, H = window.innerHeight, seen = new Set();
-    [0.3, 0.5, 0.7].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
+    [0.5].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
       const el = document.elementFromPoint(W * fx, H * fy);
       const c = el && el.closest ? el.closest('.album-card') : null;
       if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
@@ -4072,6 +4072,7 @@ function ambilBlobMedia(foto, timeoutMs) {
   })();
   if (!isVideoItem(foto)) {                      /* video besar tidak disimpan di memori */
     mediaBlobCache.set(foto.id, p);
+    while (mediaBlobCache.size > 1) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
     p.catch(() => { if (mediaBlobCache.get(foto.id) === p) mediaBlobCache.delete(foto.id); });
   }
   return p;
