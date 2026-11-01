@@ -24,7 +24,8 @@ button,input,textarea{font-family:inherit}
 --font-ui:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;--font-display:'Fraunces',Georgia,serif;
 --side:0px;--pad:clamp(16px,4vw,40px);--safe-b:env(safe-area-inset-bottom,0px)}
 @media(min-width:960px){:root{--side:272px}}
-html{scroll-behavior:auto!important;touch-action:manipulation}
+html{scroll-behavior:auto!important;touch-action:manipulation;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none}
 body{background:var(--body-bg) radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat fixed;color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
 .ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sr-only{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
@@ -378,7 +379,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 #photo-viewer #viewer-img{will-change:transform;touch-action:none}
 #photo-viewer .viewer-nav-btn{display:none!important}
 #photo-viewer .viewer-footer{position:relative;flex:0 0 auto;left:auto;bottom:auto;transform:none;margin:8px auto max(14px,calc(env(safe-area-inset-bottom) + 8px));backdrop-filter:none;-webkit-backdrop-filter:none;background:#121215;box-shadow:none}
-body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
+body.viewer-open{overflow:hidden!important}
 /* ===== LOGIN & PIN (HP saja, laptop tetap seperti semula) ===== */
 @media(max-width:899px){
 #auth-screen{background:radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.25),transparent 60%),radial-gradient(1px 1px at 82% 12%,rgba(255,255,255,.18),transparent 60%),radial-gradient(1px 1px at 68% 78%,rgba(255,255,255,.2),transparent 60%),radial-gradient(1px 1px at 25% 88%,rgba(255,255,255,.15),transparent 60%),radial-gradient(1px 1px at 92% 55%,rgba(255,255,255,.16),transparent 60%),var(--bg)!important;padding:40px 16px;justify-content:safe center}
@@ -426,7 +427,11 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 <style>
 #photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
 #photo-viewer #viewer-video{background:#000}
-#photo-viewer #viewer-content{will-change:contents}
+#photo-viewer{transition:none!important}
+#photo-viewer .viewer-icon-btn,#photo-viewer .viewer-action-btn{transition:background-color .08s!important}
+#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 190px 238px}
+#photo-viewer #viewer-img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+#photo-viewer #viewer-content{contain:layout paint}
 </style>
 <style>
 /* pindah halaman instan: tanpa fade/slide, galeri disimpan (tidak dibongkar) saat tidak aktif */
@@ -487,12 +492,19 @@ body.viewer-open #photo-viewer{visibility:visible}
 }
 </style>
 <style>
-/* ANTI NGELEK: semua tombol/elemen klik merespons seketika */
-button,[onclick],.nav-btn,.xa-tile,.xa-row,.menu-btn,.album-card,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition-duration:0s!important;transition-delay:0s!important}
-button:active,[onclick]:active,.pin-key:active,.xa-tile:active{transition:none!important}
-.swal2-popup,.swal2-container,.swal2-backdrop-show,.swal2-show,.swal2-hide,.swal2-icon,.swal2-icon *,.swal2-success-line-tip,.swal2-success-line-long,.swal2-success-circular-line-left,.swal2-success-circular-line-right,.swal2-success-fix,.swal2-x-mark-line-left,.swal2-x-mark-line-right{animation:none!important;transition:none!important}
-.mini-toast,.floating-cancel-btn,.scroll-top-btn,#upload-pill{transition:none!important}
-.fade-in,.fade-out{animation-duration:.01s!important}
+/* TOMBOL SMOOTH & RAMAH: respons langsung terasa, gerak lembut dan sedikit membal */
+button,[onclick]:not(.album-card):not(.xa-tile),.nav-btn,.xa-row,.menu-btn,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone,.xm-item,.xm-circle,.nav-item{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .24s cubic-bezier(.34,1.45,.64,1),background-color .22s ease,border-color .22s ease,color .22s ease,opacity .22s ease,box-shadow .22s ease,filter .22s ease!important}
+.xa-tile{transition:transform .24s cubic-bezier(.34,1.45,.64,1)}
+button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scroll-top-btn):active,.xa-tile:active,.album-card:active{transform:scale(.95)}
+@media(hover:hover){
+ .menu-btn:hover,.trash-btn:hover,.media-filter-tab:hover:not(.active){transform:translateY(-1px)}
+ .submit-btn:hover{box-shadow:0 12px 30px rgba(251,191,36,.28)}
+}
+.swal2-popup{animation-duration:.28s!important}
+.mini-toast,.floating-cancel-btn,.scroll-top-btn,#upload-pill{transition:opacity .22s ease,transform .26s cubic-bezier(.34,1.3,.64,1)!important}
+.page.active{animation:none!important}
+@keyframes pageSoft{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fade-in,.fade-out{animation-duration:.2s!important}
 </style>
 </head>
 <body>
@@ -866,11 +878,12 @@ const IS_STANDALONE_APP = (window.matchMedia && window.matchMedia('(display-mode
   || window.navigator.standalone === true
   || document.referrer.includes('android-app://');
 
+const THUMB_W = (window.innerWidth < 960) ? 240 : 320; /* thumbnail kecil = ukuran file ~5-10KB, tampil jauh lebih cepat */
 function cldThumbUrl(p) {
   if (p.resourceType === 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_320,h_320,c_fill,q_auto/${p.publicId}.jpg`;
+    return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_${THUMB_W},h_${THUMB_W},c_fill,q_auto:eco/${p.publicId}.jpg`;
   }
-  return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_320,h_320,c_fill,q_auto,f_auto/${p.publicId}`;
+  return `https://res.cloudinary.com/${cldName(p)}/image/upload/w_${THUMB_W},h_${THUMB_W},c_fill,q_auto:eco,f_auto/${p.publicId}`;
 }
 function cldFullUrl(p) {
   if (p.resourceType === 'video') {
@@ -1153,8 +1166,8 @@ window.addEventListener('DOMContentLoaded', function() {
 const customSwal = Swal.mixin({
   scrollbarPadding: false,
   heightAuto: false,
-  showClass: { popup: '', backdrop: '', icon: '' },
-  hideClass: { popup: '', backdrop: '', icon: '' }
+  showClass: { popup: 'swal2-show', backdrop: 'swal2-backdrop-show', icon: 'swal2-icon-show' },
+  hideClass: { popup: 'swal2-hide', backdrop: 'swal2-backdrop-hide', icon: 'swal2-icon-hide' }
 });
 
 window.konfirmasiAksi = function(pesan, callback) {
@@ -1182,14 +1195,14 @@ window.showMiniToast = function(msg, duration = 1600) {
 };
 
 document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
-  btn.addEventListener('pointerup', (e) => {
+  btn.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     switchPage(btn.dataset.page);
   }, { passive: false });
 });
 
 document.querySelectorAll('.xm-nav .nav-btn').forEach(btn => {
-  btn.addEventListener('pointerup', (e) => { e.preventDefault(); switchPage(btn.dataset.page); }, { passive: false });
+  btn.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(btn.dataset.page); }, { passive: false });
 });
 
 const pageScroll = {};
@@ -1523,11 +1536,11 @@ function precacheThumbs() {
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
   if (!urls.length) return;
   const kirim = () => {
-    const bag = urls.splice(0, 24);
+    const bag = urls.splice(0, 200);
     try { if (bag.length && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
-    if (urls.length) setTimeout(kirim, 1500);
+    if (urls.length) setTimeout(kirim, 300);
   };
-  setTimeout(kirim, 2500);
+  setTimeout(kirim, 800);
 }
 
 let unsubPhotos = null;
@@ -2955,9 +2968,22 @@ const thumbIO3 = ('IntersectionObserver' in window) ? new IntersectionObserver((
     }
   });
 }, { rootMargin: '3000px 0px' }) : null;
+/* zona luas (9000px = 3x lipat): dimuat prioritas rendah supaya tidak menyaingi gambar yang sedang terlihat */
+const thumbIOFar = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
+  es.forEach((en) => {
+    if (!en.isIntersecting) return;
+    const img = en.target.__img;
+    if (img && !img.getAttribute('src') && img.dataset.src) {
+      try { img.fetchPriority = 'low'; } catch (e) {}
+      img.src = img.dataset.src;
+    }
+  });
+}, { rootMargin: '100000px 0px' }) : null;
 function attachThumb(card, img, url) {
   img.decoding = 'async';
-  img.loading = 'lazy';
+  if (window.__eagerThumbs == null) window.__eagerThumbs = 0;
+  if (window.__eagerThumbs < 60) { window.__eagerThumbs++; img.loading = 'eager'; try { img.fetchPriority = 'high'; } catch (e) {} }
+  else img.loading = 'lazy';
   img.dataset.src = url;
   img.onload = () => { if (img.getAttribute('src')) img.classList.add('loaded'); };
   img.onerror = () => {
@@ -2965,25 +2991,39 @@ function attachThumb(card, img, url) {
     if (!img.__r) { img.__r = 1; setTimeout(() => { if (img.getAttribute('src')) img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
   };
   card.__img = img;
-  img.src = url;
+  if (window.__eagerThumbs <= 60) img.src = url;
   if (img.complete && img.naturalWidth) img.classList.add('loaded');
   if (thumbIO3) thumbIO3.observe(card);
+}
+/* JENDELA 1000 GAMBAR: ±500 thumbnail di sekitar posisi layar selalu terpasang; di luar ±700 dilepas supaya stabil */
+const WIN_HALF = 500, WIN_KEEP = 700;
+function windowThumbs() {
+  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
+  if (!n) return;
+  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+  const lo = Math.max(0, f - WIN_HALF), hi = Math.min(n - 1, f + WIN_HALF);
+  for (let i = lo; i <= hi; i++) {
+    const im = kids[i].__img;
+    if (im && !im.getAttribute('src') && im.dataset.src) {
+      try { im.fetchPriority = Math.abs(i - f) < 80 ? 'high' : 'low'; } catch (e) {}
+      im.src = im.dataset.src;
+    }
+  }
 }
 function sweepFarThumbs() {
   if (document.hidden || document.body.classList.contains('viewer-open')) return;
   if (Date.now() - lastScrollT < 1500) return;
   const pg = document.getElementById('page-galeri');
   if (!pg || !pg.classList.contains('active')) return;
-  const kids = document.getElementById('main-gallery-grid').children;
-  const vh = window.innerHeight, FAR = 6000;
-  for (let i = 0; i < kids.length; i++) {
-    const k = kids[i], im = k.__img;
-    if (!im || !im.getAttribute('src')) continue;
-    const r = k.getBoundingClientRect();
-    if (r.bottom < -FAR || r.top > vh + FAR) { im.removeAttribute('src'); im.classList.remove('loaded'); }
+  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
+  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+  for (let i = 0; i < n; i++) {
+    if (i >= f - WIN_KEEP && i <= f + WIN_KEEP) { i = Math.min(n, f + WIN_KEEP); continue; }
+    const im = kids[i].__img;
+    if (im && im.getAttribute('src')) { im.removeAttribute('src'); im.classList.remove('loaded'); }
   }
 }
-setInterval(sweepFarThumbs, 5000);
+setInterval(sweepFarThumbs, 4000);
 /* segar kembali: setelah app lama di latar / ditinggal, buang cache berat & sambung ulang data */
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
@@ -2994,11 +3034,11 @@ document.addEventListener('visibilitychange', () => {
   try { viewCache.clear(); mediaBlobCache.clear(); sentThumbs.clear(); } catch (e) {}
   if (document.getElementById('app-screen').style.display !== 'none') { try { listenPhotos(); } catch (e) {} }
 });
-setInterval(() => { try { if (!document.body.classList.contains('viewer-open')) { viewCache.clear(); mediaBlobCache.clear(); } } catch (e) {} }, 180000);
+setInterval(() => { try { if (!document.body.classList.contains('viewer-open')) { viewCache.clear(); mediaBlobCache.clear(); } } catch (e) {} }, 3600000);
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
-  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); pumpThumbs(); bgPump(); });
+  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); windowThumbs(); pumpThumbs(); bgPump(); });
 }
 function updateThumbFocus() {
   const c = document.getElementById('main-gallery-grid');
@@ -3064,6 +3104,7 @@ window.addEventListener('scroll', () => {
     if (Math.abs(y - thumbLastY) > 2) thumbDir = y >= thumbLastY ? 1 : -1;
     thumbLastY = y;
     updateThumbFocus();
+    windowThumbs();
     pumpThumbs();
   });
 }, { passive: true });
@@ -3125,7 +3166,7 @@ const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
     const id = c.dataset.id;
     startPress(id);
     clearTimeout(warmT);
-    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 30);
+    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 0);
   });
   grid.addEventListener('pointerup', () => { cancelPress(); });
   grid.addEventListener('pointercancel', () => { cancelPress(); clearTimeout(warmT); });
@@ -3538,16 +3579,27 @@ window.aksiFavorit = async function() {
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
+const VIEW_PX = 2048;
 const viewCache = new Map();
 let viewToken = 0;
+const midCache = new Map();
+function midOf(p) {
+  let m = midCache.get(p.id);
+  if (!m) { m = new Image(); m.decoding = 'async'; m.src = getMidSrc(p); midCache.set(p.id, m); if (midCache.size > 40) midCache.delete(midCache.keys().next().value); }
+  return m;
+}
+function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
 
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1920,h_1920,q_auto:good,f_auto/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto:good,f_auto/${p.publicId}`;
   }
   return getFullSrc(p);
+}
+function getMidSrc(p) {
+  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1280,h_1280,q_auto:good,f_auto/${p.publicId}`;
+  return getThumbSrc(p);
 }
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
@@ -3566,16 +3618,52 @@ function preloadView(p) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > 12) viewCache.delete(viewCache.keys().next().value);
+  if (viewCache.size > 6) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
-window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
+window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p); if (!isVideoItem(p)) midOf(p); } };
 
+/* siapkan foto yang sedang terlihat di layar saat scroll berhenti, supaya klik langsung tajam */
+(function setupIdlePrefetch() {
+  let t = 0; const keep = [];
+  function sample() {
+    if (document.hidden || document.body.classList.contains('viewer-open')) return;
+    const pg = document.getElementById('page-galeri');
+    if (!pg || !pg.classList.contains('active')) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    const W = window.innerWidth, H = window.innerHeight, seen = new Set();
+    [0.25, 0.5, 0.75].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
+      const el = document.elementFromPoint(W * fx, H * fy);
+      const c = el && el.closest ? el.closest('.album-card') : null;
+      if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
+      seen.add(c.dataset.id);
+      const p = photos.find(x => x.id === c.dataset.id);
+      if (!p || isVideoItem(p)) return;
+      midOf(p);
+      if (fy === 0.5) { const h = new Image(); h.src = getViewSrc(p); keep.push(h); }
+    }));
+    while (keep.length > 30) keep.shift();
+  }
+  window.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => { (window.requestIdleCallback || setTimeout)(sample); }, 120); }, { passive: true });
+  setTimeout(sample, 1200);
+})();
+
+/* batalkan unduhan foto lama yang belum selesai supaya tidak menghalangi unduhan foto yang baru diklik */
+function vTimer(fn, ms) { (window.__vTimers = window.__vTimers || []).push(setTimeout(fn, ms)); }
+function vClearTimers() { (window.__vTimers || []).forEach(clearTimeout); window.__vTimers = []; }
+function abortStale(keep) {
+  viewCache.forEach((e, id) => {
+    if (e.ready || (keep && keep.has(id))) return;
+    try { e.im.src = ''; } catch (x) {}
+    viewCache.delete(id);
+  });
+}
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1, 2, -1, 3] : [-1, -2, 1, -3];
+  [2, -2].forEach((o, k) => { const q = list[(idx + o + list.length * 2) % list.length]; if (q && !isVideoItem(q)) vTimer(() => midOf(q), 200 + k * 60); });
+  const order = dir >= 0 ? [1, -1] : [-1, 1];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
-    if (q) setTimeout(() => preloadView(q), k * 40);
+    if (q) vTimer(() => preloadView(q), k * 60);
   });
 }
 
@@ -3598,6 +3686,8 @@ window.bukaViewer = function(id, dir) {
 
   currentViewPhotoId = id;
   const token = ++viewToken;
+  vClearTimers();
+  abortStale(new Set([foto.id, list[(idx + 1) % list.length].id, list[(idx - 1 + list.length) % list.length].id]));
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
@@ -3612,6 +3702,7 @@ window.bukaViewer = function(id, dir) {
   judulEl.appendChild(tglEl);
 
   img.alt = foto.title || 'foto';
+  img.decoding = 'async';
   img.classList.remove('zoomed');
   img.style.transform = ''; img.style.transition = '';
   video.style.transform = ''; video.style.transition = '';
@@ -3624,7 +3715,7 @@ window.bukaViewer = function(id, dir) {
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
-    video.preload = 'auto';
+    video.preload = 'metadata';
     video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
@@ -3646,27 +3737,21 @@ window.bukaViewer = function(id, dir) {
     video.style.display = 'none';
     img.style.display = 'block';
     if (entry.ready) {
+      img.decoding = 'sync';
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
-      img.src = getThumbSrc(foto);               /* placeholder instan (sudah ada di cache grid) */
+      img.decoding = 'sync';
+      const mm = midOf(foto);
+      img.src = midReady(mm) ? mm.src : getThumbSrc(foto);   /* tahap tengah 1280px bila sudah ada, kalau belum thumbnail dulu */
+      if (!midReady(mm)) mm.addEventListener('load', () => { if (token === viewToken && !entry.ready && img.src !== entry.src) img.src = mm.src; }, { once: true });
       entry.promise.then(() => {
         if (token !== viewToken) return;
+        img.decoding = 'async';
         if (entry.ready) img.src = entry.src;
         else { viewCache.delete(foto.id); img.src = getViewSrc(foto); }   /* preload gagal: biarkan browser memuat langsung */
       });
     }
     img.classList.add('loaded');
-    /* langsung HD: setelah versi 1920px tampil, ganti mulus ke file asli resolusi penuh (tanpa kedip) */
-    if (foto.publicId) {
-      const hdUrl = getDownloadSrc(foto);
-      const naik = () => {
-        if (token !== viewToken) return;
-        const hi = new Image(); hi.decoding = 'async'; hi.src = hdUrl;
-        const pasang = () => { if (token === viewToken && img.src !== hdUrl) img.src = hdUrl; };
-        (hi.decode ? hi.decode() : new Promise((res, rej) => { hi.onload = res; hi.onerror = rej; })).then(pasang, () => {});
-      };
-      entry.promise.then(naik);
-    }
   }
 
   updateFavButtonUI(foto);
@@ -3676,11 +3761,10 @@ window.bukaViewer = function(id, dir) {
   document.body.classList.add('viewer-open');
   updateViewerNavButtons();
 
-  if (dir) slideIn(dir);
-  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
+  if (dir && !window.__noSlide) slideIn(dir);
+  window.__noSlide = false;
+  const after = () => { if (token === viewToken) { preloadNeighbors(list, idx, dir || 1); } };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
-  /* siapkan file di memori agar tombol WA & Unduh langsung merespons */
-  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 2500));
 };
 
 window.tutupViewer = function() {
@@ -3692,6 +3776,7 @@ window.tutupViewer = function() {
   }
   
   viewToken++;
+  vClearTimers(); abortStale(null);
   setTimeout(() => {
     if (document.getElementById('photo-viewer').classList.contains('show')) return;
     const img = document.getElementById('viewer-img');
@@ -3916,7 +4001,7 @@ function ambilBlobMedia(foto, timeoutMs) {
   if (!isVideoItem(foto)) {                      /* video besar tidak disimpan di memori */
     mediaBlobCache.set(foto.id, p);
     p.catch(() => { if (mediaBlobCache.get(foto.id) === p) mediaBlobCache.delete(foto.id); });
-    while (mediaBlobCache.size > 4) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
+    while (mediaBlobCache.size > 8) mediaBlobCache.delete(mediaBlobCache.keys().next().value);
   }
   return p;
 }
@@ -4038,6 +4123,39 @@ window.aksiHapus = function() {
     bukaViewer(listAfter[nextIdx].id);
   });
 };
+
+/* ===== PEMBUNUH BUG: error / hang / macet langsung dipulihkan otomatis ===== */
+(function bugKiller() {
+  let lastFix = 0, busySince = 0;
+  function pulihkan() {
+    const now = Date.now();
+    if (now - lastFix < 1500) return;
+    lastFix = now;
+    try { if (!isUploadingBg) isBusy = false; } catch (e) {}
+    try { aksiSelesai(); } catch (e) {}
+    try { if (bulkMode && !(window.Swal && Swal.isVisible())) { bulkMode = false; renderGallery(); } } catch (e) {}
+    try {
+      const v = document.getElementById('photo-viewer');
+      if (!v.classList.contains('show') && document.body.classList.contains('viewer-open')) {
+        document.body.classList.remove('viewer-open'); document.body.style.top = '';
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('error', pulihkan);
+  window.addEventListener('unhandledrejection', (e) => { pulihkan(); });
+  /* deteksi hang: kalau layar sempat membeku >3 detik, bersihkan keadaan macet */
+  let beat = Date.now();
+  setInterval(() => {
+    const now = Date.now();
+    if (now - beat > 3000 && !document.hidden) pulihkan();
+    beat = now;
+    /* kunci sibuk yang menggantung >3 menit tanpa proses nyata dilepas */
+    try {
+      if (isBusy && !isUploadingBg && !(window.Swal && Swal.isVisible())) { if (!busySince) busySince = now; else if (now - busySince > 180000) { isBusy = false; busySince = 0; } }
+      else busySince = 0;
+    } catch (e) {}
+  }, 1000);
+})();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
