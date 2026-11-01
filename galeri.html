@@ -158,6 +158,8 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .album-card:active{transform:scale(.98)}
 .album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .14s var(--ease-smooth),opacity .14s}
 .album-cover.loaded{opacity:1}
+@keyframes shimmerThumb{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.album-card:has(> .album-cover:not(.loaded)){background:linear-gradient(110deg,var(--card) 30%,rgba(255,255,255,.07) 50%,var(--card) 70%);background-size:200% 100%;animation:shimmerThumb 1.4s linear infinite}
 .album-caption{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 11px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:2;pointer-events:none;transition:.14s}
 .video-badge,.fav-badge{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:9px;background:rgba(0,0,0,.72);display:grid;place-items:center;z-index:2;color:#fff;pointer-events:none}
 .video-badge .ico,.fav-badge .ico{width:13px;height:13px}
@@ -1371,6 +1373,7 @@ function listenPhotos() {
   onSnapshot(q, (snap) => {
     const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     photos = allDocs.filter(x => !x.deletedAt);
+    cacheSemuaThumb();
     try { localStorage.setItem('rhn_warm', JSON.stringify(photos.slice(0, 60).map(getThumbSrc).filter(u => /^https:/.test(u)))); } catch (e) {}
     trashPhotos = allDocs.filter(x => !!x.deletedAt);
     purgeExpiredTrash();
@@ -1671,7 +1674,7 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo, onProgress)
     const idx = pickAccount();
     const acc = CLOUDINARY_ACCOUNTS[idx];
     const form = new FormData();
-    form.append('file', fileOrBlob, filenameHint);
+    if (typeof fileOrBlob === 'string') form.append('file', fileOrBlob); else form.append('file', fileOrBlob, filenameHint);
     form.append('upload_preset', acc.uploadPreset);
     form.append('folder', `users/${currentUser.uid}/media`);
     let resp, errText = '';
@@ -1731,7 +1734,7 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo, onProgress)
         format = eager.format || format;
       }
     }
-    return { publicId, resourceType, format, size, cloudName: acc.cloudName };
+    return { publicId, resourceType, format, size, cloudName: acc.cloudName, ...(data.width && data.height ? { width: data.width, height: data.height } : {}) };
   }
   throw lastErr || new Error('Semua penyimpanan penuh');
 }
@@ -2080,7 +2083,61 @@ window.pindahKePenyimpananBaru = async function() {
   }
 };
 
+/* batas waktu: permintaan yang menggantung tidak boleh menahan antrean selamanya */
+function withTimeout(promise, ms, label) {
+  let t;
+  const timer = new Promise((_, rej) => { t = setTimeout(() => rej(new Error('Timeout ' + (label || '') + ' ' + ms + 'ms')), ms); });
+  return Promise.race([promise, timer]).finally(() => clearTimeout(t));
+}
+/* JALUR SUPER CEPAT: pembesaran dilakukan di server Cloudinary (tanpa unduh, tanpa proses di perangkat, tanpa upload ulang dari perangkat) */
+async function hdkanCepat(p) {
+  const cn = cldName(p);
+  const refDoc = doc(db, 'users', currentUser.uid, 'photos', p.id);
+  const ac = new AbortController();
+  const acT = setTimeout(() => ac.abort(), 20000);
+  let ir;
+  try { ir = await fetch(`https://res.cloudinary.com/${cn}/image/upload/fl_getinfo/${p.publicId}`, { signal: ac.signal }); }
+  finally { clearTimeout(acT); }
+  if (!ir.ok) throw new Error('info HTTP ' + ir.status);
+  const info = await ir.json();
+  const w = info && info.input && info.input.width, h = info && info.input && info.input.height;
+  if (!w || !h) throw new Error('ukuran tidak terbaca');
+  if (Math.max(w, h) >= HD_TARGET_LONG_SIDE) return { ref: refDoc, data: { hd: HD_TARGET_LONG_SIDE }, upgraded: false };
+  const src = `https://res.cloudinary.com/${cn}/image/upload/c_fit,w_${HD_TARGET_LONG_SIDE},h_${HD_TARGET_LONG_SIDE},q_95,f_jpg/${p.publicId}`;
+  const meta = await withTimeout(uploadToCloudinary(src, 'foto_hd.jpg', false), 90000, 'upload HD');
+  return {
+    ref: refDoc,
+    data: { ...meta, hd: HD_TARGET_LONG_SIDE, thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField() },
+    upgraded: true
+  };
+}
+
+/* CATATAN LOKAL anti-ulang: id foto yang sudah selesai di-HD-kan langsung dicatat di perangkat (tidak menunggu database), jadi tidak akan diproses lagi walau penyimpanan database terlambat/gagal */
+window.__hdDone = (() => { try { return new Set(JSON.parse(localStorage.getItem('rhn_hd_done') || '[]')); } catch (e) { return new Set(); } })();
+let __hdSaveT = null;
+function tandaiHDSelesai(id) {
+  window.__hdDone.add(id);
+  if (__hdSaveT) return;
+  __hdSaveT = setTimeout(() => { __hdSaveT = null; try { localStorage.setItem('rhn_hd_done', JSON.stringify(Array.from(window.__hdDone))); } catch (e) {} }, 400);
+}
+const sudahHD = (p) => isVideoItem(p) || window.__hdDone.has(p.id) || (typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE) || (p.width && p.height && Math.max(p.width, p.height) >= HD_TARGET_LONG_SIDE);   /* video tidak diproses; foto bertanda HD dilewati selamanya */
 async function hdkanSatuFoto(p) {
+  if (sudahHD(p)) return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: null, upgraded: false, skipped: true };
+  if (p.publicId && !isVideoItem(p)) {
+    /* coba jalur cepat sampai 3x (jeda bertahap) supaya server yang sibuk tidak langsung dianggap gagal */
+    for (let t = 0; t < 3; t++) {
+      try { return await hdkanCepat(p); }
+      catch (e) { console.warn('Jalur cepat HD gagal (percobaan ' + (t + 1) + '):', e); await new Promise(r => setTimeout(r, 1000 * (t + 1) + Math.random() * 800)); }
+    }
+  }
+  /* jalur biasa berat di memori: dibatasi maks 2 sekaligus walau paralel utama 100; antre maks 60 dtk & tiap proses maks 2 menit agar tidak macet */
+  let tunggu = 0;
+  while ((window.__hdSlow || 0) >= 2) { await new Promise(r => setTimeout(r, 80)); if ((tunggu += 80) > 60000) throw new Error('Antrean jalur biasa penuh'); }
+  window.__hdSlow = (window.__hdSlow || 0) + 1;
+  try { return await withTimeout(hdkanLambat(p), 120000, 'HD biasa'); } finally { window.__hdSlow--; }
+}
+
+async function hdkanLambat(p) {
   const resp = await fetch(getFullSrc(p));
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   const blob = await resp.blob();
@@ -2126,7 +2183,8 @@ async function hdkanSatuFoto(p) {
 
 window.hdkanSemuaFoto = async function() {
   if (isBusy) return;
-  const target = photos.filter(p => !isVideoItem(p) && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
+  const target = photos.filter(p => !sudahHD(p));
+  const dilewatiHD = photos.filter(p => !isVideoItem(p) && sudahHD(p)).length;
 
   if (!target.length) {
     return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
@@ -2145,37 +2203,55 @@ window.hdkanSemuaFoto = async function() {
   customSwal.fire({
     title: `HD-kan 0/${total}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
+    showConfirmButton: false,
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
     didOpen: () => customSwal.showLoading()
   });
 
   /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = 6;
+  const conc = Math.min(64, Math.max(1, target.length));   /* 64 sekaligus = batas koneksi paralel browser; lebih dari itu justru antre & timeout */
   bulkMode = true;
 
+  try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+  /* PUTARAN OTOMATIS: yang gagal diulang sendiri (paralel makin kecil, jeda makin lama) sampai semua selesai atau 6 putaran, jadi tidak berhenti di tengah */
+  let antrean = target.slice(), ronde = 0;
   try {
-    await runWithConcurrency(target, conc, async (p) => {
-      try {
-        const r = await hdkanSatuFoto(p);
-        if (r.upgraded) upgraded++;
-        pending.push({ ref: r.ref, data: r.data });
-        if (pending.length >= 20) await flush();
-      } catch (e) {
-        console.error('Gagal HD-kan foto', p.id, e);
-        failed++;
-      } finally {
-        done++;
-        customSwal.update({ title: `HD-kan ${done}/${total}...` });
-        await yieldUI();
-      }
-    });
+    while (antrean.length && ronde < 6) {
+      ronde++;
+      const gagalRonde = [];
+      const c = Math.max(1, Math.min(antrean.length, ronde === 1 ? conc : Math.max(4, Math.floor(conc / Math.pow(2, ronde - 1)))));
+      await runWithConcurrency(antrean, c, async (p) => {
+        try {
+          const r = await withTimeout(hdkanSatuFoto(p), 300000, 'foto');
+          tandaiHDSelesai(p.id);
+          if (r.upgraded) upgraded++;
+          done++;
+          if (r.data) pending.push({ ref: r.ref, data: r.data });
+          if (pending.length >= 20) await flush();
+        } catch (e) {
+          console.error('Gagal HD-kan foto', p.id, e);
+          gagalRonde.push(p);
+        } finally {
+          customSwal.update({ title: `HD-kan ${done}/${total}...`, text: ronde > 1 || gagalRonde.length ? `Mengulang otomatis yang gagal (putaran ${ronde}, sisa gagal ${gagalRonde.length}). Jangan tutup halaman.` : 'Mohon jangan tutup halaman ini dulu.' });
+          await yieldUI();
+        }
+      });
+      await flush();
+      antrean = gagalRonde;
+      if (antrean.length && ronde < 6) await new Promise(r => setTimeout(r, 2000 * ronde));
+    }
+    failed += antrean.length;
     await flush();
 
+    /* NOTIF SELESAI: dialog + toast + notifikasi browser + bunyi */
+    try { const AC = window.AudioContext || window.webkitAudioContext; const ac = new AC(); const o = ac.createOscillator(), g = ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value = 880; g.gain.setValueAtTime(0.15, ac.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.5); o.start(); o.stop(ac.currentTime + 0.5); } catch (e) {}
+    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('HD-kan selesai', { body: `${upgraded} foto diperbesar ke 4K${failed ? ', ' + failed + ' gagal' : ''}.` }); } catch (e) {}
+    showMiniToast(failed ? `HD selesai, ${failed} gagal` : 'HD-kan SELESAI semua');
     customSwal.fire({
       icon: failed > 0 ? 'warning' : 'success',
-      title: 'HD Selesai',
-      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : ''),
+      title: failed > 0 ? 'HD Selesai (sebagian gagal)' : 'Sudah Selesai!',
+      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal. ${dilewatiHD} foto yang sudah HD dilewati.` + (failed ? ' Tekan HD-kan lagi untuk yang gagal.' : ''),
       background: 'var(--card)', color: 'var(--text)'
     });
   } catch (e) {
@@ -2794,15 +2870,124 @@ function updateSelectionUI() {
 
 /* ===== THUMBNAIL PREFETCH: muat & decode semua thumbnail dari posisi layar keluar, jadi saat scroll cepat sudah siap ===== */
 const thumbDone = new Set();
-const THUMB_CONC = 16;
+const THUMB_CONC = 40;
 let thumbActive = 0, thumbPending = 0, thumbFocusIdx = 0, thumbDir = 1, thumbLastY = 0, thumbTick = false, thumbPumpQueued = false;
 
 function thumbRadius() {
   const c = navigator.connection;
   return (c && (c.saveData || c.type === 'cellular')) ? 300 : Infinity;
 }
+/* ===== CACHE THUMBNAIL DI PERANGKAT (IndexedDB): setelah sekali termuat, semua thumbnail langsung tampil seketika saat aplikasi dibuka, tanpa menunggu jaringan ===== */
+const thumbBlobMap = new Map();       /* url -> blob: URL */
+const thumbWait = [];
+let thumbCacheReady = false, thumbDBh = null;
+const thumbInflight = new Set();
+const thumbDBp = new Promise(res => {
+  try {
+    const rq = indexedDB.open('rhn_thumbs', 1);
+    rq.onupgradeneeded = () => rq.result.createObjectStore('t');
+    rq.onsuccess = () => res(rq.result);
+    rq.onerror = () => res(null);
+    rq.onblocked = () => res(null);
+  } catch (e) { res(null); }
+});
+(async () => {
+  const tamat = new Promise(r => setTimeout(r, 2500));
+  try {
+    await Promise.race([(async () => {
+      const db0 = await thumbDBp; thumbDBh = db0;
+      if (!db0) return;
+      const st = db0.transaction('t', 'readonly').objectStore('t');
+      const keys = await new Promise(r => { const q = st.getAllKeys(); q.onsuccess = () => r(q.result); q.onerror = () => r([]); });
+      const vals = await new Promise(r => { const q = st.getAll(); q.onsuccess = () => r(q.result); q.onerror = () => r([]); });
+      keys.forEach((k, i) => { if (vals[i]) thumbBlobMap.set(k, URL.createObjectURL(vals[i])); });
+    })(), tamat]);
+  } catch (e) {}
+  thumbCacheReady = true;
+  thumbWait.splice(0).forEach(a => attachThumb(a[0], a[1], a[2]));
+})();
+async function cacheThumb(url, dari) {
+  if (!url || !/^https:/.test(url) || thumbBlobMap.has(url) || thumbInflight.has(url)) return;
+  thumbInflight.add(url);
+  try {
+    const r = await fetch(dari || url);
+    if (!r.ok) return;
+    const b = await r.blob();
+    if (!b.size) return;
+    thumbBlobMap.set(url, URL.createObjectURL(b));
+    const db0 = thumbDBh || await thumbDBp;
+    if (db0) db0.transaction('t', 'readwrite').objectStore('t').put(b, url);
+  } catch (e) {} finally { thumbInflight.delete(url); }
+}
+/* simpan SEMUA thumbnail di latar belakang (sekali jalan setelah data galeri masuk) + bersihkan yang sudah tidak dipakai */
+let thumbBgTimer = null;
+function cacheSemuaThumb() {
+  clearTimeout(thumbBgTimer);
+  thumbBgTimer = setTimeout(async () => {
+    while (!thumbCacheReady) await new Promise(r => setTimeout(r, 200));
+    const pakai = new Set(photos.map(getThumbSrc).filter(Boolean));
+    const db0 = thumbDBh || await thumbDBp;
+    if (db0) {
+      Array.from(thumbBlobMap.keys()).forEach(k => {
+        if (!pakai.has(k)) { try { URL.revokeObjectURL(thumbBlobMap.get(k)); } catch (e) {} thumbBlobMap.delete(k); try { db0.transaction('t', 'readwrite').objectStore('t').delete(k); } catch (e) {} }
+      });
+    }
+    const todo = Array.from(pakai).filter(u => /^https:/.test(u) && !thumbBlobMap.has(u));
+    if (todo.length) await runWithConcurrency(todo, 24, cacheThumb);
+  }, 1500);
+}
+
+/* ===== PEMUAT THUMBNAIL ANTI-GAGAL: timeout, ulang, dan cadangan URL berlapis supaya gambar SELALU muncul ===== */
+const thumbUse = new Map();   /* url asli -> url yang terbukti berhasil dimuat */
+function thumbFallbacks(url) {
+  const out = [];
+  let m = url.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+)\/image\/upload\/[^/]*\/(.+)$/);
+  if (m) { out.push(`${m[1]}/image/upload/w_320,h_320,c_fill/${m[2]}`, `${m[1]}/image/upload/w_400,c_limit,f_jpg/${m[2]}`, `${m[1]}/image/upload/${m[2]}`); return out; }
+  m = url.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+)\/video\/upload\/[^/]*\/(.+)$/);
+  if (m) out.push(`${m[1]}/video/upload/so_0/${m[2]}`);
+  return out;
+}
+function loadThumbOnce(src, ms) {
+  return new Promise(res => {
+    const im = new Image();
+    im.decoding = 'async';
+    let fin = false;
+    const done = (ok) => { if (fin) return; fin = true; clearTimeout(t); im.onload = im.onerror = null; res(ok); };
+    const t = setTimeout(() => { try { im.src = ''; } catch (e) {} done(false); }, ms);
+    im.onload = () => done(true);
+    im.onerror = () => done(false);
+    im.src = src;
+  });
+}
+function loadThumbRobust(url) {
+  /* TANPA MENUNGGU: URL utama jalan langsung; cadangan ikut dijalankan paralel (tiap 0,6 dtk) atau seketika kalau yang sebelumnya gagal. Yang pertama berhasil langsung dipakai. */
+  const kandidat = [url, ...thumbFallbacks(url)];
+  return new Promise(res => {
+    let selesai = false, aktif = 0, idx = 0;
+    const timers = [];
+    const stop = (v) => { if (selesai) return; selesai = true; timers.forEach(clearTimeout); res(v); };
+    const jalan = () => {
+      if (selesai || idx >= kandidat.length) return;
+      const c = kandidat[idx++];
+      aktif++;
+      loadThumbOnce(c, 8000).then(ok => {
+        aktif--;
+        if (selesai) return;
+        if (ok) return stop(c);
+        if (idx < kandidat.length) jalan();                 /* gagal -> langsung cadangan berikutnya, tanpa jeda */
+        else if (aktif === 0) stop(null);
+      });
+    };
+    jalan();
+    for (let i = 1; i < kandidat.length; i++) timers.push(setTimeout(jalan, i * 600));
+  });
+}
+
 function attachThumb(card, img, url) {
-  if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
+  if (thumbDone.has(url)) { img.src = thumbUse.get(url) || url; img.classList.add('loaded'); return; }
+  const cached = thumbBlobMap.get(url);
+  if (cached) { img.src = cached; img.classList.add('loaded'); return; }
+  if (!thumbCacheReady) { thumbWait.push([card, img, url]); return; }
   card.__tp = { img, url };
   thumbPending++;
   scheduleThumbPump();
@@ -2843,17 +3028,20 @@ function pumpThumbs() {
     if (!pick) { if (maxK >= n) thumbPending = 0; return; }
     const tp = pick.__tp; pick.__tp = null; thumbPending--;
     thumbActive++;
-    const im = new Image();
-    im.decoding = 'async';
-    im.src = tp.url;
-    const fin = (ok) => {
+    const fin = (src) => {
       thumbActive--;
-      if (ok) thumbDone.add(tp.url);
-      tp.img.src = tp.url;                       /* dari memori: muncul seketika */
-      if (ok) tp.img.classList.add('loaded');
+      if (src) {
+        thumbDone.add(tp.url); thumbUse.set(tp.url, src); cacheThumb(tp.url, src);
+        tp.img.src = src;                          /* dari memori: muncul seketika */
+        tp.img.classList.add('loaded');
+      } else {
+        /* gagal total: jangan dibiarkan kosong, coba lagi otomatis (jeda makin lama) sampai berhasil */
+        tp.tries = (tp.tries || 0) + 1;
+        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, (tp.tries <= 2 ? 0 : Math.min(1500, 200 * tp.tries)));
+      }
       pumpThumbs();
     };
-    (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; })).then(() => fin(true), () => fin(false));
+    loadThumbRobust(tp.url).then(fin, () => fin(null));
   }
 }
 window.addEventListener('scroll', () => {
