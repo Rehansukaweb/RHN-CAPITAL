@@ -465,6 +465,9 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 #pin-screen .link-btn:active{transform:scale(.97)}
 @media(max-height:700px){#pin-screen .auth-box>img{width:56px;height:56px;margin-bottom:14px}#pin-screen .auth-sub{margin-bottom:14px}.pin-key{height:46px;font-size:26px}#pin-screen .pin-links{margin-top:16px}}
 </style>
+<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+<link rel="dns-prefetch" href="https://res.cloudinary.com">
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <style>
 /* performa: blur latar (backdrop-filter) sangat berat di HP saat scroll/viewer, diganti warna pekat */
 .mobile-header{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(0,0,0,.94)!important}
@@ -472,6 +475,9 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 .viewer-icon-btn,.viewer-nav-btn,.viewer-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .album-card{contain:layout style}
 html{-webkit-tap-highlight-color:transparent}
+@media(max-width:959px){
+#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 25vw}
+}
 @media (hover:hover) and (pointer:fine){
 #photo-viewer .viewer-nav-btn{display:grid!important;width:52px;height:52px;background:rgba(18,18,21,.92);z-index:5}
 #photo-viewer #viewer-content{cursor:grab}
@@ -1387,6 +1393,7 @@ onAuthStateChanged(auth, async user => {
   const errEl = document.getElementById('pin-err');
   const showErr = (m) => { errEl.textContent = m; errEl.style.display = 'block'; };
   window.forceFocusPin = () => {
+    if (document.getElementById('pin-screen').style.display === 'none') return;
     if (document.body.classList.contains('swal2-shown') || document.querySelector('.swal2-container')) return;
     const splash = document.getElementById('splash-screen');
     if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
@@ -1521,8 +1528,9 @@ function processPhotoDocs(raw) {
 
   if (selectMode) {
     let changed = false;
+    const idsAda = new Set(photos.map(p => p.id));
     selectedIds.forEach(id => {
-      if (!photos.find(p => p.id === id)) { selectedIds.delete(id); changed = true; }
+      if (!idsAda.has(id)) { selectedIds.delete(id); changed = true; }
     });
     if (selectedIds.size === 0) { exitSelectMode(); return; }
     if (changed) updateSelectionUI();
@@ -1539,7 +1547,8 @@ function listenPhotos() {
   if (unsubPhotos) { try { unsubPhotos(); } catch (e) {} unsubPhotos = null; }
   unsubPhotos = onSnapshot(q, (snap) => {
     lastSnapDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    processPhotoDocs(lastSnapDocs);
+    clearTimeout(window.__snapTimer);
+    window.__snapTimer = setTimeout(() => processPhotoDocs(lastSnapDocs), 40);   /* gabungkan snapshot beruntun jadi satu render */
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -3104,6 +3113,11 @@ function renderGallery() {
   while (newLeadingCount < list.length && !photoNodes.has(list[newLeadingCount].id)) {
     newLeadingCount++;
   }
+  /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
+  const KARTU_PER_FRAME = 240;
+  let sisaKartu = false;
+  if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
+  let kartuDibuat = newLeadingCount;
 
   if (newLeadingCount > 0) {
     const fragment = document.createDocumentFragment();
@@ -3122,6 +3136,8 @@ function renderGallery() {
     const p = list[i];
     let node = photoNodes.get(p.id);
     if (!node) {
+      if (kartuDibuat >= KARTU_PER_FRAME) { sisaKartu = true; break; }
+      kartuDibuat++;
       node = createCardNode(p);
       photoNodes.set(p.id, node);
       if (selectedIds.has(p.id)) setCardSelected(p.id, true);
@@ -3137,6 +3153,10 @@ function renderGallery() {
   if (selectMode) {
     container.classList.add('select-mode-active');
     updateSelectionUI();
+  }
+  if (sisaKartu && !window.__galRenderQueued) {
+    window.__galRenderQueued = true;
+    requestAnimationFrame(() => { window.__galRenderQueued = false; renderGallery(); });
   }
   scheduleThumbPump();
 }
