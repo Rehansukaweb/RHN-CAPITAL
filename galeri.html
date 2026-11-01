@@ -2940,49 +2940,61 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
     thumbLoadNow(tp, 0);
   });
 }, { rootMargin: '1100px 0px' }) : null;
-/* Cepat: src dipasang langsung & browser memuat yang dekat layar (native lazy, prioritas ke yang terlihat).
-   Sisa thumbnail yang jauh dimuat pelan-pelan HANYA saat layar diam (3 sekaligus, terdekat dulu), jadi semua akhirnya terisi tanpa memperlambat scroll. */
-const thumbPendSet = new Set();
-let bgActive = 0, lastScrollT = 0, bgTimer = null;
-const BG_CONC = 3;
+/* STABIL & SELALU CEPAT: thumbnail dekat layar (±3000px) selalu terpasang; yang sangat jauh dilepas dari memori (tetap di cache browser) lalu dipasang lagi otomatis saat didekati.
+   Jadi memori tidak menumpuk walau galeri dibuka berjam-jam. */
+let lastScrollT = 0;
 window.addEventListener('scroll', () => { lastScrollT = Date.now(); }, { passive: true });
-function bgDone(img) { if (img.__bg) { img.__bg = 0; bgActive--; } thumbPendSet.delete(img); bgPump(); }
-function bgPump() {
-  clearTimeout(bgTimer);
-  if (!thumbPendSet.size) return;
-  if (Date.now() - lastScrollT < 350) { bgTimer = setTimeout(bgPump, 400); return; }
-  const c = document.getElementById('main-gallery-grid');
-  const kids = c.children, n = kids.length;
-  if (!n) return;
-  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
-  while (bgActive < BG_CONC && thumbPendSet.size) {
-    let pick = null;
-    for (let k = 0; k < n; k++) {
-      const a = f + k, b = f - k;
-      if (a < n && kids[a].__img && thumbPendSet.has(kids[a].__img)) { pick = kids[a].__img; break; }
-      if (k && b >= 0 && kids[b].__img && thumbPendSet.has(kids[b].__img)) { pick = kids[b].__img; break; }
-      if (a >= n && b < 0) break;
+function bgPump() {}
+const thumbIO3 = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
+  es.forEach((en) => {
+    if (!en.isIntersecting) return;
+    const img = en.target.__img;
+    if (img && !img.getAttribute('src') && img.dataset.src) {
+      try { img.fetchPriority = 'high'; } catch (e) {}
+      img.src = img.dataset.src;
     }
-    if (!pick) { thumbPendSet.clear(); return; }
-    thumbPendSet.delete(pick);
-    if (pick.complete && pick.naturalWidth) continue;
-    pick.__bg = 1; bgActive++;
-    pick.loading = 'eager';
-  }
-}
+  });
+}, { rootMargin: '3000px 0px' }) : null;
 function attachThumb(card, img, url) {
   img.decoding = 'async';
   img.loading = 'lazy';
-  img.onload = () => { img.classList.add('loaded'); bgDone(img); };
+  img.dataset.src = url;
+  img.onload = () => { if (img.getAttribute('src')) img.classList.add('loaded'); };
   img.onerror = () => {
-    bgDone(img);
-    if (!img.__r) { img.__r = 1; setTimeout(() => { img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
+    if (!img.getAttribute('src')) return;
+    if (!img.__r) { img.__r = 1; setTimeout(() => { if (img.getAttribute('src')) img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
   };
   card.__img = img;
   img.src = url;
   if (img.complete && img.naturalWidth) img.classList.add('loaded');
-  else { thumbPendSet.add(img); clearTimeout(bgTimer); bgTimer = setTimeout(bgPump, 600); }
+  if (thumbIO3) thumbIO3.observe(card);
 }
+function sweepFarThumbs() {
+  if (document.hidden || document.body.classList.contains('viewer-open')) return;
+  if (Date.now() - lastScrollT < 1500) return;
+  const pg = document.getElementById('page-galeri');
+  if (!pg || !pg.classList.contains('active')) return;
+  const kids = document.getElementById('main-gallery-grid').children;
+  const vh = window.innerHeight, FAR = 6000;
+  for (let i = 0; i < kids.length; i++) {
+    const k = kids[i], im = k.__img;
+    if (!im || !im.getAttribute('src')) continue;
+    const r = k.getBoundingClientRect();
+    if (r.bottom < -FAR || r.top > vh + FAR) { im.removeAttribute('src'); im.classList.remove('loaded'); }
+  }
+}
+setInterval(sweepFarThumbs, 5000);
+/* segar kembali: setelah app lama di latar / ditinggal, buang cache berat & sambung ulang data */
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  if (!hiddenAt || !currentUser) return;
+  const lama = Date.now() - hiddenAt; hiddenAt = 0;
+  if (lama < 60000) return;
+  try { viewCache.clear(); mediaBlobCache.clear(); sentThumbs.clear(); } catch (e) {}
+  if (document.getElementById('app-screen').style.display !== 'none') { try { listenPhotos(); } catch (e) {} }
+});
+setInterval(() => { try { if (!document.body.classList.contains('viewer-open')) { viewCache.clear(); mediaBlobCache.clear(); } } catch (e) {} }, 180000);
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
@@ -3113,7 +3125,7 @@ const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
     const id = c.dataset.id;
     startPress(id);
     clearTimeout(warmT);
-    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 160);
+    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 30);
   });
   grid.addEventListener('pointerup', () => { cancelPress(); });
   grid.addEventListener('pointercancel', () => { cancelPress(); clearTimeout(warmT); });
@@ -3644,6 +3656,17 @@ window.bukaViewer = function(id, dir) {
       });
     }
     img.classList.add('loaded');
+    /* langsung HD: setelah versi 1920px tampil, ganti mulus ke file asli resolusi penuh (tanpa kedip) */
+    if (foto.publicId) {
+      const hdUrl = getDownloadSrc(foto);
+      const naik = () => {
+        if (token !== viewToken) return;
+        const hi = new Image(); hi.decoding = 'async'; hi.src = hdUrl;
+        const pasang = () => { if (token === viewToken && img.src !== hdUrl) img.src = hdUrl; };
+        (hi.decode ? hi.decode() : new Promise((res, rej) => { hi.onload = res; hi.onerror = rej; })).then(pasang, () => {});
+      };
+      entry.promise.then(naik);
+    }
   }
 
   updateFavButtonUI(foto);
@@ -3674,6 +3697,7 @@ window.tutupViewer = function() {
     const img = document.getElementById('viewer-img');
     const video = document.getElementById('viewer-video');
     img.classList.remove('zoomed');
+    try { img.removeAttribute('src'); } catch (e) {}
     try { video.pause(); video.removeAttribute('src'); video.removeAttribute('poster'); video.load(); } catch (e) {}
     currentViewPhotoId = null;
   }, 250); 
