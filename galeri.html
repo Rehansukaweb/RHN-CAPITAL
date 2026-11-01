@@ -3032,7 +3032,7 @@ function attachThumb(card, img, url) {
   if (thumbIO3) thumbIO3.observe(card);
 }
 /* JENDELA 1000 GAMBAR: ±500 thumbnail di sekitar posisi layar selalu terpasang; di luar ±700 dilepas supaya stabil */
-const WIN_HALF = 500, WIN_KEEP = 700;
+const WIN_HALF = 1000, WIN_KEEP = 1200;
 function windowThumbs() {
   const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
   if (!n) return;
@@ -3287,7 +3287,7 @@ function renderGallery() {
     newLeadingCount++;
   }
   /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
-  const KARTU_PER_FRAME = 400;
+  const KARTU_PER_FRAME = 2000;
   let sisaKartu = false;
   if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
   let kartuDibuat = newLeadingCount;
