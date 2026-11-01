@@ -998,6 +998,22 @@ function applyPendingOps(docs) {
   }
   return out;
 }
+const RULES_FIRESTORE_TEXT = "match /users/{uid}/{document=**} {\n  allow read, write: if request.auth != null && request.auth.uid == uid;\n}";
+function dialogRules() {
+  customSwal.fire({
+    icon: 'error',
+    title: 'Server Menolak Perubahan',
+    html: '<div style="text-align:left;font-size:13px;line-height:1.5">Hapus, sampah &amp; favorit ditolak <b>Firestore Rules</b> (permission-denied), makanya balik lagi dan tidak sama di perangkat lain.<br><br><b>Perbaikan:</b> Firebase Console &rarr; Firestore Database &rarr; Rules. <b>Tambahkan</b> blok ini di dalam <code>match /databases/{database}/documents { ... }</code> (jangan menimpa aturan lain), lalu <b>Publish</b>:<pre style="margin-top:10px;padding:10px;border-radius:10px;background:#0c0c0f;color:#FBBF24;font-size:12px;white-space:pre-wrap;text-align:left">' + RULES_FIRESTORE_TEXT.replace(/</g, '&lt;') + '</pre></div>',
+    showCancelButton: true,
+    confirmButtonText: 'Salin Rules',
+    cancelButtonText: 'Tutup',
+    background: 'var(--card)', color: 'var(--text)'
+  }).then((r) => { if (r.isConfirmed) { try { navigator.clipboard.writeText(RULES_FIRESTORE_TEXT); showMiniToast('Rules disalin'); } catch (e) {} } });
+}
+function dialogKuota() {
+  customSwal.fire({ icon: 'warning', title: 'Kuota Firestore Habis', text: 'Batas gratis harian Firestore sudah terpakai, jadi perubahan belum bisa dikirim. Perubahan tetap tersimpan di perangkat dan dikirim otomatis setelah kuota reset (tiap hari), atau naikkan paket ke Blaze di Firebase.', background: 'var(--card)', color: 'var(--text)' });
+}
+
 async function syncPendingOnce() {
   const uid = pendingUid;
   const ids = Object.keys(pendingOps);
@@ -1032,8 +1048,10 @@ async function syncPendingOnce() {
         snap.forEach(({ id, v }) => { if (pendingOps[id] && pendingOps[id].v === v) delete pendingOps[id]; });
         savePending();
         fatal = e;
+        setTimeout(dialogRules, 700);
       } else {
-        return { ok: false, error: null, left: Object.keys(pendingOps).length };
+        if (k === 'resource-exhausted' && !window.__kuotaShown) { window.__kuotaShown = true; setTimeout(dialogKuota, 700); }
+        return { ok: false, error: null, code: k || 'jaringan', left: Object.keys(pendingOps).length };
       }
     }
   }
@@ -1055,7 +1073,7 @@ function syncPending() {
 async function laporSyncPending() {
   const r = await syncPending();
   if (r && r.error) throw r.error;
-  if (r && r.left) showMiniToast('Tersimpan di perangkat • dikirim ke server otomatis', 2200);
+  if (r && r.left) showMiniToast(r.code ? `Belum terkirim ke server (${r.code}) • dicoba lagi otomatis` : 'Tersimpan di perangkat • dikirim ke server otomatis', 2600);
 }
 window.addEventListener('online', () => { if (currentUser) syncPending(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && currentUser && Object.keys(pendingOps).length) syncPending(); });
@@ -2862,17 +2880,42 @@ function updateSelectionUI() {
 
 /* ===== THUMBNAIL PREFETCH: muat & decode semua thumbnail dari posisi layar keluar, jadi saat scroll cepat sudah siap ===== */
 const thumbDone = new Set();
-const THUMB_CONC = 10;
+const THUMB_CONC = 8;   /* prefetch latar; thumbnail yang terlihat dimuat langsung lewat IntersectionObserver */
 let thumbActive = 0, thumbPending = 0, thumbFocusIdx = 0, thumbDir = 1, thumbLastY = 0, thumbTick = false, thumbPumpQueued = false;
 
 function thumbRadius() {
   const c = navigator.connection;
-  return (c && (c.saveData || c.type === 'cellular')) ? 300 : Infinity;
+  return (c && (c.saveData || c.type === 'cellular')) ? 80 : 160;
 }
+/* thumbnail yang sedang/hampir terlihat dimuat LANGSUNG & paralel (tidak antre di belakang video yang lambat) */
+function thumbLoadNow(tp, retry) {
+  const im = new Image();
+  im.decoding = 'async';
+  try { tp.img.fetchPriority = 'high'; } catch (e) {}
+  im.src = tp.url;
+  const fin = (ok) => {
+    if (ok) { thumbDone.add(tp.url); tp.img.src = tp.url; tp.img.classList.add('loaded'); return; }
+    if ((retry || 0) < 2) { setTimeout(() => thumbLoadNow(tp, (retry || 0) + 1), 1500 * ((retry || 0) + 1)); return; }
+    tp.img.src = tp.url;
+  };
+  (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; })).then(() => fin(true), () => fin(false));
+}
+const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
+  es.forEach((en) => {
+    if (!en.isIntersecting) return;
+    const card = en.target;
+    thumbIO.unobserve(card);
+    const tp = card.__tp;
+    if (!tp) return;
+    card.__tp = null; thumbPending--;
+    thumbLoadNow(tp, 0);
+  });
+}, { rootMargin: '1100px 0px' }) : null;
 function attachThumb(card, img, url) {
   if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
   card.__tp = { img, url };
   thumbPending++;
+  if (thumbIO) thumbIO.observe(card);
   scheduleThumbPump();
 }
 function scheduleThumbPump() {
@@ -2910,12 +2953,17 @@ function pumpThumbs() {
     }
     if (!pick) { if (maxK >= n) thumbPending = 0; return; }
     const tp = pick.__tp; pick.__tp = null; thumbPending--;
+    if (thumbIO) { try { thumbIO.unobserve(pick); } catch (e) {} }
     thumbActive++;
     const im = new Image();
     im.decoding = 'async';
     im.src = tp.url;
+    let lepas = false;
+    const bebas = () => { if (!lepas) { lepas = true; thumbActive--; } };
+    const batas = setTimeout(() => { bebas(); pumpThumbs(); }, 4000);   /* thumbnail lambat tidak boleh menahan antrean */
     const fin = (ok) => {
-      thumbActive--;
+      clearTimeout(batas);
+      bebas();
       if (ok) thumbDone.add(tp.url);
       tp.img.src = tp.url;                       /* dari memori: muncul seketika */
       if (ok) tp.img.classList.add('loaded');
@@ -3385,7 +3433,13 @@ const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
 const viewCache = new Map();
 let viewToken = 0;
 
-function getViewSrc(p) { return getFullSrc(p); } /* kualitas & resolusi penuh, tidak dikurangi */
+/* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
+function getViewSrc(p) {
+  if (p.publicId && p.resourceType !== 'video') {
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1920,h_1920,q_auto:good,f_auto/${p.publicId}`;
+  }
+  return getFullSrc(p);
+}
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_900,c_limit,q_auto/${p.publicId}.jpg`;
@@ -3409,7 +3463,7 @@ function preloadView(p) {
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1, 2, -1] : [-1, -2, 1];
+  const order = dir >= 0 ? [1, 2, -1, 3] : [-1, -2, 1, -3];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
     if (q) setTimeout(() => preloadView(q), k * 40);
@@ -3505,7 +3559,7 @@ window.bukaViewer = function(id, dir) {
   const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
   /* siapkan file di memori agar tombol WA & Unduh langsung merespons */
-  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 700));
+  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 2500));
 };
 
 window.tutupViewer = function() {
