@@ -26,7 +26,8 @@ button,input,textarea{font-family:inherit}
 @media(min-width:960px){:root{--side:272px}}
 html{scroll-behavior:auto!important;touch-action:manipulation;overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
-body{background:var(--body-bg) radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat fixed;color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
+body{background:var(--body-bg);color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden;touch-action:manipulation;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(900px 420px at 85% -8%,rgba(251,191,36,.07),transparent 70%) no-repeat;pointer-events:none;z-index:-1;transform:translateZ(0)}
 .ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .sr-only{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
 body.swal2-shown{padding-right:0!important}
@@ -428,7 +429,7 @@ body.viewer-open{overflow:hidden!important}
 #photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
 #photo-viewer #viewer-video{background:#000}
 #photo-viewer{transition:none!important}
-#photo-viewer .viewer-icon-btn,#photo-viewer .viewer-action-btn{transition:transform .1s ease-out,background-color .12s ease!important}
+#photo-viewer .viewer-icon-btn,#photo-viewer .viewer-action-btn{transition:transform .08s ease-out,background-color .1s ease!important}
 #main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 190px 238px}
 #photo-viewer #viewer-img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 #photo-viewer #viewer-content{contain:layout paint}
@@ -493,7 +494,7 @@ body.viewer-open #photo-viewer{visibility:visible}
 </style>
 <style>
 /* TOMBOL SMOOTH & RAMAH: respons langsung terasa, gerak lembut dan sedikit membal */
-button,[onclick]:not(.album-card):not(.xa-tile):not(#viewer-img),.nav-btn,.xa-row,.menu-btn,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone,.xm-item,.xm-circle,.nav-item{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .1s ease-out,background-color .12s ease,border-color .12s ease,color .12s ease,opacity .12s ease,box-shadow .12s ease,filter .12s ease!important}
+button,[onclick]:not(.album-card):not(.xa-tile):not(#viewer-img),.nav-btn,.xa-row,.menu-btn,.pin-key,.viewer-action-btn,.viewer-icon-btn,.viewer-nav-btn,.media-filter-tab,.auth-tab,.link-btn,.submit-btn,.trash-btn,.toggle-eye,.dropzone,.xm-item,.xm-circle,.nav-item{touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .08s ease-out,background-color .1s ease,color .1s ease,opacity .1s ease!important}
 .xa-tile{transition:transform .1s ease-out}
 button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scroll-top-btn):active,.xa-tile:active,.album-card:active{transform:scale(.95)}
 @media(hover:hover){
@@ -3586,7 +3587,7 @@ let viewToken = 0;
 const midCache = new Map();
 function midOf(p, hi) {
   let m = midCache.get(p.id);
-  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m); if (midCache.size > 40) midCache.delete(midCache.keys().next().value); }
+  if (!m) { m = new Image(); m.decoding = 'async'; try { m.fetchPriority = hi ? 'high' : 'auto'; } catch (e) {} m.src = getMidSrc(p); midCache.set(p.id, m); if (midCache.size > 16) midCache.delete(midCache.keys().next().value); }
   return m;
 }
 function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
@@ -3620,7 +3621,7 @@ function preloadView(p, hi) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > 6) viewCache.delete(viewCache.keys().next().value);
+  if (viewCache.size > 4) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p, true); if (!isVideoItem(p)) midOf(p, true); } };
@@ -3634,7 +3635,7 @@ window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (
     if (!pg || !pg.classList.contains('active')) return;
     if (navigator.connection && navigator.connection.saveData) return;
     const W = window.innerWidth, H = window.innerHeight, seen = new Set();
-    [0.25, 0.5, 0.75].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
+    [0.5].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
       const el = document.elementFromPoint(W * fx, H * fy);
       const c = el && el.closest ? el.closest('.album-card') : null;
       if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
@@ -3642,9 +3643,9 @@ window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (
       const p = photos.find(x => x.id === c.dataset.id);
       if (!p || isVideoItem(p)) return;
       midOf(p);
-      if (fy === 0.5) { const h = new Image(); h.src = getViewSrc(p); keep.push(h); }
+      if (fx === 0.5) { const h = new Image(); h.src = getViewSrc(p); keep.push(h); }
     }));
-    while (keep.length > 30) keep.shift();
+    while (keep.length > 6) keep.shift();
   }
   window.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => { (window.requestIdleCallback || setTimeout)(sample); }, 120); }, { passive: true });
   setTimeout(sample, 1200);
@@ -3661,12 +3662,10 @@ function abortStale(keep) {
   });
 }
 function preloadNeighbors(list, idx, dir) {
-  [2, -2].forEach((o, k) => { const q = list[(idx + o + list.length * 2) % list.length]; if (q && !isVideoItem(q)) vTimer(() => midOf(q), 200 + k * 60); });
-  const order = dir >= 0 ? [1, -1] : [-1, 1];
-  order.forEach((o, k) => {
-    const q = list[(idx + o + list.length) % list.length];
-    if (q) vTimer(() => preloadView(q), k * 60);
-  });
+  const o = dir >= 0 ? 1 : -1;
+  const a = list[(idx + o + list.length) % list.length], b = list[(idx - o + list.length) % list.length];
+  if (a) vTimer(() => preloadView(a), 0);
+  if (b && !isVideoItem(b)) vTimer(() => midOf(b), 120);
 }
 
 function viewerActiveEl() {
@@ -3717,7 +3716,7 @@ window.bukaViewer = function(id, dir) {
   if (isVideoItem(foto)) {
     img.style.display = 'none';
     video.style.display = 'block';
-    video.preload = 'metadata';
+    video.preload = 'auto';
     video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
