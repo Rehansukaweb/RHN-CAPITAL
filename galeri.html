@@ -158,11 +158,6 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .album-card:active{transform:scale(.98)}
 .album-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:transform .14s var(--ease-smooth),opacity .14s}
 .album-cover.loaded{opacity:1}
-@media (hover:hover) and (pointer:fine){#photo-viewer .viewer-nav-btn{display:grid!important}#viewer-content{cursor:grab}#viewer-content:active{cursor:grabbing}}
-#viewer-img,#viewer-video{will-change:transform}
-#photo-viewer{overscroll-behavior:contain}
-@keyframes shimmerThumb{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.album-card:has(> .album-cover:not(.loaded)){background:linear-gradient(110deg,var(--card) 30%,rgba(255,255,255,.07) 50%,var(--card) 70%);background-size:200% 100%;animation:shimmerThumb 1.4s linear infinite}
 .album-caption{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 11px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:2;pointer-events:none;transition:.14s}
 .video-badge,.fav-badge{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:9px;background:rgba(0,0,0,.72);display:grid;place-items:center;z-index:2;color:#fff;pointer-events:none}
 .video-badge .ico,.fav-badge .ico{width:13px;height:13px}
@@ -261,6 +256,10 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 .viewer-header{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:14px;padding:max(14px,env(safe-area-inset-top)) var(--pad) 40px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent)}
 .viewer-icon-btn{flex-shrink:0;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(10px);transition:.14s}
 .viewer-icon-btn:active{transform:scale(.9);background:rgba(255,255,255,.18)}
+.card-date{position:absolute;left:5px;bottom:5px;z-index:2;max-width:calc(100% - 10px);font-size:9px;line-height:1.25;font-weight:700;padding:2px 5px;border-radius:6px;background:rgba(0,0,0,.68);color:#fff;pointer-events:none;white-space:nowrap}
+.card-date b{display:block;font-weight:700}
+.card-date span{display:block;font-weight:500;color:#d4d4d8}
+.viewer-date{display:block;font-size:11px;font-weight:500;color:#a3a3a8;margin-top:1px}
 .viewer-title{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viewer-content{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:72px 16px 118px}
 #viewer-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;cursor:zoom-in;transform-origin:center;opacity:0;transition:transform .14s cubic-bezier(.2,.8,.2,1),opacity .14s}
@@ -357,7 +356,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 }
 /* ===== SPLASH (sama dengan Arus Keuangan) ===== */
 #splash-screen{background:#050505!important}
-#splash-screen.splash-exit{animation:splashSlideUpOut .35s cubic-bezier(.8,0,.2,1) forwards}
+#splash-screen.splash-exit{animation:splashSlideUpOut .8s cubic-bezier(.8,0,.2,1) forwards}
 @keyframes splashSlideUpOut{to{transform:translateY(-100%);opacity:0;visibility:hidden}}
 #splash-screen .splash-logo-wrap{width:auto;height:auto;display:block;opacity:1;transform:none;animation:none}
 #splash-screen .splash-logo-wrap::before{display:none}
@@ -465,6 +464,18 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 #pin-screen .link-btn{flex:1 1 0;height:46px;background:#18181c;border:1px solid #2a2a31;border-radius:20px;color:#b4b4bd;font-size:14px;font-weight:800;letter-spacing:1.5px;padding:0;text-transform:uppercase}
 #pin-screen .link-btn:active{transform:scale(.97)}
 @media(max-height:700px){#pin-screen .auth-box>img{width:56px;height:56px;margin-bottom:14px}#pin-screen .auth-sub{margin-bottom:14px}.pin-key{height:46px;font-size:26px}#pin-screen .pin-links{margin-top:16px}}
+</style>
+<style>
+/* performa: blur latar (backdrop-filter) sangat berat di HP saat scroll/viewer, diganti warna pekat */
+.mobile-header{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(0,0,0,.94)!important}
+.bottom-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(18,18,21,.97)!important}
+.viewer-icon-btn,.viewer-nav-btn,.viewer-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.album-card{contain:layout style}
+html{-webkit-tap-highlight-color:transparent}
+@media (hover:hover) and (pointer:fine){
+#photo-viewer .viewer-nav-btn{display:grid!important;width:52px;height:52px;background:rgba(18,18,21,.92);z-index:5}
+#photo-viewer #viewer-content{cursor:grab}
+}
 </style>
 </head>
 <body>
@@ -687,8 +698,6 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
             <input type="file" id="f-img-file" class="sr-only" accept="image/*,video/*" multiple>
             <input type="file" id="f-img-file-all" class="sr-only" multiple>
             <button type="button" class="dz-all-btn" onclick="document.getElementById('f-img-file-all').click()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Pilih Semua dari Penyimpanan (tanpa batas)</button>
-            <input type="file" id="f-img-folder" class="sr-only" webkitdirectory directory multiple>
-            <button type="button" class="dz-all-btn" onclick="document.getElementById('f-img-folder').click()" style="width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1.5px solid var(--gold-line);background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:14px;cursor:pointer">Buka Folder Laptop (semua gambar &amp; video langsung masuk)</button>
             <div class="dz-sub" style="text-align:center;margin-top:6px">Di layar yang terbuka: titik tiga &rarr; &ldquo;Pilih semua&rdquo;. Bisa dilakukan berkali-kali, file akan ditambahkan.</div>
             <div id="file-preview-list"></div>
           </div>
@@ -716,7 +725,6 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
             <div class="set-label">Penyimpanan &amp; Kualitas</div>
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
-              <button class="menu-btn" onclick="konfirmasiAksi('Beri sidik isi pada semua foto &amp; video lama agar duplikat terdeteksi 100% akurat? Setiap file diunduh sekali untuk dicek. Jangan tutup halaman selama proses.', indeksFotoLama)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Indeks Media Lama (anti-duplikat)</b><small>Cek isi file lama agar tidak terupload dua kali</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
@@ -789,7 +797,7 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
@@ -860,9 +868,6 @@ function getDownloadSrc(p) {
   return getFullSrc(p);
 }
 function getThumbSrc(p) { return p.publicId ? cldThumbUrl(p) : (p.thumbURL || p.url); }
-/* BUKA APLIKASI CEPAT: thumbnail sesi terakhir langsung diunduh sejak detik pertama, sebelum login & data selesai dimuat */
-window.__warmImgs = [];
-try { JSON.parse(localStorage.getItem('rhn_warm') || '[]').forEach(u => { const i = new Image(); i.decoding = 'async'; i.src = u; window.__warmImgs.push(i); }); } catch (e) {}
 function getFullSrc(p) { return p.publicId ? cldFullUrl(p) : (p.fullURL || p.thumbURL || p.url); }
 function isVideoItem(p) { return p.resourceType === 'video'; }
 
@@ -888,10 +893,10 @@ analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
 try {
-  db = initializeFirestore(app, { localCache: persistentLocalCache() });
+  db = initializeFirestore(app, { localCache: persistentLocalCache(), experimentalAutoDetectLongPolling: true });
 } catch (e) {
   console.warn("Persistent cache tidak tersedia, memakai cache memori.", e);
-  db = initializeFirestore(app, {});
+  db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 }
 
 let currentUser = null;
@@ -954,13 +959,111 @@ async function commitSetBatches(items, onProgress) {
   }));
 }
 
+/* ===== ANTREAN PERUBAHAN (hapus / sampah / pulihkan / favorit) =====
+   Setiap perubahan disimpan dulu di perangkat lalu dikirim ke server dan DIULANG terus sampai server
+   benar-benar menerima. Tampilan selalu mengikuti antrean ini, jadi tidak balik lagi setelah keluar & login ulang. */
+let pendingOps = {};
+let pendingUid = null;
+let pendingRun = null, pendingAgain = false, pendingTimer = null;
+function pendingKey() { return 'rhn_gal_pending_' + (pendingUid || ''); }
+function loadPending(uid) {
+  pendingUid = uid; pendingOps = {};
+  try { const raw = localStorage.getItem(pendingKey()); if (raw) pendingOps = JSON.parse(raw) || {}; } catch (e) { pendingOps = {}; }
+}
+function savePending() {
+  try {
+    if (Object.keys(pendingOps).length) localStorage.setItem(pendingKey(), JSON.stringify(pendingOps));
+    else localStorage.removeItem(pendingKey());
+  } catch (e) {}
+}
+function queueOp(id, patch) {
+  const o = pendingOps[id] || {};
+  Object.assign(o, patch);
+  o.v = (o.v || 0) + 1;
+  pendingOps[id] = o;
+  savePending();
+}
+function applyPendingOps(docs) {
+  if (!Object.keys(pendingOps).length) return docs;
+  const out = [];
+  for (const d of docs) {
+    const o = pendingOps[d.id];
+    if (!o) { out.push(d); continue; }
+    if (o.state === 'purge') continue;
+    const c = { ...d };
+    if (o.state === 'trash') c.deletedAt = o.at || Date.now();
+    else if (o.state === 'live') delete c.deletedAt;
+    if (typeof o.fav === 'boolean') c.favorite = o.fav;
+    out.push(c);
+  }
+  return out;
+}
+async function syncPendingOnce() {
+  const uid = pendingUid;
+  const ids = Object.keys(pendingOps);
+  if (!ids.length) return { ok: true, left: 0 };
+  let fatal = null;
+  for (let i = 0; i < ids.length; i += 400) {
+    const snap = ids.slice(i, i + 400).filter(id => pendingOps[id]).map(id => ({ id, v: pendingOps[id].v, op: { ...pendingOps[id] } }));
+    if (!snap.length) continue;
+    const batch = writeBatch(db);
+    snap.forEach(({ id, op }) => {
+      const ref = doc(db, 'users', uid, 'photos', id);
+      if (op.state === 'purge') { batch.delete(ref); return; }
+      const data = {};
+      if (op.state === 'trash') data.deletedAt = op.at || Date.now();
+      else if (op.state === 'live') data.deletedAt = deleteField();
+      if (typeof op.fav === 'boolean') data.favorite = op.fav;
+      if (Object.keys(data).length) batch.set(ref, data, { merge: true });
+    });
+    try {
+      await Promise.race([batch.commit(), new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 20000))]);
+      snap.forEach(({ id, v }) => {
+        const cur = pendingOps[id];
+        if (cur && cur.v === v) {
+          delete pendingOps[id];
+          (cur.files || []).forEach(pth => deleteObject(sRef(storage, pth)).catch(() => {}));
+        }
+      });
+      savePending();
+    } catch (e) {
+      const k = (e && e.code) || '';
+      if (k === 'permission-denied') {
+        snap.forEach(({ id, v }) => { if (pendingOps[id] && pendingOps[id].v === v) delete pendingOps[id]; });
+        savePending();
+        fatal = e;
+      } else {
+        return { ok: false, error: null, left: Object.keys(pendingOps).length };
+      }
+    }
+  }
+  if (fatal && typeof lastSnapDocs !== 'undefined' && lastSnapDocs) setTimeout(() => processPhotoDocs(lastSnapDocs), 0);
+  return { ok: !fatal, error: fatal, left: Object.keys(pendingOps).length };
+}
+function syncPending() {
+  if (!currentUser || !pendingUid || currentUser.uid !== pendingUid) return Promise.resolve({ ok: true, left: Object.keys(pendingOps).length });
+  if (pendingRun) { pendingAgain = true; return pendingRun; }
+  pendingRun = (async () => {
+    let res;
+    do { pendingAgain = false; res = await syncPendingOnce(); } while (pendingAgain && res.ok !== false);
+    return res;
+  })();
+  const done = () => { pendingRun = null; clearTimeout(pendingTimer); if (currentUser && Object.keys(pendingOps).length) pendingTimer = setTimeout(syncPending, 30000); };
+  pendingRun.then(done, done);
+  return pendingRun;
+}
+async function laporSyncPending() {
+  const r = await syncPending();
+  if (r && r.error) throw r.error;
+  if (r && r.left) showMiniToast('Tersimpan di perangkat • dikirim ke server otomatis', 2200);
+}
+window.addEventListener('online', () => { if (currentUser) syncPending(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && currentUser && Object.keys(pendingOps).length) syncPending(); });
+
 async function commitSoftBatches(refs, restore) {
   const now = Date.now();
-  for (let i = 0; i < refs.length; i += BATCH_CHUNK_SIZE) {
-    const batch = writeBatch(db);
-    refs.slice(i, i + BATCH_CHUNK_SIZE).forEach(ref => batch.set(ref, { deletedAt: restore ? deleteField() : now }, { merge: true }));
-    await batch.commit();
-  }
+  refs.forEach(ref => queueOp(ref.id, restore ? { state: 'live' } : { state: 'trash', at: now }));
+  await laporSyncPending();
 }
 
 function purgeExpiredTrash() {
@@ -970,44 +1073,46 @@ function purgeExpiredTrash() {
   if (!exp.length) return;
   purgingTrash = true;
   trashPhotos = trashPhotos.filter(x => x.deletedAt >= limit);
-  hapusFileStorage(exp);
   commitDeleteBatches(exp.map(x => doc(db, 'users', currentUser.uid, 'photos', x.id))).catch(() => {}).finally(() => { purgingTrash = false; });
+  hapusFileStorage(exp);
 }
 
 function hapusFileStorage(items) {
   (items || []).forEach(x => {
-    [x.storagePath, x.thumbPath].forEach(pth => { if (pth) deleteObject(sRef(storage, pth)).catch(() => {}); });
+    const files = [x.storagePath, x.thumbPath].filter(Boolean);
+    if (!files.length) return;
+    const op = pendingOps[x.id];
+    if (op && op.state === 'purge') { op.files = files; savePending(); }   /* dihapus setelah server menerima */
+    else files.forEach(pth => deleteObject(sRef(storage, pth)).catch(() => {}));
   });
 }
 
+function pesanGagalSimpan(e) {
+  const k = (e && e.code) || '';
+  if (k === 'permission-denied') return 'Ditolak server (permission-denied). Aturan Firestore belum mengizinkan perubahan data di users/{uid}/photos.';
+  return 'Perubahan belum tersimpan ke server. Periksa koneksi internet' + (k ? ' (' + k + ')' : '') + '.';
+}
+
+function pesanGagalHapus(e) {
+  const k = (e && e.code) || '';
+  if (k === 'permission-denied') return 'Ditolak server (permission-denied). Aturan Firestore belum mengizinkan hapus permanen — izinkan "delete" pada users/{uid}/photos di Rules.';
+  return 'Perubahan belum tersimpan ke server. Periksa koneksi internet' + (k ? ' (' + k + ')' : '') + '.';
+}
+
 async function commitDeleteBatches(refs, onProgress) {
-  const chunks = [];
-  for (let i = 0; i < refs.length; i += BATCH_CHUNK_SIZE) {
-    chunks.push(refs.slice(i, i + BATCH_CHUNK_SIZE));
-  }
-  let done = 0;
-  await Promise.all(chunks.map(async (chunk) => {
-    const batch = writeBatch(db);
-    chunk.forEach(ref => batch.delete(ref));
-    await batch.commit();
-    done += chunk.length;
-    if (onProgress) onProgress(done, refs.length);
-  }));
+  refs.forEach(ref => queueOp(ref.id, { state: 'purge' }));
+  await laporSyncPending();
+  if (onProgress) onProgress(refs.length, refs.length);
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  let minDone = false, hidden = false;
-  window.__hideSplash = function(paksa) {
-    if (hidden || (!paksa && (!minDone || !window.__authReady))) return;
-    hidden = true;
+  setTimeout(function() {
     const splash = document.getElementById('splash-screen');
     if (splash) {
       splash.classList.add('splash-exit');
-      setTimeout(() => { splash.style.display = 'none'; }, 350);
+      setTimeout(() => { splash.style.display = 'none'; }, 800);
     }
-  };
-  setTimeout(function() { minDone = true; window.__hideSplash(); }, 600);      /* tampil singkat, lalu langsung masuk begitu login siap */
-  setTimeout(function() { window.__hideSplash(true); }, 4000);                 /* pengaman */
+  }, 2500);
 });
 
 const customSwal = Swal.mixin({
@@ -1180,6 +1285,8 @@ window.doLogout = async function() {
   activeScrn.classList.remove('fade-out');
 
   try {
+    try { await Promise.race([syncPending().then(() => waitForPendingWrites(db)), new Promise(r => setTimeout(r, 8000))]); } catch (e0) {}
+    if (unsubPhotos) { try { unsubPhotos(); } catch (e1) {} unsubPhotos = null; }
     await signOut(auth);
   } catch (e) {
     customSwal.fire({ icon: 'error', title: 'Gagal keluar', text: mapAuthError(e.code), background: 'var(--card)', color: 'var(--text)' });
@@ -1187,11 +1294,10 @@ window.doLogout = async function() {
 };
 
 onAuthStateChanged(auth, async user => {
-  window.__authReady = true; if (window.__hideSplash) window.__hideSplash();
   if (user) {
     currentUser = user;
-    /* PRA-MUAT: data galeri & thumbnail mulai diambil sekarang (selagi PIN diketik), jadi begitu PIN benar gambar langsung ada */
-    if (!window.__photosUnsub) { try { listenPhotos(); } catch (e) { console.error(e); } }
+    loadPending(user.uid);
+    syncPending();
     const authScrn = document.getElementById('auth-screen');
     if (authScrn.style.display !== 'none') {
       authScrn.classList.add('fade-out');
@@ -1235,7 +1341,7 @@ onAuthStateChanged(auth, async user => {
 
   } else {
     currentUser = null;
-    if (window.__photosUnsub) { try { window.__photosUnsub(); } catch (e) {} window.__photosUnsub = null; }
+    if (unsubPhotos) { try { unsubPhotos(); } catch (e) {} unsubPhotos = null; }
     photos = [];
     photoNodes.clear();
     selectMode = false;
@@ -1359,10 +1465,9 @@ function unlockApp() {
     appScrn.classList.add('fade-in');
 
     document.getElementById('app-pin').value = '';
-    if (window.__photosUnsub && photos.length) { renderGallery(); }
-    else { renderSkeleton(); listenPhotos(); }
+    renderSkeleton();
+    listenPhotos();
     switchPage('galeri');
-    scheduleThumbPump();
 
     setTimeout(() => appScrn.classList.remove('fade-in'), 140);
   }, 120);
@@ -1378,34 +1483,45 @@ function precacheThumbs() {
   if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
   const urls = [];
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
-  if (urls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls });
+  if (!urls.length) return;
+  const kirim = () => {
+    const bag = urls.splice(0, 24);
+    try { if (bag.length && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
+    if (urls.length) setTimeout(kirim, 1500);
+  };
+  setTimeout(kirim, 2500);
+}
+
+let unsubPhotos = null;
+let lastSnapDocs = null;
+function processPhotoDocs(raw) {
+  const allDocs = applyPendingOps(raw);
+  photos = allDocs.filter(x => !x.deletedAt);
+  trashPhotos = allDocs.filter(x => !!x.deletedAt);
+  purgeExpiredTrash();
+  if (bulkMode) return;
+
+  if (selectMode) {
+    let changed = false;
+    selectedIds.forEach(id => {
+      if (!photos.find(p => p.id === id)) { selectedIds.delete(id); changed = true; }
+    });
+    if (selectedIds.size === 0) { exitSelectMode(); return; }
+    if (changed) updateSelectionUI();
+  }
+
+  renderGallery();
+  precacheThumbs();
+  if (document.getElementById('page-sampah').classList.contains('active')) renderTrash();
+  if (document.getElementById('page-album').classList.contains('active')) refreshAlbumPage();
 }
 
 function listenPhotos() {
-  if (window.__photosUnsub) return;   /* sudah mendengarkan (dimulai lebih awal, sebelum PIN) */
   const q = query(collection(db, 'users', currentUser.uid, 'photos'), orderBy('createdAt', 'desc'));
-  window.__photosUnsub = onSnapshot(q, (snap) => {
-    const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    photos = allDocs.filter(x => !x.deletedAt);
-    cacheSemuaThumb();
-    try { localStorage.setItem('rhn_warm', JSON.stringify(photos.slice(0, 60).map(getThumbSrc).filter(u => /^https:/.test(u)))); } catch (e) {}
-    trashPhotos = allDocs.filter(x => !!x.deletedAt);
-    purgeExpiredTrash();
-    if (bulkMode) return;
-
-    if (selectMode) {
-      let changed = false;
-      selectedIds.forEach(id => {
-        if (!photos.find(p => p.id === id)) { selectedIds.delete(id); changed = true; }
-      });
-      if (selectedIds.size === 0) { exitSelectMode(); return; }
-      if (changed) updateSelectionUI();
-    }
-
-    renderGallery();
-    precacheThumbs();
-    if (document.getElementById('page-sampah').classList.contains('active')) renderTrash();
-    if (document.getElementById('page-album').classList.contains('active')) refreshAlbumPage();
+  if (unsubPhotos) { try { unsubPhotos(); } catch (e) {} unsubPhotos = null; }
+  unsubPhotos = onSnapshot(q, (snap) => {
+    lastSnapDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    processPhotoDocs(lastSnapDocs);
   }, (err) => {
     console.error(err);
     customSwal.fire({ icon: 'error', title: 'Gagal memuat foto', text: 'Periksa koneksi internet lalu buka ulang aplikasi.', background: 'var(--card)', color: 'var(--text)' });
@@ -1445,11 +1561,10 @@ function tambahFiles(dipilih) {
   }
 }
 
-['f-img-file', 'f-img-file-all', 'f-img-folder'].forEach(id => {
+['f-img-file', 'f-img-file-all'].forEach(id => {
   document.getElementById(id).addEventListener('change', function() {
     tambahFiles(Array.from(this.files));
     this.value = '';
-    if (selectedFiles.length) setTimeout(() => window.tambahFotoBaru(), 50); /* langsung upload semua yang dipilih, tanpa tombol simpan */
   });
 });
 
@@ -1688,7 +1803,7 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo, onProgress)
     const idx = pickAccount();
     const acc = CLOUDINARY_ACCOUNTS[idx];
     const form = new FormData();
-    if (typeof fileOrBlob === 'string') form.append('file', fileOrBlob); else form.append('file', fileOrBlob, filenameHint);
+    form.append('file', fileOrBlob, filenameHint);
     form.append('upload_preset', acc.uploadPreset);
     form.append('folder', `users/${currentUser.uid}/media`);
     let resp, errText = '';
@@ -1748,33 +1863,9 @@ async function uploadToCloudinary(fileOrBlob, filenameHint, isVideo, onProgress)
         format = eager.format || format;
       }
     }
-    return { publicId, resourceType, format, size, cloudName: acc.cloudName, ...(data.width && data.height ? { width: data.width, height: data.height } : {}) };
+    return { publicId, resourceType, format, size, cloudName: acc.cloudName };
   }
   throw lastErr || new Error('Semua penyimpanan penuh');
-}
-
-/* ===== SIDIK ISI FILE (SHA-256): mendeteksi duplikat dari ISI file, bukan nama. File >150MB memakai sidik sampel (awal+tengah+akhir+ukuran) agar memori aman ===== */
-const HASH_FULL_MAX = 150 * 1024 * 1024;
-async function hashBlob(blob) {
-  if (blob._hash) return blob._hash;
-  if (!(window.crypto && crypto.subtle)) return null;
-  try {
-    let buf, awalan = '';
-    if (blob.size <= HASH_FULL_MAX) {
-      buf = await blob.arrayBuffer();
-    } else {
-      const B = 4 * 1024 * 1024, mid = Math.max(0, Math.floor(blob.size / 2) - B / 2);
-      const parts = [new TextEncoder().encode('p:' + blob.size), await blob.slice(0, B).arrayBuffer(), await blob.slice(mid, mid + B).arrayBuffer(), await blob.slice(blob.size - B).arrayBuffer()];
-      const total = parts.reduce((s, x) => s + x.byteLength, 0);
-      const tmp = new Uint8Array(total); let off = 0;
-      parts.forEach(x => { tmp.set(new Uint8Array(x), off); off += x.byteLength; });
-      buf = tmp.buffer; awalan = 'p:';
-    }
-    const dg = new Uint8Array(await crypto.subtle.digest('SHA-256', buf));
-    const hex = awalan + Array.from(dg).map(b => b.toString(16).padStart(2, '0')).join('');
-    try { blob._hash = hex; } catch (e) {}
-    return hex;
-  } catch (e) { console.warn('Gagal membuat sidik file:', e); return null; }
 }
 
 async function uploadSinglePhoto(file, customTitle, index, total, onProgress) {
@@ -1792,7 +1883,7 @@ async function uploadSinglePhoto(file, customTitle, index, total, onProgress) {
 
   return {
     ref: doc(db, 'users', currentUser.uid, 'photos', id),
-    data: { title, ...meta, origName: file.name, origSize: file.size, hash: file._hash || null, createdAt: serverTimestamp() }
+    data: { title, ...meta, createdAt: serverTimestamp() }
   };
 }
 
@@ -2097,61 +2188,7 @@ window.pindahKePenyimpananBaru = async function() {
   }
 };
 
-/* batas waktu: permintaan yang menggantung tidak boleh menahan antrean selamanya */
-function withTimeout(promise, ms, label) {
-  let t;
-  const timer = new Promise((_, rej) => { t = setTimeout(() => rej(new Error('Timeout ' + (label || '') + ' ' + ms + 'ms')), ms); });
-  return Promise.race([promise, timer]).finally(() => clearTimeout(t));
-}
-/* JALUR SUPER CEPAT: pembesaran dilakukan di server Cloudinary (tanpa unduh, tanpa proses di perangkat, tanpa upload ulang dari perangkat) */
-async function hdkanCepat(p) {
-  const cn = cldName(p);
-  const refDoc = doc(db, 'users', currentUser.uid, 'photos', p.id);
-  const ac = new AbortController();
-  const acT = setTimeout(() => ac.abort(), 20000);
-  let ir;
-  try { ir = await fetch(`https://res.cloudinary.com/${cn}/image/upload/fl_getinfo/${p.publicId}`, { signal: ac.signal }); }
-  finally { clearTimeout(acT); }
-  if (!ir.ok) throw new Error('info HTTP ' + ir.status);
-  const info = await ir.json();
-  const w = info && info.input && info.input.width, h = info && info.input && info.input.height;
-  if (!w || !h) throw new Error('ukuran tidak terbaca');
-  if (Math.max(w, h) >= HD_TARGET_LONG_SIDE) return { ref: refDoc, data: { hd: HD_TARGET_LONG_SIDE }, upgraded: false };
-  const src = `https://res.cloudinary.com/${cn}/image/upload/c_fit,w_${HD_TARGET_LONG_SIDE},h_${HD_TARGET_LONG_SIDE},q_95,f_jpg/${p.publicId}`;
-  const meta = await withTimeout(uploadToCloudinary(src, 'foto_hd.jpg', false), 90000, 'upload HD');
-  return {
-    ref: refDoc,
-    data: { ...meta, hd: HD_TARGET_LONG_SIDE, thumbURL: deleteField(), fullURL: deleteField(), thumbPath: deleteField(), fullPath: deleteField(), url: deleteField() },
-    upgraded: true
-  };
-}
-
-/* CATATAN LOKAL anti-ulang: id foto yang sudah selesai di-HD-kan langsung dicatat di perangkat (tidak menunggu database), jadi tidak akan diproses lagi walau penyimpanan database terlambat/gagal */
-window.__hdDone = (() => { try { return new Set(JSON.parse(localStorage.getItem('rhn_hd_done') || '[]')); } catch (e) { return new Set(); } })();
-let __hdSaveT = null;
-function tandaiHDSelesai(id) {
-  window.__hdDone.add(id);
-  if (__hdSaveT) return;
-  __hdSaveT = setTimeout(() => { __hdSaveT = null; try { localStorage.setItem('rhn_hd_done', JSON.stringify(Array.from(window.__hdDone))); } catch (e) {} }, 400);
-}
-const sudahHD = (p) => isVideoItem(p) || window.__hdDone.has(p.id) || (typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE) || (p.width && p.height && Math.max(p.width, p.height) >= HD_TARGET_LONG_SIDE);   /* video tidak diproses; foto bertanda HD dilewati selamanya */
 async function hdkanSatuFoto(p) {
-  if (sudahHD(p)) return { ref: doc(db, 'users', currentUser.uid, 'photos', p.id), data: null, upgraded: false, skipped: true };
-  if (p.publicId && !isVideoItem(p)) {
-    /* coba jalur cepat sampai 3x (jeda bertahap) supaya server yang sibuk tidak langsung dianggap gagal */
-    for (let t = 0; t < 3; t++) {
-      try { return await hdkanCepat(p); }
-      catch (e) { console.warn('Jalur cepat HD gagal (percobaan ' + (t + 1) + '):', e); await new Promise(r => setTimeout(r, 1000 * (t + 1) + Math.random() * 800)); }
-    }
-  }
-  /* jalur biasa berat di memori: dibatasi maks 2 sekaligus walau paralel utama 100; antre maks 60 dtk & tiap proses maks 2 menit agar tidak macet */
-  let tunggu = 0;
-  while ((window.__hdSlow || 0) >= 2) { await new Promise(r => setTimeout(r, 80)); if ((tunggu += 80) > 60000) throw new Error('Antrean jalur biasa penuh'); }
-  window.__hdSlow = (window.__hdSlow || 0) + 1;
-  try { return await withTimeout(hdkanLambat(p), 120000, 'HD biasa'); } finally { window.__hdSlow--; }
-}
-
-async function hdkanLambat(p) {
   const resp = await fetch(getFullSrc(p));
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   const blob = await resp.blob();
@@ -2173,7 +2210,7 @@ async function hdkanLambat(p) {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bmp, 0, 0, w, h);
-      out = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+      out = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.98 });
       canvas.width = canvas.height = 0;
     } else {
       const canvas = document.createElement('canvas');
@@ -2182,7 +2219,7 @@ async function hdkanLambat(p) {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(bmp, 0, 0, w, h);
-      out = await new Promise((res, rej) => canvas.toBlob(x => x ? res(x) : rej(new Error('encode gagal')), 'image/jpeg', 0.92));
+      out = await new Promise((res, rej) => canvas.toBlob(x => x ? res(x) : rej(new Error('encode gagal')), 'image/jpeg', 0.98));
       canvas.width = canvas.height = 0;
     }
   } finally { try { bmp.close(); } catch (e) {} }
@@ -2197,8 +2234,7 @@ async function hdkanLambat(p) {
 
 window.hdkanSemuaFoto = async function() {
   if (isBusy) return;
-  const target = photos.filter(p => !sudahHD(p));
-  const dilewatiHD = photos.filter(p => !isVideoItem(p) && sudahHD(p)).length;
+  const target = photos.filter(p => !isVideoItem(p) && !(typeof p.hd === 'number' && p.hd >= HD_TARGET_LONG_SIDE));
 
   if (!target.length) {
     return customSwal.fire({ icon: 'info', title: 'Semua Foto Sudah HD', text: 'Tidak ada foto yang perlu di-HD-kan.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
@@ -2217,55 +2253,37 @@ window.hdkanSemuaFoto = async function() {
   customSwal.fire({
     title: `HD-kan 0/${total}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
-    showConfirmButton: false,
     allowOutsideClick: false, allowEscapeKey: false,
     background: 'var(--card)', color: 'var(--text)',
     didOpen: () => customSwal.showLoading()
   });
 
   /* Paralel sesuai kemampuan perangkat (maks 16) agar cepat tapi memori aman */
-  const conc = Math.min(64, Math.max(1, target.length));   /* 64 sekaligus = batas koneksi paralel browser; lebih dari itu justru antre & timeout */
+  const conc = 2;
   bulkMode = true;
 
-  try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
-  /* PUTARAN OTOMATIS: yang gagal diulang sendiri (paralel makin kecil, jeda makin lama) sampai semua selesai atau 6 putaran, jadi tidak berhenti di tengah */
-  let antrean = target.slice(), ronde = 0;
   try {
-    while (antrean.length && ronde < 6) {
-      ronde++;
-      const gagalRonde = [];
-      const c = Math.max(1, Math.min(antrean.length, ronde === 1 ? conc : Math.max(4, Math.floor(conc / Math.pow(2, ronde - 1)))));
-      await runWithConcurrency(antrean, c, async (p) => {
-        try {
-          const r = await withTimeout(hdkanSatuFoto(p), 300000, 'foto');
-          tandaiHDSelesai(p.id);
-          if (r.upgraded) upgraded++;
-          done++;
-          if (r.data) pending.push({ ref: r.ref, data: r.data });
-          if (pending.length >= 20) await flush();
-        } catch (e) {
-          console.error('Gagal HD-kan foto', p.id, e);
-          gagalRonde.push(p);
-        } finally {
-          customSwal.update({ title: `HD-kan ${done}/${total}...`, text: ronde > 1 || gagalRonde.length ? `Mengulang otomatis yang gagal (putaran ${ronde}, sisa gagal ${gagalRonde.length}). Jangan tutup halaman.` : 'Mohon jangan tutup halaman ini dulu.' });
-          await yieldUI();
-        }
-      });
-      await flush();
-      antrean = gagalRonde;
-      if (antrean.length && ronde < 6) await new Promise(r => setTimeout(r, 2000 * ronde));
-    }
-    failed += antrean.length;
+    await runWithConcurrency(target, conc, async (p) => {
+      try {
+        const r = await hdkanSatuFoto(p);
+        if (r.upgraded) upgraded++;
+        pending.push({ ref: r.ref, data: r.data });
+        if (pending.length >= 20) await flush();
+      } catch (e) {
+        console.error('Gagal HD-kan foto', p.id, e);
+        failed++;
+      } finally {
+        done++;
+        customSwal.update({ title: `HD-kan ${done}/${total}...` });
+        await yieldUI();
+      }
+    });
     await flush();
 
-    /* NOTIF SELESAI: dialog + toast + notifikasi browser + bunyi */
-    try { const AC = window.AudioContext || window.webkitAudioContext; const ac = new AC(); const o = ac.createOscillator(), g = ac.createGain(); o.connect(g); g.connect(ac.destination); o.frequency.value = 880; g.gain.setValueAtTime(0.15, ac.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.5); o.start(); o.stop(ac.currentTime + 0.5); } catch (e) {}
-    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('HD-kan selesai', { body: `${upgraded} foto diperbesar ke 4K${failed ? ', ' + failed + ' gagal' : ''}.` }); } catch (e) {}
-    showMiniToast(failed ? `HD selesai, ${failed} gagal` : 'HD-kan SELESAI semua');
     customSwal.fire({
       icon: failed > 0 ? 'warning' : 'success',
-      title: failed > 0 ? 'HD Selesai (sebagian gagal)' : 'Sudah Selesai!',
-      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal. ${dilewatiHD} foto yang sudah HD dilewati.` + (failed ? ' Tekan HD-kan lagi untuk yang gagal.' : ''),
+      title: 'HD Selesai',
+      text: `${upgraded} foto diperbesar ke 4K, ${Math.max(0, total - upgraded - failed)} sudah cukup besar, ${failed} gagal.` + (failed ? ' Jalankan lagi untuk yang gagal.' : ''),
       background: 'var(--card)', color: 'var(--text)'
     });
   } catch (e) {
@@ -2362,7 +2380,9 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   const t0 = Date.now();
   let lastPaint = 0, lastGrow = t0, lastSum = 0;
   const samples = [];
+  let uploadDone = false;   /* setelah selesai, callback progres yang telat tidak boleh memunculkan pill lagi */
   const refreshPill = (force) => {
+    if (uploadDone) return;
     const now = Date.now();
     const sumLoaded = loaded.reduce((a, b) => a + b, 0);
     if (sumLoaded > lastSum) { lastSum = sumLoaded; lastGrow = now; }
@@ -2413,13 +2433,25 @@ async function jalankanUpload(filesToUpload, customTitle, indexOffsetMap) {
   });
 
   clearInterval(tick);
+  uploadDone = true;
   const durMs = Date.now() - t0;
   console.log(`[UPLOAD] ${total} file, ${fmtMB(sumSizes)} dalam ${fmtDur(durMs)} (rata-rata ${(sumSizes / 1048576 / (durMs / 1000)).toFixed(2)} MB/s)`);
   if (pendingDocs.length) {
     setUploadPill({ text: 'Menyimpan ke Galeri...', pct: 100 });
-    await commitSetBatches(pendingDocs, (done, totalDocs) => {
-      setUploadPill({ text: `Menyimpan ${done}/${totalDocs} ke Galeri...`, pct: 100 });
-    });
+    /* tulisan Firestore tersimpan di antrean lokal; jangan menunggu server tanpa batas (penyebab 100% macet) */
+    try {
+      await Promise.race([
+        commitSetBatches(pendingDocs, (done, totalDocs) => {
+          setUploadPill({ text: `Menyimpan ${done}/${totalDocs} ke Galeri...`, pct: 100 });
+        }),
+        new Promise(r => setTimeout(r, 10000))
+      ]);
+    } catch (e) {
+      console.error('Gagal menyimpan dokumen upload', e);
+      hideUploadPill();
+      customSwal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: pesanGagalSimpan(e), background: 'var(--card)', color: 'var(--text)' });
+      return { failed };
+    }
   }
 
   failedFiles = gagalKaliIni;
@@ -2446,44 +2478,6 @@ window.tambahFotoBaru = async function() {
   if (isBusy || isUploadingBg) return;
   const customTitle = document.getElementById('f-img-title').value.trim();
   if (!selectedFiles.length) return customSwal.fire({ icon: 'warning', title: 'Kosong', text: 'Pilih foto/video dulu!', background: 'var(--card)', color: 'var(--text)' });
-
-  /* LEWATI file yang sudah ada di galeri: dicocokkan dari ISI file (SHA-256). Nama+ukuran hanya jadi cadangan untuk item lama yang belum punya sidik. */
-  {
-    const ada = new Set();
-    photos.forEach(p => {
-      if (p.hash) ada.add('h:' + p.hash);
-      if (!p.hash && p.origName && p.origSize != null) ada.add('o:' + p.origName + '|' + p.origSize);
-      if (!p.origName && p.title && p.size != null) ada.add('t:' + p.title + '|' + p.size);
-    });
-    const total = selectedFiles.length;
-    let done = 0;
-    setUploadPill({ text: `Memeriksa duplikat 0/${total}...`, pct: 0 });
-    await runWithConcurrency(selectedFiles, 4, async (f) => {
-      await hashBlob(f);
-      done++;
-      if (done % 5 === 0 || done === total) setUploadPill({ text: `Memeriksa duplikat ${done}/${total}...`, pct: done / total * 100 });
-    });
-    const terlihat = new Set();
-    const belumAda = selectedFiles.filter(f => {
-      const h = f._hash;
-      if (h) {
-        if (ada.has('h:' + h) || terlihat.has(h)) return false;
-        terlihat.add(h);
-      }
-      return !(ada.has('o:' + f.name + '|' + f.size) || ada.has('t:' + f.name.replace(/\.[^/.]+$/, '') + '|' + f.size));
-    });
-    const dilewati = selectedFiles.length - belumAda.length;
-    if (dilewati) {
-      selectedFiles = belumAda;
-      renderFilePreview();
-      if (!belumAda.length) {
-        hideUploadPill();
-        document.getElementById('f-img-file').value = '';
-        return customSwal.fire({ icon: 'info', title: 'Sudah Ada Semua', text: `${dilewati} file sudah ada di galeri, tidak ada yang diupload.`, background: 'var(--card)', color: 'var(--text)' });
-      }
-      showMiniToast(`${dilewati} file sudah ada, dilewati. Upload ${belumAda.length} file baru.`);
-    }
-  }
 
   isUploadingBg = true;
   const uploadBtn = document.getElementById('btn-upload');
@@ -2514,32 +2508,7 @@ window.tambahFotoBaru = async function() {
     releaseWake();
     isUploadingBg = false;
     uploadBtn.disabled = false;
-  }
-};
-
-/* Beri sidik isi pada foto/video lama supaya ikut terdeteksi sebagai duplikat (mengunduh tiap file dari Cloudinary lalu menyimpan sidiknya) */
-window.indeksFotoLama = async function() {
-  if (isBusy || isUploadingBg) return;
-  const target = photos.filter(p => !p.hash && p.publicId && !p.storagePath && (p.size || 0) <= HASH_FULL_MAX);
-  if (!target.length) return customSwal.fire({ icon: 'info', title: 'Sudah Terindeks', text: 'Semua media lama sudah punya sidik isi.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
-  isUploadingBg = true; acquireWake(); window.addEventListener('beforeunload', warnLeave);
-  let done = 0, gagal = 0;
-  try {
-    setUploadPill({ text: `Mengindeks media lama 0/${target.length}...`, pct: 0 });
-    await runWithConcurrency(target, 4, async (p) => {
-      try {
-        const r = await fetch(getDownloadSrc(p), { cache: 'no-store' });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const h = await hashBlob(await r.blob());
-        if (!h) throw new Error('no hash');
-        await setDoc(doc(db, 'users', currentUser.uid, 'photos', p.id), { hash: h }, { merge: true });
-      } catch (e) { console.warn('Gagal indeks', p.id, e); gagal++; }
-      done++;
-      if (done % 3 === 0 || done === target.length) setUploadPill({ text: `Mengindeks media lama ${done}/${target.length}...`, pct: done / target.length * 100 });
-    });
-    setUploadPill({ text: gagal ? `Selesai, ${gagal} gagal. Jalankan lagi untuk yang gagal.` : 'Selesai mengindeks media lama.', pct: 100, hideAfter: 3500 });
-  } finally {
-    window.removeEventListener('beforeunload', warnLeave); releaseWake(); isUploadingBg = false;
+    setTimeout(() => { if (!isUploadingBg) hideUploadPill(); }, 7000);
   }
 };
 
@@ -2601,6 +2570,8 @@ function photoDate(p) {
   try { if (p.createdAt && p.createdAt.toDate) return p.createdAt.toDate(); } catch (e) {}
   return new Date();
 }
+function fmtTgl(p) { const d = photoDate(p); return d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear(); }
+function fmtJam(p) { const d = photoDate(p); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
 function monthKey(p) { const d = photoDate(p); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
 function monthLabel(k) { const [y, m] = k.split('-'); return BULAN[+m - 1] + ' ' + y; }
 
@@ -2738,12 +2709,19 @@ async function pulihkanSampah(ids) {
 
 async function hapusPermanenSampah(ids) {
   const set = new Set(ids);
-  const refs = trashPhotos.filter(x => set.has(x.id)).map(x => doc(db, 'users', currentUser.uid, 'photos', x.id));
-  hapusFileStorage(trashPhotos.filter(x => set.has(x.id)));
+  const items = trashPhotos.filter(x => set.has(x.id));
+  const refs = items.map(x => doc(db, 'users', currentUser.uid, 'photos', x.id));
   trashPhotos = trashPhotos.filter(x => !set.has(x.id));
   renderTrash();
-  showMiniToast('Dihapus permanen');
-  try { await commitDeleteBatches(refs); } catch (e) { customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: 'Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' }); }
+  try {
+    await commitDeleteBatches(refs);
+    hapusFileStorage(items);
+    showMiniToast('Dihapus permanen');
+  } catch (e) {
+    items.forEach(x => { if (!trashPhotos.find(t => t.id === x.id)) trashPhotos.push(x); });
+    renderTrash();
+    customSwal.fire({ icon: 'error', title: 'Gagal menghapus', text: pesanGagalHapus(e), background: 'var(--card)', color: 'var(--text)' });
+  }
 }
 
 window.pulihkanSemuaSampah = function() {
@@ -2884,130 +2862,15 @@ function updateSelectionUI() {
 
 /* ===== THUMBNAIL PREFETCH: muat & decode semua thumbnail dari posisi layar keluar, jadi saat scroll cepat sudah siap ===== */
 const thumbDone = new Set();
-/* MODE HP: lebih ringan di CPU, memori, baterai & kuota */
-const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
-const THUMB_CONC = IS_MOBILE ? 10 : 40;
+const THUMB_CONC = 10;
 let thumbActive = 0, thumbPending = 0, thumbFocusIdx = 0, thumbDir = 1, thumbLastY = 0, thumbTick = false, thumbPumpQueued = false;
 
 function thumbRadius() {
   const c = navigator.connection;
   return (c && (c.saveData || c.type === 'cellular')) ? 300 : Infinity;
 }
-/* ===== CACHE THUMBNAIL DI PERANGKAT (IndexedDB): setelah sekali termuat, semua thumbnail langsung tampil seketika saat aplikasi dibuka, tanpa menunggu jaringan ===== */
-const thumbBlobMap = new Map();       /* url -> blob: URL */
-const thumbWait = [];
-let thumbCacheReady = false, thumbDBh = null;
-const thumbInflight = new Set();
-const thumbDBp = new Promise(res => {
-  try {
-    const rq = indexedDB.open('rhn_thumbs', 1);
-    rq.onupgradeneeded = () => rq.result.createObjectStore('t');
-    rq.onsuccess = () => res(rq.result);
-    rq.onerror = () => res(null);
-    rq.onblocked = () => res(null);
-  } catch (e) { res(null); }
-});
-(async () => {
-  const tamat = new Promise(r => setTimeout(r, 2500));
-  try {
-    await Promise.race([(async () => {
-      const db0 = await thumbDBp; thumbDBh = db0;
-      if (!db0) return;
-      const st = db0.transaction('t', 'readonly').objectStore('t');
-      const keys = await new Promise(r => { const q = st.getAllKeys(); q.onsuccess = () => r(q.result); q.onerror = () => r([]); });
-      const vals = await new Promise(r => { const q = st.getAll(); q.onsuccess = () => r(q.result); q.onerror = () => r([]); });
-      keys.forEach((k, i) => { if (vals[i]) thumbBlobMap.set(k, URL.createObjectURL(vals[i])); });
-    })(), tamat]);
-  } catch (e) {}
-  thumbCacheReady = true;
-  thumbWait.splice(0).forEach(a => attachThumb(a[0], a[1], a[2]));
-})();
-async function cacheThumb(url, dari) {
-  if (!url || !/^https:/.test(url) || thumbBlobMap.has(url) || thumbInflight.has(url)) return;
-  thumbInflight.add(url);
-  try {
-    const r = await fetch(dari || url);
-    if (!r.ok) return;
-    const b = await r.blob();
-    if (!b.size) return;
-    thumbBlobMap.set(url, URL.createObjectURL(b));
-    const db0 = thumbDBh || await thumbDBp;
-    if (db0) db0.transaction('t', 'readwrite').objectStore('t').put(b, url);
-  } catch (e) {} finally { thumbInflight.delete(url); }
-}
-/* simpan SEMUA thumbnail di latar belakang (sekali jalan setelah data galeri masuk) + bersihkan yang sudah tidak dipakai */
-let thumbBgTimer = null;
-function cacheSemuaThumb() {
-  clearTimeout(thumbBgTimer);
-  thumbBgTimer = setTimeout(async () => {
-    while (!thumbCacheReady) await new Promise(r => setTimeout(r, 200));
-    /* HP: jangan simpan massal di latar belakang kalau kuota/jaringan seluler/hemat data; batasi jumlah yang disimpan */
-    const net = navigator.connection;
-    const hemat = IS_MOBILE && net && (net.saveData || net.type === 'cellular' || /(^|-)(2g|3g)$/.test(net.effectiveType || ''));
-    if (hemat) return;
-    const pakai = new Set(photos.slice(0, IS_MOBILE ? 500 : photos.length).map(getThumbSrc).filter(Boolean));
-    const db0 = thumbDBh || await thumbDBp;
-    if (db0) {
-      Array.from(thumbBlobMap.keys()).forEach(k => {
-        if (!pakai.has(k)) { try { URL.revokeObjectURL(thumbBlobMap.get(k)); } catch (e) {} thumbBlobMap.delete(k); try { db0.transaction('t', 'readwrite').objectStore('t').delete(k); } catch (e) {} }
-      });
-    }
-    const todo = Array.from(pakai).filter(u => /^https:/.test(u) && !thumbBlobMap.has(u));
-    if (todo.length) await runWithConcurrency(todo, IS_MOBILE ? 4 : 24, cacheThumb);
-  }, 1500);
-}
-
-/* ===== PEMUAT THUMBNAIL ANTI-GAGAL: timeout, ulang, dan cadangan URL berlapis supaya gambar SELALU muncul ===== */
-const thumbUse = new Map();   /* url asli -> url yang terbukti berhasil dimuat */
-function thumbFallbacks(url) {
-  const out = [];
-  let m = url.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+)\/image\/upload\/[^/]*\/(.+)$/);
-  if (m) { out.push(`${m[1]}/image/upload/w_320,h_320,c_fill/${m[2]}`, `${m[1]}/image/upload/w_400,c_limit,f_jpg/${m[2]}`, `${m[1]}/image/upload/${m[2]}`); return out; }
-  m = url.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+)\/video\/upload\/[^/]*\/(.+)$/);
-  if (m) out.push(`${m[1]}/video/upload/so_0/${m[2]}`);
-  return out;
-}
-function loadThumbOnce(src, ms) {
-  return new Promise(res => {
-    const im = new Image();
-    im.decoding = 'async';
-    let fin = false;
-    const done = (ok) => { if (fin) return; fin = true; clearTimeout(t); im.onload = im.onerror = null; res(ok); };
-    const t = setTimeout(() => { try { im.src = ''; } catch (e) {} done(false); }, ms);
-    im.onload = () => done(true);
-    im.onerror = () => done(false);
-    im.src = src;
-  });
-}
-function loadThumbRobust(url) {
-  /* TANPA MENUNGGU: URL utama jalan langsung; cadangan ikut dijalankan paralel (tiap 0,6 dtk) atau seketika kalau yang sebelumnya gagal. Yang pertama berhasil langsung dipakai. */
-  const kandidat = [url, ...thumbFallbacks(url)];
-  return new Promise(res => {
-    let selesai = false, aktif = 0, idx = 0;
-    const timers = [];
-    const stop = (v) => { if (selesai) return; selesai = true; timers.forEach(clearTimeout); res(v); };
-    const jalan = () => {
-      if (selesai || idx >= kandidat.length) return;
-      const c = kandidat[idx++];
-      aktif++;
-      loadThumbOnce(c, 8000).then(ok => {
-        aktif--;
-        if (selesai) return;
-        if (ok) return stop(c);
-        if (idx < kandidat.length) jalan();                 /* gagal -> langsung cadangan berikutnya, tanpa jeda */
-        else if (aktif === 0) stop(null);
-      });
-    };
-    jalan();
-    for (let i = 1; i < kandidat.length; i++) timers.push(setTimeout(jalan, i * (IS_MOBILE ? 1500 : 600)));
-  });
-}
-
 function attachThumb(card, img, url) {
-  if (thumbDone.has(url)) { img.src = thumbUse.get(url) || url; img.classList.add('loaded'); return; }
-  const cached = thumbBlobMap.get(url);
-  if (cached) { img.src = cached; img.classList.add('loaded'); return; }
-  if (!thumbCacheReady) { thumbWait.push([card, img, url]); return; }
+  if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
   card.__tp = { img, url };
   thumbPending++;
   scheduleThumbPump();
@@ -3048,20 +2911,17 @@ function pumpThumbs() {
     if (!pick) { if (maxK >= n) thumbPending = 0; return; }
     const tp = pick.__tp; pick.__tp = null; thumbPending--;
     thumbActive++;
-    const fin = (src) => {
+    const im = new Image();
+    im.decoding = 'async';
+    im.src = tp.url;
+    const fin = (ok) => {
       thumbActive--;
-      if (src) {
-        thumbDone.add(tp.url); thumbUse.set(tp.url, src); cacheThumb(tp.url, src);
-        tp.img.src = src;                          /* dari memori: muncul seketika */
-        tp.img.classList.add('loaded');
-      } else {
-        /* gagal total: jangan dibiarkan kosong, coba lagi otomatis (jeda makin lama) sampai berhasil */
-        tp.tries = (tp.tries || 0) + 1;
-        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, (tp.tries <= 2 ? 0 : Math.min(1500, 200 * tp.tries)));
-      }
+      if (ok) thumbDone.add(tp.url);
+      tp.img.src = tp.url;                       /* dari memori: muncul seketika */
+      if (ok) tp.img.classList.add('loaded');
       pumpThumbs();
     };
-    loadThumbRobust(tp.url).then(fin, () => fin(null));
+    (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; })).then(() => fin(true), () => fin(false));
   }
 }
 window.addEventListener('scroll', () => {
@@ -3096,6 +2956,13 @@ function createCardNode(p) {
   cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
   card.appendChild(cap);
 
+  const tgl = document.createElement('div');
+  tgl.className = 'card-date';
+  tgl.innerHTML = '<b></b><span></span>';
+  tgl.firstChild.textContent = fmtTgl(p);
+  tgl.lastChild.textContent = fmtJam(p);
+  card.appendChild(tgl);
+
   if (isVideoItem(p)) {
     const badge = document.createElement('div');
     badge.className = 'video-badge';
@@ -3114,13 +2981,25 @@ function createCardNode(p) {
   check.className = 'select-check';
   card.appendChild(check);
 
-  card.addEventListener('pointerdown', () => { startPress(p.id); try { warmViewer(p.id); } catch (e) {} });
-  card.addEventListener('pointerup', cancelPress);
-  card.addEventListener('pointerleave', cancelPress);
-  card.addEventListener('pointercancel', cancelPress);
+  card.addEventListener('pointerdown', () => { startPress(p.id); clearTimeout(card.__wt); card.__wt = setTimeout(() => { try { warmViewer(p.id); } catch (e) {} }, 160); });
+  const stopWarm = () => clearTimeout(card.__wt);
+  card.addEventListener('pointerup', () => { cancelPress(); });
+  card.addEventListener('pointerleave', () => { cancelPress(); stopWarm(); });
+  card.addEventListener('pointercancel', () => { cancelPress(); stopWarm(); });
   card.addEventListener('click', () => handleCardClick(p.id));
 
   return card;
+}
+
+function syncFavBadge(node, p) {
+  if (!node) return;
+  const b = node.querySelector('.fav-badge');
+  if (p.favorite && !b) {
+    const fav = document.createElement('div');
+    fav.className = 'fav-badge';
+    fav.innerHTML = svgIcon('heart');
+    node.appendChild(fav);
+  } else if (!p.favorite && b) b.remove();
 }
 
 function renderGallery() {
@@ -3199,6 +3078,7 @@ function renderGallery() {
       photoNodes.set(p.id, node);
       if (selectedIds.has(p.id)) setCardSelected(p.id, true);
     }
+    syncFavBadge(node, p);
     const expectedNext = prevNode ? prevNode.nextSibling : container.firstChild;
     if (expectedNext !== node) {
       container.insertBefore(node, expectedNext || null);
@@ -3262,7 +3142,7 @@ async function eksekusiHapusBatch(ids, onProgress, permanent) {
     renderGallery();
   }
 
-  if (permanent) { hapusFileStorage(targets); await commitDeleteBatches(refs, onProgress); }
+  if (permanent) { await commitDeleteBatches(refs, onProgress); hapusFileStorage(targets); }
   else await commitSoftBatches(refs);
 }
 
@@ -3295,7 +3175,9 @@ async function mintaPinLaluHapus(ids, judulProses, permanent) {
   const total = ids.length;
   eksekusiHapusBatch(ids, (done, totalCount) => {
     // progress commit database berjalan diam-diam di background
-  }, permanent);
+  }, permanent).catch((e) => {
+    customSwal.fire({ icon: 'error', title: 'Gagal Sinkron ke Server', text: pesanGagalHapus(e), background: 'var(--card)', color: 'var(--text)' });
+  });
 
   customSwal.fire({ icon: 'success', title: permanent ? `${total} Foto Terhapus` : `${total} Dipindahkan ke Baru Dihapus`, background: 'var(--card)', color: 'var(--text)', timer: 1200, showConfirmButton: false });
   if (selectMode) exitSelectMode();
@@ -3382,13 +3264,6 @@ async function simpanSatuFileKePerangkat(blob, filename, mimeType) {
 async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
   if (!list.length) return;
 
-  /* LAPTOP (Chrome/Edge): pilih satu folder, lalu semua file ditulis langsung ke folder itu (streaming, tanpa batas jumlah, tanpa popup per file) */
-  let dirHandle = null;
-  if (window.showDirectoryPicker && list.length > 1 && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    try { dirHandle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'rhn-galeri' }); }
-    catch (e) { if (e && e.name === 'AbortError') return; dirHandle = null; }
-  }
-
   customSwal.fire({
     title: `Mengunduh 0/${list.length}...`,
     text: 'Mohon jangan tutup halaman ini dulu.',
@@ -3414,18 +3289,6 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
     let saveChain = Promise.resolve();
     await runWithConcurrency(list, POOL, async (p, i) => {
       let blob = null;
-      if (dirHandle) {
-        try {
-          const r = await fetch(getDownloadSrc(p));
-          if (!r.ok || !r.body) throw new Error('HTTP ' + r.status);
-          const fh = await dirHandle.getFileHandle(names[i].finalName, { create: true });
-          const w = await fh.createWritable();
-          await r.body.pipeTo(w);
-          saved++;
-          customSwal.update({ title: `Mengunduh ${saved}/${list.length}...` });
-        } catch (e) { console.error('Gagal menyimpan ke folder:', e); gagal++; }
-        return;
-      }
       try {
         const r = await fetch(getDownloadSrc(p));
         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -3454,7 +3317,7 @@ async function unduhDaftarFoto(list, keluarDariSeleksiSetelahSelesai) {
     customSwal.fire({
       icon: gagal ? 'warning' : 'success',
       title: 'Tersimpan!',
-      text: gagal ? `${saved} file terunduh, ${gagal} gagal diambil.` : (dirHandle ? `${saved} file telah disimpan ke folder yang kamu pilih.` : `${saved} file telah berhasil diunduh. Silakan cek folder Download / aplikasi Galeri.`),
+      text: gagal ? `${saved} file terunduh, ${gagal} gagal diambil.` : `${saved} file telah berhasil diunduh. Silakan cek folder Download / aplikasi Galeri.`,
       background: 'var(--card)', color: 'var(--text)', timer: 2000, showConfirmButton: false
     });
     if (keluarDariSeleksiSetelahSelesai) exitSelectMode();
@@ -3507,23 +3370,22 @@ window.aksiFavorit = async function() {
   showMiniToast(newVal ? 'Ditambahkan ke Favorit' : 'Dihapus dari Favorit');
 
   try {
-    await setDoc(doc(db, 'users', currentUser.uid, 'photos', foto.id), { favorite: newVal }, { merge: true });
+    queueOp(foto.id, { fav: newVal });
+    await laporSyncPending();
   } catch (e) {
     console.error('Gagal menyimpan status favorit', e);
-    customSwal.fire({ icon: 'error', title: 'Gagal Sinkron', text: 'Status favorit belum tersimpan ke server. Periksa koneksi internet.', background: 'var(--card)', color: 'var(--text)' });
+    foto.favorite = !newVal;
+    try { updateFavButtonUI(foto); syncFavBadge(photoNodes.get(foto.id), foto); updateFilterCounts(); if (mediaFilter === 'favorite') renderGallery(); } catch (e2) {}
+    customSwal.fire({ icon: 'error', title: 'Favorit Gagal Disimpan', text: pesanGagalSimpan(e), background: 'var(--card)', color: 'var(--text)' });
   }
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = (() => { try { const s = Math.max(screen.width, screen.height) * Math.min(window.devicePixelRatio || 1, 2); return Math.min(2560, Math.max(1280, Math.ceil(s / 320) * 320)); } catch (e) { return 1920; } })();
+const VIEW_PX = window.innerWidth > 900 ? 1920 : 1280;
 const viewCache = new Map();
 let viewToken = 0;
 
-function getViewSrc(p) {
-  /* ukuran sesuai layar + WebP: jauh lebih ringan & cepat; file asli resolusi penuh tetap dipakai saat zoom & unduh */
-  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},q_auto:good,f_webp/${p.publicId}`;
-  return getFullSrc(p);
-}
+function getViewSrc(p) { return getFullSrc(p); } /* kualitas & resolusi penuh, tidak dikurangi */
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_900,c_limit,q_auto/${p.publicId}.jpg`;
@@ -3541,32 +3403,16 @@ function preloadView(p) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > 28) viewCache.delete(viewCache.keys().next().value);
+  if (viewCache.size > 12) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
-/* video tetangga disiapkan lebih dulu (buffer awal) supaya saat digeser langsung jalan */
-const videoPre = new Map();
-function preloadVideo(p) {
-  if (!p || !isVideoItem(p) || videoPre.has(p.id)) return;
-  const v = document.createElement('video');
-  v.preload = 'auto'; v.muted = true; v.playsInline = true;
-  v.src = getFullSrc(p);
-  try { v.load(); } catch (e) {}
-  videoPre.set(p.id, v);
-  const maks = IS_MOBILE ? 1 : 3;
-  while (videoPre.size > maks) {
-    const k = videoPre.keys().next().value, old = videoPre.get(k);
-    videoPre.delete(k);
-    try { old.removeAttribute('src'); old.load(); } catch (e) {}
-  }
-}
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1, 2, -1, 3, 4, -2, 5] : [-1, -2, 1, -3, -4, 2, -5];
+  const order = dir >= 0 ? [1, 2, -1] : [-1, -2, 1];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
-    if (q) setTimeout(() => { preloadView(q); if (k < 3) preloadVideo(q); }, k * 40);
+    if (q) setTimeout(() => preloadView(q), k * 40);
   });
 }
 
@@ -3594,7 +3440,12 @@ window.bukaViewer = function(id, dir) {
   const video = document.getElementById('viewer-video');
 
   const posisi = list.length > 1 ? `  ·  ${idx + 1}/${list.length}` : '';
-  document.getElementById('viewer-title-text').textContent = (foto.title || '') + posisi;
+  const judulEl = document.getElementById('viewer-title-text');
+  judulEl.textContent = (foto.title || '') + posisi;
+  const tglEl = document.createElement('small');
+  tglEl.className = 'viewer-date';
+  tglEl.textContent = fmtTgl(foto) + ' • ' + fmtJam(foto);
+  judulEl.appendChild(tglEl);
 
   img.alt = foto.title || 'foto';
   img.classList.remove('zoomed');
@@ -3613,10 +3464,20 @@ window.bukaViewer = function(id, dir) {
     video.poster = entry && entry.ready ? entry.src : getPosterSrc(foto);
     video.src = getFullSrc(foto);
     video.load();
-    /* PUTAR OTOMATIS saat dibuka / digeser (tanpa menekan putar). Kalau browser menolak bersuara, putar tanpa suara. */
-    video.autoplay = true;
-    const pm = video.play();
-    if (pm && pm.catch) pm.catch(err => { if (err && err.name === 'NotAllowedError' && token === viewToken) { video.muted = true; video.play().catch(() => {}); } });
+    /* putar otomatis tiap video dibuka atau digeser; kalau browser menolak bersuara, putar tanpa suara */
+    video.muted = false;
+    const mulaiPutar = () => {
+      if (token !== viewToken) return;
+      try {
+        const pr = video.play();
+        if (pr && pr.catch) pr.catch((er) => {
+          if (token !== viewToken || !er || er.name !== 'NotAllowedError') return;
+          video.muted = true; video.play().catch(() => {});
+        });
+      } catch (e) {}
+    };
+    video.oncanplay = () => { video.oncanplay = null; mulaiPutar(); };
+    mulaiPutar();
   } else {
     video.style.display = 'none';
     img.style.display = 'block';
@@ -3754,60 +3615,57 @@ function updateViewerNavButtons() {
   }, { passive: true });
 })();
 
-/* LAPTOP: geser pakai mouse (drag), trackpad dua jari (kiri/kanan), dan tombol panah */
 (function setupViewerMouse() {
   const content = document.getElementById('viewer-content');
-  let down = false, sx = 0, sy = 0, st = 0, lock = false, dx = 0, lastWheel = 0;
-  const zoomed = () => document.getElementById('viewer-img').classList.contains('zoomed');
-  content.addEventListener('dragstart', (e) => e.preventDefault());
-  content.addEventListener('mousedown', (e) => {
-    if (e.button !== 0 || zoomed()) return;
+  let down = false, sx = 0, sy = 0, dx = 0, lock = false, wheelT = 0;
+  function zoomed() { return document.getElementById('viewer-img').classList.contains('zoomed'); }
+  content.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    if (e.target.closest && e.target.closest('.viewer-nav-btn')) return;
+    if (zoomed()) return;
     const v = document.getElementById('viewer-video');
-    if (v.style.display === 'block') { const r = v.getBoundingClientRect(); if (e.clientY > r.bottom - 72) return; }   /* jangan ganggu seekbar/kontrol video */
-    down = true; lock = false; dx = 0; sx = e.clientX; sy = e.clientY; st = Date.now();
+    if (v.style.display === 'block') { const r = v.getBoundingClientRect(); if (e.clientY > r.bottom - 72) return; }
+    down = true; sx = e.clientX; sy = e.clientY; dx = 0; lock = false;
   });
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('pointermove', (e) => {
     if (!down) return;
-    const mx = e.clientX - sx, my = e.clientY - sy;
-    if (!lock) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my)) lock = true; else return; }
-    dx = mx;
-    window.__lastPanT = Date.now();
+    dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    if (!lock) { if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) lock = true; else return; }
     const el = viewerActiveEl();
     el.style.transition = 'none';
     el.style.transform = `translateX(${dx * 0.9}px)`;
   });
-  window.addEventListener('mouseup', () => {
+  function end() {
     if (!down) return;
     down = false;
     if (!lock) return;
+    lock = false;
+    window.__mouseDragT = Date.now();
     window.__lastPanT = Date.now();
     const el = viewerActiveEl();
-    const speed = Math.abs(dx) / Math.max(1, Date.now() - st);
-    if (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25)) {
-      el.style.transition = 'none'; el.style.transform = '';
-      viewerNavigate(dx < 0 ? 1 : -1);
-    } else {
-      el.style.transition = 'transform .16s ease-out'; el.style.transform = '';
-      setTimeout(() => { el.style.transition = ''; }, 180);
-    }
-  });
-  content.addEventListener('wheel', (e) => {
-    if (!document.getElementById('photo-viewer').classList.contains('show') || zoomed()) return;
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
-      e.preventDefault();
-      const now = Date.now();
-      if (now - lastWheel < 450) return;
-      lastWheel = now;
+    if (Math.abs(dx) > 80) { el.style.transition = 'none'; el.style.transform = ''; viewerNavigate(dx < 0 ? 1 : -1); }
+    else { el.style.transition = 'transform .16s ease-out'; el.style.transform = ''; setTimeout(() => { el.style.transition = ''; }, 180); }
+  }
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
+  content.addEventListener('click', (e) => {          /* klik palsu setelah drag: jangan zoom / jeda video */
+    if (Date.now() - (window.__mouseDragT || 0) < 350) { e.stopPropagation(); e.preventDefault(); }
+  }, true);
+  content.addEventListener('wheel', (e) => {          /* geser dua jari di trackpad */
+    if (zoomed()) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30 && Date.now() - wheelT > 600) {
+      wheelT = Date.now();
       viewerNavigate(e.deltaX > 0 ? 1 : -1);
     }
-  }, { passive: false });
+  }, { passive: true });
 })();
 
 document.addEventListener('keydown', (e) => {
   const viewer = document.getElementById('photo-viewer');
   if (!viewer.classList.contains('show')) return;
-  if (e.key === 'ArrowRight') viewerNavigate(1);
-  else if (e.key === 'ArrowLeft') viewerNavigate(-1);
+  if (e.key === 'ArrowRight') { e.preventDefault(); viewerNavigate(1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); viewerNavigate(-1); }
   else if (e.key === 'Escape') tutupViewer();
 });
 
