@@ -756,6 +756,7 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('Unduh semua foto HD ke cache perangkat supaya tampil, geser, unduh, dan kirim WA instan? Butuh data dan ruang besar, biarkan layar menyala.', unduhCacheSemua)"><span class="mi"><svg class="ico"><use href="#i-download"/></svg></span><span class="mt"><b>Unduh Cache</b><small>Simpan semua foto HD ke perangkat agar tampil instan</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -2384,6 +2385,71 @@ window.hdkanSemuaFoto = async function() {
   }
 };
 
+/* ===== UNDUH CACHE: semua foto (thumbnail, menengah, HD, file asli) + poster video disimpan ke cache perangkat ===== */
+window.unduhCacheSemua = async function() {
+  if (isBusy) return;
+  if (!photos.length) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada foto untuk di-cache.', background: 'var(--card)', color: 'var(--text)', timer: 1600, showConfirmButton: false });
+  }
+  isBusy = true;
+  const t1 = [], t2 = [], t3 = [], t4 = [], ada = new Set();
+  const tambahU = (arr, u) => { if (u && !ada.has(u)) { ada.add(u); arr.push(u); } };
+  photos.forEach((p) => {
+    tambahU(t1, getThumbSrc(p));
+    if (isVideoItem(p)) { tambahU(t2, getPosterSrc(p)); }
+    else { tambahU(t2, getMidSrc(p)); tambahU(t3, getViewSrc(p)); tambahU(t4, getDownloadSrc(p)); }
+  });
+  const urls = t1.concat(t2, t3, t4);
+  const total = urls.length;
+  let done = 0, gagal = 0, lastUi = 0;
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  acquireWake();
+  window.addEventListener('beforeunload', warnLeave);
+  customSwal.fire({
+    title: `Unduh cache 0/${total}...`,
+    text: 'Mohon jangan tutup halaman dan biarkan layar menyala.',
+    allowOutsideClick: false, allowEscapeKey: false,
+    background: 'var(--card)', color: 'var(--text)',
+    didOpen: () => customSwal.showLoading()
+  });
+  try {
+    await runWithConcurrency(urls, 12, async (u) => {
+      try {
+        let r;
+        try { r = await fetch(u); } catch (e1) { await new Promise(res => setTimeout(res, 600)); r = await fetch(u); }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        await r.blob();
+      } catch (e) { gagal++; }
+      finally {
+        done++;
+        const now = performance.now();
+        if (now - lastUi > 200 || done === total) { lastUi = now; customSwal.update({ title: `Unduh cache ${done}/${total}...` }); }
+      }
+    });
+    urls.forEach((u) => { sentBerat.add(u); sentThumbs.add(u); });
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        for (let i = 0; i < urls.length; i += 200) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: urls.slice(i, i + 200) });
+      }
+    } catch (e) {}
+    let pakai = '';
+    try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.usage) pakai = ' Penyimpanan terpakai ' + formatKapasitas(e.usage / 1048576) + '.'; } } catch (e) {}
+    customSwal.fire({
+      icon: gagal ? 'warning' : 'success',
+      title: gagal ? 'Cache Selesai Dengan Peringatan' : 'Cache Selesai',
+      text: `${total - gagal} dari ${total} file tersimpan di perangkat, ${gagal} gagal.` + (gagal ? ' Jalankan lagi untuk yang gagal.' : '') + pakai + ' Video hanya posternya yang di-cache.',
+      background: 'var(--card)', color: 'var(--text)'
+    });
+  } catch (e) {
+    console.error(e);
+    customSwal.fire({ icon: 'error', title: 'Unduh Cache Gagal', text: 'Periksa koneksi internet lalu coba lagi.', background: 'var(--card)', color: 'var(--text)' });
+  } finally {
+    window.removeEventListener('beforeunload', warnLeave);
+    releaseWake();
+    isBusy = false;
+  }
+};
+
 window.optimizeAllVideos = async function() {
   if (isBusy) return;
   const target = photos.filter(p => isVideoItem(p) && p.publicId);
@@ -3044,6 +3110,7 @@ function windowThumbs() {
       try { im.fetchPriority = Math.abs(i - f) < 80 ? 'high' : 'low'; } catch (e) {}
       im.src = im.dataset.src;
     }
+    if (im && i - f < 120 && f - i < 120 && im.getAttribute('src') && !im.__dec && im.decode) { im.__dec = 1; im.decode().catch(() => {}); }   /* decode lebih dulu: scroll tidak menunggu */
   }
 }
 function sweepFarThumbs() {
@@ -4227,6 +4294,46 @@ window.aksiHapus = function() {
       else busySince = 0;
     } catch (e) {}
   }, 1000);
+})();
+
+/* ===== PERISAI: thumbnail macet, viewer macet, dan koneksi kembali dipulihkan otomatis tanpa menunggu user ===== */
+(function perisai() {
+  const mulai = new WeakMap();
+  function cekThumb() {
+    if (document.hidden || document.body.classList.contains('viewer-open')) return;
+    const pg = document.getElementById('page-galeri');
+    if (!pg || !pg.classList.contains('active')) return;
+    const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
+    if (!n) return;
+    const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+    const lo = Math.max(0, f - 150), hi = Math.min(n - 1, f + 150), now = Date.now();
+    for (let i = lo; i <= hi; i++) {
+      const im = kids[i].__img;
+      if (!im) continue;
+      if (!im.getAttribute('src') || (im.complete && im.naturalWidth)) { mulai.delete(im); continue; }
+      const t = mulai.get(im);
+      if (!t) { mulai.set(im, now); continue; }
+      if (now - t > 7000) {
+        mulai.delete(im);
+        const u = im.dataset.src;
+        if (u) { im.removeAttribute('src'); im.src = u + (u.indexOf('?') > -1 ? '&' : '?') + 'r=2'; }
+      }
+    }
+  }
+  let vMacet = 0;
+  function cekViewer() {
+    const v = document.getElementById('photo-viewer');
+    if (!v.classList.contains('show') || !currentViewPhotoId) { vMacet = 0; return; }
+    const img = document.getElementById('viewer-img');
+    if (img.style.display === 'none' || (img.complete && img.naturalWidth)) { vMacet = 0; return; }
+    if (++vMacet >= 3) {
+      vMacet = 0;
+      const foto = photos.find(p => p.id === currentViewPhotoId);
+      if (foto) { viewCache.delete(foto.id); img.src = getViewSrc(foto); }
+    }
+  }
+  setInterval(() => { try { cekThumb(); cekViewer(); } catch (e) {} }, 2000);
+  window.addEventListener('online', () => { try { cekThumb(); scheduleThumbPump(); } catch (e) {} });
 })();
 </script>
 <script>
