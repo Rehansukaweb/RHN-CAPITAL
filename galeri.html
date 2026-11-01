@@ -475,10 +475,8 @@ button,.nav-btn,.xa-tile,.album-card{touch-action:manipulation;-webkit-tap-highl
 .viewer-icon-btn,.viewer-nav-btn,.viewer-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .album-card{contain:layout style}
 html{-webkit-tap-highlight-color:transparent}
-#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 260px}
-@media(max-width:959px){
-#main-gallery-grid .album-card{contain-intrinsic-size:auto 25vw}
-}
+#main-gallery-grid .album-cover{opacity:1!important}
+
 .card-date{white-space:pre!important}
 /* saat viewer terbuka, galeri di belakangnya tidak digambar sama sekali (geser foto jadi jauh lebih ringan) */
 body.viewer-open .main-content,body.viewer-open .mobile-header,body.viewer-open .bottom-nav{visibility:hidden}
@@ -2931,11 +2929,12 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
   });
 }, { rootMargin: '1100px 0px' }) : null;
 function attachThumb(card, img, url) {
-  if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
-  card.__tp = { img, url };
-  thumbPending++;
-  if (thumbIO) thumbIO.observe(card);
-  scheduleThumbPump();
+  /* langsung pasang src; browser memuat bertahap sendiri (native lazy), tanpa antrean JS */
+  img.loading = 'lazy';
+  img.onload = () => img.classList.add('loaded');
+  img.onerror = () => { if (!img.__r) { img.__r = 1; setTimeout(() => { img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); } };
+  img.src = url;
+  if (img.complete && img.naturalWidth) img.classList.add('loaded');
 }
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
