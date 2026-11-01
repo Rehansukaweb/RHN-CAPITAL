@@ -2959,28 +2959,13 @@ function loadThumbOnce(src, ms) {
     im.src = src;
   });
 }
-function loadThumbRobust(url) {
-  /* TANPA MENUNGGU: URL utama jalan langsung; cadangan ikut dijalankan paralel (tiap 0,6 dtk) atau seketika kalau yang sebelumnya gagal. Yang pertama berhasil langsung dipakai. */
+async function loadThumbRobust(url) {
   const kandidat = [url, ...thumbFallbacks(url)];
-  return new Promise(res => {
-    let selesai = false, aktif = 0, idx = 0;
-    const timers = [];
-    const stop = (v) => { if (selesai) return; selesai = true; timers.forEach(clearTimeout); res(v); };
-    const jalan = () => {
-      if (selesai || idx >= kandidat.length) return;
-      const c = kandidat[idx++];
-      aktif++;
-      loadThumbOnce(c, 8000).then(ok => {
-        aktif--;
-        if (selesai) return;
-        if (ok) return stop(c);
-        if (idx < kandidat.length) jalan();                 /* gagal -> langsung cadangan berikutnya, tanpa jeda */
-        else if (aktif === 0) stop(null);
-      });
-    };
-    jalan();
-    for (let i = 1; i < kandidat.length; i++) timers.push(setTimeout(jalan, i * 600));
-  });
+  for (let i = 0; i < kandidat.length; i++) {
+    const c = kandidat[i];
+    if (await loadThumbOnce(c, 3000)) return c;   /* maks 3 detik per percobaan, langsung pindah ke cadangan */
+  }
+  return null;
 }
 
 function attachThumb(card, img, url) {
@@ -3037,7 +3022,7 @@ function pumpThumbs() {
       } else {
         /* gagal total: jangan dibiarkan kosong, coba lagi otomatis (jeda makin lama) sampai berhasil */
         tp.tries = (tp.tries || 0) + 1;
-        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, (tp.tries <= 2 ? 0 : Math.min(1500, 200 * tp.tries)));
+        if (pick.isConnected) setTimeout(() => { if (pick.isConnected && !pick.__tp) { pick.__tp = tp; thumbPending++; scheduleThumbPump(); } }, Math.min(3000, 400 * tp.tries));
       }
       pumpThumbs();
     };
