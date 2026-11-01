@@ -4010,9 +4010,12 @@ async function rhnMuatCache() {
   if (!('caches' in window)) return;
   try {
     const c = await caches.open(RHN_MEDIA_CACHE);
-    const keys = (await c.keys()).filter(r => !rhnBlobMap.has(r.url));
-    for (let i = 0; i < keys.length; i += 32) {
-      await Promise.all(keys.slice(i, i + 32).map(async (r) => {
+    const semuaKey = (await c.keys()).filter(r => !rhnBlobMap.has(r.url));
+    const isVid = (r) => /\/video\/upload\/.*\.(mp4|webm|mov)(\?|$)/i.test(r.url);
+    /* gambar dipetakan duluan (cepat), video belakangan supaya aplikasi tidak berat saat dibuka */
+    const keys = semuaKey.filter(r => !isVid(r)).concat(semuaKey.filter(isVid));
+    for (let i = 0; i < keys.length; i += 64) {
+      await Promise.all(keys.slice(i, i + 64).map(async (r) => {
         try {
           const res = await c.match(r);
           if (res) rhnBlobMap.set(r.url, URL.createObjectURL(await res.blob()));
@@ -4071,11 +4074,18 @@ window.unduhCacheMedia = async function() {
     };
     /* HP: jaringan seluler berlatensi tinggi, jadi butuh lebih banyak unduhan paralel agar saluran selalu penuh */
     const hp = window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width:959px)').matches;
-    /* foto dan video diunduh BERSAMAAN dari awal (bukan bergantian) supaya tidak ada waktu menganggur */
-    await Promise.all([
-      runWithConcurrency([...gambar], hp ? 96 : 48, kerja),
-      runWithConcurrency([...video], hp ? 16 : 8, kerja)
-    ]);
+    if (hp) {
+      /* HP: penulis disk & CPU-nya yang jadi leher botol, bukan WiFi. Terlalu banyak unduhan serentak justru memacetkannya,
+         jadi pakai jumlah yang pas (16), foto dulu agar langsung instan, video menyusul pelan-pelan di belakang */
+      await runWithConcurrency([...gambar], 16, kerja);
+      await rhnMuatCache();
+      await runWithConcurrency([...video], 3, kerja);
+    } else {
+      await Promise.all([
+        runWithConcurrency([...gambar], 48, kerja),
+        runWithConcurrency([...video], 8, kerja)
+      ]);
+    }
     await rhnMuatCache();
   } finally {
     rhnCacheJalan = false;
