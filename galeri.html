@@ -379,7 +379,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown){overflow:visibl
 #photo-viewer #viewer-img{will-change:transform;touch-action:none}
 #photo-viewer .viewer-nav-btn{display:none!important}
 #photo-viewer .viewer-footer{position:relative;flex:0 0 auto;left:auto;bottom:auto;transform:none;margin:8px auto max(14px,calc(env(safe-area-inset-bottom) + 8px));backdrop-filter:none;-webkit-backdrop-filter:none;background:#121215;box-shadow:none}
-body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
+body.viewer-open{overflow:hidden!important}
 /* ===== LOGIN & PIN (HP saja, laptop tetap seperti semula) ===== */
 @media(max-width:899px){
 #auth-screen{background:radial-gradient(1px 1px at 12% 18%,rgba(255,255,255,.25),transparent 60%),radial-gradient(1px 1px at 82% 12%,rgba(255,255,255,.18),transparent 60%),radial-gradient(1px 1px at 68% 78%,rgba(255,255,255,.2),transparent 60%),radial-gradient(1px 1px at 25% 88%,rgba(255,255,255,.15),transparent 60%),radial-gradient(1px 1px at 92% 55%,rgba(255,255,255,.16),transparent 60%),var(--bg)!important;padding:40px 16px;justify-content:safe center}
@@ -427,6 +427,13 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 <style>
 #photo-viewer #viewer-img{opacity:1!important;transition:transform .14s cubic-bezier(.2,.8,.2,1)}
 #photo-viewer #viewer-video{background:#000}
+#photo-viewer{transition:none!important}
+#photo-viewer .viewer-icon-btn,#photo-viewer .viewer-action-btn{transition:background-color .08s!important}
+#main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 190px 238px}
+#photo-viewer #viewer-img,#photo-viewer .viewer-side{backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:flat}
+#photo-viewer .viewer-side{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:none;pointer-events:none;will-change:transform;-webkit-user-drag:none}
+#photo-viewer #viewer-img-prev{transform:translate3d(-100%,0,0)}
+#photo-viewer #viewer-img-next{transform:translate3d(100%,0,0)}
 #photo-viewer #viewer-content{contain:layout paint}
 </style>
 <style>
@@ -799,6 +806,8 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
     </div>
     <div class="viewer-content" id="viewer-content">
       <button class="viewer-nav-btn viewer-nav-prev" id="viewer-btn-prev" onclick="viewerNavigate(-1)" aria-label="Foto sebelumnya"><svg class="ico"><use href="#i-prev"/></svg></button>
+      <img id="viewer-img-prev" class="viewer-side" src="" alt="" draggable="false">
+      <img id="viewer-img-next" class="viewer-side" src="" alt="" draggable="false">
       <img id="viewer-img" src="" alt="" onclick="toggleZoom(event)" onload="this.classList.add('loaded')">
       <video id="viewer-video" controls playsinline></video>
       <button class="viewer-nav-btn viewer-nav-next" id="viewer-btn-next" onclick="viewerNavigate(1)" aria-label="Foto berikutnya"><svg class="ico"><use href="#i-next"/></svg></button>
@@ -3162,7 +3171,7 @@ const MQ_DESKTOP = window.matchMedia('(min-width:960px)');
     const id = c.dataset.id;
     startPress(id);
     clearTimeout(warmT);
-    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 30);
+    warmT = setTimeout(() => { try { warmViewer(id); } catch (x) {} }, 0);
   });
   grid.addEventListener('pointerup', () => { cancelPress(); });
   grid.addEventListener('pointercancel', () => { cancelPress(); clearTimeout(warmT); });
@@ -3575,14 +3584,14 @@ window.aksiFavorit = async function() {
 };
 
 /* ===== VIEWER CEPAT: preload + ukuran ringan + tanpa layar hitam ===== */
-const VIEW_PX = window.innerWidth > 900 ? 1440 : 960;
+const VIEW_PX = 2048;
 const viewCache = new Map();
 let viewToken = 0;
 
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto,f_auto/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto:best,f_auto/${p.publicId}`;
   }
   return getFullSrc(p);
 }
@@ -3607,16 +3616,51 @@ function preloadView(p) {
   entry.promise = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
     .then(() => { entry.ready = true; }, () => { entry.ready = !!im.complete && im.naturalWidth > 0; });
   viewCache.set(p.id, entry);
-  if (viewCache.size > 4) viewCache.delete(viewCache.keys().next().value);
+  if (viewCache.size > 6) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
-window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
+window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p); if (!isVideoItem(p)) { const m = new Image(); m.src = getMidSrc(p); } } };
 
+/* siapkan foto yang sedang terlihat di layar saat scroll berhenti, supaya klik langsung tajam */
+(function setupIdlePrefetch() {
+  let t = 0; const keep = [];
+  function sample() {
+    if (document.hidden || document.body.classList.contains('viewer-open')) return;
+    const pg = document.getElementById('page-galeri');
+    if (!pg || !pg.classList.contains('active')) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    const W = window.innerWidth, H = window.innerHeight, seen = new Set();
+    [0.3, 0.5, 0.7].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
+      const el = document.elementFromPoint(W * fx, H * fy);
+      const c = el && el.closest ? el.closest('.album-card') : null;
+      if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
+      seen.add(c.dataset.id);
+      const p = photos.find(x => x.id === c.dataset.id);
+      if (!p || isVideoItem(p)) return;
+      const m = new Image(); m.src = getMidSrc(p); keep.push(m);
+      if (fy === 0.5) { const h = new Image(); h.src = getViewSrc(p); keep.push(h); }
+    }));
+    while (keep.length > 30) keep.shift();
+  }
+  window.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => { (window.requestIdleCallback || setTimeout)(sample); }, 120); }, { passive: true });
+  setTimeout(sample, 1200);
+})();
+
+/* batalkan unduhan foto lama yang belum selesai supaya tidak menghalangi unduhan foto yang baru diklik */
+function vTimer(fn, ms) { (window.__vTimers = window.__vTimers || []).push(setTimeout(fn, ms)); }
+function vClearTimers() { (window.__vTimers || []).forEach(clearTimeout); window.__vTimers = []; }
+function abortStale(keep) {
+  viewCache.forEach((e, id) => {
+    if (e.ready || (keep && keep.has(id))) return;
+    try { e.im.src = ''; } catch (x) {}
+    viewCache.delete(id);
+  });
+}
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1] : [-1];
+  const order = dir >= 0 ? [1, -1] : [-1, 1];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
-    if (q) setTimeout(() => preloadView(q), 400);
+    if (q) vTimer(() => preloadView(q), k * 60);
   });
 }
 
@@ -3627,7 +3671,7 @@ function viewerActiveEl() {
 function slideIn(dir) {
   try {
     const el = viewerActiveEl();
-    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 110, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    if (el.animate) el.animate([{ transform: `translateX(${dir * 70}px)` }, { transform: 'translateX(0)' }], { duration: 80, easing: 'cubic-bezier(.2,.8,.2,1)' });
   } catch (e) {}
 }
 
@@ -3639,6 +3683,8 @@ window.bukaViewer = function(id, dir) {
 
   currentViewPhotoId = id;
   const token = ++viewToken;
+  vClearTimers();
+  abortStale(new Set([foto.id, list[(idx + 1) % list.length].id, list[(idx - 1 + list.length) % list.length].id]));
   const viewer = document.getElementById('photo-viewer');
   const img = document.getElementById('viewer-img');
   const video = document.getElementById('viewer-video');
@@ -3688,9 +3734,12 @@ window.bukaViewer = function(id, dir) {
     video.style.display = 'none';
     img.style.display = 'block';
     if (entry.ready) {
+      img.decoding = 'sync';
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
+      img.decoding = 'async';
       img.src = getThumbSrc(foto);               /* thumbnail sudah ada di cache grid: muncul instan */
+      { const mi = new Image(); mi.decoding = 'async'; mi.onload = () => { if (token === viewToken && !entry.ready && img.src !== entry.src) img.src = mi.src; }; mi.src = getMidSrc(foto); }
       entry.promise.then(() => {
         if (token !== viewToken) return;
         if (entry.ready) img.src = entry.src;
@@ -3707,10 +3756,43 @@ window.bukaViewer = function(id, dir) {
   document.body.classList.add('viewer-open');
   updateViewerNavButtons();
 
-  if (dir) slideIn(dir);
-  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
+  if (dir && !window.__noSlide) slideIn(dir);
+  window.__noSlide = false;
+  fillSides(list, idx, false);
+  const after = () => { if (token === viewToken) { preloadNeighbors(list, idx, dir || 1); vTimer(() => { if (token === viewToken) fillSides(list, idx, true); }, 80); } };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
 };
+
+function setSide(el, p, load) {
+  if (!p) { el.removeAttribute('src'); el.style.display = 'none'; delete el.dataset.pid; return; }
+  const e = load ? preloadView(p) : viewCache.get(p.id);
+  el.style.display = 'block';
+  if (e && e.ready) { if (el.dataset.pid !== p.id || el.src !== e.src) el.src = e.src; }
+  else {
+    if (el.dataset.pid !== p.id) el.src = getThumbSrc(p);
+    if (e) e.promise.then(() => { if (el.dataset.pid === p.id && e.ready) el.src = e.src; });
+  }
+  el.dataset.pid = p.id;
+}
+function fillSides(list, idx, load) {
+  const pv = document.getElementById('viewer-img-prev'), nx = document.getElementById('viewer-img-next');
+  if (list.length < 2) { setSide(pv, null); setSide(nx, null); return; }
+  setSide(pv, list[(idx - 1 + list.length) % list.length], load);
+  setSide(nx, list[(idx + 1) % list.length], load);
+}
+function applyDrag(d, anim) {
+  const tr = anim ? 'transform .1s cubic-bezier(.2,.8,.2,1)' : 'none';
+  const a = viewerActiveEl(), pv = document.getElementById('viewer-img-prev'), nx = document.getElementById('viewer-img-next');
+  a.style.transition = tr; pv.style.transition = tr; nx.style.transition = tr;
+  a.style.transform = `translate3d(${d}px,0,0)`;
+  pv.style.transform = `translate3d(calc(-100% + ${d}px),0,0)`;
+  nx.style.transform = `translate3d(calc(100% + ${d}px),0,0)`;
+}
+function clearDrag() {
+  const a = viewerActiveEl(), pv = document.getElementById('viewer-img-prev'), nx = document.getElementById('viewer-img-next');
+  [a, pv, nx].forEach(x => { x.style.transition = 'none'; x.style.transform = ''; });
+  void a.offsetWidth;
+}
 
 window.tutupViewer = function() {
   document.getElementById('photo-viewer').classList.remove('show');
@@ -3721,6 +3803,7 @@ window.tutupViewer = function() {
   }
   
   viewToken++;
+  vClearTimers(); abortStale(null);
   setTimeout(() => {
     if (document.getElementById('photo-viewer').classList.contains('show')) return;
     const img = document.getElementById('viewer-img');
@@ -3752,16 +3835,17 @@ function updateViewerNavButtons() {
 (function setupViewerSwipe() {
   const content = document.getElementById('viewer-content');
   let startX = 0, startY = 0, startT = 0, tracking = false, lockX = false, dxNow = 0;
-  let panTx0 = 0, panTy0 = 0, rafT = 0;
+  let panTx0 = 0, panTy0 = 0, rafT = 0, busyCommit = false;
   function zoomedNow() { return document.getElementById('viewer-img').classList.contains('zoomed'); }
   function resetEl() {
     const el = viewerActiveEl();
-    el.style.transition = 'transform .16s ease-out'; el.style.transform = '';
-    setTimeout(() => { el.style.transition = ''; }, 180);
+    applyDrag(0, true);
+    setTimeout(() => { clearDrag(); el.style.transition = ''; }, 210);
   }
   content.addEventListener('touchstart', (e) => {
     tracking = e.touches.length === 1; lockX = false; dxNow = 0;
     if (!tracking) return;
+    if (busyCommit) { tracking = false; return; }
     startX = e.touches[0].clientX; startY = e.touches[0].clientY; startT = Date.now();
     const zs = window.__zoomState;
     if (zoomedNow() && zs) { panTx0 = zs.tx; panTy0 = zs.ty; }
@@ -3790,9 +3874,7 @@ function updateViewerNavButtons() {
     if (rafT) return;
     rafT = requestAnimationFrame(() => {
       rafT = 0;
-      const el = viewerActiveEl();
-      el.style.transition = 'none';
-      el.style.transform = `translate3d(${dxNow * 0.9}px,0,0)`;
+      applyDrag(dxNow, false);
     });
   }, { passive: true });
   content.addEventListener('touchend', (e) => {
@@ -3808,11 +3890,13 @@ function updateViewerNavButtons() {
     const dy = e.changedTouches[0].clientY - startY;
     const el = viewerActiveEl();
     const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);
-    const pindah = lockX && Math.abs(dx) > Math.abs(dy) && (Math.abs(dx) > 55 || (speed > 0.5 && Math.abs(dx) > 25));
+    const pindah = lockX && Math.abs(dx) > Math.abs(dy) && (Math.abs(dx) > 45 || (speed > 0.4 && Math.abs(dx) > 20));
     if (rafT) { cancelAnimationFrame(rafT); rafT = 0; }
     if (pindah) {
-      el.style.transition = 'none'; el.style.transform = '';
-      viewerNavigate(dx < 0 ? 1 : -1);
+      const dirNav = dx < 0 ? 1 : -1;
+      busyCommit = true;
+      applyDrag(-dirNav * content.clientWidth, true);
+      setTimeout(() => { if (!document.getElementById('photo-viewer').classList.contains('show')) { clearDrag(); busyCommit = false; return; } clearDrag(); window.__noSlide = true; viewerNavigate(dirNav); busyCommit = false; }, 100);
     } else if (lockX) {
       resetEl();
     }
