@@ -411,6 +411,25 @@ body.viewer-open{overflow:hidden!important;position:fixed;width:100%}
 }
 @keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 .shake-error{animation:pinShake .4s}
+/* TAMPILAN FILE (seperti File Explorer): aktif lewat Setelan, tidak mengubah tampilan bawaan */
+.file-row{display:none}
+body.mode-file #main-gallery-grid{grid-template-columns:1fr!important;gap:0!important;margin:0!important}
+body.mode-file #main-gallery-grid .album-card{aspect-ratio:auto!important;height:44px;border:0!important;border-radius:8px!important;background:transparent!important;box-shadow:none;transform:none!important;contain-intrinsic-size:auto 44px}
+body.mode-file #main-gallery-grid .album-card:hover{background:rgba(255,255,255,.06)!important}
+body.mode-file #main-gallery-grid .album-card.selected{background:var(--gold-soft)!important;box-shadow:inset 0 0 0 1px var(--gold-line)}
+body.mode-file #main-gallery-grid .album-cover,body.mode-file #main-gallery-grid .album-caption,body.mode-file #main-gallery-grid .card-date,body.mode-file #main-gallery-grid .video-badge{display:none!important}
+body.mode-file #main-gallery-grid .fav-badge{top:50%!important;bottom:auto!important;right:8px!important;transform:translateY(-50%);width:20px;height:20px;background:transparent}
+body.mode-file #main-gallery-grid .select-check{top:10px;left:10px}
+body.mode-file #main-gallery-grid .file-row{display:grid;grid-template-columns:28px minmax(0,1fr) 150px 120px 80px;align-items:center;gap:10px;height:44px;padding:0 34px 0 12px;font-size:13px;color:var(--text)}
+body.mode-file #main-gallery-grid.select-mode-active .file-row{padding-left:44px}
+.file-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-row .fr-dt,.file-row .fr-tp,.file-row .fr-sz{color:var(--text2);font-size:12px}
+.file-row .fr-sz{text-align:right}
+.file-row .fr-ic{width:16px;height:20px;border:2px solid var(--gold);border-radius:3px;position:relative;justify-self:center}
+.file-row .fr-ic::after{content:'';position:absolute;left:2px;right:2px;bottom:3px;height:5px;background:var(--gold);opacity:.55;border-radius:1px}
+.file-row .fr-ic.v{border-color:#60A5FA}
+.file-row .fr-ic.v::after{background:#60A5FA}
+@media(max-width:700px){body.mode-file #main-gallery-grid .file-row{grid-template-columns:28px minmax(0,1fr) 72px}body.mode-file #main-gallery-grid .fr-tp,body.mode-file #main-gallery-grid .fr-dt{display:none}}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -486,151 +505,6 @@ body.viewer-open #photo-viewer{visibility:visible}
 @media (hover:hover) and (pointer:fine){
 #photo-viewer .viewer-nav-btn{display:grid!important;width:52px;height:52px;background:rgba(18,18,21,.92);z-index:5}
 #photo-viewer #viewer-content{cursor:grab}
-}
-</style>
-<style>
-/* ===== TEMA FILE EXPLORER (Windows 11 gelap) — hanya lapisan tampilan, logika tidak diubah ===== */
-:root{--bg:#191919;--card:#202020;--bg-input:#2b2b2b;--text:#fff;--text2:#a0a0a0;--gold:#60cdff;--gold-soft:rgba(96,205,255,.12);--gold-line:rgba(96,205,255,.40);--green:#6ccb5f;--red:#ff99a4;--border:#2f2f2f;--body-bg:#191919;--surface:#202020;
---font-ui:'Segoe UI Variable','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;--font-display:'Segoe UI Variable','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
---exp-hover:rgba(255,255,255,.06);--exp-sel:rgba(96,205,255,.16);--exp-selline:#60cdff;--folder:#ffc83d}
-body{background:#191919!important;font-size:13px}
-::-webkit-scrollbar{width:14px;height:14px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#5a5a5a;border:4px solid #191919;border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:#7a7a7a}
-.swal2-popup{border-radius:8px!important;background:#2b2b2b!important;border:1px solid #3a3a3a}
-.swal2-styled{border-radius:4px!important}
-.mobile-header{background:#202020!important;border-bottom:1px solid #2d2d2d}
-.page-main-title{font-size:26px;font-weight:600;letter-spacing:0}
-.eyebrow{letter-spacing:.12em}
-.panel{background:#2b2b2b;border:1px solid #333;border-radius:8px}
-.menu-btn{border-radius:6px}
-.menu-btn .mi{border-radius:6px}
-.dropzone{border-radius:8px}
-.upload-hint{border-radius:6px}
-.empty-state{border-radius:8px;background:#202020}
-.empty-state .emoji{border-radius:8px}
-.auth-box{border-radius:12px!important}
-.f-input-dark{border-radius:4px;height:40px;border-color:#3a3a3a;background-color:#2b2b2b!important}
-.f-input-dark:focus{border-color:#60cdff;box-shadow:0 0 0 1px #60cdff}
-.submit-btn{border-radius:4px;height:40px;letter-spacing:.04em}
-.photo-count-badge{border-radius:4px;background:transparent;border:0;color:#c8c8c8}
-.download-all-btn,.sel-icon-btn{width:36px;height:36px;border-radius:4px;background:transparent;border-color:transparent}
-.download-all-btn:hover,.sel-icon-btn:hover{background:rgba(255,255,255,.08);border-color:transparent;color:#fff}
-#btn-select-all.all-on{background:#60cdff;color:#000;border-color:#60cdff}
-.media-filter-tabs{border-radius:0;background:transparent;border:0;border-bottom:1px solid #2d2d2d;width:100%;padding:0 0 6px;gap:2px;margin-bottom:10px}
-.media-filter-tab{border-radius:4px;padding:6px 12px;font-weight:400;font-size:13px;color:#d0d0d0}
-.media-filter-tab:hover{background:rgba(255,255,255,.06)}
-.media-filter-tab.active{background:rgba(255,255,255,.08);box-shadow:inset 0 -2px 0 #60cdff;color:#fff}
-.select-check{border-radius:3px;width:20px;height:20px}
-.select-check.checked{background:#60cdff;border-color:#60cdff}
-.album-card.skeleton-box{aspect-ratio:1;min-height:100px}
-.floating-cancel-btn{border-radius:6px}
-.scroll-top-btn{border-radius:6px}
-.mini-toast{border-radius:6px}
-#upload-pill{border-radius:8px}
-.exp-address{display:none}
-.exp-status{display:none}
-.exp-colhead{display:none}
-
-/* viewer gaya aplikasi Foto Windows */
-#photo-viewer{background:#1c1c1c}
-#photo-viewer .viewer-header{background:#202020;border-bottom:1px solid #2d2d2d}
-#photo-viewer .viewer-icon-btn{border-radius:4px;background:transparent;border-color:transparent}
-#photo-viewer .viewer-icon-btn:hover{background:rgba(255,255,255,.08)}
-#photo-viewer .viewer-title{font-weight:400;font-size:13px}
-#photo-viewer .viewer-footer{background:#2b2b2b;border:1px solid #3a3a3a;border-radius:8px;padding:4px;gap:0}
-#photo-viewer .viewer-action-btn{border-radius:4px;min-width:60px;font-weight:400}
-#photo-viewer .viewer-nav-btn{border-radius:4px;background:rgba(32,32,32,.85)}
-
-/* HP: warna & bentuk Explorer pada navigasi bawah */
-@media(max-width:959px){
- .xm-pill,.xm-circle{background:#2b2b2b;border-color:#3a3a3a}
- .xm-pill{border-radius:14px}
- .xm-circle{border-radius:14px}
- .xm-item{border-radius:10px}
- .xm-item.active{background:#3a3a3a;color:#60cdff}
- .xm-circle.active{color:#60cdff}
- .xa-cover{border-radius:6px}
- .xa-pill{border-radius:10px;background:#2b2b2b;border-color:#3a3a3a}
- #page-album .xa-list{border-radius:8px;background:#2b2b2b}
- #main-gallery-grid .album-card{background:#2b2b2b}
-}
-
-/* LAPTOP: jendela File Explorer */
-@media(min-width:960px){
- :root{--side:240px;--pad:8px}
- body{padding-bottom:0}
- .mobile-header{height:52px;padding:8px 12px;gap:10px}
- #normal-header .header-center{visibility:visible;flex:1;min-width:0;gap:0}
- #normal-header .header-logo,#normal-header .header-title{display:none}
- .exp-address{display:flex;align-items:center;gap:6px;height:34px;width:100%;max-width:820px;padding:0 12px;background:#2b2b2b;border:1px solid #383838;border-bottom-color:#8d8d8d;border-radius:4px;font-size:13px;color:#e6e6e6;white-space:nowrap;overflow:hidden}
- .exp-address svg{width:18px;height:18px;flex-shrink:0}
- .exp-address i{font-style:normal;color:#8d8d8d;padding:0 2px}
- .exp-address b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
- .main-content{max-width:none;margin:0;padding:calc(60px + env(safe-area-inset-top)) 8px 40px}
- #page-galeri .page-head{display:none}
- .page:not(#page-galeri) .page-head{margin:10px 8px 18px}
- .page:not(#page-galeri) .upload-layout,.page:not(#page-galeri) .settings-wrap,.page:not(#page-galeri) .trash-actions,.page:not(#page-galeri) #trash-grid{margin-left:8px;margin-right:8px}
-
- /* panel navigasi kiri */
- .bottom-nav{width:240px;background:#202020!important;border-right:1px solid #2d2d2d;padding:12px 10px;gap:2px}
- .bottom-nav .nav-brand{padding:6px 10px 12px;margin-bottom:6px;border-bottom:1px solid #2d2d2d;font-size:14px;font-weight:600;letter-spacing:.04em}
- .bottom-nav .nav-brand img{width:28px;height:28px;border-radius:6px;box-shadow:none}
- .bottom-nav .nav-item,.bottom-nav .nav-item.active{position:relative;height:36px;padding:0 12px;font-size:13px;font-weight:400;border:0;border-radius:4px;gap:12px;color:#e6e6e6}
- .bottom-nav .nav-item:hover:not(.active){background:rgba(255,255,255,.06);color:#fff}
- .bottom-nav .nav-item.active{background:rgba(255,255,255,.08);color:#fff}
- .bottom-nav .nav-item.active::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:#60cdff}
- .bottom-nav .nav-item .ico{width:18px;height:18px;color:#60cdff}
-
- /* tampilan Ikon Besar */
- #main-gallery-grid.album-grid{grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:2px}
- #main-gallery-grid .album-card,#trash-grid .album-card{display:flex;flex-direction:column;align-items:center;gap:5px;aspect-ratio:auto;height:auto;padding:6px 6px 8px;background:transparent;border:1px solid transparent;border-radius:4px;overflow:visible;transform:none}
- #main-gallery-grid .album-card.skeleton-box{background:#2b2b2b;aspect-ratio:1}
- #main-gallery-grid .album-cover,#trash-grid .album-cover{position:static;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.14);background:#2b2b2b}
- #main-gallery-grid .album-caption,#trash-grid .album-caption{display:-webkit-box;position:static;padding:0;background:none;opacity:1!important;transform:none!important;width:100%;white-space:normal;text-align:center;font-size:12px;font-weight:400;line-height:1.3;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;color:#fff}
- #main-gallery-grid .card-date{display:none}
- #main-gallery-grid .video-badge,#main-gallery-grid .fav-badge{top:12px;right:12px;width:22px;height:22px;border-radius:4px}
- #main-gallery-grid .video-badge~.fav-badge{right:38px}
- #main-gallery-grid .select-check{top:10px;left:10px}
- #main-gallery-grid .album-card:hover,#trash-grid .album-card:hover{transform:none;background:var(--exp-hover);border-color:rgba(255,255,255,.08);box-shadow:none}
- #main-gallery-grid .album-card:hover .album-cover,#trash-grid .album-card:hover .album-cover{transform:none}
- #main-gallery-grid .album-card.selected,#trash-grid .album-card.selected{background:var(--exp-sel);border-color:var(--exp-selline);box-shadow:none}
- #main-gallery-grid .album-card.selected .album-cover.loaded{transform:none;border-radius:2px}
- #main-gallery-grid .album-card{content-visibility:auto;contain-intrinsic-size:auto 170px}
-
- /* tampilan Detail */
- body.exp-details .exp-colhead{display:grid;position:sticky;top:52px;z-index:5;grid-template-columns:24px minmax(0,1fr) 170px 140px 90px;column-gap:8px;align-items:center;height:30px;padding:0 9px;margin:0 0 2px;background:#191919;border-bottom:1px solid #2d2d2d;font-size:12px;color:#c8c8c8}
- body.exp-details .exp-colhead span:nth-child(2){grid-column:2}
- body.exp-details #main-gallery-grid.album-grid{display:block}
- body.exp-details #main-gallery-grid .album-card{display:grid;grid-template-columns:24px minmax(0,1fr) 170px 140px 90px;column-gap:8px;align-items:center;height:30px;padding:0 9px;gap:0 8px;content-visibility:auto;contain-intrinsic-size:auto 30px}
- body.exp-details #main-gallery-grid .album-card.skeleton-box{height:30px;min-height:0;aspect-ratio:auto;margin-bottom:2px}
- body.exp-details #main-gallery-grid .album-cover{grid-column:1;grid-row:1;width:20px;height:20px;aspect-ratio:auto;box-shadow:none;border-radius:2px}
- body.exp-details #main-gallery-grid .album-caption{grid-column:2;grid-row:1;display:block;text-align:left;font-size:13px;white-space:nowrap;text-overflow:ellipsis;-webkit-line-clamp:unset}
- body.exp-details #main-gallery-grid .card-date{display:block;grid-column:3;grid-row:1;position:static;padding:0;background:none;border-radius:0;max-width:none;font-size:12px;font-weight:400;color:#c8c8c8;white-space:normal!important;overflow:hidden;text-overflow:ellipsis}
- body.exp-details #main-gallery-grid .card-date b,body.exp-details #main-gallery-grid .card-date span{display:inline;color:inherit;font-weight:400}
- body.exp-details #main-gallery-grid .album-card::before{content:attr(data-type);grid-column:4;grid-row:1;font-size:12px;color:#c8c8c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- body.exp-details #main-gallery-grid .album-card::after{content:attr(data-size);grid-column:5;grid-row:1;font-size:12px;color:#c8c8c8;text-align:right;white-space:nowrap}
- body.exp-details #main-gallery-grid .video-badge{display:none}
- body.exp-details #main-gallery-grid .fav-badge{top:auto;right:auto;left:22px;bottom:3px;width:13px;height:13px;border-radius:50%;background:#202020}
- body.exp-details #main-gallery-grid .fav-badge .ico{width:9px;height:9px}
- body.exp-details #main-gallery-grid .select-check{top:50%;left:2px;transform:translateY(-50%);width:16px;height:16px}
- body.exp-details #main-gallery-grid .select-check.checked{transform:translateY(-50%)}
- body.exp-details #main-gallery-grid .album-card:hover,body.exp-details #main-gallery-grid .album-card.selected{transform:none}
-
- /* status bar bawah */
- .exp-status{display:flex;position:fixed;left:var(--side);right:0;bottom:0;height:28px;align-items:center;gap:16px;padding:0 14px;background:#202020;border-top:1px solid #2d2d2d;font-size:12px;color:#d0d0d0;z-index:90}
- .exp-status .exp-sp{flex:1}
- .exp-views{display:flex;gap:2px}
- .exp-views button{width:28px;height:22px;display:grid;place-items:center;border:1px solid transparent;border-radius:4px;background:transparent;color:#d0d0d0;cursor:pointer}
- .exp-views button:hover{background:rgba(255,255,255,.08)}
- .exp-views button.on{background:rgba(255,255,255,.12);border-color:#4a4a4a}
- .exp-views .ico{width:15px;height:15px}
- body.viewer-open .exp-status{visibility:hidden}
- .scroll-top-btn{bottom:44px}
- .floating-cancel-btn{bottom:44px}
- #btn-upload{bottom:44px}
- #upload-pill{bottom:42px}
 }
 </style>
 </head>
@@ -763,7 +637,6 @@ body{background:#191919!important;font-size:13px}
       <div class="header-center">
         <img src="RHN LOGO.jpg" class="header-logo" onerror="this.onerror=null;this.src=window.RHN_FALLBACK_LOGO;">
         <div class="header-title">RHN <span>GALLERY</span></div>
-        <div class="exp-address" id="exp-address"><svg viewBox="0 0 24 24"><path d="M2 6.5A2.5 2.5 0 014.5 4h4.2c.6 0 1.2.3 1.6.8L11.6 6.5H19.5A2.5 2.5 0 0122 9v8.5a2.5 2.5 0 01-2.5 2.5h-15A2.5 2.5 0 012 17.5v-11z" fill="#ffc83d"/></svg><span>Galeri RHN</span><i>&rsaquo;</i><b id="exp-crumb">Semua Foto</b></div>
       </div>
       <div class="header-right" id="header-gallery-stats">
         <span class="photo-count-badge" id="photo-count-badge">0 foto</span>
@@ -801,7 +674,6 @@ body{background:#191919!important;font-size:13px}
           <button class="media-filter-tab" data-filter="favorite" onclick="setMediaFilter('favorite')"><svg class="ico"><use href="#i-heart"/></svg>Favorit <span class="tab-count" id="count-favorite"></span></button>
         </div>
 
-        <div class="exp-colhead" id="exp-colhead"><span></span><span>Nama</span><span>Tanggal diubah</span><span>Jenis</span><span style="text-align:right">Ukuran</span></div>
         <div class="album-grid" id="main-gallery-grid"></div>
       </div>
 
@@ -877,6 +749,7 @@ body{background:#191919!important;font-size:13px}
             <div class="set-label">Galeri</div>
             <div class="panel list">
               <button class="menu-btn" onclick="enterSelectMode()"><span class="mi"><svg class="ico"><use href="#i-select"/></svg></span><span class="mt"><b>Pilih Beberapa Media</b><small>Unduh atau hapus banyak file sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="gantiTampilanFile()"><span class="mi"><svg class="ico"><use href="#i-album"/></svg></span><span class="mt"><b>Tampilan File</b><small>Ganti tampilan galeri jadi daftar file seperti di laptop (tanpa memuat gambar)</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -884,6 +757,8 @@ body{background:#191919!important;font-size:13px}
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('Unduh semua foto &amp; video ke cache perangkat agar tampil instan? Jangan tutup halaman selama proses.', unduhCacheMedia)"><span class="mi"><svg class="ico"><use href="#i-download"/></svg></span><span class="mt"><b>Unduh Cache Media</b><small>Simpan semua foto &amp; video di perangkat agar tampil instan</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('Bungkus semua foto &amp; video jadi file .zip dan simpan ke perangkat? Jangan tutup halaman selama proses.', simpanSemuaKeFile)"><span class="mi"><svg class="ico"><use href="#i-download"/></svg></span><span class="mt"><b>Simpan Semua ke File</b><small>Bungkus semua media jadi 1 file .zip, ringan dan mudah disimpan</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -941,16 +816,6 @@ body{background:#191919!important;font-size:13px}
       <button class="viewer-action-btn" onclick="aksiKirimWA()"><span class="viewer-action-icon"><svg class="ico"><use href="#i-chat"/></svg></span><span>WA</span></button>
       <button class="viewer-action-btn" onclick="aksiUnduh()"><span class="viewer-action-icon"><svg class="ico"><use href="#i-download"/></svg></span><span>Unduh</span></button>
       <button class="viewer-action-btn danger" onclick="aksiHapus()"><span class="viewer-action-icon"><svg class="ico"><use href="#i-trash"/></svg></span><span>Hapus</span></button>
-    </div>
-  </div>
-
-  <div class="exp-status" id="exp-status">
-    <span id="exp-s1">0 item</span>
-    <span id="exp-s2"></span>
-    <span class="exp-sp"></span>
-    <div class="exp-views">
-      <button type="button" id="exp-v-details" title="Detail" onclick="setExpView('details')"><svg class="ico"><use href="#i-sliders"/></svg></button>
-      <button type="button" id="exp-v-tiles" class="on" title="Ikon besar" onclick="setExpView('tiles')"><svg class="ico"><use href="#i-gallery"/></svg></button>
     </div>
   </div>
 
@@ -1667,6 +1532,7 @@ function renderSkeleton() {
 
 const sentThumbs = new Set();
 function precacheThumbs() {
+  if (document.body.classList.contains('mode-file')) return;
   if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
   const urls = [];
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
@@ -3083,6 +2949,7 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
   });
 }, { rootMargin: '1100px 0px' }) : null;
 function attachThumb(card, img, url) {
+  if (document.body.classList.contains('mode-file')) return;   /* tampilan file: tidak memuat gambar sama sekali */
   if (thumbDone.has(url)) { img.src = url; img.classList.add('loaded'); return; }
   card.__tp = { img, url };
   thumbPending++;
@@ -3175,10 +3042,20 @@ function createCardNode(p) {
 
   card.appendChild(img);
 
-  card.dataset.type = 'Berkas ' + String(p.format || (isVideoItem(p) ? 'mp4' : 'jpg')).toUpperCase();
-  card.dataset.size = p.size ? Math.max(1, Math.round(p.size / 1024)).toLocaleString('id-ID') + ' KB' : '';
+  const fr = document.createElement('div');
+  fr.className = 'file-row';
+  const vid = isVideoItem(p);
+  const ekst = vid ? (p.format || 'mp4') : (p.format || 'jpg');
+  const sp = (c, t) => { const e = document.createElement('span'); e.className = c; e.textContent = t; return e; };
+  const ic = document.createElement('i'); ic.className = 'fr-ic' + (vid ? ' v' : '');
+  fr.appendChild(ic);
+  fr.appendChild(sp('fr-nm', (p.title || (vid ? 'Video' : 'Foto')) + '.' + ekst));
+  fr.appendChild(sp('fr-dt', fmtTgl(p) + ' ' + fmtJam(p)));
+  fr.appendChild(sp('fr-tp', (vid ? 'Video ' : 'Foto ') + String(ekst).toUpperCase()));
+  fr.appendChild(sp('fr-sz', p.size ? fmtMB(p.size) : '—'));
+  card.appendChild(fr);
 
-  {
+  if (MQ_DESKTOP.matches) {
     const cap = document.createElement('div');
     cap.className = 'album-caption';
     cap.textContent = p.title || (isVideoItem(p) ? 'Video' : 'Foto');
@@ -4136,6 +4013,237 @@ window.aksiHapus = function() {
     bukaViewer(listAfter[nextIdx].id);
   });
 };
+
+/* ===== UNDUH CACHE MEDIA: simpan thumbnail/foto/video di perangkat supaya tampil instan ===== */
+const RHN_MEDIA_CACHE = 'rhn_media_cache_v1';
+const rhnBlobMap = new Map();
+let rhnCacheJalan = false;
+
+function rhnHref(u) { try { return new URL(u, location.href).href; } catch (e) { return u; } }
+
+/* URL yang sudah ada di cache otomatis dipakai oleh <img>, <video>, dan poster tanpa mengubah kode lain */
+(function rhnPasangPencegat() {
+  function patch(proto, prop) {
+    const d = Object.getOwnPropertyDescriptor(proto, prop);
+    if (!d || !d.set || !d.configurable) return;
+    Object.defineProperty(proto, prop, {
+      configurable: true, enumerable: d.enumerable,
+      get() { const v = d.get.call(this); return (this.__rhnO && this.__rhnB === v) ? this.__rhnO : v; },
+      set(v) {
+        let b = null;
+        try { if (typeof v === 'string' && /^https?:/i.test(v)) b = rhnBlobMap.get(rhnHref(v)); } catch (e) {}
+        if (b) { this.__rhnO = v; this.__rhnB = b; d.set.call(this, b); }
+        else { this.__rhnO = null; this.__rhnB = null; d.set.call(this, v); }
+      }
+    });
+  }
+  patch(HTMLImageElement.prototype, 'src');
+  patch(HTMLMediaElement.prototype, 'src');
+  patch(HTMLVideoElement.prototype, 'poster');
+})();
+
+async function rhnMuatCache() {
+  if (!('caches' in window)) return;
+  try {
+    const c = await caches.open(RHN_MEDIA_CACHE);
+    const semuaKey = (await c.keys()).filter(r => !rhnBlobMap.has(r.url));
+    const isVid = (r) => /\/video\/upload\/.*\.(mp4|webm|mov)(\?|$)/i.test(r.url);
+    /* gambar dipetakan duluan (cepat), video belakangan supaya aplikasi tidak berat saat dibuka */
+    const keys = semuaKey.filter(r => !isVid(r)).concat(semuaKey.filter(isVid));
+    for (let i = 0; i < keys.length; i += 64) {
+      await Promise.all(keys.slice(i, i + 64).map(async (r) => {
+        try {
+          const res = await c.match(r);
+          if (!res) return;
+          if (res.headers.get('X-Rhn-Enc') === 'gzip') {
+            if (typeof DecompressionStream === 'undefined') return;
+            const mentah = await new Response(res.body.pipeThrough(new DecompressionStream('gzip'))).blob();
+            const asli = res.headers.get('X-Rhn-Type') || 'application/octet-stream';
+            rhnBlobMap.set(r.url, URL.createObjectURL(mentah.slice(0, mentah.size, asli)));
+          } else {
+            rhnBlobMap.set(r.url, URL.createObjectURL(await res.blob()));
+          }
+        } catch (e) {}
+      }));
+    }
+  } catch (e) { console.warn('Muat cache media gagal', e); }
+}
+rhnMuatCache();
+
+/* ===== SIMPAN SEMUA KE FILE: semua media dibungkus jadi SATU file .zip (seperti file di laptop), ringan dan mudah disimpan ===== */
+const RHN_CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
+function rhnCrc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = RHN_CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function rhnZipBuat(entri) {
+  const enc = new TextEncoder(), d = new Date();
+  const jam = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const tgl = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  const bagian = [], pusat = [];
+  let offset = 0;
+  entri.forEach((e) => {
+    const nm = enc.encode(e.nama);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, jam, true); lh.setUint16(12, tgl, true); lh.setUint32(14, e.crc, true);
+    lh.setUint32(18, e.blob.size, true); lh.setUint32(22, e.blob.size, true); lh.setUint16(26, nm.length, true); lh.setUint16(28, 0, true);
+    bagian.push(lh.buffer, nm, e.blob);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, jam, true); ch.setUint16(14, tgl, true); ch.setUint32(16, e.crc, true);
+    ch.setUint32(20, e.blob.size, true); ch.setUint32(24, e.blob.size, true); ch.setUint16(28, nm.length, true);
+    ch.setUint32(42, offset, true);
+    pusat.push(ch.buffer, nm);
+    offset += 30 + nm.length + e.blob.size;
+  });
+  const ukuranPusat = pusat.reduce((n, x) => n + (x.byteLength != null ? x.byteLength : x.size), 0);
+  const ed = new DataView(new ArrayBuffer(22));
+  ed.setUint32(0, 0x06054b50, true); ed.setUint16(8, entri.length, true); ed.setUint16(10, entri.length, true);
+  ed.setUint32(12, ukuranPusat, true); ed.setUint32(16, offset, true);
+  return new Blob([...bagian, ...pusat, ed.buffer], { type: 'application/zip' });
+}
+window.simpanSemuaKeFile = async function() {
+  const list = photos.slice();
+  if (!list.length) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada media untuk disimpan.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
+  const pakai = new Set();
+  const nama = list.map((p, i) => {
+    const ext = isVideoItem(p) ? (p.format || 'mp4') : (p.format || 'jpg');
+    const dasar = namaFileBersih(p.title, `Foto_${i + 1}`);
+    let n = `${dasar}.${ext}`, c = 1;
+    while (pakai.has(n.toLowerCase())) { c++; n = `${dasar} (${c}).${ext}`; }
+    pakai.add(n.toLowerCase());
+    return n;
+  });
+  const BATAS = 900 * 1048576;        /* tiap file zip maks ~900 MB agar ringan di HP & aman dari batas 4 GB format zip */
+  let ok = 0, gagal = 0, bagianKe = 0, entri = [], ukuran = 0;
+  customSwal.fire({ title: `Menyiapkan 0/${list.length}...`, text: 'Mohon jangan tutup halaman ini dulu.', allowOutsideClick: false, allowEscapeKey: false, background: 'var(--card)', color: 'var(--text)', didOpen: () => customSwal.showLoading() });
+  try { acquireWake(); } catch (e) {}
+  const tulisZip = async () => {
+    if (!entri.length) return;
+    bagianKe++;
+    await simpanSatuFileKePerangkat(rhnZipBuat(entri), `RHN_Galeri_${new Date().toISOString().slice(0, 10)}_bagian${bagianKe}.zip`, 'application/zip');
+    entri = []; ukuran = 0;
+    await new Promise(r => setTimeout(r, 400));
+  };
+  const jumlahParalel = (window.matchMedia('(pointer:coarse)').matches) ? 4 : 8;
+  try {
+    for (let i = 0; i < list.length; i += jumlahParalel) {
+      const irisan = list.slice(i, i + jumlahParalel);
+      const hasil = await Promise.all(irisan.map(async (p, k) => {
+        try {
+          const r = await fetch(getDownloadSrc(p));
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const blob = await r.blob();
+          return { nama: nama[i + k], blob, crc: rhnCrc32(new Uint8Array(await blob.arrayBuffer())) };
+        } catch (e) { console.error('Gagal ambil file:', e); return null; }
+      }));
+      for (const h of hasil) {
+        if (!h) { gagal++; continue; }
+        entri.push(h); ukuran += h.blob.size; ok++;
+      }
+      customSwal.update({ title: `Menyiapkan ${ok + gagal}/${list.length}...` });
+      if (ukuran >= BATAS) await tulisZip();
+    }
+    await tulisZip();
+  } finally { try { releaseWake(); } catch (e) {} }
+  customSwal.fire({
+    icon: gagal ? 'warning' : 'success', title: 'Tersimpan!',
+    text: (gagal ? `${ok} file masuk, ${gagal} gagal diambil. ` : `${ok} file dibungkus. `) + `Hasil: ${bagianKe} file .zip di folder Download. Buka dengan aplikasi File/Ekstrak.`,
+    background: 'var(--card)', color: 'var(--text)'
+  });
+};
+
+/* ===== TAMPILAN FILE: daftar file ala File Explorer, ringan karena tidak memuat gambar ===== */
+(function () { try { if (localStorage.getItem('rhn_mode_file') === '1') document.body.classList.add('mode-file'); } catch (e) {} })();
+window.gantiTampilanFile = function() {
+  const aktif = document.body.classList.toggle('mode-file');
+  try { localStorage.setItem('rhn_mode_file', aktif ? '1' : '0'); } catch (e) {}
+  /* bangun ulang kartu agar gambar dimuat lagi saat kembali ke tampilan biasa */
+  photoNodes.clear();
+  const g = document.getElementById('main-gallery-grid');
+  if (g) g.innerHTML = '';
+  window.__thumbGeo = null;
+  renderGallery();
+};
+
+window.unduhCacheMedia = async function() {
+  if (rhnCacheJalan) return;
+  if (!('caches' in window)) {
+    return customSwal.fire({ icon: 'error', title: 'Cache Tidak Didukung', text: 'Browser ini tidak mendukung penyimpanan cache.', background: 'var(--card)', color: 'var(--text)' });
+  }
+  const gambar = new Set(), video = new Set();
+  photos.forEach(p => {
+    const t = getThumbSrc(p); if (t) gambar.add(rhnHref(t));
+    if (isVideoItem(p)) {
+      const po = getPosterSrc(p); if (po) gambar.add(rhnHref(po));
+      const f = getFullSrc(p); if (f) video.add(rhnHref(f));
+    } else {
+      const v = getViewSrc(p); if (v) gambar.add(rhnHref(v));
+    }
+  });
+  const semua = [...gambar, ...video];
+  const total = semua.length;
+  if (!total) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada media untuk diunduh.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
+  rhnCacheJalan = true;
+  try { acquireWake(); } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  let selesai = 0, gagal = 0, baru = 0, penuh = false, byte = 0;
+  let _tUpd = 0;
+  const upd = () => { const n = Date.now(); if (n - _tUpd < 120 && selesai < total) return; _tUpd = n; setUploadPill({ text: 'Unduh cache ' + selesai + '/' + total + ' • ' + fmtMB(byte), pct: total ? selesai * 100 / total : 100 }); };
+  upd();
+  try {
+    const c = await caches.open(RHN_MEDIA_CACHE);
+    const kerja = async (u) => {
+      if (rhnBlobMap.has(u) || penuh) { selesai++; upd(); return; }
+      let ok = false;
+      for (let k = 0; k < 2 && !ok && !penuh; k++) {
+        try {
+          const res = await fetch(u, { mode: 'cors' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const ukuran = +(res.headers.get('Content-Length') || 0);
+          /* simpan dalam format .rhn (gzip, lossless, bukan format gambar): piksel & kualitas HD 100% identik saat ditampilkan kembali.
+             Video tidak di-gzip (sudah terkompres, tidak ada untungnya) supaya tetap ringan di HP */
+          const tipeAsli = res.headers.get('Content-Type') || 'application/octet-stream';
+          const pakaiGzip = typeof CompressionStream !== 'undefined' && !/\/video\/upload\//i.test(u);
+          const isi = pakaiGzip ? res.body.pipeThrough(new CompressionStream('gzip')) : res.body;
+          await c.put(u, new Response(isi, { headers: { 'Content-Type': pakaiGzip ? 'application/x-rhn' : tipeAsli, 'X-Rhn-Type': tipeAsli, 'X-Rhn-Enc': pakaiGzip ? 'gzip' : 'none' } }));
+          byte += ukuran; baru++; ok = true;         /* pemetaan ke cache dilakukan sekali di akhir, bukan per file */
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') penuh = true;
+        }
+      }
+      if (!ok) gagal++;
+      selesai++; upd();
+    };
+    /* HP: jaringan seluler berlatensi tinggi, jadi butuh lebih banyak unduhan paralel agar saluran selalu penuh */
+    const hp = window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width:959px)').matches;
+    if (hp) {
+      /* HP: penulis disk & CPU-nya yang jadi leher botol, bukan WiFi. Terlalu banyak unduhan serentak justru memacetkannya,
+         jadi pakai jumlah yang pas (16), foto dulu agar langsung instan, video menyusul pelan-pelan di belakang */
+      await runWithConcurrency([...gambar], 16, kerja);
+      await rhnMuatCache();
+      await runWithConcurrency([...video], 3, kerja);
+    } else {
+      await Promise.all([
+        runWithConcurrency([...gambar], 48, kerja),
+        runWithConcurrency([...video], 8, kerja)
+      ]);
+    }
+    await rhnMuatCache();
+  } finally {
+    rhnCacheJalan = false;
+    try { releaseWake(); } catch (e) {}
+  }
+  setUploadPill({ text: 'Cache selesai • ' + fmtMB(byte), pct: 100, hideAfter: 2500 });
+  customSwal.fire({
+    icon: (gagal || penuh) ? 'warning' : 'success',
+    title: penuh ? 'Penyimpanan Perangkat Penuh' : (gagal ? 'Selesai, Sebagian Gagal' : 'Cache Siap'),
+    text: baru + ' file baru tersimpan (' + fmtMB(byte) + ')' + (gagal ? ', ' + gagal + ' gagal. Coba jalankan lagi.' : '. Foto & video kini tampil instan.'),
+    background: 'var(--card)', color: 'var(--text)'
+  });
+};
 </script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -4145,54 +4253,6 @@ if ('serviceWorker' in navigator) {
     }).catch(function () {});
   });
 }
-</script>
-<script>
-/* Lapisan tampilan File Explorer: address bar, status bar, tampilan Detail / Ikon besar */
-(function () {
-  var NAMA = { tambah: 'Upload Media', pengaturan: 'Setelan', album: 'Album', sampah: 'Baru Dihapus' };
-  var page = 'galeri';
-  function $(id) { return document.getElementById(id); }
-  function crumb() {
-    var el = $('exp-crumb'); if (!el) return;
-    var t = (page === 'galeri') ? (($('gal-title') || {}).textContent || 'Semua Foto') : (NAMA[page] || '');
-    el.textContent = t.trim() || 'Semua Foto';
-  }
-  function status() {
-    var s1 = $('exp-s1'), s2 = $('exp-s2'); if (!s1) return;
-    var n = document.querySelectorAll('#main-gallery-grid .album-card:not(.skeleton-box)').length;
-    s1.textContent = (page === 'galeri') ? n + ' item' : '';
-    var sh = $('selection-header');
-    var sel = sh && sh.style.display === 'grid';
-    s2.textContent = (sel && page === 'galeri') ? ($('sel-count-text').textContent || '') : '';
-  }
-  var raf = 0;
-  function refresh() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; crumb(); status(); }); }
-  window.setExpView = function (v) {
-    var det = v === 'details';
-    document.body.classList.toggle('exp-details', det);
-    var a = $('exp-v-details'), b = $('exp-v-tiles');
-    if (a) a.classList.toggle('on', det);
-    if (b) b.classList.toggle('on', !det);
-    try { localStorage.setItem('rhn_exp_view', v); } catch (e) {}
-    try { window.__thumbGeo = null; if (window.scrollTo) window.dispatchEvent(new Event('scroll')); } catch (e) {}
-  };
-  function init() {
-    var v = 'tiles';
-    try { v = localStorage.getItem('rhn_exp_view') || 'tiles'; } catch (e) {}
-    window.setExpView(v === 'details' ? 'details' : 'tiles');
-    var mo = new MutationObserver(refresh);
-    var g = $('main-gallery-grid'); if (g) mo.observe(g, { childList: true });
-    var t = $('gal-title'); if (t) mo.observe(t, { childList: true, characterData: true, subtree: true });
-    var c = $('sel-count-text'); if (c) mo.observe(c, { childList: true, characterData: true, subtree: true });
-    var sh = $('selection-header'); if (sh) mo.observe(sh, { attributes: true, attributeFilter: ['style'] });
-    var sp = window.switchPage;
-    if (typeof sp === 'function') {
-      window.switchPage = function (p) { page = p; var r = sp.apply(this, arguments); refresh(); return r; };
-    }
-    refresh();
-  }
-  window.addEventListener('load', init);
-})();
 </script>
 </body>
 </html>
