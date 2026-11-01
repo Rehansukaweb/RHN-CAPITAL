@@ -737,6 +737,7 @@ body.viewer-open #photo-viewer{visibility:visible}
             <div class="panel list">
               <button class="menu-btn" onclick="konfirmasiAksi('Pindahkan semua foto &amp; video dari penyimpanan lama ke penyimpanan baru? File lama tidak dihapus. Jangan tutup halaman selama proses.', pindahKePenyimpananBaru)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>Pindah ke Penyimpanan Baru</b><small>Pindahkan semua media lama ke akun Cloudinary baru</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
               <button class="menu-btn" onclick="konfirmasiAksi('HD-kan semua foto yang ada? Foto kecil akan diperbesar ke resolusi 4K (3840px) dengan kualitas maksimal. Video tidak diubah.', hdkanSemuaFoto)"><span class="mi"><svg class="ico"><use href="#i-refresh"/></svg></span><span class="mt"><b>HD-kan Semua Foto</b><small>Perbesar semua foto ke resolusi HD sekaligus</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
+              <button class="menu-btn" onclick="konfirmasiAksi('Unduh semua foto &amp; video ke cache perangkat agar tampil instan? Jangan tutup halaman selama proses.', unduhCacheMedia)"><span class="mi"><svg class="ico"><use href="#i-download"/></svg></span><span class="mt"><b>Unduh Cache Media</b><small>Simpan semua foto &amp; video di perangkat agar tampil instan</small></span><span class="chev"><svg class="ico"><use href="#i-next"/></svg></span></button>
             </div>
           </div>
           <div>
@@ -3974,6 +3975,110 @@ window.aksiHapus = function() {
     if (nextIdx < 0) nextIdx = 0;
     if (nextIdx >= listAfter.length) nextIdx = listAfter.length - 1;
     bukaViewer(listAfter[nextIdx].id);
+  });
+};
+
+/* ===== UNDUH CACHE MEDIA: simpan thumbnail/foto/video di perangkat supaya tampil instan ===== */
+const RHN_MEDIA_CACHE = 'rhn_media_cache_v1';
+const rhnBlobMap = new Map();
+let rhnCacheJalan = false;
+
+function rhnHref(u) { try { return new URL(u, location.href).href; } catch (e) { return u; } }
+
+/* URL yang sudah ada di cache otomatis dipakai oleh <img>, <video>, dan poster tanpa mengubah kode lain */
+(function rhnPasangPencegat() {
+  function patch(proto, prop) {
+    const d = Object.getOwnPropertyDescriptor(proto, prop);
+    if (!d || !d.set || !d.configurable) return;
+    Object.defineProperty(proto, prop, {
+      configurable: true, enumerable: d.enumerable,
+      get() { const v = d.get.call(this); return (this.__rhnO && this.__rhnB === v) ? this.__rhnO : v; },
+      set(v) {
+        let b = null;
+        try { if (typeof v === 'string' && /^https?:/i.test(v)) b = rhnBlobMap.get(rhnHref(v)); } catch (e) {}
+        if (b) { this.__rhnO = v; this.__rhnB = b; d.set.call(this, b); }
+        else { this.__rhnO = null; this.__rhnB = null; d.set.call(this, v); }
+      }
+    });
+  }
+  patch(HTMLImageElement.prototype, 'src');
+  patch(HTMLMediaElement.prototype, 'src');
+  patch(HTMLVideoElement.prototype, 'poster');
+})();
+
+async function rhnMuatCache() {
+  if (!('caches' in window)) return;
+  try {
+    const c = await caches.open(RHN_MEDIA_CACHE);
+    const keys = (await c.keys()).filter(r => !rhnBlobMap.has(r.url));
+    for (let i = 0; i < keys.length; i += 32) {
+      await Promise.all(keys.slice(i, i + 32).map(async (r) => {
+        try {
+          const res = await c.match(r);
+          if (res) rhnBlobMap.set(r.url, URL.createObjectURL(await res.blob()));
+        } catch (e) {}
+      }));
+    }
+  } catch (e) { console.warn('Muat cache media gagal', e); }
+}
+rhnMuatCache();
+
+window.unduhCacheMedia = async function() {
+  if (rhnCacheJalan) return;
+  if (!('caches' in window)) {
+    return customSwal.fire({ icon: 'error', title: 'Cache Tidak Didukung', text: 'Browser ini tidak mendukung penyimpanan cache.', background: 'var(--card)', color: 'var(--text)' });
+  }
+  const gambar = new Set(), video = new Set();
+  photos.forEach(p => {
+    const t = getThumbSrc(p); if (t) gambar.add(rhnHref(t));
+    if (isVideoItem(p)) {
+      const po = getPosterSrc(p); if (po) gambar.add(rhnHref(po));
+      const f = getFullSrc(p); if (f) video.add(rhnHref(f));
+    } else {
+      const v = getViewSrc(p); if (v) gambar.add(rhnHref(v));
+    }
+  });
+  const semua = [...gambar, ...video];
+  const total = semua.length;
+  if (!total) {
+    return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada media untuk diunduh.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
+  }
+  rhnCacheJalan = true;
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  let selesai = 0, gagal = 0, baru = 0, penuh = false, byte = 0;
+  const upd = () => setUploadPill({ text: 'Unduh cache ' + selesai + '/' + total + ' • ' + fmtMB(byte), pct: total ? selesai * 100 / total : 100 });
+  upd();
+  try {
+    const c = await caches.open(RHN_MEDIA_CACHE);
+    const kerja = async (u) => {
+      if (rhnBlobMap.has(u) || penuh) { selesai++; upd(); return; }
+      let ok = false;
+      for (let k = 0; k < 2 && !ok && !penuh; k++) {
+        try {
+          const res = await fetch(u, { mode: 'cors' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const blob = await res.blob();
+          await c.put(u, new Response(blob, { headers: { 'Content-Type': blob.type || res.headers.get('Content-Type') || 'application/octet-stream' } }));
+          rhnBlobMap.set(u, URL.createObjectURL(blob));
+          byte += blob.size; baru++; ok = true;
+        } catch (e) {
+          if (e && e.name === 'QuotaExceededError') penuh = true;
+        }
+      }
+      if (!ok) gagal++;
+      selesai++; upd();
+    };
+    await runWithConcurrency([...gambar], 24, kerja);
+    await runWithConcurrency([...video], 6, kerja);
+  } finally {
+    rhnCacheJalan = false;
+  }
+  setUploadPill({ text: 'Cache selesai • ' + fmtMB(byte), pct: 100, hideAfter: 2500 });
+  customSwal.fire({
+    icon: (gagal || penuh) ? 'warning' : 'success',
+    title: penuh ? 'Penyimpanan Perangkat Penuh' : (gagal ? 'Selesai, Sebagian Gagal' : 'Cache Siap'),
+    text: baru + ' file baru tersimpan (' + fmtMB(byte) + ')' + (gagal ? ', ' + gagal + ' gagal. Coba jalankan lagi.' : '. Foto & video kini tampil instan.'),
+    background: 'var(--card)', color: 'var(--text)'
   });
 };
 </script>
