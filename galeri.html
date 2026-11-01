@@ -3253,7 +3253,7 @@ function renderGallery() {
     newLeadingCount++;
   }
   /* buat kartu bertahap (±240 per frame) supaya 6000+ foto tidak membekukan layar */
-  const KARTU_PER_FRAME = 1000000;
+  const KARTU_PER_FRAME = 400;
   let sisaKartu = false;
   if (newLeadingCount > KARTU_PER_FRAME) { newLeadingCount = KARTU_PER_FRAME; sisaKartu = true; }
   let kartuDibuat = newLeadingCount;
