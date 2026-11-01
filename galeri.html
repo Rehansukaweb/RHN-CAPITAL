@@ -1531,10 +1531,36 @@ function renderSkeleton() {
 }
 
 const sentThumbs = new Set();
+/* CADANGAN PENUH: setelah thumbnail, semua foto (HD) dan video (poster + file) ikut disimpan ke cache perangkat lewat service worker; berhenti otomatis kalau penyimpanan hampir penuh */
+const sentBerat = new Set();
+let beratJalan = false;
+function precacheBerat() {
+  if (beratJalan || !navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+  beratJalan = true;
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  const foto = [], mid = [], video = [], asli = [];
+  const tambah = (u, dest) => { if (u && !sentBerat.has(u)) { sentBerat.add(u); dest.push(u); } };
+  photos.concat(trashPhotos || []).forEach((p) => {
+    if (isVideoItem(p)) { tambah(getPosterSrc(p), video); tambah(getFullSrc(p), video); }
+    else { tambah(getViewSrc(p), foto); tambah(getMidSrc(p), mid); tambah(getDownloadSrc(p), asli); }   /* HD, menengah, dan file asli penuh */
+  });
+  const urls = foto.concat(mid, video, asli);
+  const kirim = async () => {
+    if (!urls.length) { beratJalan = false; return; }
+    if (!navigator.onLine || !navigator.serviceWorker.controller) { beratJalan = false; urls.forEach((u) => sentBerat.delete(u)); return; }
+    try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.quota && e.usage / e.quota > 0.98) { beratJalan = false; return; } } } catch (x) {}
+    if (document.hidden || document.body.classList.contains('viewer-open') || Date.now() - (window.lastScrollT || 0) < 2000) { setTimeout(kirim, 3000); return; }
+    const bag = urls.splice(0, 24);
+    try { navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MEDIA', urls: bag }); } catch (e) {}
+    setTimeout(kirim, 1000);
+  };
+  setTimeout(kirim, 20000);   /* thumbnail didahulukan */
+}
 function precacheThumbs() {
   if (!navigator.onLine || !('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
   const urls = [];
   photos.forEach(p => { const u = getThumbSrc(p); if (u && !sentThumbs.has(u)) { sentThumbs.add(u); urls.push(u); } });
+  precacheBerat();
   if (!urls.length) return;
   const kirim = () => {
     const bag = urls.splice(0, 200);
@@ -2965,7 +2991,7 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
 /* STABIL & SELALU CEPAT: thumbnail dekat layar (±3000px) selalu terpasang; yang sangat jauh dilepas dari memori (tetap di cache browser) lalu dipasang lagi otomatis saat didekati.
    Jadi memori tidak menumpuk walau galeri dibuka berjam-jam. */
 let lastScrollT = 0;
-window.addEventListener('scroll', () => { lastScrollT = Date.now(); }, { passive: true });
+window.addEventListener('scroll', () => { lastScrollT = Date.now(); window.lastScrollT = lastScrollT; }, { passive: true });
 function bgPump() {}
 const thumbIO3 = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
   es.forEach((en) => {
@@ -4205,7 +4231,14 @@ window.aksiHapus = function() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('sww.js').then(function () { return navigator.serviceWorker.ready; }).then(function (reg) {
-      if (reg.active) reg.active.postMessage({ type: 'CACHE_URLS', urls: [location.href.split('#')[0], new URL('RHN LOGO.jpg', location.href).href] });
+      if (reg.active) reg.active.postMessage({ type: 'CACHE_URLS', urls: [location.href.split('#')[0], new URL('RHN LOGO.jpg', location.href).href,
+        'https://cdn.jsdelivr.net/npm/sweetalert2@11',
+        'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js',
+        'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js',
+        'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js',
+        'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js',
+        'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js',
+        'https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'] });
     }).catch(function () {});
   });
 }
