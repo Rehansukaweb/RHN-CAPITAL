@@ -2928,18 +2928,62 @@ const thumbIO = ('IntersectionObserver' in window) ? new IntersectionObserver((e
     thumbLoadNow(tp, 0);
   });
 }, { rootMargin: '1100px 0px' }) : null;
+/* SEMUA thumbnail harus terlihat: yang masuk/dekat layar dimuat prioritas tinggi, sisanya dimuat terus di latar mulai dari yang terdekat posisi scroll (tidak pernah dibatalkan) */
+const thumbPendSet = new Set();
+let bgActive = 0;
+const BG_CONC = 10;
+function loadThumbImg(img, bg) {
+  if (img.getAttribute('src') || !img.dataset.src) return;
+  thumbPendSet.delete(img);
+  if (bg) img.__bg = 1;
+  try { img.fetchPriority = bg ? 'low' : 'high'; } catch (e) {}
+  img.src = img.dataset.src;
+}
+function bgDone(img) { if (img.__bg) { img.__bg = 0; bgActive--; bgPump(); } }
+function bgPump() {
+  if (!thumbPendSet.size) return;
+  const c = document.getElementById('main-gallery-grid');
+  const kids = c.children, n = kids.length;
+  if (!n) return;
+  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+  while (bgActive < BG_CONC && thumbPendSet.size) {
+    let pick = null;
+    for (let k = 0; k < n; k++) {
+      const a = f + k, b = f - k;
+      if (a < n && kids[a].__img && thumbPendSet.has(kids[a].__img)) { pick = kids[a].__img; break; }
+      if (k && b >= 0 && kids[b].__img && thumbPendSet.has(kids[b].__img)) { pick = kids[b].__img; break; }
+      if (a >= n && b < 0) break;
+    }
+    if (!pick) { thumbPendSet.clear(); return; }
+    bgActive++;
+    loadThumbImg(pick, true);
+  }
+}
+const thumbIO2 = ('IntersectionObserver' in window) ? new IntersectionObserver((es) => {
+  es.forEach((en) => {
+    if (!en.isIntersecting) return;
+    const img = en.target.__img;
+    thumbIO2.unobserve(en.target);
+    if (img) loadThumbImg(img, false);
+  });
+}, { rootMargin: '1500px 0px' }) : null;
 function attachThumb(card, img, url) {
-  /* langsung pasang src; browser memuat bertahap sendiri (native lazy), tanpa antrean JS */
-  img.loading = 'lazy';
-  img.onload = () => img.classList.add('loaded');
-  img.onerror = () => { if (!img.__r) { img.__r = 1; setTimeout(() => { img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); } };
-  img.src = url;
-  if (img.complete && img.naturalWidth) img.classList.add('loaded');
+  img.decoding = 'async';
+  img.dataset.src = url;
+  img.onload = () => { img.classList.add('loaded'); bgDone(img); };
+  img.onerror = () => {
+    bgDone(img);
+    if (!img.__r) { img.__r = 1; setTimeout(() => { img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
+  };
+  card.__img = img;
+  thumbPendSet.add(img);
+  if (thumbIO2) thumbIO2.observe(card);
+  scheduleThumbPump();
 }
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
-  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); pumpThumbs(); });
+  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); pumpThumbs(); bgPump(); });
 }
 function updateThumbFocus() {
   const c = document.getElementById('main-gallery-grid');
