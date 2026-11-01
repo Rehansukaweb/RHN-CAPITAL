@@ -3587,16 +3587,23 @@ window.aksiFavorit = async function() {
 const VIEW_PX = 2048;
 const viewCache = new Map();
 let viewToken = 0;
+const midCache = new Map();
+function midOf(p) {
+  let m = midCache.get(p.id);
+  if (!m) { m = new Image(); m.decoding = 'async'; m.src = getMidSrc(p); midCache.set(p.id, m); if (midCache.size > 40) midCache.delete(midCache.keys().next().value); }
+  return m;
+}
+function midReady(m) { return !!m && m.complete && m.naturalWidth > 0; }
 
 /* HD cepat: sisi terpanjang 1920px (tajam di layar HP/laptop), file jauh lebih ringan; zoom tetap memakai file asli */
 function getViewSrc(p) {
   if (p.publicId && p.resourceType !== 'video') {
-    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto:best,f_auto/${p.publicId}`;
+    return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_${VIEW_PX},h_${VIEW_PX},q_auto:good,f_auto/${p.publicId}`;
   }
   return getFullSrc(p);
 }
 function getMidSrc(p) {
-  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_900,h_900,q_auto:good,f_auto/${p.publicId}`;
+  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_1280,h_1280,q_auto:good,f_auto/${p.publicId}`;
   return getThumbSrc(p);
 }
 function getPosterSrc(p) {
@@ -3619,7 +3626,7 @@ function preloadView(p) {
   if (viewCache.size > 6) viewCache.delete(viewCache.keys().next().value);
   return entry;
 }
-window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p); if (!isVideoItem(p)) { const m = new Image(); m.src = getMidSrc(p); } } };
+window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) { preloadView(p); if (!isVideoItem(p)) midOf(p); } };
 
 /* siapkan foto yang sedang terlihat di layar saat scroll berhenti, supaya klik langsung tajam */
 (function setupIdlePrefetch() {
@@ -3630,14 +3637,14 @@ window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (
     if (!pg || !pg.classList.contains('active')) return;
     if (navigator.connection && navigator.connection.saveData) return;
     const W = window.innerWidth, H = window.innerHeight, seen = new Set();
-    [0.3, 0.5, 0.7].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
+    [0.25, 0.5, 0.75].forEach((fy) => [0.2, 0.5, 0.8].forEach((fx) => {
       const el = document.elementFromPoint(W * fx, H * fy);
       const c = el && el.closest ? el.closest('.album-card') : null;
       if (!c || !c.dataset.id || seen.has(c.dataset.id)) return;
       seen.add(c.dataset.id);
       const p = photos.find(x => x.id === c.dataset.id);
       if (!p || isVideoItem(p)) return;
-      const m = new Image(); m.src = getMidSrc(p); keep.push(m);
+      midOf(p);
       if (fy === 0.5) { const h = new Image(); h.src = getViewSrc(p); keep.push(h); }
     }));
     while (keep.length > 30) keep.shift();
@@ -3738,8 +3745,9 @@ window.bukaViewer = function(id, dir) {
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
       img.decoding = 'async';
-      img.src = getThumbSrc(foto);               /* thumbnail sudah ada di cache grid: muncul instan */
-      { const mi = new Image(); mi.decoding = 'async'; mi.onload = () => { if (token === viewToken && !entry.ready && img.src !== entry.src) img.src = mi.src; }; mi.src = getMidSrc(foto); }
+      const mm = midOf(foto);
+      img.src = midReady(mm) ? mm.src : getThumbSrc(foto);   /* tahap tengah 1280px bila sudah ada, kalau belum thumbnail dulu */
+      if (!midReady(mm)) mm.addEventListener('load', () => { if (token === viewToken && !entry.ready && img.src !== entry.src) img.src = mm.src; }, { once: true });
       entry.promise.then(() => {
         if (token !== viewToken) return;
         if (entry.ready) img.src = entry.src;
@@ -3769,7 +3777,9 @@ function setSide(el, p, load) {
   el.style.display = 'block';
   if (e && e.ready) { if (el.dataset.pid !== p.id || el.src !== e.src) el.src = e.src; }
   else {
-    if (el.dataset.pid !== p.id) el.src = getThumbSrc(p);
+    const mm = isVideoItem(p) ? null : (load ? midOf(p) : midCache.get(p.id));
+    if (el.dataset.pid !== p.id) el.src = midReady(mm) ? mm.src : getThumbSrc(p);
+    if (mm && !midReady(mm)) mm.addEventListener('load', () => { if (el.dataset.pid === p.id && !(e && e.ready)) el.src = mm.src; }, { once: true });
     if (e) e.promise.then(() => { if (el.dataset.pid === p.id && e.ready) el.src = e.src; });
   }
   el.dataset.pid = p.id;
