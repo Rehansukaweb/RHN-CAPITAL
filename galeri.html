@@ -2987,23 +2987,36 @@ function attachThumb(card, img, url) {
     if (!img.__r) { img.__r = 1; setTimeout(() => { if (img.getAttribute('src')) img.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'r=1'; }, 1200); }
   };
   card.__img = img;
-  img.src = url;
+  if (window.__eagerThumbs <= 60) img.src = url;
   if (img.complete && img.naturalWidth) img.classList.add('loaded');
   if (thumbIO3) thumbIO3.observe(card);
-  if (thumbIOFar) thumbIOFar.observe(card);
+}
+/* JENDELA 1000 GAMBAR: ±500 thumbnail di sekitar posisi layar selalu terpasang; di luar ±700 dilepas supaya stabil */
+const WIN_HALF = 500, WIN_KEEP = 700;
+function windowThumbs() {
+  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
+  if (!n) return;
+  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+  const lo = Math.max(0, f - WIN_HALF), hi = Math.min(n - 1, f + WIN_HALF);
+  for (let i = lo; i <= hi; i++) {
+    const im = kids[i].__img;
+    if (im && !im.getAttribute('src') && im.dataset.src) {
+      try { im.fetchPriority = Math.abs(i - f) < 80 ? 'high' : 'low'; } catch (e) {}
+      im.src = im.dataset.src;
+    }
+  }
 }
 function sweepFarThumbs() {
   if (document.hidden || document.body.classList.contains('viewer-open')) return;
   if (Date.now() - lastScrollT < 1500) return;
   const pg = document.getElementById('page-galeri');
   if (!pg || !pg.classList.contains('active')) return;
-  const kids = document.getElementById('main-gallery-grid').children;
-  const vh = window.innerHeight, FAR = 200000;
-  for (let i = 0; i < kids.length; i++) {
-    const k = kids[i], im = k.__img;
-    if (!im || !im.getAttribute('src')) continue;
-    const r = k.getBoundingClientRect();
-    if (r.bottom < -FAR || r.top > vh + FAR) { im.removeAttribute('src'); im.classList.remove('loaded'); }
+  const kids = document.getElementById('main-gallery-grid').children, n = kids.length;
+  const f = Math.max(0, Math.min(n - 1, thumbFocusIdx));
+  for (let i = 0; i < n; i++) {
+    if (i >= f - WIN_KEEP && i <= f + WIN_KEEP) { i = Math.min(n, f + WIN_KEEP); continue; }
+    const im = kids[i].__img;
+    if (im && im.getAttribute('src')) { im.removeAttribute('src'); im.classList.remove('loaded'); }
   }
 }
 setInterval(sweepFarThumbs, 4000);
@@ -3021,7 +3034,7 @@ setInterval(() => { try { if (!document.body.classList.contains('viewer-open')) 
 function scheduleThumbPump() {
   if (thumbPumpQueued) return;
   thumbPumpQueued = true;
-  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); pumpThumbs(); bgPump(); });
+  requestAnimationFrame(() => { thumbPumpQueued = false; updateThumbFocus(); windowThumbs(); pumpThumbs(); bgPump(); });
 }
 function updateThumbFocus() {
   const c = document.getElementById('main-gallery-grid');
@@ -3087,6 +3100,7 @@ window.addEventListener('scroll', () => {
     if (Math.abs(y - thumbLastY) > 2) thumbDir = y >= thumbLastY ? 1 : -1;
     thumbLastY = y;
     updateThumbFocus();
+    windowThumbs();
     pumpThumbs();
   });
 }, { passive: true });
@@ -3572,6 +3586,10 @@ function getViewSrc(p) {
   }
   return getFullSrc(p);
 }
+function getMidSrc(p) {
+  if (p.publicId && p.resourceType !== 'video') return `https://res.cloudinary.com/${cldName(p)}/image/upload/c_limit,w_900,h_900,q_auto:good,f_auto/${p.publicId}`;
+  return getThumbSrc(p);
+}
 function getPosterSrc(p) {
   if (p.publicId && p.resourceType === 'video') {
     return `https://res.cloudinary.com/${cldName(p)}/video/upload/so_0,w_900,c_limit,q_auto/${p.publicId}.jpg`;
@@ -3595,7 +3613,7 @@ function preloadView(p) {
 window.warmViewer = function(id) { const p = photos.find(x => x.id === id); if (p) preloadView(p); };
 
 function preloadNeighbors(list, idx, dir) {
-  const order = dir >= 0 ? [1, 2, -1, 3] : [-1, -2, 1, -3];
+  const order = dir >= 0 ? [1, -1, 2] : [-1, 1, -2];
   order.forEach((o, k) => {
     const q = list[(idx + o + list.length) % list.length];
     if (q) setTimeout(() => preloadView(q), k * 40);
@@ -3671,7 +3689,7 @@ window.bukaViewer = function(id, dir) {
     if (entry.ready) {
       img.src = entry.src;                       /* sudah ter-decode di memori: muncul seketika */
     } else {
-      img.src = getThumbSrc(foto);               /* placeholder instan (sudah ada di cache grid) */
+      img.src = getMidSrc(foto);                 /* placeholder jernih 900px, bukan thumbnail kecil */
       entry.promise.then(() => {
         if (token !== viewToken) return;
         if (entry.ready) img.src = entry.src;
@@ -3688,7 +3706,8 @@ window.bukaViewer = function(id, dir) {
         const pasang = () => { if (token === viewToken && img.src !== hdUrl) img.src = hdUrl; };
         (hi.decode ? hi.decode() : new Promise((res, rej) => { hi.onload = res; hi.onerror = rej; })).then(pasang, () => {});
       };
-      entry.promise.then(naik);
+      /* HD asli baru dimuat kalau berhenti ±0,5 detik di foto ini: geser cepat tidak terbebani decode gambar besar */
+      entry.promise.then(() => setTimeout(naik, 500));
     }
   }
 
@@ -3700,10 +3719,10 @@ window.bukaViewer = function(id, dir) {
   updateViewerNavButtons();
 
   if (dir) slideIn(dir);
-  const after = () => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); };
+  const after = () => { setTimeout(() => { if (token === viewToken) preloadNeighbors(list, idx, dir || 1); }, 250); };
   if (isVideoItem(foto)) after(); else entry.promise.then(after);
   /* siapkan file di memori agar tombol WA & Unduh langsung merespons */
-  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 2500));
+  if (!isVideoItem(foto)) entry.promise.then(() => setTimeout(() => { if (token === viewToken) ambilBlobMedia(foto, 60000).catch(() => {}); }, 5000));
 };
 
 window.tutupViewer = function() {
