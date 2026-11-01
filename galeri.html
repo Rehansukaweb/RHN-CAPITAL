@@ -827,7 +827,7 @@ button:not(#btn-upload):not(.viewer-nav-btn):not(.floating-cancel-btn):not(.scro
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, CACHE_SIZE_UNLIMITED, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, getFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, deleteField, onSnapshot, query, orderBy, serverTimestamp, getDoc, getDocFromCache, writeBatch, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
@@ -924,10 +924,11 @@ analyticsSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
 
 let db;
 try {
-  db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager(), cacheSizeBytes: CACHE_SIZE_UNLIMITED }), experimentalAutoDetectLongPolling: true });
+  db = initializeFirestore(app, { localCache: persistentLocalCache({ cacheSizeBytes: -1 }), experimentalAutoDetectLongPolling: true });   /* -1 = cache tanpa batas */
 } catch (e) {
   console.warn("Persistent cache tidak tersedia, memakai cache memori.", e);
-  db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+  try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); }
+  catch (e2) { db = getFirestore(app); }   /* pengaman: aplikasi tetap terbuka walau inisialisasi gagal */
 }
 
 let currentUser = null;
