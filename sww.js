@@ -1,7 +1,7 @@
 /* RHN Gallery - Service Worker (offline) */
 const SHELL = 'rhn-shell-v2';
 const MEDIA = 'rhn-media-v2';
-const MAX_MEDIA = 1500;
+const MAX_MEDIA = Infinity;   /* tanpa batas: semua foto & video tersimpan penuh (sebelumnya 1500, sisanya terhapus otomatis) */
 
 const PRECACHE = [
   'https://cdn.jsdelivr.net/npm/sweetalert2@11',
@@ -76,15 +76,48 @@ async function mediaHandler(req) {
   }
 }
 
+/* VIDEO dari cache: kalau file video sudah tersimpan penuh, putar dari cache (termasuk geser/seek lewat Range); kalau belum, lewat jaringan seperti biasa */
+async function videoHandler(req) {
+  try {
+    const c = await caches.open(MEDIA);
+    const hit = await c.match(req.url);
+    if (!hit || hit.status !== 200) return fetch(req);
+    const rng = req.headers.get('range');
+    if (!rng) return hit;
+    const m = /bytes=(\d*)-(\d*)/.exec(rng);
+    if (!m) return hit;
+    const blob = await hit.blob();
+    const size = blob.size;
+    let start = m[1] === '' ? Math.max(0, size - parseInt(m[2], 10)) : parseInt(m[1], 10);
+    let end = (m[1] === '' || m[2] === '') ? size - 1 : Math.min(size - 1, parseInt(m[2], 10));
+    if (!(start >= 0) || start >= size || end < start) {
+      return new Response(null, { status: 416, headers: { 'Content-Range': 'bytes */' + size } });
+    }
+    return new Response(blob.slice(start, end + 1), {
+      status: 206,
+      headers: {
+        'Content-Type': hit.headers.get('Content-Type') || 'video/mp4',
+        'Content-Range': 'bytes ' + start + '-' + end + '/' + size,
+        'Content-Length': String(end - start + 1),
+        'Accept-Ranges': 'bytes'
+      }
+    });
+  } catch (err) {
+    return fetch(req);
+  }
+}
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  if (req.headers.has('range') || req.destination === 'video' || req.destination === 'audio') return;
   const url = new URL(req.url);
+  if (url.hostname === 'res.cloudinary.com' && /\/video\/upload\//.test(url.pathname) && !/\.(jpg|jpeg|png|webp)$/i.test(url.pathname)) {
+    e.respondWith(videoHandler(req)); return;
+  }
+  if (req.headers.has('range') || req.destination === 'video' || req.destination === 'audio') return;
 
   if (req.mode === 'navigate') { e.respondWith(navHandler(req)); return; }
   if (url.hostname === 'res.cloudinary.com') {
-    if (/\/video\/upload\//.test(url.pathname) && !/\.(jpg|jpeg|png|webp)$/i.test(url.pathname)) return;
     e.respondWith(mediaHandler(req)); return;
   }
   if (SHELL_HOSTS.includes(url.hostname) || url.origin === self.location.origin) {
@@ -95,7 +128,7 @@ self.addEventListener('fetch', (e) => {
 /* Pesan dari halaman: simpan halaman & thumbnail agar bisa dibuka offline */
 let queue = [], running = 0;
 async function pump() {
-  while (running < 4 && queue.length) {
+  while (running < 6 && queue.length) {
     const u = queue.shift();
     running++;
     (async () => {
