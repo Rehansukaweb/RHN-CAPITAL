@@ -4044,9 +4044,11 @@ window.unduhCacheMedia = async function() {
     return customSwal.fire({ icon: 'info', title: 'Galeri Kosong', text: 'Belum ada media untuk diunduh.', background: 'var(--card)', color: 'var(--text)', timer: 1800, showConfirmButton: false });
   }
   rhnCacheJalan = true;
+  try { acquireWake(); } catch (e) {}
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
   let selesai = 0, gagal = 0, baru = 0, penuh = false, byte = 0;
-  const upd = () => setUploadPill({ text: 'Unduh cache ' + selesai + '/' + total + ' • ' + fmtMB(byte), pct: total ? selesai * 100 / total : 100 });
+  let _tUpd = 0;
+  const upd = () => { const n = Date.now(); if (n - _tUpd < 120 && selesai < total) return; _tUpd = n; setUploadPill({ text: 'Unduh cache ' + selesai + '/' + total + ' • ' + fmtMB(byte), pct: total ? selesai * 100 / total : 100 }); };
   upd();
   try {
     const c = await caches.open(RHN_MEDIA_CACHE);
@@ -4057,10 +4059,9 @@ window.unduhCacheMedia = async function() {
         try {
           const res = await fetch(u, { mode: 'cors' });
           if (!res.ok) throw new Error('HTTP ' + res.status);
-          const blob = await res.blob();
-          await c.put(u, new Response(blob, { headers: { 'Content-Type': blob.type || res.headers.get('Content-Type') || 'application/octet-stream' } }));
-          rhnBlobMap.set(u, URL.createObjectURL(blob));
-          byte += blob.size; baru++; ok = true;
+          const ukuran = +(res.headers.get('Content-Length') || 0);
+          await c.put(u, res);                       /* alirkan langsung ke penyimpanan, tanpa menampung di memori */
+          byte += ukuran; baru++; ok = true;         /* pemetaan ke cache dilakukan sekali di akhir, bukan per file */
         } catch (e) {
           if (e && e.name === 'QuotaExceededError') penuh = true;
         }
@@ -4068,10 +4069,17 @@ window.unduhCacheMedia = async function() {
       if (!ok) gagal++;
       selesai++; upd();
     };
-    await runWithConcurrency([...gambar], 24, kerja);
-    await runWithConcurrency([...video], 6, kerja);
+    /* HP: jaringan seluler berlatensi tinggi, jadi butuh lebih banyak unduhan paralel agar saluran selalu penuh */
+    const hp = window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width:959px)').matches;
+    /* foto dan video diunduh BERSAMAAN dari awal (bukan bergantian) supaya tidak ada waktu menganggur */
+    await Promise.all([
+      runWithConcurrency([...gambar], hp ? 96 : 48, kerja),
+      runWithConcurrency([...video], hp ? 16 : 8, kerja)
+    ]);
+    await rhnMuatCache();
   } finally {
     rhnCacheJalan = false;
+    try { releaseWake(); } catch (e) {}
   }
   setUploadPill({ text: 'Cache selesai • ' + fmtMB(byte), pct: 100, hideAfter: 2500 });
   customSwal.fire({
