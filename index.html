@@ -4786,11 +4786,11 @@ window.uploadApkAdmin = async function () {
 };
 setTimeout(() => { try { window.loadApkAdminInfo(); } catch (e) {} }, 2000);
 
-// Banner download aplikasi untuk orang yang membuka link IB (?ib=KODE)
+// Banner download aplikasi untuk semua pengunjung browser (link biasa maupun link IB ?ib=KODE)
 (function () {
     try {
-        if (!new URLSearchParams(location.search).get('ib')) return;
         if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
+        if (window.__IS_APP_MODE) return;
         getDoc(doc(db, 'appConfig', 'apk')).then(sn => {
             if (!sn.exists() || !sn.data().url) return;
             const b = document.createElement('div');
