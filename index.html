@@ -2062,7 +2062,7 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='galeri.html'">📈 GALERI ONLINE ↗</button>
-    <button class="nav-ext-btn" onclick="window.location.href='file.html'">📈 BACKUP FILE  ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
@@ -3208,12 +3208,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = { 
-  apiKey: "AIzaSyDigv3pESgu3OdLcbv9HZ9mnU4KjCek698", 
-  authDomain: "database-rhn-capital.firebaseapp.com", 
-  projectId: "database-rhn-capital", 
-  storageBucket: "database-rhn-capital.firebasestorage.app", 
-  messagingSenderId: "852776107076", 
-  appId: "1:852776107076:web:f9b99912f01df32c259011" 
+  apiKey: "AIzaSyCx04v3ppq3DxbXDg0PrWBeJYIZjmJF9cg", 
+  authDomain: "rhn-capital.firebaseapp.com", 
+  projectId: "rhn-capital", 
+  storageBucket: "rhn-capital.firebasestorage.app", 
+  messagingSenderId: "74905216682", 
+  appId: "1:74905216682:web:4687a5b0bd7bcac09292d3" 
 };
 
 const app = window.__IS_APP_MODE ? initializeApp(firebaseConfig) : initializeApp(firebaseConfig, 'web-browser'); 
@@ -6432,7 +6432,7 @@ function completeOfflineLogin(entry) {
     currentUser = { uid: entry.uid, email: entry.email, displayName: entry.nama || (entry.email || '').split('@')[0] };
     window.__offlineSession = true;
     // Deteksi admin dari email walau lagi offline, biar akun admin tidak dianggap user biasa (mis. kena paywall langganan).
-    window.__isAdmin = ((entry.email || '').trim().toLowerCase() === 'huyrehan@gmail.com');
+    window.__isAdmin = ((entry.email || '').trim().toLowerCase() === 'rehantop245@gmail.com');
     localStorage.setItem('last_uid_rhn', entry.uid);
     const navAdminEl = document.getElementById('nav-admin'); if (navAdminEl) navAdminEl.style.display = window.__isAdmin ? 'inline-block' : 'none';
     const adminSettingsGroupEl = document.getElementById('admin-settings-group'); if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = window.__isAdmin ? 'block' : 'none';
@@ -6943,7 +6943,7 @@ try { if (localStorage.getItem('rhn_admin_cache') === '1' && localStorage.getIte
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
-    window.__isAdmin = (user.email === "huyrehan@gmail.com");
+    window.__isAdmin = (user.email === "rehantop245@gmail.com");
     // FAST: tombol admin langsung tampil/hilang di detik pertama (tanpa nunggu server) + simpan cache
     try {
         const __navAdm = document.getElementById('nav-admin'); if (__navAdm) __navAdm.style.display = window.__isAdmin ? 'inline-block' : 'none';
@@ -7009,7 +7009,7 @@ onAuthStateChanged(auth, async user => {
 
     registerDeviceSession(user);
     
-    const adminEmail = "huyrehan@gmail.com"; 
+    const adminEmail = "rehantop245@gmail.com"; 
     const isAdminUser = (user.email === adminEmail);
     window.__isAdmin = isAdminUser;
     if (isAdminUser) { document.getElementById('nav-admin').style.display = 'inline-block'; } else { document.getElementById('nav-admin').style.display = 'none'; }
