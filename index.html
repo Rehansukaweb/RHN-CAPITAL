@@ -4404,22 +4404,46 @@ window.showAdminHutang = async function(uid, ownerLabel) {
 .ah-sumhero{padding:8px 12px;margin-bottom:6px;border-radius:10px;}
 .ah-sumhero .v{font-size:clamp(16px,5vw,20px);margin:3px 0 2px;}
 .ah-sumhero .s{font-size:9.5px;}
-.ah-sheet{padding:8px 8px;margin-bottom:8px;border-radius:12px;}
+.ah-sheet{padding:10px 10px;margin-bottom:10px;border-radius:14px;}
 .ah-sheet-t{font-size:11.5px;margin-bottom:2px;}
-.ah-mh{font-size:11px;margin:8px 0 4px;}
+.ah-mh{font-size:12px;margin:14px 0 8px;}
 .ah-mh span{font-size:9px;}
-.ah-row{padding:5px 8px;margin-bottom:4px;border-radius:9px;}
-.ah-row-top{margin-bottom:3px;}
-.ah-pill{font-size:8px;padding:2px 7px;}
-.ah-pd{font-size:8.5px;}
-.ah-cols{gap:4px;}
-.ah-cols div .l{font-size:7.5px;margin-bottom:0;}
-.ah-cols div .v{font-size:clamp(8.5px,2.6vw,10.5px);}
+.ah-row{padding:9px 11px;margin-bottom:7px;border-radius:12px;}
+.ah-row-top{margin-bottom:8px;gap:10px;}
+.ah-pill{font-size:9px;padding:3px 9px;}
+.ah-pd{font-size:10px;}
+.ah-cols{gap:10px;}
+.ah-cols div .l{font-size:8.5px;margin-bottom:3px;}
+.ah-cols div .v{font-size:clamp(9.5px,3vw,11.5px);}
 .ah-sum{margin-top:6px;padding-top:6px;gap:4px;}
-.ah-row .ah-pd[style]{margin-top:3px!important;}`;
+.ah-row .ah-pd[style]{margin-top:8px!important;}
+/* ===== MAKSIMAL: Jumlah/Bayar/Hasil memenuhi lebar kartu ===== */
+.ah-scroll{padding-left:6px;padding-right:6px;}
+.ah-sheet{padding-left:8px;padding-right:8px;}
+.ah-row{padding-left:10px;padding-right:10px;}
+.ah-cols,.ah-sum{grid-template-columns:repeat(3,max-content)!important;justify-content:space-between;gap:6px!important;}
+.ah-cols div .v,.ah-sum .v{font-size:var(--ahfs,11.5px)!important;letter-spacing:0!important;overflow:visible!important;}
+.ah-cols div .l,.ah-sum .l{white-space:nowrap;}`;
         document.head.appendChild(st);
     }
     const box = h => '<div class="ah-scroll"><div class="ah-wrap">' + h + '</div></div>';
+    const __ahFit = () => {
+        const run = () => {
+            const wrap = document.querySelector('.ah-popup .ah-wrap'); if (!wrap) return;
+            const cs = wrap.querySelectorAll('.ah-cols,.ah-sum'); if (!cs.length) return;
+            let s = 16;
+            for (; s > 8; s -= 0.25) {
+                wrap.style.setProperty('--ahfs', s + 'px');
+                let ok = true;
+                for (let i = 0; i < cs.length; i++) { if (cs[i].scrollWidth > cs[i].clientWidth + 0.5) { ok = false; break; } }
+                if (ok) break;
+            }
+        };
+        run();
+        requestAnimationFrame(run);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+        if (!window.__ahFitRs) { window.__ahFitRs = 1; window.addEventListener('resize', () => { if (document.querySelector('.ah-popup .ah-wrap')) __ahFit(); }); }
+    };
     let __ahUnsub = null;
     Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: '100%', padding: 0, heightAuto: false, background: 'var(--card)', color: 'var(--text)', customClass: { container: 'ah-container', popup: 'ah-popup' }, didOpen: () => Swal.showLoading(), willClose: () => { if (__ahUnsub) { __ahUnsub(); __ahUnsub = null; } } });
     const __ahRender = (hd) => {
@@ -4514,6 +4538,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const __w = document.querySelector('.ah-popup .ah-wrap');
     if (__w) { if (__w.__h !== __inner) { __w.innerHTML = __inner; __w.__h = __inner; } }
     else { Swal.update({ html: box(__inner) }); const __w2 = document.querySelector('.ah-popup .ah-wrap'); if (__w2) __w2.__h = __inner; }
+    __ahFit();
     };
     try {
         __ahUnsub = onSnapshot(doc(db, 'users', uid, 'settings', 'hutang'), snap => {
