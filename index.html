@@ -1279,6 +1279,126 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 .ib-wd-bal { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--bg3); border: 1px solid var(--border2); font-size: 11px; color: var(--text3); }
 .ib-wd-bal b { font-size: 15px; color: var(--gold); }
 </style>
+<style id="ib-redesign">
+/* ===== IB: DESAIN ULANG TAMPILAN (khusus #page-ib; popup & panel admin tidak terpengaruh) ===== */
+#page-ib { --ix-ink:#1A1200; --ix-ac:var(--gold); --ix-ac-t:var(--gold); --ix-soft:rgba(251,191,36,.14); --ix-line:var(--border2); --ix-g:var(--green2); --ix-gs:rgba(16,185,129,.14); --ix-bs:rgba(59,130,246,.14); --ix-rs:rgba(248,113,113,.14); }
+body.light-mode #page-ib { --ix-ac-t:#B45309; --ix-soft:rgba(217,119,6,.14); --ix-line:var(--border); --ix-g:#047857; --ix-gs:rgba(4,120,87,.13); --ix-bs:rgba(0,86,179,.12); --ix-rs:rgba(220,38,38,.12); }
+#page-ib button, #page-ib input { font-family: 'Plus Jakarta Sans', sans-serif; }
+#page-ib .ib-empty { padding: 44px 16px; font-size: 12.5px; }
+#page-ib .ibx { display: grid; gap: 14px; grid-template-columns: minmax(0,1fr); grid-template-areas: "bal" "prof" "met" "list"; padding: 16px 16px 28px; max-width: 1200px; margin: 0 auto; }
+#page-ib .ibx.ibx-solo { grid-template-areas: "solo"; max-width: 620px; padding-top: 24px; }
+#page-ib .ibx-p { background: var(--card); border: 1px solid var(--ix-line); border-radius: 20px; padding: 18px; min-width: 0; }
+#page-ib .ibx-lbl { font-size: 10.5px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; color: var(--text3); }
+#page-ib .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* --- saldo (kartu emas) --- */
+#page-ib .ibx-bal { grid-area: bal; background: var(--ix-ac); color: var(--ix-ink); border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 28px rgba(245,158,11,.22); }
+#page-ib .ibx-bal-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+#page-ib .ibx-ico { width: 46px; height: 46px; border-radius: 14px; background: rgba(26,18,0,.13); display: grid; place-items: center; flex-shrink: 0; }
+#page-ib .ibx-bal .ibx-lbl { color: rgba(26,18,0,.72); }
+#page-ib .ibx-big { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; letter-spacing: -.5px; line-height: 1.2; margin-top: 3px; word-break: break-all; }
+#page-ib .ibx-bal-side { display: flex; flex-direction: column; gap: 10px; }
+#page-ib .ibx-note { font-size: 11.5px; line-height: 1.6; color: rgba(26,18,0,.78); font-weight: 600; }
+#page-ib .ibx-cta { width: 100%; border: none; border-radius: 14px; padding: 15px 16px; font-size: 13px; font-weight: 800; letter-spacing: .3px; cursor: pointer; background: var(--ix-ink); color: #FBBF24; }
+#page-ib .ibx-cta:disabled { opacity: .45; cursor: default; }
+
+/* --- profil & link --- */
+#page-ib .ibx-prof { grid-area: prof; display: flex; flex-direction: column; gap: 16px; }
+#page-ib .ibx-id { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#page-ib .ibx-avl { width: 48px; height: 48px; border-radius: 16px; background: var(--ix-ac); color: var(--ix-ink); display: grid; place-items: center; font-size: 20px; font-weight: 800; flex-shrink: 0; }
+#page-ib .ibx-idt { flex: 1; min-width: 0; }
+#page-ib .ibx-nm { font-size: 15px; font-weight: 800; color: var(--text); overflow-wrap: anywhere; line-height: 1.3; }
+#page-ib .ibx-sub { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+#page-ib .ibx-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#page-ib .ibx-facts > div { background: var(--bg3); border-radius: 14px; padding: 11px 12px; min-width: 0; }
+#page-ib .ibx-facts span { display: block; font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+#page-ib .ibx-facts b { font-size: 14px; font-weight: 800; color: var(--ix-ac-t); overflow-wrap: anywhere; }
+#page-ib .ibx-facts small { display: block; font-size: 10.5px; color: var(--text3); margin-top: 2px; }
+#page-ib .ibx-link { width: 100%; background: var(--bg3); border: 1px solid var(--ix-line); border-radius: 14px; padding: 13px 14px; color: var(--text); font-size: 12px; font-weight: 700; outline: none; margin-top: 8px; text-overflow: ellipsis; }
+#page-ib .ibx-link:focus { border-color: var(--ix-ac-t); }
+#page-ib .ibx-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+#page-ib .ibx-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid transparent; border-radius: 14px; padding: 13px 12px; font-size: 12px; font-weight: 800; letter-spacing: .3px; cursor: pointer; }
+#page-ib .ibx-btn.pri { background: var(--ix-ac); color: var(--ix-ink); }
+#page-ib .ibx-btn.blue { background: var(--blue); color: #fff; }
+#page-ib .ibx-btn.ghost { background: transparent; color: var(--text); border-color: var(--ix-line); width: 100%; }
+#page-ib .ibx-warn { margin-top: 10px; font-size: 11px; line-height: 1.6; color: var(--red2); background: var(--ix-rs); border-radius: 12px; padding: 10px 12px; }
+body.light-mode #page-ib .ibx-warn { color: #B91C1C; }
+#page-ib .ibx-qr { display: flex; flex-direction: column; align-items: center; gap: 10px; background: var(--bg3); border-radius: 16px; padding: 16px 12px; }
+#page-ib .ibx-qr #ib-qr { display: flex; justify-content: center; }
+#page-ib .ibx-qr canvas, #page-ib .ibx-qr img { max-width: 100%; height: auto !important; }
+#page-ib .ibx-qr .ibx-cap { font-size: 11px; color: var(--text3); font-weight: 600; }
+
+/* --- ringkasan angka --- */
+#page-ib .ibx-met { grid-area: met; padding: 4px 18px; display: flex; flex-direction: column; }
+#page-ib .ibx-m { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--ix-line); }
+#page-ib .ibx-m:last-child { border-bottom: none; }
+#page-ib .ibx-m .l { font-size: 12px; font-weight: 600; color: var(--text3); }
+#page-ib .ibx-m .v { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); text-align: right; }
+#page-ib .ibx-m .v.g { color: var(--ix-g); }
+
+/* --- tab + daftar --- */
+#page-ib .ibx-list { grid-area: list; padding: 14px 18px 6px; }
+#page-ib .ibx-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--bg3); border-radius: 15px; padding: 4px; }
+#page-ib .ibx-tab { border: none; background: transparent; color: var(--text3); border-radius: 11px; padding: 11px 4px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+#page-ib .ibx-tab i { font-style: normal; font-size: 10.5px; font-weight: 800; margin-left: 4px; padding: 1px 6px; border-radius: 99px; background: rgba(128,128,140,.2); }
+#page-ib .ibx-tab.on { background: var(--ix-ac); color: var(--ix-ink); font-weight: 800; }
+#page-ib .ibx-tab.on i { background: rgba(26,18,0,.15); }
+#page-ib .ibx-pane { display: none; margin-top: 6px; }
+#page-ib .ibx-pane.on { display: block; }
+#page-ib .ibx-it { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 8px 12px; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--ix-line); }
+#page-ib .ibx-it:last-child { border-bottom: none; }
+#page-ib .ibx-av { width: 42px; height: 42px; border-radius: 13px; background: var(--ix-soft); color: var(--ix-ac-t); display: grid; place-items: center; font-size: 15px; font-weight: 800; }
+#page-ib .ibx-av.g { background: var(--ix-gs); color: var(--ix-g); }
+#page-ib .ibx-av.b { background: var(--ix-bs); color: var(--blue-title); }
+#page-ib .ibx-mn { min-width: 0; }
+#page-ib .ibx-mn .t { font-size: 13px; font-weight: 700; color: var(--text); overflow-wrap: anywhere; line-height: 1.4; }
+#page-ib .ibx-mn .s, #page-ib .ibx-sd .s { font-size: 11.5px; color: var(--text3); line-height: 1.65; overflow-wrap: anywhere; }
+#page-ib .ibx-sd { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+#page-ib .ibx-sd .amt { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 800; color: var(--ix-g); }
+#page-ib .ib-pill { font-size: 10px; padding: 3px 10px; white-space: nowrap; }
+body.light-mode #page-ib .ib-pill.wait { color: #B45309; } body.light-mode #page-ib .ib-pill.ok { color: #047857; } body.light-mode #page-ib .ib-pill.bad { color: #B91C1C; }
+#page-ib .ibx-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 36px 12px; text-align: center; font-size: 12.5px; color: var(--text3); }
+#page-ib .ibx-empty .ibx-ico { background: var(--bg3); color: var(--text3); }
+
+/* --- hero daftar / status pendaftaran --- */
+#page-ib .ibx-solo-card { grid-area: solo; padding: 28px 22px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+#page-ib .ibx-state-ic { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; background: var(--ix-soft); color: var(--ix-ac-t); }
+#page-ib .ibx-state-ic.bad { background: var(--ix-rs); color: var(--red2); }
+#page-ib .ibx-h { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.35; }
+#page-ib .ibx-tx { font-size: 12.5px; line-height: 1.75; color: var(--text2); max-width: 480px; }
+#page-ib .ibx-tx b { color: var(--ix-ac-t); }
+#page-ib .ibx-perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+#page-ib .ibx-perks > div { background: var(--bg3); border-radius: 14px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; color: var(--text2); line-height: 1.4; }
+#page-ib .ibx-perks svg { color: var(--ix-ac-t); }
+#page-ib .ibx-kv { width: 100%; text-align: left; background: var(--bg3); border-radius: 14px; padding: 4px 14px; }
+#page-ib .ibx-kv > div { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--ix-line); font-size: 12px; }
+#page-ib .ibx-kv > div:last-child { border-bottom: none; }
+#page-ib .ibx-kv span { color: var(--text3); font-weight: 600; flex-shrink: 0; }
+#page-ib .ibx-kv b { color: var(--text); font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+
+/* --- HP kecil --- */
+@media (max-width: 560px) {
+  #page-ib .ibx-it { grid-template-columns: 42px minmax(0,1fr); }
+  #page-ib .ibx-sd { grid-column: 2; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; text-align: left; }
+  #page-ib .ibx-big { font-size: 25px; }
+  #page-ib .ibx-perks { grid-template-columns: 1fr; }
+  #page-ib .ibx-perks > div { flex-direction: row; justify-content: flex-start; text-align: left; padding: 12px 14px; }
+}
+/* --- tablet & desktop --- */
+@media (min-width: 900px) {
+  #page-ib .ibx { grid-template-columns: 340px minmax(0,1fr); grid-template-areas: "prof bal" "prof met" "prof list"; grid-template-rows: auto auto 1fr; gap: 20px; padding: 8px 0 40px; align-items: start; }
+  #page-ib .ibx.ibx-solo { grid-template-columns: minmax(0,1fr); grid-template-areas: "solo"; }
+  #page-ib .ibx-prof { position: sticky; top: 16px; padding: 22px; }
+  #page-ib .ibx-bal { flex-direction: row; align-items: center; justify-content: space-between; padding: 24px 28px; }
+  #page-ib .ibx-bal-side { width: 260px; flex-shrink: 0; }
+  #page-ib .ibx-big { font-size: 34px; }
+  #page-ib .ibx-met { flex-direction: row; padding: 6px 0; }
+  #page-ib .ibx-m { flex: 1; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; padding: 16px 20px; border-bottom: none; border-right: 1px solid var(--ix-line); min-width: 0; }
+  #page-ib .ibx-m:last-child { border-right: none; }
+  #page-ib .ibx-m .v { text-align: left; font-size: 15px; }
+  #page-ib .ibx-list { padding: 18px 24px 8px; }
+}
+</style>
 <style id="hutang-style">
 #page-hutang{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text)}
 #page-hutang button,#page-hutang input{font-family:'Plus Jakarta Sans',sans-serif}
@@ -1769,6 +1889,272 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
 #page-hutang .ht-sumg .n{font-size:10px;color:var(--text3);line-height:1.35}
 @media(min-width:760px){#page-hutang .ht-sumin label>span{min-height:0 !important}#page-hutang .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}#page-hutang .ht-sumg .it.full{grid-column:auto}}
 </style>
+<style id="hutang-redesign">
+/* ===== HUTANG v3: dashboard modern. Rail tab di kiri, banner total di atas, baris berbentuk tile responsif. Hanya halaman Hutang. ===== */
+#page-hutang{--ha:var(--gold);--hg:var(--green2);--hr:var(--red2);--hl:var(--border);--tint:color-mix(in srgb,var(--text) 7%,transparent);letter-spacing:0;font-size:14px}
+body.light-mode #page-hutang{--ha:#B45309;--hg:#047857;--hr:#DC2626}
+#page-hutang #hutang-root{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:none;margin:0;font-family:'Plus Jakarta Sans',sans-serif;font-variant-numeric:tabular-nums}
+#page-hutang #hutang-root *{font-variant-numeric:tabular-nums}
+#page-hutang #hutang-root input,#page-hutang #hutang-root button,#page-hutang #hutang-root select{font-family:'Plus Jakarta Sans',sans-serif}
+#page-hutang #hutang-root>*{min-width:0}
+/* urutan: tab, judul, toolbar, total, statistik, bulan, ringkasan */
+#page-hutang #hutang-root .ht-tabs{order:-9}
+#page-hutang #hutang-root .ht-head{order:-8}
+#page-hutang #hutang-root .ht-bar{order:-7}
+#page-hutang #hutang-root .ht-total{order:-6}
+#page-hutang #hutang-root .ht-stats{order:-5}
+#page-hutang #hutang-root .ht-sum{order:5}
+
+/* --- Tab lembar --- */
+#page-hutang #hutang-root .ht-tabs{display:flex;flex-direction:row;gap:8px;width:100%;margin:0 0 20px;padding:0;border:0;border-radius:0;background:transparent;overflow-x:auto}
+#page-hutang #hutang-root .ht-tab{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin:0;padding:11px 16px;border:0;border-radius:999px;background:var(--tint);box-shadow:none;color:var(--text2);font-size:13px;font-weight:600;letter-spacing:0;line-height:1.2;text-transform:none;text-align:left;white-space:nowrap}
+#page-hutang #hutang-root .ht-tab:hover{color:var(--text);background:color-mix(in srgb,var(--text) 12%,transparent)}
+#page-hutang #hutang-root .ht-tab.active,#page-hutang #hutang-root .ht-tab.merge.active{background:var(--text);color:var(--bg);box-shadow:none;border:0}
+#page-hutang #hutang-root .ht-tab.merge{color:var(--text2);border:0}
+#page-hutang #hutang-root .ht-tab.merge.active{color:var(--bg)}
+#page-hutang #hutang-root .ht-tab.add{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--ha);border:0}
+
+/* --- Judul & toolbar --- */
+#page-hutang #hutang-root .ht-head{margin:0 0 14px;padding:0;border:0;text-align:left}
+#page-hutang #hutang-root .ht-head .t{font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.5px;text-transform:none;color:var(--text)}
+#page-hutang #hutang-root .ht-head .s{margin-top:6px;font-size:13px;font-weight:500;letter-spacing:0;color:var(--text3)}
+#page-hutang #hutang-root .ht-bar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+#page-hutang #hutang-root .ht-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:0;border-radius:999px;background:var(--tint);box-shadow:none;color:var(--text2);font-size:12.5px;font-weight:600;line-height:1.2;letter-spacing:0;text-transform:none}
+#page-hutang #hutang-root .ht-btn:hover{background:color-mix(in srgb,var(--text) 13%,transparent);color:var(--text);border:0}
+#page-hutang #hutang-root .ht-btn.pri{background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--ha)}
+#page-hutang #hutang-root .ht-btn.pri:hover{background:color-mix(in srgb,var(--gold) 32%,transparent);color:var(--ha)}
+#page-hutang #hutang-root .ht-btn.dan{background:color-mix(in srgb,var(--red2) 12%,transparent);color:var(--hr)}
+#page-hutang #hutang-root .ht-btn.dan:hover{background:color-mix(in srgb,var(--red2) 22%,transparent);color:var(--hr)}
+#page-hutang #hutang-root .ht-btn.pdf,#page-hutang #hutang-root .ht-btn.xls{background:var(--tint);color:var(--text2);border:0}
+#page-hutang #hutang-root .ht-btn.sm{padding:8px 14px;font-size:12px}
+
+/* --- Kartu bulan --- */
+#page-hutang #hutang-root .ht-card{margin:0 0 20px;padding:24px;border:0;border-radius:26px;background:var(--card);box-shadow:none;overflow:visible}
+#page-hutang #hutang-root .ht-card::before{display:none}
+#page-hutang #hutang-root .ht-mhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;margin:0 0 18px;padding:0;border:0}
+#page-hutang #hutang-root .ht-mname{display:flex;flex:1 1 260px;align-items:center;gap:14px;min-width:0}
+#page-hutang #hutang-root .ht-no{display:flex;font-family:'Plus Jakarta Sans',sans-serif;flex:0 0 auto;align-items:center;justify-content:center;width:38px;height:38px;border:0;border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,transparent);box-shadow:none;color:var(--ha);font-size:14px;font-weight:800}
+#page-hutang #hutang-root .ht-no::after{content:none}
+#page-hutang #hutang-root .ht-mname input{flex:1;min-width:0;padding:8px 12px;border:0;border-radius:12px;background:transparent;box-shadow:none;color:var(--text);font-size:21px;font-weight:800;letter-spacing:-.2px;text-transform:none}
+#page-hutang #hutang-root .ht-mname input:hover{background:var(--tint)}
+#page-hutang #hutang-root .ht-mname input:focus{background:var(--tint);box-shadow:0 0 0 2px var(--gold)}
+#page-hutang #hutang-root .ht-mname .nm{font-size:21px;font-weight:800;letter-spacing:-.2px;text-transform:none;color:var(--text);overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-acts{display:flex;flex-wrap:wrap;gap:8px}
+#page-hutang #hutang-root .ht-grid{display:flex;flex-direction:column;align-items:stretch;gap:14px}
+#page-hutang #hutang-root .ht-grid>.ht-wrap{width:100%}
+#page-hutang #hutang-root .ht-side{order:-1;width:100%;display:grid;grid-template-columns:auto auto minmax(80px,1fr) auto;column-gap:18px;align-items:center;margin:0;padding:14px 18px;border:0;border-radius:16px;background:var(--tint);background-image:none;text-align:left}
+#page-hutang #hutang-root .ht-side .lbl{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-side .val{margin:0;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;letter-spacing:0;color:var(--text)}
+#page-hutang #hutang-root .ht-side .ht-pb{margin:0}
+#page-hutang #hutang-root .ht-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0;font-size:12px;font-weight:600;color:var(--text3)}
+#page-hutang #hutang-root .ht-leg span{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+#page-hutang #hutang-root .ht-leg em{display:inline-flex;align-items:center;font-style:normal}
+#page-hutang #hutang-root .ht-leg i{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%}
+#page-hutang #hutang-root .ht-leg b{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--text)}
+@media(max-width:700px){
+#page-hutang #hutang-root .ht-side{grid-template-columns:minmax(0,1fr) auto;row-gap:10px}
+#page-hutang #hutang-root .ht-side .ht-pb,#page-hutang #hutang-root .ht-side .ht-leg{grid-column:1/-1}
+}
+
+/* --- Baris berbentuk tile (menyesuaikan lebar wadah) --- */
+#page-hutang #hutang-root .ht-wrap{container-type:inline-size;container-name:ht;border:0 !important;border-radius:0 !important;background:transparent !important;overflow:visible !important;box-shadow:none}
+#page-hutang #hutang-root .ht-wrap::before,#page-hutang #hutang-root .ht-wrap:has(.ht-tbl.ht-edit)::before,#page-hutang #hutang-root .ht-wrap:has(.ht-tbl:not(.ht-edit))::before{content:none !important;display:none !important}
+#page-hutang #hutang-root .ht-tbl,#page-hutang #hutang-root .ht-tbl.ht-edit,#page-hutang #hutang-root .ht-tbl:not(.ht-edit){display:block !important;width:100% !important;min-width:0 !important;table-layout:auto !important;border:0 !important;background:transparent !important}
+#page-hutang #hutang-root .ht-tbl tbody{display:block !important}
+#page-hutang #hutang-root .ht-tbl tr:has(>th){display:none !important}
+#page-hutang #hutang-root .ht-tbl tr,#page-hutang #hutang-root .ht-tbl tr:not(.tot):hover{display:grid !important;gap:16px 14px !important;align-items:end !important;margin:0 0 10px !important;padding:16px 18px 16px 22px !important;border:0 !important;border-radius:18px !important;background:var(--bg3) !important;box-shadow:inset 5px 0 0 var(--stripe,var(--hl)) !important}
+#page-hutang #hutang-root .ht-tbl tr:last-child{margin-bottom:0 !important}
+#page-hutang #hutang-root .ht-tbl tr:has(.ht-badge.ok){--stripe:var(--hg)}
+#page-hutang #hutang-root .ht-tbl tr:has(.ht-badge.no){--stripe:var(--hr)}
+#page-hutang #hutang-root .ht-tbl tr.tot,#page-hutang #hutang-root .ht-tbl tr.tot:hover{--stripe:var(--gold);background:color-mix(in srgb,var(--gold) 11%,var(--bg3)) !important;margin-top:14px !important}
+#page-hutang #hutang-root .ht-tbl td,#page-hutang #hutang-root .ht-tbl.ht-edit td,#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td,#page-hutang #hutang-root .ht-tbl tr.tot td,#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td{display:block !important;min-width:0 !important;padding:0 !important;border:0 !important;background:transparent !important;overflow:visible !important;white-space:normal !important;overflow-wrap:anywhere !important;word-break:normal !important;color:var(--text);text-align:left !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:15px !important;font-weight:700 !important;letter-spacing:0 !important;line-height:1.3 !important}
+#page-hutang #hutang-root .ht-tbl td::before{display:block;margin:0 0 7px;font-size:10.5px;font-weight:700;letter-spacing:.7px;line-height:1.2;text-transform:uppercase;color:var(--text3)}
+/* label sel */
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(1)::before{content:"Jumlah"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(2)::before{content:"Bayar"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(3)::before{content:"Hasil"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(4)::before{content:"Status"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5)::before{content:"Perhari"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(6)::before{display:none}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(1)::before{display:none}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(2)::before{content:"Total Bayar"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(3)::before{content:"Sisa Hutang"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4)::before{content:"Status"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5)::before{content:"Perhari"}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(6){display:none !important}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(1)::before{display:none}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(2)::before{content:"Jumlah"}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(3)::before{content:"Bayar"}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(4)::before{content:"Hasil"}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5)::before{content:"Status"}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(6)::before{content:"Perhari"}
+#page-hutang #hutang-root .ht-tbl td[colspan]::before{display:none}
+/* penempatan sel */
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(1){grid-area:jum}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(2){grid-area:bay}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(3){grid-area:sis}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(4){grid-area:sta}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5){grid-area:per}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(6){grid-area:x;justify-self:end}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(1){grid-area:tot}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(2){grid-area:bay}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(3){grid-area:sis}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4){grid-area:sta}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5){grid-area:per}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(1){grid-area:nam;font-size:17px !important;font-weight:800 !important}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(2){grid-area:jum}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(3){grid-area:bay}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(4){grid-area:has}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5){grid-area:sta}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(6){grid-area:per}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) tr.tot td:nth-child(1){color:var(--ha) !important;font-size:13px !important;letter-spacing:1.2px !important}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot) td[colspan]{grid-area:auto !important;grid-column:1/-1 !important;text-align:center !important;color:var(--text3) !important}
+/* susunan kolom: sempit (HP) */
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot){grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"jum sta" "sis sis" "bay bay" "per x" !important}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"tot tot" "bay sis" "sta per" !important}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"nam nam" "jum bay" "has sta" "per per" !important}
+/* sedang */
+@container ht (min-width:540px){
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot){grid-template-columns:repeat(3,minmax(0,1fr)) 44px !important;grid-template-areas:"jum bay bay x" "sis sta per per" !important}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:repeat(3,minmax(0,1fr)) !important;grid-template-areas:"tot bay bay" "sis sta per" !important}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) tr{grid-template-columns:repeat(3,minmax(0,1fr)) !important;grid-template-areas:"nam nam nam" "jum bay has" "sta per per" !important}
+}
+/* lebar (satu baris) */
+@container ht (min-width:860px){
+#page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot){grid-template-columns:minmax(0,1.1fr) minmax(0,1.7fr) minmax(0,1.2fr) 128px minmax(0,1fr) 44px !important;grid-template-areas:"jum bay sis sta per x" !important}
+#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:minmax(0,1.1fr) minmax(0,1.7fr) minmax(0,1.2fr) 128px minmax(0,1fr) 44px !important;grid-template-areas:"tot bay sis sta per per" !important}
+#page-hutang #hutang-root .ht-tbl:not(.ht-edit) tr{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1.2fr)) 128px minmax(0,1fr) !important;grid-template-areas:"nam jum bay has sta per" !important}
+}
+/* isi sel */
+#page-hutang #hutang-root .ht-tbl input,#page-hutang #hutang-root .ht-tbl.ht-edit input{width:100% !important;min-width:0 !important;height:44px !important;padding:0 14px !important;border:0 !important;border-radius:12px !important;background:var(--tint) !important;box-shadow:none !important;outline:none !important;color:var(--text) !important;font-family:'Plus Jakarta Sans',sans-serif !important;font-size:16px !important;font-weight:700 !important;letter-spacing:0 !important;text-align:left !important}
+#page-hutang #hutang-root .ht-tbl input:focus{background:color-mix(in srgb,var(--gold) 12%,transparent) !important;box-shadow:0 0 0 2px var(--gold) !important}
+#page-hutang #hutang-root .ht-tbl .ht-paycell,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-paycell{display:flex !important;flex-direction:row !important;align-items:stretch !important;gap:8px !important}
+#page-hutang #hutang-root .ht-tbl .ht-paycell input,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-paycell input{flex:1 1 0 !important;width:auto !important}
+#page-hutang #hutang-root .ht-tbl .ht-lunas,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-lunas{flex:0 0 auto !important;width:auto !important;height:44px;padding:0 16px !important;border:0 !important;border-radius:12px !important;background:color-mix(in srgb,var(--green2) 16%,transparent) !important;box-shadow:none !important;color:var(--hg) !important;font-size:12.5px !important;font-weight:800 !important;letter-spacing:0 !important;text-transform:none}
+#page-hutang #hutang-root .ht-tbl .ht-lunas:hover:not([disabled]){background:color-mix(in srgb,var(--green2) 30%,transparent) !important}
+#page-hutang #hutang-root .ht-tbl .ht-lunas[disabled]{opacity:.35}
+#page-hutang #hutang-root .ht-tbl .ht-x,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-x{display:inline-flex !important;align-items:center;justify-content:center;width:44px !important;height:44px !important;padding:0 !important;border:0 !important;border-radius:12px !important;background:var(--tint) !important;color:var(--text3) !important;font-size:14px !important;font-weight:700 !important}
+#page-hutang #hutang-root .ht-tbl .ht-x:hover{background:color-mix(in srgb,var(--red2) 18%,transparent) !important;color:var(--hr) !important}
+#page-hutang #hutang-root .ht-tbl .ht-badge,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-badge,#page-hutang #hutang-root .ht-tbl:not(.ht-edit) .ht-badge{display:inline-flex !important;align-items:center;gap:6px !important;padding:8px 14px !important;border:0 !important;border-radius:999px !important;font-size:11px !important;font-weight:800 !important;letter-spacing:.4px !important;line-height:1.2 !important;white-space:nowrap !important;text-transform:uppercase}
+#page-hutang #hutang-root .ht-tbl .ht-badge::before{display:inline !important;content:"" !important;width:auto;height:auto;border-radius:0;background:transparent}
+#page-hutang #hutang-root .ht-tbl .ht-badge.ok::before{content:"✓" !important}
+#page-hutang #hutang-root .ht-tbl .ht-badge.no::before{content:"•" !important;font-size:15px;line-height:1}
+#page-hutang #hutang-root .ht-tbl .ht-badge.na::before{display:none !important}
+#page-hutang #hutang-root .ht-badge.ok{background:color-mix(in srgb,var(--green2) 16%,transparent) !important;color:var(--hg) !important}
+#page-hutang #hutang-root .ht-badge.no{background:color-mix(in srgb,var(--red2) 15%,transparent) !important;color:var(--hr) !important}
+#page-hutang #hutang-root .ht-badge.na{background:var(--tint) !important;color:var(--text3) !important}
+#page-hutang #hutang-root .ht-tbl .ht-pb,#page-hutang #hutang-root .ht-tbl.ht-edit .ht-pb,#page-hutang #hutang-root .ht-tbl:not(.ht-edit) .ht-pb,#page-hutang #hutang-root .ht-tbl.ht-edit tr.tot .ht-pb{width:100% !important;min-width:0 !important;height:6px !important;margin:10px 0 0 !important;border-radius:999px !important}
+#page-hutang #hutang-root .ht-pb{height:6px;min-width:0;margin-top:8px;border-radius:999px;background:var(--tint);overflow:hidden}
+#page-hutang #hutang-root .ht-pb i{display:block;height:100%;border-radius:999px;background:var(--hg)}
+#page-hutang #hutang-root .ht-tbl td.rs.r{color:var(--hr) !important;font-size:16px !important;font-weight:800 !important}
+#page-hutang #hutang-root .ht-tbl td.rs.g{color:var(--hg) !important;font-size:16px !important;font-weight:800 !important}
+#page-hutang #hutang-root .ht-tbl td.dim,#page-hutang #hutang-root .ht-tbl td.rs.dim{color:var(--text3) !important}
+#page-hutang #hutang-root .ht-tcell{display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:flex-start !important;gap:6px !important;padding:0}
+#page-hutang #hutang-root .ht-tcell span{font-size:11px !important;font-weight:800 !important;letter-spacing:1.2px !important;color:var(--ha)}
+#page-hutang #hutang-root .ht-tcell b{font-size:17px !important;font-weight:800 !important;letter-spacing:-.2px !important}
+#page-hutang #hutang-root .ht-empty{padding:44px 16px;border:0;border-radius:26px;background:var(--card);text-align:center;font-size:13px;font-weight:500;color:var(--text3)}
+
+/* --- Banner Total Hutang --- */
+#page-hutang #hutang-root .ht-card.ht-total{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;margin:0 0 20px;padding:28px;border:0;border-radius:28px;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 20%,var(--card)) 0%,var(--card) 68%);box-shadow:none}
+#page-hutang #hutang-root .ht-total>*{grid-column:1/-1;min-width:0}
+#page-hutang #hutang-root .ht-setT{margin:0 0 6px;padding:0;border:0;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--ha)}
+#page-hutang #hutang-root .ht-picklbl{margin:0 0 12px;font-size:12.5px;font-weight:500;letter-spacing:0;color:var(--text3)}
+#page-hutang #hutang-root .ht-chk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 26px}
+#page-hutang #hutang-root .ht-chk label{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:0;border-radius:999px;background:var(--tint);color:var(--text2);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;line-height:1.2}
+#page-hutang #hutang-root .ht-chk label:has(input:checked){background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--text)}
+#page-hutang #hutang-root .ht-chk input{flex:0 0 auto;width:15px;height:15px;margin:0;accent-color:var(--gold2)}
+#page-hutang #hutang-root .ht-total .ht-hero,#page-hutang #hutang-root .ht-total .ht-hero.ok{grid-column:1/-1;margin:0 0 22px;padding:0;border:0;border-radius:0;background:transparent;background-image:none;text-align:left}
+#page-hutang #hutang-root .ht-total .ht-totbody{grid-column:1/-1}
+#page-hutang #hutang-root .ht-hero .l{font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-hero .v{margin:8px 0 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:44px;font-weight:800;line-height:1.1;letter-spacing:-1.2px;color:var(--hr);overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-hero.ok .v{color:var(--hg)}
+#page-hutang #hutang-root .ht-hero .s{font-size:12.5px;font-weight:500;line-height:1.75;color:var(--text3)}
+#page-hutang #hutang-root .ht-totbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;justify-content:stretch;gap:12px;margin:0}
+#page-hutang #hutang-root .ht-totbody .ht-pb{grid-column:1/-1;height:12px;margin:0 0 4px;border-radius:999px;background:color-mix(in srgb,var(--text) 10%,transparent)}
+#page-hutang #hutang-root .ht-totleg{display:contents}
+#page-hutang #hutang-root .ht-totleg .it{min-width:0;padding:14px 16px;border:0;border-radius:16px;background:var(--tint)}
+#page-hutang #hutang-root .ht-totleg .l{display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:11.5px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-totleg .l i{display:inline-block;flex:0 0 auto;width:8px;height:8px;border-radius:50%}
+#page-hutang #hutang-root .ht-totleg .v{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;letter-spacing:0;overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-totleg .p{margin-top:3px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text3)}
+#page-hutang #hutang-root .ht-total .ht-brk{margin-top:26px}
+#page-hutang #hutang-root .ht-brk{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:0}
+#page-hutang #hutang-root .ht-brk .it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:center;padding:14px 16px;border:0;border-radius:16px;background:var(--tint)}
+#page-hutang #hutang-root .ht-brk .n{font-size:13px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--text);overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-brk .a{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;color:var(--hr);text-align:right}
+#page-hutang #hutang-root .ht-brk .a.g{color:var(--hg)}
+#page-hutang #hutang-root .ht-brk .it .ht-pb,#page-hutang #hutang-root .ht-brk .it .pb{grid-column:1/-1;margin:0}
+@media(max-width:900px){
+#page-hutang #hutang-root .ht-card.ht-total{grid-template-columns:minmax(0,1fr);padding:22px}
+#page-hutang #hutang-root .ht-total .ht-hero,#page-hutang #hutang-root .ht-total .ht-totbody{grid-column:1}
+#page-hutang #hutang-root .ht-total .ht-totbody{margin-top:22px}
+#page-hutang #hutang-root .ht-totbody{grid-template-columns:minmax(0,1fr)}
+#page-hutang #hutang-root .ht-hero .v{font-size:34px}
+}
+
+/* --- Statistik (angka di atas, label di bawah) --- */
+#page-hutang #hutang-root .ht-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 20px}
+#page-hutang #hutang-root .ht-stat{position:static;display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:8px;min-width:0;padding:16px 18px;border:0;border-radius:20px;background:var(--tint);box-shadow:none;overflow:visible}
+#page-hutang #hutang-root .ht-stat:has(.v.g){background:color-mix(in srgb,var(--green2) 12%,transparent)}
+#page-hutang #hutang-root .ht-stat:has(.v.r){background:color-mix(in srgb,var(--red2) 11%,transparent)}
+#page-hutang #hutang-root .ht-stat:has(.v.y){background:color-mix(in srgb,var(--gold) 14%,transparent)}
+#page-hutang #hutang-root .ht-stat .l{min-height:0;margin:0;font-size:11.5px;font-weight:600;line-height:1.35;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-stat .v{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;line-height:1.25;letter-spacing:0;color:var(--text);white-space:normal;overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-stat .v.g{color:var(--hg)}
+#page-hutang #hutang-root .ht-stat .v.r{color:var(--hr)}
+#page-hutang #hutang-root .ht-stat .v.y{color:var(--ha)}
+@media(max-width:900px){
+#page-hutang #hutang-root .ht-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+#page-hutang #hutang-root .ht-stat{padding:14px 15px}
+#page-hutang #hutang-root .ht-stat .v{font-size:15px}
+}
+
+/* --- Ringkasan keuangan: form di kiri, hasil di kanan --- */
+#page-hutang #hutang-root .ht-set{margin:0 0 20px;padding:26px;border:0;border-radius:26px;background:var(--card);box-shadow:none}
+#page-hutang #hutang-root .ht-sum{display:grid;grid-template-columns:minmax(0,1fr);column-gap:36px;align-items:start}
+#page-hutang #hutang-root .ht-set .st{margin:0 0 4px;padding:0;border:0;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--ha)}
+#page-hutang #hutang-root .ht-sum .ht-sumsub{margin:0 0 22px;font-size:12.5px;font-weight:500;letter-spacing:0;color:var(--text3)}
+#page-hutang #hutang-root .ht-sumhero{margin:0 0 22px;padding:0;border:0;border-radius:0;background:transparent}
+#page-hutang #hutang-root .ht-sumhero .l{font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-sumhero .v{margin:8px 0 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:36px;font-weight:800;line-height:1.1;letter-spacing:-1px;color:var(--hg);overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-sumhero.neg .v{color:var(--hr)}
+#page-hutang #hutang-root .ht-sumhero .s{font-size:12.5px;font-weight:500;line-height:1.6;color:var(--text3)}
+#page-hutang #hutang-root .ht-sumin{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:0 0 22px}
+#page-hutang #hutang-root .ht-sumin label{display:flex;flex-direction:column;gap:8px;min-width:0}
+#page-hutang #hutang-root .ht-sumin label>span,#page-hutang #hutang-root .ht-sumin label.full>span{display:block !important;min-height:0 !important;margin:0;font-size:11.5px;font-weight:700;line-height:1.4;letter-spacing:.4px;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-sumin input,#page-hutang #hutang-root .ht-sumin select{width:100%;box-sizing:border-box;height:48px;padding:0 16px;border:0;border-radius:14px;background:var(--tint);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;outline:none}
+#page-hutang #hutang-root .ht-sumin input:focus,#page-hutang #hutang-root .ht-sumin select:focus{box-shadow:0 0 0 2px var(--gold)}
+#page-hutang #hutang-root .ht-sumin select option{background:var(--bg);color:var(--text)}
+#page-hutang #hutang-root .ht-sumg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#page-hutang #hutang-root .ht-sumg .it,#page-hutang #hutang-root .ht-sumg .it.full{grid-column:auto;display:flex;flex-direction:column;gap:6px;min-width:0;padding:16px;border:0;border-radius:18px;background:var(--tint)}
+#page-hutang #hutang-root .ht-sumg .it.full{grid-column:1/-1}
+#page-hutang #hutang-root .ht-sumg .l{font-size:11.5px;font-weight:700;line-height:1.35;letter-spacing:0;text-transform:none;color:var(--text3)}
+#page-hutang #hutang-root .ht-sumg .v{margin:0;font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;letter-spacing:0;color:var(--text);white-space:normal;overflow-wrap:anywhere}
+#page-hutang #hutang-root .ht-sumg .v.g{color:var(--hg)}
+#page-hutang #hutang-root .ht-sumg .v.r{color:var(--hr)}
+#page-hutang #hutang-root .ht-sumg .v.y{color:var(--ha)}
+#page-hutang #hutang-root .ht-sumg .n{font-size:11.5px;font-weight:500;line-height:1.5;color:var(--text3)}
+@media(max-width:900px){
+#page-hutang #hutang-root .ht-card{padding:18px;border-radius:22px;margin-bottom:16px}
+#page-hutang #hutang-root .ht-set{padding:20px;border-radius:22px}
+#page-hutang #hutang-root .ht-head .t{font-size:24px}
+#page-hutang #hutang-root .ht-bar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+#page-hutang #hutang-root .ht-bar .ht-btn{flex:0 0 auto;white-space:nowrap}
+#page-hutang #hutang-root .ht-mname{flex:1 1 100%}
+#page-hutang #hutang-root .ht-sumhero .v{font-size:30px}
+}
+@media(max-width:420px){
+#page-hutang #hutang-root .ht-sumg{grid-template-columns:minmax(0,1fr)}
+#page-hutang #hutang-root .ht-brk{grid-template-columns:minmax(0,1fr)}
+}
+@media(min-width:901px){
+#page-hutang #hutang-root .ht-tabs{flex-wrap:wrap;overflow:visible}
+#page-hutang #hutang-root .ht-sumin{grid-template-columns:repeat(3,minmax(0,1fr))}
+#page-hutang #hutang-root .ht-sumin label.full{grid-column:auto}
+#page-hutang #hutang-root .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}
+#page-hutang #hutang-root .ht-sumg .it.full{grid-column:auto}
+}
+</style>
 <style id="admin-summary-style">
 .ah-sumgrid{grid-template-columns:minmax(0,1fr) !important}
 .ah-sumgrid .ah-stat .l{min-height:0 !important}
@@ -2062,7 +2448,7 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
   <div class="top-ext-links">
     <button class="nav-ext-btn" onclick="window.location.href='latar.html'">📈 HALAMAN RHN CAPITAL ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='galeri.html'">📈 GALERI ONLINE ↗</button>
-    <button class="nav-ext-btn" onclick="window.location.href='jurnal.html'">📈 JURNAL FOREX ↗</button>
+    <button class="nav-ext-btn" onclick="window.location.href='file.html'">📈 BACKUP FILE  ↗</button>
     <button class="nav-ext-btn" onclick="window.location.href='data.html'">📈 DATA PRIBADI ↗</button>
   </div>
   
@@ -4952,9 +5338,13 @@ window.renderIBPage = async function () {
         } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; return; }
     }
     if (!window.__myIB) {
-        el.innerHTML = `<div class="ib-hero"><h3>🤝 Jadi IB Partner RHN CAPITAL</h3>
-            <p>Daftar jadi IB, dapatkan link khusus kamu. Setiap orang yang mendaftar lewat link kamu lalu berlangganan, kamu otomatis dapat komisi <b style="color:var(--gold);">${window.IB_DEFAULT_RATE}%</b> dari tiap pembayaran langganan mereka. Saldo bisa ditarik, diproses maksimal 1 hari kerja. Pendaftaran wajib mengisi formulir dan disetujui admin dulu.</p>
-            <button class="ib-btn" style="margin-top:14px; width:100%; padding:13px;" onclick="window.daftarJadiIB()">📝 ISI FORMULIR PENDAFTARAN IB</button></div>`;
+        const X = window.ibxIc;
+        el.innerHTML = `<div class="ibx ibx-solo"><section class="ibx-p ibx-solo-card">
+            <div class="ibx-state-ic">${X('users')}</div>
+            <h3 class="ibx-h">Jadi IB Partner RHN CAPITAL</h3>
+            <p class="ibx-tx">Daftar jadi IB, dapatkan link khusus kamu. Setiap orang yang mendaftar lewat link kamu lalu berlangganan, kamu otomatis dapat komisi <b>${window.IB_DEFAULT_RATE}%</b> dari tiap pembayaran langganan mereka. Saldo bisa ditarik, diproses maksimal 1 hari kerja. Pendaftaran wajib mengisi formulir dan disetujui admin dulu.</p>
+            <div class="ibx-perks"><div>${X('coin')}<span>Komisi ${window.IB_DEFAULT_RATE}%</span></div><div>${X('cal')}<span>Cair maks 1 hari kerja</span></div><div>${X('shield')}<span>Disetujui admin</span></div></div>
+            <button class="ibx-cta" style="background:var(--gold); color:#1A1200;" onclick="window.daftarJadiIB()">ISI FORMULIR PENDAFTARAN IB</button></section></div>`;
         return;
     }
     window.__ib.me = window.__myIB;
@@ -5358,7 +5748,13 @@ window.drawIB = function () {
     const el = document.getElementById('ib-root'); const ib = window.__ib.me; if (!el || !ib) return;
     if (ib.status === 'pending' || ib.status === 'rejected') {
         const ap = ib.application || {};
-        el.innerHTML = '<div class="ib-hero"><h3>' + (ib.status === 'pending' ? '⏳ Pendaftaran IB Sedang Ditinjau' : '✕ Pendaftaran IB Ditolak') + '</h3><p>' + (ib.status === 'pending' ? 'Formulir kamu sudah masuk. Link IB akan aktif setelah admin menyetujui.' : 'Alasan: ' + ibEsc(ib.rejectNote || '-') + '. Hubungi admin lewat Customer Service kalau ingin mendaftar ulang.') + '</p><div class="s" style="margin-top:10px; font-size:10.5px; color:var(--text3); line-height:1.7;">Nama: ' + ibEsc(ap.nama || ib.nama) + '<br>WhatsApp: ' + ibEsc(ap.wa || '-') + '<br>Diajukan: ' + ibDate(ib.createdAt) + '</div></div>';
+        const X = window.ibxIc, pend = ib.status === 'pending';
+        el.innerHTML = '<div class="ibx ibx-solo"><section class="ibx-p ibx-solo-card">'
+            + '<div class="ibx-state-ic' + (pend ? '' : ' bad') + '">' + X(pend ? 'clock' : 'x') + '</div>'
+            + '<h3 class="ibx-h">' + (pend ? 'Pendaftaran IB Sedang Ditinjau' : 'Pendaftaran IB Ditolak') + '</h3>'
+            + '<p class="ibx-tx">' + (pend ? 'Formulir kamu sudah masuk. Link IB akan aktif setelah admin menyetujui.' : 'Alasan: ' + ibEsc(ib.rejectNote || '-') + '. Hubungi admin lewat Customer Service kalau ingin mendaftar ulang.') + '</p>'
+            + '<div class="ibx-kv"><div><span>Nama</span><b>' + ibEsc(ap.nama || ib.nama) + '</b></div><div><span>WhatsApp</span><b>' + ibEsc(ap.wa || '-') + '</b></div><div><span>Diajukan</span><b>' + ibDate(ib.createdAt) + '</b></div></div>'
+            + '</section></div>';
         return;
     }
     const s = window.ibStats(); window.__ibStats = s;
@@ -5368,34 +5764,75 @@ window.drawIB = function () {
     const wds = window.__ib.wds.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const now = Date.now();
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
+    const X = window.ibxIc, tab = window.__ibTab || 'client';
+    const ini = n => ibEsc((String(n || '?').trim().charAt(0) || '?').toUpperCase());
+    const emp = (ic, tx) => '<div class="ibx-empty"><div class="ibx-ico">' + X(ic) + '</div>' + tx + '</div>';
+    const cRows = clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ibx-it"><div class="ibx-av">${ini(c.nama)}</div><div class="ibx-mn"><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="ibx-sd">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div></div></div>`; }).join('') : emp('users', 'Belum ada client. Bagikan link kamu!');
+    const mRows = comms.length ? comms.slice(0, 100).map(c => `<div class="ibx-it"><div class="ibx-av g">${X('plus')}</div><div class="ibx-mn"><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="ibx-sd"><span class="amt">+${ibRp(c.commission)}</span></div></div>`).join('') : emp('coin', 'Belum ada komisi masuk.');
+    const wRows = wds.length ? wds.slice(0, 100).map(w => `<div class="ibx-it"><div class="ibx-av b">${X('out')}</div><div class="ibx-mn"><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="ibx-sd">${pill(w.status)}</div></div>`).join('') : emp('inbox', 'Belum ada penarikan.');
     el.innerHTML = `
-    <div class="ib-hero"><h3>🤝 Dashboard IB — ${ibEsc(ib.nama)}</h3>
-      <p>Kode IB: <b style="color:var(--gold);">${ibEsc(ib.code)}</b> • Komisi: <b style="color:var(--gold);">${ib.rate}%</b> per langganan client • Status: ${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">DINONAKTIFKAN</span>'}</p>
-      <div class="ib-link-box"><input id="ib-link-input" readonly value="${ibEsc(link)}" onclick="this.select()"><button class="ib-btn" onclick="window.ibCopyLink()">SALIN</button><button class="ib-btn blue" onclick="window.ibShareLink()">BAGIKAN</button></div>
-      ${(location.protocol === 'file:' && !(window.IB_BASE_URL || '').trim()) ? '<div style="margin-top:10px; font-size:10.5px; color:var(--red2); line-height:1.5;">⚠️ Link ini masih alamat file di komputer (file:///), tidak bisa dibuka orang lain. Upload aplikasi ke hosting dulu lalu isi IB_BASE_URL.</div>' : ''}
-      <div id="ib-qr" style="margin-top:12px; display:flex; justify-content:center;"></div>
-      <button class="ib-btn blue" style="width:100%; margin-top:12px; padding:12px;" onclick="window.openCSChat()">💬 CHAT ADMIN</button>
-    </div>
-    <div class="ib-stats">
-      <div class="ib-stat gold"><div class="l">Saldo Bisa Ditarik</div><div class="v">${ibRp(s.available)}</div></div>
-      <div class="ib-stat green"><div class="l">Total Komisi</div><div class="v">${ibRp(s.total)}</div></div>
-      <div class="ib-stat"><div class="l">Sudah Ditarik</div><div class="v">${ibRp(s.paid)}</div></div>
-      <div class="ib-stat"><div class="l">Sedang Diproses</div><div class="v">${ibRp(s.pend)}</div></div>
-      <div class="ib-stat"><div class="l">Total Client</div><div class="v">${s.clients}</div></div>
-      <div class="ib-stat"><div class="l">Client Aktif</div><div class="v">${s.active}</div></div>
-    </div>
-    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">💸 Tarik Saldo</div><div class="card-sub">Minimal ${ibRp(window.IB_MIN_WD)}. Penarikan diproses maksimal 1 hari kerja (Senin–Jumat).</div></div>
-      <button class="ib-btn green" style="width:100%; padding:13px;" onclick="window.ibTarik()" ${s.available < window.IB_MIN_WD || ib.status !== 'active' ? 'disabled' : ''}>TARIK ${ibRp(s.available)}</button></div>
-    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">👥 Client Saya</div></div>
-      ${clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ib-row"><div><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="r">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div></div></div>`; }).join('') : '<div class="ib-empty">Belum ada client. Bagikan link kamu!</div>'}
-    </div>
-    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">💰 Riwayat Komisi</div></div>
-      ${comms.length ? comms.slice(0, 100).map(c => `<div class="ib-row"><div><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="r" style="color:var(--green2);">+${ibRp(c.commission)}</div></div>`).join('') : '<div class="ib-empty">Belum ada komisi masuk.</div>'}
-    </div>
-    <div class="card"><div class="card-head"><div class="card-title" style="color:var(--gold);">🏦 Riwayat Penarikan</div></div>
-      ${wds.length ? wds.slice(0, 100).map(w => `<div class="ib-row"><div><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="r">${pill(w.status)}</div></div>`).join('') : '<div class="ib-empty">Belum ada penarikan.</div>'}
+    <div class="ibx">
+      <section class="ibx-bal">
+        <div class="ibx-bal-main"><div class="ibx-ico">${X('wallet')}</div><div style="min-width:0;"><div class="ibx-lbl">Saldo Bisa Ditarik</div><div class="ibx-big">${ibRp(s.available)}</div></div></div>
+        <div class="ibx-bal-side">
+          <button class="ibx-cta" onclick="window.ibTarik()" ${s.available < window.IB_MIN_WD || ib.status !== 'active' ? 'disabled' : ''}>TARIK ${ibRp(s.available)}</button>
+          <div class="ibx-note">Minimal ${ibRp(window.IB_MIN_WD)}. Penarikan diproses maksimal 1 hari kerja (Senin–Jumat).</div>
+        </div>
+      </section>
+      <aside class="ibx-p ibx-prof">
+        <div class="ibx-id"><div class="ibx-avl">${ini(ib.nama)}</div><div class="ibx-idt"><div class="ibx-nm">${ibEsc(ib.nama)}</div><div class="ibx-sub">Dashboard IB</div></div>${ib.status === 'active' ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill bad">DINONAKTIFKAN</span>'}</div>
+        <div class="ibx-facts"><div><span>Kode IB</span><b class="mono">${ibEsc(ib.code)}</b></div><div><span>Komisi</span><b>${ib.rate}%</b><small>per langganan client</small></div></div>
+        <div><div class="ibx-lbl">Link Referral</div>
+          <input id="ib-link-input" class="ibx-link" readonly value="${ibEsc(link)}" onclick="this.select()">
+          <div class="ibx-2"><button class="ibx-btn pri" onclick="window.ibCopyLink()">${X('copy')}SALIN</button><button class="ibx-btn blue" onclick="window.ibShareLink()">${X('share')}BAGIKAN</button></div>
+          ${(location.protocol === 'file:' && !(window.IB_BASE_URL || '').trim()) ? '<div class="ibx-warn">⚠️ Link ini masih alamat file di komputer (file:///), tidak bisa dibuka orang lain. Upload aplikasi ke hosting dulu lalu isi IB_BASE_URL.</div>' : ''}
+        </div>
+        <div class="ibx-qr"><div id="ib-qr"></div><div class="ibx-cap">Scan QR untuk daftar lewat link kamu</div></div>
+        <button class="ibx-btn ghost" onclick="window.openCSChat()">${X('chat')}CHAT ADMIN</button>
+      </aside>
+      <section class="ibx-p ibx-met">
+        <div class="ibx-m"><span class="l">Total Komisi</span><b class="v g">${ibRp(s.total)}</b></div>
+        <div class="ibx-m"><span class="l">Sudah Ditarik</span><b class="v">${ibRp(s.paid)}</b></div>
+        <div class="ibx-m"><span class="l">Sedang Diproses</span><b class="v">${ibRp(s.pend)}</b></div>
+        <div class="ibx-m"><span class="l">Total Client</span><b class="v">${s.clients}</b></div>
+        <div class="ibx-m"><span class="l">Client Aktif</span><b class="v">${s.active}</b></div>
+      </section>
+      <section class="ibx-p ibx-list">
+        <div class="ibx-tabs">
+          <button class="ibx-tab${tab === 'client' ? ' on' : ''}" data-t="client" onclick="window.ibTab('client')">Client<i>${clients.length}</i></button>
+          <button class="ibx-tab${tab === 'komisi' ? ' on' : ''}" data-t="komisi" onclick="window.ibTab('komisi')">Komisi<i>${comms.length}</i></button>
+          <button class="ibx-tab${tab === 'tarik' ? ' on' : ''}" data-t="tarik" onclick="window.ibTab('tarik')">Penarikan<i>${wds.length}</i></button>
+        </div>
+        <div class="ibx-pane${tab === 'client' ? ' on' : ''}" data-p="client">${cRows}</div>
+        <div class="ibx-pane${tab === 'komisi' ? ' on' : ''}" data-p="komisi">${mRows}</div>
+        <div class="ibx-pane${tab === 'tarik' ? ' on' : ''}" data-p="tarik">${wRows}</div>
+      </section>
     </div>`;
     try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
+};
+
+window.ibxIc = function (n) {
+    const P = {
+        wallet: '<path d="M4 7a2 2 0 0 1 2-2h11v3"/><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M16 13h2"/>',
+        copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+        share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
+        chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+        plus: '<path d="M12 5v14M5 12h14"/>',
+        out: '<path d="M7 17L17 7M8 7h9v9"/>',
+        clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+        x: '<path d="M6 6l12 12M18 6L6 18"/>',
+        users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
+        coin: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.7-2.5.7-2.5 1.7 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/>',
+        shield: '<path d="M12 3l7 3v5c0 5-3.2 8.2-7 10-3.8-1.8-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+        cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+        inbox: '<path d="M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 13h4.5a3.5 3.5 0 0 0 7 0H20"/>'
+    };
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[n] || '') + '</svg>';
+};
+window.ibTab = function (t) {
+    window.__ibTab = t;
+    document.querySelectorAll('#ib-root .ibx-tab').forEach(b => b.classList.toggle('on', b.getAttribute('data-t') === t));
+    document.querySelectorAll('#ib-root .ibx-pane').forEach(p => p.classList.toggle('on', p.getAttribute('data-p') === t));
 };
 
 window.ibCopyLink = function () {
@@ -13900,7 +14337,7 @@ if ('serviceWorker' in navigator) {
     D.sheets.forEach(function(s){h+='<label><input type="checkbox" '+(ids.indexOf(s.id)>-1?'checked':'')+' onchange="window.htTot(\''+s.id+'\',this.checked)">'+esc(s.name)+'</label>';});
     h+='</div>';
     h+='<div class="ht-hero'+(done?' ok':'')+'"><div class="l">Hutang yang masih ada (sisa)</div><div class="v">'+rp(t.sisa)+'</div><div class="s">'+(!ids.length?'Belum ada lembar yang dipilih.':(done?'Semua hutang pada lembar terpilih sudah LUNAS.':'dari total hutang '+rp(t.j)+'<br>sudah dibayar '+rp(t.b)+' ('+pct(pp)+') - '+ids.length+' lembar dipilih'))+'</div></div>';
-    h+='<div class="ht-totbody"><canvas id="htp_total" width="190" height="190"></canvas><div class="ht-totleg">'+
+    h+='<div class="ht-totbody">'+pbar(t.j,t.b)+'<div class="ht-totleg">'+
       '<div class="it"><div class="l"><i style="background:'+C_PAID+'"></i>Sudah Dibayar</div><div class="v g">'+rp(t.b)+'</div><div class="p">'+pct(pp)+'</div></div>'+
       '<div class="it"><div class="l"><i style="background:'+C_SISA+'"></i>Sisa Hutang (Belum Dibayar)</div><div class="v r">'+rp(t.sisa)+'</div><div class="p">'+pct(t.j?100-pp:0)+'</div></div></div></div>';
     h+='<div class="ht-brk">';
@@ -13986,7 +14423,7 @@ if ('serviceWorker' in navigator) {
     var ok=t.j>0&&t.sisa<=0;
     return '<tr class="tot">'+(c1?'<td class="c">'+label+'</td>':'')+'<td>'+(c1?'':'<div class="ht-tcell"><span>'+label+'</span><b>')+rp(t.j)+(c1?'':'</b></div>')+'</td><td>'+rp(t.b)+'</td><td><div>'+rp(t.sisa)+'</div>'+pbar(t.j,t.b)+'</td><td class="c">'+badge(t.j,t.b)+'</td><td>'+rp(t.harian)+'</td>'+(c1?'':'<td></td>')+'</tr>';
   }
-  function side(pid,t){return '<div class="ht-side"><div class="lbl">Total Harian</div><div class="val">'+rp(t.harian)+'</div><canvas id="'+pid+'" width="140" height="140"></canvas>'+legend(t.b,t.sisa)+'</div>';}
+  function side(pid,t){return '<div class="ht-side"><div class="lbl">Total Harian</div><div class="val">'+rp(t.harian)+'</div>'+pbar(t.j,t.b)+legend(t.b,t.sisa)+'</div>';}
   function monthBlock(s,m,idx){
     var t=mTot(m),pid='htp_'+m.id;
     var h='<div class="ht-card"><div class="ht-mhead"><div class="ht-mname"><span class="ht-no">'+(idx+1)+'</span>'+
@@ -14061,8 +14498,8 @@ if ('serviceWorker' in navigator) {
     var r=cur==='__merge'?renderMerge():renderSheet(sheet(cur));
     root.innerHTML=tabs()+r.html;
     r.pies.forEach(function(p){pie(p[0],p[1].b,p[1].sisa);});
-    try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl:not(.ht-edit) td').forEach(function(td){var w=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});}}catch(e){}
-    try{if(window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl.ht-edit tr.tot').forEach(function(tr){var c=tr.children;if(c.length<2)return;var b1=c[0].querySelector('b'),c2=c[1];if(b1&&c2&&b1.textContent===c2.textContent){c2.textContent='';}root.querySelectorAll('.ht-tbl.ht-edit td').forEach(function(td){var w2=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n2;while((n2=w2.nextNode())){var v2=n2.nodeValue;if(/^Rp[\d.,]+$/.test(v2)){n2.nodeValue=v2.replace(/^Rp/,'').replace(/,00$/,'');}}});[b1,c2].forEach(function(el){if(!el)return;var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});});}}catch(e){}
+    try{if(false&&window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl:not(.ht-edit) td').forEach(function(td){var w=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});}}catch(e){}
+    try{if(false&&window.matchMedia&&window.matchMedia('(max-width:900px)').matches){root.querySelectorAll('.ht-tbl.ht-edit tr.tot').forEach(function(tr){var c=tr.children;if(c.length<2)return;var b1=c[0].querySelector('b'),c2=c[1];if(b1&&c2&&b1.textContent===c2.textContent){c2.textContent='';}root.querySelectorAll('.ht-tbl.ht-edit td').forEach(function(td){var w2=document.createTreeWalker(td,NodeFilter.SHOW_TEXT,null,false),n2;while((n2=w2.nextNode())){var v2=n2.nodeValue;if(/^Rp[\d.,]+$/.test(v2)){n2.nodeValue=v2.replace(/^Rp/,'').replace(/,00$/,'');}}});[b1,c2].forEach(function(el){if(!el)return;var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false),n;while((n=w.nextNode())){var v=n.nodeValue;if(/^Rp[\d.,]+$/.test(v)){n.nodeValue=v.replace(/^Rp/,'').replace(/,00$/,'');}}});});}}catch(e){}
     window.scrollTo(0,y);
     return true;
   }
@@ -14132,11 +14569,25 @@ if ('serviceWorker' in navigator) {
   window.htAddRow=function(sid,mid){mon(sid,mid).rows.push({id:gid(),jumlah:0,bayar:0});save();render();};
   window.htDelRow=function(sid,mid,rid){var m0=mon(sid,mid),r0=(m0&&m0.rows.filter(function(x){return x.id===rid;})[0])||{};sure2('Hapus baris ini?','Baris dengan jumlah <b>'+rp(r0.jumlah||0)+'</b> akan dihapus permanen dan tidak bisa dikembalikan.').then(function(ok){if(!ok)return;var m=mon(sid,mid);if(!m)return;m.rows=m.rows.filter(function(r){return r.id!==rid;});save();render();});};
   window.htSetRow=function(sid,mid,rid,k,v){var r=mon(sid,mid).rows.filter(function(x){return x.id===rid;})[0];r[k]=num(v);save();render();};
+  function htKeepY(y){
+    try{
+      var de=document.documentElement,old=de.style.scrollBehavior,moved=false;
+      var stop=function(){moved=true;};
+      window.addEventListener('wheel',stop,{passive:true,once:true});
+      window.addEventListener('touchstart',stop,{passive:true,once:true});
+      window.addEventListener('keydown',stop,{once:true});
+      de.style.scrollBehavior='auto';
+      var go=function(){if(!moved&&Math.abs(window.pageYOffset-y)>1)window.scrollTo(0,y);};
+      go();requestAnimationFrame(go);
+      [60,150,300,600,1000,2200].forEach(function(t){setTimeout(go,t);});
+      setTimeout(function(){de.style.scrollBehavior=old;},2300);
+    }catch(e){}
+  }
   window.htLunas=function(sid,mid,rid){
     var m=mon(sid,mid),r=m&&m.rows.filter(function(x){return x.id===rid;})[0];
     if(!r)return;
     if(!(r.jumlah>0)){if(typeof Swal!=='undefined')SW({icon:'info',title:'Jumlah masih kosong',text:'Isi kolom Jumlah dulu, lalu klik Lunas.'});return;}
-    r.bayar=r.jumlah;save();render();toast('Lunas! Bayar terisi penuh '+rp(r.jumlah));
+    var y0=window.pageYOffset;r.bayar=r.jumlah;save();render();toast('Lunas! Bayar terisi penuh '+rp(r.jumlah));htKeepY(y0);
   };
   window.htTot=function(id,on){
     if(cur==='__merge')return window.htToggle(id,on);
