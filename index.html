@@ -2370,6 +2370,260 @@ html body #page-hutang #hutang-root .ht-wrap{padding:0 8px 8px !important}
 html body #page-hutang #hutang-root .ht-side{margin:0 10px 4px !important}
 }
 </style>
+<style id="hutang-nyaman">
+/* ===== HUTANG v8 "NYAMAN": kartu bulan berpanel lega, status di depan, perhari tidak lagi terdempet. Hanya halaman Hutang. ===== */
+#page-hutang{--hn-line:color-mix(in srgb,var(--text) 9%,transparent);--hn-soft:color-mix(in srgb,var(--text) 4.5%,transparent);--hn-field:color-mix(in srgb,var(--text) 7%,transparent);--hn-ease:cubic-bezier(.22,.8,.3,1)}
+html body #page-hutang #hutang-root#hutang-root{display:grid !important;grid-template-columns:minmax(0,1fr) !important;gap:18px !important;max-width:1360px;margin-inline:auto;font-family:'Plus Jakarta Sans',sans-serif;font-variant-numeric:tabular-nums;font-size:14px}
+html body #page-hutang #hutang-root#hutang-root>*{grid-column:1/-1 !important;grid-row:auto !important;margin:0 !important;min-width:0}
+/* tab lembar */
+html body #page-hutang #hutang-root#hutang-root .ht-tabs{display:flex !important;flex-wrap:nowrap !important;gap:10px !important;padding:2px 2px 8px !important;border:0 !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;overflow-x:auto !important;scrollbar-width:none}
+html body #page-hutang #hutang-root#hutang-root .ht-tabs::-webkit-scrollbar{display:none}
+html body #page-hutang #hutang-root#hutang-root .ht-tab,html body #page-hutang #hutang-root#hutang-root .ht-tab.merge,html body #page-hutang #hutang-root#hutang-root .ht-tab.add{flex:0 0 auto;padding:12px 20px !important;border:1px solid var(--hn-line) !important;border-radius:18px !important;background:var(--hn-soft) !important;color:var(--text2) !important;font:700 13px/1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.1px !important;text-transform:none !important;box-shadow:none !important;transition:background .25s var(--hn-ease),border-color .25s,transform .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-tab:hover{background:var(--hn-field) !important;color:var(--text) !important;transform:translateY(-1px)}
+html body #page-hutang #hutang-root#hutang-root .ht-tab.active,html body #page-hutang #hutang-root#hutang-root .ht-tab.merge.active{padding:12px 20px !important;border-color:color-mix(in srgb,var(--gold) 55%,transparent) !important;background:color-mix(in srgb,var(--gold) 19%,transparent) !important;color:var(--text) !important;box-shadow:0 10px 22px -12px color-mix(in srgb,var(--gold) 75%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tab.add{border-style:dashed !important;background:transparent !important;color:var(--ha) !important}
+/* judul + tombol aksi */
+html body #page-hutang #hutang-root#hutang-root .ht-head{display:flex !important;flex-wrap:wrap;align-items:center;gap:8px 14px !important;padding:0 !important;border:0 !important;text-align:left}
+html body #page-hutang #hutang-root#hutang-root .ht-head .t{font:800 26px/1.15 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.4px !important;color:var(--text)}
+html body #page-hutang #hutang-root#hutang-root .ht-head .s{display:inline-flex;align-items:center;margin:0 !important;padding:6px 14px;border-radius:999px;background:var(--hn-soft);font:600 12px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;color:var(--text3)}
+html body #page-hutang #hutang-root#hutang-root .ht-bar{display:flex !important;flex-wrap:nowrap !important;gap:10px !important;overflow-x:auto;padding:2px 2px 6px !important;scrollbar-width:none}
+html body #page-hutang #hutang-root#hutang-root .ht-bar::-webkit-scrollbar{display:none}
+html body #page-hutang #hutang-root#hutang-root .ht-btn,html body #page-hutang #hutang-root#hutang-root .ht-btn.sm{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:42px;padding:0 18px !important;border:1px solid var(--hn-line) !important;border-radius:16px !important;background:var(--hn-soft) !important;color:var(--text) !important;font:700 12.5px/1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.1px !important;text-transform:none !important;white-space:nowrap;box-shadow:none !important;transition:background .25s var(--hn-ease),transform .2s,box-shadow .25s}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.sm{height:38px;padding:0 16px !important;font-size:12px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn:hover{transform:translateY(-1px);background:var(--hn-field) !important;box-shadow:0 10px 20px -14px rgba(0,0,0,.6) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.pri{border-color:transparent !important;background:var(--gold) !important;color:#1c1400 !important;box-shadow:0 12px 24px -14px color-mix(in srgb,var(--gold) 90%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.pri:hover{background:var(--gold2) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.dan{border-color:color-mix(in srgb,var(--red2) 28%,transparent) !important;background:color-mix(in srgb,var(--red2) 11%,transparent) !important;color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.dan:hover{background:color-mix(in srgb,var(--red2) 20%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.pdf{background:color-mix(in srgb,var(--red2) 10%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-btn.xls{background:color-mix(in srgb,var(--green2) 11%,transparent) !important}
+/* kartu bulan */
+html body #page-hutang #hutang-root#hutang-root .ht-card:not(.ht-total):not(.ht-empty){position:relative;padding:24px !important;border:1px solid var(--hn-line) !important;border-radius:34px !important;background:linear-gradient(165deg,color-mix(in srgb,var(--text) 6%,var(--card)) 0%,var(--card) 55%) !important;box-shadow:0 26px 50px -34px rgba(0,0,0,.45) !important;overflow:visible !important}
+html body #page-hutang #hutang-root#hutang-root .ht-card::before,html body #page-hutang #hutang-root#hutang-root .ht-card::after{display:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mhead{display:flex !important;flex-wrap:wrap;align-items:center;gap:12px 16px !important;margin:0 0 20px !important;padding:0 !important;border:0 !important;background:transparent !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mname{display:flex !important;align-items:center;gap:12px !important;flex:1 1 240px !important;min-width:0}
+html body #page-hutang #hutang-root#hutang-root .ht-no{display:grid !important;place-items:center;flex:0 0 auto;width:46px !important;height:46px !important;padding:0 !important;border:0 !important;border-radius:17px !important;background:color-mix(in srgb,var(--gold) 17%,transparent) !important;color:var(--ha) !important;font:800 17px/1 'Plus Jakarta Sans',sans-serif !important;box-shadow:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-no::before{content:none !important;display:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mname input{flex:1 1 auto;width:100%;min-width:0;height:48px;padding:0 16px !important;border:1px solid transparent !important;border-radius:18px !important;background:transparent !important;color:var(--text) !important;font:800 21px/1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.3px !important;text-transform:uppercase;box-shadow:none !important;outline:none !important;transition:background .2s,border-color .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-mname input:hover{background:var(--hn-soft) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mname input:focus{border-color:var(--gold) !important;background:var(--hn-field) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mname .nm{font:800 21px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.3px !important;color:var(--text);text-transform:uppercase}
+html body #page-hutang #hutang-root#hutang-root .ht-acts{display:flex !important;flex-wrap:wrap;gap:10px !important}
+/* susunan isi kartu: baris-baris dulu, ringkasan harian di bawah */
+html body #page-hutang #hutang-root#hutang-root .ht-grid{display:flex !important;flex-direction:column !important;align-items:stretch !important;gap:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-grid>.ht-wrap{order:1;width:100%}
+html body #page-hutang #hutang-root#hutang-root .ht-wrap{padding:0 !important;margin:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;overflow:visible !important;box-shadow:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit,html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit){display:block !important;width:100% !important;min-width:0 !important;table-layout:auto !important;border:0 !important;border-collapse:separate !important;border-spacing:0 !important;background:transparent !important;font-size:14px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tbody{display:flex !important;flex-direction:column;gap:12px;width:100%}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:has(>th){display:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr{display:grid !important;align-items:start;gap:16px 18px !important;padding:20px !important;border:1px solid var(--hn-line) !important;border-radius:28px !important;background:var(--hn-soft) !important;box-shadow:none !important;transition:background .25s var(--hn-ease),border-color .25s}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover{background:var(--hn-field) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:has(.ht-badge.ok):not(.tot){border-color:color-mix(in srgb,var(--green2) 26%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--green2) 11%,transparent),var(--hn-soft) 72%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:has(.ht-badge.no):not(.tot){border-color:color-mix(in srgb,var(--red2) 24%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--red2) 9%,transparent),var(--hn-soft) 72%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:has(>td[colspan]){display:block !important;padding:34px 20px !important;border-style:dashed !important;background:transparent !important;text-align:center}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr.tot{padding:22px !important;border:1px solid color-mix(in srgb,var(--gold) 36%,transparent) !important;border-radius:30px !important;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 21%,transparent),color-mix(in srgb,var(--gold) 5%,transparent) 78%) !important}
+/* sel */
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td{display:block !important;min-width:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important;text-align:left !important;white-space:normal !important;word-break:normal !important;overflow-wrap:anywhere;letter-spacing:0 !important;color:var(--text)}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:not(.tot) td{font-size:16px !important;font-weight:700 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr.tot td{font-size:19px !important;font-weight:800 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td[colspan]{grid-area:auto !important;grid-column:auto !important;font-size:14px !important;font-weight:600 !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td::before{display:block !important;margin:0 0 9px !important;font:700 10.5px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.9px !important;text-transform:uppercase !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td[colspan]::before,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit td:nth-child(6)::before,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit td:nth-child(4)::before,html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5)::before,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(1)::before,html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr.tot td:nth-child(1)::before{display:none !important;content:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(1)::before{content:"Jumlah" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(2)::before{content:"Bayar" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(3)::before{content:"Hasil" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5)::before{content:"Perhari" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(2)::before{content:"Total Bayar" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(3)::before{content:"Sisa Hutang" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5)::before{content:"Perhari" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr:not(.tot) td:nth-child(1)::before{content:"Lembar" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(2)::before{content:"Jumlah" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(3)::before{content:"Bayar" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(4)::before{content:"Hasil" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(6)::before{content:"Perhari" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(6){display:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(1){font-size:17px !important;font-weight:800 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr.tot td:nth-child(1){color:var(--ha) !important;font-size:12px !important;letter-spacing:1.4px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td.rs{font-size:19px !important;font-weight:800 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td.rs.r{color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td.rs.g{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td.dim,html body #page-hutang #hutang-root#hutang-root .ht-tbl td.rs.dim{color:var(--text2) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5){font-size:17px !important;font-weight:700 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(3){color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tcell{display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:flex-start !important;flex-wrap:nowrap !important;gap:8px !important;padding:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tcell span{font:800 11px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:1.5px !important;color:var(--ha) !important;text-transform:uppercase}
+html body #page-hutang #hutang-root#hutang-root .ht-tcell b{font:800 24px/1.15 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.4px !important;color:var(--text)}
+/* kolom isian */
+html body #page-hutang #hutang-root#hutang-root .ht-tbl input,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit input{width:100% !important;min-width:0 !important;height:50px !important;padding:0 16px !important;border:1px solid transparent !important;border-radius:18px !important;background:var(--hn-field) !important;box-shadow:none !important;outline:none !important;color:var(--text) !important;font:700 17px/1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-align:left !important;transition:border-color .2s,background .2s,box-shadow .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl input:focus{border-color:var(--gold) !important;background:color-mix(in srgb,var(--gold) 9%,transparent) !important;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 16%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl input::placeholder{color:var(--text3);opacity:.7}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-paycell,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-paycell{display:flex !important;flex-direction:row !important;align-items:stretch !important;justify-content:flex-start !important;gap:10px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-paycell input,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-paycell input{flex:1 1 0 !important;width:auto !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-lunas,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-lunas{flex:0 0 auto !important;width:auto !important;height:50px !important;padding:0 16px !important;border:0 !important;border-radius:18px !important;background:color-mix(in srgb,var(--green2) 17%,transparent) !important;box-shadow:none !important;color:var(--hg) !important;font:800 13px/1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-transform:none !important;white-space:nowrap;transition:background .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-lunas:hover:not([disabled]){background:color-mix(in srgb,var(--green2) 32%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-lunas[disabled]{opacity:.38}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-x,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-x{display:inline-grid !important;place-items:center;width:44px !important;height:44px !important;padding:0 !important;border:0 !important;border-radius:50% !important;background:var(--hn-field) !important;color:var(--text3) !important;font-size:14px !important;font-weight:700 !important;box-shadow:none !important;transition:background .2s,color .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-x:hover{background:color-mix(in srgb,var(--red2) 22%,transparent) !important;color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-badge,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-badge,html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) .ht-badge{display:inline-flex !important;align-items:center;gap:7px !important;width:auto !important;padding:9px 16px !important;border:0 !important;border-radius:999px !important;font:800 11.5px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.6px !important;white-space:nowrap !important;text-transform:uppercase}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-badge::before{display:inline !important;width:auto;height:auto;border-radius:0;background:transparent;font-size:12px;line-height:1}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-badge.ok::before{content:"✓" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-badge.no::before{content:"●" !important;font-size:8px}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-badge.na::before{display:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-badge.ok{background:color-mix(in srgb,var(--green2) 17%,transparent) !important;color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-badge.no{background:color-mix(in srgb,var(--red2) 15%,transparent) !important;color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-badge.na{background:var(--hn-field) !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-pb{height:8px !important;min-width:0 !important;margin:12px 0 0 !important;border-radius:999px !important;background:color-mix(in srgb,var(--text) 10%,transparent) !important;overflow:hidden}
+html body #page-hutang #hutang-root#hutang-root .ht-pb i{display:block;height:100%;border-radius:999px !important;background:linear-gradient(90deg,var(--green2),color-mix(in srgb,var(--green2) 60%,#fff)) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl .ht-pb,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit .ht-pb,html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) .ht-pb,html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot .ht-pb{width:100% !important;max-width:100%;margin:12px 0 0 !important}
+/* --- susunan baris: HP (sempit) --- */
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot):not(:has(>td[colspan])){grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"sta x" "jum jum" "bay bay" "sis per" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"tot sta" "bay sis" "per per" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr:not(:has(>td[colspan])){grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"nam sta" "jum bay" "has per" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit td:is(:nth-child(1),:nth-child(2),:nth-child(3),:nth-child(5)),html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:is(:nth-child(1),:nth-child(2),:nth-child(3),:nth-child(4),:nth-child(6)){align-self:start !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(1){grid-area:jum !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(2){grid-area:bay !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(3){grid-area:sis !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(4){grid-area:sta !important;align-self:center}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5){grid-area:per !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(6){grid-area:x !important;justify-self:end;align-self:center}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(1){grid-area:tot !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(2){grid-area:bay !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(3){grid-area:sis !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4){grid-area:sta !important;justify-self:end;align-self:start}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5){grid-area:per !important;display:flex !important;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px !important;border-radius:20px !important;background:color-mix(in srgb,var(--text) 6%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5)::before{margin:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(1){grid-area:nam !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(2){grid-area:jum !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(3){grid-area:bay !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(4){grid-area:has !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5){grid-area:sta !important;justify-self:end;align-self:center}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(6){grid-area:per !important}
+/* --- susunan baris: sedang --- */
+@container ht (min-width:520px){
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot):not(:has(>td[colspan])){grid-template-columns:repeat(4,minmax(0,1fr)) !important;grid-template-areas:"jum jum bay bay" "sis per sta x" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(4){align-self:end;margin-bottom:6px}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:repeat(4,minmax(0,1fr)) !important;grid-template-areas:"tot tot bay bay" "sis sis per sta" !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5){display:block !important;padding:0 !important;border-radius:0 !important;background:transparent !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5)::before{margin:0 0 9px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4){justify-self:end;align-self:start;margin-top:18px}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr:not(:has(>td[colspan])){grid-template-columns:repeat(4,minmax(0,1fr)) !important;grid-template-areas:"nam nam nam sta" "jum bay has per" !important}
+}
+/* --- susunan baris: lebar (status di depan, satu baris) --- */
+@container ht (min-width:920px){
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot):not(:has(>td[colspan])){grid-template-columns:152px minmax(0,1.1fr) minmax(0,1.6fr) minmax(0,1.05fr) minmax(0,1fr) 44px !important;grid-template-areas:"sta jum bay sis per x" !important;align-items:start}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:152px minmax(0,1.1fr) minmax(0,1.6fr) minmax(0,1.05fr) minmax(0,1fr) 44px !important;grid-template-areas:"sta tot bay sis per x" !important;align-items:start}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4){justify-self:start;align-self:start;margin-top:18px}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5){display:block !important;padding:0 !important;border-radius:0 !important;background:transparent !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5)::before{margin:0 0 9px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(4){align-self:start;margin-top:31px;margin-bottom:0}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(6){align-self:start;margin-top:25px;margin-bottom:0}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) tr:not(:has(>td[colspan])){grid-template-columns:152px minmax(0,1.1fr) repeat(4,minmax(0,1fr)) !important;grid-template-areas:"sta nam jum bay has per" !important;align-items:start}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5){justify-self:start;align-self:start;margin-top:20px}
+}
+/* ringkasan harian bulan (Total Harian) */
+html body #page-hutang #hutang-root#hutang-root .ht-side{order:2;display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;grid-template-areas:"lbl leg" "val leg" "bar bar" !important;align-items:center;gap:6px 24px !important;width:100%;margin:0 !important;padding:20px 24px !important;border:1px solid color-mix(in srgb,var(--green2) 22%,transparent) !important;border-radius:28px !important;background:linear-gradient(135deg,color-mix(in srgb,var(--green2) 10%,transparent),transparent 80%) !important;text-align:left}
+html body #page-hutang #hutang-root#hutang-root .ht-side .lbl{grid-area:lbl;font:700 11px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:1.2px !important;text-transform:uppercase !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side .val{grid-area:val;margin:0 !important;font:800 26px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.4px !important;color:var(--text) !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-pb{grid-area:bar;height:10px !important;margin:12px 0 0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-leg{grid-area:leg;display:flex !important;flex-direction:row !important;flex-wrap:wrap;gap:10px !important;margin:0 !important;font-size:12.5px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-leg>span{display:inline-flex !important;align-items:center;gap:10px;padding:9px 16px;border-radius:999px;background:var(--hn-soft);color:var(--text2)}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-leg em{display:inline-flex;align-items:center;font-style:normal;font-weight:600}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-leg i{display:inline-block !important;width:9px !important;height:9px !important;margin:0 8px 0 0 !important;border-radius:50%}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-leg b{font-weight:800;color:var(--text)}
+@media(max-width:620px){
+html body #page-hutang #hutang-root#hutang-root .ht-card:not(.ht-total):not(.ht-empty){padding:16px !important;border-radius:28px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mhead{margin-bottom:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-mname input,html body #page-hutang #hutang-root#hutang-root .ht-mname .nm{font-size:18px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr{padding:16px !important;border-radius:24px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr.tot{padding:18px !important;border-radius:26px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side{grid-template-columns:minmax(0,1fr) !important;grid-template-areas:"lbl" "val" "bar" "leg" !important;padding:18px !important;border-radius:24px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side .ht-pb{margin:10px 0 6px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-head .t{font-size:22px !important}
+}
+/* kartu Total Hutang */
+html body #page-hutang #hutang-root#hutang-root .ht-card.ht-total{position:relative;padding:30px !important;border:1px solid color-mix(in srgb,var(--gold) 28%,transparent) !important;border-radius:38px !important;background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--gold) 20%,transparent) 0%,transparent 60%),radial-gradient(90% 80% at 100% 100%,color-mix(in srgb,var(--green2) 12%,transparent) 0%,transparent 65%),var(--card) !important;box-shadow:0 30px 60px -38px rgba(0,0,0,.5) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-setT{margin:0 0 6px !important;font:800 12px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:1.6px !important;text-transform:uppercase;color:var(--ha) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-picklbl{margin:0 0 14px !important;font:500 13px/1.5 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-chk{display:flex !important;flex-wrap:wrap;align-items:center;gap:10px !important;margin:0 0 28px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-chk label{display:inline-flex !important;align-items:center;gap:9px;padding:10px 18px !important;border:1px solid var(--hn-line) !important;border-radius:16px !important;background:var(--hn-soft) !important;color:var(--text2) !important;font:600 13px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-transform:none !important;cursor:pointer;transition:background .2s,border-color .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-chk label:has(input:checked){border-color:color-mix(in srgb,var(--gold) 50%,transparent) !important;background:color-mix(in srgb,var(--gold) 17%,transparent) !important;color:var(--text) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-chk input{width:16px;height:16px;margin:0;accent-color:var(--gold2)}
+html body #page-hutang #hutang-root#hutang-root .ht-total .ht-hero,html body #page-hutang #hutang-root#hutang-root .ht-total .ht-hero.ok{margin:0 0 24px !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;text-align:left}
+html body #page-hutang #hutang-root#hutang-root .ht-hero .l{font:600 13px/1.4 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-transform:none !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-hero .v{margin:10px 0 12px !important;font:800 clamp(34px,6.2vw,54px)/1.05 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-1.6px !important;color:var(--hr) !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-hero.ok .v{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-hero .s{font:500 13px/1.8 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totbody{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;align-items:stretch;margin:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totbody .ht-pb{grid-column:1/-1;height:14px !important;margin:0 0 6px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg{display:contents !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .it{min-width:0;padding:18px 20px !important;border:1px solid var(--hn-line) !important;border-radius:24px !important;background:var(--hn-soft) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .l{display:flex;align-items:center;gap:9px;margin:0 0 10px !important;font:700 12px/1.3 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-transform:none !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .l i{display:inline-block;flex:0 0 auto;width:9px;height:9px;border-radius:50%}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .v{font:800 20px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.2px !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .v.g{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .v.r{color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .p{margin-top:4px !important;font:600 12.5px/1.3 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-total .ht-brk{margin-top:24px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-brk{display:grid !important;grid-template-columns:repeat(auto-fit,minmax(230px,1fr)) !important;gap:12px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .it{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;align-items:center;gap:10px 12px !important;padding:16px 20px !important;border:1px solid var(--hn-line) !important;border-radius:22px !important;background:var(--hn-soft) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .n{font:700 13.5px/1.3 'Plus Jakarta Sans',sans-serif !important;letter-spacing:0 !important;text-transform:none !important;color:var(--text) !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .a{font:800 13.5px/1.3 'Plus Jakarta Sans',sans-serif !important;color:var(--hr) !important;text-align:right}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .a.g{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .it .ht-pb,html body #page-hutang #hutang-root#hutang-root .ht-brk .it .pb{grid-column:1/-1;margin:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-brk .it .pb .ht-pb{margin:0 !important}
+@media(min-width:1000px){
+html body #page-hutang #hutang-root#hutang-root .ht-card.ht-total{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;column-gap:36px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-total>*{grid-column:1/-1 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-total .ht-hero{grid-column:1 !important;grid-row:4;align-self:center;margin:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-total .ht-totbody{grid-column:2 !important;grid-row:4;align-self:center}
+html body #page-hutang #hutang-root#hutang-root .ht-total .ht-brk{grid-row:5}
+}
+/* statistik */
+html body #page-hutang #hutang-root#hutang-root .ht-stats{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;margin:0 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stats .ht-stat:first-child{grid-column:1/-1 !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat{display:flex !important;flex-direction:column !important;justify-content:flex-start !important;gap:10px !important;min-width:0;padding:20px 22px !important;border:1px solid var(--hn-line) !important;border-radius:26px !important;background:var(--hn-soft) !important;box-shadow:none !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat:has(.v.g){border-color:color-mix(in srgb,var(--green2) 24%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--green2) 12%,transparent),transparent 85%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat:has(.v.r){border-color:color-mix(in srgb,var(--red2) 24%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--red2) 11%,transparent),transparent 85%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat:has(.v.y){border-color:color-mix(in srgb,var(--gold) 30%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 13%,transparent),transparent 85%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat .l{min-height:0 !important;margin:0 !important;border:0 !important;font:700 11px/1.4 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.9px !important;text-transform:uppercase !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat .v{font:800 19px/1.25 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.2px !important;color:var(--text) !important;white-space:normal !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-stat .v.g{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat .v.r{color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stat .v.y{color:var(--ha) !important}
+@media(min-width:700px){
+html body #page-hutang #hutang-root#hutang-root .ht-stats{grid-template-columns:repeat(5,minmax(0,1fr)) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-stats .ht-stat:first-child{grid-column:auto !important}
+}
+/* ringkasan keuangan bulanan */
+html body #page-hutang #hutang-root#hutang-root .ht-set{padding:28px !important;border:1px solid var(--hn-line) !important;border-radius:36px !important;background:linear-gradient(165deg,color-mix(in srgb,var(--text) 6%,var(--card)) 0%,var(--card) 60%) !important;box-shadow:0 26px 50px -34px rgba(0,0,0,.45) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-set .st{margin:0 0 4px !important;padding:0 !important;border:0 !important;font:800 12px/1.2 'Plus Jakarta Sans',sans-serif !important;letter-spacing:1.6px !important;text-transform:uppercase;color:var(--ha) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sum .ht-sumsub{margin:0 0 22px !important;font:500 13px/1.5 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero{margin:0 0 22px !important;padding:22px 24px !important;border:1px solid color-mix(in srgb,var(--green2) 26%,transparent) !important;border-radius:28px !important;background:linear-gradient(135deg,color-mix(in srgb,var(--green2) 14%,transparent),transparent 85%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero.neg{border-color:color-mix(in srgb,var(--red2) 28%,transparent) !important;background:linear-gradient(135deg,color-mix(in srgb,var(--red2) 13%,transparent),transparent 85%) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero .l{font:700 11.5px/1.3 'Plus Jakarta Sans',sans-serif !important;letter-spacing:1px !important;text-transform:uppercase !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero .v{margin:10px 0 8px !important;font:800 clamp(28px,4.4vw,38px)/1.1 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-1px !important;color:var(--hg) !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero.neg .v{color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero .s{font:500 12.5px/1.6 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin{gap:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin label>span,html body #page-hutang #hutang-root#hutang-root .ht-sumin label.full>span{display:block !important;min-height:0 !important;margin:0 0 8px !important;font:700 11.5px/1.4 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.3px !important;text-transform:none !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin input,html body #page-hutang #hutang-root#hutang-root .ht-sumin select{height:52px !important;padding:0 18px !important;border:1px solid transparent !important;border-radius:18px !important;background:var(--hn-field) !important;color:var(--text) !important;font:700 16px/1 'Plus Jakarta Sans',sans-serif !important;box-shadow:none !important;outline:none !important;transition:border-color .2s,box-shadow .2s}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin input:focus,html body #page-hutang #hutang-root#hutang-root .ht-sumin select:focus{border-color:var(--gold) !important;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 16%,transparent) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg{gap:12px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .it,html body #page-hutang #hutang-root#hutang-root .ht-sumg .it.full{display:flex !important;flex-direction:column !important;gap:8px !important;padding:18px 20px !important;border:1px solid var(--hn-line) !important;border-radius:24px !important;background:var(--hn-soft) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .l{font:700 11px/1.4 'Plus Jakarta Sans',sans-serif !important;letter-spacing:.8px !important;text-transform:uppercase !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .v{margin:0 !important;font:800 19px/1.25 'Plus Jakarta Sans',sans-serif !important;letter-spacing:-.2px !important;color:var(--text) !important;white-space:normal !important;overflow-wrap:anywhere}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .v.g{color:var(--hg) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .v.r{color:var(--hr) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .v.y{color:var(--ha) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .n{font:500 12px/1.55 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-empty{padding:48px 20px !important;border:1px dashed var(--hn-line) !important;border-radius:32px !important;background:transparent !important;text-align:center;font:600 14px/1.5 'Plus Jakarta Sans',sans-serif !important;color:var(--text3) !important}
+@media(max-width:620px){
+html body #page-hutang #hutang-root#hutang-root .ht-card.ht-total,html body #page-hutang #hutang-root#hutang-root .ht-set{padding:20px !important;border-radius:30px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .it,html body #page-hutang #hutang-root#hutang-root .ht-stat,html body #page-hutang #hutang-root#hutang-root .ht-sumg .it{padding:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-totleg .v{font-size:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero{padding:18px !important}
+}
+</style>
 <style id="admin-summary-style">
 .ah-sumgrid{grid-template-columns:minmax(0,1fr) !important}
 .ah-sumgrid .ah-stat .l{min-height:0 !important}
@@ -2384,6 +2638,30 @@ html body #page-hutang #hutang-root .ht-side{margin:0 10px 4px !important}
 .ah-sumhero .s{font-size:11px;color:var(--text3)}
 .ah-stat .n{font-size:10px;color:var(--text3);line-height:1.35;margin-top:4px;font-weight:600}
 .ah-stat .v{white-space:normal;word-break:break-word}
+/* ===== RINGKASAN BULANAN: rapat, tanpa ruang kosong di atas input (desktop & HP) ===== */
+html body #page-hutang #hutang-root#hutang-root .ht-sum .ht-sumsub{margin:0 0 10px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero{padding:14px 16px !important;margin:0 0 12px !important;border-radius:20px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumhero .v{margin:6px 0 4px !important;font-size:clamp(20px,6.2vw,28px) !important;white-space:nowrap !important;overflow-wrap:normal !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin{gap:10px !important;margin:0 0 12px}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin label>span,html body #page-hutang #hutang-root#hutang-root .ht-sumin label.full>span{margin:0 0 5px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin input,html body #page-hutang #hutang-root#hutang-root .ht-sumin select{height:44px !important;padding:0 14px !important;border-radius:14px !important;font-size:15px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg{gap:8px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .it,html body #page-hutang #hutang-root#hutang-root .ht-sumg .it.full{padding:12px 14px !important;gap:4px !important;border-radius:18px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg .v{font-size:16px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin label{gap:0 !important}
+@media(max-width:999px){
+html body #page-hutang #hutang-root#hutang-root .ht-sumin{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumin label.full{grid-column:1/-1 !important}
+}
+@media(min-width:1000px){
+html body #page-hutang #hutang-root#hutang-root .ht-sum>.ht-sumhero{margin:0 !important;align-self:start !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sum>.ht-sumhero .v{font-size:clamp(18px,1.9vw,28px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sum>.ht-sumin{margin:0 !important;align-self:start !important}
+html body #page-hutang #hutang-root#hutang-root .ht-sumg{margin-top:12px !important}
+}
+/* ===== ADMIN: ringkas & compact ===== */
+@media(max-width:767px){.ah-sumgrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+#admin-detail-list .w-card{padding:6px 9px;border-radius:10px}
 </style>
 <style id="hide-scrollbar-style">
 /* Semua penggeser (scrollbar) di seluruh aplikasi disembunyikan: halaman, popup, opsi/dropdown, tabel. Geser tetap berfungsi normal. */
@@ -2958,7 +3236,6 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
       <div class="card-sub">Memantau data setiap pengguna di database secara terpisah per akun.</div>
     </div>
     <div class="filter-bar">
-      <button class="export-btn" onclick="loadAllUsersData()" style="background:var(--gold); color:#000;">🔄 MUAT DATA SEMUA USER</button>
       <button class="export-btn" onclick="showGlobalTrash()" style="background:var(--red2); color:#fff; margin-left:8px;">🗑️ SAMPAH SEMUA USER</button>
       <button class="export-btn" onclick="showAdminArchive()" style="background:var(--blue); color:#fff; margin-left:8px;">🗄️ ARSIP TERHAPUS</button>
     </div>
@@ -4106,18 +4383,46 @@ window.showAdminHutang = async function(uid, ownerLabel) {
 .ah-row-top .ah-pd{text-align:right;white-space:nowrap;}
 .ah-sum{gap:6px;}
 .ah-sum .v{font-size:clamp(8.5px,2.75vw,11px);letter-spacing:-.4px;}
-@media (min-width:768px){.ah-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.ah-stat.full{grid-column:span 2;}.ah-stat.last{grid-column:1 / -1;}.ah-stat .v{font-size:14px;}.ah-cols div .v,.ah-sum .v{font-size:11.5px;letter-spacing:0;}}`;
+@media (min-width:768px){.ah-grid{grid-template-columns:repeat(4,minmax(0,1fr));}.ah-stat.full{grid-column:span 2;}.ah-stat.last{grid-column:1 / -1;}.ah-stat .v{font-size:14px;}.ah-cols div .v,.ah-sum .v{font-size:11.5px;letter-spacing:0;}}
+/* ===== COMPACT: seperti catatan harian ===== */
+.ah-scroll{padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 16px);}
+.ah-popup .swal2-title{font-size:13px!important;padding:calc(env(safe-area-inset-top,0px) + 10px) 48px 8px 12px!important;}
+.ah-hero{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px 18px;padding:8px 10px;margin-bottom:8px;border-radius:14px;}
+.ah-donut{width:96px;height:96px;}
+.ah-donut-in{width:68px;height:68px;}
+.ah-donut-in b{font-size:15px;}
+.ah-donut-in span{font-size:7.5px;margin-top:1px;}
+.ah-legend{gap:10px;font-size:10px;}
+.ah-grid{gap:6px;margin-bottom:8px;}
+.ah-stat{padding:7px 10px;border-radius:10px;}
+.ah-stat .l{min-height:0;font-size:8.5px;margin-bottom:2px;}
+.ah-stat .v{font-size:11.5px;}
+.ah-stat.full .v{font-size:15px;}
+.ah-stat .n{font-size:9px;margin-top:2px;}
+.ah-sumttl{margin:10px 2px 2px;padding-top:8px;font-size:10.5px;}
+.ah-sumsub{font-size:10px;margin:0 2px 6px;}
+.ah-sumhero{padding:8px 12px;margin-bottom:6px;border-radius:10px;}
+.ah-sumhero .v{font-size:clamp(16px,5vw,20px);margin:3px 0 2px;}
+.ah-sumhero .s{font-size:9.5px;}
+.ah-sheet{padding:8px 8px;margin-bottom:8px;border-radius:12px;}
+.ah-sheet-t{font-size:11.5px;margin-bottom:2px;}
+.ah-mh{font-size:11px;margin:8px 0 4px;}
+.ah-mh span{font-size:9px;}
+.ah-row{padding:5px 8px;margin-bottom:4px;border-radius:9px;}
+.ah-row-top{margin-bottom:3px;}
+.ah-pill{font-size:8px;padding:2px 7px;}
+.ah-pd{font-size:8.5px;}
+.ah-cols{gap:4px;}
+.ah-cols div .l{font-size:7.5px;margin-bottom:0;}
+.ah-cols div .v{font-size:clamp(8.5px,2.6vw,10.5px);}
+.ah-sum{margin-top:6px;padding-top:6px;gap:4px;}
+.ah-row .ah-pd[style]{margin-top:3px!important;}`;
         document.head.appendChild(st);
     }
     const box = h => '<div class="ah-scroll"><div class="ah-wrap">' + h + '</div></div>';
-    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: '100%', padding: 0, heightAuto: false, background: 'var(--card)', color: 'var(--text)', customClass: { container: 'ah-container', popup: 'ah-popup' }, didOpen: () => Swal.showLoading() });
-    let hd = null;
-    try {
-        const snap = await getDoc(doc(db, 'users', uid, 'settings', 'hutang'));
-        if (snap.exists()) { try { hd = JSON.parse(snap.data().json || 'null'); } catch (e) { hd = null; } }
-    } catch (e) {
-        return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--red2);font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>' });
-    }
+    let __ahUnsub = null;
+    Swal.fire({ title: '📋 Hutang: ' + escapeHTML(ownerLabel), html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;"><i class=rhn-ld></i>Memuat...</div>', showConfirmButton: false, showCloseButton: true, width: '100%', padding: 0, heightAuto: false, background: 'var(--card)', color: 'var(--text)', customClass: { container: 'ah-container', popup: 'ah-popup' }, didOpen: () => Swal.showLoading(), willClose: () => { if (__ahUnsub) { __ahUnsub(); __ahUnsub = null; } } });
+    const __ahRender = (hd) => {
     Swal.hideLoading();
     if (!hd || !hd.sheets || !hd.sheets.length) return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">User ini belum punya catatan hutang (atau belum sinkron ke cloud).</div>' });
     const pill = (j, ok) => '<span class="ah-pill ' + (!j ? 'nil' : ok ? 'ok' : 'no') + '">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</span>';
@@ -4205,7 +4510,22 @@ window.showAdminHutang = async function(uid, ownerLabel) {
         sc('Sisa Bulanan Jika Pakai Batas Harian', sisaBlnMax !== null ? rp(sisaBlnMax) : '-', sisaBlnMax !== null ? (sisaBlnMax < 0 ? 'var(--red2)' : 'var(--green2)') : '', sisaBlnMax !== null ? 'saldo bulanan − (batas harian × 30)' : 'batas pengeluaran harian belum diisi') +
         sc('Sisa Hutang', rp(gSisa), 'var(--red2)', pc(gJ ? 100 - pp : 0) + ' belum dibayar') +
         sc('Perkiraan Lunas', lunasBln, '', 'jika cicilan bulanan dibayar rutin', true) + '</div>';
-    Swal.update({ html: box(head + body) });
+    const __inner = head + body;
+    const __w = document.querySelector('.ah-popup .ah-wrap');
+    if (__w) { if (__w.__h !== __inner) { __w.innerHTML = __inner; __w.__h = __inner; } }
+    else { Swal.update({ html: box(__inner) }); const __w2 = document.querySelector('.ah-popup .ah-wrap'); if (__w2) __w2.__h = __inner; }
+    };
+    try {
+        __ahUnsub = onSnapshot(doc(db, 'users', uid, 'settings', 'hutang'), snap => {
+            if (!Swal.isVisible()) return;
+            if (!snap.exists() && snap.metadata.fromCache) return;
+            let hd = null;
+            if (snap.exists()) { try { hd = JSON.parse(snap.data().json || 'null'); } catch (e) { hd = null; } }
+            __ahRender(hd);
+        }, e => { if (Swal.isVisible()) Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--red2);font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>' }); });
+    } catch (e) {
+        Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--red2);font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>' });
+    }
 };
 
 window.forceLogoutAdminUserDevice = function(uid, deviceId, ownerLabel) {
@@ -5592,6 +5912,58 @@ window.ibPoll = async function () {
 setInterval(window.ibPoll, 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) window.ibPoll(); });
 window.addEventListener('online', () => { window.ibPoll(); });
+
+// ---- Auto-refresh Admin & Dashboard tiap 1 detik (pola sama seperti IB: cek perubahan dulu, gambar ulang hanya jika datanya berubah, jadi tanpa kedip) ----
+(function () {
+    const act = id => { const p = document.getElementById(id); return !!(p && p.classList.contains('active')) && !document.hidden; };
+    const hs = (h, s) => { for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0; return h; };
+    let dSig = null, dBusy = false;
+    window.rhnDashPoll = function () {
+        if (dBusy) return; dBusy = true;
+        try {
+            if (!currentUser || activePage !== 'dashboard' || !act('page-dashboard')) return;
+            let h = 7;
+            (txs || []).forEach(t => { h = hs(h, [t.id, t.amount, t.type, t.date, t.wallet, t.category, t.note, t.isDeleted].join('|')); });
+            h = hs(h, String((txs || []).length));
+            try { h = hs(h, localStorage.getItem('rhn_hutang_' + currentUser.uid) || ''); } catch (e) {}
+            try { h = hs(h, JSON.stringify(window.__chartFilters || {})); } catch (e) {}
+            h = hs(h, new Date().toDateString());
+            const sig = String(h), prev = dSig; dSig = sig;
+            if (prev !== null && sig !== prev) window.refreshAll();
+        } catch (e) {} finally { dBusy = false; }
+    };
+    const jobs = [
+        { id: 'admin-subscription-list', fn: 'loadAdminSubscriptionRequests', gap: 1000, last: 0 },
+        { id: 'admin-referral-list', fn: 'loadReferralCodes', gap: 1000, last: 0 },
+        { id: 'admin-active-members-list', fn: 'loadActiveSubscribers', gap: 1000, last: 0 },
+        { id: 'admin-storage-info', fn: 'loadAdminStorage', gap: 30000, last: 0 }
+    ];
+    let aBusy = false;
+    window.rhnAdminPoll = async function () {
+        if (aBusy) return; aBusy = true;
+        try {
+            if (!currentUser || !window.__isAdmin || activePage !== 'admin' || !act('page-admin')) return;
+            for (const j of jobs) {
+                const real = document.getElementById(j.id), fn = window[j.fn];
+                if (!real || typeof fn !== 'function' || Date.now() - j.last < j.gap) continue;
+                const ae = document.activeElement;
+                if (ae && real.contains(ae) && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) continue;
+                j.last = Date.now();
+                const stage = document.createElement('div'); stage.style.display = 'none';
+                real.removeAttribute('id'); stage.id = j.id; document.body.appendChild(stage);
+                try { await fn(); } catch (e) {} finally { stage.removeAttribute('id'); real.id = j.id; stage.remove(); }
+                const html = stage.innerHTML;
+                if (!html || html === real.__rhnLast) continue;
+                if (/Gagal memuat/.test(html) && real.innerHTML && !/Gagal memuat/.test(real.innerHTML)) continue;
+                real.__rhnLast = html;
+                if (html !== real.innerHTML) real.replaceChildren(...Array.from(stage.childNodes));
+            }
+        } catch (e) {} finally { aBusy = false; }
+    };
+    setInterval(window.rhnDashPoll, 1000);
+    setInterval(window.rhnAdminPoll, 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { window.rhnDashPoll(); window.rhnAdminPoll(); } });
+})();
 
 // ---------- LOGO BANK / E-WALLET + PICKER ----------
 // Opsional: isi URL/base64 logo resmi per nama, mis. window.IB_LOGO_URLS['BCA'] = 'https://.../bca.png'. Kalau kosong, otomatis pakai logo SVG bawaan di bawah.
@@ -7612,7 +7984,7 @@ function forceResetToAuthScreen() {
     const authBtn = document.getElementById('auth-submit-btn'); if (authBtn) authBtn.textContent = 'MASUK';
     const appPinEl = document.getElementById('app-pin'); if (appPinEl) appPinEl.value = '';
     if (unsubListener) { unsubListener(); unsubListener = null; }
-    window.__txListenUid = null; window.__prefPre = null;
+    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive();
     try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
     txs = []; deletedTxs = [];
@@ -7823,7 +8195,7 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('auth-submit-btn').textContent = 'MASUK'; 
 
     if (unsubListener) { unsubListener(); unsubListener = null; } 
-    window.__txListenUid = null; window.__prefPre = null;
+    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive();
     try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     txs = []; deletedTxs = [];
   }
@@ -7962,6 +8334,8 @@ function unlockApp() {
 
         if (typeof window.initTransferAccount === 'function') { window.initTransferAccount(); } 
         if (typeof window.initBalanceRequests === 'function') { window.initBalanceRequests(); }
+        if (typeof window.startUserLive === 'function') { window.startUserLive(currentUser.uid); }
+        if (window.__isAdmin && typeof window.startAdminLive === 'function') { window.startAdminLive(); }
         if (window.__isAdmin && typeof window.loadAdminCSList === 'function') { window.loadAdminCSList(); }
         if (window.__isAdmin && typeof window.loadAdminSubscriptionRequests === 'function') { window.loadAdminSubscriptionRequests(); }
         if (window.__isAdmin && typeof window.loadReferralCodes === 'function') { window.loadReferralCodes(); }
@@ -8015,11 +8389,11 @@ document.getElementById('app-pin').addEventListener('input', function(e) { this.
 document.getElementById('app-pin').addEventListener('beforeinput', function(e) { if (e.data && /[^0-9]/.test(e.data)) e.preventDefault(); });
 document.getElementById('app-pin').addEventListener('keydown', function(e) { if (e.key && e.key.length === 1 && !/[0-9]/.test(e.key) && !e.ctrlKey && !e.metaKey) e.preventDefault(); });
 
-window.loadAllUsersData = async function() {
+window.loadAllUsersData = async function(silent, preSnap) {
   if (!currentUser) return;
   const adminSummaryContainer = document.getElementById('admin-summary');
   
-  Swal.fire({
+  if (!silent) Swal.fire({
       title: 'Memuat Database...',
       html: 'Sedang menarik data seluruh pengguna.<br>Harap tunggu sebentar...',
       background: 'var(--card)', 
@@ -8031,11 +8405,11 @@ window.loadAllUsersData = async function() {
 
   try {
     const txQuery = query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'));
-    const snap = await getDocs(txQuery);
+    const snap = preSnap || await getDocs(txQuery);
     
     if (snap.empty) {
-      if (adminSummaryContainer) adminSummaryContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>';
-      Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data ditemukan.', background: 'var(--card)', color: 'var(--text)'});
+      if (adminSummaryContainer) { adminSummaryContainer.__h = null; adminSummaryContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-size:12px;">Tidak ada data atau akses ditolak.</div>'; }
+      if (!silent) Swal.fire({icon: 'info', title: 'Data Kosong', text: 'Tidak ada data ditemukan.', background: 'var(--card)', color: 'var(--text)'});
       return;
     }
 
@@ -8056,9 +8430,11 @@ window.loadAllUsersData = async function() {
     });
 
     let uniqueUids = [...new Set(allUsersTxs.map(t => t.ownerUid))];
-    let userInfos = {};
+    const __admFresh = !!(silent && window.__admUC && Date.now() - window.__admUC.t < 30000);
+    let userInfos = __admFresh ? Object.assign({}, window.__admUC.ui) : {};
     
     for (let uid of uniqueUids) {
+        if (userInfos[uid]) continue;
         if (uid === currentUser.uid) {
             userInfos[uid] = {
                 email: currentUser.email,
@@ -8095,10 +8471,12 @@ window.loadAllUsersData = async function() {
     // Ambil SEMUA profil user terdaftar di koleksi 'users' (termasuk yang
     // belum pernah membuat catatan sama sekali), agar semua akun kelihatan
     // ======================================================================
-    let allUserDocs = {};
+    let allUserDocs = __admFresh ? window.__admUC.ud : {};
     try {
+        if (!__admFresh) {
         const usersSnap = await getDocs(collection(db, 'users'));
         usersSnap.forEach(d => { allUserDocs[d.id] = d.data(); });
+        }
     } catch (err) {}
 
     Object.keys(allUserDocs).forEach(uid => {
@@ -8108,6 +8486,7 @@ window.loadAllUsersData = async function() {
     });
 
     let allKnownUids = [...new Set([...uniqueUids, ...Object.keys(allUserDocs)])];
+    window.__admUC = { t: __admFresh ? window.__admUC.t : Date.now(), ui: userInfos, ud: allUserDocs };
 
     // ======================================================================
     // Hitung Total Pemasukan, Pengeluaran & Saldo Bersih per User (Admin)
@@ -8197,21 +8576,117 @@ window.loadAllUsersData = async function() {
                 }
             </div>`;
         }).join('');
-        adminSummaryContainer.innerHTML = summaryHtml;
+        if (adminSummaryContainer.__h !== summaryHtml) { adminSummaryContainer.innerHTML = summaryHtml; adminSummaryContainer.__h = summaryHtml; }
     }
     // ======================================================================
     // Akhir Perhitungan Total Pemasukan, Pengeluaran & Saldo Bersih per User
     // ======================================================================
 
     // Tutup panel detail jika sedang terbuka saat data dimuat ulang
+    if (silent) { if (typeof window.__adminLiveRefreshDetail === 'function') window.__adminLiveRefreshDetail(); } else {
     closeAdminDetail();
 
     window.showSaveSuccess('Data Ditemukan', 1500, `Berhasil memuat ${allUsersTxs.length} catatan.`);
+    }
 
   } catch (error) {
-    if (adminSummaryContainer) adminSummaryContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`;
+    if (silent) { console.warn(error); return; }
+    if (adminSummaryContainer) { adminSummaryContainer.__h = null; adminSummaryContainer.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red2);font-size:12px;">Gagal memuat. Periksa status admin. Error: ${error.message}</div>`; }
     Swal.fire({icon: 'error', title: 'Gagal', text: error.message, background: 'var(--card)', color: 'var(--text)'});
   }
+};
+
+// ===== SINKRON REALTIME LINTAS PERANGKAT: pengaturan, kategori, dompet, target, anggaran & hutang =====
+window.__applyPrefsLive = function(d, uid) {
+  let ch = false;
+  const diff = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
+  const ls = (k, v) => { try { localStorage.setItem(k + uid, JSON.stringify(v)); } catch (e) {} };
+  if (d.appPrefs && diff(d.appPrefs, appPrefs)) { appPrefs = d.appPrefs; ls('rhn_prefs_', appPrefs); ch = true; }
+  if (d.walletChoice && diff(d.walletChoice, window.__walletChoice)) { window.__walletChoice = d.walletChoice; ls('rhn_wallet_choice_', d.walletChoice); try { localStorage.setItem('rhn_wallet_choice_ts_' + uid, String(d.walletChoiceTs || Date.now())); } catch (e) {} ch = true; }
+  if (Array.isArray(d.customWallets)) {
+    const cl = d.customWallets.filter(x => x && x.name);
+    if (diff(cl, window.__customWallets)) { window.__customWallets = cl; window.__customWalletsUid = uid; ls('rhn_custom_wallets_', cl); try { localStorage.setItem('rhn_custom_wallets_ts_' + uid, String(d.customWalletsTs || Date.now())); } catch (e) {} ch = true; if (typeof window.cwInjectOptions === 'function') window.cwInjectOptions(); }
+  }
+  if (d.extraPrefs && diff(d.extraPrefs, extraPrefs)) {
+    extraPrefs = d.extraPrefs; ls('rhn_extra_prefs_v2_', extraPrefs); ch = true;
+    window.isAppLoading = true;
+    ['ext_autolock', 'ext_warnbalance', 'ext_shortnum', 'ext_budget', 'ext_hidezero', 'ext_walletpct', 'ext_debtbadge', 'ext_antiintip', 'ext_autobackup'].forEach(id => { const el = document.getElementById(id); if (el && extraPrefs[id]) { el.value = extraPrefs[id]; el.dispatchEvent(new Event('change')); } });
+    if (extraPrefs.ext_antiintip === 'on') document.body.classList.add('global-privacy'); else document.body.classList.remove('global-privacy');
+    setTimeout(() => { window.isAppLoading = false; }, 300);
+  }
+  if (d.budgets && diff(d.budgets, window.userBudgets)) { window.userBudgets = d.budgets; ch = true; }
+  if (d.categories && diff(d.categories, window.userCats)) { window.userCats = d.categories; ls('rhn_cats_', d.categories); ch = true; }
+  if (d.savingsGoals && diff(d.savingsGoals, window.savingsGoals)) { window.savingsGoals = d.savingsGoals; ls('rhn_savings_goals_', d.savingsGoals); ch = true; }
+  if (typeof d.userQrisBase === 'string' && d.userQrisBase !== (window.userQrisBase || '')) { window.userQrisBase = d.userQrisBase; ch = true; if (window.refreshQrisStatus) window.refreshQrisStatus(); }
+  if (!ch) return;
+  try { if (typeof window.updatePrefCategories === 'function' && document.getElementById('pref-type')) window.updatePrefCategories(false); } catch (e) {}
+  try { if (typeof window.renderWalletBalances === 'function') window.renderWalletBalances(); } catch (e) {}
+  try { refreshAll(); } catch (e) {}
+};
+window.stopUserLive = function() {
+  (window.__userLiveUnsubs || []).forEach(u => { try { u(); } catch (e) {} });
+  window.__userLiveUnsubs = []; window.__userLiveUid = null;
+  const L = window.__admLive;
+  if (L) { try { if (L.unsub) L.unsub(); } catch (e) {} L.unsub = null; L.snap = null; L.err = false; if (L.timer) { clearInterval(L.timer); L.timer = null; } }
+};
+window.startUserLive = function(uid) {
+  if (!uid || window.__userLiveUid === uid) return;
+  window.stopUserLive();
+  window.__userLiveUid = uid;
+  const U = window.__userLiveUnsubs;
+  try {
+    U.push(onSnapshot(doc(db, 'users', uid, 'settings', 'preferences'), snap => {
+      if (!snap.exists() || snap.metadata.hasPendingWrites || snap.metadata.fromCache) return;
+      if (!currentUser || currentUser.uid !== uid) return;
+      try { window.__applyPrefsLive(snap.data(), uid); } catch (e) { console.error(e); }
+    }, () => {}));
+  } catch (e) {}
+  try {
+    U.push(onSnapshot(doc(db, 'users', uid, 'settings', 'hutang'), snap => {
+      if (snap.metadata.hasPendingWrites || snap.metadata.fromCache) return;
+      if (!currentUser || currentUser.uid !== uid || typeof window.htSyncQuiet !== 'function') return;
+      window.htSyncQuiet(); setTimeout(() => { try { window.htSyncQuiet(); } catch (e) {} }, 900);
+    }, () => {}));
+  } catch (e) {}
+};
+
+// ===== ADMIN LIVE: data semua user refleks sendiri (maks. 1 detik), tanpa kedip =====
+window.__admLive = { unsub: null, timer: null, snap: null, dirty: false, busy: false };
+window.startAdminLive = function() {
+  const L = window.__admLive;
+  if (!window.__isAdmin || !currentUser) return;
+  if (!L.unsub && !L.err) {
+    try {
+      L.unsub = onSnapshot(query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc')), snap => {
+        if (snap.metadata.fromCache && snap.empty) return;
+        L.snap = snap; L.dirty = true; L.err = false;
+      }, () => { L.unsub = null; L.err = true; L.snap = null; L.dirty = true; L.errAt = 0; });
+    } catch (e) { L.unsub = null; L.err = true; L.dirty = true; }
+  }
+  if (L.timer) return;
+  L.timer = setInterval(async () => {
+    if (L.busy || !L.dirty || document.hidden) return;
+    const pg = document.getElementById('page-admin');
+    if (!pg || !pg.classList.contains('active')) return;
+    if (!L.snap && !L.err) return;
+    if (L.err && Date.now() - L.errAt < 3000) return;
+    L.dirty = L.err; L.errAt = Date.now(); L.busy = true;
+    try { await window.loadAllUsersData(true, L.err ? null : L.snap); } catch (e) {} finally { L.busy = false; }
+  }, 1000);
+  window.__admLiveKick = () => { L.dirty = true; };
+};
+window.__adminSig = function(uid, mode) {
+  const g = mode === 'trash' ? adminGroupedTrash : adminGrouped;
+  return mode + '|' + (g[uid] || []).map(t => [t.id, t.amount, t.isPaid ? 1 : 0, t.note, t.category, t.date, t.wallet, t.walletTo, t.type, t.isKoreksi ? 1 : 0].join(':')).join('|');
+};
+window.__adminLiveRefreshDetail = function() {
+  const o = window.__adminOpen;
+  const sec = document.getElementById('admin-detail-section');
+  if (!o || !sec || sec.style.display === 'none') return;
+  if (window.__adminSig(o.uid, o.mode) === o.sig) return;
+  if (o.mode === 'wallet') window.showAdminWallet(o.uid, true);
+  else if (o.mode === 'trash') window.showAdminTrash(o.uid, true);
+  else window.showAdminDetail(o.uid, o.mode, true);
 };
 
 // ==========================================================================
@@ -8567,11 +9042,14 @@ window.renderAdminRiwayatChart = function(arr) {
     applyAdminChartFilterSum('adminRiwayat', yearData);
 };
 
-window.showAdminDetail = function(uid, mode) {
+window.showAdminDetail = function(uid, mode, quiet) {
+    window.__adminOpen = { uid: uid, mode: mode, sig: window.__adminSig(uid, mode) };
+    if (!quiet) {
     window.__chartFilters['adminWeekly'] = null;
     window.__chartFilters['adminMonthly'] = null;
     window.__chartFilters['adminYearly'] = null;
     window.__chartFilters['adminRiwayat'] = null;
+    }
     const arr = (adminGrouped[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
 
@@ -8600,7 +9078,7 @@ window.showAdminDetail = function(uid, mode) {
             if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
             window.__adminWeeklyArr = arr;
             const wsel = document.getElementById('admin-week-sel');
-            if (wsel) wsel.dataset.active = '';
+            if (wsel && !quiet) wsel.dataset.active = '';
             renderAdminWeeklyChart(arr);
         } else if (mode === 'chart') {
             const wsel = document.getElementById('admin-week-sel');
@@ -8609,7 +9087,7 @@ window.showAdminDetail = function(uid, mode) {
             if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
             window.__adminMonthlyArr = arr;
             const msel = document.getElementById('admin-month-sel');
-            if (msel) msel.dataset.active = '';
+            if (msel && !quiet) msel.dataset.active = '';
             renderAdminMonthlyChart(arr);
         } else if (mode === 'yearly') {
             const wsel = document.getElementById('admin-week-sel');
@@ -8618,7 +9096,7 @@ window.showAdminDetail = function(uid, mode) {
             if (msel) { msel.style.display = 'none'; msel.innerHTML = ''; }
             window.__adminYearlyArr = arr;
             const ysel2 = document.getElementById('admin-year-sel');
-            if (ysel2) ysel2.dataset.active = '';
+            if (ysel2 && !quiet) ysel2.dataset.active = '';
             renderAdminYearlyChart(arr);
         } else {
             const wsel = document.getElementById('admin-week-sel');
@@ -8639,7 +9117,7 @@ window.showAdminDetail = function(uid, mode) {
         const ysel2 = document.getElementById('admin-year-sel');
         if (ysel2) { ysel2.style.display = 'none'; ysel2.innerHTML = ''; }
         const ysel = document.getElementById('admin-riwayat-year-sel');
-        if (ysel) ysel.dataset.active = '';
+        if (ysel && !quiet) ysel.dataset.active = '';
         window.__adminRiwayatArr = arr;
         renderAdminRiwayatChart(arr);
     } else {
@@ -8653,7 +9131,7 @@ window.showAdminDetail = function(uid, mode) {
             : '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Kosong</div>';
     }
 
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!quiet) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 window.adminExtractData = async function() {
@@ -8714,6 +9192,7 @@ window.adminExtractData = async function() {
 };
 
 window.closeAdminDetail = function() {
+    window.__adminOpen = null;
     const section = document.getElementById('admin-detail-section');
     if (section) section.style.display = 'none';
     if (charts['admin-user-chart']) { charts['admin-user-chart'].destroy(); delete charts['admin-user-chart']; }
@@ -8746,7 +9225,8 @@ window.computeWalletsFromArr = computeWalletsFromArr;
 // ==========================================================================
 // ADMIN: Lihat rincian isi dompet milik user lain
 // ==========================================================================
-window.showAdminWallet = function(uid) {
+window.showAdminWallet = function(uid, quiet) {
+    window.__adminOpen = { uid: uid, mode: 'wallet', sig: window.__adminSig(uid, 'wallet') };
     const arr = adminGrouped[uid] || [];
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
     const { wallets, hutangBal, piutangBal, totalAset } = computeWalletsFromArr(arr);
@@ -8763,7 +9243,7 @@ window.showAdminWallet = function(uid) {
     sub.textContent = 'Rincian saldo tiap dompet milik akun ini.';
     chartWrap.style.display = 'none';
 
-    let html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px;">';
+    let html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(104px,1fr)); gap:6px;">';
     const walletEntries = Object.entries(wallets);
     // Kalau total kartu (dompet + hutang + piutang) ganjil, kartu terakhir sebelum TOTAL ASET
     // bakal sendirian di barisnya — lebarkan penuh biar kanannya nggak kosong.
@@ -8775,12 +9255,12 @@ window.showAdminWallet = function(uid) {
     html += `<div class="w-card" style="border-color:rgba(59,130,246,0.5); background:rgba(59,130,246,0.05);${isPiutangOrphan ? ' grid-column:1 / -1;' : ''}"><div class="w-label" style="color:var(--blue);">TOTAL PIUTANG</div><div class="w-val min">${fmtFull(piutangBal)}</div></div>`;
     html += `<div class="w-card" style="border-color:rgba(16,185,129,0.5); background:rgba(16,185,129,0.05); grid-column:1 / -1;"><div class="w-label" style="color:var(--green2);">TOTAL ASET (SALDO POSITIF)</div><div class="w-val">${fmtFull(totalAset)}</div></div>`;
     html += '</div>';
-    html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
-        <button onclick="window.adminAdjustBalance('${uid}','add')" style="background:rgba(16,185,129,0.15); color:var(--green2); border:1px solid var(--green2); padding:12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">➕ TAMBAH SALDO USER</button>
-        <button onclick="window.adminAdjustBalance('${uid}','subtract')" style="background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); padding:12px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">➖ KURANGI SALDO USER</button>
+    html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
+        <button onclick="window.adminAdjustBalance('${uid}','add')" style="background:rgba(16,185,129,0.15); color:var(--green2); border:1px solid var(--green2); padding:7px; border-radius:8px; font-size:10px; font-weight:800; cursor:pointer;">➕ TAMBAH SALDO USER</button>
+        <button onclick="window.adminAdjustBalance('${uid}','subtract')" style="background:rgba(248,113,113,0.15); color:var(--red2); border:1px solid var(--red2); padding:7px; border-radius:8px; font-size:10px; font-weight:800; cursor:pointer;">➖ KURANGI SALDO USER</button>
     </div>`;
     listWrap.innerHTML = html;
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!quiet) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 // ==========================================================================
@@ -8854,7 +9334,8 @@ window.adminAdjustBalance = async function(uid, mode) {
 // Admin bisa memulihkan langsung ke akun user yang tidak sengaja menghapus,
 // atau menghapus permanen (dipindah dulu ke Arsip Admin agar tetap aman).
 // ==========================================================================
-window.showAdminTrash = function(uid) {
+window.showAdminTrash = function(uid, quiet) {
+    window.__adminOpen = { uid: uid, mode: 'trash', sig: window.__adminSig(uid, 'trash') };
     const arr = (adminGroupedTrash[uid] || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
     const label = adminUserLabels[uid] || `User-${uid.substring(0,6)}`;
 
@@ -8872,7 +9353,7 @@ window.showAdminTrash = function(uid) {
 
     if (!arr.length) {
         listWrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-size:12px;">Sampah user ini kosong.</div>';
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!quiet) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
     }
 
@@ -8889,7 +9370,7 @@ window.showAdminTrash = function(uid) {
         </div>`;
     });
     listWrap.innerHTML = html;
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!quiet) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 window.adminRestoreTx = async function(uid, id, reopenMode) {
@@ -11334,7 +11815,7 @@ window.switchPage = function(p) {
   document.getElementById('page-' + p).classList.add('active'); 
   const idx = pages.indexOf(p); 
   if (idx !== -1 && navBtns[idx]) { navBtns[idx].classList.add('active'); } 
-  activePage = p; if (p === 'ib' && typeof window.renderIBPage === 'function') window.renderIBPage(); if (p === 'pengaturan' && typeof window.refreshSettingsIB === 'function') window.refreshSettingsIB(); 
+  activePage = p; if (p === 'admin' && typeof window.startAdminLive === 'function') { window.startAdminLive(); if (window.__admLive) window.__admLive.dirty = true; } if (p === 'ib' && typeof window.renderIBPage === 'function') window.renderIBPage(); if (p === 'pengaturan' && typeof window.refreshSettingsIB === 'function') window.refreshSettingsIB(); 
   // PENTING: pakai DOUBLE requestAnimationFrame, bukan 1x. Kenapa: 1x rAF TIDAK menjamin
   // browser sudah sempat menggambar (paint) perubahan class (tombol aktif, halaman baru
   // muncul) sebelum callback jalan — kalau refreshAll() berat (rebuild chart, dst), semuanya
@@ -14803,7 +15284,7 @@ if ('serviceWorker' in navigator) {
   }
   function pbar(j,b){var p=j>0?Math.min(100,Math.max(0,b/j*100)):0;return '<div class="ht-pb" title="Terbayar '+pct(p)+'"><i style="width:'+p.toFixed(1)+'%"></i></div>';}
   function mon(sid,mid){var s=sheet(sid);return s?s.months.filter(function(x){return x.id===mid;})[0]:null;}
-  window.htSyncQuiet=function(){try{if(syncing||!window.hutangCloud||!window.hutangCloud.uid())return;sync(true).then(function(ch){if(ch)render();});}catch(e){}};
+  window.htSyncQuiet=function(){try{if(syncing||!window.hutangCloud||!window.hutangCloud.uid())return;sync(true).then(function(ch){if(ch){render();try{if(typeof window.renderWalletBalances==='function')window.renderWalletBalances();}catch(e){}}});}catch(e){}};
   window.htSyncNow=function(){
     try{if(window.forceLinkResync)window.forceLinkResync(false);}catch(e){}
     var t=function(icon,title,text){if(typeof Swal==='undefined')return;if(icon==='success'&&window.showSaveSuccess){window.showSaveSuccess(title,1800,text||'');return;}SW({icon:icon,title:title,text:text||''});};
@@ -14845,7 +15326,12 @@ if ('serviceWorker' in navigator) {
   window.htDelMonth=function(sid,mid){sure2('Hapus bulan ini?','Bulan <b>'+esc((mon(sid,mid)||{}).name||'')+'</b> beserta seluruh barisnya akan dihapus permanen dan tidak bisa dikembalikan.').then(function(ok){if(!ok)return;var s=sheet(sid);s.months=s.months.filter(function(m){return m.id!==mid;});save();render();});};
   window.htAddRow=function(sid,mid){mon(sid,mid).rows.push({id:gid(),jumlah:0,bayar:0});save();render();};
   window.htDelRow=function(sid,mid,rid){var m0=mon(sid,mid),r0=(m0&&m0.rows.filter(function(x){return x.id===rid;})[0])||{};sure2('Hapus baris ini?','Baris dengan jumlah <b>'+rp(r0.jumlah||0)+'</b> akan dihapus permanen dan tidak bisa dikembalikan.').then(function(ok){if(!ok)return;var m=mon(sid,mid);if(!m)return;m.rows=m.rows.filter(function(r){return r.id!==rid;});save();render();});};
-  window.htSetRow=function(sid,mid,rid,k,v){var r=mon(sid,mid).rows.filter(function(x){return x.id===rid;})[0];r[k]=num(v);save();render();};
+  window.htSetRow=function(sid,mid,rid,k,v){var r=mon(sid,mid).rows.filter(function(x){return x.id===rid;})[0];
+    if(k==='jumlah'&&typeof Swal!=='undefined'&&num(v)!==(r.jumlah||0)){
+      SW({title:'Ubah nominal hutang?',html:'Jumlah <b>'+rp(r.jumlah||0)+'</b> akan diubah menjadi <b>'+rp(num(v))+'</b>.',icon:'question',showCancelButton:true,confirmButtonText:'YA, UBAH',cancelButtonText:'Batal',focusCancel:true}).then(function(x){if(x.isConfirmed){r[k]=num(v);save();}render();});
+      return;
+    }
+    r[k]=num(v);save();render();};
   function htKeepY(y){
     try{
       var de=document.documentElement,old=de.style.scrollBehavior,moved=false;
