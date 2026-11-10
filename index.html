@@ -2623,6 +2623,19 @@ html body #page-hutang #hutang-root#hutang-root .ht-totleg .it,html body #page-h
 html body #page-hutang #hutang-root#hutang-root .ht-totleg .v{font-size:16px !important}
 html body #page-hutang #hutang-root#hutang-root .ht-sumhero{padding:18px !important}
 }
+/* v9: angka tidak turun baris di HP (ukuran font mengecil mengikuti lebar layar) */
+@media(max-width:620px){
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:not(.tot) td{font-size:clamp(13px,4.3vw,16px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr:not(.tot) td:nth-child(5){font-size:clamp(13px,4.3vw,16px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr.tot td{font-size:clamp(13px,4.1vw,16px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td.rs{font-size:clamp(14px,4.4vw,17px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl tr:not(.tot) td:is(:nth-child(1),:nth-child(2),:nth-child(3),:nth-child(5)),html body #page-hutang #hutang-root#hutang-root .ht-tbl tr.tot td{white-space:nowrap !important;overflow-wrap:normal !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl td::before{white-space:nowrap}
+html body #page-hutang #hutang-root#hutang-root .ht-tcell b{font-size:clamp(17px,5.4vw,22px) !important;white-space:nowrap !important;letter-spacing:-.3px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(5){font-size:clamp(14px,4.4vw,17px) !important}
+html body #page-hutang #hutang-root#hutang-root .ht-hero .v{font-size:clamp(26px,8.2vw,40px) !important;white-space:nowrap !important;letter-spacing:-1px !important}
+html body #page-hutang #hutang-root#hutang-root .ht-side .val{font-size:clamp(20px,6.4vw,24px) !important}
+}
 </style>
 <style id="admin-summary-style">
 .ah-sumgrid{grid-template-columns:minmax(0,1fr) !important}
