@@ -1355,6 +1355,9 @@ body.light-mode #page-ib .ibx-warn { color: #B91C1C; }
 #page-ib .ibx-mn .s, #page-ib .ibx-sd .s { font-size: 11.5px; color: var(--text3); line-height: 1.65; overflow-wrap: anywhere; }
 #page-ib .ibx-sd { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
 #page-ib .ibx-sd .amt { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 800; color: var(--ix-g); }
+#page-ib .ibx-del { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border: 1px solid var(--ix-line); border-radius: 8px; background: transparent; color: var(--red2); font-size: 11px; font-weight: 700; cursor: pointer; }
+#page-ib .ibx-del:hover { background: rgba(248,113,113,.12); border-color: var(--red2); }
+#page-ib .ibx-delall { display: flex; justify-content: flex-end; padding: 2px 0 10px; }
 #page-ib .ib-pill { font-size: 10px; padding: 3px 10px; white-space: nowrap; }
 body.light-mode #page-ib .ib-pill.wait { color: #B45309; } body.light-mode #page-ib .ib-pill.ok { color: #047857; } body.light-mode #page-ib .ib-pill.bad { color: #B91C1C; }
 #page-ib .ibx-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 36px 12px; text-align: center; font-size: 12.5px; color: var(--text3); }
@@ -2153,6 +2156,218 @@ body.light-mode #page-hutang{--ha:#B45309;--hg:#047857;--hr:#DC2626}
 #page-hutang #hutang-root .ht-sumin label.full{grid-column:auto}
 #page-hutang #hutang-root .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr))}
 #page-hutang #hutang-root .ht-sumg .it.full{grid-column:auto}
+}
+</style>
+<style id="hutang-compact">
+/* ===== HUTANG v6 "BUKU BESAR": tab map, tabel sungguhan (desktop) / kartu padat (HP). Hanya halaman Hutang. ===== */
+html body #page-hutang #hutang-root{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:stretch;font-size:13px}
+html body #page-hutang #hutang-root>*{grid-column:1/-1;margin:0 !important}
+html body #page-hutang #hutang-root .ht-tabs{display:flex;flex-direction:row;gap:3px;width:auto;padding:0;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;overflow-x:auto;position:static}
+html body #page-hutang #hutang-root .ht-tab,html body #page-hutang #hutang-root .ht-tab.merge,html body #page-hutang #hutang-root .ht-tab.add{flex:0 0 auto;padding:9px 16px;border:1px solid var(--border) !important;border-bottom:0 !important;border-radius:8px 8px 0 0 !important;background:var(--bg2) !important;box-shadow:none !important;color:var(--text3) !important;font-size:12px;font-weight:700}
+html body #page-hutang #hutang-root .ht-tab:hover{color:var(--text) !important}
+html body #page-hutang #hutang-root .ht-tab.active,html body #page-hutang #hutang-root .ht-tab.merge.active{background:var(--card) !important;color:var(--text) !important;border-top:2px solid var(--gold) !important}
+html body #page-hutang #hutang-root .ht-tab.add{border-style:dashed !important;background:transparent !important;color:var(--ha) !important}
+html body #page-hutang #hutang-root .ht-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;padding:0;border:0;text-align:left}
+html body #page-hutang #hutang-root .ht-head .t{font-size:16px;font-weight:800;letter-spacing:0}
+html body #page-hutang #hutang-root .ht-head .s{margin:0;font-size:11.5px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-bar{display:flex;flex-wrap:wrap;gap:4px}
+html body #page-hutang #hutang-root .ht-btn,html body #page-hutang #hutang-root .ht-btn.sm{padding:6px 10px;border:0 !important;border-radius:6px !important;background:var(--bg2) !important;color:var(--text2);font-size:11.5px;font-weight:700;box-shadow:none}
+html body #page-hutang #hutang-root .ht-btn:hover{background:var(--tint) !important;color:var(--text)}
+html body #page-hutang #hutang-root .ht-btn.pri{background:var(--gold) !important;color:#1a1200}
+html body #page-hutang #hutang-root .ht-btn.dan{color:var(--hr)}
+html body #page-hutang #hutang-root .ht-card.ht-total{display:grid;grid-template-columns:minmax(0,1fr);padding:14px 16px;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:6px;background:var(--card) !important;background-image:none !important}
+html body #page-hutang #hutang-root .ht-setT{margin:0 0 4px;font-size:11px;letter-spacing:1px}
+html body #page-hutang #hutang-root .ht-picklbl{margin:0 0 8px;font-size:12px}
+html body #page-hutang #hutang-root .ht-chk{gap:6px;margin:0 0 12px}
+html body #page-hutang #hutang-root .ht-chk label{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;font-size:12px}
+html body #page-hutang #hutang-root .ht-chk label:has(input:checked){border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+html body #page-hutang #hutang-root .ht-total .ht-hero{margin:0}
+html body #page-hutang #hutang-root .ht-hero .l,html body #page-hutang #hutang-root .ht-hero .s{font-size:12px;line-height:1.5}
+html body #page-hutang #hutang-root .ht-hero .v{margin:4px 0;font-size:24px;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-totbody{gap:8px;margin-top:10px;align-items:stretch}
+html body #page-hutang #hutang-root .ht-totbody .ht-pb{height:8px;margin:0}
+html body #page-hutang #hutang-root .ht-totleg .it{padding:9px 12px;border:0;border-left:3px solid var(--border);border-radius:0;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-totleg .l{margin:0 0 3px;font-size:11px}
+html body #page-hutang #hutang-root .ht-totleg .v{font-size:14px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-totleg .p{font-size:11px;margin:0}
+html body #page-hutang #hutang-root .ht-total .ht-brk{margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+html body #page-hutang #hutang-root .ht-brk .it{padding:7px 10px;border:0;border-left:3px solid var(--border);border-radius:0;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-brk .n,html body #page-hutang #hutang-root .ht-brk .a{font-size:12px}
+html body #page-hutang #hutang-root .ht-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+html body #page-hutang #hutang-root .ht-stat{flex-direction:column !important;justify-content:center;gap:3px;padding:9px 12px;border:0;border-top:2px solid var(--border);border-radius:0;background:var(--bg2) !important}
+html body #page-hutang #hutang-root .ht-stat:has(.v.g){border-top-color:var(--green2)}
+html body #page-hutang #hutang-root .ht-stat:has(.v.r){border-top-color:var(--red2)}
+html body #page-hutang #hutang-root .ht-stat:has(.v.y){border-top-color:var(--gold)}
+html body #page-hutang #hutang-root .ht-stat .l{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+html body #page-hutang #hutang-root .ht-stat .v{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-stats .ht-stat:first-child{grid-column:1/-1}
+html body #page-hutang #hutang-root .ht-card:not(.ht-total):not(.ht-empty){padding:0;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:6px;overflow:hidden;background:var(--card)}
+html body #page-hutang #hutang-root .ht-mhead{margin:0;padding:8px 12px;gap:8px;background:transparent;border-bottom:1px solid var(--border)}
+html body #page-hutang #hutang-root .ht-mname{flex:1 1 160px;gap:4px}
+html body #page-hutang #hutang-root .ht-no{width:auto;height:auto;padding:0 2px;border:0;border-radius:0;background:transparent;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}
+html body #page-hutang #hutang-root .ht-no::before{content:"#"}
+html body #page-hutang #hutang-root .ht-mname input{padding:4px 8px;border:1px solid transparent;border-radius:6px;font-size:15px}
+html body #page-hutang #hutang-root .ht-mname input:hover,html body #page-hutang #hutang-root .ht-mname input:focus{border-color:var(--border);background:var(--bg2) !important;box-shadow:none}
+html body #page-hutang #hutang-root .ht-mname .nm{font-size:15px}
+html body #page-hutang #hutang-root .ht-acts{gap:4px}
+html body #page-hutang #hutang-root .ht-grid{gap:0}
+html body #page-hutang #hutang-root .ht-side{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:7px 12px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-side .lbl,html body #page-hutang #hutang-root .ht-leg{font-size:11px}
+html body #page-hutang #hutang-root .ht-side .val{font-size:13px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-side .ht-pb{flex:1 1 90px;min-width:60px;margin:0}
+html body #page-hutang #hutang-root .ht-leg{gap:2px 12px}
+html body #page-hutang #hutang-root .ht-tbl input,html body #page-hutang #hutang-root .ht-tbl.ht-edit input{height:34px !important;padding:0 10px !important;border:1px solid var(--border) !important;border-radius:6px !important;background:var(--bg2) !important;font-size:13px !important;font-weight:600 !important;font-family:'JetBrains Mono',monospace !important}
+html body #page-hutang #hutang-root .ht-tbl input:focus{border-color:var(--gold) !important;box-shadow:none !important;background:var(--bg) !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-paycell,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-paycell{gap:6px !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-lunas,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-lunas{height:34px;padding:0 10px !important;border:0 !important;border-radius:6px !important;background:color-mix(in srgb,var(--green2) 18%,transparent) !important;font-size:11.5px !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-x,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-x{width:34px !important;height:34px !important;border:1px solid var(--border) !important;border-radius:6px !important;background:transparent !important;font-size:12px !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-badge,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-badge,html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) .ht-badge{padding:4px 9px !important;border-radius:4px !important;font-size:10.5px !important}
+html body #page-hutang #hutang-root .ht-pb{height:4px;margin-top:5px}
+html body #page-hutang #hutang-root .ht-tcell b{font-size:14px !important}
+html body #page-hutang #hutang-root .ht-tcell span{font-size:11px !important}
+html body #page-hutang #hutang-root .ht-set{padding:14px 16px;border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:6px;background:var(--card)}
+html body #page-hutang #hutang-root .ht-set .st{font-size:11px}
+html body #page-hutang #hutang-root .ht-sum .ht-sumsub{margin:0 0 10px;font-size:12px}
+html body #page-hutang #hutang-root .ht-sumhero{margin:0 0 12px}
+html body #page-hutang #hutang-root .ht-sumhero .l,html body #page-hutang #hutang-root .ht-sumhero .s{font-size:12px}
+html body #page-hutang #hutang-root .ht-sumhero .v{margin:4px 0;font-size:24px;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-sumin{gap:10px;margin:0 0 12px}
+html body #page-hutang #hutang-root .ht-sumin label>span,html body #page-hutang #hutang-root .ht-sumin label.full>span{font-size:11px}
+html body #page-hutang #hutang-root .ht-sumin input,html body #page-hutang #hutang-root .ht-sumin select{height:38px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);font-size:13px}
+html body #page-hutang #hutang-root .ht-sumg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+html body #page-hutang #hutang-root .ht-sumg .it,html body #page-hutang #hutang-root .ht-sumg .it.full{padding:9px 12px;gap:3px;border:0;border-left:3px solid var(--border);border-radius:0;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-sumg .it.full{grid-column:1/-1}
+html body #page-hutang #hutang-root .ht-sumg .l,html body #page-hutang #hutang-root .ht-sumg .n{font-size:11px}
+html body #page-hutang #hutang-root .ht-sumg .v{font-size:14px;font-family:'JetBrains Mono',monospace}
+html body #page-hutang #hutang-root .ht-empty{padding:22px 12px;border:1px dashed var(--border);border-radius:6px;background:transparent;font-size:12.5px}
+/* HP / wadah sempit: tiap baris jadi kartu padat */
+@container ht (max-width:659px){
+html body #page-hutang #hutang-root .ht-tbl tr,html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):hover{gap:8px 10px !important;padding:10px 12px !important;border:0 !important;border-bottom:1px solid var(--border) !important;border-radius:0 !important;background:transparent !important;box-shadow:none !important}
+html body #page-hutang #hutang-root .ht-tbl tr:last-child{border-bottom:0 !important}
+html body #page-hutang #hutang-root .ht-tbl tr.tot,html body #page-hutang #hutang-root .ht-tbl tr.tot:hover{border-top:1px solid var(--gold) !important;border-bottom:0 !important;background:var(--bg2) !important}
+html body #page-hutang #hutang-root .ht-tbl td::before{margin:0 0 3px;font-size:9.5px;letter-spacing:.5px}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit tr:not(.tot){grid-template-columns:minmax(0,1fr) minmax(0,1fr) 34px !important;grid-template-areas:"jum jum x" "bay bay bay" "sis sta per" !important}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"tot tot" "bay sis" "sta per" !important}
+html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:"nam nam" "jum bay" "has sta" "per per" !important}
+}
+/* DESKTOP / wadah lebar: tabel sungguhan dengan header, garis, dan baris total */
+@container ht (min-width:660px){
+html body #page-hutang #hutang-root .ht-tbl,html body #page-hutang #hutang-root .ht-tbl.ht-edit,html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit){display:table !important;width:100% !important;table-layout:fixed !important;border-collapse:collapse !important}
+html body #page-hutang #hutang-root .ht-tbl tbody{display:table-row-group !important}
+html body #page-hutang #hutang-root .ht-tbl tr,html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):hover,html body #page-hutang #hutang-root .ht-tbl tr:has(>th){display:table-row !important;padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;background:transparent !important}
+html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover{background:var(--tint) !important}
+html body #page-hutang #hutang-root .ht-tbl th{display:table-cell !important;position:static !important;padding:8px 12px !important;border:0 !important;border-bottom:1px solid var(--border) !important;background:var(--bg2) !important;color:var(--text3);font-size:10px !important;font-weight:700;letter-spacing:.6px !important;text-transform:uppercase;text-align:right !important;white-space:nowrap}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(1){width:17%}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(2){width:29%}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(3){width:17%}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(4){width:14%;text-align:center !important}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(5){width:15%}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit th:nth-child(6){width:8%}
+html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) th:nth-child(1){width:18%;text-align:left !important}
+html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) th:nth-child(5){text-align:center !important}
+html body #page-hutang #hutang-root .ht-tbl td,html body #page-hutang #hutang-root .ht-tbl.ht-edit td,html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) td,html body #page-hutang #hutang-root .ht-tbl tr.tot td,html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td{display:table-cell !important;padding:8px 12px !important;border-bottom:1px solid var(--border) !important;vertical-align:middle !important;font-size:13px !important;font-weight:600 !important;text-align:right !important;white-space:normal !important}
+html body #page-hutang #hutang-root .ht-tbl td::before{display:none !important;content:none !important}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(6){display:table-cell !important}
+html body #page-hutang #hutang-root .ht-tbl.ht-edit td:nth-child(4),html body #page-hutang #hutang-root .ht-tbl.ht-edit td:nth-child(6),html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(4),html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td:nth-child(6),html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(5){text-align:center !important}
+html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) td:nth-child(1){text-align:left !important;font-size:13px !important;font-weight:800 !important}
+html body #page-hutang #hutang-root .ht-tbl input,html body #page-hutang #hutang-root .ht-tbl.ht-edit input{text-align:right !important}
+html body #page-hutang #hutang-root .ht-tbl td.rs.r,html body #page-hutang #hutang-root .ht-tbl td.rs.g{font-size:13px !important;font-weight:800 !important}
+html body #page-hutang #hutang-root .ht-tbl tr.tot td,html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td{border-top:2px solid var(--gold) !important;border-bottom:0 !important;background:var(--bg2) !important;font-weight:800 !important}
+html body #page-hutang #hutang-root .ht-tbl tr:last-child td{border-bottom:0 !important}
+html body #page-hutang #hutang-root .ht-tcell{flex-direction:row !important;flex-wrap:wrap;align-items:baseline !important;justify-content:flex-end !important;gap:2px 8px !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-paycell,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-paycell{display:flex !important;justify-content:flex-end}
+html body #page-hutang #hutang-root .ht-tbl .ht-pb{margin:5px 0 0 auto}
+}
+@media(min-width:700px){
+html body #page-hutang #hutang-root .ht-stats{grid-template-columns:repeat(5,minmax(0,1fr))}
+html body #page-hutang #hutang-root .ht-stats .ht-stat:first-child{grid-column:auto}
+}
+@media(min-width:1000px){
+html body #page-hutang #hutang-root{grid-template-columns:minmax(0,1fr) auto;column-gap:16px}
+html body #page-hutang #hutang-root .ht-head{grid-column:1;align-self:center}
+html body #page-hutang #hutang-root .ht-bar{grid-column:2;justify-content:flex-end;align-self:center}
+html body #page-hutang #hutang-root .ht-card.ht-total{grid-template-columns:5fr 7fr;column-gap:20px}
+html body #page-hutang #hutang-root .ht-total>*{grid-column:1/-1}
+html body #page-hutang #hutang-root .ht-total .ht-hero{grid-column:1;align-self:center}
+html body #page-hutang #hutang-root .ht-total .ht-totbody{grid-column:2;margin-top:0}
+html body #page-hutang #hutang-root .ht-set.ht-sum{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:14px}
+html body #page-hutang #hutang-root .ht-sum>*{grid-column:1/-1}
+html body #page-hutang #hutang-root .ht-sum>.ht-sumhero{grid-column:1/span 4;margin:0;align-self:center}
+html body #page-hutang #hutang-root .ht-sum>.ht-sumin{grid-column:5/-1;margin:0;grid-template-columns:repeat(3,minmax(0,1fr));align-self:end}
+html body #page-hutang #hutang-root .ht-sumin label.full{grid-column:auto}
+html body #page-hutang #hutang-root .ht-sumg{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+html body #page-hutang #hutang-root .ht-sumg .it.full{grid-column:auto}
+}
+@media(max-width:700px){
+html body #page-hutang #hutang-root{gap:10px}
+html body #page-hutang #hutang-root .ht-bar{flex-wrap:nowrap;overflow-x:auto}
+html body #page-hutang #hutang-root .ht-bar .ht-btn{flex:0 0 auto;white-space:nowrap}
+html body #page-hutang #hutang-root .ht-card.ht-total,html body #page-hutang #hutang-root .ht-set{padding:12px}
+html body #page-hutang #hutang-root .ht-hero .v,html body #page-hutang #hutang-root .ht-sumhero .v{font-size:22px}
+html body #page-hutang #hutang-root .ht-totbody{grid-template-columns:repeat(2,minmax(0,1fr))}
+html body #page-hutang #hutang-root .ht-tab,html body #page-hutang #hutang-root .ht-tab.merge,html body #page-hutang #hutang-root .ht-tab.add{padding:8px 12px}
+}
+</style>
+<style id="hutang-soft">
+/* ===== HUTANG v7 "SOFT": sudut membulat, tombol pil, bayangan halus. Hanya halaman Hutang. ===== */
+html body #page-hutang #hutang-root .ht-tabs{gap:6px;padding:5px;border:1px solid color-mix(in srgb,var(--border) 60%,transparent);border-radius:999px;background:var(--bg2);scrollbar-width:none}
+html body #page-hutang #hutang-root .ht-tabs::-webkit-scrollbar{display:none}
+html body #page-hutang #hutang-root .ht-tab,html body #page-hutang #hutang-root .ht-tab.merge,html body #page-hutang #hutang-root .ht-tab.add{padding:8px 16px;border:0 !important;border-radius:999px !important;background:transparent !important;color:var(--text3) !important;transition:background .2s,color .2s}
+html body #page-hutang #hutang-root .ht-tab:hover{background:var(--tint) !important;color:var(--text) !important}
+html body #page-hutang #hutang-root .ht-tab.active,html body #page-hutang #hutang-root .ht-tab.merge.active{padding:8px 16px;border:0 !important;background:linear-gradient(135deg,var(--gold),color-mix(in srgb,var(--gold) 65%,#fff)) !important;color:#1a1200 !important;box-shadow:0 4px 12px color-mix(in srgb,var(--gold) 32%,transparent) !important}
+html body #page-hutang #hutang-root .ht-tab.add{background:color-mix(in srgb,var(--gold) 13%,transparent) !important;color:var(--ha) !important}
+html body #page-hutang #hutang-root .ht-btn,html body #page-hutang #hutang-root .ht-btn.sm{padding:8px 15px;border-radius:999px !important;background:var(--bg2) !important;transition:transform .15s,box-shadow .2s,background .2s}
+html body #page-hutang #hutang-root .ht-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,0,0,.16)}
+html body #page-hutang #hutang-root .ht-btn.pri{background:linear-gradient(135deg,var(--gold),color-mix(in srgb,var(--gold) 65%,#fff)) !important;color:#1a1200;box-shadow:0 4px 12px color-mix(in srgb,var(--gold) 30%,transparent)}
+html body #page-hutang #hutang-root .ht-card.ht-total,html body #page-hutang #hutang-root .ht-card:not(.ht-total):not(.ht-empty),html body #page-hutang #hutang-root .ht-set{border:1px solid color-mix(in srgb,var(--border) 55%,transparent);border-radius:22px;box-shadow:0 10px 28px rgba(0,0,0,.14);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 8%,var(--card)),var(--card) 110px) !important}
+html body #page-hutang #hutang-root .ht-empty{border-radius:22px}
+html body #page-hutang #hutang-root .ht-chk label{border:0;border-radius:999px;background:var(--tint)}
+html body #page-hutang #hutang-root .ht-chk label:has(input:checked){background:color-mix(in srgb,var(--gold) 22%,transparent)}
+html body #page-hutang #hutang-root .ht-totleg .it,html body #page-hutang #hutang-root .ht-brk .it,html body #page-hutang #hutang-root .ht-sumg .it,html body #page-hutang #hutang-root .ht-sumg .it.full{border:0;border-radius:16px;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-stat{border:0;border-radius:18px;background:var(--bg2) !important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--border) 55%,transparent)}
+html body #page-hutang #hutang-root .ht-stat:has(.v.g){background:color-mix(in srgb,var(--green2) 13%,var(--card)) !important;box-shadow:none}
+html body #page-hutang #hutang-root .ht-stat:has(.v.r){background:color-mix(in srgb,var(--red2) 12%,var(--card)) !important;box-shadow:none}
+html body #page-hutang #hutang-root .ht-stat:has(.v.y){background:color-mix(in srgb,var(--gold) 14%,var(--card)) !important;box-shadow:none}
+html body #page-hutang #hutang-root .ht-mhead{padding:12px 16px;border-bottom:0;background:transparent}
+html body #page-hutang #hutang-root .ht-no{display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border-radius:50%;background:linear-gradient(135deg,var(--gold),color-mix(in srgb,var(--gold) 65%,#fff));color:#1a1200;font-size:12px;box-shadow:0 3px 8px color-mix(in srgb,var(--gold) 30%,transparent)}
+html body #page-hutang #hutang-root .ht-no::before{content:none}
+html body #page-hutang #hutang-root .ht-mname{gap:10px}
+html body #page-hutang #hutang-root .ht-mname input{border-radius:12px}
+html body #page-hutang #hutang-root .ht-side{margin:0 14px 6px !important;padding:9px 14px;border:0;border-radius:14px;background:var(--bg2)}
+html body #page-hutang #hutang-root .ht-tbl input,html body #page-hutang #hutang-root .ht-tbl.ht-edit input{height:36px !important;border:1px solid transparent !important;border-radius:12px !important;background:var(--tint) !important}
+html body #page-hutang #hutang-root .ht-tbl input:focus{border-color:var(--gold) !important;background:var(--bg) !important;box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 20%,transparent) !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-lunas,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-lunas{height:36px;padding:0 14px !important;border-radius:999px !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-x,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-x{width:36px !important;height:36px !important;border:0 !important;border-radius:50% !important;background:var(--tint) !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-x:hover{background:color-mix(in srgb,var(--red2) 20%,transparent) !important}
+html body #page-hutang #hutang-root .ht-tbl .ht-badge,html body #page-hutang #hutang-root .ht-tbl.ht-edit .ht-badge,html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) .ht-badge{padding:5px 11px !important;border-radius:999px !important}
+html body #page-hutang #hutang-root .ht-pb{height:5px;border-radius:999px}
+html body #page-hutang #hutang-root .ht-sumin input,html body #page-hutang #hutang-root .ht-sumin select{height:40px;border:1px solid transparent;border-radius:12px;background:var(--tint)}
+html body #page-hutang #hutang-root .ht-sumin input:focus,html body #page-hutang #hutang-root .ht-sumin select:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 20%,transparent)}
+html body #page-hutang #hutang-root .ht-wrap{padding:0 10px 10px !important}
+@container ht (max-width:659px){
+html body #page-hutang #hutang-root .ht-tbl tr,html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):hover{border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent) !important;padding:12px 4px !important}
+html body #page-hutang #hutang-root .ht-tbl tr.tot,html body #page-hutang #hutang-root .ht-tbl tr.tot:hover{margin:6px 0 0 !important;padding:12px !important;border:0 !important;border-radius:16px !important;background:color-mix(in srgb,var(--gold) 12%,var(--bg2)) !important}
+}
+@container ht (min-width:660px){
+html body #page-hutang #hutang-root .ht-tbl th{border-bottom:0 !important;background:var(--bg2) !important}
+html body #page-hutang #hutang-root .ht-tbl th:first-child{border-radius:14px 0 0 14px}
+html body #page-hutang #hutang-root .ht-tbl th:last-child{border-radius:0 14px 14px 0}
+html body #page-hutang #hutang-root .ht-tbl td,html body #page-hutang #hutang-root .ht-tbl.ht-edit td,html body #page-hutang #hutang-root .ht-tbl:not(.ht-edit) td{border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent) !important}
+html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover{background:transparent !important}
+html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover td{background:var(--tint) !important}
+html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover td:first-child{border-radius:14px 0 0 14px}
+html body #page-hutang #hutang-root .ht-tbl tr:not(.tot):not(:has(>th)):hover td:last-child{border-radius:0 14px 14px 0}
+html body #page-hutang #hutang-root .ht-tbl tr.tot td,html body #page-hutang #hutang-root .ht-tbl.ht-edit tr.tot td{border-top:0 !important;background:color-mix(in srgb,var(--gold) 13%,var(--bg2)) !important}
+html body #page-hutang #hutang-root .ht-tbl tr.tot td:first-child{border-radius:14px 0 0 14px}
+html body #page-hutang #hutang-root .ht-tbl tr.tot td:last-child{border-radius:0 14px 14px 0}
+html body #page-hutang #hutang-root .ht-tbl tr:last-child td{border-bottom:0 !important}
+}
+@media(max-width:700px){
+html body #page-hutang #hutang-root .ht-card.ht-total,html body #page-hutang #hutang-root .ht-set{padding:14px}
+html body #page-hutang #hutang-root .ht-card:not(.ht-total):not(.ht-empty){border-radius:20px}
+html body #page-hutang #hutang-root .ht-mhead{padding:10px 12px}
+html body #page-hutang #hutang-root .ht-wrap{padding:0 8px 8px !important}
+html body #page-hutang #hutang-root .ht-side{margin:0 10px 4px !important}
 }
 </style>
 <style id="admin-summary-style">
@@ -5208,7 +5423,6 @@ window.attachIBReferral = async function (user, force) {
         const code = (localStorage.getItem('rhn_ib_ref') || '').trim().toUpperCase();
         if (!code || !user || !user.uid || (!force && !user.metadata)) return;
         const done = () => localStorage.removeItem('rhn_ib_ref');
-        if (!force && user.metadata && user.metadata.creationTime && (Date.now() - new Date(user.metadata.creationTime).getTime()) > 86400000) { done(); return; }
         const cRef = doc(db, 'ibClients', user.uid);
         if ((await getDoc(cRef)).exists()) { done(); return; }
         const ibSnap = await getDoc(doc(db, 'ibs', code));
@@ -5338,6 +5552,7 @@ window.renderIBPage = async function () {
         } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; return; }
     }
     if (!window.__myIB) {
+        try { if (window.__ibWatchUid !== currentUser.uid || !window.__ibWatch) { if (window.__ibWatch) window.__ibWatch(); window.__ibWatchUid = currentUser.uid; window.__ibWatch = onSnapshot(query(collection(db, 'ibs'), where('uid', '==', currentUser.uid), limit(1)), s => { if (!s.empty) { window.__myIB = s.docs[0].data(); try { window.__ibWatch(); } catch (e) {} window.__ibWatch = null; window.renderIBPage(); } }, () => {}); } } catch (e) {}
         const X = window.ibxIc;
         el.innerHTML = `<div class="ibx ibx-solo"><section class="ibx-p ibx-solo-card">
             <div class="ibx-state-ic">${X('users')}</div>
@@ -5349,8 +5564,9 @@ window.renderIBPage = async function () {
     }
     window.__ib.me = window.__myIB;
     if (!window.__ibUnsubs.length) {
+        window.__ibSeen = {};
         const uid = currentUser.uid, code = window.__myIB.code;
-        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { window.__ib[key] = s.docs.map(d => Object.assign({ id: d.id }, d.data())); window.drawIB(); }, e => console.error('IB listener', key, e)));
+        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => console.error('IB listener', key, e)));
         window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } else if (!s.metadata.fromCache) { ibStopListeners(); window.__myIB = null; window.renderIBPage(); } }));
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
@@ -5359,6 +5575,23 @@ window.renderIBPage = async function () {
     window.drawIB();
 };
 
+
+// ---- Auto-refresh IB (cadangan di atas listener realtime) ----
+window.ibPoll = async function () {
+    if (window.__ibPolling) return; window.__ibPolling = true;
+    try {
+        if (!currentUser || !window.__ib || !window.__ib.me || document.hidden) return;
+        const pg = document.getElementById('page-ib'); if (!pg || !pg.classList.contains('active')) return;
+        const uid = currentUser.uid, g = q => getDocs(q).then(s => s.docs.map(d => Object.assign({ id: d.id }, d.data())));
+        const [c, m, w] = await Promise.all([g(query(collection(db, 'ibClients'), where('ibUid', '==', uid))), g(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid))), g(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)))]);
+        const sig = JSON.stringify([c, m, w]);
+        if (sig !== window.__ibSig) { window.__ibSig = sig; window.__ib.clients = c; window.__ib.comms = m; window.__ib.wds = w; window.drawIB(); }
+    } catch (e) {}
+    window.__ibPolling = false;
+};
+setInterval(window.ibPoll, 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) window.ibPoll(); });
+window.addEventListener('online', () => { window.ibPoll(); });
 
 // ---------- LOGO BANK / E-WALLET + PICKER ----------
 // Opsional: isi URL/base64 logo resmi per nama, mis. window.IB_LOGO_URLS['BCA'] = 'https://.../bca.png'. Kalau kosong, otomatis pakai logo SVG bawaan di bawah.
@@ -5744,6 +5977,19 @@ window.ibStats = function () {
     return { total, paid, pend, available: Math.max(0, total - paid - pend), clients: clients.length, active: clients.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > now).length };
 };
 
+// ---- Render IB tanpa kedip: hanya ganti isi bila berubah, jaga posisi scroll & QR ----
+window.ibSetHtml = function (el, html) {
+    if (!el) return;
+    if (el.__ibHtml === html) return;
+    const ae = document.activeElement;
+    if (ae && el.contains(ae) && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+    const y = window.pageYOffset, de = document.documentElement, sb = de.style.scrollBehavior;
+    de.style.scrollBehavior = 'auto';
+    el.__ibHtml = html; el.innerHTML = html;
+    try { const q = el.querySelector('#ib-qr'), li = el.querySelector('#ib-link-input'); if (q && li && window.__ibQrNode && window.__ibQrLink === li.value) q.appendChild(window.__ibQrNode); } catch (e) {}
+    window.scrollTo(0, y); de.style.scrollBehavior = sb;
+};
+
 window.drawIB = function () {
     const el = document.getElementById('ib-root'); const ib = window.__ib.me; if (!el || !ib) return;
     if (ib.status === 'pending' || ib.status === 'rejected') {
@@ -5759,18 +6005,20 @@ window.drawIB = function () {
     }
     const s = window.ibStats(); window.__ibStats = s;
     const link = window.ibLink(ib.code);
-    const clients = window.__ib.clients.slice().sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
-    const comms = window.__ib.comms.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    const wds = window.__ib.wds.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const clients = window.__ib.clients.filter(x => !window.ibIsHidden('c', x.id)).sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+    const comms = window.__ib.comms.filter(x => !window.ibIsHidden('m', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const wds = window.__ib.wds.filter(x => !window.ibIsHidden('w', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const now = Date.now();
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
     const X = window.ibxIc, tab = window.__ibTab || 'client';
     const ini = n => ibEsc((String(n || '?').trim().charAt(0) || '?').toUpperCase());
+    const delBtn = (k, id) => '<button class="ibx-del" title="Hapus histori ini" onclick="window.ibDel(\'' + k + '\',\'' + ibEsc(id) + '\')">' + X('x') + 'Hapus</button>';
+    const delAll = (k, n) => n ? '<div class="ibx-delall"><button class="ibx-del" onclick="window.ibDelAll(\'' + k + '\')">' + X('x') + 'Hapus Semua (' + n + ')</button></div>' : '';
     const emp = (ic, tx) => '<div class="ibx-empty"><div class="ibx-ico">' + X(ic) + '</div>' + tx + '</div>';
-    const cRows = clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ibx-it"><div class="ibx-av">${ini(c.nama)}</div><div class="ibx-mn"><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="ibx-sd">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div></div></div>`; }).join('') : emp('users', 'Belum ada client. Bagikan link kamu!');
-    const mRows = comms.length ? comms.slice(0, 100).map(c => `<div class="ibx-it"><div class="ibx-av g">${X('plus')}</div><div class="ibx-mn"><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="ibx-sd"><span class="amt">+${ibRp(c.commission)}</span></div></div>`).join('') : emp('coin', 'Belum ada komisi masuk.');
-    const wRows = wds.length ? wds.slice(0, 100).map(w => `<div class="ibx-it"><div class="ibx-av b">${X('out')}</div><div class="ibx-mn"><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="ibx-sd">${pill(w.status)}</div></div>`).join('') : emp('inbox', 'Belum ada penarikan.');
-    el.innerHTML = `
+    const cRows = clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ibx-it"><div class="ibx-av">${ini(c.nama)}</div><div class="ibx-mn"><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="ibx-sd">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div>${delBtn('c', c.id)}</div></div>`; }).join('') : emp('users', 'Belum ada client. Bagikan link kamu!');
+    const mRows = comms.length ? comms.slice(0, 100).map(c => `<div class="ibx-it"><div class="ibx-av g">${X('plus')}</div><div class="ibx-mn"><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="ibx-sd"><span class="amt">+${ibRp(c.commission)}</span>${delBtn('m', c.id)}</div></div>`).join('') : emp('coin', 'Belum ada komisi masuk.');
+    const wRows = wds.length ? wds.slice(0, 100).map(w => `<div class="ibx-it"><div class="ibx-av b">${X('out')}</div><div class="ibx-mn"><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="ibx-sd">${pill(w.status)}${w.status === 'pending' ? '' : delBtn('w', w.id)}</div></div>`).join('') : emp('inbox', 'Belum ada penarikan.');
+    window.ibSetHtml(el, `
     <div class="ibx">
       <section class="ibx-bal">
         <div class="ibx-bal-main"><div class="ibx-ico">${X('wallet')}</div><div style="min-width:0;"><div class="ibx-lbl">Saldo Bisa Ditarik</div><div class="ibx-big">${ibRp(s.available)}</div></div></div>
@@ -5803,12 +6051,12 @@ window.drawIB = function () {
           <button class="ibx-tab${tab === 'komisi' ? ' on' : ''}" data-t="komisi" onclick="window.ibTab('komisi')">Komisi<i>${comms.length}</i></button>
           <button class="ibx-tab${tab === 'tarik' ? ' on' : ''}" data-t="tarik" onclick="window.ibTab('tarik')">Penarikan<i>${wds.length}</i></button>
         </div>
-        <div class="ibx-pane${tab === 'client' ? ' on' : ''}" data-p="client">${cRows}</div>
-        <div class="ibx-pane${tab === 'komisi' ? ' on' : ''}" data-p="komisi">${mRows}</div>
-        <div class="ibx-pane${tab === 'tarik' ? ' on' : ''}" data-p="tarik">${wRows}</div>
+        <div class="ibx-pane${tab === 'client' ? ' on' : ''}" data-p="client">${delAll('c', clients.length)}${cRows}</div>
+        <div class="ibx-pane${tab === 'komisi' ? ' on' : ''}" data-p="komisi">${delAll('m', comms.length)}${mRows}</div>
+        <div class="ibx-pane${tab === 'tarik' ? ' on' : ''}" data-p="tarik">${delAll('w', wds.filter(w => w.status !== 'pending').length)}${wRows}</div>
       </section>
-    </div>`;
-    try { const q = document.getElementById('ib-qr'); if (q && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
+    </div>`);
+    try { const q = document.getElementById('ib-qr'); if (q && !q.firstChild && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); window.__ibQrNode = qb; window.__ibQrLink = link; new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
 };
 
 window.ibxIc = function (n) {
@@ -5829,6 +6077,23 @@ window.ibxIc = function (n) {
     };
     return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[n] || '') + '</svg>';
 };
+// ---- Hapus histori Client / Komisi / Penarikan (hanya daftar; saldo & statistik tidak berubah) ----
+window.ibHideKey = function () { return 'rhn_ib_hide_' + (currentUser ? currentUser.uid : 'guest'); };
+window.ibHideGet = function () { try { const o = JSON.parse(localStorage.getItem(window.ibHideKey()) || '{}') || {}; return { c: o.c || [], m: o.m || [], w: o.w || [] }; } catch (e) { return { c: [], m: [], w: [] }; } };
+window.ibIsHidden = function (k, id) { return window.ibHideGet()[k].indexOf(id) > -1; };
+window.ibHideAdd = function (k, ids) { try { const o = window.ibHideGet(); ids.forEach(id => { if (o[k].indexOf(id) < 0) o[k].push(id); }); localStorage.setItem(window.ibHideKey(), JSON.stringify(o)); } catch (e) {} window.drawIB(); };
+window.ibDel = async function (k, id) {
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus histori ini?', text: 'Dihapus dari daftar. Saldo dan total komisi kamu tidak berubah.', showCancelButton: true, confirmButtonText: 'Ya, hapus', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
+    if (r.isConfirmed) window.ibHideAdd(k, [id]);
+};
+window.ibDelAll = async function (k) {
+    const L = k === 'c' ? window.__ib.clients : (k === 'm' ? window.__ib.comms : window.__ib.wds.filter(w => w.status !== 'pending'));
+    const ids = L.map(x => x.id).filter(id => !window.ibIsHidden(k, id));
+    if (!ids.length) return;
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus semua histori ini?', text: ids.length + ' data dihapus dari daftar. Saldo dan total komisi kamu tidak berubah.' + (k === 'w' ? ' Penarikan yang masih diproses tidak ikut dihapus.' : ''), showCancelButton: true, confirmButtonText: 'Ya, hapus semua', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
+    if (r.isConfirmed) window.ibHideAdd(k, ids);
+};
+
 window.ibTab = function (t) {
     window.__ibTab = t;
     document.querySelectorAll('#ib-root .ibx-tab').forEach(b => b.classList.toggle('on', b.getAttribute('data-t') === t));
@@ -5918,6 +6183,15 @@ window.ibTarik = async function () {
 };
 
 // ---------------- MONITORING IB (sisi admin) ----------------
+window.startAdminIBLive = function () {
+    if (window.__adminIBLive || !window.__isAdmin) return; window.__adminIBLive = true;
+    const map = { ibs: 'ibs', ibClients: 'clients', ibCommissions: 'comms', ibWithdrawals: 'wds' }; let t = null;
+    Object.keys(map).forEach(col => onSnapshot(collection(db, col), s => {
+        if (!window.__adminIB) return;
+        window.__adminIB[map[col]] = s.docs.map(x => Object.assign({ id: x.id }, x.data()));
+        clearTimeout(t); t = setTimeout(() => { const r = document.getElementById('admin-ib-root'); if (r && r.offsetParent !== null) window.drawAdminIB(); }, 200);
+    }, () => { window.__adminIBLive = false; }));
+};
 window.loadAdminIB = async function () {
     if (!window.__isAdmin) return;
     const el = document.getElementById('admin-ib-root'); if (!el) return;
@@ -5927,6 +6201,7 @@ window.loadAdminIB = async function () {
         const map = s => s.docs.map(x => Object.assign({ id: x.id }, x.data()));
         window.__adminIB = { ibs: map(a), clients: map(b), comms: map(c), wds: map(d) };
         window.drawAdminIB();
+        window.startAdminIBLive();
     } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; }
 };
 
@@ -5961,7 +6236,7 @@ window.drawAdminIB = function () {
     feed.sort((x, y) => new Date(y.t || 0) - new Date(x.t || 0));
     window.__adminFeed = feed;
 
-    el.innerHTML = `
+    window.ibSetHtml(el, `
     <div class="ib-stats">
       <div class="ib-stat"><div class="l">Total IB</div><div class="v">${D.ibs.length - appList.length}</div></div>
       <div class="ib-stat"><div class="l">Total Client IB</div><div class="v">${D.clients.length}</div></div>
@@ -5977,7 +6252,7 @@ window.drawAdminIB = function () {
     <div class="ib-sec-title">🤝 Daftar IB (${D.ibs.length - appList.length})</div>
     <div style="margin-bottom:16px;">${ibCards || '<div class="ib-empty">Belum ada IB terdaftar.</div>'}</div>
     <div class="ib-sec-title" style="display:flex; justify-content:space-between; align-items:center;"><span>📜 Aktivitas Terbaru IB & Client</span><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedClear()">🗑️ HAPUS SEMUA</button></div>
-    <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedHide('${f.col}','${f.id}','${f.fld}')">🗑️</button></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`;
+    <div>${feed.slice(0, 40).map(f => `<div class="ib-row"><div><div class="t" style="font-weight:600;">${f.ic} ${f.x}</div><div class="s">${ibDate(f.t)}</div></div><button class="ib-btn red" style="padding:6px 10px;" onclick="window.adminFeedHide('${f.col}','${f.id}','${f.fld}')">🗑️</button></div>`).join('') || '<div class="ib-empty">Belum ada aktivitas.</div>'}</div>`);
 };
 
 window.adminIBDetail = function (code) {
@@ -6986,6 +7261,7 @@ window.doAuth = async function() {
             try {
                 await updateProfile(cred.user, { displayName: nama });
                 await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama, umur: umur, jenisKelamin: gender }, { merge: true });
+                try { if (typeof window.attachIBReferral === 'function') window.attachIBReferral(cred.user, true); } catch (eIB) {}
             } catch(eProfil) { console.error('Gagal menyimpan nama akun', eProfil); }
             cacheOfflineCredential(email, pass, { uid: cred.user.uid, nama: nama, umur: umur, gender: gender }, false);
         }
@@ -7691,6 +7967,7 @@ function unlockApp() {
         if (window.__isAdmin && typeof window.loadReferralCodes === 'function') { window.loadReferralCodes(); }
         if (window.__isAdmin && typeof window.loadActiveSubscribers === 'function') { window.loadActiveSubscribers(); }
         if (typeof window.attachIBReferral === 'function') { window.attachIBReferral(currentUser); }
+        if (typeof window.renderIBPage === 'function') { window.renderIBPage(); }
         if (window.__isAdmin && typeof window.loadAdminIB === 'function') { window.loadAdminIB(); }
         if (window.__isAdmin && typeof window.loadAdminStorage === 'function') { window.loadAdminStorage(); }
         if (typeof window.checkSubscriptionStatus === 'function') { window.checkSubscriptionStatus(currentUser.uid); }
