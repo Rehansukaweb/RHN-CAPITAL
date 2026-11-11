@@ -3363,6 +3363,18 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">🔗 Link Aktivasi Hari (Bayar Cash / Offline)</div>
+      <div class="card-sub">Masukkan jumlah hari, dapat link. User yang membuka link ini (setelah login) langsung aktif sesuai jumlah hari, tanpa pilih paket. Sekali pakai.</div>
+    </div>
+    <div class="filter-bar">
+      <button class="export-btn" onclick="window.createDayLink()" style="background:var(--blue); color:#fff;">➕ BUAT LINK BARU</button>
+      <button class="export-btn" onclick="window.loadDayLinks()" style="background:var(--gold); color:#000; margin-left:8px;">🔄 MUAT DAFTAR LINK</button>
+    </div>
+    <div id="admin-daylink-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Tekan MUAT DAFTAR LINK.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">👥 Member Aktif Berlangganan</div>
       <div class="card-sub">Daftar semua user yang fitur berbayarnya sedang aktif (bayar QRIS maupun pakai kode referral).</div>
     </div>
@@ -5418,6 +5430,163 @@ window.salinLinkAkses = async function() {
     } catch (e) {}
 })();
 
+// ---- LINK AKTIVASI HARI (dibuat admin untuk bayar cash/offline) — disimpan di koleksi referralCodes (tanpa ubah rules) ----
+function dayLinkUrl(code) { return ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?paket=' + code; }
+function dayLinkPlanKey(d) { return d === 7 ? 'weekly' : d === 30 ? 'monthly' : d === 365 ? 'yearly' : 'custom'; }
+
+(function() {
+    try {
+        const sp = new URLSearchParams(location.search);
+        const v = sp.get('paket');
+        if (v) {
+            sessionStorage.setItem('rhn_paket_pending', v.trim());
+            sp.delete('paket');
+            const q = sp.toString();
+            history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash);
+        }
+    } catch (e) {}
+})();
+
+window.redeemDayLink = async function(raw) {
+    const fail = (msg) => { Swal.fire({ icon: 'error', title: 'Link Ditolak', text: msg, background: 'var(--card)', color: 'var(--text)' }); return false; };
+    if (!currentUser) return fail('Masuk ke akunmu dulu, lalu buka link ini lagi.');
+    const code = String(raw || '').trim().toUpperCase();
+    if (!/^LNK[0-9A-F]{16}$/.test(code)) return fail('Format link tidak valid.');
+    try {
+        const codeRef = doc(db, 'referralCodes', code);
+        const snap = await getDoc(codeRef);
+        if (!snap.exists()) return fail('Link tidak ditemukan atau sudah dihapus.');
+        const data = snap.data();
+        const days = Number(data.linkDays) || 0;
+        if (!Number.isInteger(days) || days < 1 || days > 3650) return fail('Data hari pada link tidak valid.');
+        if (data.disabled) return fail('Link ini sudah dinonaktifkan admin.');
+        if (data.maxUses && (data.usedCount || 0) >= data.maxUses) return fail('Link ini sudah pernah dipakai.');
+        if (Array.isArray(data.usedBy) && data.usedBy.includes(currentUser.uid)) return fail('Kamu sudah pernah memakai link ini.');
+        const userRef = doc(db, 'users', currentUser.uid);
+        const us = await getDoc(userRef);
+        const ud = us.exists() ? us.data() : {};
+        if (Array.isArray(ud.subscriptionUsedLinks) && ud.subscriptionUsedLinks.includes(code)) return fail('Kamu sudah pernah memakai link ini.');
+        const now = Date.now();
+        const curExp = ud.subscriptionExpiry ? new Date(ud.subscriptionExpiry).getTime() : 0;
+        if (curExp && new Date(curExp).getFullYear() >= 9000) { Swal.fire({ icon: 'info', title: 'Sudah Seumur Hidup', text: 'Akunmu sudah aktif seumur hidup, link tidak dipakai.', background: 'var(--card)', color: 'var(--text)' }); return false; }
+        const base = (curExp && curExp > now) ? new Date(curExp) : new Date(now);
+        const newExpiry = new Date(base.getTime() + days * 86400000);
+        await updateDoc(userRef, {
+            subscriptionExpiry: newExpiry.toISOString(),
+            subscriptionStatus: 'active',
+            subscriptionPlan: dayLinkPlanKey(days),
+            subscriptionPending: null,
+            subscriptionLinkPending: deleteField(),
+            subscriptionUsedLinks: arrayUnion(code)
+        });
+        try { await updateDoc(codeRef, { usedCount: increment(1), usedBy: arrayUnion(currentUser.uid) }); } catch (e) { console.error('Gagal tandai link hari terpakai:', e); }
+        window.showSaveSuccess('Akun Terbuka! 🎉', 2200, 'Langganan aktif selama ' + days + ' hari.');
+        return true;
+    } catch (e) {
+        console.error('Gagal memproses link aktivasi hari:', e);
+        try { sessionStorage.setItem('rhn_paket_pending', code); } catch (e2) {}
+        return fail('Gagal memproses link: ' + e.message);
+    }
+};
+
+window.createDayLink = async function() {
+    if (!window.__isAdmin) return;
+    const { value: fv } = await Swal.fire({
+        title: 'Buat Link Aktivasi Hari',
+        background: 'var(--card)', color: 'var(--text)',
+        html:
+            '<input id="swal-dl-days" class="swal2-input" placeholder="Jumlah hari (contoh: 365)" inputmode="numeric">' +
+            '<input id="swal-dl-note" class="swal2-input" placeholder="Catatan: nama user / IB (opsional)">',
+        showCancelButton: true,
+        confirmButtonText: 'BUAT LINK',
+        confirmButtonColor: 'var(--gold)',
+        preConfirm: () => {
+            const dRaw = document.getElementById('swal-dl-days').value.trim();
+            const d = /^\d+$/.test(dRaw) ? parseInt(dRaw, 10) : 0;
+            if (!d || d < 1 || d > 3650) { Swal.showValidationMessage('Isi jumlah hari 1 - 3650.'); return false; }
+            return { days: d, note: document.getElementById('swal-dl-note').value.trim().slice(0, 80) };
+        }
+    });
+    if (!fv) return;
+    try {
+        const code = 'LNK' + accRandHex(8).toUpperCase();
+        await setDoc(doc(db, 'referralCodes', code), {
+            createdAt: serverTimestamp(),
+            createdBy: currentUser ? currentUser.email : 'admin',
+            linkDays: fv.days,
+            linkNote: fv.note || '',
+            maxUses: 1,
+            usedCount: 0,
+            usedBy: [],
+            disabled: false
+        });
+        const url = dayLinkUrl(code);
+        try { await navigator.clipboard.writeText(url); } catch (e) {}
+        await Swal.fire({
+            icon: 'success', title: 'Link Dibuat (' + fv.days + ' hari)',
+            html: '<div style="font-size:11px; color:var(--text3); margin-bottom:8px;">Link sudah disalin. Kirim ke user:</div><input class="swal2-input" readonly onclick="this.select()" value="' + escapeHTML(url) + '" style="font-size:11px;">',
+            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)'
+        });
+        window.loadDayLinks();
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Gagal Membuat Link', text: e.message, background: 'var(--card)', color: 'var(--text)' });
+    }
+};
+
+window.loadDayLinks = async function() {
+    const listEl = document.getElementById('admin-daylink-list');
+    if (!listEl || !window.__isAdmin) return;
+    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat link...</div>';
+    try {
+        const snap = await getDocs(collection(db, 'referralCodes'));
+        const items = [];
+        snap.forEach(d => { const v = d.data(); if (v.linkDays) items.push({ id: d.id, v: v }); });
+        if (!items.length) { listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada link. Buat satu dulu.</div>'; return; }
+        items.sort((a, b) => ((b.v.createdAt && b.v.createdAt.seconds) || 0) - ((a.v.createdAt && a.v.createdAt.seconds) || 0));
+        listEl.innerHTML = items.map(({ id, v }) => {
+            const used = (v.usedCount || 0) >= (v.maxUses || 1);
+            const pill = used ? 'expired' : (v.disabled ? 'expired' : 'active');
+            const label = used ? '● TERPAKAI' : (v.disabled ? '● NONAKTIF' : '● AKTIF');
+            return `
+              <div class="admin-user-card card" style="margin-bottom:12px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
+                  <div style="font-weight:800; font-size:13px; color:var(--gold);">${escapeHTML(String(v.linkDays))} HARI${v.linkNote ? ' · ' + escapeHTML(v.linkNote) : ''}</div>
+                  <span class="subs-status-pill ${pill}">${label}</span>
+                </div>
+                <input type="text" readonly onclick="this.select()" value="${escapeHTML(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin-bottom:10px;">
+                <div class="admin-user-actions">
+                  <button class="admin-detail-btn fix" onclick="window.copyDayLink('${id}')">📋 SALIN LINK</button>
+                  ${used ? '' : `<button class="admin-detail-btn ${v.disabled ? 'fix' : 'danger'}" onclick="window.toggleDayLink('${id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>`}
+                  <button class="admin-detail-btn danger" onclick="window.deleteDayLink('${id}')">🗑️ HAPUS</button>
+                </div>
+              </div>`;
+        }).join('');
+    } catch (e) {
+        listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
+    }
+};
+
+window.copyDayLink = async function(code) {
+    try { await navigator.clipboard.writeText(dayLinkUrl(code)); window.showSaveSuccess('Link Disalin', 900); }
+    catch (e) { Swal.fire({ icon: 'info', title: 'Salin Manual', text: dayLinkUrl(code), background: 'var(--card)', color: 'var(--text)' }); }
+};
+
+window.toggleDayLink = async function(code, currentlyDisabled) {
+    try { await updateDoc(doc(db, 'referralCodes', code), { disabled: !currentlyDisabled }); window.loadDayLinks(); }
+    catch (e) { Swal.fire({ icon: 'error', title: 'Gagal Mengubah', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+};
+
+window.deleteDayLink = async function(code) {
+    const result = await Swal.fire({
+        title: 'Hapus link ini?', text: 'Link tidak bisa dipakai lagi.', icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)',
+        background: 'var(--card)', color: 'var(--text)'
+    });
+    if (!result.isConfirmed) return;
+    try { await deleteDoc(doc(db, 'referralCodes', code)); window.loadDayLinks(); }
+    catch (e) { Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+};
+
 window.logoutFromSubscribeScreen = async function() {
     const result = await Swal.fire({
         title: 'Keluar akun?', text: 'Kamu akan keluar dan bisa masuk lagi kapan saja.',
@@ -5462,6 +5631,7 @@ window.checkSubscriptionStatus = function(uid) {
         window.__subsIsActive = !!isActive;
         window.__subsLinkPending = data.subscriptionLinkPending || null;
         try { const pa = sessionStorage.getItem('rhn_akses_pending'); if (pa && !window.__accRedeeming) { window.__accRedeeming = true; sessionStorage.removeItem('rhn_akses_pending'); window.redeemAccessLink(pa).finally(() => { window.__accRedeeming = false; }); } } catch (e) {}
+        try { const pd = sessionStorage.getItem('rhn_paket_pending'); if (pd && !window.__dayLinkRedeeming) { window.__dayLinkRedeeming = true; sessionStorage.removeItem('rhn_paket_pending'); window.redeemDayLink(pd).finally(() => { window.__dayLinkRedeeming = false; }); } } catch (e) {}
 
         renderSubsStatusWidgets(data, isActive);
 
@@ -5731,6 +5901,7 @@ window.loadReferralCodes = async function() {
         let codesForUsers = [];
         snap.forEach(d => {
             const v = d.data();
+            if (v.linkDays) return;
             const quota = v.maxUses ? (v.usedCount || 0) + ' / ' + v.maxUses : (v.usedCount || 0) + ' / ∞';
             const usedByList = Array.isArray(v.usedBy) ? v.usedBy : [];
             codesForUsers.push({ code: d.id, usedBy: usedByList });
@@ -5750,6 +5921,7 @@ window.loadReferralCodes = async function() {
               </div>
             `);
         });
+        if (!rows.length) { listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada kode referral. Buat satu dulu.</div>'; return; }
         listEl.innerHTML = rows.join('');
         window.__referralCodeUsers = codesForUsers;
     } catch (e) {
