@@ -5447,6 +5447,37 @@ function dayLinkPlanKey(d) { return d === 7 ? 'weekly' : d === 30 ? 'monthly' : 
     } catch (e) {}
 })();
 
+// Link offline/cash: client langsung terhitung ke IB (pasang client jika belum, lalu perpanjang activeUntil)
+window.creditIBOfflineLink = async function(ibCodeLink, days) {
+    try {
+        if (!currentUser) return;
+        const cRef = doc(db, 'ibClients', currentUser.uid);
+        let cs = await getDoc(cRef);
+        if (!cs.exists()) {
+            const code = String(ibCodeLink || '').trim().toUpperCase();
+            if (code) {
+                const ibSnap = await getDoc(doc(db, 'ibs', code));
+                const ib = ibSnap.exists() ? ibSnap.data() : null;
+                if (ib && ib.status === 'active' && ib.uid !== currentUser.uid) {
+                    await setDoc(cRef, {
+                        ibUid: ib.uid, ibCode: code, clientUid: currentUser.uid,
+                        nama: currentUser.displayName || (currentUser.email || '').split('@')[0], email: currentUser.email || '',
+                        joinedAt: new Date().toISOString(), activeUntil: null, totalPaid: 0, paymentsCount: 0
+                    });
+                    try { await setDoc(doc(db, 'users', currentUser.uid), { ibReferredBy: ib.uid, ibReferredByCode: code, ibLinkCode: code }, { merge: true }); } catch (e) {}
+                }
+            } else {
+                await window.attachIBReferral(currentUser, true);
+            }
+            cs = await getDoc(cRef);
+        }
+        if (!cs.exists()) return;
+        const cl = cs.data(), now = new Date();
+        const base = (cl.activeUntil && new Date(cl.activeUntil) > now) ? new Date(cl.activeUntil) : now;
+        await updateDoc(cRef, { activeUntil: new Date(base.getTime() + days * 86400000).toISOString(), lastPaymentAt: now.toISOString(), lastPlan: dayLinkPlanKey(days) });
+    } catch (e) { console.error('Gagal hitung client IB dari link offline:', e); }
+};
+
 window.redeemDayLink = async function(raw) {
     const fail = (msg) => { Swal.fire({ icon: 'error', title: 'Link Ditolak', text: msg, background: 'var(--card)', color: 'var(--text)' }); return false; };
     if (!currentUser) return fail('Masuk ke akunmu dulu, lalu buka link ini lagi.');
@@ -5480,6 +5511,7 @@ window.redeemDayLink = async function(raw) {
             subscriptionUsedLinks: arrayUnion(code)
         });
         try { await updateDoc(codeRef, { usedCount: increment(1), usedBy: arrayUnion(currentUser.uid) }); } catch (e) { console.error('Gagal tandai link hari terpakai:', e); }
+        await window.creditIBOfflineLink(data.ibCode, days);
         window.showSaveSuccess('Akun Terbuka! 🎉', 2200, 'Langganan aktif selama ' + days + ' hari.');
         return true;
     } catch (e) {
@@ -5496,15 +5528,23 @@ window.createDayLink = async function() {
         background: 'var(--card)', color: 'var(--text)',
         html:
             '<input id="swal-dl-days" class="swal2-input" placeholder="Jumlah hari (contoh: 365)" inputmode="numeric">' +
-            '<input id="swal-dl-note" class="swal2-input" placeholder="Catatan: nama user / IB (opsional)">',
+            '<input id="swal-dl-note" class="swal2-input" placeholder="Catatan: nama user / IB (opsional)">' +
+            '<input id="swal-dl-ib" class="swal2-input" placeholder="Kode IB (opsional, agar client terhitung ke IB)" style="text-transform:uppercase">',
         showCancelButton: true,
         confirmButtonText: 'BUAT LINK',
         confirmButtonColor: 'var(--gold)',
-        preConfirm: () => {
+        preConfirm: async () => {
             const dRaw = document.getElementById('swal-dl-days').value.trim();
             const d = /^\d+$/.test(dRaw) ? parseInt(dRaw, 10) : 0;
             if (!d || d < 1 || d > 3650) { Swal.showValidationMessage('Isi jumlah hari 1 - 3650.'); return false; }
-            return { days: d, note: document.getElementById('swal-dl-note').value.trim().slice(0, 80) };
+            const ibc = document.getElementById('swal-dl-ib').value.trim().toUpperCase();
+            if (ibc) {
+                try {
+                    const ibs = await getDoc(doc(db, 'ibs', ibc));
+                    if (!ibs.exists() || ibs.data().status !== 'active') { Swal.showValidationMessage('Kode IB tidak ditemukan atau tidak aktif.'); return false; }
+                } catch (e) { Swal.showValidationMessage('Gagal cek kode IB: ' + e.message); return false; }
+            }
+            return { days: d, note: document.getElementById('swal-dl-note').value.trim().slice(0, 80), ibCode: ibc };
         }
     });
     if (!fv) return;
@@ -5515,6 +5555,7 @@ window.createDayLink = async function() {
             createdBy: currentUser ? currentUser.email : 'admin',
             linkDays: fv.days,
             linkNote: fv.note || '',
+            ...(fv.ibCode ? { ibCode: fv.ibCode } : {}),
             maxUses: 1,
             usedCount: 0,
             usedBy: [],
@@ -5550,7 +5591,7 @@ window.loadDayLinks = async function() {
             return `
               <div class="admin-user-card card" style="margin-bottom:12px; padding:14px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
-                  <div style="font-weight:800; font-size:13px; color:var(--gold);">${escapeHTML(String(v.linkDays))} HARI${v.linkNote ? ' · ' + escapeHTML(v.linkNote) : ''}</div>
+                  <div style="font-weight:800; font-size:13px; color:var(--gold);">${escapeHTML(String(v.linkDays))} HARI${v.linkNote ? ' · ' + escapeHTML(v.linkNote) : ''}${v.ibCode ? ' · IB ' + escapeHTML(v.ibCode) : ''}</div>
                   <span class="subs-status-pill ${pill}">${label}</span>
                 </div>
                 <input type="text" readonly onclick="this.select()" value="${escapeHTML(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin-bottom:10px;">
@@ -7958,6 +7999,7 @@ async function trySyncOfflineRegistrations() {
                 await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: entry.nama || '', umur: entry.umur || '', jenisKelamin: entry.gender || '' }, { merge: true });
                 if (entry.pin) { await setDoc(doc(db, 'users', cred.user.uid, 'settings', 'security'), { pin: entry.pin }, { merge: true }); }
             } catch(eProfil) { console.error('Gagal menyinkronkan profil akun offline', eProfil); }
+            try { if (typeof window.attachIBReferral === 'function') await window.attachIBReferral(cred.user, true); } catch (eIB) {}
             const oldUid = entry.uid;
             entry.uid = cred.user.uid;
             entry.pendingSync = false;
