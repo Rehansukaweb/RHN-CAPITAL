@@ -2990,6 +2990,17 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
       </div>
     </div>
 
+    <div id="subs-step-link" style="display:none;">
+      <div class="subs-active-box">
+        <div style="font-size:28px; margin-bottom:8px;">🔐</div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:6px;">Pembayaran Terkonfirmasi</div>
+        <div style="font-size:11px; color:var(--text3); line-height:1.6; margin-bottom:12px;">Paket <b id="subs-link-plan" style="color:var(--gold);">-</b> &middot; <b id="subs-link-days" style="color:var(--green2);">-</b> hari. Link akses ini hanya untuk akunmu, sekali pakai, dan berlaku sampai <b id="subs-link-exp" style="color:var(--text);">-</b>.</div>
+        <input id="subs-link-input" type="text" readonly onclick="this.select()" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:11px 12px; color:var(--text); font-size:10px; margin-bottom:10px;">
+        <button class="subs-cta" id="subs-link-open-btn" onclick="window.bukaLinkAkses()" style="background:var(--green2); color:#04140e;">🔓 BUKA LINK AKSES</button>
+        <button class="subs-back" onclick="window.salinLinkAkses()">📋 Salin Link</button>
+      </div>
+    </div>
+
     <div id="subs-step-active" style="display:none;">
       <div class="subs-active-box">
         <div style="font-size:28px; margin-bottom:8px;">✅</div>
@@ -5250,24 +5261,7 @@ window.konfirmasiBayarLangganan = async function() {
         });
 
         if (aiResult && aiResult.valid) {
-            const userRef = doc(db, 'users', currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            const existingExpiry = userSnap.exists() ? userSnap.data().subscriptionExpiry : null;
-            const nowD = new Date();
-            const base = (existingExpiry && new Date(existingExpiry).getTime() > nowD.getTime()) ? new Date(existingExpiry) : nowD;
-            const newExpiry = new Date(base.getTime() + plan.days * 86400000);
-            await updateDoc(userRef, {
-                subscriptionExpiry: newExpiry.toISOString(),
-                subscriptionStatus: 'active',
-                subscriptionPlan: window.__subsSelectedPlan,
-                subscriptionPending: null
-            });
-            try {
-                await updateDoc(doc(db, 'subscriptionRequests', reqRef.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: 'SISTEM-OTOMATIS' });
-            } catch (eApprove) {
-                console.error('Gagal update status approved di subscriptionRequests:', eApprove);
-            }
-            if (typeof window.creditIBCommission === 'function') { window.creditIBCommission(currentUser.uid, reqRef.id, plan.amount, window.__subsSelectedPlan, plan.days); }
+            await window.issueAccessLink(reqRef.id, currentUser.uid, window.__subsSelectedPlan, plan.days, window.__subsIBCode || null, plan.label, plan.amount, 'SISTEM-OTOMATIS');
 
             window.__subsScreenshotData = null;
             const previewWrap = document.getElementById('subs-screenshot-preview-wrap');
@@ -5276,7 +5270,7 @@ window.konfirmasiBayarLangganan = async function() {
             if (fileInput) fileInput.value = '';
             if (statusEl) { statusEl.style.color = 'var(--green2)'; statusEl.textContent = '✅ Pembayaran terverifikasi otomatis!'; }
 
-            window.showSaveSuccess('Pembayaran Terverifikasi! 🎉', 2200, 'Langganan kamu sudah aktif sekarang. Selamat menikmati fitur lengkap RHN CAPITAL!');
+            window.showSaveSuccess('Pembayaran Terverifikasi! 🎉', 2200, 'Link akses kamu sudah siap. Tekan tombol BUKA LINK AKSES untuk membuka akunmu.');
         } else {
             await setDoc(doc(db, 'users', currentUser.uid), {
                 subscriptionPending: {
@@ -5310,6 +5304,120 @@ window.konfirmasiBayarLangganan = async function() {
     btn.disabled = false; btn.textContent = '✅ SAYA SUDAH BAYAR';
 };
 
+// ---- LINK AKSES BERLAPIS (sekali pakai, terikat akun + paket + hari + IB) ----
+window.ACCESS_TTL_MS = 24 * 3600 * 1000;
+window.ACCESS_MAX_TRIES = 5;
+function accRandHex(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => b.toString(16).padStart(2, '0')).join(''); }
+async function accSha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join(''); }
+function accSafeEq(a, b) { if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
+function accHashInput(reqId, uid, plan, days, ib, token) { return [reqId, uid, plan, String(days), ib || '', token].join(':'); }
+function accLinkUrl(reqId, token) { return ((window.IB_BASE_URL || '').trim() || location.href.split('#')[0].split('?')[0]) + '?akses=' + reqId + '.' + token; }
+
+// Dipanggil saat pembayaran terkonfirmasi (otomatis/admin): hanya simpan HASH token di permintaan, token asli hanya di dokumen user pemilik
+window.issueAccessLink = async function(reqId, uid, planKey, days, ibCode, planLabel, amount, approvedBy) {
+    const token = accRandHex(32);
+    const exp = new Date(Date.now() + window.ACCESS_TTL_MS).toISOString();
+    const hash = await accSha256(accHashInput(reqId, uid, planKey, days, ibCode, token));
+    await updateDoc(doc(db, 'users', uid), {
+        subscriptionLinkPending: { requestId: reqId, token: token, plan: planKey, planLabel: planLabel, days: days, amount: amount, ibCode: ibCode || null, exp: exp },
+        subscriptionPending: null
+    });
+    try {
+        await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: approvedBy, days: days, accessHash: hash, accessExp: exp, accessUsed: false, accessTries: 0 });
+    } catch (e) {
+        console.error('Gagal simpan hash link akses:', e);
+        await updateDoc(doc(db, 'users', uid), { subscriptionLinkPending: deleteField() });
+        throw e;
+    }
+};
+
+window.redeemAccessLink = async function(raw) {
+    const fail = (msg) => { Swal.fire({ icon: 'error', title: 'Link Akses Ditolak', text: msg, background: 'var(--card)', color: 'var(--text)' }); return false; };
+    if (!currentUser) return fail('Masuk ke akunmu dulu, lalu buka link ini lagi.');
+    const lk = 'rhn_acc_lock', now = Date.now();
+    let lock = {}; try { lock = JSON.parse(localStorage.getItem(lk) || '{}'); } catch (e) {}
+    if (lock.until && lock.until > now) return fail('Terlalu banyak percobaan gagal. Coba lagi beberapa menit lagi.');
+    const bad = (msg) => {
+        const n = ((lock.until && lock.until <= now) ? 0 : (lock.n || 0)) + 1;
+        try { localStorage.setItem(lk, JSON.stringify(n >= window.ACCESS_MAX_TRIES ? { n: 0, until: now + 15 * 60000 } : { n: n })); } catch (e) {}
+        return fail(msg);
+    };
+    const m = /^([A-Za-z0-9]{20})\.([0-9a-f]{64})$/.exec(String(raw || '').trim());
+    if (!m) return bad('Format link tidak valid.');
+    const reqId = m[1], token = m[2];
+    try {
+        const rs = await getDoc(doc(db, 'subscriptionRequests', reqId));
+        if (!rs.exists()) return bad('Link tidak ditemukan.');
+        const r = rs.data();
+        if (r.uid !== currentUser.uid) return bad('Link ini bukan untuk akun yang sedang login.');
+        if (r.status !== 'approved' || !r.accessHash) return bad('Pembayaran belum terkonfirmasi.');
+        if (r.accessUsed) return bad('Link sudah pernah dipakai.');
+        if (!r.accessExp || new Date(r.accessExp).getTime() < now) return bad('Link sudah kedaluwarsa. Hubungi admin.');
+        if ((r.accessTries || 0) >= window.ACCESS_MAX_TRIES) return bad('Link dikunci karena terlalu banyak percobaan. Hubungi admin.');
+        const days = Number(r.days) || 0;
+        if (!window.SUBS_PLANS[r.plan] || days < 1 || days > 730) return bad('Data paket pada link tidak valid.');
+        const hash = await accSha256(accHashInput(reqId, r.uid, r.plan, days, r.ibCode, token));
+        if (!accSafeEq(hash, r.accessHash)) {
+            try { await updateDoc(doc(db, 'subscriptionRequests', reqId), { accessTries: increment(1) }); } catch (e) {}
+            return bad('Link tidak valid.');
+        }
+        const userRef = doc(db, 'users', currentUser.uid);
+        const us = await getDoc(userRef);
+        const ud = us.exists() ? us.data() : {};
+        if (Array.isArray(ud.subscriptionUsedLinks) && ud.subscriptionUsedLinks.includes(reqId)) return bad('Link sudah pernah dipakai.');
+        const userIB = ud.ibReferredByCode || ud.ibLinkCode || null;
+        if (r.ibCode && userIB && String(r.ibCode).toUpperCase() !== String(userIB).toUpperCase()) return bad('Link tidak cocok dengan IB akunmu.');
+        const base = (ud.subscriptionExpiry && new Date(ud.subscriptionExpiry).getTime() > now) ? new Date(ud.subscriptionExpiry) : new Date(now);
+        const newExpiry = new Date(base.getTime() + days * 86400000);
+        await updateDoc(userRef, {
+            subscriptionExpiry: newExpiry.toISOString(),
+            subscriptionStatus: 'active',
+            subscriptionPlan: r.plan,
+            subscriptionPending: null,
+            subscriptionLinkPending: deleteField(),
+            subscriptionUsedLinks: arrayUnion(reqId)
+        });
+        try { await updateDoc(doc(db, 'subscriptionRequests', reqId), { accessUsed: true, accessUsedAt: serverTimestamp() }); } catch (e) { console.error('Gagal tandai link terpakai:', e); }
+        if (typeof window.creditIBCommission === 'function') { window.creditIBCommission(currentUser.uid, reqId, Number(r.amount) || 0, r.plan, days); }
+        try { localStorage.removeItem(lk); } catch (e) {}
+        window.showSaveSuccess('Akun Terbuka! 🎉', 2200, 'Paket ' + (r.planLabel || r.plan) + ' aktif selama ' + days + ' hari.');
+        return true;
+    } catch (e) {
+        console.error('Gagal memproses link akses:', e);
+        return fail('Gagal memproses link: ' + e.message);
+    }
+};
+
+window.bukaLinkAkses = async function() {
+    const lp = window.__subsLinkPending;
+    if (!lp || !lp.requestId || !lp.token) return;
+    const btn = document.getElementById('subs-link-open-btn');
+    if (btn) { btn.disabled = true; }
+    await window.redeemAccessLink(lp.requestId + '.' + lp.token);
+    if (btn) { btn.disabled = false; }
+};
+
+window.salinLinkAkses = async function() {
+    const lp = window.__subsLinkPending; if (!lp) return;
+    const url = accLinkUrl(lp.requestId, lp.token);
+    try { await navigator.clipboard.writeText(url); window.showSaveSuccess('Link Disalin', 900); }
+    catch (e) { const i = document.getElementById('subs-link-input'); if (i) { i.focus(); i.select(); } }
+};
+
+// Tangkap ?akses=... dari URL, simpan di sessionStorage, lalu hapus dari bilah alamat agar tidak bocor lewat riwayat/screenshot
+(function() {
+    try {
+        const sp = new URLSearchParams(location.search);
+        const v = sp.get('akses');
+        if (v) {
+            sessionStorage.setItem('rhn_akses_pending', v.trim());
+            sp.delete('akses');
+            const q = sp.toString();
+            history.replaceState(null, '', location.pathname + (q ? '?' + q : '') + location.hash);
+        }
+    } catch (e) {}
+})();
+
 window.logoutFromSubscribeScreen = async function() {
     const result = await Swal.fire({
         title: 'Keluar akun?', text: 'Kamu akan keluar dan bisa masuk lagi kapan saja.',
@@ -5333,6 +5441,7 @@ function subsResetToPlanStep() {
     document.getElementById('subs-step-pay').style.display = 'none';
     document.getElementById('subs-step-pending').style.display = 'none';
     document.getElementById('subs-step-active').style.display = 'none';
+    document.getElementById('subs-step-link').style.display = 'none';
     document.querySelectorAll('.subs-plan-card').forEach(el => el.classList.remove('selected'));
     const btn = document.getElementById('subs-lanjut-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'PILIH PAKET DULU'; }
@@ -5351,6 +5460,8 @@ window.checkSubscriptionStatus = function(uid) {
         const expiryStr = data.subscriptionExpiry || null;
         const isActive = expiryStr && new Date(expiryStr).getTime() > Date.now();
         window.__subsIsActive = !!isActive;
+        window.__subsLinkPending = data.subscriptionLinkPending || null;
+        try { const pa = sessionStorage.getItem('rhn_akses_pending'); if (pa && !window.__accRedeeming) { window.__accRedeeming = true; sessionStorage.removeItem('rhn_akses_pending'); window.redeemAccessLink(pa).finally(() => { window.__accRedeeming = false; }); } } catch (e) {}
 
         renderSubsStatusWidgets(data, isActive);
 
@@ -5359,10 +5470,24 @@ window.checkSubscriptionStatus = function(uid) {
         } else {
             document.getElementById('subscribe-screen').style.display = 'block';
             if (typeof window.refreshSubsIBBox === 'function') window.refreshSubsIBBox();
-            if (data.subscriptionPending) {
+            if (data.subscriptionLinkPending) {
+                const lp = data.subscriptionLinkPending;
+                ['subs-step-plans', 'subs-step-pay', 'subs-step-pending', 'subs-step-active'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+                document.getElementById('subs-step-link').style.display = 'block';
+                document.getElementById('subs-link-plan').textContent = lp.planLabel || '-';
+                document.getElementById('subs-link-days').textContent = lp.days || '-';
+                document.getElementById('subs-link-exp').textContent = lp.exp ? new Date(lp.exp).toLocaleString('id-ID') : '-';
+                document.getElementById('subs-link-input').value = accLinkUrl(lp.requestId, lp.token);
+                document.getElementById('subs-sub-text').textContent = lp.ibCode ? 'Pembayaranmu sudah terkonfirmasi. Tekan tombol untuk membuka akun.' : 'Pembayaranmu sudah terkonfirmasi. Akunmu sedang dibuka...';
+                if (!lp.ibCode && window.__accAutoTried !== lp.requestId && !window.__accRedeeming) {
+                    window.__accAutoTried = lp.requestId; window.__accRedeeming = true;
+                    window.redeemAccessLink(lp.requestId + '.' + lp.token).finally(() => { window.__accRedeeming = false; });
+                }
+            } else if (data.subscriptionPending) {
                 document.getElementById('subs-step-plans').style.display = 'none';
                 document.getElementById('subs-step-pay').style.display = 'none';
                 document.getElementById('subs-step-active').style.display = 'none';
+                document.getElementById('subs-step-link').style.display = 'none';
                 document.getElementById('subs-step-pending').style.display = 'block';
                 document.getElementById('subs-pending-plan').textContent = data.subscriptionPending.planLabel || '-';
                 document.getElementById('subs-sub-text').textContent = 'Pembayaranmu sedang diverifikasi admin.';
@@ -5384,6 +5509,8 @@ function renderSubsStatusWidgets(data, isActive) {
         const isLifetime = expiryStr === window.LIFETIME_EXPIRY_ISO;
         const until = isLifetime ? 'SEUMUR HIDUP 🎉' : new Date(expiryStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
         el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">${isLifetime ? 'Akses aktif' : 'Aktif sampai'} ${until}</div></div><span class="subs-status-pill active">● AKTIF</span>`;
+    } else if (data.subscriptionLinkPending) {
+        el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">Pembayaran terkonfirmasi, buka link akses (${data.subscriptionLinkPending.planLabel || '-'})</div></div><span class="subs-status-pill pending">● SIAP DIBUKA</span>`;
     } else if (data.subscriptionPending) {
         el.innerHTML = `<div><div class="set-label">Status Langganan</div><div class="set-sub">Menunggu verifikasi admin (${data.subscriptionPending.planLabel || '-'})</div></div><span class="subs-status-pill pending">● PENDING</span>`;
     } else {
@@ -5442,21 +5569,19 @@ window.loadAdminSubscriptionRequests = async function() {
 
 window.approveSubscriptionRequest = async function(reqId, uid, planKey, days) {
     try {
-        const userRef = doc(db, 'users', uid);
-        const userSnap = await getDoc(userRef);
-        const existingExpiry = userSnap.exists() ? userSnap.data().subscriptionExpiry : null;
-        const now = new Date();
-        const base = (existingExpiry && new Date(existingExpiry).getTime() > now.getTime()) ? new Date(existingExpiry) : now;
-        const newExpiry = new Date(base.getTime() + (Number(days) || 7) * 86400000);
-
-        await updateDoc(userRef, {
-            subscriptionExpiry: newExpiry.toISOString(),
-            subscriptionStatus: 'active',
-            subscriptionPlan: planKey,
-            subscriptionPending: null
+        const rs = await getDoc(doc(db, 'subscriptionRequests', reqId));
+        const rd = rs.exists() ? rs.data() : {};
+        if (rd.uid !== uid) throw new Error('Data permintaan tidak cocok dengan akun.');
+        const defDays = Number(rd.days) || Number(days) || 7;
+        const askD = await Swal.fire({
+            title: 'Lama Langganan (hari)', text: 'Isi jumlah hari yang akan didapat user saat membuka link akses.',
+            input: 'number', inputValue: defDays, inputAttributes: { min: 1, max: 730, step: 1 },
+            showCancelButton: true, confirmButtonText: 'Konfirmasi Lunas', cancelButtonText: 'Batal',
+            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--green2)',
+            inputValidator: (v) => { const n = parseInt(v, 10); return (!n || n < 1 || n > 730) ? 'Isi angka 1 sampai 730' : undefined; }
         });
-        await updateDoc(doc(db, 'subscriptionRequests', reqId), { status: 'approved', approvedAt: serverTimestamp() });
-        if (typeof window.creditIBCommission === 'function') { await window.creditIBCommission(uid, reqId, (planKey === 'custom' ? (Number(days) || 0) * window.CUSTOM_PRICE_PER_DAY : (window.SUBS_PLANS[planKey] || {}).amount || 0), planKey, days); }
+        if (!askD.isConfirmed) return;
+        await window.issueAccessLink(reqId, uid, planKey, parseInt(askD.value, 10), rd.ibCode || null, rd.planLabel || planKey, Number(rd.amount) || 0, 'ADMIN');
 
         window.showSaveSuccess('Langganan Dikonfirmasi!', 1200);
         window.loadAdminSubscriptionRequests();
