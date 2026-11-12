@@ -5532,7 +5532,7 @@ window.createDayLink = async function() {
             '<input id="swal-dl-days" class="swal2-input" placeholder="Jumlah hari (contoh: 365)" inputmode="numeric">' +
             '<input id="swal-dl-note" class="swal2-input" placeholder="Catatan: nama user / IB (opsional)">' +
             (ibMe ? '' : '<input id="swal-dl-ib" class="swal2-input" placeholder="Kode IB (opsional, agar client terhitung ke IB)" style="text-transform:uppercase">') +
-            '<label style="display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 0 4px; font-size:13px; font-weight:700;"><input type="checkbox" id="swal-dl-life"> Seumur hidup</label>',
+            '<label style="display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 0 4px; font-size:13px; font-weight:700;"><input type="checkbox" id="swal-dl-life" onchange="var d=document.getElementById(\'swal-dl-days\'); d.disabled=this.checked; if(this.checked) d.value=\'\';"> Seumur hidup</label>',
         showCancelButton: true,
         confirmButtonText: 'BUAT LINK',
         confirmButtonColor: 'var(--gold)',
