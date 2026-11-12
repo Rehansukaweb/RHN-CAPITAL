@@ -5448,7 +5448,7 @@ function dayLinkPlanKey(d) { return d === 7 ? 'weekly' : d === 30 ? 'monthly' : 
 })();
 
 // Link offline/cash: client langsung terhitung ke IB (pasang client jika belum, lalu perpanjang activeUntil)
-window.creditIBOfflineLink = async function(ibCodeLink, days) {
+window.creditIBOfflineLink = async function(ibCodeLink, days, life) {
     try {
         if (!currentUser) return;
         const cRef = doc(db, 'ibClients', currentUser.uid);
@@ -5474,7 +5474,7 @@ window.creditIBOfflineLink = async function(ibCodeLink, days) {
         if (!cs.exists()) return;
         const cl = cs.data(), now = new Date();
         const base = (cl.activeUntil && new Date(cl.activeUntil) > now) ? new Date(cl.activeUntil) : now;
-        await updateDoc(cRef, { activeUntil: new Date(base.getTime() + days * 86400000).toISOString(), lastPaymentAt: now.toISOString(), lastPlan: dayLinkPlanKey(days) });
+        await updateDoc(cRef, { activeUntil: life ? window.LIFETIME_EXPIRY_ISO : new Date(base.getTime() + days * 86400000).toISOString(), lastPaymentAt: now.toISOString(), lastPlan: life ? 'lifetime_referral' : dayLinkPlanKey(days) });
     } catch (e) { console.error('Gagal hitung client IB dari link offline:', e); }
 };
 
@@ -5501,18 +5501,19 @@ window.redeemDayLink = async function(raw) {
         const curExp = ud.subscriptionExpiry ? new Date(ud.subscriptionExpiry).getTime() : 0;
         if (curExp && new Date(curExp).getFullYear() >= 9000) { Swal.fire({ icon: 'info', title: 'Sudah Seumur Hidup', text: 'Akunmu sudah aktif seumur hidup, link tidak dipakai.', background: 'var(--card)', color: 'var(--text)' }); return false; }
         const base = (curExp && curExp > now) ? new Date(curExp) : new Date(now);
+        const life = !!data.linkLifetime;
         const newExpiry = new Date(base.getTime() + days * 86400000);
         await updateDoc(userRef, {
-            subscriptionExpiry: newExpiry.toISOString(),
+            subscriptionExpiry: life ? window.LIFETIME_EXPIRY_ISO : newExpiry.toISOString(),
             subscriptionStatus: 'active',
-            subscriptionPlan: dayLinkPlanKey(days),
+            subscriptionPlan: life ? 'lifetime_referral' : dayLinkPlanKey(days),
             subscriptionPending: null,
             subscriptionLinkPending: deleteField(),
             subscriptionUsedLinks: arrayUnion(code)
         });
         try { await updateDoc(codeRef, { usedCount: increment(1), usedBy: arrayUnion(currentUser.uid) }); } catch (e) { console.error('Gagal tandai link hari terpakai:', e); }
-        await window.creditIBOfflineLink(data.ibCode, days);
-        window.showSaveSuccess('Akun Terbuka! 🎉', 2200, 'Langganan aktif selama ' + days + ' hari.');
+        await window.creditIBOfflineLink(data.ibCode, days, life);
+        window.showSaveSuccess('Akun Terbuka! 🎉', 2200, life ? 'Langganan aktif SEUMUR HIDUP.' : 'Langganan aktif selama ' + days + ' hari.');
         return true;
     } catch (e) {
         console.error('Gagal memproses link aktivasi hari:', e);
@@ -5522,29 +5523,33 @@ window.redeemDayLink = async function(raw) {
 };
 
 window.createDayLink = async function() {
-    if (!window.__isAdmin) return;
+    const ibMe = (!window.__isAdmin && window.__ib && window.__ib.me && window.__ib.me.status === 'active') ? window.__ib.me : null;
+    if (!window.__isAdmin && !ibMe) return;
     const { value: fv } = await Swal.fire({
         title: 'Buat Link Aktivasi Hari',
         background: 'var(--card)', color: 'var(--text)',
         html:
             '<input id="swal-dl-days" class="swal2-input" placeholder="Jumlah hari (contoh: 365)" inputmode="numeric">' +
             '<input id="swal-dl-note" class="swal2-input" placeholder="Catatan: nama user / IB (opsional)">' +
-            '<input id="swal-dl-ib" class="swal2-input" placeholder="Kode IB (opsional, agar client terhitung ke IB)" style="text-transform:uppercase">',
+            (ibMe ? '' : '<input id="swal-dl-ib" class="swal2-input" placeholder="Kode IB (opsional, agar client terhitung ke IB)" style="text-transform:uppercase">') +
+            '<label style="display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 0 4px; font-size:13px; font-weight:700;"><input type="checkbox" id="swal-dl-life"> Seumur hidup</label>',
         showCancelButton: true,
         confirmButtonText: 'BUAT LINK',
         confirmButtonColor: 'var(--gold)',
         preConfirm: async () => {
             const dRaw = document.getElementById('swal-dl-days').value.trim();
             const d = /^\d+$/.test(dRaw) ? parseInt(dRaw, 10) : 0;
-            if (!d || d < 1 || d > 3650) { Swal.showValidationMessage('Isi jumlah hari 1 - 3650.'); return false; }
-            const ibc = document.getElementById('swal-dl-ib').value.trim().toUpperCase();
-            if (ibc) {
+            const life = document.getElementById('swal-dl-life').checked;
+            if (!life && (!d || d < 1 || d > 3650)) { Swal.showValidationMessage('Isi jumlah hari 1 - 3650 atau centang Seumur hidup.'); return false; }
+            const ibEl = document.getElementById('swal-dl-ib');
+            const ibc = ibMe ? ibMe.code : (ibEl ? ibEl.value.trim().toUpperCase() : '');
+            if (ibc && !ibMe) {
                 try {
                     const ibs = await getDoc(doc(db, 'ibs', ibc));
                     if (!ibs.exists() || ibs.data().status !== 'active') { Swal.showValidationMessage('Kode IB tidak ditemukan atau tidak aktif.'); return false; }
                 } catch (e) { Swal.showValidationMessage('Gagal cek kode IB: ' + e.message); return false; }
             }
-            return { days: d, note: document.getElementById('swal-dl-note').value.trim().slice(0, 80), ibCode: ibc };
+            return { days: life ? 3650 : d, life: life, note: document.getElementById('swal-dl-note').value.trim().slice(0, 80), ibCode: ibc };
         }
     });
     if (!fv) return;
@@ -5556,6 +5561,7 @@ window.createDayLink = async function() {
             linkDays: fv.days,
             linkNote: fv.note || '',
             ...(fv.ibCode ? { ibCode: fv.ibCode } : {}),
+            ...(fv.life ? { linkLifetime: true } : {}),
             maxUses: 1,
             usedCount: 0,
             usedBy: [],
@@ -5564,7 +5570,7 @@ window.createDayLink = async function() {
         const url = dayLinkUrl(code);
         try { await navigator.clipboard.writeText(url); } catch (e) {}
         await Swal.fire({
-            icon: 'success', title: 'Link Dibuat (' + fv.days + ' hari)',
+            icon: 'success', title: fv.life ? 'Link Dibuat (Seumur Hidup)' : 'Link Dibuat (' + fv.days + ' hari)',
             html: '<div style="font-size:11px; color:var(--text3); margin-bottom:8px;">Link sudah disalin. Kirim ke user:</div><input class="swal2-input" readonly onclick="this.select()" value="' + escapeHTML(url) + '" style="font-size:11px;">',
             background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)'
         });
@@ -5591,7 +5597,7 @@ window.loadDayLinks = async function() {
             return `
               <div class="admin-user-card card" style="margin-bottom:12px; padding:14px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
-                  <div style="font-weight:800; font-size:13px; color:var(--gold);">${escapeHTML(String(v.linkDays))} HARI${v.linkNote ? ' · ' + escapeHTML(v.linkNote) : ''}${v.ibCode ? ' · IB ' + escapeHTML(v.ibCode) : ''}</div>
+                  <div style="font-weight:800; font-size:13px; color:var(--gold);">${v.linkLifetime ? 'SEUMUR HIDUP' : escapeHTML(String(v.linkDays)) + ' HARI'}${v.linkNote ? ' · ' + escapeHTML(v.linkNote) : ''}${v.ibCode ? ' · IB ' + escapeHTML(v.ibCode) : ''}</div>
                   <span class="subs-status-pill ${pill}">${label}</span>
                 </div>
                 <input type="text" readonly onclick="this.select()" value="${escapeHTML(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin-bottom:10px;">
@@ -6847,6 +6853,7 @@ window.drawIB = function () {
         </div>
         <div class="ibx-qr"><div id="ib-qr"></div><div class="ibx-cap">Scan QR untuk daftar lewat link kamu</div></div>
         <button class="ibx-btn ghost" onclick="window.openCSChat()">${X('chat')}CHAT ADMIN</button>
+        ${ib.status === 'active' ? `<button class="ibx-btn pri" onclick="window.createDayLink()">${X('plus')}BUAT LINK OFFLINE / LANGSUNG</button>` : ''}
       </aside>
       <section class="ibx-p ibx-met">
         <div class="ibx-m"><span class="l">Total Komisi</span><b class="v g">${ibRp(s.total)}</b></div>
