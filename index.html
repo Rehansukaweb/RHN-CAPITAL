@@ -15032,6 +15032,8 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
 })();
 
 // ==== ADMIN: KIRIM NOTIFIKASI KE USER (lewat server, tanpa user perlu buka aplikasi) ====
+// Isi dengan URL Cloudflare Worker kamu, contoh: 'https://rhn-notif.namakamu.workers.dev'
+window.RHN_NOTIF_WORKER_URL = window.RHN_NOTIF_WORKER_URL || 'https://rhn-notif.huyrehan.workers.dev';
 (function adminNotifInit() {
     const TPL = [
         { l: '📝 Catat transaksi', t: '📝 Jangan lupa catat transaksi', b: 'Catat pemasukan & pengeluaranmu hari ini supaya keuanganmu tetap terpantau.' },
@@ -15069,15 +15071,23 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
         const btn = document.getElementById('admin-notif-btn'); const old = btn.innerHTML;
         btn.disabled = true; btn.innerHTML = 'Mengirim...';
         try {
+            if (!window.RHN_NOTIF_WORKER_URL) throw new Error('URL Worker notifikasi belum diisi (window.RHN_NOTIF_WORKER_URL).');
             const token = await auth.currentUser.getIdToken();
-            const r = await fetch('https://us-central1-' + app.options.projectId + '.cloudfunctions.net/kirimNotifAdmin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify({ title: title, body: body, target: target, email: email })
-            });
-            const d = await r.json().catch(function () { return {}; });
-            if (!r.ok) throw new Error(d.error || ('Gagal (' + r.status + ')'));
-            dlg({ icon: d.devices ? 'success' : 'info', title: d.devices ? 'Terkirim' : 'Tidak ada perangkat', text: d.devices ? 'Terkirim ke ' + d.devices + ' perangkat (' + d.users + ' user).' : 'User belum mengaktifkan notifikasi di perangkatnya.' });
+            const tag = 'rhn-admin-' + Date.now();
+            let offset = 0, sent = 0, total = 0;
+            for (;;) {
+                const r = await fetch(window.RHN_NOTIF_WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ title: title, body: body, target: target, email: email, offset: offset, tag: tag })
+                });
+                const d = await r.json().catch(function () { return {}; });
+                if (!r.ok) throw new Error(d.error || ('Gagal (' + r.status + ')'));
+                sent += d.sent || 0; total = d.total || 0;
+                if (d.next == null) break;
+                offset = d.next; btn.innerHTML = 'Mengirim ' + Math.min(offset, total) + '/' + total + '...';
+            }
+            dlg({ icon: sent ? 'success' : 'info', title: sent ? 'Terkirim' : 'Tidak ada perangkat', text: sent ? 'Terkirim ke ' + sent + ' dari ' + total + ' perangkat.' : 'User belum mengaktifkan notifikasi di perangkatnya.' });
         } catch (e) {
             dlg({ icon: 'error', title: 'Gagal mengirim', text: e.message || String(e) });
         } finally { btn.disabled = false; btn.innerHTML = old; }
