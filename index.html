@@ -2637,6 +2637,10 @@ html body #page-hutang #hutang-root#hutang-root .ht-hero .v{font-size:clamp(26px
 html body #page-hutang #hutang-root#hutang-root .ht-side .val{font-size:clamp(20px,6.4vw,24px) !important}
 }
 /* ===== HUTANG v10 "KOMPAK": bingkai hutang diperkecil ~50% (padding, jarak, radius, tinggi, huruf), tulisan tetap rapi di HP & desktop. Hanya halaman Hutang. ===== */
+html body #page-hutang #hutang-root#hutang-root .ht-tempo{display:block;margin-top:3px;font:600 10.5px/1.3 'Plus Jakarta Sans',sans-serif;letter-spacing:0;text-transform:none;color:var(--text3)}
+html body #page-hutang #hutang-root#hutang-root .ht-due{display:block;margin-top:8px}
+html body #page-hutang #hutang-root#hutang-root .ht-due span{display:block;margin:0 0 4px;font:700 9px/1.2 'Plus Jakarta Sans',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:var(--text3)}
+html body #page-hutang #hutang-root#hutang-root .ht-due input[type=date]{padding:0 8px !important;font-size:12px !important;color-scheme:dark}
 html body #page-hutang #hutang-root#hutang-root .ht-card:not(.ht-total):not(.ht-empty){padding:12px !important;border-radius:17px !important}
 html body #page-hutang #hutang-root#hutang-root .ht-mhead{gap:6px 8px !important;margin:0 0 10px !important}
 html body #page-hutang #hutang-root#hutang-root .ht-mname{gap:8px !important;flex:1 1 150px !important}
@@ -4634,6 +4638,12 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const __ahRender = (hd) => {
     Swal.hideLoading();
     if (!hd || !hd.sheets || !hd.sheets.length) return Swal.update({ html: '<div style="padding:24px;text-align:center;color:var(--text3);font-size:11px;">User ini belum punya catatan hutang (atau belum sinkron ke cloud).</div>' });
+    const dday = d => { const a = new Date(d + 'T00:00:00'), n = new Date(); n.setHours(0, 0, 0, 0); return Math.round((a - n) / 864e5); };
+    const dtxt = d => { const n = dday(d); return n > 0 ? n + ' hari lagi' : n === 0 ? 'Hari ini' : 'Lewat ' + (-n) + ' hari'; };
+    const dfmt = d => { const x = new Date(d + 'T00:00:00'); return isNaN(x) ? d : x.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); };
+    const dueOfM = rs => { const a = rs.filter(r => r.tempo), op = a.filter(r => (Number(r.jumlah) || 0) > 0 && (Number(r.bayar) || 0) < (Number(r.jumlah) || 0)), l = (op.length ? op : a).map(r => r.tempo).sort(); return l[0] ? { d: l[0], u: op.length > 0 } : null; };
+    const dueMin = ds => { const a = ds.filter(Boolean), op = a.filter(x => x.u), l = (op.length ? op : a).map(x => x.d).sort(); return l[0] ? { d: l[0], u: op.length > 0 } : null; };
+    const due = x => x ? '<div class="ah-pd" style="margin-top:6px;">Jatuh tempo ' + dfmt(x.d) + (x.u ? ' · ' + dtxt(x.d) : '') + '</div>' : '';
     const pill = (j, ok) => '<span class="ah-pill ' + (!j ? 'nil' : ok ? 'ok' : 'no') + '">' + (!j ? '-' : ok ? 'LUNAS' : 'BELUM LUNAS') + '</span>';
     const cols = (j, b, h) => '<div class="ah-cols"><div><div class="l">Jumlah</div><div class="v">' + rp(j) + '</div></div><div><div class="l">Bayar</div><div class="v">' + (b ? rp(b) : '-') + '</div></div><div><div class="l">Hasil</div><div class="v">' + rp(h) + '</div></div></div>';
     let gJ = 0, gB = 0, gCic = 0, body = '';
@@ -4652,7 +4662,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
                 const k = nm + '#' + occ[nm];
                 if (!by[k]) { by[k] = { name: occ[nm] > 1 ? nm + ' (' + occ[nm] + ')' : nm, j: 0, b: 0, rows: [] }; order.push(k); }
                 let mj = 0, mb = 0; (m.rows || []).forEach(r => { mj += Number(r.jumlah) || 0; mb += Number(r.bayar) || 0; });
-                by[k].j += mj; by[k].b += mb; by[k].rows.push({ src: sh.name || '-', j: mj, b: mb });
+                by[k].j += mj; by[k].b += mb; by[k].rows.push({ src: sh.name || '-', j: mj, b: mb, dd: dueOfM(m.rows || []) });
                 sJ += mj;
             });
             gJ += sJ; gB += ms.reduce((t, m) => t + (m.rows || []).reduce((q, r) => q + (Number(r.bayar) || 0), 0), 0);
@@ -4663,10 +4673,10 @@ window.showAdminHutang = async function(uid, ownerLabel) {
             const g = by[k];
             const rows = g.rows.map(r => {
                 const ok = r.j > 0 && r.j - r.b <= 0;
-                return '<div class="ah-row"><div class="ah-row-top"><span style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="font-size:10.5px;font-weight:800;word-break:break-word;">' + escapeHTML(r.src) + '</span>' + pill(r.j, ok) + '</span><span class="ah-pd">Perhari ' + rp(r.j / 30) + '</span></div>' + cols(r.j, r.b, Math.max(r.j - r.b, 0)) + '</div>';
+                return '<div class="ah-row"><div class="ah-row-top"><span style="display:flex;align-items:center;gap:8px;min-width:0;"><span style="font-size:10.5px;font-weight:800;word-break:break-word;">' + escapeHTML(r.src) + '</span>' + pill(r.j, ok) + '</span><span class="ah-pd">Perhari ' + rp(r.j / 30) + '</span></div>' + cols(r.j, r.b, Math.max(r.j - r.b, 0)) + due(r.dd) + '</div>';
             }).join('');
             const gOk = g.j > 0 && g.j - g.b <= 0;
-            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL</span>' + pill(g.j, gOk) + '</div>' + cols(g.j, g.b, Math.max(g.j - g.b, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(g.j / 30) + '</div></div>';
+            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL</span>' + pill(g.j, gOk) + '</div>' + cols(g.j, g.b, Math.max(g.j - g.b, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(g.j / 30) + '</div>' + due(dueMin(g.rows.map(r => r.dd))) + '</div>';
             body += '<div class="ah-mh"><div>' + (i + 1) + '. ' + escapeHTML(g.name || '-') + '</div><span>Total harian ' + rp(g.j / 30) + '</span></div>' + rows + totR;
         });
         body += '</div>';
@@ -4678,11 +4688,11 @@ window.showAdminHutang = async function(uid, ownerLabel) {
             const rows = (m.rows || []).map(r => {
                 const j = Number(r.jumlah) || 0, b = Number(r.bayar) || 0; mJ += j; mB += b;
                 const ok = j > 0 && j - b <= 0;
-                return '<div class="ah-row"><div class="ah-row-top">' + pill(j, ok) + '<span class="ah-pd">Perhari ' + rp(j / 30) + '</span></div>' + cols(j, b, Math.max(j - b, 0)) + '</div>';
+                return '<div class="ah-row"><div class="ah-row-top">' + pill(j, ok) + '<span class="ah-pd">Perhari ' + rp(j / 30) + '</span></div>' + cols(j, b, Math.max(j - b, 0)) + due(dueOfM([r])) + '</div>';
             }).join('');
             sJ += mJ; sB += mB;
             const mOk = mJ > 0 && mJ - mB <= 0;
-            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL BULAN INI</span>' + pill(mJ, mOk) + '</div>' + cols(mJ, mB, Math.max(mJ - mB, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(mJ / 30) + '</div></div>';
+            const totR = '<div class="ah-row tot"><div class="ah-row-top"><span style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px;">TOTAL BULAN INI</span>' + pill(mJ, mOk) + '</div>' + cols(mJ, mB, Math.max(mJ - mB, 0)) + '<div class="ah-pd" style="margin-top:8px;">Perhari ' + rp(mJ / 30) + '</div>' + due(dueOfM(m.rows || [])) + '</div>';
             body += '<div class="ah-mh"><div>' + (i + 1) + '. ' + escapeHTML(m.name || '-') + '</div><span>Total harian ' + rp(mJ / 30) + '</span></div>' + rows + (rows ? totR : '');
         });
         const sSisa = Math.max(sJ - sB, 0);
@@ -15606,6 +15616,10 @@ if ('serviceWorker' in navigator) {
   }
   function inpVal(n){return n?Number(n).toLocaleString('id-ID',{maximumFractionDigits:2}):'';}
   function sheet(id){return D.sheets.filter(function(s){return s.id===id;})[0];}
+  function dueOf(m){var all=m.rows.filter(function(r){return r.tempo;}),op=all.filter(function(r){return (r.jumlah||0)>0&&(r.bayar||0)<(r.jumlah||0);}),l=(op.length?op:all).map(function(r){return r.tempo;}).sort();return l[0]?{d:l[0],u:op.length>0}:null;}
+  function dueTxt(d){var a=new Date(d+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);var k=Math.round((a-n)/864e5);return k>0?k+' hari lagi':(k===0?'Hari ini':'Lewat '+(-k)+' hari');}
+  function dueLine(x){return x?fmtD(x.d)+(x.u?'\n'+dueTxt(x.d):''):'';}
+  function fmtD(d){var x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
   function mTot(m){var j=0,b=0;m.rows.forEach(function(r){j+=r.jumlah||0;b+=r.bayar||0;});return{j:j,b:b,sisa:Math.max(j-b,0),harian:j/30};}
   function sTot(s){var j=0,b=0;s.months.forEach(function(m){var t=mTot(m);j+=t.j;b+=t.b;});return{j:j,b:b,sisa:Math.max(j-b,0)};}
   function killCharts(){charts.forEach(function(c){try{c.destroy();}catch(e){}});charts=[];}
@@ -15746,7 +15760,7 @@ if ('serviceWorker' in navigator) {
       '<div class="ht-grid"><div class="ht-wrap"><table class="ht-tbl ht-edit"><tr><th>Jumlah</th><th>Bayar</th><th>Hasil</th><th>Status</th><th>Perhari</th><th></th></tr>';
     m.rows.forEach(function(r){
       var sisa=Math.max((r.jumlah||0)-(r.bayar||0),0);
-      h+='<tr><td><input inputmode="decimal" value="'+inpVal(r.jumlah)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'jumlah\',this.value)"></td>'+
+      h+='<tr><td><input inputmode="decimal" value="'+inpVal(r.jumlah)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'jumlah\',this.value)"><div class="ht-due"><span>Jatuh Tempo'+((r.tempo&&(r.jumlah||0)>0&&(r.bayar||0)<(r.jumlah||0))?' · '+dueTxt(r.tempo):'')+'</span><input type="date" value="'+esc(r.tempo||'')+'" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'tempo\',this.value)"></div></td>'+
         '<td><div class="ht-paycell"><input inputmode="decimal" value="'+inpVal(r.bayar)+'" placeholder="0" oninput="window.htFmtInput(this)" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="window.htSetRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\',\'bayar\',this.value)"><button class="ht-lunas" title="Langsung lunas (Bayar = Jumlah)" '+((r.jumlah>0&&sisa<=0)?'disabled':'')+' onmousedown="event.preventDefault()" onclick="window.htLunas(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✓ Lunas</button></div></td>'+
         '<td class="rs '+(sisa>0?'r':((r.jumlah||0)>0?'g':'dim'))+'"><div>'+rp(sisa)+'</div>'+pbar(r.jumlah||0,r.bayar||0)+'</td><td class="c">'+badge(r.jumlah||0,r.bayar||0)+'</td><td class="dim">'+rp((r.jumlah||0)/30)+'</td>'+
         '<td class="c"><button class="ht-x" title="Hapus baris" onclick="window.htDelRow(\''+s.id+'\',\''+m.id+'\',\''+r.id+'\')">✕</button></td></tr>';
@@ -15786,7 +15800,7 @@ if ('serviceWorker' in navigator) {
         occ[nm]=(occ[nm]||0)+1;
         var k=nm+'#'+occ[nm];
         if(!by[k]){by[k]={name:occ[nm]>1?nm+' ('+occ[nm]+')':nm,j:0,b:0,rows:[]};order.push(k);}
-        var mt=mTot(m);by[k].j+=mt.j;by[k].b+=mt.b;by[k].rows.push({src:s.name,j:mt.j,b:mt.b,h:mt.harian});
+        var mt=mTot(m);by[k].j+=mt.j;by[k].b+=mt.b;by[k].rows.push({src:s.name,j:mt.j,b:mt.b,h:mt.harian,d:dueOf(m)});
       });
     });
     tot.sisa=Math.max(tot.j-tot.b,0);
@@ -15795,7 +15809,7 @@ if ('serviceWorker' in navigator) {
     order.forEach(function(k,i){
       var g=by[k],pid='htm_'+i,t={j:g.j,b:g.b,sisa:Math.max(g.j-g.b,0),harian:g.j/30};pies.push([pid,t]);
       h+='<div class="ht-card"><div class="ht-mhead"><div class="ht-mname"><span class="ht-no">'+(i+1)+'</span><span class="nm">'+esc(g.name||'-')+'</span></div></div><div class="ht-grid"><div class="ht-wrap"><table class="ht-tbl"><tr><th>Lembar</th><th>Jumlah</th><th>Bayar</th><th>Hasil</th><th>Status</th><th>Perhari</th></tr>';
-      g.rows.forEach(function(r){h+='<tr><td class="c" style="font-weight:700">'+esc(r.src)+'</td><td>'+rp(r.j)+'</td><td>'+(r.b?rp(r.b):'<span class="dim">-</span>')+'</td><td>'+rp(Math.max(r.j-r.b,0))+'</td><td class="c">'+badge(r.j,r.b)+'</td><td>'+rp(r.h)+'</td></tr>';});
+      g.rows.forEach(function(r){h+='<tr><td class="c" style="font-weight:700">'+esc(r.src)+(r.d?'<small class="ht-tempo">Jatuh tempo '+fmtD(r.d.d)+(r.d.u?' · '+dueTxt(r.d.d):'')+'</small>':'')+'</td><td>'+rp(r.j)+'</td><td>'+(r.b?rp(r.b):'<span class="dim">-</span>')+'</td><td>'+rp(Math.max(r.j-r.b,0))+'</td><td class="c">'+badge(r.j,r.b)+'</td><td>'+rp(r.h)+'</td></tr>';});
       h+=totRow(t,'TOTAL',true);
       h+='</table></div>'+side(pid,t)+'</div></div>';
     });
@@ -15887,7 +15901,7 @@ if ('serviceWorker' in navigator) {
       SW({title:'Ubah nominal hutang?',html:'Jumlah <b>'+rp(r.jumlah||0)+'</b> akan diubah menjadi <b>'+rp(num(v))+'</b>.',icon:'question',showCancelButton:true,confirmButtonText:'YA, UBAH',cancelButtonText:'Batal',focusCancel:true}).then(function(x){if(x.isConfirmed){r[k]=num(v);save();}render();});
       return;
     }
-    r[k]=num(v);save();render();};
+    r[k]=(k==='tempo')?String(v||''):num(v);save();render();};
   function htKeepY(y){
     try{
       var de=document.documentElement,old=de.style.scrollBehavior,moved=false;
@@ -15950,7 +15964,7 @@ if ('serviceWorker' in navigator) {
         s.months.forEach(function(m){
           var nm=(m.name||'').trim().toUpperCase();occ[nm]=(occ[nm]||0)+1;var k=nm+'#'+occ[nm];
           if(!by[k]){by[k]={name:occ[nm]>1?nm+' ('+occ[nm]+')':nm,rows:[]};order.push(k);}
-          var mt=mTot(m);by[k].rows.push({src:s.name,j:mt.j,b:mt.b});
+          var mt=mTot(m);by[k].rows.push({src:s.name,j:mt.j,b:mt.b,due:dueLine(dueOf(m))});
         });
       });
       order.forEach(function(k){groups.push(by[k]);});
@@ -15958,7 +15972,7 @@ if ('serviceWorker' in navigator) {
       var s0=sheet(cur);if(!s0)return null;
       sel=[s0];title='Lembar '+s0.name;
       var t0=sTot(s0);tot.j=t0.j;tot.b=t0.b;cic=s0.months.length?t0.j/s0.months.length:0;
-      s0.months.forEach(function(m){groups.push({name:(m.name||'-').toUpperCase(),rows:m.rows.map(function(r,i){return{src:'Cicilan '+(i+1),j:r.jumlah||0,b:r.bayar||0};})});});
+      s0.months.forEach(function(m){groups.push({name:(m.name||'-').toUpperCase(),rows:m.rows.map(function(r,i){return{src:'Cicilan '+(i+1),j:r.jumlah||0,b:r.bayar||0,due:dueLine(dueOf({rows:[r]}))};})});});
     }
     tot.sisa=Math.max(tot.j-tot.b,0);
     cic=cicInfo(sel,D.cicMonth).cic;
@@ -16012,16 +16026,16 @@ if ('serviceWorker' in navigator) {
         columnStyles:{0:{halign:'center',cellWidth:36},2:{halign:'right'},3:{halign:'right'},4:{halign:'right',textColor:[220,38,38],fontStyle:'bold'},5:{halign:'center'}}}));
       y=doc.lastAutoTable.finalY+20;
     }
-    var cols=M.merge?['NO','LEMBAR','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI']:['NO','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI'];
-    var n=cols.length,stI=n-2,pcI=n-3,hsI=n-4,first=M.merge?2:1,cs={0:{halign:'center',cellWidth:36}};
-    for(var ci=first;ci<n;ci++)cs[ci]={halign:(ci===stI||ci===pcI)?'center':'right'};
+    var cols=M.merge?['NO','LEMBAR','JATUH TEMPO','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI']:['NO','JATUH TEMPO','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI'];
+    var n=cols.length,stI=n-2,pcI=n-3,hsI=n-4,first=M.merge?3:2,cs={0:{halign:'center',cellWidth:36}};
+    for(var ci=first;ci<n;ci++)cs[ci]={halign:(ci===stI||ci===pcI)?'center':'right'};cs[first-1]={halign:'center'};
     M.groups.forEach(function(g,gi){
       var gj=0,gb=0;g.rows.forEach(function(r){gj+=r.j;gb+=r.b;});
       bar((gi+1)+'.  '+g.name,'Total harian: '+rp(gj/30)+'   |   '+g.rows.length+' baris');
-      var body=g.rows.map(function(r,i){var row=[String(i+1)];if(M.merge)row.push(r.src);row.push(rp(r.j),rp(r.b),rp(Math.max(r.j-r.b,0)),pct(r.j?Math.min(r.b/r.j*100,100):0),rowSt(r.j,r.b),rp(r.j/30));return row;});
+      var body=g.rows.map(function(r,i){var row=[String(i+1)];if(M.merge)row.push(r.src);row.push(r.due||'-',rp(r.j),rp(r.b),rp(Math.max(r.j-r.b,0)),pct(r.j?Math.min(r.b/r.j*100,100):0),rowSt(r.j,r.b),rp(r.j/30));return row;});
       var foot=null;
       if(g.rows.length){
-        foot=[M.merge?{content:'TOTAL',colSpan:2,styles:{halign:'center'}}:{content:'TOTAL',styles:{halign:'center'}},rp(gj),rp(gb),rp(Math.max(gj-gb,0)),pct(gj?Math.min(gb/gj*100,100):0),rowSt(gj,gb),rp(gj/30)];
+        foot=[M.merge?{content:'TOTAL',colSpan:2,styles:{halign:'center'}}:{content:'TOTAL',styles:{halign:'center'}},'',rp(gj),rp(gb),rp(Math.max(gj-gb,0)),pct(gj?Math.min(gb/gj*100,100):0),rowSt(gj,gb),rp(gj/30)];
       }else body=[[{content:'Belum ada baris',colSpan:n,styles:{halign:'center',textColor:[107,114,128]}}]];
       doc.autoTable(Object.assign({},base,{startY:y,head:[cols],body:body,foot:foot?[foot]:undefined,showFoot:'lastPage',columnStyles:cs,
         didParseCell:function(d){
@@ -16057,8 +16071,8 @@ if ('serviceWorker' in navigator) {
       var ws=wb.addWorksheet('Hutang',{properties:{tabColor:{argb:'FFFBBF24'}},views:[{showGridLines:false,state:'frozen',ySplit:3}],pageSetup:{orientation:'landscape',paperSize:9,fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:.4,right:.4,top:.5,bottom:.5,header:.2,footer:.2}},headerFooter:{oddFooter:'&LRHN CAPITAL&CHalaman &P dari &N&R&D'}});
       var NUM='"Rp" #,##0.00',F=function(a){return{type:'pattern',pattern:'solid',fgColor:{argb:a}};};
       var thin={style:'thin',color:{argb:'FFE5E7EB'}},BR={top:thin,bottom:thin,left:thin,right:thin};
-      var GOLDB={style:'medium',color:{argb:'FFD97706'}},c,k,NC=8;
-      [7,26,24,24,24,16,18,22].forEach(function(w,i){ws.getColumn(i+1).width=w;});
+      var GOLDB={style:'medium',color:{argb:'FFD97706'}},c,k,NC=9;
+      [7,26,24,24,24,16,18,22,22].forEach(function(w,i){ws.getColumn(i+1).width=w;});
       ws.mergeCells(1,1,1,NC);ws.mergeCells(2,1,2,NC);
       for(k=1;k<=NC;k++){ws.getCell(1,k).fill=F('FF111827');ws.getCell(2,k).fill=F('FF111827');ws.getCell(3,k).fill=F('FFFBBF24');}
       c=ws.getCell(1,1);c.value='RHN CAPITAL  -  LAPORAN HUTANG CICILAN';c.font={name:'Calibri',size:20,bold:true,color:{argb:'FFFBBF24'}};c.alignment={vertical:'middle',horizontal:'left',indent:1};
@@ -16076,7 +16090,7 @@ if ('serviceWorker' in navigator) {
       kpi(1,2,'TOTAL HUTANG',M.tot.j,'FF111827','FFF3F4F6',NUM);
       kpi(3,4,'SUDAH DIBAYAR',M.tot.b,'FF059669','FFD1FAE5',NUM);
       kpi(5,6,'SISA HUTANG MASIH ADA',M.tot.sisa,'FFDC2626','FFFEE2E2',NUM);
-      kpi(7,8,'TERBAYARKAN',M.tot.j?1-ps:0,'FFB45309','FFFEF3C7','0.00%');
+      kpi(7,9,'TERBAYARKAN',M.tot.j?1-ps:0,'FFB45309','FFFEF3C7','0.00%');
       ws.getRow(7).height=14;
       var r=8,firstData=0,lastData=0,pcRanges=[];
       M.groups.forEach(function(g,gi){
@@ -16086,7 +16100,7 @@ if ('serviceWorker' in navigator) {
         c=ws.getCell(r,1);c.value=(gi+1)+'.   '+g.name;c.font={name:'Calibri',size:13,bold:true,color:{argb:'FF92400E'}};c.alignment={vertical:'middle',horizontal:'left',indent:1};
         c=ws.getCell(r,6);c.value='Total harian: Rp '+(gj0/30).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});c.font={name:'Calibri',size:10.5,bold:true,color:{argb:'FF92400E'}};c.alignment={vertical:'middle',horizontal:'right',indent:1};
         ws.getRow(r).height=28;r++;
-        ['NO',M.merge?'LEMBAR':'CICILAN','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI'].forEach(function(t,i){
+        ['NO',M.merge?'LEMBAR':'CICILAN','JUMLAH','BAYAR','SISA (HASIL)','TERBAYAR','STATUS','PERHARI','JATUH TEMPO'].forEach(function(t,i){
           var h=ws.getCell(r,i+1);h.value=t;h.font={name:'Calibri',size:10.5,bold:true,color:{argb:'FFFBBF24'}};h.fill=F('FF111827');h.alignment={horizontal:'center',vertical:'middle'};h.border=BR;
         });
         ws.getRow(r).height=24;r++;
@@ -16108,7 +16122,8 @@ if ('serviceWorker' in navigator) {
           ws.getCell(r,4).font={name:'Calibri',size:11,bold:true,color:{argb:'FF059669'}};
           ws.getCell(r,5).font={name:'Calibri',size:11,bold:true,color:{argb:sisa>0?'FFDC2626':'FF059669'}};
           ws.getCell(r,7).font={name:'Calibri',size:10.5,bold:true,color:{argb:'FF111827'}};
-          ws.getRow(r).height=22;lastData=r;r++;
+          ws.getCell(r,9).value=x.due||'-';ws.getCell(r,9).alignment={vertical:'middle',horizontal:'center',wrapText:true};
+          ws.getRow(r).height=(x.due&&x.due.indexOf('\n')>-1)?34:22;lastData=r;r++;
         });
         if(g.rows.length){
           pcRanges.push('F'+a+':F'+(r-1));
