@@ -117,7 +117,7 @@ async function pushToUser(uid, title, body, tag) {
   const snap = await db.collection("users").doc(uid).collection("devices").get();
   const items = [];
   snap.forEach((d) => { const t = d.data().fcmToken; if (t) items.push({ ref: d.ref, token: t }); });
-  if (!items.length) return;
+  if (!items.length) return 0;
   const res = await admin.messaging().sendEachForMulticast({
     tokens: items.map((i) => i.token),
     notification: { title, body },
@@ -132,6 +132,7 @@ async function pushToUser(uid, title, body, tag) {
     }
   });
   await Promise.all(dead);
+  return items.length - dead.length;
 }
 
 async function eachUser(fn) {
@@ -195,3 +196,43 @@ exports.budgetTransaksi = onDocumentCreated("users/{uid}/transactions/{id}", asy
   if (!nl || nl === lvl(before)) return;
   await pushToUser(uid, nl === 100 ? "🚨 Budget " + t.category + " terlampaui" : "⚠️ Budget " + t.category + " hampir habis", rp(spent) + " dari " + rp(lim) + " (" + Math.round(spent / lim * 100) + "%)", "rhn-budget-" + t.category + "-" + nl);
 });
+
+// 5) Admin kirim notifikasi manual dari dashboard (semua user / satu user lewat email)
+const ADMIN_EMAIL = "rehantop245@gmail.com";
+exports.kirimNotifAdmin = onRequest(
+  { cors: true, region: "us-central1", timeoutSeconds: 300, memory: "512MiB" },
+  async (req, res) => {
+    if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed, gunakan POST." });
+    const h = req.headers.authorization || "";
+    const idToken = h.startsWith("Bearer ") ? h.slice(7) : null;
+    if (!idToken) return res.status(401).json({ error: "Token login tidak ditemukan. Silakan login ulang." });
+    let decoded;
+    try { decoded = await admin.auth().verifyIdToken(idToken); } catch (e) { return res.status(401).json({ error: "Token login tidak valid atau kedaluwarsa." }); }
+    if (String(decoded.email || "").toLowerCase() !== ADMIN_EMAIL) return res.status(403).json({ error: "Hanya admin yang boleh mengirim notifikasi." });
+
+    const { title, body, target, email } = req.body || {};
+    const tt = String(title || "").trim().slice(0, 80);
+    const bb = String(body || "").trim().slice(0, 300);
+    if (!tt || !bb) return res.status(400).json({ error: "Judul dan isi notifikasi wajib diisi." });
+    const tag = "rhn-admin-" + Date.now();
+
+    try {
+      let users = 0, devices = 0;
+      if (target === "email") {
+        let u;
+        try { u = await admin.auth().getUserByEmail(String(email || "").trim().toLowerCase()); } catch (e) { return res.status(404).json({ error: "User dengan email itu tidak ditemukan." }); }
+        const n = await pushToUser(u.uid, tt, bb, tag);
+        if (n) { users = 1; devices = n; }
+      } else {
+        await eachUser(async (uid) => {
+          const n = await pushToUser(uid, tt, bb, tag);
+          if (n) { users++; devices += n; }
+        });
+      }
+      return res.status(200).json({ ok: true, users, devices });
+    } catch (err) {
+      console.error("kirimNotifAdmin gagal:", err);
+      return res.status(500).json({ error: "Server gagal mengirim notifikasi: " + err.message });
+    }
+  }
+);
