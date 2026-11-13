@@ -15286,15 +15286,65 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     const todayKey = function () { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     let unsubs = [], startedFor = null;
 
+    // ---- Bunyi notifikasi (WebAudio) + banner dalam aplikasi ----
+    let actx = null;
+    function getCtx() {
+        try { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; if (!actx) actx = new AC(); return actx; } catch (e) { return null; }
+    }
+    ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(function (ev) {
+        document.addEventListener(ev, function () { const c = getCtx(); if (c && c.state === 'suspended') { try { c.resume(); } catch (e) {} } }, { passive: true });
+    });
+    function chime() {
+        const c = getCtx(); if (!c) return false;
+        if (c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+        if (c.state !== 'running') return false;
+        const t0 = c.currentTime;
+        [[880, 0], [1318.5, 0.16]].forEach(function (n) {
+            const o = c.createOscillator(), g = c.createGain();
+            o.type = 'sine'; o.frequency.value = n[0];
+            g.gain.setValueAtTime(0.0001, t0 + n[1]);
+            g.gain.exponentialRampToValueAtTime(0.35, t0 + n[1] + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + 0.45);
+            o.connect(g); g.connect(c.destination);
+            o.start(t0 + n[1]); o.stop(t0 + n[1] + 0.5);
+        });
+        try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+        return true;
+    }
+    function toast(title, body) {
+        let box = document.getElementById('rhn-toast-box');
+        if (!box) {
+            box = document.createElement('div'); box.id = 'rhn-toast-box';
+            box.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:2147483000;max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:8px;pointer-events:none;font-family:inherit';
+            document.body.appendChild(box);
+        }
+        const el = document.createElement('div');
+        el.style.cssText = 'pointer-events:auto;cursor:pointer;background:var(--bg2,#14171f);color:var(--text,#fff);border:1px solid var(--gold,#fbbf24);border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.55);transform:translateY(-20px);opacity:0;transition:transform .25s,opacity .25s';
+        const h = document.createElement('div'); h.style.cssText = 'font-weight:800;font-size:13px;margin-bottom:3px'; h.textContent = title;
+        const b = document.createElement('div'); b.style.cssText = 'font-size:12px;line-height:1.45;opacity:.85;white-space:pre-line;word-break:break-word'; b.textContent = body;
+        el.appendChild(h); if (body) el.appendChild(b); box.appendChild(el);
+        requestAnimationFrame(function () { el.style.transform = 'translateY(0)'; el.style.opacity = '1'; });
+        const close = function () { el.style.opacity = '0'; el.style.transform = 'translateY(-20px)'; setTimeout(function () { el.remove(); }, 260); };
+        el.onclick = close; setTimeout(close, 7000);
+        while (box.children.length > 3) box.firstChild.remove();
+    }
+
     async function show(title, body, tag, extra) {
-        if (!supported || Notification.permission !== 'granted') return false;
-        const opts = { body: body, tag: tag, renotify: false };
+        // 1) Saat aplikasi dibuka: banner + bunyi (selalu muncul, tidak tergantung izin notifikasi)
+        let played = false;
+        if (!document.hidden) { try { toast(title, body); } catch (e) {} try { played = chime(); } catch (e) {} }
+        // 2) Notifikasi sistem (bar notifikasi HP/browser), juga saat aplikasi tertutup/di latar belakang
+        if (!supported || Notification.permission !== 'granted') return !document.hidden;
+        const opts = { body: body, tag: tag, renotify: false, vibrate: [200, 100, 200], silent: played };
         if (window.RHN_LOGO_DATA) { opts.icon = window.RHN_LOGO_DATA; opts.badge = window.RHN_LOGO_DATA; }
         try {
-            const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
+            let reg = null;
+            if ('serviceWorker' in navigator) {
+                reg = await Promise.race([navigator.serviceWorker.ready, new Promise(function (r) { setTimeout(r, 2500, null); })]);
+            }
             if (reg && reg.showNotification) { await reg.showNotification(title, opts); return true; }
             new Notification(title, opts); return true;
-        } catch (e) { try { new Notification(title, opts); return true; } catch (_) { return false; } }
+        } catch (e) { try { new Notification(title, opts); return true; } catch (_) { return !document.hidden; } }
     }
     window.rhnNotify = show;
 
@@ -15305,7 +15355,9 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
             const m = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js');
             if (!(await m.isSupported())) return;
             const messaging = m.getMessaging(app);
-            const token = await m.getToken(messaging, { vapidKey: vapid });
+            let swReg = null;
+            try { swReg = await navigator.serviceWorker.ready; } catch (e) { console.warn('FCM SW:', e); }
+            const token = await m.getToken(messaging, swReg ? { vapidKey: vapid, serviceWorkerRegistration: swReg } : { vapidKey: vapid });
             if (token) {
                 if (window.__currentDeviceId) await updateDoc(doc(db, 'users', currentUser.uid, 'devices', window.__currentDeviceId), { fcmToken: token, fcmUpdatedAt: serverTimestamp() });
                 window.__rhnFcmToken = token;
