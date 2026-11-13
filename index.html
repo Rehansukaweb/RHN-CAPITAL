@@ -3420,6 +3420,22 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
     </div>
     <div id="admin-cs-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat daftar chat...</div></div>
   </div>
+
+<div class="card" id="admin-notif-card">
+    <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">🔔 Kirim Notifikasi ke User</div>
+      <div class="card-sub">Notifikasi masuk ke HP user walau aplikasi tidak dibuka. Pilih saran di bawah atau tulis sendiri.</div>
+    </div>
+    <div id="admin-notif-tpl" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
+    <input type="text" id="admin-notif-title" class="f-input-dark" maxlength="80" placeholder="Judul notifikasi" style="margin-bottom:8px;">
+    <textarea id="admin-notif-body" class="f-input-dark" maxlength="300" rows="3" placeholder="Isi notifikasi" style="margin-bottom:8px; resize:vertical; min-height:80px;"></textarea>
+    <select id="admin-notif-target" class="f-input-dark" onchange="window.adminNotifTarget()" style="margin-bottom:8px;">
+      <option value="all">Semua user</option>
+      <option value="email">Satu user (pakai email)</option>
+    </select>
+    <input type="email" id="admin-notif-email" class="f-input-dark" placeholder="Email user tujuan" style="display:none; margin-bottom:8px;">
+    <button class="export-btn" id="admin-notif-btn" onclick="window.adminKirimNotif()" style="background:var(--gold); color:#000; width:100%;">🚀 KIRIM NOTIFIKASI</button>
+  </div>
 </div>
 
 <div id="page-hutang" class="page">
@@ -15013,6 +15029,61 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     setInterval(tick, 60000);
     setInterval(scanTx, 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+})();
+
+// ==== ADMIN: KIRIM NOTIFIKASI KE USER (lewat server, tanpa user perlu buka aplikasi) ====
+(function adminNotifInit() {
+    const TPL = [
+        { l: '📝 Catat transaksi', t: '📝 Jangan lupa catat transaksi', b: 'Catat pemasukan & pengeluaranmu hari ini supaya keuanganmu tetap terpantau.' },
+        { l: '📢 Info penting', t: '📢 Info penting RHN CAPITAL', b: 'Ada informasi penting untukmu. Buka aplikasi untuk melihat detailnya.' },
+        { l: '🆕 Pembaruan', t: '🆕 Pembaruan aplikasi', b: 'Fitur baru sudah tersedia di RHN CAPITAL. Buka aplikasi untuk mencobanya.' },
+        { l: '⏳ Langganan', t: '⏳ Langganan hampir habis', b: 'Perpanjang langgananmu agar semua fitur tetap aktif.' },
+        { l: '🛠️ Pemeliharaan', t: '🛠️ Pemeliharaan sistem', b: 'Sistem sedang dalam pemeliharaan singkat. Terima kasih atas pengertiannya.' }
+    ];
+    function render() {
+        const box = document.getElementById('admin-notif-tpl');
+        if (!box || box.dataset.ok) return; box.dataset.ok = '1';
+        TPL.forEach(function (x) {
+            const b = document.createElement('button');
+            b.type = 'button'; b.textContent = x.l;
+            b.style.cssText = 'background:var(--bg3,#1A1A1F);color:var(--text,#fff);border:1px solid var(--border2,#33333E);border-radius:999px;padding:8px 14px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer';
+            b.onclick = function () { document.getElementById('admin-notif-title').value = x.t; document.getElementById('admin-notif-body').value = x.b; };
+            box.appendChild(b);
+        });
+    }
+    window.adminNotifTarget = function () {
+        const t = document.getElementById('admin-notif-target'), e = document.getElementById('admin-notif-email');
+        if (t && e) e.style.display = t.value === 'email' ? 'block' : 'none';
+    };
+    const dlg = function (o) { return Swal.fire(Object.assign({ background: 'var(--card)', color: 'var(--text)' }, o)); };
+    window.adminKirimNotif = async function () {
+        if (!window.__isAdmin || !auth.currentUser) return;
+        const title = String(document.getElementById('admin-notif-title').value || '').trim();
+        const body = String(document.getElementById('admin-notif-body').value || '').trim();
+        const target = document.getElementById('admin-notif-target').value;
+        const email = String(document.getElementById('admin-notif-email').value || '').trim().toLowerCase();
+        if (!title || !body) { dlg({ icon: 'warning', title: 'Belum lengkap', text: 'Judul dan isi notifikasi wajib diisi.' }); return; }
+        if (target === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { dlg({ icon: 'warning', title: 'Email tidak valid', text: 'Isi email user tujuan dengan benar.' }); return; }
+        const ask = await dlg({ icon: 'question', title: 'Kirim notifikasi?', text: target === 'all' ? 'Notifikasi akan dikirim ke SEMUA user.' : 'Notifikasi akan dikirim ke ' + email + '.', showCancelButton: true, confirmButtonText: 'Kirim', cancelButtonText: 'Batal', confirmButtonColor: '#fbbf24' });
+        if (!ask.isConfirmed) return;
+        const btn = document.getElementById('admin-notif-btn'); const old = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = 'Mengirim...';
+        try {
+            const token = await auth.currentUser.getIdToken();
+            const r = await fetch('https://us-central1-' + app.options.projectId + '.cloudfunctions.net/kirimNotifAdmin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ title: title, body: body, target: target, email: email })
+            });
+            const d = await r.json().catch(function () { return {}; });
+            if (!r.ok) throw new Error(d.error || ('Gagal (' + r.status + ')'));
+            dlg({ icon: d.devices ? 'success' : 'info', title: d.devices ? 'Terkirim' : 'Tidak ada perangkat', text: d.devices ? 'Terkirim ke ' + d.devices + ' perangkat (' + d.users + ' user).' : 'User belum mengaktifkan notifikasi di perangkatnya.' });
+        } catch (e) {
+            dlg({ icon: 'error', title: 'Gagal mengirim', text: e.message || String(e) });
+        } finally { btn.disabled = false; btn.innerHTML = old; }
+    };
+    render();
+    document.addEventListener('DOMContentLoaded', render);
 })();
 
 </script>
