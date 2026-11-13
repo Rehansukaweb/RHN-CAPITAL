@@ -4270,7 +4270,7 @@ async function registerDeviceSession(user, _retryCount) {
         const info = parseDeviceUA();
         const devRef = doc(db, 'users', user.uid, 'devices', deviceId);
         const devSnap = await getDoc(devRef);
-        const payload = { deviceId, brand: info.brand, os: info.os, browser: info.browser, userAgent: ua_short(navigator.userAgent), email: user.email || '-', lastActive: serverTimestamp(), active: true };
+        const payload = { deviceId, brand: info.brand, os: info.os, browser: info.browser, userAgent: ua_short(navigator.userAgent), email: user.email || '-', lastActive: serverTimestamp(), active: true, lastLogin: serverTimestamp() };
         if (!devSnap.exists()) payload.firstLogin = serverTimestamp();
         await setDoc(devRef, payload, { merge: true });
 
@@ -15029,6 +15029,54 @@ window.RHN_VAPID_KEY = window.RHN_VAPID_KEY || 'BJ3O02TF962tjt7CKgLqkdF5hy_Eyt0f
     setInterval(tick, 60000);
     setInterval(scanTx, 1000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) tick(); });
+})();
+
+// ==== ADMIN: NOTIFIKASI BROWSER saat user masuk (login) atau mencatat catatan baru ====
+(function adminActivityNotifInit() {
+    if (window.__adminActNotifInit) return; window.__adminActNotifInit = true;
+    var startedUid = null, unsubs = [], seenTx = {}, lastLogin = {}, ready = { tx: false, dev: false };
+    function stop() { unsubs.forEach(function (u) { try { u(); } catch (e) {} }); unsubs = []; seenTx = {}; lastLogin = {}; ready = { tx: false, dev: false }; startedUid = null; }
+    function who(email, uid) { return String(email || '').trim() || ('UID ' + String(uid || '-').slice(0, 8)); }
+    function notify(title, body, tag) {
+        try { if (typeof window.rhnNotify === 'function') window.rhnNotify(title, body, tag); } catch (e) {}
+        try { if (typeof Swal !== 'undefined' && !document.hidden) Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: title, text: body, showConfirmButton: false, timer: 4000, background: 'var(--card)', color: 'var(--text)' }); } catch (e) {}
+    }
+    function start() {
+        if (!window.__isAdmin || !currentUser || startedUid === currentUser.uid) return;
+        startedUid = currentUser.uid; var myUid = currentUser.uid;
+        try {
+            unsubs.push(onSnapshot(query(collectionGroup(db, 'transactions'), orderBy('createdAt', 'desc'), limit(30)), function (snap) {
+                var first = !ready.tx; ready.tx = true;
+                snap.docChanges().forEach(function (ch) {
+                    if (ch.type !== 'added') return;
+                    var id = ch.doc.ref.path; if (seenTx[id]) return; seenTx[id] = 1;
+                    if (first || snap.metadata.fromCache) return;
+                    var d = ch.doc.data() || {}, uid = ch.doc.ref.parent && ch.doc.ref.parent.parent ? ch.doc.ref.parent.parent.id : '';
+                    if (uid === myUid || d.isDeleted || !d.createdAt) return;
+                    var jenis = d.type === 'income' ? 'Pemasukan' : (d.type === 'expense' ? 'Pengeluaran' : 'Transfer');
+                    var amt = Number(d.amount) || 0;
+                    notify('📝 Catatan baru: ' + jenis, who(d.ownerEmail, uid) + ' · Rp ' + Math.round(amt).toLocaleString('id-ID') + (d.category ? ' · ' + d.category : ''), 'rhn-adm-tx-' + ch.doc.id);
+                });
+            }, function () {}));
+        } catch (e) {}
+        try {
+            unsubs.push(onSnapshot(collectionGroup(db, 'devices'), function (snap) {
+                var first = !ready.dev; ready.dev = true;
+                snap.docChanges().forEach(function (ch) {
+                    if (ch.type === 'removed') return;
+                    var d = ch.doc.data() || {}, id = ch.doc.ref.path;
+                    var ms = d.lastLogin && d.lastLogin.toMillis ? d.lastLogin.toMillis() : 0;
+                    if (!ms) return;
+                    var prev = lastLogin[id]; lastLogin[id] = ms;
+                    if (first || snap.metadata.fromCache || ms === prev || Date.now() - ms > 120000) return;
+                    var uid = ch.doc.ref.parent && ch.doc.ref.parent.parent ? ch.doc.ref.parent.parent.id : '';
+                    if (uid === myUid) return;
+                    notify('🔑 User masuk', who(d.email, uid) + ' · ' + [d.brand, d.browser].filter(Boolean).join(' · '), 'rhn-adm-login-' + id);
+                });
+            }, function () {}));
+        } catch (e) {}
+    }
+    onAuthStateChanged(auth, function (user) { stop(); if (!user) return; var n = 0, w = setInterval(function () { if (!auth.currentUser || ++n > 600) { clearInterval(w); return; } if (window.appUnlocked && window.__isAdmin && currentUser) { clearInterval(w); start(); } }, 1000); });
 })();
 
 // ==== ADMIN: KIRIM NOTIFIKASI KE USER (lewat server, tanpa user perlu buka aplikasi) ====
