@@ -154,3 +154,34 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirst(req));
   }
 });
+
+// ==========================================================================
+// NOTIFIKASI PUSH (FCM) — tampil walau aplikasi ditutup
+// ==========================================================================
+self.addEventListener('push', (event) => {
+  let p = {};
+  try { p = event.data ? event.data.json() : {}; } catch (e) { try { p = { data: { body: event.data.text() } }; } catch (_) {} }
+  const n = p.notification || {};
+  const d = p.data || {};
+  const title = n.title || d.title || 'RHN CAPITAL';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: n.body || d.body || '',
+      tag: d.tag || 'rhn-fcm',
+      icon: n.icon || d.icon || './logo_rhn_oval_192.png',
+      badge: './logo_rhn_oval_192.png',
+      vibrate: [200, 100, 200],
+      silent: false
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const c of list) { if ('focus' in c) return c.focus(); }
+      return self.clients.openWindow('./');
+    })
+  );
+});
