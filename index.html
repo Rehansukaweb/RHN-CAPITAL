@@ -4249,6 +4249,7 @@ window.toggleTheme = function() {
   const isLight = document.body.classList.contains('light-mode');
   document.getElementById('theme-toggle').textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  if (window.rhnSaveTheme) window.rhnSaveTheme(isLight ? 'light' : 'dark');
   refreshAll(); 
 };
 
@@ -4274,7 +4275,7 @@ import {
 import { 
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, 
   addDoc as __fsAddDoc, updateDoc as __fsUpdateDoc, deleteDoc as __fsDeleteDoc, onSnapshot, query, orderBy, where, limit,
-  serverTimestamp, getDoc, setDoc as __fsSetDoc, collectionGroup, getDocs, getDocsFromServer, getCountFromServer, deleteField, writeBatch as __fsWriteBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
+  serverTimestamp, getDoc, setDoc as __fsSetDoc, collectionGroup, getDocs, getDocsFromServer, getDocFromCache, getCountFromServer, deleteField, writeBatch as __fsWriteBatch, increment, arrayUnion, waitForPendingWrites, enableNetwork, disableNetwork
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = { 
@@ -7021,7 +7022,7 @@ window.ibxIc = function (n) {
 window.ibHideKey = function () { return 'rhn_ib_hide_' + (currentUser ? currentUser.uid : 'guest'); };
 window.ibHideGet = function () { try { const o = JSON.parse(localStorage.getItem(window.ibHideKey()) || '{}') || {}; return { c: o.c || [], m: o.m || [], w: o.w || [] }; } catch (e) { return { c: [], m: [], w: [] }; } };
 window.ibIsHidden = function (k, id) { return window.ibHideGet()[k].indexOf(id) > -1; };
-window.ibHideAdd = function (k, ids) { try { const o = window.ibHideGet(); ids.forEach(id => { if (o[k].indexOf(id) < 0) o[k].push(id); }); localStorage.setItem(window.ibHideKey(), JSON.stringify(o)); } catch (e) {} window.drawIB(); };
+window.ibHideAdd = function (k, ids) { try { const o = window.ibHideGet(); ids.forEach(id => { if (o[k].indexOf(id) < 0) o[k].push(id); }); localStorage.setItem(window.ibHideKey(), JSON.stringify(o)); if (window.rhnSaveIbHide) window.rhnSaveIbHide(o); } catch (e) {} window.drawIB(); };
 window.ibDel = async function (k, id) {
     const r = await ibSwal({ icon: 'warning', title: 'Hapus histori ini?', text: 'Dihapus dari daftar. Saldo dan total komisi kamu tidak berubah.', showCancelButton: true, confirmButtonText: 'Ya, hapus', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
     if (r.isConfirmed) window.ibHideAdd(k, [id]);
@@ -8519,12 +8520,88 @@ window.saveExtraPrefs = async function() {
     if (window.resetIdle) window.resetIdle(); refreshAll(); 
 };
 
+// ==== SINKRON PIN & DETAIL KECIL KE FIREBASE (per akun, realtime) ====
+window.rhnSavePin = async function(uid, pin) {
+    let err = null;
+    for (let i = 0; i < 3; i++) {
+        try {
+            await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: pin }, { merge: true });
+            window.userCloudPin = pin; window.__pinCloudOk = true;
+            try { localStorage.setItem('local_pin_rhn', pin); } catch (e) {}
+            try { if (currentUser && currentUser.email) syncPinToOfflineCache(currentUser.email, pin); } catch (e) {}
+            return true;
+        } catch (e) { err = e; await new Promise(function (r) { setTimeout(r, 400); }); }
+    }
+    throw err;
+};
+window.rhnStopPinLive = function() {
+    if (window.__pinLiveUnsub) { try { window.__pinLiveUnsub(); } catch (e) {} }
+    window.__pinLiveUnsub = null; window.__pinLiveUid = null; window.__pinCloudOk = false;
+};
+window.rhnStartPinLive = function(uid) {
+    try {
+        if (!uid || (window.__pinLiveUid === uid && window.__pinLiveUnsub)) return;
+        window.rhnStopPinLive();
+        window.__pinLiveUid = uid;
+        window.__pinLiveUnsub = onSnapshot(doc(db, 'users', uid, 'settings', 'security'), function (snap) {
+            if (!currentUser || currentUser.uid !== uid) return;
+            const p = snap.exists() ? snap.data().pin : null;
+            if (!p) {
+                if (!snap.metadata.fromCache && window.appUnlocked) {
+                    const lp = localStorage.getItem('local_pin_rhn');
+                    if (lp && /^[0-9]{6}$/.test(lp)) { setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: lp }, { merge: true }).catch(function () {}); }
+                }
+                return;
+            }
+            if (!snap.metadata.fromCache) window.__pinCloudOk = true;
+            if (snap.metadata.hasPendingWrites) return;
+            if (p !== window.userCloudPin || p !== localStorage.getItem('local_pin_rhn')) {
+                window.userCloudPin = p;
+                try { localStorage.setItem('local_pin_rhn', p); } catch (e) {}
+                try { if (currentUser.email) syncPinToOfflineCache(currentUser.email, p); } catch (e) {}
+            }
+        }, function () {});
+    } catch (e) {}
+};
+window.rhnSaveTheme = function(v) {
+    try { if (currentUser) Promise.resolve(setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { theme: v }, { merge: true })).catch(function () {}); } catch (e) {}
+};
+window.rhnApplyTheme = function(v) {
+    if (v !== 'light' && v !== 'dark') return false;
+    const isLight = v === 'light';
+    try { localStorage.setItem('theme', v); } catch (e) {}
+    if (document.body.classList.contains('light-mode') === isLight) return false;
+    document.body.classList.toggle('light-mode', isLight);
+    const t = document.getElementById('theme-toggle'); if (t) t.textContent = isLight ? '\u2600\uFE0F' : '\uD83C\uDF19';
+    return true;
+};
+window.rhnSaveIbHide = function(o) {
+    try { if (currentUser) Promise.resolve(setDoc(doc(db, 'users', currentUser.uid, 'settings', 'preferences'), { ibHide: o }, { merge: true })).catch(function () {}); } catch (e) {}
+};
+window.rhnApplyIbHide = function(c, uid) {
+    try {
+        if (!uid) return false;
+        const cl = (c && typeof c === 'object') ? c : {};
+        const k = 'rhn_ib_hide_' + uid; let o = {};
+        try { o = JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) {}
+        const m = { c: Array.isArray(o.c) ? o.c.slice() : [], m: Array.isArray(o.m) ? o.m.slice() : [], w: Array.isArray(o.w) ? o.w.slice() : [] };
+        let changed = false, needUp = false;
+        ['c', 'm', 'w'].forEach(function (x) {
+            (Array.isArray(cl[x]) ? cl[x] : []).forEach(function (id) { if (m[x].indexOf(id) < 0) { m[x].push(id); changed = true; } });
+            m[x].forEach(function (id) { if (!Array.isArray(cl[x]) || cl[x].indexOf(id) < 0) needUp = true; });
+        });
+        if (changed) { try { localStorage.setItem(k, JSON.stringify(m)); } catch (e) {} }
+        if (needUp) window.rhnSaveIbHide(m);
+        return changed;
+    } catch (e) { return false; }
+};
+
 window.changePinInApp = async function() { 
     if (!currentUser) return; 
     const { value: newPin } = await Swal.fire({ title: 'Ganti PIN Keamanan', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', didOpen: window.rhnSwalKeypad, inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         try { 
-            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            await window.rhnSavePin(currentUser.uid, newPin); 
             window.userCloudPin = newPin; 
             localStorage.setItem('local_pin_rhn', newPin);
             window.showSaveSuccess('PIN Berhasil Disimpan!', 1000); 
@@ -8553,7 +8630,7 @@ function forceResetToAuthScreen() {
     const authBtn = document.getElementById('auth-submit-btn'); if (authBtn) authBtn.textContent = 'MASUK';
     const appPinEl = document.getElementById('app-pin'); if (appPinEl) appPinEl.value = '';
     if (unsubListener) { unsubListener(); unsubListener = null; }
-    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive();
+    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive(); if (window.rhnStopPinLive) window.rhnStopPinLive();
     try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
     txs = []; deletedTxs = [];
@@ -8613,9 +8690,13 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('pin-screen').style.display = 'flex';
     document.getElementById('app-pin').style.display = 'block';
     if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    window.rhnStartPinLive(user.uid);
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
-        const secSnap = await getDoc(secRef); 
+        const __lpFast = localStorage.getItem('local_pin_rhn');
+        const __secP = getDoc(secRef);
+        let secSnap = __lpFast ? await Promise.race([__secP, new Promise(function (r) { setTimeout(function () { r(null); }, 700); })]) : await __secP;
+        if (!secSnap) secSnap = { exists: function () { return true; }, data: function () { return { pin: __lpFast }; } }; 
         document.getElementById('app-pin').style.display = 'block';
         if (!secSnap.exists() || !secSnap.data().pin) { 
             if (!window.appUnlocked) {
@@ -8671,7 +8752,7 @@ onAuthStateChanged(auth, async user => {
     if (adminSettingsGroupEl) adminSettingsGroupEl.style.display = isAdminUser ? 'block' : 'none';
 
     try {
-        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await Promise.race([(window.__prefPre || getDoc(prefRef)), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))]);
+        const prefRef = doc(db, 'users', user.uid, 'settings', 'preferences'); const prefSnap = await Promise.race([getDocFromCache(prefRef).then(function (c) { return c.exists() ? c : (window.__prefPre || getDoc(prefRef)); }).catch(function () { return (window.__prefPre || getDoc(prefRef)); }), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))]);
         if (prefSnap.exists()) { 
             const data = prefSnap.data(); 
             if (data.appPrefs) { appPrefs = data.appPrefs; localStorage.setItem('rhn_prefs_' + user.uid, JSON.stringify(appPrefs)); } 
@@ -8690,6 +8771,8 @@ onAuthStateChanged(auth, async user => {
                 if (Array.isArray(__cLs) && __cLs.length && (!__cl || __cLsTs > __cCTs)) { __cl = __cLs; setDoc(prefRef, { customWallets: __cLs, customWalletsTs: __cLsTs || Date.now() }, { mergeFields: ['customWallets', 'customWalletsTs'] }).catch(() => {}); }
                 if (__cl) { window.__customWallets = __cl.filter(x => x && x.name); window.__customWalletsUid = user.uid; try { localStorage.setItem('rhn_custom_wallets_' + user.uid, JSON.stringify(window.__customWallets)); if (__cCTs > __cLsTs) localStorage.setItem('rhn_custom_wallets_ts_' + user.uid, String(__cCTs)); } catch (e) {} if (typeof window.cwInjectOptions === 'function') window.cwInjectOptions(); }
             } catch (e) { console.error(e); }
+            if (data.theme) { window.rhnApplyTheme(data.theme); } else { window.rhnSaveTheme(localStorage.getItem('theme') === 'light' ? 'light' : 'dark'); }
+            window.rhnApplyIbHide(data.ibHide, user.uid);
             if (data.extraPrefs) { extraPrefs = data.extraPrefs; localStorage.setItem('rhn_extra_prefs_v2_' + user.uid, JSON.stringify(extraPrefs)); } 
             if (data.budgets) { window.userBudgets = data.budgets; } else { window.userBudgets = {}; }
             if (data.categories) { window.userCats = data.categories; try { localStorage.setItem('rhn_cats_' + user.uid, JSON.stringify(data.categories)); } catch(e) {} } else { window.userCats = JSON.parse(JSON.stringify(window.defaultCATS)); }
@@ -8764,7 +8847,7 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('auth-submit-btn').textContent = 'MASUK'; 
 
     if (unsubListener) { unsubListener(); unsubListener = null; } 
-    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive();
+    window.__txListenUid = null; window.__prefPre = null; if (typeof window.stopUserLive === 'function') window.stopUserLive(); if (window.rhnStopPinLive) window.rhnStopPinLive();
     try { localStorage.removeItem('rhn_admin_cache'); const __n = document.getElementById('nav-admin'); if (__n) __n.style.display = 'none'; } catch(e) {}
     txs = []; deletedTxs = [];
   }
@@ -8779,7 +8862,7 @@ window.verifyPin = async function() {
     if (window.pinMode === 'setup') { 
         document.getElementById('pin-submit-btn').textContent = 'MENYIMPAN...'; 
         try { 
-            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'security'), { pin: pinInput }, { merge: true }); 
+            await window.rhnSavePin(currentUser.uid, pinInput); 
             window.userCloudPin = pinInput; 
             localStorage.setItem('local_pin_rhn', pinInput);
             if (currentUser && currentUser.email) { syncPinToOfflineCache(currentUser.email, pinInput); }
@@ -8814,7 +8897,7 @@ window.verifyPin = async function() {
         
         const localPin = localStorage.getItem('local_pin_rhn');
 
-        if (pinInput === localPin || pinInput === window.userCloudPin) { 
+        if (window.__pinCloudOk ? (pinInput === window.userCloudPin) : (pinInput === localPin || pinInput === window.userCloudPin)) { 
             window.appUnlocked = true;
             unlockApp(); 
             if (window.__armWelcome) window.__armWelcome();
@@ -8945,7 +9028,7 @@ window.resetPinFromLogin = async function() {
     const { value: newPin } = await Swal.fire({ title: 'Reset PIN', text: 'Masukkan 6 angka PIN baru kamu', input: 'password', didOpen: window.rhnSwalKeypad, inputAttributes: { inputmode: 'numeric', maxlength: 6, style: 'text-align: center; letter-spacing: 10px; font-size: 24px;', autofocus: true }, background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)', confirmButtonText: 'SIMPAN PIN BARU', showCancelButton: true, cancelButtonText: 'Batal', cancelButtonColor: 'var(--bg3)' }); 
     if (newPin && newPin.length === 6) { 
         try { 
-            await setDoc(doc(db, 'users', uid, 'settings', 'security'), { pin: newPin }, { merge: true }); 
+            await window.rhnSavePin(uid, newPin); 
             window.userCloudPin = newPin; 
             localStorage.setItem('local_pin_rhn', newPin);
             window.showSaveSuccess('PIN Berhasil Disimpan!', 1000); 
@@ -9183,6 +9266,8 @@ window.__applyPrefsLive = function(d, uid) {
     if (extraPrefs.ext_antiintip === 'on') document.body.classList.add('global-privacy'); else document.body.classList.remove('global-privacy');
     setTimeout(() => { window.isAppLoading = false; }, 300);
   }
+  if (d.theme && window.rhnApplyTheme(d.theme)) { ch = true; }
+  if (window.rhnApplyIbHide(d.ibHide, uid)) { ch = true; try { if (typeof window.drawIB === 'function') window.drawIB(); } catch (e) {} }
   if (d.budgets && diff(d.budgets, window.userBudgets)) { window.userBudgets = d.budgets; ch = true; }
   if (d.categories && diff(d.categories, window.userCats)) { window.userCats = d.categories; ls('rhn_cats_', d.categories); ch = true; }
   if (d.savingsGoals && diff(d.savingsGoals, window.savingsGoals)) { window.savingsGoals = d.savingsGoals; ls('rhn_savings_goals_', d.savingsGoals); ch = true; }
@@ -17199,5 +17284,28 @@ html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-ch
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 </script>
+<style id="rhn-popup-fix">
+/* PERBAIKAN POPUP: judul, isi, input & tombol tidak lagi terpotong / tak terbaca (HP & laptop, tema gelap & terang) */
+.swal2-container{overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.swal2-popup:not(.swal2-toast){max-width:96vw;box-sizing:border-box;}
+.swal2-popup.opt-pop{height:auto!important;min-height:min(58vh,calc(100vh - 24px))!important;min-height:min(58dvh,calc(100dvh - 24px))!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;}
+body.rhn-kp-open .swal2-popup.opt-pop{min-height:0!important;}
+.opt-pop .swal2-html-container{overflow-x:hidden!important;}
+.opt-pop .swal2-html-container>*{flex-shrink:0!important;}
+.swal2-popup:not(.swal2-toast) .swal2-html-container{color:var(--text);}
+.swal2-popup .swal2-title,.swal2-popup .swal2-html-container{overflow-wrap:anywhere;max-width:100%;}
+.swal2-popup .swal2-actions{flex-wrap:wrap;max-width:100%;box-sizing:border-box;}
+.swal2-popup .swal2-styled{min-height:40px;line-height:1.25;white-space:normal;}
+.swal2-popup .swal2-styled.swal2-confirm[style*="var(--gold)"],.swal2-popup .swal2-styled.swal2-deny[style*="var(--gold)"]{color:#111!important;}
+.swal2-popup .swal2-styled.swal2-confirm[style*="var(--red2)"],.swal2-popup .swal2-styled.swal2-deny[style*="var(--red2)"],.swal2-popup .swal2-styled.swal2-confirm[style*="var(--green2)"],.swal2-popup .swal2-styled.swal2-deny[style*="var(--green2)"],.swal2-popup .swal2-styled.swal2-confirm[style*="var(--blue)"],.swal2-popup .swal2-styled.swal2-deny[style*="var(--blue)"]{color:#111!important;}
+.swal2-popup .swal2-html-container .swal2-input,.swal2-popup .swal2-html-container .swal2-select,.swal2-popup .swal2-html-container .swal2-textarea{margin-left:0;margin-right:0;width:100%;}
+.swal2-popup .swal2-input,.swal2-popup .swal2-select,.swal2-popup .swal2-textarea,.swal2-popup .swal2-html-container input,.swal2-popup .swal2-html-container select,.swal2-popup .swal2-html-container textarea{box-sizing:border-box;max-width:100%;}
+.opt-pop .swal2-html-container{padding-bottom:20px!important;}
+.opt-pop .rhn-kp{margin-bottom:16px;flex-shrink:0;}
+.opt-pop>.swal2-input{flex-shrink:0;}
+.swal2-popup.opt-pop:has(.rhn-kp){overflow-y:auto!important;}
+.swal2-popup.opt-pop:has(.rhn-kp) .swal2-actions{position:sticky;bottom:0;z-index:3;}
+.swal2-popup .swal2-styled.swal2-cancel[style*="var(--bg3)"],.swal2-popup .swal2-styled.swal2-deny[style*="var(--bg3)"],.swal2-popup .swal2-styled.swal2-confirm[style*="var(--bg3)"]{color:var(--text)!important;border:1px solid var(--border2)!important;}
+</style>
 </body>
 </html>
