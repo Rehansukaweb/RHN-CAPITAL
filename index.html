@@ -17288,7 +17288,9 @@ html body #page-hutang #hutang-root#hutang-root .ht-tbl.ht-edit tr.tot td:nth-ch
 /* PERBAIKAN POPUP: judul, isi, input & tombol tidak lagi terpotong / tak terbaca (HP & laptop, tema gelap & terang) */
 .swal2-container{overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
 .swal2-popup:not(.swal2-toast){max-width:96vw;box-sizing:border-box;}
-.swal2-popup.opt-pop{height:auto!important;min-height:min(58vh,calc(100vh - 24px))!important;min-height:min(58dvh,calc(100dvh - 24px))!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;}
+.swal2-popup.opt-pop{height:auto!important;min-height:0!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;}
+.opt-pop .swal2-html-container::before,.opt-pop .swal2-html-container::after{display:none!important;}
+.swal2-popup.opt-pop .swal2-actions:not(:has(.swal2-styled:not([style*="display: none"]))){display:none!important;}
 body.rhn-kp-open .swal2-popup.opt-pop{min-height:0!important;}
 .opt-pop .swal2-html-container{overflow-x:hidden!important;}
 .opt-pop .swal2-html-container>*{flex-shrink:0!important;}
