@@ -15727,6 +15727,8 @@ if ('serviceWorker' in navigator) {
 .kal-dd button:hover{background:var(--bg3)}.kal-dd button.on{background:var(--gold);color:#000}
 @media(max-width:640px){.kal-sum{grid-template-columns:1fr}.kal-sum .kal-stat{display:flex;align-items:center;justify-content:space-between;gap:10px}.kal-sum .kal-stat i{margin:0;flex:none}.kal-sum .kal-stat b{white-space:normal;overflow:visible;text-overflow:clip;word-break:break-all;text-align:right;font-size:15px}}
 @media(max-width:980px){.kal-wrap{grid-template-columns:minmax(0,1fr);grid-template-areas:"cal" "side" "help"}}
+.kal-net{display:block;width:100%;font-size:10px;font-weight:800;line-height:1.15;white-space:nowrap;border-top:1px solid var(--border2);padding-top:3px;margin-top:2px}
+@media(max-width:640px){.kal-net{font-size:8.5px;letter-spacing:-.2px;padding-top:2px;margin-top:1px}.kal-day{min-height:88px}}
 @media(max-width:640px){.kal-card{padding:14px;border-radius:20px}.kal-stats{grid-template-columns:repeat(2,1fr)}.kal-day{min-height:76px;padding:5px 3px 4px;border-radius:11px}.kal-hol,.kal-nb{display:none}.kal-amt{font-size:8.5px;letter-spacing:-.2px}.kal-dow,.kal-grid{gap:3px}.kal-hg{grid-template-columns:1fr}.kal-title b{font-size:20px}.kal-head{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px}.kal-head .kal-title{grid-column:1/4;grid-row:1;min-width:0}.kal-head [data-act=today]{grid-column:4;grid-row:1;align-self:start}.kal-head [data-act=prev]{grid-column:1;grid-row:2}.kal-head #kal-sm{grid-column:2;grid-row:2;min-width:0}.kal-head #kal-sy{grid-column:3;grid-row:2}.kal-head [data-act=next]{grid-column:4;grid-row:2}}
 </style>
 <script id="kalender-script">
@@ -15774,7 +15776,7 @@ if ('serviceWorker' in navigator) {
       var dt=new Date(y,m,i-first+1),dk=key(dt.getFullYear(),dt.getMonth(),dt.getDate()),dd=A[dk],ns=nlist(dk),hl=HOL[p2(dt.getMonth()+1)+'-'+p2(dt.getDate())];
       var cls='kal-day'+(dt.getMonth()!==m?' out':'')+(dk===todayK?' today':'')+(dk===st.sel?' sel':'')+(dt.getDay()===0?' sun':'')+(hl?' hol':'');
       h+='<button type="button" class="'+cls+'" data-act="sel" data-d="'+dk+'" aria-label="'+dstr(dk).txt+'"><span class="kal-dn">'+dt.getDate()+'</span>'+(ns.length?'<span class="kal-nb">'+ns.length+'</span>':'')+(hl?'<span class="kal-hol">'+hl+'</span>':'')
-        +(dd&&dd.i?'<span class="kal-amt" style="color:var(--green2)">'+cp(dd.i)+'</span>':'')+(dd&&dd.e?'<span class="kal-amt" style="color:var(--red2)">-'+cp(dd.e).slice(1)+'</span>':'')
+        +(dd&&dd.i?'<span class="kal-amt" style="color:var(--green2)">'+cp(dd.i)+'</span>':'')+(dd&&dd.e?'<span class="kal-amt" style="color:var(--red2)">-'+cp(dd.e).slice(1)+'</span>':'')+(dd&&(dd.i||dd.e)?'<span class="kal-net" style="color:'+(dd.i-dd.e>=0?'var(--green2)':'var(--red2)')+'">'+cp(dd.i-dd.e)+'</span>':'')
         +'<span class="kal-dots">'+ns.slice(0,3).map(function(n){return '<i class="kal-dot sq" style="background:'+tagOf(n.c)[1]+'"></i>';}).join('')+'</span></button>';
     }
     h+='</div><div class="kal-leg"><span><b style="color:var(--green2)">+5jt</b>&nbsp;Pemasukan</span><span><b style="color:var(--red2)">-150rb</b>&nbsp;Pengeluaran</span><span><i class="kal-dot sq" style="background:var(--gold)"></i>Ada catatan</span><span><b style="color:var(--red2)">Merah</b>&nbsp;Minggu / libur nasional</span><span><b style="color:var(--gold)">Emas</b>&nbsp;Hari ini</span></div></div>';
