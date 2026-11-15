@@ -3552,30 +3552,14 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
     </div>
     <div class="filter-bar">
       <button class="export-btn" onclick="window.createReferralCode()" style="background:var(--blue); color:#fff;">➕ BUAT KODE BARU</button>
-      <button class="export-btn" onclick="window.loadReferralCodes()" style="background:var(--gold); color:#000; margin-left:8px;">🔄 MUAT DAFTAR KODE</button>
     </div>
     <div id="admin-referral-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat kode referral...</div></div>
   </div>
 
   <div class="card">
     <div class="card-head">
-      <div class="card-title" style="color: var(--gold);">🔗 Link Aktivasi Hari (Bayar Cash / Offline)</div>
-      <div class="card-sub">Masukkan jumlah hari, dapat link. User yang membuka link ini (setelah login) langsung aktif sesuai jumlah hari, tanpa pilih paket. Sekali pakai.</div>
-    </div>
-    <div class="filter-bar">
-      <button class="export-btn" onclick="window.createDayLink()" style="background:var(--blue); color:#fff;">➕ BUAT LINK BARU</button>
-      <button class="export-btn" onclick="window.loadDayLinks()" style="background:var(--gold); color:#000; margin-left:8px;">🔄 MUAT DAFTAR LINK</button>
-    </div>
-    <div id="admin-daylink-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;">Tekan MUAT DAFTAR LINK.</div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">👥 Member Aktif Berlangganan</div>
       <div class="card-sub">Daftar semua user yang fitur berbayarnya sedang aktif (bayar QRIS maupun pakai kode referral).</div>
-    </div>
-    <div class="filter-bar">
-      <button class="export-btn" onclick="window.loadActiveSubscribers()" style="background:var(--gold); color:#000;">🔄 MUAT DAFTAR MEMBER AKTIF</button>
     </div>
     <div id="admin-active-members-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat member aktif...</div></div>
   </div>
@@ -3584,9 +3568,6 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
     <div class="card-head">
       <div class="card-title" style="color: var(--gold);">💳 Verifikasi Langganan Member</div>
       <div class="card-sub">Cek pembayaran QRIS masuk lalu konfirmasi agar member aktif kembali.</div>
-    </div>
-    <div class="filter-bar">
-      <button class="export-btn" onclick="window.loadAdminSubscriptionRequests()" style="background:var(--gold); color:#000;">🔄 MUAT PERMINTAAN LANGGANAN</button>
     </div>
     <div id="admin-subscription-list"><div style="padding:24px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat permintaan langganan...</div></div>
   </div>
@@ -3606,9 +3587,6 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
     <div class="card-head">
       <div class="card-title" style="color: var(--gold);">🤝 Monitoring IB Broker</div>
       <div class="card-sub">Pantau semua IB, client mereka, komisi masuk, dan penarikan saldo (proses maks 1 hari kerja).</div>
-    </div>
-    <div class="filter-bar">
-      <button class="export-btn" onclick="window.loadAdminIB()" style="background:var(--gold); color:#000;">🔄 MUAT DATA IB</button>
     </div>
     <div id="admin-ib-root"><div class="ib-empty"><i class=rhn-ld></i>Memuat data IB...</div></div>
   </div>
@@ -5753,7 +5731,7 @@ window.redeemDayLink = async function(raw) {
 };
 
 window.createDayLink = async function() {
-    const ibMe = (!window.__isAdmin && window.__ib && window.__ib.me && window.__ib.me.status === 'active') ? window.__ib.me : null;
+    const ibMe = (window.__ib && window.__ib.me && window.__ib.me.status === 'active') ? window.__ib.me : null;
     if (!window.__isAdmin && !ibMe) return;
     const { value: fv } = await Swal.fire({
         title: 'Buat Link Aktivasi Hari',
@@ -5803,11 +5781,7 @@ window.createDayLink = async function() {
         });
         const url = dayLinkUrl(code);
         try { await navigator.clipboard.writeText(url); } catch (e) {}
-        await Swal.fire({
-            icon: 'success', title: fv.life ? 'Link Dibuat (Seumur Hidup)' : 'Link Dibuat (' + fv.days + ' hari)',
-            html: '<div style="font-size:11px; color:var(--text3); margin-bottom:8px;">Link sudah disalin (bisa dipakai ' + (fv.max || 1) + ' orang). Kirim ke user:</div><input class="swal2-input" readonly onclick="this.select()" value="' + escapeHTML(url) + '" style="font-size:11px;">',
-            background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)'
-        });
+        await Swal.fire(window.dayLinkQrDialog(url, fv.life ? 'Link Dibuat · Seumur Hidup' : 'Link Dibuat · ' + fv.days + ' hari', 'Link sudah disalin · bisa dipakai ' + (fv.max || 1) + ' orang'));
         window.loadDayLinks();
     } catch (e) {
         Swal.fire({ icon: 'error', title: 'Gagal Membuat Link', text: e.message, background: 'var(--card)', color: 'var(--text)' });
@@ -5815,6 +5789,7 @@ window.createDayLink = async function() {
 };
 
 window.loadDayLinks = async function() {
+    if (!window.__isAdmin) { if (typeof window.ibLoadDayLinks === 'function') window.ibLoadDayLinks(); return; }
     const listEl = document.getElementById('admin-daylink-list');
     if (!listEl || !window.__isAdmin) return;
     listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat link...</div>';
@@ -5843,6 +5818,7 @@ window.loadDayLinks = async function() {
                 <input type="text" readonly onclick="this.select()" value="${escapeHTML(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin-bottom:10px;">
                 <div class="admin-user-actions">
                   <button class="admin-detail-btn fix" onclick="window.copyDayLink('${id}')">📋 SALIN LINK</button>
+                  <button class="admin-detail-btn fix" onclick="window.showDayLinkQR('${id}')">📱 QR CODE</button>
                   ${used ? '' : `<button class="admin-detail-btn ${v.disabled ? 'fix' : 'danger'}" onclick="window.toggleDayLink('${id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>`}
                   <button class="admin-detail-btn danger" onclick="window.deleteDayLink('${id}')">🗑️ HAPUS</button>
                 </div>
@@ -5851,6 +5827,47 @@ window.loadDayLinks = async function() {
     } catch (e) {
         listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
     }
+};
+
+window.dayLinkQrDialog = function(url, title, sub) {
+    return {
+        title: title, background: 'var(--card)', color: 'var(--text)', width: 380,
+        showDenyButton: true, denyButtonText: '💾 SIMPAN QR', confirmButtonText: 'SELESAI', confirmButtonColor: 'var(--gold)', denyButtonColor: 'var(--blue)',
+        html: '<div style="display:flex; flex-direction:column; align-items:center; gap:14px;">' +
+            '<div style="font-size:11.5px; color:var(--text3); text-align:center; line-height:1.5;">' + escapeHTML(sub || '') + '</div>' +
+            '<div style="background:#ffffff; padding:16px; border-radius:20px; line-height:0; box-shadow:0 10px 30px rgba(0,0,0,.35);"><div id="daylink-qr" style="width:210px; height:210px; line-height:0;"></div></div>' +
+            '<div style="font-size:12px; font-weight:700; color:var(--text2);">Scan QR ini untuk langsung masuk</div>' +
+            '<input readonly onclick="this.select()" value="' + escapeHTML(url) + '" style="width:100%; box-sizing:border-box; margin:0; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 12px; color:var(--text); font-size:10.5px; text-align:center;">' +
+            '</div>',
+        didOpen: () => {
+            try {
+                const box = document.getElementById('daylink-qr'); box.innerHTML = '';
+                new QRCode(box, { text: url, width: 210, height: 210, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+                const cv = box.querySelector('canvas'), im = box.querySelector('img');
+                const st = 'display:block !important; width:210px !important; height:210px !important; max-width:none !important; margin:0 !important;';
+                if (im) { if (cv) cv.remove(); im.style.cssText = st; } else if (cv) { cv.style.cssText = st; }
+            } catch (e) {}
+        },
+        preDeny: () => { window.dayLinkQrSave(); return false; }
+    };
+};
+window.dayLinkQrSave = function() {
+    try {
+        const box = document.getElementById('daylink-qr'); if (!box) return;
+        const im = box.querySelector('img'), cv = box.querySelector('canvas');
+        const src = im && im.src ? im.src : (cv ? cv.toDataURL('image/png') : '');
+        if (!src) return;
+        const img = new Image();
+        img.onload = () => {
+            const c = document.createElement('canvas'); c.width = 270; c.height = 270;
+            const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, 270, 270); x.drawImage(img, 30, 30, 210, 210);
+            const a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'qr-link-aktivasi.png'; document.body.appendChild(a); a.click(); a.remove();
+        };
+        img.src = src;
+    } catch (e) {}
+};
+window.showDayLinkQR = function(code) {
+    Swal.fire(window.dayLinkQrDialog(dayLinkUrl(code), 'QR Code Link', 'Tunjukkan ke teman, cukup scan lalu login'));
 };
 
 window.copyDayLink = async function(code) {
@@ -5983,10 +6000,10 @@ window.bukaLayarLangganan = function() {
 };
 
 // ---- ADMIN: verifikasi permintaan langganan ----
-window.loadAdminSubscriptionRequests = async function() {
+window.loadAdminSubscriptionRequests = async function(silent) {
     const listEl = document.getElementById('admin-subscription-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat permintaan langganan...</div>';
+    if (!silent) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat permintaan langganan...</div>';
 
     try {
         const q = query(collection(db, 'subscriptionRequests'), where('status', '==', 'pending'));
@@ -6174,10 +6191,10 @@ window.createReferralCode = async function() {
     }
 };
 
-window.loadReferralCodes = async function() {
+window.loadReferralCodes = async function(silent) {
     const listEl = document.getElementById('admin-referral-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat kode referral...</div>';
+    if (!silent) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat kode referral...</div>';
 
     try {
         const snap = await getDocs(collection(db, 'referralCodes'));
@@ -6279,10 +6296,10 @@ window.deleteReferralCode = async function(code) {
 };
 
 // ---- ADMIN: daftar member yang sedang aktif berlangganan (bayar / referral) ----
-window.loadActiveSubscribers = async function() {
+window.loadActiveSubscribers = async function(silent) {
     const listEl = document.getElementById('admin-active-members-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat daftar member aktif...</div>';
+    if (!silent) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat daftar member aktif...</div>';
 
     try {
         const q = query(collection(db, 'users'), where('subscriptionExpiry', '>', new Date().toISOString()));
@@ -7329,8 +7346,15 @@ window.drawIB = function () {
         <div class="ibx-pane${tab === 'client' ? ' on' : ''}" data-p="client">${delAll('c', clients.length)}${cRows}</div>
         <div class="ibx-pane${tab === 'komisi' ? ' on' : ''}" data-p="komisi">${delAll('m', comms.length)}${mRows}</div>
         <div class="ibx-pane${tab === 'tarik' ? ' on' : ''}" data-p="tarik">${delAll('w', wds.filter(w => w.status !== 'pending').length)}${wRows}</div>
+        <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--ix-line);">
+        <div class="ibx-lbl">🔗 Link Aktivasi Hari (Bayar Cash / Offline)</div>
+        <div class="ibx-sub" style="font-size:11px; color:var(--text3); margin:4px 0 10px;">Teman / client yang scan QR atau buka link ini (setelah login) langsung aktif sesuai jumlah hari, dan tercatat sebagai client kamu.</div>
+        ${ib.status === 'active' ? `<div class="ibx-2"><button class="ibx-btn pri" onclick="window.createDayLink()">${X('plus')}BUAT LINK</button><button class="ibx-btn ghost" onclick="window.ibLoadDayLinks()">🔄 MUAT DAFTAR</button></div>` : ''}
+        <div id="ib-daylink-list" style="margin-top:12px; padding-bottom:12px;"></div>
+        </div>
       </section>
     </div>`);
+    try { window.ibDayLinksDraw(); if (!window.__ibDayLinksLoaded) window.ibLoadDayLinks(); } catch (e) {}
     try { const q = document.getElementById('ib-qr'); if (q && !q.firstChild && typeof QRCode !== 'undefined') { q.innerHTML = ''; const qb = document.createElement('div'); qb.style.cssText = 'background:#ffffff; padding:14px; border-radius:14px; line-height:0;'; q.appendChild(qb); window.__ibQrNode = qb; window.__ibQrLink = link; new QRCode(qb, { text: link, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); } } catch (e) {}
 };
 
@@ -7367,6 +7391,34 @@ window.ibDelAll = async function (k) {
     if (!ids.length) return;
     const r = await ibSwal({ icon: 'warning', title: 'Hapus semua histori ini?', text: ids.length + ' data dihapus dari daftar. Saldo dan total komisi kamu tidak berubah.' + (k === 'w' ? ' Penarikan yang masih diproses tidak ikut dihapus.' : ''), showCancelButton: true, confirmButtonText: 'Ya, hapus semua', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
     if (r.isConfirmed) window.ibHideAdd(k, ids);
+};
+
+window.ibDayLinksDraw = function () {
+    const el = document.getElementById('ib-daylink-list'); if (!el) return;
+    const L = window.__ibDayLinks;
+    if (!L) { el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat link...</div>'; return; }
+    if (!L.length) { el.innerHTML = '<div class="ib-empty">Belum ada link. Tekan BUAT LINK.</div>'; return; }
+    el.innerHTML = L.map(({ id, v }) => {
+        const used = (v.usedCount || 0) >= (v.maxUses || 1);
+        const lb = used ? '● TERPAKAI' : (v.disabled ? '● NONAKTIF' : '● AKTIF');
+        return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${v.linkLifetime ? 'SEUMUR HIDUP' : ibEsc(String(v.linkDays)) + ' HARI'}${v.linkNote ? ' · ' + ibEsc(v.linkNote) : ''}</div><div class="s">Terpakai ${v.usedCount || 0}/${v.maxUses || 1}</div></div><div class="r" style="font-size:11px; font-weight:800;">${lb}</div></div><input type="text" readonly onclick="this.select()" value="${ibEsc(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin:8px 0;"><div class="ibx-2"><button class="ibx-btn pri" onclick="window.copyDayLink('${id}')">📋 SALIN</button><button class="ibx-btn blue" onclick="window.showDayLinkQR('${id}')">📱 QR CODE</button></div><div class="ibx-2" style="margin-top:8px;">${used ? '' : `<button class="ibx-btn ghost" style="color:var(--gold); border-color:var(--gold);" onclick="window.toggleDayLink('${id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>`}<button class="ibx-btn ghost" style="color:var(--red2); border-color:var(--red2);" onclick="window.deleteDayLink('${id}')">🗑️ HAPUS</button></div></div>`;
+    }).join('');
+};
+window.ibLoadDayLinks = async function () {
+    const ib = window.__ib && window.__ib.me; if (!ib || !ib.code) return;
+    window.__ibDayLinksLoaded = true;
+    const el = document.getElementById('ib-daylink-list'); if (el) el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat link...</div>';
+    try {
+        const seen = {}, items = [];
+        const add = snap => snap.forEach(d => { const v = d.data(); if (v.linkDays && !seen[d.id]) { seen[d.id] = 1; items.push({ id: d.id, v: v }); } });
+        add(await getDocs(query(collection(db, 'referralCodes'), where('ibCode', '==', ib.code))));
+        try { if (currentUser && currentUser.email) add(await getDocs(query(collection(db, 'referralCodes'), where('createdBy', '==', currentUser.email)))); } catch (e) {}
+        items.sort((a, b) => ((b.v.createdAt && b.v.createdAt.seconds) || 0) - ((a.v.createdAt && a.v.createdAt.seconds) || 0));
+        window.__ibDayLinks = items; window.ibDayLinksDraw();
+    } catch (e) {
+        window.__ibDayLinksLoaded = false;
+        const el2 = document.getElementById('ib-daylink-list'); if (el2) el2.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>';
+    }
 };
 
 window.ibTab = function (t) {
@@ -7460,24 +7512,49 @@ window.ibTarik = async function () {
 // ---------------- MONITORING IB (sisi admin) ----------------
 window.startAdminIBLive = function () {
     if (window.__adminIBLive || !window.__isAdmin) return; window.__adminIBLive = true;
-    const map = { ibs: 'ibs', ibClients: 'clients', ibCommissions: 'comms', ibWithdrawals: 'wds' }; let t = null;
+    const map = { ibs: 'ibs', ibClients: 'clients', ibCommissions: 'comms', ibWithdrawals: 'wds' }; let t = null; const got = {};
+    if (!window.__adminIB) window.__adminIB = { ibs: [], clients: [], comms: [], wds: [] };
     Object.keys(map).forEach(col => onSnapshot(collection(db, col), s => {
-        if (!window.__adminIB) return;
-        window.__adminIB[map[col]] = s.docs.map(x => Object.assign({ id: x.id }, x.data()));
-        clearTimeout(t); t = setTimeout(() => { const r = document.getElementById('admin-ib-root'); if (r && r.offsetParent !== null) window.drawAdminIB(); }, 200);
-    }, () => { window.__adminIBLive = false; }));
+        window.__adminIB[map[col]] = s.docs.map(x => Object.assign({ id: x.id }, x.data())); got[col] = true;
+        if (!window.__adminIBReady) {
+            if (Object.keys(map).every(k => got[k])) { window.__adminIBReady = true; window.drawAdminIB(); }
+            return;
+        }
+        clearTimeout(t); t = setTimeout(() => { const r = document.getElementById('admin-ib-root'); if (r) window.drawAdminIB(); }, 200);
+    }, (e) => {
+        window.__adminIBLive = false; window.__adminIBReady = false;
+        const el = document.getElementById('admin-ib-root'); if (el) el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>';
+    }));
+};
+window.startAdminLiveSections = function () {
+    if (window.__adminSecLive || !window.__isAdmin) return; window.__adminSecLive = true;
+    const mk = (q, fn) => { let first = true, t = null; onSnapshot(q, () => { if (first) { first = false; return; } clearTimeout(t); t = setTimeout(() => { try { window[fn](true); } catch (e) {} }, 300); }, () => {}); };
+    try { mk(query(collection(db, 'subscriptionRequests'), where('status', '==', 'pending')), 'loadAdminSubscriptionRequests'); } catch (e) {}
+    try { mk(collection(db, 'referralCodes'), 'loadReferralCodes'); } catch (e) {}
+    try { mk(query(collection(db, 'users'), where('subscriptionExpiry', '>', new Date().toISOString())), 'loadActiveSubscribers'); } catch (e) {}
 };
 window.loadAdminIB = async function () {
     if (!window.__isAdmin) return;
     const el = document.getElementById('admin-ib-root'); if (!el) return;
     el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat data IB...</div>';
-    try {
-        const [a, b, c, d] = await Promise.all(['ibs', 'ibClients', 'ibCommissions', 'ibWithdrawals'].map(n => getDocs(collection(db, n))));
-        const map = s => s.docs.map(x => Object.assign({ id: x.id }, x.data()));
-        window.__adminIB = { ibs: map(a), clients: map(b), comms: map(c), wds: map(d) };
-        window.drawAdminIB();
-        window.startAdminIBLive();
-    } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; }
+    const btn = document.querySelector('button[onclick="window.loadAdminIB()"]'), btnTxt = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.style.opacity = '.7'; btn.innerHTML = '⏳ MEMUAT...'; }
+    const doneBtn = () => { if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.innerHTML = btnTxt; } };
+    await new Promise(r => setTimeout(r, 60));
+    if (window.__adminIBReady) {
+        try {
+            const t0 = Date.now();
+            const [a, b, c, d] = await Promise.all(['ibs', 'ibClients', 'ibCommissions', 'ibWithdrawals'].map(n => getDocs(collection(db, n))));
+            const mp = q => q.docs.map(x => Object.assign({ id: x.id }, x.data()));
+            window.__adminIB = { ibs: mp(a), clients: mp(b), comms: mp(c), wds: mp(d) };
+            const w = 500 - (Date.now() - t0); if (w > 0) await new Promise(r => setTimeout(r, w));
+            el.__ibHtml = null; window.drawAdminIB();
+        } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; }
+        doneBtn();
+        return;
+    }
+    window.startAdminIBLive();
+    setTimeout(doneBtn, 800);
 };
 
 window.drawAdminIB = function () {
@@ -9352,6 +9429,7 @@ function unlockApp() {
         if (window.__isAdmin && typeof window.loadAdminSubscriptionRequests === 'function') { window.loadAdminSubscriptionRequests(); }
         if (window.__isAdmin && typeof window.loadReferralCodes === 'function') { window.loadReferralCodes(); }
         if (window.__isAdmin && typeof window.loadActiveSubscribers === 'function') { window.loadActiveSubscribers(); }
+        if (window.__isAdmin && typeof window.startAdminLiveSections === 'function') { window.startAdminLiveSections(); }
         if (typeof window.attachIBReferral === 'function') { window.attachIBReferral(currentUser); }
         if (typeof window.renderIBPage === 'function') { window.renderIBPage(); }
         if (window.__isAdmin && typeof window.loadAdminIB === 'function') { window.loadAdminIB(); }
