@@ -3576,6 +3576,35 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
 
   <div class="card">
     <div class="card-head">
+      <div class="card-title" style="color: var(--gold);">🏷️ Harga Langganan</div>
+      <div class="card-sub">Isi harga sebelum diskon (dicoret) dan harga setelah diskon. Kosongkan harga sebelum diskon kalau tanpa diskon. Persen diskon dihitung otomatis dan langsung berlaku untuk semua user.</div>
+    </div>
+    <div style="margin-bottom:12px;"><div style="font-size:12px; font-weight:800; color:var(--text); margin-bottom:6px;">Mingguan (7 hari)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SEBELUM DISKON</label><input type="text" inputmode="numeric" id="admin-orig-weekly" class="f-input-dark" placeholder="5000" style="margin-top:4px;"></div>
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SETELAH DISKON</label><input type="text" inputmode="numeric" id="admin-price-weekly" class="f-input-dark" placeholder="2500" style="margin-top:4px;"></div>
+      </div></div>
+    <div style="margin-bottom:12px;"><div style="font-size:12px; font-weight:800; color:var(--text); margin-bottom:6px;">Bulanan (30 hari)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SEBELUM DISKON</label><input type="text" inputmode="numeric" id="admin-orig-monthly" class="f-input-dark" placeholder="20000" style="margin-top:4px;"></div>
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SETELAH DISKON</label><input type="text" inputmode="numeric" id="admin-price-monthly" class="f-input-dark" placeholder="10000" style="margin-top:4px;"></div>
+      </div></div>
+    <div style="margin-bottom:12px;"><div style="font-size:12px; font-weight:800; color:var(--text); margin-bottom:6px;">Tahunan (365 hari)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SEBELUM DISKON</label><input type="text" inputmode="numeric" id="admin-orig-yearly" class="f-input-dark" placeholder="198000" style="margin-top:4px;"></div>
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SETELAH DISKON</label><input type="text" inputmode="numeric" id="admin-price-yearly" class="f-input-dark" placeholder="99000" style="margin-top:4px;"></div>
+      </div></div>
+    <div style="margin-bottom:12px;"><div style="font-size:12px; font-weight:800; color:var(--text); margin-bottom:6px;">Custom (harga per hari)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SEBELUM DISKON / HARI</label><input type="text" inputmode="numeric" id="admin-orig-custom" class="f-input-dark" placeholder="700" style="margin-top:4px;"></div>
+        <div><label style="font-size:10px; font-weight:800; color:var(--text3); letter-spacing:.6px;">SETELAH DISKON / HARI</label><input type="text" inputmode="numeric" id="admin-price-custom" class="f-input-dark" placeholder="350" style="margin-top:4px;"></div>
+      </div></div>
+    <div id="admin-price-msg" style="font-size:11px; color:var(--gold); margin-top:8px;"></div>
+    <button class="export-btn" onclick="window.simpanHargaLangganan()" style="background:var(--gold); color:#000; margin-top:8px;">💾 SIMPAN HARGA</button>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
       <div class="card-title" style="color: var(--gold);">📲 File Aplikasi (APK)</div>
       <div class="card-sub">Upload APK ke Google Drive / GitHub Releases / hosting lain (gratis), lalu tempel link downloadnya di sini. Orang yang membuka link IB akan melihat tombol download aplikasi.</div>
     </div>
@@ -5104,7 +5133,7 @@ window.hitungCustomHari = function() {
     window.SUBS_PLANS.custom = { label: 'Custom ' + d + ' Hari', amount: amt, days: d, note: 'PAKET CUSTOM ' + d + ' HARI' };
     const pe = document.getElementById('subs-custom-price'), oe = document.getElementById('subs-custom-orig');
     if (pe) pe.textContent = fmtRupiah(amt);
-    if (oe) oe.textContent = fmtRupiah(d * window.CUSTOM_ORIG_PER_DAY);
+    if (oe) { oe.textContent = fmtRupiah(d * window.CUSTOM_ORIG_PER_DAY); oe.style.display = window.CUSTOM_ORIG_PER_DAY > window.CUSTOM_PRICE_PER_DAY ? '' : 'none'; }
     if (window.__subsSelectedPlan === 'custom') {
         const btn = document.getElementById('subs-lanjut-btn');
         if (btn) { btn.disabled = d < 1; btn.textContent = d < 1 ? 'ISI JUMLAH HARI' : 'LANJUT BAYAR ' + fmtRupiah(amt); }
@@ -6465,6 +6494,62 @@ window.uploadApkAdmin = async function () {
     btn.disabled = false;
 };
 setTimeout(() => { try { window.loadApkAdminInfo(); } catch (e) {} }, 2000);
+
+// ---- HARGA LANGGANAN: diatur admin (appConfig/prices), berlaku live untuk semua user ----
+window.applyPrices = function (d) {
+    if (!d) return;
+    const n = v => { v = Math.round(Number(v)); return v > 0 ? v : 0; };
+    const P = window.SUBS_PLANS, days = { weekly: 7, monthly: 30, yearly: 365 };
+    const cur = { weekly: n(d.weekly), monthly: n(d.monthly), yearly: n(d.yearly), custom: n(d.customPerDay) };
+    const org = {}; ['weekly', 'monthly', 'yearly'].forEach(k => { org[k] = d[k + 'Orig'] === undefined ? cur[k] * 2 : n(d[k + 'Orig']); });
+    org.custom = d.customOrigPerDay === undefined ? cur.custom * 2 : n(d.customOrigPerDay);
+    ['weekly', 'monthly', 'yearly'].forEach(k => { if (cur[k]) P[k].amount = cur[k]; });
+    if (cur.custom) { window.CUSTOM_PRICE_PER_DAY = cur.custom; window.CUSTOM_ORIG_PER_DAY = org.custom > cur.custom ? org.custom : cur.custom; }
+    const pct = k => (org[k] > cur[k] && cur[k]) ? Math.round((1 - cur[k] / org[k]) * 100) : 0;
+    ['weekly', 'monthly', 'yearly'].forEach(k => {
+        const card = document.querySelector('.subs-plan-card[data-plan="' + k + '"]'); if (!card || !cur[k]) return;
+        const pr = card.querySelector('.sp-price'), o = pr && pr.previousElementSibling, ds = card.querySelector('.sp-desc'), pc = pct(k);
+        if (pr) pr.textContent = fmtRupiah(cur[k]);
+        if (o) { o.textContent = pc ? fmtRupiah(org[k]) : ''; o.style.display = pc ? '' : 'none'; }
+        if (ds) ds.textContent = 'Aktif ' + days[k] + ' hari' + (pc ? ' • Diskon ' + pc + '%' : '');
+    });
+    const cd = document.querySelector('.subs-plan-card[data-plan="custom"] .sp-desc'), cp = pct('custom');
+    if (cd && cur.custom) cd.textContent = 'Pilih sendiri jumlah hari • ' + fmtRupiah(cur.custom) + '/hari' + (cp ? ' (diskon ' + cp + '%)' : '');
+    try { window.hitungCustomHari(); } catch (e) {}
+    const sel = window.__subsSelectedPlan, btn = document.getElementById('subs-lanjut-btn');
+    if (sel && sel !== 'custom' && btn && P[sel]) btn.textContent = 'LANJUT BAYAR ' + fmtRupiah(P[sel].amount);
+    ['weekly', 'monthly', 'yearly', 'custom'].forEach(k => {
+        const i = document.getElementById('admin-price-' + k), o = document.getElementById('admin-orig-' + k);
+        if (i && cur[k] && document.activeElement !== i) i.value = cur[k];
+        if (o && document.activeElement !== o) o.value = org[k] > cur[k] ? org[k] : '';
+    });
+    try { localStorage.setItem('rhn_prices', JSON.stringify(d)); } catch (e) {}
+};
+window.simpanHargaLangganan = async function () {
+    if (!window.__isAdmin) return;
+    const g = id => { const e = document.getElementById(id); return e ? Math.round(Number(String(e.value).replace(/\D/g, ''))) : 0; };
+    const w = g('admin-price-weekly'), m = g('admin-price-monthly'), y = g('admin-price-yearly'), c = g('admin-price-custom');
+    const wo = g('admin-orig-weekly'), mo = g('admin-orig-monthly'), yo = g('admin-orig-yearly'), co = g('admin-orig-custom'), msg = document.getElementById('admin-price-msg');
+    if (w < 100 || m < 100 || y < 100 || c < 10) { if (msg) msg.textContent = 'Isi semua harga setelah diskon dengan benar (paket min Rp100, custom min Rp10 per hari).'; return; }
+    if ((wo && wo <= w) || (mo && mo <= m) || (yo && yo <= y) || (co && co <= c)) { if (msg) msg.textContent = 'Harga sebelum diskon harus lebih besar dari harga setelah diskon (kosongkan jika tanpa diskon).'; return; }
+    if (msg) msg.textContent = 'Menyimpan...';
+    const data = { weekly: w, monthly: m, yearly: y, customPerDay: c, weeklyOrig: wo, monthlyOrig: mo, yearlyOrig: yo, customOrigPerDay: co };
+    try {
+        await setDoc(doc(db, 'appConfig', 'prices'), Object.assign({ updatedAt: new Date().toISOString() }, data), { merge: true });
+        window.applyPrices(data);
+        if (msg) msg.textContent = '';
+        window.showSaveSuccess('Harga Tersimpan', 1200, 'Berlaku langsung untuk semua user.');
+    } catch (e) { if (msg) msg.textContent = 'Gagal menyimpan: ' + (e.message || ''); }
+};
+(function () {
+    try { const c = JSON.parse(localStorage.getItem('rhn_prices') || 'null'); if (c) setTimeout(() => window.applyPrices(c), 0); } catch (e) {}
+    let on = false;
+    setInterval(() => {
+        if (on || !currentUser) return; on = true;
+        try { onSnapshot(doc(db, 'appConfig', 'prices'), sn => { if (sn.exists()) window.applyPrices(sn.data()); }, () => { setTimeout(() => { on = false; }, 30000); }); } catch (e) { on = false; }
+    }, 1500);
+})();
+
 
 // Banner download aplikasi untuk orang yang membuka link IB (?ib=KODE)
 (function () {
