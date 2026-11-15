@@ -1081,11 +1081,12 @@ body.global-privacy #xau-idr-gr {
 .swal2-container .swal2-popup.swal2-loading .swal2-actions::after{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238696a0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='10.5' width='15' height='10' rx='2.2'/%3E%3Cpath d='M8 10.5V7.5a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") "  Terenkripsi secara end-to-end";flex:0 0 100%;text-align:center;font-size:10.5px;font-weight:500;line-height:14px;color:#8696a0;margin-top:0}
 #subscribe-screen .subs-pending-box .sp-spin{margin:0 auto 16px!important}
 .splash-line-loader{margin:32px auto 0!important}
-.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before,.splash-line-loader::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:99px;background:#1fa855;transform:translate3d(-100%,0,0);will-change:transform;animation:rhnWaFill 20s linear 0s both}
+.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before,.splash-line-loader::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:99px;background:#1fa855;transform:translate3d(-100%,0,0);will-change:transform;animation:rhnSplashFill 2.2s cubic-bezier(.45,.05,.25,1) 0s both}
 .swal2-container .swal2-popup .swal2-loader.rhn-fin{display:block!important}
 .rhn-fin::before{animation:none!important;transform:translate3d(var(--t,0px),0,0)!important;transition:transform var(--fd,.4s) cubic-bezier(.4,.1,.2,1)!important}
 .swal2-container .swal2-popup.swal2-hide:has(.rhn-q),.swal2-container.swal2-backdrop-hide:has(.rhn-q){animation-delay:calc(var(--fd,.4s) + .14s)!important}
-@keyframes rhnWaFill{0%{transform:translate3d(-100%,0,0);animation-timing-function:cubic-bezier(.2,.6,.3,1)}6%{transform:translate3d(-45%,0,0);animation-timing-function:cubic-bezier(.3,.5,.5,1)}25%{transform:translate3d(-15%,0,0);animation-timing-function:linear}100%{transform:translate3d(-3%,0,0)}}
+.rhn-enc{display:block;text-align:center;font-size:10.5px;font-weight:500;line-height:14px;color:#8696a0;margin:-6px auto 12px}
+.rhn-enc::before{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238696a0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='10.5' width='15' height='10' rx='2.2'/%3E%3Cpath d='M8 10.5V7.5a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");margin-right:5px;vertical-align:-1px}
 .splash-line-loader::before{animation:rhnSplashFill 2.2s cubic-bezier(.45,.05,.25,1) 0s both}
 @keyframes rhnSplashFill{from{transform:translate3d(-100%,0,0)}to{transform:translate3d(0,0,0)}}
 .rhn-js.rhn-js::before{animation:none!important;transition:none!important;transform:translate3d(calc((var(--p,0) - 1) * 100%),0,0)!important}
@@ -1094,6 +1095,8 @@ body.global-privacy #xau-idr-gr {
 .swal2-popup{background:var(--card);border:1px solid var(--border2,rgba(255,255,255,.08))!important;border-radius:22px!important;box-shadow:0 20px 50px rgba(0,0,0,.45)!important;padding:26px 28px 24px!important;font-family:inherit}
 .swal2-popup.swal2-icon-show{width:min(360px,92vw)!important}
 .swal2-popup .swal2-icon{font-size:12.8px;margin:0 auto 14px!important}
+.swal2-popup .swal2-icon.swal2-question{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+.swal2-popup .swal2-icon.swal2-question .swal2-icon-content{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;line-height:1!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important}
 .swal2-popup .swal2-title{font-size:17px!important;font-weight:700!important;letter-spacing:.2px;padding:0!important;margin:0 0 6px!important;color:var(--text)}
 .swal2-popup.swal2-icon-show .swal2-html-container{font-size:13px!important;line-height:1.5;margin:6px 0 0!important;opacity:.85}
 .swal2-popup .swal2-actions{margin-top:18px!important;gap:8px}
@@ -1200,7 +1203,14 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
     var V0 = 1.1, FD = .4, S = window.Swal, gate = null;
     var SEL = '.swal2-popup.swal2-loading .swal2-loader, .swal2-popup .rhn-ld', ALL = '.swal2-popup .swal2-loader, .swal2-popup .rhn-ld';
     var ST = new WeakMap(), items = [], raf = 0;
+    function bz(u) {
+      if (u <= 0) return 0; if (u >= 1) return 1;
+      var lo = 0, hi = 1, t = u, x;
+      for (var i = 0; i < 24; i++) { t = (lo + hi) / 2; x = 3 * .45 * t * (1 - t) * (1 - t) + 3 * .25 * t * t * (1 - t) + t * t * t; if (x < u) lo = t; else hi = t; }
+      return 3 * .05 * t * (1 - t) * (1 - t) + 3 * t * t * (1 - t) + t * t * t;
+    }
     function step(s, dt) {
+      if (s.mode !== 'fin') { var q = s.p; s.e = (s.e || 0) + dt; s.p = bz(Math.min(1, s.e / 2.2)); s.v = dt > 0 ? (s.p - q) / dt : 0; return; }
       var fin = s.mode === 'fin', w = fin ? 11 : 1.6, tg = fin ? 1 : .92, n = Math.ceil(dt / .008), h = dt / n;
       for (var i = 0; i < n; i++) { s.v += (w * w * (tg - s.p) - 2 * w * s.v) * h; s.p += s.v * h; }
       if (s.p > 1) { s.p = 1; if (s.v > 0) s.v = 0; }
@@ -1218,7 +1228,7 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
         var el = items[i];
         if (!el.isConnected) { items.splice(i, 1); continue; }
         var s = ST.get(el);
-        if (!el.offsetWidth) { if (s.mode !== 'fin') { s.p = 0; s.v = V0; } s.t = now; continue; }
+        if (!el.offsetWidth) { if (s.mode !== 'fin') { s.p = 0; s.v = V0; s.e = 0; } s.t = now; continue; }
         adv(s, now);
         el.style.setProperty('--p', s.p.toFixed(4));
       }
@@ -1226,7 +1236,7 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
     }
     function track(ld) {
       var s = ST.get(ld);
-      if (!s) { s = { p: 0, v: V0, mode: 'load' }; ST.set(ld, s); items.push(ld); ld.classList.add('rhn-js'); ld.style.setProperty('--p', '0'); }
+      if (!s) { s = { p: 0, v: V0, e: 0, mode: 'load' }; ST.set(ld, s); items.push(ld); ld.classList.add('rhn-js'); ld.style.setProperty('--p', '0'); }
       if (!raf) raf = requestAnimationFrame(frame);
       return s;
     }
@@ -1252,7 +1262,7 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
     }
     function reset(ld) {
       ld.classList.remove('rhn-fin', 'rhn-q');
-      var s = ST.get(ld); if (s) { s.mode = 'load'; s.p = 0; s.v = V0; ld.style.setProperty('--p', '0'); }
+      var s = ST.get(ld); if (s) { s.mode = 'load'; s.p = 0; s.v = V0; s.e = 0; ld.style.setProperty('--p', '0'); }
     }
     function resetAll() { Array.prototype.forEach.call(document.querySelectorAll('.swal2-popup:not(.swal2-hide) .rhn-fin'), reset); }
     function run(fn, n) {
@@ -1290,6 +1300,30 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
         for (var i = 0; i < l.length; i++) { if (!ST.has(l[i])) track(l[i]); }
       }).observe(document.documentElement, { subtree: true, childList: true });
     } catch (e) {}
+  })();
+
+  // Keterangan "Terenkripsi" di bawah semua loading line (kecuali animasi splash awal)
+  (function(){
+    var SELC = '.rhn-ld, .sp-spin', q = [], sched = false;
+    function mark(el) {
+      var n = el.nextElementSibling;
+      if (n && n.classList.contains('rhn-enc')) return;
+      var c = document.createElement('span'); c.className = 'rhn-enc'; c.textContent = 'Terenkripsi secara end-to-end';
+      el.parentNode.insertBefore(c, el.nextSibling);
+    }
+    function scan(n) {
+      if (n.nodeType !== 1) return;
+      if (n.matches(SELC)) mark(n);
+      var l = n.querySelectorAll(SELC); for (var i = 0; i < l.length; i++) mark(l[i]);
+    }
+    function flush() { sched = false; var a = q; q = []; for (var i = 0; i < a.length; i++) { if (a[i].isConnected) scan(a[i]); } }
+    try {
+      new MutationObserver(function(ms){
+        for (var i = 0; i < ms.length; i++) { for (var j = 0; j < ms[i].addedNodes.length; j++) q.push(ms[i].addedNodes[j]); }
+        if (q.length && !sched) { sched = true; requestAnimationFrame(flush); }
+      }).observe(document.documentElement, { childList: true, subtree: true });
+    } catch (e) {}
+    document.addEventListener('DOMContentLoaded', function(){ scan(document.documentElement); });
   })();
 
   window.addEventListener('DOMContentLoaded', function() {
@@ -4510,6 +4544,32 @@ async function registerDeviceSession(user, _retryCount) {
             }
         });
 
+        // Akun dihapus (oleh IB / admin): langsung keluar tanpa menunggu
+        window.__removedKick = false;
+        if (window.__goneUnsubs) window.__goneUnsubs.forEach(u => { try { u(); } catch (e) {} });
+        window.__goneUnsubs = [];
+        const kickRemoved = async () => {
+            if (window.__removedKick || window.__selfDelAcc) return;
+            window.__removedKick = true;
+            try { clearInterval(window.__deviceHeartbeat); } catch (e) {}
+            window.__goneUnsubs.forEach(u => { try { u(); } catch (e) {} }); window.__goneUnsubs = [];
+            if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
+            localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn'); localStorage.removeItem('rhn_tx_backup_' + user.uid);
+            window.appUnlocked = false; window.userCloudPin = null;
+            try { await signOut(auth); } catch (e) {}
+            forceResetToAuthScreen();
+            Swal.fire({ icon: 'warning', title: 'Akun Dihapus', text: 'Akun ini telah dihapus. Kamu sudah keluar dari aplikasi.', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+        };
+        const watchGone = (ref, flagged, kickOnGone) => {
+            let seen = false;
+            window.__goneUnsubs.push(onSnapshot(ref, snap => {
+                if (snap.exists()) { seen = true; if (flagged(snap.data())) kickRemoved(); return; }
+                if (kickOnGone && seen && !snap.metadata.fromCache) kickRemoved();
+            }, () => {}));
+        };
+        watchGone(doc(db, 'ibClients', user.uid), d => !!d && d.removedByIb === true, false);
+        watchGone(doc(db, 'users', user.uid), () => false, true);
+
         // Heartbeat: perbarui "lastActive" secara berkala selagi aplikasi terbuka,
         // supaya status perangkat benar-benar real-time (bukan cuma pas login doang)
         if (window.__deviceHeartbeat) clearInterval(window.__deviceHeartbeat);
@@ -7377,23 +7437,25 @@ window.daftarJadiIB = async function () {
             + '<div class="ib-wd-lbl">Pilih Bank / E-Wallet</div>' + window.ibBankPicker('ibf-bank', '') + window.ibBankSelBox('ibf-bank', '')
             + inp('ibf-no', 'No. Rekening / HP E-Wallet')
             + inp('ibf-an', 'Atas Nama Rekening')
+            + inp('ibf-kode', 'Kode IB sesuai keinginanmu (4-12 huruf/angka, kosongkan = acak)', '', 'maxlength="12" autocapitalize="characters" style="text-transform:uppercase;"')
             + '<textarea id="ibf-promo" class="swal2-textarea" placeholder="Rencana promosi (grup WhatsApp, TikTok, komunitas trading, dll)"></textarea>',
         showCancelButton: true, confirmButtonText: 'KIRIM PENDAFTARAN', focusConfirm: false,
-        preConfirm: () => {
+        preConfirm: async () => {
             const v = id => (document.getElementById(id).value || '').trim();
-            const d = { nama: v('ibf-nama'), wa: v('ibf-wa'), bank: v('ibf-bank'), accountNo: v('ibf-no'), accountName: v('ibf-an'), promo: v('ibf-promo') };
+            const d = { nama: v('ibf-nama'), wa: v('ibf-wa'), bank: v('ibf-bank'), accountNo: v('ibf-no'), accountName: v('ibf-an'), promo: v('ibf-promo'), kode: v('ibf-kode').toUpperCase() };
             if (d.bank && !window.ibFindBank(d.bank)) return Swal.showValidationMessage('Pilih bank / e-wallet dari daftar');
             if (!d.nama || !d.wa || !d.bank || !d.accountNo || !d.accountName) return Swal.showValidationMessage('Lengkapi semua data wajib (nama, WhatsApp, rekening)');
             if (d.wa.replace(/\D/g, '').length < 9) return Swal.showValidationMessage('No. WhatsApp tidak valid');
             if (!d.promo) return Swal.showValidationMessage('Isi rencana promosi kamu');
+            const ce = await window.ibCodeCheck(d.kode); if (ce) return Swal.showValidationMessage(ce);
             return d;
         }
     });
     if (!r.isConfirmed || !r.value) return;
     try {
         const f = r.value;
-        let code = '', tries = 0;
-        while (tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
+        let code = f.kode || '', tries = 0;
+        while (!code && tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
         const data = { code, uid: currentUser.uid, email: currentUser.email || '', nama: f.nama, rate: window.IB_DEFAULT_RATE, status: 'pending', createdAt: new Date().toISOString(), payout: { bank: f.bank, accountNo: f.accountNo, accountName: f.accountName }, application: { nama: f.nama, wa: f.wa, promo: f.promo } };
         await setDoc(doc(db, 'ibs', code), data);
         window.__myIB = data;
@@ -7451,7 +7513,7 @@ window.drawIB = function () {
     const delBtn = (k, id) => '<button class="ibx-del" title="Hapus histori ini" onclick="window.ibDel(\'' + k + '\',\'' + ibEsc(id) + '\')">' + X('x') + 'Hapus</button>';
     const delAll = (k, n) => n ? '<div class="ibx-delall"><button class="ibx-del" onclick="window.ibDelAll(\'' + k + '\')">' + X('x') + 'Hapus Semua (' + n + ')</button></div>' : '';
     const emp = (ic, tx) => '<div class="ibx-empty"><div class="ibx-ico">' + X(ic) + '</div>' + tx + '</div>';
-    const cRows = clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ibx-it"><div class="ibx-av">${ini(c.nama)}</div><div class="ibx-mn"><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="ibx-sd">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div>${delBtn('c', c.id)}</div></div>`; }).join('') : emp('users', 'Belum ada client. Bagikan link kamu!');
+    const cRows = clients.length ? clients.slice(0, 100).map(c => { const act = c.activeUntil && new Date(c.activeUntil).getTime() > now; return `<div class="ibx-it"><div class="ibx-av">${ini(c.nama)}</div><div class="ibx-mn"><div class="t">${ibEsc(c.nama || '-')}</div><div class="s">${ibEsc(ibMask(c.email))} • Daftar ${ibDay(c.joinedAt)}<br>${c.activeUntil ? 'Aktif sampai ' + ibDay(c.activeUntil) : 'Belum berlangganan'}</div></div><div class="ibx-sd">${act ? '<span class="ib-pill ok">AKTIF</span>' : '<span class="ib-pill wait">BELUM AKTIF</span>'}<div class="s">Total bayar ${ibRp(c.totalPaid)}</div>${delBtn('c', c.id)}<button class="ibx-del" style="margin-top:4px;" title="Hapus user ini dan keluarkan dari aplikasi" onclick="window.ibDeleteUser('${ibEsc(c.id)}')">${X('x')}Hapus User</button></div></div>`; }).join('') : emp('users', 'Belum ada client. Bagikan link kamu!');
     const mRows = comms.length ? comms.slice(0, 100).map(c => `<div class="ibx-it"><div class="ibx-av g">${X('plus')}</div><div class="ibx-mn"><div class="t">${ibEsc(c.clientNama || '-')} • Paket ${ibEsc(c.planLabel || c.plan)}</div><div class="s">${ibDate(c.createdAt)} • ${ibRp(c.amount)} × ${c.rate}%</div></div><div class="ibx-sd"><span class="amt">+${ibRp(c.commission)}</span>${delBtn('m', c.id)}</div></div>`).join('') : emp('coin', 'Belum ada komisi masuk.');
     const wRows = wds.length ? wds.slice(0, 100).map(w => `<div class="ibx-it"><div class="ibx-av b">${X('out')}</div><div class="ibx-mn"><div class="t">${ibRp(w.amount)} → ${ibEsc(w.bank)}</div><div class="s">${w.fee ? 'Biaya ' + ibRp(w.fee) + ' • Diterima ' + ibRp(w.netAmount) + '<br>' : ''}${ibDate(w.createdAt)}${w.status === 'pending' ? '<br>Estimasi cair: ' + ibDay(w.estimatedAt) : ''}${w.status === 'paid' ? '<br>Dibayar: ' + ibDate(w.paidAt) + (w.note ? '<br><span style="color:var(--green2);">📝 Keterangan: ' + ibEsc(w.note) + '</span>' : '') : ''}${w.status === 'rejected' ? '<br><span style="color:var(--red2);">❌ Alasan ditolak: ' + ibEsc(w.note || '-') + '</span>' : ''}</div></div><div class="ibx-sd">${pill(w.status)}${w.status === 'pending' ? '' : delBtn('w', w.id)}</div></div>`).join('') : emp('inbox', 'Belum ada penarikan.');
     window.ibSetHtml(el, `
@@ -7562,15 +7624,21 @@ window.ibUseCode = function (code) {
     const el = document.getElementById('ib-root'); if (el) el.__ibHtml = null;
     window.renderIBPage();
 };
+window.ibCodeCheck = async function (v) {
+    v = String(v || '').trim().toUpperCase(); if (!v) return '';
+    if (!/^[A-Z0-9]{4,12}$/.test(v)) return 'Kode harus 4-12 karakter, hanya huruf dan angka';
+    try { if ((await getDoc(doc(db, 'ibs', v))).exists()) return 'Kode sudah dipakai, pilih yang lain'; } catch (e) { return 'Gagal memeriksa kode: ' + e.message; }
+    return '';
+};
 window.ibCreateCode = async function () {
     const me = window.__ib.me; if (!me || me.status !== 'active' || !currentUser) return;
     if ((window.__ib.codes || []).length >= 10) return ibSwal({ icon: 'info', title: 'Maksimal 10 kode IB' });
     if ((window.__ib.codes || []).some(x => x.status === 'pending')) return ibSwal({ icon: 'info', title: 'Masih menunggu admin', text: 'Pengajuan IB baru sebelumnya belum disetujui admin.' });
-    const r = await ibSwal({ icon: 'question', title: 'Buat IB baru?', text: 'Kode baru harus disetujui admin dulu sebelum aktif. Komisi ' + me.rate + '%, mulai dari nol (komisi, client, penarikan terpisah dari kode lain).', showCancelButton: true, confirmButtonText: 'BUAT' });
+    const r = await ibSwal({ icon: 'question', title: 'Buat IB baru?', text: 'Kode baru harus disetujui admin dulu sebelum aktif. Komisi ' + me.rate + '%, mulai dari nol (komisi, client, penarikan terpisah dari kode lain).', showCancelButton: true, confirmButtonText: 'BUAT', input: 'text', inputPlaceholder: 'Kode sesuai keinginanmu (kosongkan = acak)', inputAttributes: { maxlength: 12, autocapitalize: 'characters' }, inputValidator: async v => (await window.ibCodeCheck(v)) || undefined });
     if (!r.isConfirmed) return;
     try {
-        let code = '', tries = 0;
-        while (tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
+        let code = String(r.value || '').trim().toUpperCase(), tries = 0;
+        while (!code && tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
         const now = new Date().toISOString();
         const data = { code, uid: me.uid, email: me.email || '', nama: me.nama, rate: me.rate, status: 'pending', createdAt: now, payout: me.payout || {}, application: me.application || {} };
         await setDoc(doc(db, 'ibs', code), data);
@@ -7911,6 +7979,27 @@ window.adminIBDeleteClient = async function (clientUid, code) {
         window.__adminIB.clients = window.__adminIB.clients.filter(c => c.id !== clientUid);
         window.drawAdminIB(); window.adminIBDetail(code);
     } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus', text: e.message }); }
+};
+
+window.ibDeleteUser = async function (clientUid) {
+    if (!currentUser || !clientUid || clientUid === currentUser.uid) return;
+    const cl = (window.__ib.clients || []).find(x => x.id === clientUid);
+    if (!cl || cl.ibUid !== currentUser.uid) return;
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus user ini?', html: 'Akun <b>' + ibEsc(cl.nama || '-') + '</b> dihapus permanen beserta seluruh datanya dan <b>langsung keluar (logout)</b> dari aplikasi. Tidak bisa dibatalkan.', showCancelButton: true, confirmButtonText: 'HAPUS USER', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    ibSwal({ title: 'Menghapus User...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    const safe = async fn => { try { await fn(); } catch (e) { console.warn('Hapus user (sebagian):', e); } };
+    try {
+        await safe(() => updateDoc(doc(db, 'ibClients', clientUid), { removedByIb: true, removedAt: serverTimestamp() }));
+        for (const sc of ['transactions', 'recurring_txs', 'devices', 'link_requests', 'linked_accounts', 'backups', 'settings']) {
+            await safe(() => deleteCollectionInChunks(collection(db, 'users', clientUid, sc)));
+        }
+        await safe(() => deleteDoc(doc(db, 'users', clientUid)));
+        await deleteDoc(doc(db, 'ibClients', clientUid));
+        window.__ib.clients = window.__ib.clients.filter(c => c.id !== clientUid);
+        window.drawIB();
+        window.showSaveSuccess('User Terhapus', 1200);
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus User', text: e.message }); }
 };
 
 function ibLocalHide(col, id, fld) {
@@ -12025,6 +12114,7 @@ window.deleteMyAccount = async function () {
         return Swal.fire({ ...sw, icon: 'error', title: 'Verifikasi Gagal', text: (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Sandi salah.' : (e.message || 'Gagal verifikasi ulang.') });
     }
     const safe = async (fn) => { try { await fn(); } catch (e) { console.warn('Hapus akun (sebagian):', e); } };
+    window.__selfDelAcc = true;
     try {
         for (const sc of ['transactions', 'recurring_txs', 'devices', 'link_requests', 'linked_accounts', 'backups', 'settings']) {
             await safe(() => deleteCollectionInChunks(collection(db, 'users', uid, sc)));
@@ -12034,6 +12124,7 @@ window.deleteMyAccount = async function () {
         await deleteDoc(doc(db, 'users', uid));
         await deleteUser(user);
     } catch (e) {
+        window.__selfDelAcc = false;
         return Swal.fire({ ...sw, icon: 'error', title: 'Gagal Menghapus Akun', text: (e.message || 'Terjadi kesalahan.') + ' Hubungi admin lewat kanal support bila berulang.' });
     }
     try { Object.keys(localStorage).forEach(k => { if (/rhn|offline|cred|pin|last_uid/i.test(k)) localStorage.removeItem(k); }); } catch (e) {}
@@ -17812,6 +17903,8 @@ if ('serviceWorker' in navigator) {
 
   window.rhnBioUnlock = async function(manual){
     var u = uid(), id = u && localStorage.getItem(K(u)); if (!id || window.appUnlocked) return;
+    if (!manual && !inVerify()) return;
+    if (!manual && !(localStorage.getItem('local_pin_rhn') || window.userCloudPin)) { if ((window.__bioWait = (window.__bioWait || 0) + 1) < 20) setTimeout(function(){ window.rhnBioUnlock(false); }, 250); return; }
     if (window.__bioBusy) return; window.__bioBusy = true;
     try {
       var o = { challenge: rnd(32), allowCredentials: [{ type:'public-key', id: unb64(id), transports:['internal'] }], userVerification:'required', timeout:60000 };
@@ -17834,11 +17927,11 @@ if ('serviceWorker' in navigator) {
     var was = ps.style.display !== 'none';
     new MutationObserver(function(){
       var now = ps.style.display !== 'none';
-      if (now && !was) { setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.rhnBioUnlock(false); }, 700); }
+      if (now && !was) { setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.__bioWait = 0; window.rhnBioUnlock(false); }, 0); }
       else refresh();
       was = now;
     }).observe(ps, { attributes:true, attributeFilter:['style'] });
-    if (was) setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.rhnBioUnlock(false); }, 1200);
+    if (was) setTimeout(function(){ refresh(); if (enabled() && inVerify() && !document.querySelector('.swal2-container')) window.rhnBioUnlock(false); }, 0);
 
     // tawaran sekali setelah berhasil masuk
     var app = document.getElementById('app-screen');
