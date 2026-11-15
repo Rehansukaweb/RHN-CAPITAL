@@ -1500,7 +1500,7 @@ body.light-mode #page-ib .ib-pill.wait { color: #B45309; } body.light-mode #page
   #page-ib .ibx-bal-side { width: 260px; flex-shrink: 0; }
   #page-ib .ibx-big { font-size: 34px; }
   #page-ib .ibx-met { flex-direction: row; padding: 6px 0; }
-  #page-ib .ibx-m { flex: 1; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; padding: 16px 20px; border-bottom: none; border-right: 1px solid var(--ix-line); min-width: 0; }
+  #page-ib .ibx-m { flex: 1; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; padding: 16px 14px; border-bottom: none; border-right: 1px solid var(--ix-line); min-width: 0; }
   #page-ib .ibx-m:last-child { border-right: none; }
   #page-ib .ibx-m .v { text-align: left; font-size: 15px; }
   #page-ib .ibx-list { padding: 18px 24px 8px; }
@@ -5791,22 +5791,22 @@ window.createDayLink = async function() {
 };
 
 window.loadDayLinks = async function() {
-    if (!window.__isAdmin) { if (typeof window.ibLoadDayLinks === 'function') window.ibLoadDayLinks(); return; }
+    if (!window.__isAdmin) { if (window.__ibDlUnsubs && window.__ibDlUnsubs.length) return; if (typeof window.ibLoadDayLinks === 'function') window.ibLoadDayLinks(); return; }
     const listEl = document.getElementById('admin-daylink-list');
     if (!listEl || !window.__isAdmin) return;
-    listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat link...</div>';
+    if (!listEl.firstElementChild) listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;"><i class=rhn-ld></i>Memuat link...</div>';
     try {
         const snap = await getDocs(collection(db, 'referralCodes'));
         const items = [];
         snap.forEach(d => { const v = d.data(); if (v.linkDays) items.push({ id: d.id, v: v }); });
-        if (!items.length) { listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada link. Buat satu dulu.</div>'; return; }
+        if (!items.length) { listEl.__dlHtml = null; listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text3); font-size:11px;">Belum ada link. Buat satu dulu.</div>'; return; }
         items.sort((a, b) => ((b.v.createdAt && b.v.createdAt.seconds) || 0) - ((a.v.createdAt && a.v.createdAt.seconds) || 0));
         const nmMap = {};
         try {
             const uids = [...new Set(items.flatMap(({ v }) => Array.isArray(v.usedBy) ? v.usedBy : []))];
             await Promise.all(uids.map(async u => { try { const us = await getDoc(doc(db, 'users', u)); if (us.exists()) nmMap[u] = us.data().nama || us.data().email || u; } catch (e) {} }));
         } catch (e) {}
-        listEl.innerHTML = items.map(({ id, v }) => {
+        const dlHtml = items.map(({ id, v }) => {
             const used = (v.usedCount || 0) >= (v.maxUses || 1);
             const pill = used ? 'expired' : (v.disabled ? 'expired' : 'active');
             const label = used ? '● TERPAKAI' : (v.disabled ? '● NONAKTIF' : '● AKTIF');
@@ -5826,6 +5826,7 @@ window.loadDayLinks = async function() {
                 </div>
               </div>`;
         }).join('');
+        if (listEl.__dlHtml !== dlHtml) { const ae = document.activeElement; if (!(ae && listEl.contains(ae) && !ae.readOnly)) { listEl.__dlHtml = dlHtml; listEl.innerHTML = dlHtml; } }
     } catch (e) {
         listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--red2); font-size:11px;">Gagal memuat: ' + escapeHTML(e.message) + '</div>';
     }
@@ -5926,8 +5927,11 @@ window.copyDayLink = async function(code) {
 };
 
 window.toggleDayLink = async function(code, currentlyDisabled) {
-    try { await updateDoc(doc(db, 'referralCodes', code), { disabled: !currentlyDisabled }); window.loadDayLinks(); }
-    catch (e) { Swal.fire({ icon: 'error', title: 'Gagal Mengubah', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+    const to = !currentlyDisabled, L = window.__ibDayLinks, it = L && L.find(x => x.id === code);
+    if (it) { it.v.disabled = to; window.ibDayLinksDraw(); }
+    window.showSaveSuccess(to ? 'Link Dinonaktifkan' : 'Link Diaktifkan', 900);
+    try { await updateDoc(doc(db, 'referralCodes', code), { disabled: to }); window.loadDayLinks(); }
+    catch (e) { if (it) { it.v.disabled = currentlyDisabled; window.ibDayLinksDraw(); } window.loadDayLinks(); Swal.fire({ icon: 'error', title: 'Gagal Mengubah', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
 };
 
 window.deleteDayLink = async function(code) {
@@ -5937,8 +5941,11 @@ window.deleteDayLink = async function(code) {
         background: 'var(--card)', color: 'var(--text)'
     });
     if (!result.isConfirmed) return;
+    const L = window.__ibDayLinks; window.__ibDlGone = window.__ibDlGone || {}; window.__ibDlGone[code] = 1;
+    if (L) { window.__ibDayLinks = L.filter(x => x.id !== code); window.ibDayLinksDraw(); }
+    window.showSaveSuccess('Link Dihapus', 900);
     try { await deleteDoc(doc(db, 'referralCodes', code)); window.loadDayLinks(); }
-    catch (e) { Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
+    catch (e) { delete window.__ibDlGone[code]; if (L) { window.__ibDayLinks = L; window.ibDayLinksDraw(); } window.loadDayLinks(); Swal.fire({ icon: 'error', title: 'Gagal Menghapus', text: e.message, background: 'var(--card)', color: 'var(--text)' }); }
 };
 
 window.logoutFromSubscribeScreen = async function() {
@@ -6611,7 +6618,7 @@ window.creditIBCommission = async function (clientUid, requestId, amount, planKe
 };
 
 // ---------------- DASHBOARD IB (sisi user) ----------------
-function ibStopListeners() { (window.__ibUnsubs || []).forEach(u => { try { u(); } catch (e) {} }); window.__ibUnsubs = []; }
+function ibStopListeners() { (window.__ibUnsubs || []).forEach(u => { try { u(); } catch (e) {} }); window.__ibUnsubs = []; (window.__ibDlUnsubs || []).forEach(u => { try { u(); } catch (e) {} }); window.__ibDlUnsubs = []; }
 
 window.renderIBPage = async function () {
     const el = document.getElementById('ib-root'); if (!el || !currentUser) return;
@@ -6638,11 +6645,12 @@ window.renderIBPage = async function () {
     if (!window.__ibUnsubs.length) {
         window.__ibSeen = {};
         const uid = currentUser.uid, code = window.__myIB.code;
-        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => console.error('IB listener', key, e)));
+        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => { console.error('IB listener', key, e); clearTimeout(window.__ibReT); window.__ibReT = setTimeout(() => { ibStopListeners(); if (currentUser) window.renderIBPage(); }, 3000); }));
         window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } else if (!s.metadata.fromCache) { ibStopListeners(); window.__myIB = null; window.renderIBPage(); } }));
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
         sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
+        window.ibWatchDayLinks(code);
     }
     window.drawIB();
 };
@@ -6658,10 +6666,9 @@ window.ibPoll = async function () {
         const [c, m, w] = await Promise.all([g(query(collection(db, 'ibClients'), where('ibUid', '==', uid))), g(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid))), g(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)))]);
         const sig = JSON.stringify([c, m, w]);
         if (sig !== window.__ibSig) { window.__ibSig = sig; window.__ib.clients = c; window.__ib.comms = m; window.__ib.wds = w; window.drawIB(); }
-    } catch (e) {}
-    window.__ibPolling = false;
+    } catch (e) {} finally { window.__ibPolling = false; }
 };
-setInterval(window.ibPoll, 1000);
+setInterval(window.ibPoll, 4000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) window.ibPoll(); });
 window.addEventListener('online', () => { window.ibPoll(); });
 
@@ -6685,9 +6692,9 @@ window.addEventListener('online', () => { window.ibPoll(); });
         } catch (e) {} finally { dBusy = false; }
     };
     const jobs = [
-        { id: 'admin-subscription-list', fn: 'loadAdminSubscriptionRequests', gap: 1000, last: 0 },
-        { id: 'admin-referral-list', fn: 'loadReferralCodes', gap: 1000, last: 0 },
-        { id: 'admin-active-members-list', fn: 'loadActiveSubscribers', gap: 1000, last: 0 },
+        { id: 'admin-subscription-list', fn: 'loadAdminSubscriptionRequests', gap: 10000, last: 0 },
+        { id: 'admin-referral-list', fn: 'loadReferralCodes', gap: 10000, last: 0 },
+        { id: 'admin-active-members-list', fn: 'loadActiveSubscribers', gap: 10000, last: 0 },
         { id: 'admin-storage-info', fn: 'loadAdminStorage', gap: 30000, last: 0 }
     ];
     let aBusy = false;
@@ -7315,7 +7322,7 @@ window.ibStats = function () {
     const paid = wds.filter(w => w.status === 'paid').reduce((a, w) => a + (w.amount || 0), 0);
     const pend = wds.filter(w => w.status === 'pending').reduce((a, w) => a + (w.amount || 0), 0);
     const now = Date.now();
-    return { total, paid, pend, available: Math.max(0, total - paid - pend), clients: clients.length, active: clients.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > now).length };
+    return { total, paid, pend, available: Math.max(0, total - paid - pend), clients: clients.length, active: clients.filter(c => c.activeUntil && new Date(c.activeUntil).getTime() > now).length, unpaid: clients.filter(c => !(Number(c.paymentsCount) > 0 || Number(c.totalPaid) > 0)).length };
 };
 
 // ---- Render IB tanpa kedip: hanya ganti isi bila berubah, jaga posisi scroll & QR ----
@@ -7323,7 +7330,7 @@ window.ibSetHtml = function (el, html) {
     if (!el) return;
     if (el.__ibHtml === html) return;
     const ae = document.activeElement;
-    if (ae && el.contains(ae) && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+    if (ae && el.contains(ae) && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && !ae.readOnly) return;
     const y = window.pageYOffset, de = document.documentElement, sb = de.style.scrollBehavior;
     de.style.scrollBehavior = 'auto';
     el.__ibHtml = html; el.innerHTML = html;
@@ -7386,6 +7393,7 @@ window.drawIB = function () {
         <div class="ibx-m"><span class="l">Sedang Diproses</span><b class="v">${ibRp(s.pend)}</b></div>
         <div class="ibx-m"><span class="l">Total Client</span><b class="v">${s.clients}</b></div>
         <div class="ibx-m"><span class="l">Client Aktif</span><b class="v">${s.active}</b></div>
+        <div class="ibx-m"><span class="l">Tidak Bayar</span><b class="v">${s.unpaid}</b></div>
       </section>
       <section class="ibx-p ibx-list">
         <div class="ibx-tabs">
@@ -7453,6 +7461,20 @@ window.ibDayLinksDraw = function () {
         const lb = used ? '● TERPAKAI' : (v.disabled ? '● NONAKTIF' : '● AKTIF');
         return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${v.linkLifetime ? 'SEUMUR HIDUP' : ibEsc(String(v.linkDays)) + ' HARI'}${v.linkNote ? ' · ' + ibEsc(v.linkNote) : ''}</div><div class="s">Terpakai ${v.usedCount || 0}/${v.maxUses || 1}</div></div><div class="r" style="font-size:11px; font-weight:800;">${lb}</div></div><input type="text" readonly onclick="this.select()" value="${ibEsc(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin:8px 0;"><div class="ibx-2"><button class="ibx-btn pri" onclick="window.copyDayLink('${id}')">📋 SALIN</button><button class="ibx-btn blue" onclick="window.showDayLinkQR('${id}')">📱 QR CODE</button></div><div class="ibx-2" style="margin-top:8px;">${used ? '' : `<button class="ibx-btn ghost" style="color:var(--gold); border-color:var(--gold);" onclick="window.toggleDayLink('${id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>`}<button class="ibx-btn ghost" style="color:var(--red2); border-color:var(--red2);" onclick="window.deleteDayLink('${id}')">🗑️ HAPUS</button></div></div>`;
     }).join('');
+};
+window.ibWatchDayLinks = function (code) {
+    try {
+        (window.__ibDlUnsubs || []).forEach(u => { try { u(); } catch (e) {} }); window.__ibDlUnsubs = [];
+        const src = {}, push = key => snap => {
+            const m = {}; snap.forEach(d => { const v = d.data(); if (v.linkDays) m[d.id] = { id: d.id, v: v }; }); src[key] = m;
+            const all = Object.assign({}, src.a || {}, src.b || {});
+            const items = Object.keys(all).map(k => all[k]).filter(x => !(window.__ibDlGone || {})[x.id]);
+            items.sort((a, b) => ((b.v.createdAt && b.v.createdAt.seconds) || 0) - ((a.v.createdAt && a.v.createdAt.seconds) || 0));
+            window.__ibDayLinks = items; window.__ibDayLinksLoaded = true; window.ibDayLinksDraw();
+        };
+        window.__ibDlUnsubs.push(onSnapshot(query(collection(db, 'referralCodes'), where('ibCode', '==', code)), push('a'), e => console.error('IB link listener', e)));
+        if (currentUser && currentUser.email) window.__ibDlUnsubs.push(onSnapshot(query(collection(db, 'referralCodes'), where('createdBy', '==', currentUser.email)), push('b'), () => {}));
+    } catch (e) {}
 };
 window.ibLoadDayLinks = async function () {
     const ib = window.__ib && window.__ib.me; if (!ib || !ib.code) return;
@@ -7581,6 +7603,7 @@ window.startAdminLiveSections = function () {
     const mk = (q, fn) => { let first = true, t = null; onSnapshot(q, () => { if (first) { first = false; return; } clearTimeout(t); t = setTimeout(() => { try { window[fn](true); } catch (e) {} }, 300); }, () => {}); };
     try { mk(query(collection(db, 'subscriptionRequests'), where('status', '==', 'pending')), 'loadAdminSubscriptionRequests'); } catch (e) {}
     try { mk(collection(db, 'referralCodes'), 'loadReferralCodes'); } catch (e) {}
+    try { mk(collection(db, 'referralCodes'), 'loadDayLinks'); } catch (e) {}
     try { mk(query(collection(db, 'users'), where('subscriptionExpiry', '>', new Date().toISOString())), 'loadActiveSubscribers'); } catch (e) {}
 };
 window.loadAdminIB = async function () {
