@@ -1473,6 +1473,8 @@ body.light-mode #page-ib .ibx-warn { color: #B91C1C; }
 #page-ib .ibx-m .l { font-size: 12px; font-weight: 600; color: var(--text3); }
 #page-ib .ibx-m .v { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--text); text-align: right; }
 #page-ib .ibx-m .v.g { color: var(--ix-g); }
+#page-ib .ibx-live { color: #1fa855; font-size: 9px; font-weight: 800; margin-left: 4px; animation: ibxLive 1.4s ease-in-out infinite; }
+@keyframes ibxLive { 50% { opacity: .35; } }
 
 /* --- tab + daftar --- */
 #page-ib .ibx-list { grid-area: list; padding: 14px 18px 6px; }
@@ -4556,9 +4558,16 @@ async function registerDeviceSession(user, _retryCount) {
             if (window.__deviceUnsub) { window.__deviceUnsub(); window.__deviceUnsub = null; }
             localStorage.removeItem('last_uid_rhn'); localStorage.removeItem('local_pin_rhn'); localStorage.removeItem('rhn_tx_backup_' + user.uid);
             window.appUnlocked = false; window.userCloudPin = null;
-            try { await signOut(auth); } catch (e) {}
             forceResetToAuthScreen();
             Swal.fire({ icon: 'warning', title: 'Akun Dihapus', text: 'Akun ini telah dihapus. Kamu sudah keluar dari aplikasi.', background: 'var(--card)', color: 'var(--text)', confirmButtonColor: 'var(--gold)' });
+            const safeDel = async fn => { try { await fn(); } catch (e) { console.warn('Bersihkan akun dihapus (sebagian):', e); } };
+            for (const sc of ['transactions', 'recurring_txs', 'devices', 'link_requests', 'linked_accounts', 'backups', 'settings']) {
+                await safeDel(() => deleteCollectionInChunks(collection(db, 'users', user.uid, sc)));
+            }
+            await safeDel(() => deleteDoc(doc(db, 'ibClients', user.uid)));
+            await safeDel(() => deleteDoc(doc(db, 'users', user.uid)));
+            await safeDel(() => deleteUser(user));
+            try { await signOut(auth); } catch (e) {}
         };
         const watchGone = (ref, flagged, kickOnGone) => {
             let seen = false;
@@ -6636,6 +6645,20 @@ window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.spli
         const p = new URLSearchParams(location.search).get('ib');
         if (p) {
             localStorage.setItem('rhn_ib_ref', p.trim().toUpperCase()); localStorage.setItem('rhn_ib_link', p.trim().toUpperCase()); window.__ibLinkCode = p.trim().toUpperCase();
+            const cc = p.trim().toUpperCase();
+            if (/^[A-Z0-9]{4,12}$/.test(cc)) {
+                window.__ibClickSend = function () {
+                    let vid = localStorage.getItem('rhn_ib_vid'); if (!vid) { vid = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('rhn_ib_vid', vid); }
+                    const tk = 'rhn_ib_clk_' + cc, last = Number(localStorage.getItem(tk) || 0);
+                    if (Date.now() - last <= 1800000) return;
+                    localStorage.setItem(tk, String(Date.now()));
+                    const cd = { code: cc, clicks: increment(1), lastAt: serverTimestamp() };
+                    if (!last) cd.firstAt = serverTimestamp();
+                    setDoc(doc(db, 'ibClicks', cc + '_' + vid), cd, { merge: true }).then(() => { window.__ibClickErr = null; window.__ibClickFail = false; }).catch(e => { localStorage.setItem(tk, String(last)); window.__ibClickErr = (e && e.code) || 'error'; window.__ibClickFail = true; console.warn('Klik IB gagal dicatat:', e); try { window.drawIB(); } catch (e2) {} });
+                };
+                window.__ibClickSend();
+                onAuthStateChanged(auth, u => { if (u && window.__ibClickFail) window.__ibClickSend(); });
+            }
             setTimeout(() => { try { if (!auth.currentUser && typeof window.switchTab === 'function') window.switchTab('register'); } catch (e) {} }, 700);
         }
     } catch (e) {}
@@ -6790,11 +6813,12 @@ window.renderIBPage = async function () {
     if (!window.__ibUnsubs.length) {
         window.__ibSeen = {};
         const uid = currentUser.uid, code = window.__myIB.code;
-        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => !window.__ib.me || x.ibCode === window.__ib.me.code); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => { console.error('IB listener', key, e); clearTimeout(window.__ibReT); window.__ibReT = setTimeout(() => { ibStopListeners(); if (currentUser) window.renderIBPage(); }, 3000); }));
+        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => !x.removedByIb && (!window.__ib.me || x.ibCode === window.__ib.me.code)); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => { console.error('IB listener', key, e); clearTimeout(window.__ibReT); window.__ibReT = setTimeout(() => { ibStopListeners(); if (currentUser) window.renderIBPage(); }, 3000); }));
         window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } else if (!s.metadata.fromCache) { ibStopListeners(); window.__myIB = null; window.renderIBPage(); } }));
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
         sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
+        window.__ibUnsubs.push(onSnapshot(query(collection(db, 'ibClicks'), where('code', '==', code)), s => { let t = 0; s.docs.forEach(d => { t += Number(d.data().clicks) || 0; }); const o = window.__ib.clicks; window.__ib.clicks = { p: s.size, t: t }; if (o && t > o.t) { try { ibSwal({ toast: true, position: 'top', icon: 'info', title: 'Ada klik baru di link kamu', showConfirmButton: false, timer: 2500 }); } catch (e) {} } window.__ib.clicksErr = null; window.drawIB(); }, e => { window.__ib.clicksErr = (e && e.code) || 'error'; console.warn('Baca klik IB gagal:', e); window.drawIB(); }));
         window.__ibUnsubs.push(onSnapshot(query(collection(db, 'ibs'), where('uid', '==', uid)), s => { window.__ib.codes = s.docs.map(d => d.data()).sort((x, y) => new Date(x.createdAt || 0) - new Date(y.createdAt || 0)); window.drawIB(); }, () => {}));
         window.ibWatchDayLinks(code);
     }
@@ -6808,7 +6832,7 @@ window.ibPoll = async function () {
     try {
         if (!currentUser || !window.__ib || !window.__ib.me || document.hidden) return;
         const pg = document.getElementById('page-ib'); if (!pg || !pg.classList.contains('active')) return;
-        const uid = currentUser.uid, g = q => getDocs(q).then(s => s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => x.ibCode === window.__ib.me.code));
+        const uid = currentUser.uid, g = q => getDocs(q).then(s => s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => !x.removedByIb && x.ibCode === window.__ib.me.code));
         const [c, m, w] = await Promise.all([g(query(collection(db, 'ibClients'), where('ibUid', '==', uid))), g(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid))), g(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)))]);
         const sig = JSON.stringify([c, m, w]);
         if (sig !== window.__ibSig) { window.__ibSig = sig; window.__ib.clients = c; window.__ib.comms = m; window.__ib.wds = w; window.drawIB(); }
@@ -7505,6 +7529,7 @@ window.drawIB = function () {
     const comms = window.__ib.comms.filter(x => !window.ibIsHidden('m', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const wds = window.__ib.wds.filter(x => !window.ibIsHidden('w', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const now = Date.now();
+    const ck = window.__ib.clicks || { p: 0, t: 0 }, cerr = window.__ib.clicksErr || window.__ibClickErr;
     const codes = (window.__ib.codes && window.__ib.codes.length ? window.__ib.codes : [ib]).filter((c, i, a) => a.findIndex(y => y.code === c.code) === i);
     const codesHtml = codes.map(c => `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--ix-line);"><div style="min-width:0;"><b class="mono" style="font-size:13px; color:var(--ix-ac-t);">${ibEsc(c.code)}</b><div class="ibx-sub" style="font-size:10.5px;">${c.code === ib.code ? 'Sedang ditampilkan' : (c.status === 'active' ? 'Aktif' : (c.status === 'pending' ? 'Menunggu persetujuan admin' : (c.status === 'rejected' ? 'Ditolak admin' : 'Nonaktif')))} • ${ibEsc(String(c.rate))}%</div></div><div style="display:flex; gap:6px; flex-shrink:0;">${c.code === ib.code || c.status !== 'active' ? '' : `<button class="ibx-del" style="color:var(--text);" onclick="window.ibUseCode('${ibEsc(c.code)}')">Pakai</button>`}<button class="ibx-del" onclick="window.ibDeleteCode('${ibEsc(c.code)}')">Hapus</button></div></div>`).join('');
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
@@ -7548,6 +7573,8 @@ window.drawIB = function () {
         <div class="ibx-m"><span class="l">Total Client</span><b class="v">${s.clients}</b></div>
         <div class="ibx-m"><span class="l">Client Aktif</span><b class="v">${s.active}</b></div>
         <div class="ibx-m"><span class="l">Tidak Bayar</span><b class="v">${s.unpaid}</b></div>
+        <div class="ibx-m"><span class="l">Klik Link <span class="ibx-live">● LIVE</span>${cerr ? ' <span style="color:var(--red2); font-size:9px; font-weight:800;">izin Firestore ditolak</span>' : ''}</span><b class="v">${ck.t}</b></div>
+        <div class="ibx-m"><span class="l">Orang Klik Link <span class="ibx-live">● LIVE</span></span><b class="v">${ck.p}</b></div>
       </section>
       <section class="ibx-p ibx-list">
         <div class="ibx-tabs">
@@ -7988,14 +8015,8 @@ window.ibDeleteUser = async function (clientUid) {
     const r = await ibSwal({ icon: 'warning', title: 'Hapus user ini?', html: 'Akun <b>' + ibEsc(cl.nama || '-') + '</b> dihapus permanen beserta seluruh datanya dan <b>langsung keluar (logout)</b> dari aplikasi. Tidak bisa dibatalkan.', showCancelButton: true, confirmButtonText: 'HAPUS USER', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
     if (!r.isConfirmed) return;
     ibSwal({ title: 'Menghapus User...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    const safe = async fn => { try { await fn(); } catch (e) { console.warn('Hapus user (sebagian):', e); } };
     try {
-        await safe(() => updateDoc(doc(db, 'ibClients', clientUid), { removedByIb: true, removedAt: serverTimestamp() }));
-        for (const sc of ['transactions', 'recurring_txs', 'devices', 'link_requests', 'linked_accounts', 'backups', 'settings']) {
-            await safe(() => deleteCollectionInChunks(collection(db, 'users', clientUid, sc)));
-        }
-        await safe(() => deleteDoc(doc(db, 'users', clientUid)));
-        await deleteDoc(doc(db, 'ibClients', clientUid));
+        await updateDoc(doc(db, 'ibClients', clientUid), { removedByIb: true, removedAt: serverTimestamp() });
         window.__ib.clients = window.__ib.clients.filter(c => c.id !== clientUid);
         window.drawIB();
         window.showSaveSuccess('User Terhapus', 1200);
