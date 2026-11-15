@@ -6647,17 +6647,12 @@ window.ibLink = code => ((window.IB_BASE_URL || '').trim() || location.href.spli
             localStorage.setItem('rhn_ib_ref', p.trim().toUpperCase()); localStorage.setItem('rhn_ib_link', p.trim().toUpperCase()); window.__ibLinkCode = p.trim().toUpperCase();
             const cc = p.trim().toUpperCase();
             if (/^[A-Z0-9]{4,12}$/.test(cc)) {
+                window.__ibDayKey = () => new Date(Date.now() + 25200000).toISOString().slice(0, 10).replace(/-/g, '');
                 window.__ibClickSend = function () {
-                    let vid = localStorage.getItem('rhn_ib_vid'); if (!vid) { vid = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('rhn_ib_vid', vid); }
-                    const tk = 'rhn_ib_clk_' + cc, last = Number(localStorage.getItem(tk) || 0);
-                    if (Date.now() - last <= 1800000) return;
-                    localStorage.setItem(tk, String(Date.now()));
-                    const cd = { code: cc, clicks: increment(1), lastAt: serverTimestamp() };
-                    if (!last) cd.firstAt = serverTimestamp();
-                    setDoc(doc(db, 'ibClicks', cc + '_' + vid), cd, { merge: true }).then(() => { window.__ibClickErr = null; window.__ibClickFail = false; }).catch(e => { localStorage.setItem(tk, String(last)); window.__ibClickErr = (e && e.code) || 'error'; window.__ibClickFail = true; console.warn('Klik IB gagal dicatat:', e); try { window.drawIB(); } catch (e2) {} });
+                    setDoc(doc(db, 'ibClicks', cc + '_' + window.__ibDayKey()), { code: cc, clicks: increment(1), lastAt: serverTimestamp() }, { merge: true }).then(() => { window.__ibClickErr = null; window.__ibClickFail = false; }).catch(e => { window.__ibClickErr = (e && e.code) || 'error'; window.__ibClickFail = true; console.warn('Klik IB gagal dicatat:', e); try { window.drawIB(); } catch (e2) {} });
                 };
                 window.__ibClickSend();
-                onAuthStateChanged(auth, u => { if (u && window.__ibClickFail) window.__ibClickSend(); });
+                onAuthStateChanged(auth, u => { if (u && window.__ibClickFail) { window.__ibClickFail = false; window.__ibClickSend(); } });
             }
             setTimeout(() => { try { if (!auth.currentUser && typeof window.switchTab === 'function') window.switchTab('register'); } catch (e) {} }, 700);
         }
@@ -6818,7 +6813,19 @@ window.renderIBPage = async function () {
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
         sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
-        window.__ibUnsubs.push(onSnapshot(query(collection(db, 'ibClicks'), where('code', '==', code)), s => { let t = 0; s.docs.forEach(d => { t += Number(d.data().clicks) || 0; }); const o = window.__ib.clicks; window.__ib.clicks = { p: s.size, t: t }; if (o && t > o.t) { try { ibSwal({ toast: true, position: 'top', icon: 'info', title: 'Ada klik baru di link kamu', showConfirmButton: false, timer: 2500 }); } catch (e) {} } window.__ib.clicksErr = null; window.drawIB(); }, e => { window.__ib.clicksErr = (e && e.code) || 'error'; console.warn('Baca klik IB gagal:', e); window.drawIB(); }));
+        (function () {
+            let un = null, tm = null, stop = false;
+            const dk = () => new Date(Date.now() + 25200000).toISOString().slice(0, 10).replace(/-/g, '');
+            const start = () => {
+                if (stop) return; if (un) { un(); un = null; }
+                window.__ib.clicks = { t: 0 };
+                un = onSnapshot(doc(db, 'ibClicks', code + '_' + dk()), s => { const t = s.exists() ? (Number(s.data().clicks) || 0) : 0; const o = window.__ib.clicks; window.__ib.clicks = { t: t }; window.__ib.clicksErr = null; if (o && t > o.t && t - o.t < 50 && window.__ibClkReady) { try { ibSwal({ toast: true, position: 'top', icon: 'info', title: 'Ada klik baru di link kamu', showConfirmButton: false, timer: 1500 }); } catch (e) {} } window.__ibClkReady = true; window.drawIB(); }, e => { window.__ib.clicksErr = (e && e.code) || 'error'; console.warn('Baca klik IB gagal:', e); window.drawIB(); });
+                const n = new Date(Date.now() + 25200000); const ms = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1) - (Date.now() + 25200000) + 1000;
+                tm = setTimeout(() => { window.__ibClkReady = false; start(); }, ms);
+            };
+            window.__ibClkReady = false; start();
+            window.__ibUnsubs.push(() => { stop = true; if (un) un(); clearTimeout(tm); });
+        })();
         window.__ibUnsubs.push(onSnapshot(query(collection(db, 'ibs'), where('uid', '==', uid)), s => { window.__ib.codes = s.docs.map(d => d.data()).sort((x, y) => new Date(x.createdAt || 0) - new Date(y.createdAt || 0)); window.drawIB(); }, () => {}));
         window.ibWatchDayLinks(code);
     }
@@ -7529,7 +7536,7 @@ window.drawIB = function () {
     const comms = window.__ib.comms.filter(x => !window.ibIsHidden('m', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const wds = window.__ib.wds.filter(x => !window.ibIsHidden('w', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const now = Date.now();
-    const ck = window.__ib.clicks || { p: 0, t: 0 }, cerr = window.__ib.clicksErr || window.__ibClickErr;
+    const ck = window.__ib.clicks || { t: 0 }, cerr = window.__ib.clicksErr || window.__ibClickErr;
     const codes = (window.__ib.codes && window.__ib.codes.length ? window.__ib.codes : [ib]).filter((c, i, a) => a.findIndex(y => y.code === c.code) === i);
     const codesHtml = codes.map(c => `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--ix-line);"><div style="min-width:0;"><b class="mono" style="font-size:13px; color:var(--ix-ac-t);">${ibEsc(c.code)}</b><div class="ibx-sub" style="font-size:10.5px;">${c.code === ib.code ? 'Sedang ditampilkan' : (c.status === 'active' ? 'Aktif' : (c.status === 'pending' ? 'Menunggu persetujuan admin' : (c.status === 'rejected' ? 'Ditolak admin' : 'Nonaktif')))} • ${ibEsc(String(c.rate))}%</div></div><div style="display:flex; gap:6px; flex-shrink:0;">${c.code === ib.code || c.status !== 'active' ? '' : `<button class="ibx-del" style="color:var(--text);" onclick="window.ibUseCode('${ibEsc(c.code)}')">Pakai</button>`}<button class="ibx-del" onclick="window.ibDeleteCode('${ibEsc(c.code)}')">Hapus</button></div></div>`).join('');
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
@@ -7573,8 +7580,7 @@ window.drawIB = function () {
         <div class="ibx-m"><span class="l">Total Client</span><b class="v">${s.clients}</b></div>
         <div class="ibx-m"><span class="l">Client Aktif</span><b class="v">${s.active}</b></div>
         <div class="ibx-m"><span class="l">Tidak Bayar</span><b class="v">${s.unpaid}</b></div>
-        <div class="ibx-m"><span class="l">Klik Link <span class="ibx-live">● LIVE</span>${cerr ? ' <span style="color:var(--red2); font-size:9px; font-weight:800;">izin Firestore ditolak</span>' : ''}</span><b class="v">${ck.t}</b></div>
-        <div class="ibx-m"><span class="l">Orang Klik Link <span class="ibx-live">● LIVE</span></span><b class="v">${ck.p}</b></div>
+        <div class="ibx-m"><span class="l">Klik Hari Ini <span class="ibx-live">● LIVE</span>${cerr ? ' <span style="color:var(--red2); font-size:9px; font-weight:800;">izin Firestore ditolak</span>' : ''}</span><b class="v">${ck.t}</b></div>
       </section>
       <section class="ibx-p ibx-list">
         <div class="ibx-tabs">
