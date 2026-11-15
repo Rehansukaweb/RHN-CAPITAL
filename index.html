@@ -1072,17 +1072,24 @@ body.global-privacy #xau-idr-gr {
 .sv-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.2px;opacity:0;animation:svFade .35s .6s ease forwards}
 @keyframes svDraw{to{stroke-dashoffset:0}}
 @keyframes svFade{to{opacity:1}}
-/* Animasi memuat: garis tipis biru-cyan dengan sapuan halus (gaya aplikasi profesional) */
-.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin{position:relative!important;width:96px!important;height:3px!important;border:0!important;border-radius:99px!important;overflow:hidden!important;-webkit-mask:none!important;mask:none!important;box-shadow:none!important;filter:none!important;animation:none!important;transform:none!important;background:rgba(148,163,184,.18)!important}
-.rhn-ld,#subscribe-screen .subs-pending-box .sp-spin{display:block!important}
+/* Animasi memuat: bar progres hijau persis layar loading WhatsApp Web (jejak abu, isian hijau meluncur cepat & halus dari kiri, keterangan terenkripsi) */
+.rhn-ld,.swal2-container .swal2-popup .swal2-loader,#subscribe-screen .subs-pending-box .sp-spin,.splash-line-loader{--w:112px;--h:3px;position:relative!important;display:block!important;box-sizing:border-box!important;width:var(--w)!important;max-width:78%!important;height:var(--h)!important;border:0!important;border-radius:99px!important;overflow:hidden!important;isolation:isolate;-webkit-mask:none!important;mask:none!important;box-shadow:none!important;filter:none!important;opacity:1!important;transform:none!important;background:rgba(134,150,160,.28)!important;animation:none!important}
+.rhn-ld{margin:12px auto 14px!important}
+.swal2-container .swal2-popup .swal2-loader{margin:26px auto 16px!important}
 .swal2-container .swal2-popup .swal2-loader{display:none!important}
 .swal2-container .swal2-popup.swal2-loading .swal2-loader{display:block!important}
-.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before{content:"";position:absolute;top:0;bottom:0;left:0;width:38%;border-radius:99px;background:linear-gradient(90deg,rgba(56,189,248,0),#38bdf8 40%,#818cf8);animation:rhnBar 1.2s cubic-bezier(.65,.05,.35,1) infinite}
-.rhn-ld{width:56px!important;height:2px!important;margin:10px auto 14px}
-.swal2-container .swal2-popup .swal2-loader{margin:22px auto 14px!important}
+.swal2-container .swal2-popup.swal2-loading .swal2-actions::after{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238696a0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='10.5' width='15' height='10' rx='2.2'/%3E%3Cpath d='M8 10.5V7.5a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") "  Terenkripsi secara end-to-end";flex:0 0 100%;text-align:center;font-size:10.5px;font-weight:500;line-height:14px;color:#8696a0;margin-top:0}
 #subscribe-screen .subs-pending-box .sp-spin{margin:0 auto 16px!important}
-@keyframes rhnBar{0%{transform:translateX(-105%)}100%{transform:translateX(265%)}}
-@media (prefers-reduced-motion:reduce){.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before{animation-duration:3s!important}}
+.splash-line-loader{margin:32px auto 0!important}
+.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before,.splash-line-loader::before{content:"";position:absolute;top:0;right:0;bottom:0;left:0;border-radius:99px;background:#1fa855;transform:translate3d(-100%,0,0);will-change:transform;animation:rhnWaFill 20s linear 0s both}
+.swal2-container .swal2-popup .swal2-loader.rhn-fin{display:block!important}
+.rhn-fin::before{animation:none!important;transform:translate3d(var(--t,0px),0,0)!important;transition:transform var(--fd,.4s) cubic-bezier(.4,.1,.2,1)!important}
+.swal2-container .swal2-popup.swal2-hide:has(.rhn-q),.swal2-container.swal2-backdrop-hide:has(.rhn-q){animation-delay:calc(var(--fd,.4s) + .14s)!important}
+@keyframes rhnWaFill{0%{transform:translate3d(-100%,0,0);animation-timing-function:cubic-bezier(.2,.6,.3,1)}6%{transform:translate3d(-45%,0,0);animation-timing-function:cubic-bezier(.3,.5,.5,1)}25%{transform:translate3d(-15%,0,0);animation-timing-function:linear}100%{transform:translate3d(-3%,0,0)}}
+.splash-line-loader::before{animation:rhnSplashFill 2.2s cubic-bezier(.45,.05,.25,1) 0s both}
+@keyframes rhnSplashFill{from{transform:translate3d(-100%,0,0)}to{transform:translate3d(0,0,0)}}
+.rhn-js.rhn-js::before{animation:none!important;transition:none!important;transform:translate3d(calc((var(--p,0) - 1) * 100%),0,0)!important}
+@media (prefers-reduced-motion:reduce){.rhn-ld::before,.swal2-container .swal2-popup .swal2-loader::before,#subscribe-screen .subs-pending-box .sp-spin::before,.splash-line-loader::before{animation-duration:30s!important}}
 /* Samakan semua dialog (konfirmasi, loading, info, error, daftar admin) dengan gaya popup berhasil */
 .swal2-popup{background:var(--card);border:1px solid var(--border2,rgba(255,255,255,.08))!important;border-radius:22px!important;box-shadow:0 20px 50px rgba(0,0,0,.45)!important;padding:26px 28px 24px!important;font-family:inherit}
 .swal2-popup.swal2-icon-show{width:min(360px,92vw)!important}
@@ -1187,6 +1194,103 @@ body.swal2-toast-shown .swal2-container.swal2-backdrop-show,body.swal2-toast-sho
   window.Swal = OriginalSwal.mixin({
     heightAuto: false
   });
+
+  // Bar loading popup digerakkan pegas halus (posisi & kecepatan selalu menyambung, tanpa lompatan) dan SELALU diselesaikan ke 100% sebelum popup berikutnya/tutup/ganti isi
+  (function(){
+    var V0 = 1.1, FD = .4, S = window.Swal, gate = null;
+    var SEL = '.swal2-popup.swal2-loading .swal2-loader, .swal2-popup .rhn-ld', ALL = '.swal2-popup .swal2-loader, .swal2-popup .rhn-ld';
+    var ST = new WeakMap(), items = [], raf = 0;
+    function step(s, dt) {
+      var fin = s.mode === 'fin', w = fin ? 11 : 1.6, tg = fin ? 1 : .92, n = Math.ceil(dt / .008), h = dt / n;
+      for (var i = 0; i < n; i++) { s.v += (w * w * (tg - s.p) - 2 * w * s.v) * h; s.p += s.v * h; }
+      if (s.p > 1) { s.p = 1; if (s.v > 0) s.v = 0; }
+      if (fin && 1 - s.p < .003 && Math.abs(s.v) < .05) { s.p = 1; s.v = 0; }
+    }
+    function adv(s, now) {
+      var dt = s.t ? Math.min(.5, Math.max(0, (now - s.t) / 1000)) : .016;
+      s.t = now;
+      if (dt > 0) step(s, dt);
+    }
+    function frame() {
+      raf = 0;
+      var now = performance.now();
+      for (var i = items.length - 1; i >= 0; i--) {
+        var el = items[i];
+        if (!el.isConnected) { items.splice(i, 1); continue; }
+        var s = ST.get(el);
+        if (!el.offsetWidth) { if (s.mode !== 'fin') { s.p = 0; s.v = V0; } s.t = now; continue; }
+        adv(s, now);
+        el.style.setProperty('--p', s.p.toFixed(4));
+      }
+      if (items.length) raf = requestAnimationFrame(frame);
+    }
+    function track(ld) {
+      var s = ST.get(ld);
+      if (!s) { s = { p: 0, v: V0, mode: 'load' }; ST.set(ld, s); items.push(ld); ld.classList.add('rhn-js'); ld.style.setProperty('--p', '0'); }
+      if (!raf) raf = requestAnimationFrame(frame);
+      return s;
+    }
+    function estimate(s) {
+      var c = { p: s.p, v: s.v, mode: 'fin' }, t = 0;
+      while (t < 3 && c.p < 1) { step(c, .008); t += .008; }
+      return +Math.max(.12, t).toFixed(2);
+    }
+    function fillEl(ld, q) {
+      var s = track(ld);
+      if (ld.offsetWidth) adv(s, performance.now());
+      s.mode = 'fin';
+      FD = estimate(s);
+      document.documentElement.style.setProperty('--fd', FD + 's');
+      ld.classList.add('rhn-fin');
+      if (q) ld.classList.add('rhn-q');
+      return ld;
+    }
+    function fill() {
+      var ld = document.querySelector(SEL);
+      if (!ld || getComputedStyle(ld).display === 'none') return null;
+      return fillEl(ld);
+    }
+    function reset(ld) {
+      ld.classList.remove('rhn-fin', 'rhn-q');
+      var s = ST.get(ld); if (s) { s.mode = 'load'; s.p = 0; s.v = V0; ld.style.setProperty('--p', '0'); }
+    }
+    function resetAll() { Array.prototype.forEach.call(document.querySelectorAll('.swal2-popup:not(.swal2-hide) .rhn-fin'), reset); }
+    function run(fn, n) {
+      var after = function(){ if (n === 'fire') resetAll(); return fn(); };
+      if (gate) return gate.then(after);
+      resetAll();
+      var ld = fill();
+      if (!ld) return fn();
+      gate = new Promise(function(res){ setTimeout(function(){ gate = null; res(); }, Math.round(FD * 1000) + 140); });
+      return gate.then(after);
+    }
+    ['fire', 'close', 'hideLoading', 'update'].forEach(function(n){
+      var o = S[n];
+      S[n] = function(){ var a = arguments; return run(function(){ return o.apply(S, a); }, n); };
+    });
+    // Popup yang diakhiri langsung oleh SweetAlert sendiri (timer, preConfirm, klik luar, dll): bar tetap digenapkan ke 100% dan popup ditahan sampai penuh
+    try {
+      new MutationObserver(function(muts){
+        muts.forEach(function(m){
+          var t = m.target;
+          if (gate || !t.classList || !t.classList.contains('swal2-popup')) return;
+          var old = m.oldValue || '';
+          var loadEnd = old.indexOf('swal2-loading') >= 0 && !t.classList.contains('swal2-loading');
+          var hideStart = old.indexOf('swal2-hide') < 0 && t.classList.contains('swal2-hide');
+          if (!loadEnd && !hideStart) return;
+          var ld = null;
+          if (loadEnd || t.classList.contains('swal2-loading')) ld = t.querySelector('.swal2-loader');
+          if (!ld) { var r = t.querySelectorAll('.rhn-ld'); for (var i = 0; i < r.length; i++) { if (r[i].offsetWidth) { ld = r[i]; break; } } }
+          if (ld && !ld.classList.contains('rhn-fin')) fillEl(ld, true);
+        });
+      }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+      new MutationObserver(function(){
+        var c = document.querySelector('.swal2-container'); if (!c) return;
+        var l = c.querySelectorAll(ALL);
+        for (var i = 0; i < l.length; i++) { if (!ST.has(l[i])) track(l[i]); }
+      }).observe(document.documentElement, { subtree: true, childList: true });
+    } catch (e) {}
+  })();
 
   window.addEventListener('DOMContentLoaded', function() {
     // --- FIX SPLASH SCREEN (DIBUAT AGAK LAMA DAN SMOOTH) ---
@@ -4185,9 +4289,7 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
   window.appUnlocked = false; 
 
   window.forceFocusPin = () => {
-      // FIX: Tahan keyboard kalau animasi splash screen masih jalan
-      const splash = document.getElementById('splash-screen');
-      if (splash && splash.style.display !== 'none' && !splash.classList.contains('splash-exit')) return;
+      // FAST: fokus PIN tidak lagi ditahan splash, supaya PIN yang diketik cepat langsung terbaca
 
       // FIX BARU: Jangan curi fokus kalau ada popup SweetAlert2 yang sedang terbuka
       // (misalnya saat lagi ngetik PIN baru di form "Reset PIN" / "Ganti PIN").
@@ -4202,6 +4304,15 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
       }
   };
 
+  document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey || e.metaKey || e.altKey || !e.key || !/^[0-9]$/.test(e.key)) return;
+      const ps = document.getElementById('pin-screen'), pe = document.getElementById('app-pin');
+      if (!ps || !pe || ps.style.display !== 'flex' || document.activeElement === pe) return;
+      if (document.querySelector('.swal2-container')) return;
+      const ae = document.activeElement; if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+      pe.focus();
+  }, true);
+
   if (lastUid) {
      document.addEventListener("DOMContentLoaded", () => {
          document.getElementById('auth-screen').style.display = 'none';
@@ -4215,8 +4326,8 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
              
              window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
          } else {
-             document.getElementById('pin-title').textContent = 'Memuat Keamanan...';
-             document.getElementById('pin-sub').textContent = 'Sinkronisasi dengan server';
+             document.getElementById('pin-title').textContent = 'Masukkan PIN';
+             document.getElementById('pin-sub').textContent = 'Keamanan aktif';
              window.pinMode = 'verify';
          }
      });
@@ -4736,7 +4847,7 @@ window.showAdminHutang = async function(uid, ownerLabel) {
     const __inner = head + body;
     const __w = document.querySelector('.ah-popup .ah-wrap');
     if (__w) { if (__w.__h !== __inner) { __w.innerHTML = __inner; __w.__h = __inner; } }
-    else { Swal.update({ html: box(__inner) }); const __w2 = document.querySelector('.ah-popup .ah-wrap'); if (__w2) __w2.__h = __inner; }
+    else { Promise.resolve(Swal.update({ html: box(__inner) })).then(function(){ const __w2 = document.querySelector('.ah-popup .ah-wrap'); if (__w2) __w2.__h = __inner; __ahFit(); }); }
     __ahFit();
     };
     try {
@@ -7972,6 +8083,14 @@ function withTimeout(promise, ms, timeoutMsg) {
     });
     return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
+// Khusus proses login/daftar: kalau batas waktu habis tapi ternyata akun sudah masuk, anggap BERHASIL (jangan tampilkan error palsu "terlalu lama")
+function withAuthTimeout(promise, ms, timeoutMsg) {
+    let timer;
+    const timeoutPromise = new Promise((resolve, reject) => {
+        timer = setTimeout(() => { if (auth.currentUser) resolve(null); else reject(new Error(timeoutMsg || 'Waktu tunggu habis. Cek koneksi internet kamu.')); }, ms);
+    });
+    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
 
 window.switchTab = function(mode) { authMode = mode; document.getElementById('tab-login').classList.toggle('active', mode === 'login'); document.getElementById('tab-register').classList.toggle('active', mode === 'register'); document.getElementById('tab-code').classList.toggle('active', mode === 'code'); document.querySelector('#auth-screen .auth-box').classList.toggle('mode-register', mode === 'register'); document.getElementById('field-confirm').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-nama').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-umur').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-gender').style.display = mode === 'register' ? 'block' : 'none'; document.getElementById('field-quickcode').style.display = mode === 'code' ? 'block' : 'none'; document.getElementById('field-email').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('field-pass').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('btn-google').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('auth-divider').style.display = mode === 'code' ? 'none' : 'flex'; document.getElementById('wrap-forgot').style.display = mode === 'code' ? 'none' : 'block'; document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'MASUK' : (mode === 'register' ? 'DAFTAR' : 'MASUK PAKAI KODE'); hideErr(); };
 
@@ -7983,7 +8102,7 @@ window.doGoogleAuth = async function() {
     btn.disabled = true;
     btn.innerHTML = 'Memproses...';
     try {
-        await withTimeout(signInWithPopup(auth, provider), 3000, 'Login Google terlalu lama / macet. Coba lagi ya.');
+        await signInWithPopup(auth, provider); // tanpa batas waktu: pilih akun Google butuh waktu dari pengguna
         // onAuthStateChanged akan lanjut ambil alih & sembunyikan layar auth.
     } catch(e) {
         let msg = e.message || 'Gagal login dengan Google.';
@@ -8192,14 +8311,14 @@ window.doAuth = async function() {
 
     try { 
         if (authMode === 'login') {
-            await withTimeout(signInWithEmailAndPassword(auth, email, pass), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+            await withAuthTimeout(signInWithEmailAndPassword(auth, email, pass), 15000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
             cacheOfflineCredential(email, pass, { uid: auth.currentUser.uid, nama: auth.currentUser.displayName || '' }, false);
         } else { 
             if (pass !== document.getElementById('auth-pass2').value) {
                 setLoading(false);
                 return showErr('Konfirmasi Sandi tidak sama.');
             }
-            const cred = await withTimeout(createUserWithEmailAndPassword(auth, email, pass), 3000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
+            const cred = await withAuthTimeout(createUserWithEmailAndPassword(auth, email, pass), 15000, 'Proses daftar terlalu lama. Cek koneksi lalu coba lagi.');
             try {
                 await updateProfile(cred.user, { displayName: nama });
                 await setDoc(doc(db, 'users', cred.user.uid), { email: cred.user.email, nama: nama, umur: umur, jenisKelamin: gender }, { merge: true });
@@ -8310,14 +8429,14 @@ window.doQuickCodeLogin = async function() {
     }
 
     try {
-        const codeSnap = await withTimeout(getDoc(doc(db, 'quickCodes', code)), 3000, 'Proses cek kode terlalu lama. Cek koneksi lalu coba lagi.');
+        const codeSnap = await withTimeout(getDoc(doc(db, 'quickCodes', code)), 15000, 'Proses cek kode terlalu lama. Cek koneksi lalu coba lagi.');
         if (!codeSnap.exists()) {
             setLoading(false);
             return showErr('Kode tidak ditemukan. Pastikan kode benar atau buat dulu lewat Pengaturan.');
         }
         const { email: qEmail, pass: qPass } = codeSnap.data();
         const qPassPlain = atob(qPass);
-        await withTimeout(signInWithEmailAndPassword(auth, qEmail, qPassPlain), 3000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
+        await withAuthTimeout(signInWithEmailAndPassword(auth, qEmail, qPassPlain), 15000, 'Proses login terlalu lama. Cek koneksi lalu coba lagi.');
         cacheOfflineCredential(qEmail, qPassPlain, { uid: auth.currentUser.uid, nama: auth.currentUser.displayName || '' }, false);
         cacheOfflineQuickCode(code, qEmail);
         setLoading(false);
@@ -8674,6 +8793,7 @@ try { if (localStorage.getItem('rhn_admin_cache') === '1' && localStorage.getIte
 onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user; localStorage.setItem('last_uid_rhn', user.uid); 
+    try { hideErr(); } catch(e) {}
     window.__isAdmin = (user.email === "rehantop245@gmail.com");
     // FAST: tombol admin langsung tampil/hilang di detik pertama (tanpa nunggu server) + simpan cache
     try {
@@ -8690,6 +8810,7 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('pin-screen').style.display = 'flex';
     document.getElementById('app-pin').style.display = 'block';
     if (!window.pinFocusInterval) window.pinFocusInterval = setInterval(window.forceFocusPin, 200);
+    if (!window.appUnlocked) { document.getElementById('pin-title').textContent = 'Masukkan PIN'; document.getElementById('pin-sub').textContent = 'Keamanan aktif'; document.getElementById('pin-submit-btn').textContent = 'BUKA APLIKASI'; if (window.pinMode !== 'verify_local') window.pinMode = 'verify'; }
     window.rhnStartPinLive(user.uid);
     const secRef = doc(db, 'users', user.uid, 'settings', 'security');
     try {
@@ -8895,9 +9016,25 @@ window.verifyPin = async function() {
         const uid = currentUser ? currentUser.uid : localStorage.getItem('last_uid_rhn'); 
         if (!uid) return; 
         
-        const localPin = localStorage.getItem('local_pin_rhn');
+        let localPin = localStorage.getItem('local_pin_rhn');
+        const __pinMatch = () => window.__pinCloudOk ? (pinInput === window.userCloudPin) : (pinInput === localPin || pinInput === window.userCloudPin);
+        // FAST: PIN diketik lebih cepat dari data keamanan -> tunggu data siap dulu, bukan langsung "PIN Salah!"
+        if (!__pinMatch() && !window.__pinCloudOk && navigator.onLine && !window.__offlineSession) {
+            if (window.__pinWaiting) return;
+            window.__pinWaiting = true;
+            try {
+                const __w0 = Date.now();
+                while (!__pinMatch() && !window.__pinCloudOk && !window.appUnlocked && Date.now() - __w0 < 3000) {
+                    await new Promise(r => setTimeout(r, 40));
+                    localPin = localStorage.getItem('local_pin_rhn');
+                    if (window.pinMode === 'setup' || window.pinMode === 'setup_offline') return;
+                }
+            } finally { window.__pinWaiting = false; }
+            if (window.appUnlocked) return;
+        }
 
-        if (window.__pinCloudOk ? (pinInput === window.userCloudPin) : (pinInput === localPin || pinInput === window.userCloudPin)) { 
+        if (__pinMatch()) { 
+
             window.appUnlocked = true;
             unlockApp(); 
             if (window.__armWelcome) window.__armWelcome();
