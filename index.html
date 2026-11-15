@@ -3131,6 +3131,8 @@ html, body { overscroll-behavior-y: none !important; overscroll-behavior: none !
       </div>
       <button class="subs-cta" id="subs-lanjut-btn" onclick="window.lanjutBayarLangganan()" disabled>PILIH PAKET DULU</button>
 
+      <button class="subs-cta rhn-scan-btn" style="margin-top:12px; background:linear-gradient(135deg,#10B981,#059669); color:#fff;" onclick="window.openScanDayLink()">📷 SCAN QR AKTIVASI</button>
+
       <button class="subs-back" style="margin-top:18px;" onclick="window.toggleReferralInput()">🎁 Punya kode referral seumur hidup?</button>
       <div id="subs-referral-box" style="display:none; margin-top:12px;">
         <div class="form-row">
@@ -5829,42 +5831,90 @@ window.loadDayLinks = async function() {
     }
 };
 
+window.rhnAnimCss = function () {
+    if (document.getElementById('rhn-anim-css')) return;
+    const st = document.createElement('style'); st.id = 'rhn-anim-css';
+    st.textContent = '@keyframes rhnPopIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}' +
+        '@keyframes rhnFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}' +
+        '@keyframes rhnScan{0%{top:10%}50%{top:88%}100%{top:10%}}' +
+        '@keyframes rhnPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.45)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0)}}' +
+        '.rhn-pop-in{animation:rhnPopIn .38s cubic-bezier(.2,.8,.2,1) !important}' +
+        '.rhn-fade-up{opacity:0;animation:rhnFadeUp .5s cubic-bezier(.2,.8,.2,1) forwards}' +
+        '.rhn-scanline{position:absolute;left:10%;right:10%;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#FBBF24,transparent);box-shadow:0 0 14px #FBBF24;animation:rhnScan 2.2s ease-in-out infinite;z-index:5;pointer-events:none}' +
+        '.rhn-scan-btn{transition:transform .2s ease,filter .2s ease;animation:rhnPulse 2.4s ease-in-out infinite}.rhn-scan-btn:active{transform:scale(.97)}';
+    document.head.appendChild(st);
+};
+window.rhnQrNode = function (text, size) {
+    const tmp = document.createElement('div');
+    const q = new QRCode(tmp, { text: text, width: size, height: size, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    const m = q && q._oQRCode;
+    if (m && m.getModuleCount) {
+        const n = m.getModuleCount(), r = window.devicePixelRatio || 1, c = document.createElement('canvas');
+        c.width = c.height = Math.round(size * r); c.style.cssText = 'display:block;width:' + size + 'px;height:' + size + 'px;';
+        const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#000000';
+        const cell = c.width / n;
+        for (let row = 0; row < n; row++) for (let col = 0; col < n; col++) if (m.isDark(row, col)) { const x0 = Math.round(col * cell), y0 = Math.round(row * cell); x.fillRect(x0, y0, Math.round((col + 1) * cell) - x0, Math.round((row + 1) * cell) - y0); }
+        return c;
+    }
+    return tmp;
+};
 window.dayLinkQrDialog = function(url, title, sub) {
+    window.rhnAnimCss();
     return {
         title: title, background: 'var(--card)', color: 'var(--text)', width: 380,
+        showClass: { popup: 'rhn-pop-in' },
         showDenyButton: true, denyButtonText: '💾 SIMPAN QR', confirmButtonText: 'SELESAI', confirmButtonColor: 'var(--gold)', denyButtonColor: 'var(--blue)',
         html: '<div style="display:flex; flex-direction:column; align-items:center; gap:14px;">' +
-            '<div style="font-size:11.5px; color:var(--text3); text-align:center; line-height:1.5;">' + escapeHTML(sub || '') + '</div>' +
-            '<div style="background:#ffffff; padding:16px; border-radius:20px; line-height:0; box-shadow:0 10px 30px rgba(0,0,0,.35);"><div id="daylink-qr" style="width:210px; height:210px; line-height:0;"></div></div>' +
-            '<div style="font-size:12px; font-weight:700; color:var(--text2);">Scan QR ini untuk langsung masuk</div>' +
-            '<input readonly onclick="this.select()" value="' + escapeHTML(url) + '" style="width:100%; box-sizing:border-box; margin:0; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 12px; color:var(--text); font-size:10.5px; text-align:center;">' +
+            '<div class="rhn-fade-up" style="font-size:11.5px; color:var(--text3); text-align:center; line-height:1.5;">' + escapeHTML(sub || '') + '</div>' +
+            '<div class="rhn-fade-up" style="animation-delay:.08s; background:#ffffff; padding:16px; border-radius:20px; line-height:0; box-shadow:0 10px 30px rgba(0,0,0,.35);"><div id="daylink-qr" style="width:210px; height:210px; line-height:0;"></div></div>' +
+            '<div class="rhn-fade-up" style="animation-delay:.16s; font-size:12px; font-weight:700; color:var(--text2);">Scan QR ini untuk langsung masuk</div>' +
+            '<input class="rhn-fade-up" style="animation-delay:.22s; width:100%; box-sizing:border-box; margin:0; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 12px; color:var(--text); font-size:10.5px; text-align:center;" readonly onclick="this.select()" value="' + escapeHTML(url) + '">' +
             '</div>',
         didOpen: () => {
-            try {
-                const box = document.getElementById('daylink-qr'); box.innerHTML = '';
-                new QRCode(box, { text: url, width: 210, height: 210, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
-                const cv = box.querySelector('canvas'), im = box.querySelector('img');
-                const st = 'display:block !important; width:210px !important; height:210px !important; max-width:none !important; margin:0 !important;';
-                if (im) { if (cv) cv.remove(); im.style.cssText = st; } else if (cv) { cv.style.cssText = st; }
-            } catch (e) {}
+            try { const box = document.getElementById('daylink-qr'); box.innerHTML = ''; box.appendChild(window.rhnQrNode(url, 210)); } catch (e) {}
         },
         preDeny: () => { window.dayLinkQrSave(); return false; }
     };
 };
 window.dayLinkQrSave = function() {
     try {
-        const box = document.getElementById('daylink-qr'); if (!box) return;
-        const im = box.querySelector('img'), cv = box.querySelector('canvas');
-        const src = im && im.src ? im.src : (cv ? cv.toDataURL('image/png') : '');
-        if (!src) return;
-        const img = new Image();
-        img.onload = () => {
-            const c = document.createElement('canvas'); c.width = 270; c.height = 270;
-            const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, 270, 270); x.drawImage(img, 30, 30, 210, 210);
-            const a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'qr-link-aktivasi.png'; document.body.appendChild(a); a.click(); a.remove();
-        };
-        img.src = src;
+        const box = document.getElementById('daylink-qr'); const cv = box && box.querySelector('canvas'); if (!cv) return;
+        const c = document.createElement('canvas'); c.width = 540; c.height = 540;
+        const x = c.getContext('2d'); x.fillStyle = '#ffffff'; x.fillRect(0, 0, 540, 540); x.imageSmoothingEnabled = false; x.drawImage(cv, 60, 60, 420, 420);
+        const a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'qr-link-aktivasi.png'; document.body.appendChild(a); a.click(); a.remove();
     } catch (e) {}
+};
+window.openScanDayLink = function() {
+    if (!currentUser) return;
+    window.rhnAnimCss();
+    if (typeof Html5Qrcode === 'undefined') { return Swal.fire({ icon: 'error', title: 'Kamera Tidak Tersedia', text: 'Library scanner gagal dimuat, cek koneksi internet.', background: 'var(--card)', color: 'var(--text)' }); }
+    let inst = null, busy = false;
+    const stop = () => { try { if (inst) { const i = inst; inst = null; i.stop().then(() => i.clear()).catch(() => {}); } } catch (e) {} };
+    const pick = (t) => { t = String(t || ''); try { const p = new URL(t).searchParams.get('paket'); if (p) t = p; } catch (e) {} const m = t.toUpperCase().match(/LNK[0-9A-F]{16}/); return m ? m[0] : null; };
+    Swal.fire({
+        title: 'Scan QR Aktivasi', background: 'var(--card)', color: 'var(--text)', width: 380,
+        showClass: { popup: 'rhn-pop-in' }, showConfirmButton: false, showCancelButton: true, cancelButtonText: 'TUTUP',
+        html: '<div style="font-size:11.5px; color:var(--text3); margin-bottom:12px;">Arahkan kamera ke QR dari IB / admin, akun langsung aktif.</div>' +
+            '<div style="position:relative; width:100%; min-height:260px; border-radius:18px; overflow:hidden; background:#000; border:1px solid var(--border2);"><div id="dl-scan-reader" style="width:100%;"></div><div class="rhn-scanline"></div></div>' +
+            '<div id="dl-scan-status" style="margin-top:12px; font-size:12px; font-weight:700; color:var(--text2);">Menyiapkan kamera...</div>',
+        didOpen: () => {
+            const st = document.getElementById('dl-scan-status');
+            try {
+                inst = new Html5Qrcode('dl-scan-reader');
+                inst.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } }, async (txt) => {
+                    if (busy) return;
+                    const code = pick(txt);
+                    if (!code) { if (st) st.textContent = 'QR tidak dikenali. Coba scan ulang.'; return; }
+                    busy = true; if (st) { st.style.color = 'var(--green2)'; st.textContent = '✅ QR terbaca, memproses...'; }
+                    await new Promise(r => setTimeout(r, 450));
+                    stop(); Swal.close();
+                    await window.redeemDayLink(code);
+                }, () => {}).then(() => { if (st) st.textContent = 'Arahkan kamera ke QR aktivasi.'; })
+                  .catch(() => { if (st) st.textContent = 'Gagal mengakses kamera. Pastikan izin kamera diaktifkan.'; });
+            } catch (e) { if (st) st.textContent = 'Gagal mengakses kamera.'; }
+        },
+        willClose: stop
+    });
 };
 window.showDayLinkQR = function(code) {
     Swal.fire(window.dayLinkQrDialog(dayLinkUrl(code), 'QR Code Link', 'Tunjukkan ke teman, cukup scan lalu login'));
