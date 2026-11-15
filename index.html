@@ -1503,7 +1503,7 @@ body.light-mode #page-ib .ib-pill.wait { color: #B45309; } body.light-mode #page
   #page-ib .ibx-m { flex: 1; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; padding: 16px 14px; border-bottom: none; border-right: 1px solid var(--ix-line); min-width: 0; }
   #page-ib .ibx-m:last-child { border-right: none; }
   #page-ib .ibx-m .v { text-align: left; font-size: 15px; }
-  #page-ib .ibx-list { padding: 18px 24px 8px; }
+  #page-ib .ibx-list { padding: 18px 24px 8px; align-self: stretch; }
 }
 </style>
 <style id="hutang-style">
@@ -6626,8 +6626,8 @@ window.renderIBPage = async function () {
     if (window.__myIB === undefined) {
         el.innerHTML = '<div class="ib-empty"><i class=rhn-ld></i>Memuat dashboard IB...</div>';
         try {
-            const q = await getDocs(query(collection(db, 'ibs'), where('uid', '==', currentUser.uid), limit(1)));
-            window.__myIB = q.empty ? null : q.docs[0].data();
+            const q = await getDocs(query(collection(db, 'ibs'), where('uid', '==', currentUser.uid)));
+            window.__myIB = q.empty ? null : (q.docs.find(d => d.data().status === 'active') || q.docs[0]).data();
         } catch (e) { el.innerHTML = '<div class="ib-empty" style="color:var(--red2);">Gagal memuat: ' + ibEsc(e.message) + '</div>'; return; }
     }
     if (!window.__myIB) {
@@ -6645,11 +6645,12 @@ window.renderIBPage = async function () {
     if (!window.__ibUnsubs.length) {
         window.__ibSeen = {};
         const uid = currentUser.uid, code = window.__myIB.code;
-        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => { console.error('IB listener', key, e); clearTimeout(window.__ibReT); window.__ibReT = setTimeout(() => { ibStopListeners(); if (currentUser) window.renderIBPage(); }, 3000); }));
+        const sub = (q, key) => window.__ibUnsubs.push(onSnapshot(q, s => { const nw = s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => !window.__ib.me || x.ibCode === window.__ib.me.code); const seen = (window.__ibSeen = window.__ibSeen || {}); if (seen[key] && key !== 'wds') { const old = window.__ib[key].map(x => x.id); nw.filter(x => old.indexOf(x.id) < 0).forEach(x => { try { ibSwal({ toast: true, position: 'top', icon: 'success', title: key === 'clients' ? 'Client baru: ' + (x.nama || x.email || '-') : 'Komisi masuk +' + ibRp(x.commission), showConfirmButton: false, timer: 3000 }); } catch (e) {} }); } seen[key] = 1; window.__ib[key] = nw; window.drawIB(); }, e => { console.error('IB listener', key, e); clearTimeout(window.__ibReT); window.__ibReT = setTimeout(() => { ibStopListeners(); if (currentUser) window.renderIBPage(); }, 3000); }));
         window.__ibUnsubs.push(onSnapshot(doc(db, 'ibs', code), s => { if (s.exists()) { window.__myIB = s.data(); window.__ib.me = s.data(); window.drawIB(); } else if (!s.metadata.fromCache) { ibStopListeners(); window.__myIB = null; window.renderIBPage(); } }));
         sub(query(collection(db, 'ibClients'), where('ibUid', '==', uid)), 'clients');
         sub(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid)), 'comms');
         sub(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)), 'wds');
+        window.__ibUnsubs.push(onSnapshot(query(collection(db, 'ibs'), where('uid', '==', uid)), s => { window.__ib.codes = s.docs.map(d => d.data()).sort((x, y) => new Date(x.createdAt || 0) - new Date(y.createdAt || 0)); window.drawIB(); }, () => {}));
         window.ibWatchDayLinks(code);
     }
     window.drawIB();
@@ -6662,7 +6663,7 @@ window.ibPoll = async function () {
     try {
         if (!currentUser || !window.__ib || !window.__ib.me || document.hidden) return;
         const pg = document.getElementById('page-ib'); if (!pg || !pg.classList.contains('active')) return;
-        const uid = currentUser.uid, g = q => getDocs(q).then(s => s.docs.map(d => Object.assign({ id: d.id }, d.data())));
+        const uid = currentUser.uid, g = q => getDocs(q).then(s => s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(x => x.ibCode === window.__ib.me.code));
         const [c, m, w] = await Promise.all([g(query(collection(db, 'ibClients'), where('ibUid', '==', uid))), g(query(collection(db, 'ibCommissions'), where('ibUid', '==', uid))), g(query(collection(db, 'ibWithdrawals'), where('ibUid', '==', uid)))]);
         const sig = JSON.stringify([c, m, w]);
         if (sig !== window.__ibSig) { window.__ibSig = sig; window.__ib.clients = c; window.__ib.comms = m; window.__ib.wds = w; window.drawIB(); }
@@ -7357,6 +7358,8 @@ window.drawIB = function () {
     const comms = window.__ib.comms.filter(x => !window.ibIsHidden('m', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const wds = window.__ib.wds.filter(x => !window.ibIsHidden('w', x.id)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const now = Date.now();
+    const codes = (window.__ib.codes && window.__ib.codes.length ? window.__ib.codes : [ib]).filter((c, i, a) => a.findIndex(y => y.code === c.code) === i);
+    const codesHtml = codes.map(c => `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--ix-line);"><div style="min-width:0;"><b class="mono" style="font-size:13px; color:var(--ix-ac-t);">${ibEsc(c.code)}</b><div class="ibx-sub" style="font-size:10.5px;">${c.code === ib.code ? 'Sedang ditampilkan' : (c.status === 'active' ? 'Aktif' : (c.status === 'pending' ? 'Menunggu persetujuan admin' : (c.status === 'rejected' ? 'Ditolak admin' : 'Nonaktif')))} • ${ibEsc(String(c.rate))}%</div></div><div style="display:flex; gap:6px; flex-shrink:0;">${c.code === ib.code || c.status !== 'active' ? '' : `<button class="ibx-del" style="color:var(--text);" onclick="window.ibUseCode('${ibEsc(c.code)}')">Pakai</button>`}<button class="ibx-del" onclick="window.ibDeleteCode('${ibEsc(c.code)}')">Hapus</button></div></div>`).join('');
     const pill = st => st === 'paid' ? '<span class="ib-pill ok">SUDAH DIBAYAR</span>' : (st === 'rejected' ? '<span class="ib-pill bad">DITOLAK</span>' : '<span class="ib-pill wait">DIPROSES</span>');
     const X = window.ibxIc, tab = window.__ibTab || 'client';
     const ini = n => ibEsc((String(n || '?').trim().charAt(0) || '?').toUpperCase());
@@ -7384,6 +7387,10 @@ window.drawIB = function () {
           ${(location.protocol === 'file:' && !(window.IB_BASE_URL || '').trim()) ? '<div class="ibx-warn">⚠️ Link ini masih alamat file di komputer (file:///), tidak bisa dibuka orang lain. Upload aplikasi ke hosting dulu lalu isi IB_BASE_URL.</div>' : ''}
         </div>
         <div class="ibx-qr"><div id="ib-qr"></div><div class="ibx-cap">Scan QR untuk daftar lewat link kamu</div></div>
+        <div><div class="ibx-lbl">Kode IB Saya</div>
+          ${codesHtml}
+          ${ib.status === 'active' ? `<button class="ibx-btn pri" style="width:100%; margin-top:10px;" onclick="window.ibCreateCode()">${X('plus')}BUAT IB BARU</button>` : ''}
+        </div>
         <button class="ibx-btn ghost" onclick="window.openCSChat()">${X('chat')}CHAT ADMIN</button>
         ${ib.status === 'active' ? `<button class="ibx-btn pri" onclick="window.createDayLink()">${X('plus')}BUAT LINK OFFLINE / LANGSUNG</button>` : ''}
       </aside>
@@ -7461,6 +7468,51 @@ window.ibDayLinksDraw = function () {
         const lb = used ? '● TERPAKAI' : (v.disabled ? '● NONAKTIF' : '● AKTIF');
         return `<div class="ib-admin-card"><div class="ib-row" style="border:none; padding:0;"><div><div class="t">${v.linkLifetime ? 'SEUMUR HIDUP' : ibEsc(String(v.linkDays)) + ' HARI'}${v.linkNote ? ' · ' + ibEsc(v.linkNote) : ''}</div><div class="s">Terpakai ${v.usedCount || 0}/${v.maxUses || 1}</div></div><div class="r" style="font-size:11px; font-weight:800;">${lb}</div></div><input type="text" readonly onclick="this.select()" value="${ibEsc(dayLinkUrl(id))}" style="width:100%; box-sizing:border-box; background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:9px 11px; color:var(--text); font-size:10px; margin:8px 0;"><div class="ibx-2"><button class="ibx-btn pri" onclick="window.copyDayLink('${id}')">📋 SALIN</button><button class="ibx-btn blue" onclick="window.showDayLinkQR('${id}')">📱 QR CODE</button></div><div class="ibx-2" style="margin-top:8px;">${used ? '' : `<button class="ibx-btn ghost" style="color:var(--gold); border-color:var(--gold);" onclick="window.toggleDayLink('${id}', ${!!v.disabled})">${v.disabled ? '✅ AKTIFKAN' : '⏸ NONAKTIFKAN'}</button>`}<button class="ibx-btn ghost" style="color:var(--red2); border-color:var(--red2);" onclick="window.deleteDayLink('${id}')">🗑️ HAPUS</button></div></div>`;
     }).join('');
+};
+window.ibUseCode = function (code) {
+    const c = (window.__ib.codes || []).find(x => x.code === code); if (!c) return;
+    ibStopListeners(); window.__myIB = c; window.__ib.me = c; window.__ib.clients = []; window.__ib.comms = []; window.__ib.wds = [];
+    window.__ibQrNode = null; window.__ibDayLinks = null; window.__ibDayLinksLoaded = false; window.__ibSig = null;
+    const q = document.getElementById('ib-qr'); if (q) q.innerHTML = '';
+    const el = document.getElementById('ib-root'); if (el) el.__ibHtml = null;
+    window.renderIBPage();
+};
+window.ibCreateCode = async function () {
+    const me = window.__ib.me; if (!me || me.status !== 'active' || !currentUser) return;
+    if ((window.__ib.codes || []).length >= 10) return ibSwal({ icon: 'info', title: 'Maksimal 10 kode IB' });
+    if ((window.__ib.codes || []).some(x => x.status === 'pending')) return ibSwal({ icon: 'info', title: 'Masih menunggu admin', text: 'Pengajuan IB baru sebelumnya belum disetujui admin.' });
+    const r = await ibSwal({ icon: 'question', title: 'Buat IB baru?', text: 'Kode baru harus disetujui admin dulu sebelum aktif. Komisi ' + me.rate + '%, mulai dari nol (komisi, client, penarikan terpisah dari kode lain).', showCancelButton: true, confirmButtonText: 'BUAT' });
+    if (!r.isConfirmed) return;
+    try {
+        let code = '', tries = 0;
+        while (tries < 6) { code = 'IB' + Math.random().toString(36).slice(2, 8).toUpperCase(); if (!(await getDoc(doc(db, 'ibs', code))).exists()) break; tries++; }
+        const now = new Date().toISOString();
+        const data = { code, uid: me.uid, email: me.email || '', nama: me.nama, rate: me.rate, status: 'pending', createdAt: now, payout: me.payout || {}, application: me.application || {} };
+        await setDoc(doc(db, 'ibs', code), data);
+        if (!(window.__ib.codes || []).some(x => x.code === code)) window.__ib.codes = (window.__ib.codes || [me]).concat([data]);
+        window.drawIB();
+        window.showSaveSuccess('IB Baru Diajukan', 1800, 'Kode ' + code + ' aktif setelah disetujui admin.');
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Membuat IB', text: e.message }); }
+};
+window.ibDeleteCode = async function (code) {
+    const codes = window.__ib.codes || [], me = window.__ib.me; if (!me || !currentUser) return;
+    const rest = codes.filter(x => x.code !== code);
+    if (!rest.some(x => x.status === 'active') && (codes.find(x => x.code === code) || {}).status === 'active') return ibSwal({ icon: 'info', title: 'Tidak bisa dihapus', text: 'Minimal harus ada 1 kode IB aktif. Ajukan IB baru dan tunggu disetujui admin, lalu hapus yang lama.' });
+    const r = await ibSwal({ icon: 'warning', title: 'Hapus IB ' + ibEsc(code) + '?', text: 'Semua histori kode ini ikut terhapus dan ter-reset: total komisi, client, tidak bayar, komisi, penarikan, dan link aktivasinya. Tidak bisa dikembalikan.', showCancelButton: true, confirmButtonText: 'Ya, hapus & reset', cancelButtonText: 'Batal', confirmButtonColor: 'var(--red2)' });
+    if (!r.isConfirmed) return;
+    const to = rest.find(x => x.status === 'active') || rest[0], uid = currentUser.uid;
+    window.__ib.codes = rest; if (me.code === code) window.ibUseCode(to.code); else window.drawIB();
+    try {
+        const refs = [];
+        for (const col of ['ibClients', 'ibCommissions', 'ibWithdrawals']) {
+            const sn = await getDocs(query(collection(db, col), where('ibUid', '==', uid)));
+            sn.docs.forEach(d => { if (d.data().ibCode === code) refs.push(d.ref); });
+        }
+        try { const ls = await getDocs(query(collection(db, 'referralCodes'), where('ibCode', '==', code))); ls.docs.forEach(d => { if (d.data().linkDays) refs.push(d.ref); }); } catch (e) {}
+        refs.push(doc(db, 'ibs', code));
+        for (let i = 0; i < refs.length; i += 400) { const b = writeBatch(db); refs.slice(i, i + 400).forEach(x => b.delete(x)); await b.commit(); }
+        window.showSaveSuccess('IB Dihapus & Direset', 1200);
+    } catch (e) { ibSwal({ icon: 'error', title: 'Gagal Menghapus IB', text: e.message }); }
 };
 window.ibWatchDayLinks = function (code) {
     try {
@@ -7750,7 +7802,8 @@ window.adminIBDelete = async function (code) {
         icon: 'warning', title: 'Hapus IB ' + ibEsc(ib.nama) + '?',
         html: '<div style="font-size:12px; text-align:left; line-height:1.6;">Link IB <b>' + ibEsc(code) + '</b> langsung mati.' + (pn > 0 ? '<br>⚠️ Masih ada penarikan pending ' + ibRp(pn) + '.' : '') + ((tc - pd - pn) > 0 ? '<br>⚠️ Saldo IB belum ditarik ' + ibRp(tc - pd - pn) + '.' : '') + '</div>',
         input: 'checkbox', inputValue: 1, inputPlaceholder: 'Hapus juga semua client, komisi & penarikan IB ini (' + cl.length + ' client)',
-        showCancelButton: true, confirmButtonText: 'HAPUS', confirmButtonColor: 'var(--red2)'
+        showCancelButton: true, confirmButtonText: 'HAPUS', confirmButtonColor: 'var(--red2)',
+        didOpen: () => { const c = Swal.getPopup().querySelector('.swal2-checkbox'); if (c) { c.style.cssText += ';background:var(--bg3);color:var(--text);border-radius:14px;padding:12px 14px;margin:12px 20px 4px;justify-content:flex-start;gap:10px;font-size:12.5px;line-height:1.5;text-align:left;'; c.querySelectorAll('span,label').forEach(x => { x.style.color = 'var(--text)'; x.style.background = 'transparent'; }); } }
     });
     if (!r.isConfirmed) return;
     try {
