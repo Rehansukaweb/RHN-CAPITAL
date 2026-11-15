@@ -6696,7 +6696,7 @@ window.WALLET_EXTRA = [{ g: 'trading', n: 'MT5 Trading', bg: '#1F2937', fg: '#ff
   { g: 'invest', n: 'Reksa Dana', bg: '#0F766E', fg: '#fff', t: 'Reksa' },
   { g: 'invest', n: 'Saham', bg: '#334155', fg: '#fff', t: 'Saham' },
   { g: 'invest', n: 'Crypto', bg: '#F7931A', fg: '#fff', t: 'Crypto' }];
-window.WALLET_EXTRA_GROUPS = [['exchange','Crypto Exchange'],['cwallet','Wallet Crypto & DeFi'],['broker','Forex, CFD & Broker'],['prop','Prop Firm'],['sekuritas','Saham & Sekuritas'],['global','Pembayaran Global']];
+window.WALLET_EXTRA_GROUPS = [['bankid','Bank Indonesia (Lengkap)'],['ewid','E-Wallet & Uang Elektronik Indonesia'],['cwallet','Wallet Crypto & DeFi'],['prop','Prop Firm'],['sekuritas','Saham & Sekuritas'],['global','Pembayaran Global']];
 window.WALLET_EXTRA = window.WALLET_EXTRA.concat([
  ['exchange','Bybit','#F7A600','#000','Bybit'],['exchange','OKX','#000000','#fff','OKX'],['exchange','Coinbase','#0052FF','#fff','Coinbase'],['exchange','Kraken','#5741D9','#fff','Kraken'],
  ['exchange','KuCoin','#23AF91','#fff','KuCoin'],['exchange','Bitget','#00C2D6','#001014','Bitget'],['exchange','Gate.io','#2354E6','#fff','Gate'],['exchange','MEXC','#00B897','#fff','MEXC'],
@@ -6751,17 +6751,241 @@ window.WALLET_EXTRA = window.WALLET_EXTRA.concat([
  ['global','Payfazz','#3B82F6','#fff','Payfazz'],['global','DOKU','#E4002B','#fff','DOKU'],['global','Kredivo','#F58220','#fff','Kredivo'],['global','Akulaku','#E4002B','#fff','Akulaku'],
  ['global','Traveloka Pay','#0194F3','#fff','TravPay'],['global','Tokopedia Saldo','#42B549','#fff','Tokped'],['global','Blibli Saldo','#0A8AE0','#fff','Blibli'],['global','Grab Pay','#00B14F','#fff','GrabPay']
 ].map(a => ({ g: a[0], n: a[1], bg: a[2], fg: a[3], t: a[4] })));
-window.ibFindAny = function (name) { return window.ibFindBank(name) || window.WALLET_EXTRA.find(b => b.n.toLowerCase() === String(name || '').trim().toLowerCase()) || null; };
+window.WALLET_EXTRA = window.WALLET_EXTRA.concat([
+  ['bankid','BTPN','#0A6CB5','#fff','BTPN'],
+  ['bankid','Bank Mayapada','#C8102E','#fff','Mayapada'],
+  ['bankid','Bank Sinarmas','#D71920','#fff','Sinarmas'],
+  ['bankid','Bank UOB Indonesia','#0B3D91','#fff','UOB'],
+  ['bankid','HSBC Indonesia','#DB0011','#fff','HSBC'],
+  ['bankid','Citibank Indonesia','#056DAE','#fff','Citi'],
+  ['bankid','Standard Chartered','#0473EA','#fff','SC'],
+  ['bankid','DBS Indonesia','#E31E24','#fff','DBS'],
+  ['bankid','Bank ICBC Indonesia','#C4161C','#fff','ICBC'],
+  ['bankid','Bank CCB Indonesia','#0B4EA2','#fff','CCB'],
+  ['bankid','Bank of China','#B5121B','#fff','BOC'],
+  ['bankid','Bank Woori Saudara','#0067B1','#fff','Woori'],
+  ['bankid','KB Bank (Bukopin)','#F5A800','#1a1200','KB'],
+  ['bankid','Bank Shinhan','#0046FF','#fff','Shinhan'],
+  ['bankid','Bank QNB Indonesia','#7A0F3D','#fff','QNB'],
+  ['bankid','Bank Victoria','#00529C','#fff','Victoria'],
+  ['bankid','Bank Artha Graha','#B8860B','#fff','ArthaGr'],
+  ['bankid','Bank Bumi Arta','#0F766E','#fff','BumiArta'],
+  ['bankid','Bank Capital','#1D4ED8','#fff','Capital'],
+  ['bankid','Bank Ina Perdana','#0EA5E9','#fff','Ina'],
+  ['bankid','Bank Index Selindo','#334155','#fff','Index'],
+  ['bankid','Bank Mestika','#B91C1C','#fff','Mestika'],
+  ['bankid','Bank MNC','#E11D48','#fff','MNC'],
+  ['bankid','Bank Nationalnobu','#7C3AED','#fff','Nobu'],
+  ['bankid','Bank Resona Perdania','#00A0DC','#fff','Resona'],
+  ['bankid','Bank Sahabat Sampoerna','#0B5FFF','#fff','Sampoerna'],
+  ['bankid','Bank Maspion','#16A34A','#fff','Maspion'],
+  ['bankid','Bank Mayora','#DC2626','#fff','Mayora'],
+  ['bankid','Bank Multiarta Sentosa','#0369A1','#fff','MAS'],
+  ['bankid','Bank Oke Indonesia','#F59E0B','#1a1200','Oke'],
+  ['bankid','Bank Amar','#00B894','#fff','Amar'],
+  ['bankid','Bank Aladin Syariah','#0D9488','#fff','Aladin'],
+  ['bankid','Bank Raya','#0057A8','#fff','Raya'],
+  ['bankid','Bank Jasa Jakarta','#1E3A8A','#fff','JasaJkt'],
+  ['bankid','Bank Ganesha','#9333EA','#fff','Ganesha'],
+  ['bankid','Bank Mizuho Indonesia','#003A8F','#fff','Mizuho'],
+  ['bankid','Bank SMBC Indonesia','#00A651','#fff','SMBC'],
+  ['bankid','Bank MUFG Indonesia','#D4202C','#fff','MUFG'],
+  ['bankid','Bank of India Indonesia','#F58220','#fff','BOI'],
+  ['bankid','Bank Dinar','#0F766E','#fff','Dinar'],
+  ['bankid','Bank Royal','#1D4ED8','#fff','Royal'],
+  ['bankid','Bank Hibank','#E4002B','#fff','Hibank'],
+  ['bankid','Bank Krom','#6D28D9','#fff','Krom'],
+  ['bankid','Bank Mandiri Taspen','#00386E','#FDB913','Taspen'],
+  ['bankid','Bank Jateng','#E31E24','#fff','Jateng'],
+  ['bankid','Bank Jatim','#0A5CAE','#fff','Jatim'],
+  ['bankid','Bank Jambi','#16A34A','#fff','Jambi'],
+  ['bankid','Bank Sumut','#1D4ED8','#fff','Sumut'],
+  ['bankid','Bank Nagari','#B91C1C','#fff','Nagari'],
+  ['bankid','Bank Riau Kepri Syariah','#0E7490','#fff','BRK'],
+  ['bankid','Bank Sumsel Babel','#F59E0B','#1a1200','SumselB'],
+  ['bankid','Bank Lampung','#0F766E','#fff','Lampung'],
+  ['bankid','Bank Bengkulu','#7C3AED','#fff','Bengkulu'],
+  ['bankid','Bank Kalbar','#0B5FFF','#fff','Kalbar'],
+  ['bankid','Bank Kalsel','#E11D48','#fff','Kalsel'],
+  ['bankid','Bank Kaltimtara','#0369A1','#fff','Kaltim'],
+  ['bankid','Bank Kalteng','#16A34A','#fff','Kalteng'],
+  ['bankid','Bank SulutGo','#DC2626','#fff','SulutGo'],
+  ['bankid','Bank Sulselbar','#1E40AF','#fff','Sulselbar'],
+  ['bankid','Bank Sultra','#0D9488','#fff','Sultra'],
+  ['bankid','Bank Sulteng','#B45309','#fff','Sulteng'],
+  ['bankid','Bank NTB Syariah','#15803D','#fff','NTB'],
+  ['bankid','Bank NTT','#C8102E','#fff','NTT'],
+  ['bankid','Bank Maluku Malut','#0A66C2','#fff','Maluku'],
+  ['bankid','Bank Papua','#E31E24','#fff','Papua'],
+  ['bankid','Bank Aceh Syariah','#0B7A3E','#fff','Aceh'],
+  ['bankid','Bank BPD Bali','#F58220','#fff','BPDBali'],
+  ['bankid','Bank BPD DIY','#0A5CAE','#fff','BPDDIY'],
+  ['bankid','Bank Banten','#1D4ED8','#fff','Banten'],
+  ['bankid','Bank Kepri','#0E7490','#fff','Kepri'],
+  ['bankid','BCA Syariah','#0A5CAE','#fff','BCAS'],
+  ['bankid','Bank Mega Syariah','#0066B3','#fff','MegaS'],
+  ['bankid','Bank Panin Dubai Syariah','#0057A8','#fff','PaninS'],
+  ['bankid','Bank Victoria Syariah','#00529C','#fff','VictS'],
+  ['bankid','BTPN Syariah','#F58220','#fff','BTPNS'],
+  ['bankid','BJB Syariah','#00709E','#fff','bjbS'],
+  ['bankid','KB Bank Syariah','#F5A800','#1a1200','KBS'],
+  ['bankid','Bank Syariah Indonesia (BSI)','#00A19B','#fff','BSI'],
+  ['bankid','Permata Syariah','#0E9F4A','#fff','PermataS'],
+  ['bankid','CIMB Niaga Syariah','#8B0A1E','#fff','CIMBS'],
+  ['bankid','Danamon Syariah','#F28C1B','#fff','DanamonS'],
+  ['bankid','Maybank Syariah','#FFC82E','#1a1200','MaybankS'],
+  ['bankid','OCBC Syariah','#E3000F','#fff','OCBCS'],
+  ['ewid','Paytren','#0EA5E9','#fff','Paytren'],
+  ['ewid','AstraPay','#0B3B8C','#fff','AstraPay'],
+  ['ewid','TrueMoney','#F58220','#fff','TrueMoney'],
+  ['ewid','Ottopay','#E31E24','#fff','Ottopay'],
+  ['ewid','Dompetku Indosat','#E4002B','#fff','Dompetku'],
+  ['ewid','Flazz BCA','#0A5CAE','#fff','Flazz'],
+  ['ewid','e-Money Mandiri','#00386E','#FDB913','eMoney'],
+  ['ewid','BRIZZI BRI','#00529C','#fff','BRIZZI'],
+  ['ewid','TapCash BNI','#F37021','#fff','TapCash'],
+  ['ewid','JakCard','#E2231A','#fff','JakCard'],
+  ['ewid','Motionpay','#E11D48','#fff','Motion'],
+  ['ewid','Simas Pay','#D71920','#fff','SimasPay'],
+  ['ewid','Nobu E-Money','#7C3AED','#fff','NobuPay'],
+  ['ewid','YAP! BNI','#F37021','#fff','YAP'],
+  ['ewid','Pospay','#F58220','#fff','Pospay'],
+  ['ewid','Alto','#0F766E','#fff','Alto'],
+  ['ewid','OCTO Pay','#E3000F','#fff','OCTO'],
+  ['ewid','Doku Wallet','#E4002B','#fff','DOKU'],
+  ['ewid','Bukalapak Dompet','#E31E52','#fff','BukaDmp'],
+  ['ewid','Lazada Wallet','#0F146D','#fff','Lazada'],
+  ['ewid','LinkAja Syariah','#E82529','#fff','LA Syr'],
+  ['ewid','Telkomsel Cash','#E4002B','#fff','TCash'],
+  ['ewid','Sakuku BCA','#0A5CAE','#fff','Sakuku'],
+  ['ewid','Kartu Jenius Pay','#00A6E3','#fff','Jenius'],
+  ['ewid','GoPay Later','#00AED6','#fff','GoPayLtr'],
+  ['ewid','OVO Points','#4C2A86','#fff','OVO Pts'],
+  ['ewid','ShopeePay Later','#EE4D2D','#fff','SPLater'],
+  ['ewid','DANA Syariah','#118EEA','#fff','DANA S']
+].map(a => ({ g: a[0], n: a[1], bg: a[2], fg: a[3], t: a[4] })));
+window.ibFindAny = function (name) { return window.ibFindBank(name) || window.WALLET_EXTRA.find(b => b.n.toLowerCase() === String(name || '').trim().toLowerCase()) || window.ibAutoBrand(name) || null; };
+// Nama bank / e-wallet ketikan user -> warna & logo otomatis (cocok ke merek asli; kalau tak dikenal, warna dibuat dari nama)
+window.ibAutoBrand = function (name) {
+  const raw = String(name || '').trim(); if (!raw) return null;
+  const nz = s => String(s).toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]/g, '').replace(/^bank/, '');
+  const q = nz(raw);
+  const AL = { centralasia: 'BCA', mbca: 'BCA', klikbca: 'BCA', bcamobile: 'BCA', livin: 'Mandiri', wondr: 'BNI', rakyatindonesia: 'BRI', brimo: 'BRI', negaraindonesia: 'BNI', octo: 'CIMB Niaga', cimb: 'CIMB Niaga', mybca: 'BCA', byond: 'BSI', jakone: 'Bank DKI', neobank: 'Bank Neo Commerce', tmrw: 'Bank UOB Indonesia', msmile: 'Bank Mega', spay: 'ShopeePay', syariahindonesia: 'BSI' };
+  const pool = window.IB_BANKS.concat(window.WALLET_EXTRA.filter(b => ['bank', 'ewallet', 'bankid', 'ewid', 'global'].indexOf(b.g) > -1));
+  if (q) {
+    if (AL[q]) { const a = pool.find(b => b.n === AL[q]); if (a) return a; }
+    let best = null, bl = 0;
+    pool.forEach(b => { const c = nz(b.n); if (c.length >= 3 && q.indexOf(c) === 0 && c.length > bl) { best = b; bl = c.length; } });
+    if (!best && q.length >= 3) pool.forEach(b => { const c = nz(b.n); if (c.indexOf(q) === 0 && (!best || c.length < bl)) { best = b; bl = c.length; } });
+    if (best) return best;
+  }
+  let h = 0; raw.toLowerCase().split('').forEach(ch => { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
+  const hue = h % 360, l = 0.38, a2 = 0.62 * Math.min(l, 1 - l);
+  const k = n => { const kk = (n + hue / 30) % 12; const c = l - a2 * Math.max(-1, Math.min(kk - 3, 9 - kk, 1)); return Math.round(255 * c).toString(16).padStart(2, '0'); };
+  const w = raw.split(/\s+/);
+  return { g: 'custom', n: raw, bg: '#' + k(0) + k(8) + k(4), fg: '#fff', t: w.length > 1 ? w.slice(0, 4).map(x => x[0]).join('').toUpperCase() : raw.slice(0, 5) };
+};
+window.cwBrandPrev = function (el) {
+  const p = el && el.nextElementSibling; if (!p) return;
+  const b = window.ibFindAny(window.cwSanitize(el.value));
+  p.innerHTML = b ? window.ibBankLogo(b.n, 56) + '<div style="font-size:12px;font-weight:800;color:var(--text);margin-top:6px;">' + ibEsc(b.n) + '</div>' : '';
+};
+window.cwBrandInput = function (id, val, ph) {
+  const b = window.ibFindAny(window.cwSanitize(val));
+  return '<input id="' + id + '" class="swal2-input" maxlength="24" autocomplete="off" placeholder="' + ph + '" value="' + ibEsc(val || '') + '" oninput="window.cwBrandPrev(this)" style="margin:0 0 10px;width:100%;">'
+    + '<div style="text-align:center;min-height:84px;">' + (b ? window.ibBankLogo(b.n, 56) + '<div style="font-size:12px;font-weight:800;color:var(--text);margin-top:6px;">' + ibEsc(b.n) + '</div>' : '') + '</div>';
+};
+// ---------- LOGO ASLI BANK / E-WALLET (SVG resmi dari paket idn-finlogos via CDN jsDelivr, versi dikunci) ----------
+window.IB_LOGO_CDN = 'https://cdn.jsdelivr.net/npm/idn-finlogos@2.5.0/dist/';
+window.IB_LOGO_SLUGS = 'aladin allo amar-bank anz bangkok-bank bank-artha-graha-internasional bank-bengkulu bank-bjb bank-bjb-syariah bank-bpd-aceh bank-bpd-bali bank-bpd-banten bank-bpd-diy bank-bpd-jambi bank-bpd-jateng bank-bpd-jatim bank-bpd-kalbar bank-bpd-kalimantan-timur bank-bpd-kalsel bank-bpd-kalteng bank-bpd-lampung bank-bpd-maluku-malut bank-bpd-ntb-syariah bank-bpd-ntt bank-bpd-papua bank-bpd-riau-kepri bank-bpd-riau-kepri-syariah bank-bpd-sulselbar bank-bpd-sulteng bank-bpd-sultra bank-bpd-sulutgo bank-bpd-sumsel-babel bank-bpd-sumut bank-bumi-artha bank-capital bank-ganesha bank-ina bank-index-selindo bank-jakarta bank-jasa-jakarta bank-lampung bank-mas bank-maspion bank-mayapada bank-mayora bank-mestika-dharma bank-nagari bank-of-america bank-of-china bank-of-india bank-of-india-indonesia bank-raya bank-resona-perdania bank-sahabat-sampoerna bank-saqu bank-smbc-indonesia bank-victoria bank-victoria-syariah bank-woori-saudara bca bca-digital bca-syariah blu-bca bnc bni bnp-paribas bri bsi bsn btn btn-syariah btpn btpn-syariah ccb-indonesia cimb-niaga cimb-niaga-syariah citibank commonwealth credit-suisse ctbc-bank danamon danamon-mufg danamon-syariah dbs deutsche-bank hibank hsbc ibk-bank icbc ing-bank j-trust-bank jago jenius jp-morgan-chase kb-bukopin kb-bukopin-syariah keb-hana-bank krom line-bank mandiri mandiri-taspen maybank mega mega-syariah mizuho-bank mnc mnc-bank motion-banking muamalat mufg nanobank-syariah nobu ocbc-nisp ok-bank panin-dubai-syariah paninbank permata prima-bank qnb sbi-indonesia seabank shinhan-bank sinarmas sinarmas-syariah standard-chartered superbank uob welab-bank astra-pay bluepay dana dipay doku dutamoney gopay i-saku jakone-pay kaspro linkaja motion-pay netzme otto-pay ovo paydia paytren pospay shopee-pay speedcash truemoney uangku yukk bca-flazz bni-tapcash bri-brizzi e-toll-card jakcard mandiri-e-money bca-klikpay bri-direct-debit jenius-pay mandiri-e-cash oneklik uob-ez-pay bca-mobile brimo bsi-mobile digibank mandiri-livin octo-clicks wondr-by-bni gopaylater kredivo akulaku flip paypal wise payoneer skrill alipay wechat-pay google-pay apple-pay grab-pay stripe western-union moneygram tokopedia shopee blibli bukalapak lazada alto qris'.split(' ');
+window.IB_LOGO_MAP = {"BCA":"bca","Mandiri":"mandiri","BNI":"bni","BRI":"bri","BTN":"btn","CIMB Niaga":"cimb-niaga","Permata":"permata","Danamon":"danamon","OCBC":"ocbc-nisp","Maybank":"maybank","Panin":"paninbank","Jenius (BTPN)":"jenius","Bank Jago":"jago","SeaBank":"seabank","Allo Bank":"allo","Bank Neo Commerce":"bnc","blu by BCA Digital":"blu-bca","Superbank":"superbank","Bank Mega":"mega","BSI":"bsi","Bank Muamalat":"muamalat","Bank BJB":"bank-bjb","Bank DKI":"bank-jakarta","GoPay":"gopay","DANA":"dana","OVO":"ovo","ShopeePay":"shopee-pay","LinkAja":"linkaja","iSaku":"i-saku","Flip":"flip","BTPN":"btpn","Bank Sinarmas":"sinarmas","Bank UOB Indonesia":"uob","HSBC Indonesia":"hsbc","Citibank Indonesia":"citibank","DBS Indonesia":"dbs","Bank ICBC Indonesia":"icbc","Bank CCB Indonesia":"ccb-indonesia","Bank Shinhan":"shinhan-bank","Bank QNB Indonesia":"qnb","Bank Artha Graha":"bank-artha-graha-internasional","Bank Bumi Arta":"bank-bumi-artha","Bank Ina Perdana":"bank-ina","Bank Mestika":"bank-mestika-dharma","Bank MNC":"mnc-bank","Bank Nationalnobu":"nobu","Bank Multiarta Sentosa":"bank-mas","Bank Oke Indonesia":"ok-bank","Bank Amar":"amar-bank","Bank Aladin Syariah":"aladin","Bank Mizuho Indonesia":"mizuho-bank","Bank MUFG Indonesia":"mufg","Bank Hibank":"hibank","Bank Krom":"krom","Bank Mandiri Taspen":"mandiri-taspen","KB Bank (Bukopin)":"kb-bukopin","KB Bank Syariah":"kb-bukopin-syariah","Bank Jateng":"bank-bpd-jateng","Bank Jatim":"bank-bpd-jatim","Bank Jambi":"bank-bpd-jambi","Bank Sumut":"bank-bpd-sumut","Bank Riau Kepri Syariah":"bank-bpd-riau-kepri-syariah","Bank Sumsel Babel":"bank-bpd-sumsel-babel","Bank Lampung":"bank-bpd-lampung","Bank Kalbar":"bank-bpd-kalbar","Bank Kalsel":"bank-bpd-kalsel","Bank Kaltimtara":"bank-bpd-kalimantan-timur","Bank Kalteng":"bank-bpd-kalteng","Bank SulutGo":"bank-bpd-sulutgo","Bank Sulselbar":"bank-bpd-sulselbar","Bank Sultra":"bank-bpd-sultra","Bank Sulteng":"bank-bpd-sulteng","Bank NTB Syariah":"bank-bpd-ntb-syariah","Bank NTT":"bank-bpd-ntt","Bank Maluku Malut":"bank-bpd-maluku-malut","Bank Papua":"bank-bpd-papua","Bank Aceh Syariah":"bank-bpd-aceh","Bank BPD Bali":"bank-bpd-bali","Bank BPD DIY":"bank-bpd-diy","Bank Banten":"bank-bpd-banten","Bank Kepri":"bank-bpd-riau-kepri","Bank Mega Syariah":"mega-syariah","Bank Panin Dubai Syariah":"panin-dubai-syariah","BJB Syariah":"bank-bjb-syariah","Bank Syariah Indonesia (BSI)":"bsi","AstraPay":"astra-pay","Ottopay":"otto-pay","Flazz BCA":"bca-flazz","e-Money Mandiri":"mandiri-e-money","BRIZZI BRI":"bri-brizzi","TapCash BNI":"bni-tapcash","JakCard":"jakcard","Motionpay":"motion-pay","Doku Wallet":"doku","Bukalapak Dompet":"bukalapak","Lazada Wallet":"lazada","LinkAja Syariah":"linkaja","Kartu Jenius Pay":"jenius-pay","GoPay Later":"gopaylater","OVO Points":"ovo","ShopeePay Later":"shopee-pay","DANA Syariah":"dana","Jenius Pay":"jenius-pay","Tokopedia Saldo":"tokopedia","Blibli Saldo":"blibli","Grab Pay":"grab-pay","Alto":"alto","Pospay":"pospay","Paytren":"paytren","TrueMoney":"truemoney","Bank Victoria":"bank-victoria","Bank Capital":"bank-capital","Bank Maspion":"bank-maspion","Bank Mayapada":"bank-mayapada","Bank Mayora":"bank-mayora","Bank Index Selindo":"bank-index-selindo","Bank Ganesha":"bank-ganesha","Bank Raya":"bank-raya","Bank Jasa Jakarta":"bank-jasa-jakarta","Bank Woori Saudara":"bank-woori-saudara","Bank Sahabat Sampoerna":"bank-sahabat-sampoerna","Bank Resona Perdania":"bank-resona-perdania","Bank of China":"bank-of-china","Bank of India Indonesia":"bank-of-india-indonesia","BCA Syariah":"bca-syariah","BTPN Syariah":"btpn-syariah","CIMB Niaga Syariah":"cimb-niaga-syariah","Danamon Syariah":"danamon-syariah","Standard Chartered":"standard-chartered","Bank Victoria Syariah":"bank-victoria-syariah","Bank SMBC Indonesia":"bank-smbc-indonesia","Bank Bengkulu":"bank-bengkulu","Bank Nagari":"bank-nagari"};
+window.ibLogoUrl = function (name, svg) {
+  const raw = String(name || '').trim(); if (!raw) return '';
+  let sl = window.IB_LOGO_MAP[raw];
+  if (!sl) { const k = raw.toLowerCase().replace(/[^a-z0-9]/g, ''); sl = window.IB_LOGO_SLUGS.find(x => x.replace(/-/g, '') === k); }
+  return sl ? window.IB_LOGO_CDN + (svg ? 'icons/' + sl + '.svg' : 'png/' + sl + '@2x.png') : '';
+};
+// Latar logo = warna merek (bukan putih). Dipilih otomatis supaya logo tetap terlihat jelas: warna merek penuh -> tint merek -> putih
+window.ibRgb = function (hex) { let h = String(hex || '').replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h, 16); return isNaN(n) || h.length !== 6 ? [42, 42, 51] : [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+window.ibTint = function (hex, a) { a = a == null ? 0.22 : a; const c = window.ibRgb(hex).map(v => Math.round(v * a + 255 * (1 - a))); return 'rgb(' + c.join(',') + ')'; };
+window.ibPickBg = function (d, hex) {
+  const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) + 0.05; };
+  const full = window.ibRgb(hex), tint = window.ibTint(hex, 0.22).match(/\d+/g).map(Number);
+  const cands = [[full, 'rgb(' + full.join(',') + ')'], [tint, 'rgb(' + tint.join(',') + ')'], [[255, 255, 255], '#fff']];
+  let best = null, bs = -1;
+  for (let k = 0; k < cands.length; k++) {
+    const bl = lum(cands[k][0]); let ok = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 128) continue; n++; const l = lum([d[i], d[i + 1], d[i + 2]]); if ((Math.max(l, bl)) / (Math.min(l, bl)) >= 2) ok++; }
+    if (!n) return null; const sc = ok / n;
+    if (sc >= 0.85) return cands[k][1];
+    if (sc > bs) { bs = sc; best = cands[k][1]; }
+  }
+  return best;
+};
+window.ibLogoBg = function (im) {
+  try {
+    if (im.getAttribute('data-a')) return;
+    const b = window.ibFindAny(im.getAttribute('data-n')); if (!b) return;
+    const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d');
+    x.drawImage(im, 0, 0, 32, 32); const bg = window.ibPickBg(x.getImageData(0, 0, 32, 32).data, b.bg);
+    if (bg) im.style.background = bg;
+  } catch (e) {}
+};
+// ---------- IKON APLIKASI ASLI (hasil pencarian App Store Indonesia, disimpan di perangkat) ----------
+window.IB_APP_Q = {"BCA": ["myBCA", "mybca"], "Mandiri": ["Livin by Mandiri", "livin"], "BNI": ["wondr by BNI", "wondr"], "BRI": ["BRImo", "brimo"], "BTN": ["BTN Mobile", "btn"], "CIMB Niaga": ["OCTO Mobile by CIMB", "octo"], "Permata": ["PermataMobile X", "permata"], "Danamon": ["D-Bank PRO", "danamon", "dbank"], "OCBC": ["OCBC Indonesia", "ocbc"], "Maybank": ["Maybank M2U ID", "m2u", "maybank"], "Panin": ["Panin Mobile", "panin"], "Jenius (BTPN)": ["Jenius", "jenius"], "Bank Jago": ["Jago", "jago"], "SeaBank": ["SeaBank Indonesia", "seabank"], "Allo Bank": ["Allo Bank", "allo"], "Bank Neo Commerce": ["Neobank", "neo"], "blu by BCA Digital": ["blu by BCA Digital", "blu"], "Superbank": ["Superbank", "superbank"], "Bank Mega": ["M-Smile Mega", "mega", "msmile"], "BSI": ["BYOND by BSI", "byond", "bsi"], "Bank Muamalat": ["Muamalat DIN", "muamalat"], "Bank BJB": ["bjb DigiBank", "bjb"], "Bank DKI": ["JakOne Mobile", "jakone"], "GoPay": ["GoPay", "gopay"], "DANA": ["DANA Dompet Digital", "dana"], "OVO": ["OVO", "ovo"], "ShopeePay": ["Shopee", "shopee"], "LinkAja": ["LinkAja", "linkaja"], "iSaku": ["iSaku", "isaku"], "Flip": ["Flip", "flip"], "Bank Krom": ["Krom Bank", "krom"], "Bank Hibank": ["hibank", "hibank"], "Bank Raya": ["Raya by BRI", "raya"], "Bank Aladin Syariah": ["Aladin", "aladin"], "Bank MNC": ["Motion Banking", "motion"], "Motionpay": ["MotionPay", "motionpay"], "Paytren": ["PayTren", "paytren"], "AstraPay": ["AstraPay", "astrapay"], "TrueMoney": ["TrueMoney Indonesia", "truemoney"], "Doku Wallet": ["DOKU", "doku"], "DOKU": ["DOKU", "doku"], "Sakuku": ["Sakuku", "sakuku"], "Floq": ["Floq", "floq"], "Kredivo": ["Kredivo", "kredivo"], "Akulaku": ["Akulaku", "akulaku"], "Bank UOB Indonesia": ["UOB TMRW Indonesia", "tmrw", "uob"], "Bank Mandiri Taspen": ["Mantap Mandiri Taspen", "taspen"], "Bank Amar": ["Amar Bank", "amar"], "Bank Sinarmas": ["Simobi Plus", "simobi", "sinarmas"], "KB Bank (Bukopin)": ["KB Bank Indonesia", "kb"], "Bank Nationalnobu": ["NOBU Bank", "nobu"], "Bank Sahabat Sampoerna": ["Sahabat Sampoerna", "sampoerna"]};
+window.ibAppCache = function () { if (!window.__ibAppC) { try { window.__ibAppC = JSON.parse(localStorage.getItem('rhn_appicon_v1') || '{}') || {}; } catch (e) { window.__ibAppC = {}; } } return window.__ibAppC; };
+window.ibAppIcon = function (name) { const e = window.ibAppCache()[name]; return (e && e.u) ? e.u : ''; };
+window.ibAppFetch = function (name) {
+  const c = window.ibAppCache()[name]; if (c && (c.u || Date.now() - c.t < 6048e5)) return;
+  window.__ibAppQ = window.__ibAppQ || []; if (window.__ibAppQ.indexOf(name) > -1) return;
+  window.__ibAppQ.push(name); window.ibAppPump();
+};
+window.ibAppApply = function (name, u) {
+  document.querySelectorAll('img[data-n]').forEach(im => {
+    if (im.getAttribute('data-n') !== name || im.getAttribute('data-a')) return;
+    if (!im.getAttribute('data-p') && /\.png$/.test(im.src)) im.setAttribute('data-p', im.src);
+    im.setAttribute('data-a', '1'); im.removeAttribute('crossorigin');
+    im.style.background = 'none'; im.style.padding = '0'; im.style.borderRadius = '22%'; im.src = u;
+  });
+};
+window.ibImgErr = function (im) {
+  const b = window.ibFindAny(im.getAttribute('data-n')) || { bg: '#2a2a33' };
+  const p = im.getAttribute('data-p');
+  if (p) { im.removeAttribute('data-p'); im.removeAttribute('data-a'); im.style.borderRadius = ''; im.style.padding = '1px'; im.style.background = window.ibTint(b.bg); im.src = p; return; }
+  const sv = im.getAttribute('data-s');
+  if (sv) { im.removeAttribute('data-s'); im.src = sv; return; }
+  im.onerror = null; im.parentNode.outerHTML = window.ibBankLogo(im.getAttribute('data-n'), parseInt(im.getAttribute('width'), 10) || 40, 1, 1);
+};
+window.ibAppPump = function () {
+  if (window.__ibAppBusy || !window.__ibAppQ.length) return; window.__ibAppBusy = true;
+  const name = window.__ibAppQ.shift(), q = window.IB_APP_Q[name] || [name];
+  const nz = x => String(x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const kws = (q.length > 1 ? q.slice(1) : [String(name).replace(/\(.*?\)/g, '').replace(/^bank\s+/i, '').split(/\s+/)[0]]).map(nz).filter(k => k.length >= 2);
+  const cb = '__ibApp' + Date.now() + Math.floor(Math.random() * 1e4); let fin = false; const sc = document.createElement('script');
+  const finish = (u, err) => {
+    if (fin) return; fin = true; try { delete window[cb]; sc.remove(); } catch (e) {}
+    if (!err) { const c = window.ibAppCache(); c[name] = { u: u, t: Date.now() }; try { localStorage.setItem('rhn_appicon_v1', JSON.stringify(c)); } catch (e) {} }
+    if (u) window.ibAppApply(name, u);
+    window.__ibAppBusy = false; setTimeout(window.ibAppPump, 3200);
+  };
+  window[cb] = d => { let u = ''; try { const r = (d.results || []).find(x => kws.some(k => nz(x.trackName).indexOf(k) > -1)); if (r) u = r.artworkUrl512 || r.artworkUrl100 || ''; } catch (e) {} finish(u, false); };
+  sc.onerror = () => finish('', true); setTimeout(() => finish('', true), 9000);
+  sc.src = 'https://itunes.apple.com/search?term=' + encodeURIComponent(q[0]) + '&country=id&media=software&entity=software&limit=8&callback=' + cb;
+  document.head.appendChild(sc);
+};
 window.ibFindBank = function (name) {
   const k = String(name || '').trim().toLowerCase(); if (!k) return null;
   return window.IB_BANKS.find(b => b.n.toLowerCase() === k) || window.IB_BANKS.find(b => b.n.length > 3 && (k === b.t.toLowerCase() || b.n.toLowerCase().indexOf(k) === 0)) || null;
 };
-window.ibBankLogo = function (name, sz) {
+window.ibBankLogo = function (name, sz, noUrl, noFetch) {
   sz = sz || 40;
   const b = window.ibFindAny(name) || { n: name, bg: '#2a2a33', fg: '#ddd', t: String(name || '?').slice(0, 5).toUpperCase() };
-  const url = window.IB_LOGO_URLS[b.n];
+  const url = noUrl ? '' : (window.IB_LOGO_URLS[b.n] || window.ibLogoUrl(b.n, 1)); // SVG vektor = ultra HD di ukuran berapa pun
   if (!url && b.x === 'mt5') return '<span class="ib-bl"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mt5bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FA9F5"/><stop offset="1" stop-color="#1565C0"/></linearGradient><linearGradient id="mt5gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8BD06B"/><stop offset="1" stop-color="#3E8E41"/></linearGradient><linearGradient id="mt5ye" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6E27A"/><stop offset="1" stop-color="#C9A227"/></linearGradient><linearGradient id="mt5bl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7CC4F5"/><stop offset="1" stop-color="#2D7FC9"/></linearGradient></defs><rect width="48" height="48" rx="11" fill="url(#mt5bg)"/><path d="M0 12H48M0 24H48M0 36H48M12 0V48M24 0V48M36 0V48" stroke="#fff" stroke-opacity=".08" stroke-width=".6"/><path d="M24 14c-4 0-7 3-7 7 0 2 .6 3.600 1.800 4.800L24 31l5.200-5.200C30.400 24.600 31 23 31 21c0-4-3-7-7-7z" fill="url(#mt5gr)"/><circle cx="24" cy="10.500" r="4.200" fill="url(#mt5gr)"/><path d="M10 25c-3 1-5 4-4.500 7 .3 2 1.500 3.600 3.200 4.400L18 33l2-6.500C17 23.500 13 23.500 10 25z" fill="url(#mt5ye)"/><circle cx="13.500" cy="22" r="4" fill="url(#mt5ye)"/><path d="M38 25c3 1 5 4 4.500 7-.3 2-1.500 3.600-3.200 4.400L30 33l-2-6.500c3-3 7-3 10-1.500z" fill="url(#mt5bl)"/><circle cx="34.500" cy="22" r="4" fill="url(#mt5bl)"/><circle cx="24" cy="28.500" r="8" fill="#fff" stroke="#E3ECF5" stroke-width=".8"/><text x="24" y="28.800" text-anchor="middle" dy=".35em" fill="#F59E0B" font-family="Inter,Arial,sans-serif" font-weight="900" font-size="12">5</text></svg></span>';
-  if (url) return '<span class="ib-bl"><img src="' + ibEsc(url) + '" width="' + sz + '" height="' + sz + '" style="object-fit:contain;background:#fff;padding:3px;box-sizing:border-box;" alt="' + ibEsc(b.n) + '"></span>';
+  const own = !!window.IB_LOGO_URLS[b.n], known = b.g !== 'custom' || !!url;
+  const app = ''; // logo brand resmi (HD), bukan ikon aplikasi
+  
+  if (url || app) return '<span class="ib-bl"><img src="' + ibEsc(app || url) + '" width="' + sz + '" height="' + sz + '" style="object-fit:contain;' + (app ? 'border-radius:22%;' : 'background:' + window.ibTint(b.bg) + ';padding:1px;') + 'box-sizing:border-box;" alt="' + ibEsc(b.n) + '" data-n="' + ibEsc(b.n) + '"' + (own ? '' : (app && url ? ' data-p="' + ibEsc(url) + '"' : '') + ' data-s="' + ibEsc(window.ibLogoUrl(b.n)) + '"' + (app ? ' data-a="1"' : ' crossorigin="anonymous" onload="window.ibLogoBg(this)"')) + ' onerror="window.ibImgErr(this)"></span>';
   const L = b.t.length, fs = L <= 3 ? 16 : L <= 4 ? 13 : 10.5, tl = L <= 3 ? '' : ' textLength="' + (L <= 4 ? 34 : 38) + '" lengthAdjust="spacingAndGlyphs"';
   const gid = 'g' + Math.random().toString(36).slice(2, 8);
   let ex = '', ty = 24;
@@ -6774,7 +6998,7 @@ window.ibBankPicker = function (inputId, selected, only, withExtra) {
   let list = window.IB_BANKS.slice();
   const sel = String(selected || '').trim();
   const cur = withExtra ? window.ibFindAny(sel) : window.ibFindBank(sel); const curName = cur ? cur.n : '';
-  const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60) + '<div class="n">' + ibEsc(b.n === 'MT5 Trading' ? 'MetaTrader 5' : b.n) + '</div></div>';
+  const tile = b => '<div class="ib-bank-tile' + (b.n === curName ? ' sel' : '') + '" data-bank="' + ibEsc(b.n) + '" onclick="window.ibPickBank(this,\'' + inputId + '\')">' + window.ibBankLogo(b.n, 60, 0, 1) + '<div class="n">' + ibEsc(b.n === 'MT5 Trading' ? 'MetaTrader 5' : b.n) + '</div></div>';
   return '<input type="hidden" id="' + inputId + '" value="' + ibEsc(curName) + '">'
     + '<div class="ib-bp"><input type="text" class="ib-bp-search" placeholder="' + ((withExtra === 'mt5' || withExtra === 'full') ? 'Cari bank / e-wallet / exchange / broker…' : 'Cari bank / e-wallet…') + '" autocomplete="off" oninput="window.ibBankFilter(this)">'
     + '<div class="ib-bp-scroll">'
@@ -6834,9 +7058,9 @@ window.pickWalletChoice = async function (name) {
   const only = window.WALLET_PICKABLE[name]; if (!only) return;
   const cur = window.getWalletChoice(name);
   const r = await ibSwal({ title: name === 'Bank' ? 'Bank apa ini?' : 'Wallet apa ini?', width: 460,
-    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Pilih logo untuk dompet “' + ibEsc(name) + '”. Logonya akan tampil di kartu saldo.</div>' + window.ibBankPicker('wb-bank', cur, undefined, 'full'),
+    html: '<div style="font-size:11px;color:var(--text3);text-align:left;margin-bottom:6px;">Ketik nama bank / e-wallet untuk dompet “' + ibEsc(name) + '”. Warna & logo menyesuaikan otomatis.</div>' + window.cwBrandInput('wb-bank', cur, 'Contoh: BCA, GoPay, Bank Jago'),
     showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!cur, denyButtonText: 'RESET', denyButtonColor: '#555',
-    preConfirm: () => { const v = (document.getElementById('wb-bank').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+    preConfirm: () => { const v = window.cwSanitize(document.getElementById('wb-bank').value); if (!v) return Swal.showValidationMessage('Ketik nama bank / e-wallet'); const b = window.ibFindAny(v); return b ? b.n : v; } });
   if (!r.isConfirmed && !r.isDenied) return;
   const map = Object.assign({}, window.getWalletChoices());
   if (r.isDenied) delete map[name]; else map[name] = r.value;
@@ -6925,20 +7149,13 @@ window.addCustomWallet = async function () {
   const r = await ibSwal({ title: '➕ Tambah Wallet', width: 480,
     html: '<div style="text-align:left;">'
       + '<div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Nama Wallet</div>'
-      + '<input id="cw-name" class="swal2-input" maxlength="24" placeholder="Contoh: Bybit, Floq, Exness, Tabungan Nikah" style="margin:0 0 10px;width:100%;">'
-      + '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Pilih logo (opsional) — nama otomatis terisi. Bisa ketik nama sendiri.</div>'
-      + window.ibBankPicker('cw-logo', '', undefined, 'full') + '</div>',
+      + window.cwBrandInput('cw-name', '', 'Contoh: BCA, GoPay, Bank Jago, Tabungan Nikah') + '</div>',
     showCancelButton: true, confirmButtonText: 'TAMBAH', cancelButtonText: 'Batal',
-    didOpen: () => {
-      const root = document.querySelector('.swal2-popup .ib-bp'); const nm = document.getElementById('cw-name'); let auto = '';
-      if (root && nm) root.addEventListener('click', e => { const t = e.target.closest('.ib-bank-tile'); if (!t) return; const v = t.getAttribute('data-bank'); const dn = window.cwSanitize(v === 'MT5 Trading' ? 'MetaTrader 5' : v); if (!nm.value.trim() || nm.value === auto) { nm.value = dn; auto = dn; } });
-    },
     preConfirm: () => {
-      const logo = (document.getElementById('cw-logo').value || '').trim();
       const name = window.cwSanitize(document.getElementById('cw-name').value);
-      if (!name) return Swal.showValidationMessage('Isi nama wallet atau pilih salah satu logo');
+      if (!name) return Swal.showValidationMessage('Isi nama bank / e-wallet');
       if (window.cwNameTaken(name, -1)) return Swal.showValidationMessage('Nama wallet itu sudah dipakai');
-      return { name, logo: (logo && window.ibFindAny(logo)) ? logo : '' };
+      const bd = window.ibFindAny(name); return { name, logo: (bd && bd.n !== name) ? bd.n : '' };
     } });
   if (!r.isConfirmed || !r.value) return;
   const list = window.getCustomWallets().slice(); list.push(r.value);
@@ -6959,8 +7176,8 @@ window.manageCustomWallets = async function () {
 };
 window.cwChangeLogo = async function (i) {
   const list = window.getCustomWallets().slice(); const c = list[i]; if (!c) return;
-  const r = await ibSwal({ title: 'Logo untuk “' + ibEsc(c.name) + '”', width: 480, html: window.ibBankPicker('cw-logo', c.logo || '', undefined, 'full'), showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!c.logo, denyButtonText: 'RESET', denyButtonColor: '#555',
-    preConfirm: () => { const v = (document.getElementById('cw-logo').value || '').trim(); if (!v || !window.ibFindAny(v)) return Swal.showValidationMessage('Pilih salah satu'); return v; } });
+  const r = await ibSwal({ title: 'Logo untuk “' + ibEsc(c.name) + '”', width: 480, html: window.cwBrandInput('cw-logo', c.logo || c.name, 'Nama bank / e-wallet'), showCancelButton: true, confirmButtonText: 'SIMPAN', showDenyButton: !!c.logo, denyButtonText: 'RESET', denyButtonColor: '#555',
+    preConfirm: () => { const v = window.cwSanitize(document.getElementById('cw-logo').value); if (!v) return Swal.showValidationMessage('Ketik nama bank / e-wallet'); const b = window.ibFindAny(v); return b ? b.n : v; } });
   if (!r.isConfirmed && !r.isDenied) return window.manageCustomWallets();
   list[i] = { name: c.name, logo: r.isDenied ? '' : r.value };
   await window.saveCustomWallets(list); window.manageCustomWallets();
